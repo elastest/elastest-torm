@@ -320,7 +320,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/TOJobExcution"
+              $ref: "#/definitions/TOJobExecution"
   /tojob/{tOJobId}/exec/{tOJobExecId}:
     get:
       tags:
@@ -345,7 +345,7 @@ paths:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/TOJobExecutionDetail"
+            $ref: "#/definitions/TOJobExecution"
     delete:
       tags:
       - "tojob"
@@ -603,23 +603,6 @@ paths:
         404:
           description: "SuT not found"
 definitions:
-  TJobIn:
-    type: "object"
-    required:
-    - "name"
-    - "testServices"
-    properties:
-      name:
-        type: "string"
-        example: "testApp1"
-      testServices:
-        $ref: "#/definitions/TestServices"
-      imageName:
-        type: "string"
-        example: "testapp1"
-      sut:
-        type: "integer"
-        example: "12345678"
   TJob:
     type: "object"
     required:
@@ -675,6 +658,7 @@ definitions:
         enum:
         - "SUCCESS"
         - "FAILURE"
+        - "IN PROGRESS"
       sutExecution:
         type: "integer"
         format: "int64" 
@@ -712,11 +696,25 @@ definitions:
       tOScript:
         type: "string"
         example: "tjob1 {sut1, browser}, tjob2 {sut1, browser}, tjob3 {sut2, browser2}"
-  TOJobExcution:
+  TOJobExecution:
     type: "object"
-  TOJobExecutionDetail:
-    type: "object"
-  
+    required:
+    - "id"
+    - "status"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      status:
+        type: "string"
+        enum:
+        - "SUCCESS"
+        - "FAILURE"
+        - "IN PROGRESS"
+      tJobsExecutions:
+        type: "array"
+        items:
+          $ref: "#/definitions/TJobExecution"
   SutSpecification:
     type: "object"
     required:
@@ -761,6 +759,7 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+        example: "12345678"
       logs:
         type: "array"
         items:
