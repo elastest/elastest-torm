@@ -1,15 +1,11 @@
 swagger: "2.0"
 info:
-  description: "Api specificación exposed by the Test Management Module."
+  description: "REST API description of the ElasTest TORM Module."
   version: "1.0.0"
-  title: "Test Management API"
-  termsOfService: "http://elastest.io/"
-  contact:
-    email: "apiteam@swagger.io"
+  title: "ElasTest Torm REST API"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "elastest.io"
 basePath: "/v2"
 tags:
 - name: "testmanagement"
@@ -39,7 +35,7 @@ paths:
         description: "Tjob object that needs to create"
         required: true
         schema:
-          $ref: "#/definitions/TJobIn"
+          $ref: "#/definitions/TJob"
       responses:
         200: 
           description: "TJob Creation OK"
@@ -569,8 +565,6 @@ definitions:
       sut:
         type: "integer"
         example: "12345678"
-    xml:
-      name: "TJobOut"
   TestServices:
     type: "array"
     items:
@@ -614,7 +608,7 @@ definitions:
       desc:
         type: "string"
         example: "This is a SuT description example"
-      deployedSuts:
+      deployedSut:
         type: "array"
         items: 
           $ref: '#/definitions/DeployedSut'
