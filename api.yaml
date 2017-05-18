@@ -742,7 +742,10 @@ definitions:
         type: "array"
         items:
           type: "string"
-      monitoring:
+          example: ["example/path/to/logs.log"]
+      monitoringCurrent:
+        $ref: "#/definitions/SuTMonitoring"          
+      monitoringSummary:
         $ref: "#/definitions/SuTMonitoringSummary"
       deployStatus:
         type: "string"
@@ -782,7 +785,7 @@ definitions:
         type: "string"
         example: "3.1 GHz"
     xml:
-      name: "SuTMonitoring"      
+      name: "SuTMonitoringSummary"      
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
