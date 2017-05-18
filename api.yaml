@@ -514,6 +514,8 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200:
+          description: "SuT has been deployed successfully"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -536,6 +538,8 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200:
+          description: "SuT has been undeployed successfully"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -547,8 +551,7 @@ paths:
       summary: "Returns a SuT status"
       description: ""
       operationId: "SuTStatus"
-      produces:
-      - "application/xml"
+      consumes:
       - "application/json"
       parameters:
       - name: "sutId"
@@ -558,6 +561,14 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200: 
+          description: "Successful operation"
+          schema:
+            type: "string"
+            enum:
+            - "Starting"
+            - "Ready"
+            - "Finished"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -567,11 +578,8 @@ paths:
       tags:
       - "sut"
       summary: "Returns a SuT logs"
-      description: ""
+      description: "Successful operation"
       operationId: "SuTLogs"
-      produces:
-      - "application/xml"
-      - "application/json"
       parameters:
       - name: "sutId"
         in: "path"
@@ -580,6 +588,11 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "string"
+            example: "log/path/example/logexample.log"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -591,9 +604,6 @@ paths:
       summary: "Returns a SuT monitoring info"
       description: ""
       operationId: "SuTMonitoring"
-      produces:
-      - "application/xml"
-      - "application/json"
       parameters:
       - name: "sutId"
         in: "path"
@@ -602,6 +612,10 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/SuTMonitoring"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -731,9 +745,7 @@ definitions:
         type: "string"
         example: "This is a SuT description example"
       deployedSut:
-        type: "array"
-        items: 
-          $ref: '#/definitions/DeployedSut'
+        $ref: '#/definitions/DeployedSut'
     xml:
       name: "sut"
   DeployedSut:
@@ -747,6 +759,26 @@ definitions:
         type: "string"
     xml:
       name: "deployedSut"
+  SuTMonitoring:
+    type: "object"
+    required:
+    - "CPU"
+    - "CPU temp"
+    properties:
+      CPU:
+        type: "string"
+        example: "56%"
+      CPU temp:
+        type: "string"
+        example: "66ºC"
+      CPU cores:
+        type: "string"
+        example: "4"
+      CPU speed:
+        type: "string"
+        example: "3.1 GHz"
+    xml:
+      name: "SuTMonitoring"           
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
