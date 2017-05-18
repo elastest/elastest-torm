@@ -387,6 +387,8 @@ paths:
       responses:
         200:
           description: "OK"
+        405:
+          description: "Invalid input"          
     put:
       tags:
       - "sut"
@@ -398,9 +400,18 @@ paths:
       produces:
       - "application/xml"
       - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "SuT configuration"
+        required: true
+        schema:
+          $ref: '#/definitions/SutSpecification'
       responses:
         200:
           description: "OK"
+        405:
+          description: "Invalid input"          
   /sut/{sutId}:
     delete:
       tags:
@@ -419,8 +430,10 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        200:
+          description: "SuT deleteted successfully"
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"    
   /sut/{sutId}/deploy:
@@ -442,7 +455,7 @@ paths:
         format: "int64"
       responses:
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"    
   /sut/{sutId}/undeploy:
@@ -464,7 +477,7 @@ paths:
         format: "int64"
       responses:
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
   /sut/{sutId}/status:
@@ -486,7 +499,7 @@ paths:
         format: "int64"
       responses:
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
   /sut/{sutId}/logs:
@@ -508,7 +521,7 @@ paths:
         format: "int64"
       responses:
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
   /sut/{sutId}/monitoring:
@@ -530,7 +543,7 @@ paths:
         format: "int64"
       responses:
         400:
-          description: "Invalid ID supplied"
+          description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"
 definitions:
@@ -629,6 +642,8 @@ definitions:
     - "url"
     properties:
       url:
+        type: "string"
+      sshKey:
         type: "string"
     xml:
       name: "deployedSut"
