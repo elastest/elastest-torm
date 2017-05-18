@@ -458,7 +458,7 @@ paths:
         200:
           description: "SuT has been deployed successfully"
           schema:
-            $ref: "#/definitions/SuTExecution"
+            $ref: "#/definitions/SuTExecution/properties/id"
         400:
           description: "Invalid SuT ID supplied"
         404:
