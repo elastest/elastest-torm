@@ -73,7 +73,7 @@ paths:
       summary: "Returns all tjobs."
       description: "Returns all tjobs for a user loged."
       operationId: "getAllTJobs"
-      produces:
+      consumes:
       - "application/json"
       responses:
         200: 
@@ -88,8 +88,8 @@ paths:
     get:
       tags:
       - "tjob"
-      summary: "Returns a TJob."
-      description: "Returns the TJob for a fiven TJobId. Returns its detail information."
+      summary: "Returns a tjob."
+      description: "Returns the tjob for a fiven tjobId. Returns its detail information."
       operationId: "getTJobById"
       produces:
       - "application/json"
@@ -110,22 +110,11 @@ paths:
     delete:
       tags:
       - "tjob"
-      summary: "Deletes a TJob." 
-      description: "Delete the TJob that matches with a given a tJobId." 
-      operationId: "deleteTJob"
-      parameters:
-      - name: "tJobId"
-        in: "path"
-        description: "ID of tJob to delete."
-        required: true
-        type: "integer"
-        format: "int64"
+      summary: "Deletes a tjob" 
+      description: "Delete the job that matches with a given a tJobId." 
       responses:
         200:
           description: "Deleteted successful"
-          schema:
-            type: "integer"
-            format: "int64"
         404:
           description: "TJob not found"
   /tjob/{tJobId}/exec:
@@ -133,8 +122,8 @@ paths:
       tags:
       - "tjob execution"
       summary: "Returns all TJob Executions of a Tjob." 
-      description: "Returns all TJob Executions of a Tjob."
-      operationId: "getTJobsExecutionsByTJob"
+      description: ""
+      operationId: "getTJobsExecutions"
       produces:
       - "application/json"
       parameters:
@@ -172,8 +161,7 @@ paths:
         200:
           description: "successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+            $ref: "#/definitions/TJob"
         400:
           description: "Invalid ID supplied"
         404:
@@ -203,84 +191,60 @@ paths:
       responses:
         200:
           description: "Successful operation"
-          schema:
-            $ref: "#/definitions/TJobExecution"
         404:
-          description: "TJob Execution not found"
+          description: "TJob not found"
     delete:
       tags:
       - "tjob execution"
       summary: "Deletes a TJob Execution."
       description: "Deletes the TJob Execution for a given id. Returns the id."
-      operationId: "deleteTJobExecution"
-      parameters:
-      - name: "tJobId"
-        in: "path"
-        description: "TJob Id."
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "tJobExecId"
-        in: "path"
-        description: "TJob Execution Id."
-        required: true
-        type: "integer"
-        format: "int64"
       responses:
         200:
           description: OK
           schema:
             type: "integer"
             format: "int64"
-        404:
-          description: "TJob Execution not found"
   /tojob:
     get:
       tags:
       - "tojob"
       summary: "Finds and returns all TOJobs."
-      description: "Returns all TOJobs for a logged user."
+      description: ""
       operationId: "getTOJobs"
       produces:
       - "application/json"
       responses:
         200:
-          description: "Successful operation"
+          description: "OK"
           schema:
             type: "array"
             items:
               $ref: "#/definitions/TOJob"
-        404:
-          description: "TOJobs not found"
     post:
       tags:
       - "tojob"
-      summary: "Creates a new TOJob."
-      description: "Creates new TOJob with the received description."
+      summary: "Create new TOJob."
+      description: ""
       operationId: "createTOJob"
       parameters:
       - in: "body"
         name: "body"
-        description: "TOJjob's desctiption."
+        description: "TOJjob to create."
         required: true
         schema:
           $ref: "#/definitions/TOJob"
       responses:
         200:
-          description: "Successful operation"
+          description: "OK"
           schema:
             $ref: "#/definitions/TOJob"
-        400:
-          description: ""
   /tojob/{tOJobId}:
     get:
       tags:
       - "tojob"
       summary: "Returns a TOJob."
-      description: "Returns the TOJob that maches with the given TOJobId."
+      description: "Returns the TOJob that maches with the id passed as a parameter."
       operationId: "getTOJobById"
-      produces:
-      - "application/json"
       parameters:
       - name: "tOJobId"
         in: "path"
@@ -290,21 +254,15 @@ paths:
         format: "int64"
       responses:
         200:
-          description: "Successful operation"
+          description: "OK"
           schema:
             $ref: "#/definitions/TOJob"
-        404:
-          description: "TOJob not found"
     put:
       tags:
       - "tojob"
-      summary: "Updates the description of a TOJob."
-      description: "Updates the description of a TOJob."
+      summary: "Updates the configuration of a TOJob."
+      description: "Updates the configuration of a TOJob."
       operationId: "modifyTOJob"
-      produces:
-      - "application/json"
-      consumes:
-      - "application/json"
       parameters:
       - name: "tOJobId"
         in: "path"
@@ -320,66 +278,56 @@ paths:
           $ref: "#/definitions/TOJob"
       responses:
         200:
-          description: "Successful operation"
+          description: OK
           schema:
             $ref: "#/definitions/TOJob"
-        404:
-          description: "TOJob not exists"
     delete:
       tags:
       - "tojob"
       summary: "Deletes a TOJob."
-      description: "Deletes the TOJob that maches with a given TOJobId."
+      description: "Deletes the TOJob that maches with the TOJobId passed as input parameter"
       operationId: "deleteTOJob"
       parameters:
       - name: "tOJobId"
         in: "path"
-        description: "ID of TOJob to delete."
+        description: "ID of TOJob to return."
         required: true
         type: "integer"
         format: "int64"
       responses:
         200:
-          description: "Successful operation"
+          description: OK
           schema:
             type: "integer"
             format: "int64"
-        404:
-          description: "TOJob not exists"
   /tojob/{tOJobId}/exec:
     get:
       tags:
       - "tojob execution"
       summary: "Returns all executions."
-      description: "Returns all executions of a TOJobId passed as parameter." 
+      description: "Returns all executions of a TOJob passed as parameter." 
       operationId: "getAllTOJobExecution"
-      produces:
-      - "application/json"
       parameters:
       - name: "tOJobId"
         in: "path"
-        description: "ID of TOJob execution to return."
+        description: "ID of TOJob to return."
         required: true
         type: "integer"
         format: "int64"
       responses:
         200:
-          description: "Successful operation"
+          description: OK
           schema:
             type: "array"
             items:
               $ref: "#/definitions/TOJobExcution"
-        404:
-          description: "TOJob Executions not found"
   /tojob/{tOJobId}/exec/{tOJobExecId}:
     get:
       tags:
       - "tojob execution"
-      summary: "Returns a TOJobExecution."
-      description: "Returns the TOJobExecution for a given TOJobExecId. "
-      operationId: "getTOJobExecById"
-      produces:
-      - "application/json"
+      summary: "Returns the TOJobExecution detail. "
+      description: ""
+      operationId: "getTJobExecDetailById"
       parameters:
       - name: "tOJobId"
         in: "path"
@@ -395,17 +343,14 @@ paths:
         format: "int64"
       responses:
         200:
-          description: "Successful operation"
+          description: OK
           schema:
             $ref: "#/definitions/TOJobExecutionDetail"
-        404:
-          description: "TOJob Execution not found"
     delete:
       tags:
       - "tojob"
       summary: "Deletes a TOJobs Execution."
-      description: "Deletes a TOJobs Execution for a given TOJobExecId."
-      operationId: "deleteTOJobExec"
+      description: ""
       parameters:
       - name: "tOJobId"
         in: "path"
@@ -421,12 +366,7 @@ paths:
         format: "int64"
       responses:
         200:
-          description: "Successful operation"
-          schema:
-            type: "integer"
-            format: "int64"
-        404:
-          description: "TOJob Execution not found"
+          description: OK
   /sut:
     post:
       tags:
@@ -528,7 +468,7 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"    
-  /sut/{sutId}/undeploy:
+  /sut/{sutId}/undeploy/{sutExecId}:
     post:
       tags:
       - "sut"
@@ -545,14 +485,52 @@ paths:
         required: true
         type: "integer"
         format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"        
       responses:
         200:
           description: "SuT has been undeployed successfully"
         400:
           description: "Invalid SuT ID supplied"
         404:
-          description: "SuT not found"              
-  /sut/{sutId}/status:
+          description: "SuT not found"    
+  /sut/{sutId}/exec/{sutExecId}:
+    get:
+      tags:
+      - "sut"
+      summary: "Returns a SuT Execution information"
+      description: ""
+      operationId: "SuTExecInfo"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "sutId"
+        in: "path"
+        description: "SuT id to undeploy"
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"        
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuTExecution"
+        400:
+          description: "Invalid SuT ID supplied"
+        404:
+          description: "SuT not found"             
+  /sut/{sutId}/status/{sutExecId}:
     get:
       tags:
       - "sut"
@@ -568,6 +546,12 @@ paths:
         required: true
         type: "integer"
         format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"        
       responses:
         200: 
           description: "Successful operation"
@@ -581,7 +565,7 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
-  /sut/{sutId}/logs:
+  /sut/{sutId}/logs/{sutExecId}:
     get:
       tags:
       - "sut"
@@ -595,6 +579,12 @@ paths:
         required: true
         type: "integer"
         format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"           
       responses:
         200:
           description: "Successful operation"
@@ -605,7 +595,7 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
-  /sut/{sutId}/monitoring:
+  /sut/{sutId}/monitoring/{sutExecId}:
     get:
       tags:
       - "sut"
@@ -619,6 +609,12 @@ paths:
         required: true
         type: "integer"
         format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"           
       responses:
         200:
           description: "Successful operation"
@@ -687,46 +683,6 @@ definitions:
         format: "int64"
   TJobExecution:
     type: "object"
-    required:
-    - "id"
-    - "result"
-    - "duration"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      duration:
-        type: "integer"
-        format: "int64"
-      result: 
-        type: "string"
-        enum:
-        - "SUCCESS"
-        - "FAILURE"
-      sutExecution:
-        type: "integer"
-        format: "int64" 
-      error:
-        type: "string"
-      logs:
-        description: "URLs of logs"
-        type: "array"
-        items:
-          $ref: "#/definitions/Log"
-  Log:
-    type: "object"
-    required:
-    - "logType"
-    - "logUrl"
-    properties:
-      logType:
-        type: "string"
-        enum:
-        - "BrowserLog"
-        - "TestLog"
-      logUrl:
-        type: "string"
-        
   TOJob:
     type: "object"
   TOJobExcution:
@@ -782,11 +738,19 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+      logs:
+        type: "array"
+        items:
+          type: "string"
+      monitoring:
+        $ref: "#/definitions/SuTMonitoringSummary"
+      deployStatus:
+        type: "string"
+        enum:
+        - "deployed"
+        - "undeployed"
   SuTMonitoring:
     type: "object"
-    required:
-    - "CPU"
-    - "CPU temp"
     properties:
       CPU:
         type: "string"
@@ -801,7 +765,24 @@ definitions:
         type: "string"
         example: "3.1 GHz"
     xml:
-      name: "SuTMonitoring"           
+      name: "SuTMonitoring" 
+  SuTMonitoringSummary:
+    type: "object"
+    properties:
+      CPU Average:
+        type: "string"
+        example: "71%"
+      CPU temp Average:
+        type: "string"
+        example: "66ºC"
+      CPU cores:
+        type: "string"
+        example: "4"
+      CPU speed:
+        type: "string"
+        example: "3.1 GHz"
+    xml:
+      name: "SuTMonitoring"      
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
