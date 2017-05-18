@@ -544,6 +544,14 @@ paths:
         type: "integer"
         format: "int64"        
       responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "string"
+            enum:
+            - "Starting"
+            - "Ready"
+            - "Finished"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -571,6 +579,10 @@ paths:
         type: "integer"
         format: "int64"           
       responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuTExecution/properties/logs"   
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -598,6 +610,10 @@ paths:
         type: "integer"
         format: "int64"           
       responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuTMonitoring"   
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -782,7 +798,7 @@ definitions:
         example: "56%"
       CPU temp:
         type: "string"
-        example: "66?C"
+        example: "66ºC"
       CPU cores:
         type: "string"
         example: "4"
@@ -797,7 +813,7 @@ definitions:
         example: "71%"
       CPU temp Average:
         type: "string"
-        example: "66?C"
+        example: "71ºC"
       CPU cores:
         type: "string"
         example: "4"
