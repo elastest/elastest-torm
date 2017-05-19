@@ -400,7 +400,7 @@ paths:
           description: "TOJob Execution not found"
     delete:
       tags:
-      - "tojob"
+      - "tojob execution"
       summary: "Deletes a TOJobs Execution."
       description: "Deletes a TOJobs Execution for a given TOJobExecId."
       operationId: "deleteTOJobExec"
@@ -887,6 +887,8 @@ definitions:
         type: "string"
       AWS CloudFormation:
         type: "string"
+      Terraform configuration:
+        type: "string"                            
   SuTExecution:
     type: "object"
     properties:
@@ -906,8 +908,11 @@ definitions:
       deployStatus:
         type: "string"
         enum:
+        - "deploying"
         - "deployed"
+        - "undeploying"
         - "undeployed"
+        - "error"
   SuTMonitoring:
     type: "object"
     properties:
