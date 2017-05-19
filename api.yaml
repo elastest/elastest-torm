@@ -369,6 +369,27 @@ paths:
               $ref: "#/definitions/TOJobExecution"
         404:
           description: "TOJob Executions not found"
+    post:
+      tags:
+      - "tojob execution"
+      summary: "Executes a TOJob."
+      description: "Executes the TOJob for a given TOJobId."
+      operationId: "execTOJob"
+      parameters:
+      - name: "tOJobId"
+        in: "path"
+        description: "ID of TOJob to execute."
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "integer"
+            format: "int64"
+        400:
+          description: "TOJob not found"
   /tojob/{tOJobId}/exec/{tOJobExecId}:
     get:
       tags:
@@ -486,6 +507,25 @@ paths:
         404:
           description: "SuTs not found"         
   /sut/{sutId}:
+    get:
+      tags: 
+      - "sut"
+      summary: "Returns a Sut." 
+      description: "Returns the Sut that matches the given id."
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sutId"
+        in: "path"
+        description: "SuT id to return."
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Sut returned successfully"
+          schema:
+            $ref: "#/definitions/SutSpecification"
     delete:
       tags:
       - "sut"
@@ -700,7 +740,9 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/SuTExecution/properties/logs"   
+            type: "array"
+            items:
+              $ref: "#/definitions/Log"
         400:
           description: "Invalid SuT ID supplied"
         404:
@@ -751,17 +793,15 @@ definitions:
         type: "string"
         example: "testApp1"
       testServices:
-        $ref: "#/definitions/TestServices"
+        type: "array"
+        items:
+          $ref: "#/definitions/TestService"
       imageName:
         type: "string"
         example: "testapp1"
       sut:
         type: "integer"
         example: "12345678"
-  TestServices:
-    type: "array"
-    items:
-      $ref: "#/definitions/TestService"
   TestService:
     type: "object"
     properties:
