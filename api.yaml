@@ -556,36 +556,7 @@ paths:
             items:
               $ref: "#/definitions/SuTExecution"
         404:
-          description: "SuTs not found"                    
-  /sut/{sutId}/exec/{sutExecId}/undeploy:
-    post:
-      tags:
-      - "sut execution"
-      summary: "Undeploys a SuT"
-      description: ""
-      operationId: "undeploySuT"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "sutId"
-        in: "path"
-        description: "SuT id to undeploy"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "sutExecId"
-        in: "path"
-        description: "SuT Execution id to deploy"
-        required: true
-        type: "integer"
-        format: "int64"        
-      responses:
-        200:
-          description: "SuT undeployed successfully"
-        400:
-          description: "Invalid SuT ID supplied"
-        404:
-          description: "SuT not found"    
+          description: "SuTs not found"                                 
   /sut/{sutId}/exec/{sutExecId}:
     get:
       tags:
@@ -616,7 +587,58 @@ paths:
         400:
           description: "Invalid SuT ID supplied"
         404:
-          description: "SuT not found"             
+          description: "SuT not found"      
+    delete:
+      tags:
+      - "sut execution"
+      summary: "Deletes a SuT execution"
+      description: ""
+      operationId: "deleteSuTExec"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT execution id to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "SuT Execution deleteted successfully"
+        400:
+          description: "Invalid SuT Execution ID supplied"
+        404:
+          description: "SuT Execution not found"           
+  /sut/{sutId}/exec/{sutExecId}/undeploy:
+    post:
+      tags:
+      - "sut execution"
+      summary: "Undeploys a SuT"
+      description: ""
+      operationId: "undeploySuT"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sutId"
+        in: "path"
+        description: "SuT id to undeploy"
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "sutExecId"
+        in: "path"
+        description: "SuT Execution id to deploy"
+        required: true
+        type: "integer"
+        format: "int64"        
+      responses:
+        200:
+          description: "SuT undeployed successfully"
+        400:
+          description: "Invalid SuT ID supplied"
+        404:
+          description: "SuT not found"                     
   /sut/{sutId}/exec/{sutExecId}/status:
     get:
       tags:
@@ -917,5 +939,5 @@ definitions:
         type: "string"
         example: "3.1 GHz"
 externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+  description: "An elastic platform to ease end to end testing"
+  url: "http://elastest.io/"        
