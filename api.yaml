@@ -124,8 +124,7 @@ paths:
         200:
           description: "Deleteted successful"
           schema:
-            type: "integer"
-            format: "int64"
+            $ref: "#/definitions/TJob"
         404:
           description: "TJob not found"
   /tjob/{tJobId}/exec:
@@ -172,8 +171,7 @@ paths:
         200:
           description: "successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+            $ref: "#/definitions/TJobExecution"
         400:
           description: "Invalid ID supplied"
         404:
@@ -230,8 +228,7 @@ paths:
         200:
           description: "Successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+            $ref: "#/definitions/TJobExecution"
         404:
           description: "TJob Execution not found"
   /tojob:
@@ -340,8 +337,7 @@ paths:
         200:
           description: "Successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+            $ref: "#/definitions/TOJob"
         404:
           description: "TOJob not exists"
   /tojob/{tOJobId}/exec:
@@ -386,8 +382,7 @@ paths:
         200:
           description: "Successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+           $ref: "#/definitions/TOJobExecution"
         400:
           description: "TOJob not found"
   /tojob/{tOJobId}/exec/{tOJobExecId}:
@@ -442,8 +437,7 @@ paths:
         200:
           description: "Successful operation"
           schema:
-            type: "integer"
-            format: "int64"
+           $ref: "#/definitions/TOJobExecution"
         404:
           description: "TOJob Execution not found"
   /sut:
@@ -778,7 +772,7 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"
-definitions:
+definitions: 
   TJob:
     type: "object"
     required:
