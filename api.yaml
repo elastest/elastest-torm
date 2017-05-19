@@ -544,6 +544,8 @@ paths:
         type: "integer"
         format: "int64"        
       responses:
+        200:
+          description: "SuT undeployed successfully"
         400:
           description: "Invalid SuT ID supplied"
         404:
