@@ -466,7 +466,25 @@ paths:
         200:
           description: "OK"
         405:
-          description: "Invalid input"          
+          description: "Invalid input"       
+    get:
+      tags:
+      - "sut"
+      summary: "List all SuT definitions"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: '#/definitions/SutSpecification'
+        404:
+          description: "SuTs not found"         
   /sut/{sutId}:
     delete:
       tags:
@@ -493,7 +511,7 @@ paths:
   /sut/{sutId}/exec:
     post:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Deploys a SuT"
       description: ""
       operationId: "deploySuT"
@@ -516,15 +534,33 @@ paths:
         200:
           description: "SuT has been deployed successfully"
           schema:
-            $ref: "#/definitions/SuTExecution/properties/id"
+            $ref: "#/definitions/SuTExecution"
         400:
           description: "Invalid SuT ID supplied"
         404:
-          description: "SuT not found"    
-  /sut/{sutId}/undeploy/{sutExecId}:
+            description: "SuT not found"
+    get:
+      tags:
+      - "sut execution"
+      summary: "List all SuT executions"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/SuTExecution"
+        404:
+          description: "SuTs not found"                    
+  /sut/{sutId}/exec/{sutExecId}/undeploy:
     post:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Undeploys a SuT"
       description: ""
       operationId: "undeploySuT"
@@ -553,7 +589,7 @@ paths:
   /sut/{sutId}/exec/{sutExecId}:
     get:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Returns a SuT Execution information"
       description: ""
       operationId: "SuTExecInfo"
@@ -581,10 +617,10 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"             
-  /sut/{sutId}/status/{sutExecId}:
+  /sut/{sutId}/exec/{sutExecId}/status:
     get:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Returns a SuT status"
       description: ""
       operationId: "SuTStatus"
@@ -616,10 +652,10 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
-  /sut/{sutId}/logs/{sutExecId}:
+  /sut/{sutId}/exec/{sutExecId}/logs:
     get:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Returns a SuT logs"
       description: ""
       operationId: "SuTLogs"
@@ -647,10 +683,10 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"              
-  /sut/{sutId}/monitoring/{sutExecId}:
+  /sut/{sutId}/exec/{sutExecId}/monitoring:
     get:
       tags:
-      - "sut"
+      - "sut execution"
       summary: "Returns a SuT monitoring info"
       description: ""
       operationId: "SuTMonitoring"
@@ -873,7 +909,7 @@ definitions:
         example: "71%"
       CPU temp Average:
         type: "string"
-        example: "71ºC"
+        example: "78ºC"
       CPU cores:
         type: "string"
         example: "4"
