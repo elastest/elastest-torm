@@ -490,7 +490,7 @@ paths:
           description: "Invalid SuT ID supplied"
         404:
           description: "SuT not found"    
-  /sut/{sutId}/deploy:
+  /sut/{sutId}/exec:
     post:
       tags:
       - "sut"
