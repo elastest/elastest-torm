@@ -67,7 +67,7 @@ public interface TjobApi {
 
     @ApiOperation(value = "Returns all tjobs.", notes = "Returns all tjobs for a user loged.", response = TJob.class, responseContainer = "List", tags={ "tjob", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = TJob.class),
+        @ApiResponse(code = 200, message = "Successful operation", response = TJob.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Resource not found", response = TJob.class) })
     
     @RequestMapping(value = "/tjob",
@@ -100,7 +100,7 @@ public interface TjobApi {
 
     @ApiOperation(value = "Returns all TJob Executions of a Tjob.", notes = "Returns all TJob Executions of a Tjob.", response = TJobExecution.class, responseContainer = "List", tags={ "tjob execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+        @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "TJobs Executions not found", response = TJobExecution.class) })
     
     @RequestMapping(value = "/tjob/{tJobId}/exec",

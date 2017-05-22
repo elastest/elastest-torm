@@ -85,7 +85,7 @@ public interface SutApi {
 
     @ApiOperation(value = "Returns a SuT logs", notes = "", response = Log.class, responseContainer = "List", tags={ "sut execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = Log.class),
+        @ApiResponse(code = 200, message = "OK", response = Log.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = Log.class),
         @ApiResponse(code = 404, message = "SuT not found", response = Log.class) })
     
@@ -121,7 +121,7 @@ public interface SutApi {
 
     @ApiOperation(value = "List all SuT definitions", notes = "", response = SutSpecification.class, responseContainer = "List", tags={ "sut", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = SutSpecification.class),
+        @ApiResponse(code = 200, message = "OK", response = SutSpecification.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "SuTs not found", response = SutSpecification.class) })
     
     @RequestMapping(value = "/sut",
@@ -145,7 +145,7 @@ public interface SutApi {
 
     @ApiOperation(value = "List all SuT executions", notes = "", response = SuTExecution.class, responseContainer = "List", tags={ "sut execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = SuTExecution.class),
+        @ApiResponse(code = 200, message = "OK", response = SuTExecution.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "SuTs not found", response = SuTExecution.class) })
     
     @RequestMapping(value = "/sut/{sutId}/exec",

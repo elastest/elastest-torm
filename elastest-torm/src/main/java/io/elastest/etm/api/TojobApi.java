@@ -62,7 +62,7 @@ public interface TojobApi {
 
     @ApiOperation(value = "Returns all executions.", notes = "Returns all executions of a TOJobId passed as parameter.", response = TOJobExecution.class, responseContainer = "List", tags={ "tojob execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = TOJobExecution.class),
+        @ApiResponse(code = 200, message = "Successful operation", response = TOJobExecution.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "TOJob Executions not found", response = TOJobExecution.class) })
     
     @RequestMapping(value = "/tojob/{tOJobId}/exec",
@@ -95,7 +95,7 @@ public interface TojobApi {
 
     @ApiOperation(value = "Finds and returns all TOJobs.", notes = "Returns all TOJobs for a logged user.", response = TOJob.class, responseContainer = "List", tags={ "tojob", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = TOJob.class),
+        @ApiResponse(code = 200, message = "Successful operation", response = TOJob.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "TOJobs not found", response = TOJob.class) })
     
     @RequestMapping(value = "/tojob",
