@@ -9,7 +9,7 @@ import javax.persistence.*;
  * 
  */
 @Entity
-@Table(name="elas_etm_tjobexec")
+@Table(name="ELAS_ETM_TJOBEXEC")
 @NamedQuery(name="ElasEtmTjobexec.findAll", query="SELECT e FROM ElasEtmTjobexec e")
 public class ElasEtmTjobexec implements Serializable {
 	private static final long serialVersionUID = 1L;

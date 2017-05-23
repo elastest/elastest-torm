@@ -22,8 +22,8 @@ public class DataConverter {
 		return tjob;
 	}
 	
-	public ElasEtmTjob etmTjobToApiTJob(TJob tjob) {
-		Long id = tjob.getId();
+	public ElasEtmTjob apiTjobToEtmTJob(TJob tjob) {
+		Long id = tjob.getId() != null?tjob.getId():0;
 		String name = tjob.getName();
 		List<TestService> testServices = tjob.getTestServices();
 		String imageName = tjob.getImageName();
@@ -48,7 +48,7 @@ public class DataConverter {
 		return tjobExec;
 	}
 	
-	public ElasEtmTjobexec etmTjobToApiTJob(TJobExecution tjobexec) {
+	public ElasEtmTjobexec apiTjobToEtmTJob(TJobExecution tjobexec) {
 		Long id = tjobexec.getId();
 		Long duration = tjobexec.getDuration();
 		

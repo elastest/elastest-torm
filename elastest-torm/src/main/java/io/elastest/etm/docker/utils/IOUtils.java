@@ -1,9 +1,11 @@
-package io.elastest.etm.docker;
+package io.elastest.etm.docker.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+
+import io.elastest.etm.docker.LogTrace;
 
 @Service
 public class IOUtils {

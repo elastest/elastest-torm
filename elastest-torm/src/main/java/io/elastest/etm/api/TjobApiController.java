@@ -2,10 +2,13 @@ package io.elastest.etm.api;
 
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.model.ElasEtmTjob;
 import io.elastest.etm.model.ElasEtmTjobexec;
 import io.elastest.etm.tjob.service.TJobService;
+import io.elastest.etm.utils.DataConverter;
 import io.swagger.annotations.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,11 +28,14 @@ import javax.validation.Valid;
 @Controller
 public class TjobApiController implements TjobApi {
 
+	@Autowired
 	private TJobService tJobService;
+	
+	private DataConverter dataConverter = new DataConverter();
 
     public ResponseEntity<TJob> createTJob(@ApiParam(value = "Tjob object that needs to create" ,required=true )  @Valid @RequestBody TJob body) {
-        // do some magic!
-        return new ResponseEntity<TJob>(HttpStatus.OK);
+     	ElasEtmTjob etmTjob = tJobService.createTJob(dataConverter.apiTjobToEtmTJob(body));
+        return new ResponseEntity<TJob>(dataConverter.etmTjobToApiTJob(etmTjob),HttpStatus.OK);
     }
 
     public ResponseEntity<Long> deleteTJob(@ApiParam(value = "ID of tJob to delete.",required=true ) @PathVariable("tJobId") Long tJobId) {
@@ -44,8 +50,8 @@ public class TjobApiController implements TjobApi {
     }
 
     public ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
-//    	ElasEtmTjobexec tJobExec = tJobService.executeTJob(tJobId);
-    	TJobExecution tJobExec = new TJobExecution();
+    	ElasEtmTjobexec etmTJobExec = tJobService.executeTJob(tJobId);
+    	TJobExecution tJobExec = dataConverter.etmTjobexecToApiTJobExec(etmTJobExec);
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 

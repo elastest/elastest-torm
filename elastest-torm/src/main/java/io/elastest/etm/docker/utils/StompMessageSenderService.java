@@ -1,8 +1,11 @@
-package io.elastest.etm.docker;
+package io.elastest.etm.docker.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import io.elastest.etm.docker.EndExecutionMessage;
+import io.elastest.etm.docker.LogTrace;
 
 @Service
 public class StompMessageSenderService {

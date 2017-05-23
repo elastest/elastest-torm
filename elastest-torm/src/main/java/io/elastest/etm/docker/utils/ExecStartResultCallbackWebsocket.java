@@ -1,4 +1,4 @@
-package io.elastest.etm.docker;
+package io.elastest.etm.docker.utils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,6 +16,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
+
+import io.elastest.etm.docker.LogTrace;
 
 @Service
 @Scope("prototype")

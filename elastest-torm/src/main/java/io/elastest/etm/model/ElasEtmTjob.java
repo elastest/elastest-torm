@@ -10,7 +10,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="elas_etm_tjob")
+@Table(name="ELAS_ETM_TJOB")
 @NamedQuery(name="ElasEtmTjob.findAll", query="SELECT e FROM ElasEtmTjob e")
 public class ElasEtmTjob implements Serializable {
 	private static final long serialVersionUID = 1L;
