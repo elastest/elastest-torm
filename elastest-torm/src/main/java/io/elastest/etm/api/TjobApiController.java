@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.*;
@@ -45,7 +46,7 @@ public class TjobApiController implements TjobApi {
 
     public ResponseEntity<Long> deleteTJobExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
         @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
-        // do some magic!
+    	tJobService.deleteTJobExec(tJobExecId);
         return new ResponseEntity<Long>(HttpStatus.OK);
     }
 
@@ -56,8 +57,13 @@ public class TjobApiController implements TjobApi {
     }
 
     public ResponseEntity<List<TJob>> getAllTJobs() {
-        // do some magic!
-        return new ResponseEntity<List<TJob>>(HttpStatus.OK);
+        List<ElasEtmTjob> etmTjobList = tJobService.getAllTJobs();
+        List<TJob> tjobList = new ArrayList<>();
+        for (ElasEtmTjob elasEtmTjob : etmTjobList ) {
+        	tjobList.add(dataConverter.etmTjobToApiTJob(elasEtmTjob));
+        	System.out.println("asd");
+		}
+        return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
     }
 
     public ResponseEntity<TJob> getTJobById(@ApiParam(value = "ID of tJob to retrieve.",required=true ) @PathVariable("tJobId") Long tJobId) {

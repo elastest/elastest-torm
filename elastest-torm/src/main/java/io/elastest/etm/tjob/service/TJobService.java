@@ -1,4 +1,6 @@
 package io.elastest.etm.tjob.service;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,18 @@ public class TJobService {
 		return tJobRepo.save(tjob);
 	}
 	
+	public List<ElasEtmTjob> getAllTJobs(){
+		return tJobRepo.findAll();		
+	}
+	
 	public ElasEtmTjobexec executeTJob(Long tJobId) {
 		ElasEtmTjob tjob = tJobRepo.findOne(tJobId);
 		ElasEtmTjobexec tJobExec=  dockerExec.executeTJob(tjob.getElasEtmTjobImname()); 
 		return tJobExec;
+	}
+	
+	public void deleteTJobExec(Long tJobExecId){
+		ElasEtmTjobexec tJobExec=  tJobExecRepo.findOne(tJobExecId); 
+		tJobExecRepo.delete(tJobExec);
 	}
 }
