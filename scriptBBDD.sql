@@ -19,13 +19,13 @@ USE `elastest-etm` ;
 -- Table `elastest-etm`.`ELAS_ETM_TJOB`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `elastest-etm`.`ELAS_ETM_TJOB` (
-  `ELAS_ETM_TJOB_ID` INT NOT NULL,
+  `ELAS_ETM_TJOB_ID` BIGINT(20) NOT NULL,
   `ELAS_ETM_TJOB_NAME` VARCHAR(45) NULL,
   `ELAS_ETM_TJOB_TSERV` INT NULL,
   `ELAS_ETM_TJOB_IMNAME` VARCHAR(45) NULL,
   `ELAS_ETM_TJOB_SUT` INT NULL,
-  `ELAS_ETM_TJOB_TJOBSEXEC` INT NULL,
-  PRIMARY KEY (`ELAS_ETM_TJOB_ID`))
+  PRIMARY KEY (`ELAS_ETM_TJOB_ID`),
+  UNIQUE INDEX `ELAS_ETM_TJOB_ID_UNIQUE` (`ELAS_ETM_TJOB_ID` ASC))
 ENGINE = InnoDB;
 
 
@@ -33,34 +33,22 @@ ENGINE = InnoDB;
 -- Table `elastest-etm`.`ELAS_ETM_TJOBEXEC`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `elastest-etm`.`ELAS_ETM_TJOBEXEC` (
-  `ELAS_ETM_TJOBEXEC_ID` INT NOT NULL,
+  `ELAS_ETM_TJOBEXEC_ID` BIGINT(20) NOT NULL,
   `ELAS_ETM_TJOBEXEC_RESULT` VARCHAR(45) NULL,
   `ELAS_ETM_TJOBEXEC_DURATION` INT NULL,
   `ELAS_ETM_TJOBEXEC_SUT_EXEC` INT NULL,
   `ELAS_ETM_TJOBEXEC_ERROR_EXEC` VARCHAR(150) NULL,
   `ELAS_ETM_TJOBEXEC_LOGS` INT NULL,
-  `ELAS_ETM_TJOBEXEC_TJOB` INT NULL,
+  `ELAS_ETM_TJOBEXEC_TJOB` BIGINT(20) NULL,
   PRIMARY KEY (`ELAS_ETM_TJOBEXEC_ID`),
   INDEX `FK_TJOB_idx` (`ELAS_ETM_TJOBEXEC_TJOB` ASC),
+  UNIQUE INDEX `ELAS_ETM_TJOBEXEC_ID_UNIQUE` (`ELAS_ETM_TJOBEXEC_ID` ASC),
   CONSTRAINT `FK_TJOB`
     FOREIGN KEY (`ELAS_ETM_TJOBEXEC_TJOB`)
     REFERENCES `elastest-etm`.`ELAS_ETM_TJOB` (`ELAS_ETM_TJOB_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-USE `elastest-etm` ;
-
--- -----------------------------------------------------
--- Placeholder table for view `elastest-etm`.`view1`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `elastest-etm`.`view1` (`id` INT);
-
--- -----------------------------------------------------
--- View `elastest-etm`.`view1`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `elastest-etm`.`view1`;
-USE `elastest-etm`;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
