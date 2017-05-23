@@ -103,22 +103,21 @@ public class DockerExecution {
 			testContainerId = this.container.getId();
 
 			this.dockerClient.startContainerCmd(testContainerId).exec();
-		
+
 			this.manageLogs();
 
 			endTestExec();
-						
-//			tjobExec.setElasEtmTjobexecLogs();
-//			tjobExec.setElasEtmTjobexecDuration();
+
+			// tjobExec.setElasEtmTjobexecLogs();
+			// tjobExec.setElasEtmTjobexecDuration();
 			tjobExec.setElasEtmTjobexecResult("ok");
 			tJobExecRepo.save(tjobExec);
 			return tjobExec;
 
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			endTestExec();
-			
+
 			tjobExec.setElasEtmTjobexecResult("error");
 			tJobExecRepo.save(tjobExec);
 			return tjobExec;
@@ -193,9 +192,13 @@ public class DockerExecution {
 	}
 
 	public void endTestExec() {
-		this.dockerClient.stopContainerCmd(testContainerId).exec();
-		this.dockerClient.removeContainerCmd(testContainerId).exec();
-		this.dockerClient.removeImageCmd(testImage).withForce(true).exec();
+		try {
+			this.dockerClient.stopContainerCmd(testContainerId).exec();
+			this.dockerClient.removeContainerCmd(testContainerId).exec();
+			this.dockerClient.removeImageCmd(testImage).withForce(true).exec();
+		} catch (Exception e) {
+			
+		}
 	}
 
 }
