@@ -1,0 +1,12 @@
+{
+
+    "/" :{
+        "target" : "http://localhost:8090",
+        "secure" : false
+    },
+
+    "/logs" :{
+      "target" : "http://localhost:8090",
+      "secure" : false
+    }
+}
