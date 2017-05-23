@@ -19,237 +19,242 @@ import javax.validation.constraints.*;
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
-public class TJobExecution   {
-  @JsonProperty("id")
-  private Long id = null;
+public class TJobExecution {
+	@JsonProperty("id")
+	private Long id = null;
 
-  @JsonProperty("duration")
-  private Long duration = null;
+	@JsonProperty("duration")
+	private Long duration = null;
 
-  /**
-   * Gets or Sets result
-   */
-  public enum ResultEnum {
-    SUCCESS("SUCCESS"),
-    
-    FAILURE("FAILURE"),
-    
-    IN_PROGRESS("IN PROGRESS");
+	public TJobExecution() {
+	}
 
-    private String value;
+	public TJobExecution(Long id, Long duration) {
+		this.id = id;
+		this.duration = duration;
+	}
 
-    ResultEnum(String value) {
-      this.value = value;
-    }
+	/**
+	 * Gets or Sets result
+	 */
+	public enum ResultEnum {
+		SUCCESS("SUCCESS"),
 
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
+		FAILURE("FAILURE"),
 
-    @JsonCreator
-    public static ResultEnum fromValue(String text) {
-      for (ResultEnum b : ResultEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
+		IN_PROGRESS("IN PROGRESS");
 
-  @JsonProperty("result")
-  private ResultEnum result = null;
+		private String value;
 
-  @JsonProperty("sutExecution")
-  private Long sutExecution = null;
+		ResultEnum(String value) {
+			this.value = value;
+		}
 
-  @JsonProperty("error")
-  private String error = null;
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
 
-  @JsonProperty("logs")
-  private List<Log> logs = null;
+		@JsonCreator
+		public static ResultEnum fromValue(String text) {
+			for (ResultEnum b : ResultEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
 
-  public TJobExecution id(Long id) {
-    this.id = id;
-    return this;
-  }
+	@JsonProperty("result")
+	private ResultEnum result = null;
 
-   /**
-   * Get id
-   * @return id
-  **/
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
+	@JsonProperty("sutExecution")
+	private Long sutExecution = null;
 
+	@JsonProperty("error")
+	private String error = null;
 
-  public Long getId() {
-    return id;
-  }
+	@JsonProperty("logs")
+	private List<Log> logs = null;
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+	public TJobExecution id(Long id) {
+		this.id = id;
+		return this;
+	}
 
-  public TJobExecution duration(Long duration) {
-    this.duration = duration;
-    return this;
-  }
+	/**
+	 * Get id
+	 * 
+	 * @return id
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
 
-   /**
-   * Get duration
-   * @return duration
-  **/
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
+	public Long getId() {
+		return id;
+	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  public Long getDuration() {
-    return duration;
-  }
+	public TJobExecution duration(Long duration) {
+		this.duration = duration;
+		return this;
+	}
 
-  public void setDuration(Long duration) {
-    this.duration = duration;
-  }
+	/**
+	 * Get duration
+	 * 
+	 * @return duration
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
 
-  public TJobExecution result(ResultEnum result) {
-    this.result = result;
-    return this;
-  }
+	public Long getDuration() {
+		return duration;
+	}
 
-   /**
-   * Get result
-   * @return result
-  **/
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
 
+	public TJobExecution result(ResultEnum result) {
+		this.result = result;
+		return this;
+	}
 
-  public ResultEnum getResult() {
-    return result;
-  }
+	/**
+	 * Get result
+	 * 
+	 * @return result
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
 
-  public void setResult(ResultEnum result) {
-    this.result = result;
-  }
+	public ResultEnum getResult() {
+		return result;
+	}
 
-  public TJobExecution sutExecution(Long sutExecution) {
-    this.sutExecution = sutExecution;
-    return this;
-  }
+	public void setResult(ResultEnum result) {
+		this.result = result;
+	}
 
-   /**
-   * Get sutExecution
-   * @return sutExecution
-  **/
-  @ApiModelProperty(value = "")
+	public TJobExecution sutExecution(Long sutExecution) {
+		this.sutExecution = sutExecution;
+		return this;
+	}
 
+	/**
+	 * Get sutExecution
+	 * 
+	 * @return sutExecution
+	 **/
+	@ApiModelProperty(value = "")
 
-  public Long getSutExecution() {
-    return sutExecution;
-  }
+	public Long getSutExecution() {
+		return sutExecution;
+	}
 
-  public void setSutExecution(Long sutExecution) {
-    this.sutExecution = sutExecution;
-  }
+	public void setSutExecution(Long sutExecution) {
+		this.sutExecution = sutExecution;
+	}
 
-  public TJobExecution error(String error) {
-    this.error = error;
-    return this;
-  }
+	public TJobExecution error(String error) {
+		this.error = error;
+		return this;
+	}
 
-   /**
-   * Get error
-   * @return error
-  **/
-  @ApiModelProperty(value = "")
+	/**
+	 * Get error
+	 * 
+	 * @return error
+	 **/
+	@ApiModelProperty(value = "")
 
+	public String getError() {
+		return error;
+	}
 
-  public String getError() {
-    return error;
-  }
+	public void setError(String error) {
+		this.error = error;
+	}
 
-  public void setError(String error) {
-    this.error = error;
-  }
+	public TJobExecution logs(List<Log> logs) {
+		this.logs = logs;
+		return this;
+	}
 
-  public TJobExecution logs(List<Log> logs) {
-    this.logs = logs;
-    return this;
-  }
+	public TJobExecution addLogsItem(Log logsItem) {
+		if (this.logs == null) {
+			this.logs = new ArrayList<Log>();
+		}
+		this.logs.add(logsItem);
+		return this;
+	}
 
-  public TJobExecution addLogsItem(Log logsItem) {
-    if (this.logs == null) {
-      this.logs = new ArrayList<Log>();
-    }
-    this.logs.add(logsItem);
-    return this;
-  }
+	/**
+	 * URLs of logs
+	 * 
+	 * @return logs
+	 **/
+	@ApiModelProperty(value = "URLs of logs")
 
-   /**
-   * URLs of logs
-   * @return logs
-  **/
-  @ApiModelProperty(value = "URLs of logs")
+	@Valid
 
-  @Valid
+	public List<Log> getLogs() {
+		return logs;
+	}
 
-  public List<Log> getLogs() {
-    return logs;
-  }
+	public void setLogs(List<Log> logs) {
+		this.logs = logs;
+	}
 
-  public void setLogs(List<Log> logs) {
-    this.logs = logs;
-  }
+	@Override
+	public boolean equals(java.lang.Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		TJobExecution tjobExecution = (TJobExecution) o;
+		return Objects.equals(this.id, tjobExecution.id) && Objects.equals(this.duration, tjobExecution.duration)
+				&& Objects.equals(this.result, tjobExecution.result)
+				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
+				&& Objects.equals(this.error, tjobExecution.error) && Objects.equals(this.logs, tjobExecution.logs);
+	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, duration, result, sutExecution, error, logs);
+	}
 
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    TJobExecution tjobExecution = (TJobExecution) o;
-    return Objects.equals(this.id, tjobExecution.id) &&
-        Objects.equals(this.duration, tjobExecution.duration) &&
-        Objects.equals(this.result, tjobExecution.result) &&
-        Objects.equals(this.sutExecution, tjobExecution.sutExecution) &&
-        Objects.equals(this.error, tjobExecution.error) &&
-        Objects.equals(this.logs, tjobExecution.logs);
-  }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class TJobExecution {\n");
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, duration, result, sutExecution, error, logs);
-  }
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    duration: ").append(toIndentedString(duration)).append("\n");
+		sb.append("    result: ").append(toIndentedString(result)).append("\n");
+		sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
+		sb.append("    error: ").append(toIndentedString(error)).append("\n");
+		sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TJobExecution {\n");
-    
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    duration: ").append(toIndentedString(duration)).append("\n");
-    sb.append("    result: ").append(toIndentedString(result)).append("\n");
-    sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
-    sb.append("    error: ").append(toIndentedString(error)).append("\n");
-    sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(java.lang.Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

@@ -20,7 +20,7 @@ public class ElasEtmTjobexec implements Serializable {
 	private Long elasEtmTjobexecId;
 
 	@Column(name="ELAS_ETM_TJOBEXEC_DURATION")
-	private int elasEtmTjobexecDuration;
+	private Long elasEtmTjobexecDuration;
 
 	@Column(name="ELAS_ETM_TJOBEXEC_ERROR_EXEC")
 	private String elasEtmTjobexecErrorExec;
@@ -50,11 +50,11 @@ public class ElasEtmTjobexec implements Serializable {
 		this.elasEtmTjobexecId = elasEtmTjobexecId;
 	}
 
-	public int getElasEtmTjobexecDuration() {
+	public Long getElasEtmTjobexecDuration() {
 		return this.elasEtmTjobexecDuration;
 	}
 
-	public void setElasEtmTjobexecDuration(int elasEtmTjobexecDuration) {
+	public void setElasEtmTjobexecDuration(Long elasEtmTjobexecDuration) {
 		this.elasEtmTjobexecDuration = elasEtmTjobexecDuration;
 	}
 

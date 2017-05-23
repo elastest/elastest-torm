@@ -27,7 +27,7 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 	private SimpMessagingTemplate messagingTemplate;
 	
 	@Autowired
-//	private IOUtils iOUtils;
+	private IOUtils iOUtils;
 	
 	private PrintWriter stdout, stderr;
 
@@ -62,18 +62,18 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 		String frameString = frame.toString();
 		
 		LogTrace trace = new LogTrace(frameString);
-//		afterTradeExecuted(trace, "/topic/logs");
+		afterTradeExecuted(trace, "/topic/logs");
 		
 		pw.println(frameString);
-//		iOUtils.getLogLines().add(frameString);
+		iOUtils.getLogLines().add(frameString);
 		
-//		ObjectMapper mapper = new ObjectMapper();
-//		if (frameString.contains("urlvnc")){
-//			String[] cadenas = frameString.split(" ");
+		ObjectMapper mapper = new ObjectMapper();
+		if (frameString.contains("urlvnc")){
+			String[] cadenas = frameString.split(" ");
 //			cadenas[2] = cadenas[2].replace("localhost", "192.168.99.101");
-//			sendUrlVnc(mapper.writeValueAsString(cadenas[2]), "/topic/urlsVNC");
+			sendUrlVnc(mapper.writeValueAsString(cadenas[2]), "/topic/urlsVNC");
 			//sendUrlVnc("{\"testUrl' : '"+cadenas[2]+"'}", "/topic/urlsVNC");
-//		}
+		}
 	}
 	
 	public void sendUrlVnc(String urlVnc, String topic) {

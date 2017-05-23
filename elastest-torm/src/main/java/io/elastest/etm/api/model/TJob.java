@@ -18,175 +18,182 @@ import javax.validation.constraints.*;
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
-public class TJob   {
-  @JsonProperty("id")
-  private Long id = null;
+public class TJob {
+	@JsonProperty("id")
+	private Long id = null;
 
-  @JsonProperty("name")
-  private String name = null;
+	@JsonProperty("name")
+	private String name = null;
 
-  @JsonProperty("testServices")
-  private List<TestService> testServices = new ArrayList<TestService>();
+	@JsonProperty("testServices")
+	private List<TestService> testServices = new ArrayList<TestService>();
 
-  @JsonProperty("imageName")
-  private String imageName = null;
+	@JsonProperty("imageName")
+	private String imageName = null;
 
-  @JsonProperty("sut")
-  private Integer sut = null;
+	@JsonProperty("sut")
+	private Integer sut = null;
 
-  public TJob id(Long id) {
-    this.id = id;
-    return this;
-  }
+	public TJob() {	}
+	
+	public TJob(Long id, String name, List<TestService> testServices, String imageName, Integer sut) {
+		this.id = id;
+		this.name = name;
+		this.testServices = testServices;
+		this.imageName = imageName;
+		this.sut = sut;
+	}
 
-   /**
-   * Get id
-   * @return id
-  **/
-  @ApiModelProperty(example = "12345678", value = "")
+	public TJob id(Long id) {
+		this.id = id;
+		return this;
+	}
 
+	/**
+	 * Get id
+	 * 
+	 * @return id
+	 **/
+	@ApiModelProperty(example = "12345678", value = "")
 
-  public Long getId() {
-    return id;
-  }
+	public Long getId() {
+		return id;
+	}
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  public TJob name(String name) {
-    this.name = name;
-    return this;
-  }
+	public TJob name(String name) {
+		this.name = name;
+		return this;
+	}
 
-   /**
-   * Get name
-   * @return name
-  **/
-  @ApiModelProperty(example = "testApp1", required = true, value = "")
-  @NotNull
+	/**
+	 * Get name
+	 * 
+	 * @return name
+	 **/
+	@ApiModelProperty(example = "testApp1", required = true, value = "")
+	@NotNull
 
+	public String getName() {
+		return name;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public TJob testServices(List<TestService> testServices) {
+		this.testServices = testServices;
+		return this;
+	}
 
-  public TJob testServices(List<TestService> testServices) {
-    this.testServices = testServices;
-    return this;
-  }
+	public TJob addTestServicesItem(TestService testServicesItem) {
+		this.testServices.add(testServicesItem);
+		return this;
+	}
 
-  public TJob addTestServicesItem(TestService testServicesItem) {
-    this.testServices.add(testServicesItem);
-    return this;
-  }
+	/**
+	 * Get testServices
+	 * 
+	 * @return testServices
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
 
-   /**
-   * Get testServices
-   * @return testServices
-  **/
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
+	@Valid
 
-  @Valid
+	public List<TestService> getTestServices() {
+		return testServices;
+	}
 
-  public List<TestService> getTestServices() {
-    return testServices;
-  }
+	public void setTestServices(List<TestService> testServices) {
+		this.testServices = testServices;
+	}
 
-  public void setTestServices(List<TestService> testServices) {
-    this.testServices = testServices;
-  }
+	public TJob imageName(String imageName) {
+		this.imageName = imageName;
+		return this;
+	}
 
-  public TJob imageName(String imageName) {
-    this.imageName = imageName;
-    return this;
-  }
+	/**
+	 * Get imageName
+	 * 
+	 * @return imageName
+	 **/
+	@ApiModelProperty(example = "testapp1", value = "")
 
-   /**
-   * Get imageName
-   * @return imageName
-  **/
-  @ApiModelProperty(example = "testapp1", value = "")
+	public String getImageName() {
+		return imageName;
+	}
 
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
 
-  public String getImageName() {
-    return imageName;
-  }
+	public TJob sut(Integer sut) {
+		this.sut = sut;
+		return this;
+	}
 
-  public void setImageName(String imageName) {
-    this.imageName = imageName;
-  }
+	/**
+	 * Get sut
+	 * 
+	 * @return sut
+	 **/
+	@ApiModelProperty(example = "12345678", value = "")
 
-  public TJob sut(Integer sut) {
-    this.sut = sut;
-    return this;
-  }
+	public Integer getSut() {
+		return sut;
+	}
 
-   /**
-   * Get sut
-   * @return sut
-  **/
-  @ApiModelProperty(example = "12345678", value = "")
+	public void setSut(Integer sut) {
+		this.sut = sut;
+	}
 
+	@Override
+	public boolean equals(java.lang.Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		TJob tjob = (TJob) o;
+		return Objects.equals(this.id, tjob.id) && Objects.equals(this.name, tjob.name)
+				&& Objects.equals(this.testServices, tjob.testServices)
+				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut);
+	}
 
-  public Integer getSut() {
-    return sut;
-  }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, testServices, imageName, sut);
+	}
 
-  public void setSut(Integer sut) {
-    this.sut = sut;
-  }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class TJob {\n");
 
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    testServices: ").append(toIndentedString(testServices)).append("\n");
+		sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
+		sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
 
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    TJob tjob = (TJob) o;
-    return Objects.equals(this.id, tjob.id) &&
-        Objects.equals(this.name, tjob.name) &&
-        Objects.equals(this.testServices, tjob.testServices) &&
-        Objects.equals(this.imageName, tjob.imageName) &&
-        Objects.equals(this.sut, tjob.sut);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, testServices, imageName, sut);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TJob {\n");
-    
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    testServices: ").append(toIndentedString(testServices)).append("\n");
-    sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
-    sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(java.lang.Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
 }
-

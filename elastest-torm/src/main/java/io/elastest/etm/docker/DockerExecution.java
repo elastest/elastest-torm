@@ -26,47 +26,56 @@ import com.github.dockerjava.api.model.Info;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.Ports.Binding;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+
+import io.elastest.etm.dao.TJobExecRepository;
+import io.elastest.etm.model.ElasEtmTjobexec;
 
 @Service
 public class DockerExecution {
-	
-	private static String testImage = "edujgurjc/torm-loadapp";
+
+	private static String testImage = "";
 	private static final String volumeDirectory = "/testcontainers-java-examples/selenium-container";
 	private static final String topicEndExecutionMessage = "/topic/endExecutionTest";
 
 	@Autowired
 	private ApplicationContext context;
 
-//	@Autowired
-//	private StompMessageSenderService stompMessageSenderService;
-//
-//	@Autowired
-//	private IOUtils iOUtils;
+	@Autowired
+	private StompMessageSenderService stompMessageSenderService;
+
+	@Autowired
+	private IOUtils iOUtils;
 
 	private DockerClient dockerClient;
 	private CreateContainerResponse container;
 	private String testContainerId, appContainerId;
-	
-	public void executeTJob() {
+	@Autowired
+	private TJobExecRepository tJobExecRepo;
 
-//		this.testImage = testExecutionInfo.getImageName();
-		// this.testImage = "edujgurjc/torm-starttest";
+	private boolean windowsSo = false;
+	private String logPath = "/home/edujg/torm/log.txt";
+	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
+	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
 
-		this.dockerClient = DockerClientBuilder.getInstance().build();
-		// docker run -v
-		// /testcontainers-java-examples/selenium-container/resources:/resources
-		// -v
-		// /testcontainers-java-examples/selenium-container:/testcontainers-java-examples/selenium-container
-		// -e "DOCKER_HOST=tcp://172.17.0.1:2376" -p 6080:6080
-		// edujgurjc/torm-test-02
+	public ElasEtmTjobexec executeTJob(String image) {
+		ElasEtmTjobexec tjobExec = new ElasEtmTjobexec();
+		this.testImage = image;
 
-		// DockerClientConfig config =
-		// DefaultDockerClientConfig.createDefaultConfigBuilder()
-		// .withDockerHost("tcp://192.168.99.100:2376")
-		// .build();
-		// this.dockerClient = DockerClientBuilder.getInstance(config).build();
+		if (windowsSo) {
+			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+					.withDockerHost("tcp://192.168.99.100:2376").build();
+			this.dockerClient = DockerClientBuilder.getInstance(config).build();
+
+			this.logPath = "";
+			this.surefirePath = "";
+			this.testsuitesPath = "";
+		} else {
+			this.dockerClient = DockerClientBuilder.getInstance().build();
+		}
 
 		Info info = this.dockerClient.infoCmd().exec();
 		System.out.println("Info: " + info);
@@ -91,16 +100,21 @@ public class DockerExecution {
 			testContainerId = this.container.getId();
 
 			this.dockerClient.startContainerCmd(testContainerId).exec();
-			
+
 			endTestExec();
+						
+//			tjobExec.setElasEtmTjobexecLogs();
+//			tjobExec.setElasEtmTjobexecDuration();
+			return tjobExec;
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			endTestExec();
+			return tjobExec;
 		}
 
 	}
-
 
 	public void manageLogs() {
 		FileWriter file = null;
@@ -108,7 +122,7 @@ public class DockerExecution {
 
 		try {
 
-			file = new FileWriter("/home/edujg/torm/log.txt");
+			file = new FileWriter(this.logPath);
 			pw = new PrintWriter(file);
 
 			ExecStartResultCallbackWebsocket execStartResultCallbackWebsocket = context
@@ -138,12 +152,12 @@ public class DockerExecution {
 		}
 
 		this.saveTestSuite();
-//		stompMessageSenderService.sendStompMessage(topicEndExecutionMessage, new EndExecutionMessage("END"));
-//		iOUtils.getLogLines().add("END");
+		stompMessageSenderService.sendStompMessage(topicEndExecutionMessage, new EndExecutionMessage("END"));
+		iOUtils.getLogLines().add("END");
 	}
 
 	public void saveTestSuite() {
-		File surefireXML = new File("/testcontainers-java-examples/selenium-container/target/surefire-reports");
+		File surefireXML = new File(this.surefirePath);
 		List<File> reportsDir = new ArrayList<>();
 		reportsDir.add(surefireXML);
 
@@ -154,7 +168,7 @@ public class DockerExecution {
 			ObjectMapper mapper = new ObjectMapper();
 			// Object to JSON in file
 			try {
-				mapper.writeValue(new File("/home/edujg/torm/testsuites.json"), testSuites);
+				mapper.writeValue(new File(this.testsuitesPath), testSuites);
 			} catch (JsonGenerationException e) {
 				e.printStackTrace();
 			} catch (JsonMappingException e) {
@@ -167,7 +181,6 @@ public class DockerExecution {
 			e.printStackTrace();
 		}
 	}
-
 
 	public void endTestExec() {
 		this.dockerClient.stopContainerCmd(testContainerId).exec();
