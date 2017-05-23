@@ -1,4 +1,4 @@
-package io.elastest.etm.swagger;
+package io.elastest.etm;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;

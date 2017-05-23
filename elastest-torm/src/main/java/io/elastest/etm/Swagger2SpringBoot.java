@@ -1,4 +1,4 @@
-package io.elastest.etm.swagger;
+package io.elastest.etm;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
