@@ -1,10 +1,9 @@
 package io.elastest.etm.dao;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import io.elastest.etm.model.ElasEtmTjobexec;
 
-public class TJobExecRepository implements Repository<ElasEtmTjobexec, Long> {	
-	 
+public interface TJobExecRepository extends JpaRepository<ElasEtmTjobexec, Long> {	 
 
 }
