@@ -17,7 +17,7 @@ public class ElasEtmTjobexec implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="ELAS_ETM_TJOBEXEC_ID")
-	private int elasEtmTjobexecId;
+	private Long elasEtmTjobexecId;
 
 	@Column(name="ELAS_ETM_TJOBEXEC_DURATION")
 	private int elasEtmTjobexecDuration;
@@ -42,11 +42,11 @@ public class ElasEtmTjobexec implements Serializable {
 	public ElasEtmTjobexec() {
 	}
 
-	public int getElasEtmTjobexecId() {
+	public Long getElasEtmTjobexecId() {
 		return this.elasEtmTjobexecId;
 	}
 
-	public void setElasEtmTjobexecId(int elasEtmTjobexecId) {
+	public void setElasEtmTjobexecId(Long elasEtmTjobexecId) {
 		this.elasEtmTjobexecId = elasEtmTjobexecId;
 	}
 
