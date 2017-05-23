@@ -2,6 +2,8 @@ package io.elastest.etm.api;
 
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.model.ElasEtmTjobexec;
+import io.elastest.etm.tjob.service.TJobService;
 import io.swagger.annotations.*;
 
 import org.springframework.http.HttpStatus;
@@ -23,7 +25,7 @@ import javax.validation.Valid;
 @Controller
 public class TjobApiController implements TjobApi {
 
-
+	private TJobService tJobService;
 
     public ResponseEntity<TJob> createTJob(@ApiParam(value = "Tjob object that needs to create" ,required=true )  @Valid @RequestBody TJob body) {
         // do some magic!
@@ -41,9 +43,10 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<Long>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Long> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
-        // do some magic!
-        return new ResponseEntity<Long>(HttpStatus.OK);
+    public ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
+//    	ElasEtmTjobexec tJobExec = tJobService.executeTJob(tJobId);
+    	TJobExecution tJobExec = new TJobExecution();
+        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 
     public ResponseEntity<List<TJob>> getAllTJobs() {
