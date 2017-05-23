@@ -10,6 +10,7 @@ import io.elastest.etm.model.ElasEtmTjobexec;
 
 @Service
 public class TJobService {
+	@Autowired
 	private DockerExecution dockerExec;
 	
 	@Autowired
