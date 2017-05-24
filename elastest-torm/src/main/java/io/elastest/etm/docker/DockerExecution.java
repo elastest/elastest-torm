@@ -102,8 +102,8 @@ public class DockerExecution {
 
 			testContainerId = this.container.getId();
 
-			 this.dockerClient.startContainerCmd(testContainerId).exec();
-			 this.manageLogs();
+			this.dockerClient.startContainerCmd(testContainerId).exec();
+			this.manageLogs();
 
 			endTestExec();
 

@@ -92,7 +92,7 @@ public interface TjobApi {
 
     
 
-    @ApiOperation(value = "Returns a TJob Execution.", notes = "Returns the TJob Execution for a fiven id.", response = TJobExecution.class, tags={ "tjob execution", })
+    @ApiOperation(value = "Returns a TJob Execution.", notes = "Returns the TJob Execution for a given id.", response = TJobExecution.class, tags={ "tjob execution", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
         @ApiResponse(code = 404, message = "TJob Execution not found") })

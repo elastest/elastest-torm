@@ -26,6 +26,11 @@ public class TJobService {
 		return tJobRepo.save(tjob);
 	}
 	
+	public void deleteTJob(Long tJobId){
+		ElasEtmTjob tJob=  tJobRepo.findOne(tJobId); 
+		tJobRepo.delete(tJob);
+	}
+	
 	public List<ElasEtmTjob> getAllTJobs(){
 		return tJobRepo.findAll();		
 	}
@@ -41,8 +46,17 @@ public class TJobService {
 		tJobExecRepo.delete(tJobExec);
 	}
 	
+	public ElasEtmTjob getTJobById(Long tJobId){
+		return tJobRepo.findOne(tJobId);
+	}
+	
 	public List<ElasEtmTjobexec> getTJobsExecutionsByTJob(Long tJobId){
 		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
 		return tJobExecRepo.getByTjobId(tJob);
+	}
+	
+	public ElasEtmTjobexec getTJobsExecution(Long tJobId, Long tJobExecId){
+		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
+		return tJobExecRepo.getTjobExec(tJob, tJobExecId);
 	}
 }

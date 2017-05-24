@@ -40,7 +40,7 @@ public class TjobApiController implements TjobApi {
     }
 
     public ResponseEntity<Long> deleteTJob(@ApiParam(value = "ID of tJob to delete.",required=true ) @PathVariable("tJobId") Long tJobId) {
-        // do some magic!
+    	tJobService.deleteTJob(tJobId);
         return new ResponseEntity<Long>(HttpStatus.OK);
     }
 
@@ -66,14 +66,16 @@ public class TjobApiController implements TjobApi {
     }
 
     public ResponseEntity<TJob> getTJobById(@ApiParam(value = "ID of tJob to retrieve.",required=true ) @PathVariable("tJobId") Long tJobId) {
-        // do some magic!
-        return new ResponseEntity<TJob>(HttpStatus.OK);
+        ElasEtmTjob etmTJob = tJobService.getTJobById(tJobId);
+        TJob tJob = dataConverter.etmTjobToApiTJob(etmTJob);
+        return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
     public ResponseEntity<TJobExecution> getTJobsExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
         @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
-        // do some magic!
-        return new ResponseEntity<TJobExecution>(HttpStatus.OK);
+        ElasEtmTjobexec etmTjobExec = tJobService.getTJobsExecution(tJobId, tJobExecId);
+        TJobExecution tJobExec = dataConverter.etmTjobexecToApiTJobExec(etmTjobExec);
+        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 
     public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {

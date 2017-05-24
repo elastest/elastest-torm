@@ -54,7 +54,7 @@ public class TJob {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(example = "12345678", value = "")
+	@ApiModelProperty(example = "", value = "")
 
 	public Long getId() {
 		return id;
@@ -123,7 +123,7 @@ public class TJob {
 	 * 
 	 * @return imageName
 	 **/
-	@ApiModelProperty(example = "testapp1", value = "")
+	@ApiModelProperty(example = "edujgurjc/torm-test-01", value = "")
 
 	public String getImageName() {
 		return imageName;
