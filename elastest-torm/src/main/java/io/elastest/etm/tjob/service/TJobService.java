@@ -41,7 +41,8 @@ public class TJobService {
 		tJobExecRepo.delete(tJobExec);
 	}
 	
-//	public List<ElasEtmTjobexec> getTJobsExecutionsByTJob(Long tJobId){
-//		return tJobExecRepo.getByTjobId(tJobId);
-//	}
+	public List<ElasEtmTjobexec> getTJobsExecutionsByTJob(Long tJobId){
+		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
+		return tJobExecRepo.getByTjobId(tJob);
+	}
 }
