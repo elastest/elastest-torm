@@ -61,7 +61,6 @@ public class TjobApiController implements TjobApi {
         List<TJob> tjobList = new ArrayList<>();
         for (ElasEtmTjob elasEtmTjob : etmTjobList ) {
         	tjobList.add(dataConverter.etmTjobToApiTJob(elasEtmTjob));
-        	System.out.println("asd");
 		}
         return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
     }
@@ -78,7 +77,11 @@ public class TjobApiController implements TjobApi {
     }
 
     public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
-        // do some magic!
+//        List<ElasEtmTjobexec> etmTjobExecList = tJobService.getTJobsExecutionsByTJob(tJobId);
+//        List<TJobExecution> tjobExecList = new ArrayList<>();
+//        for (ElasEtmTjobexec elasEtmTjobExec : etmTjobExecList ) {
+//        	tjobExecList.add(dataConverter.etmTjobexecToApiTJobExec(elasEtmTjobExec));
+//		}
         return new ResponseEntity<List<TJobExecution>>(HttpStatus.OK);
     }
 

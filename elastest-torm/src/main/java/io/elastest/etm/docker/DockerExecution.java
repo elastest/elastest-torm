@@ -35,6 +35,7 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.docker.utils.IOUtils;
 import io.elastest.etm.docker.utils.StompMessageSenderService;
+import io.elastest.etm.model.ElasEtmTjob;
 import io.elastest.etm.model.ElasEtmTjobexec;
 
 @Service
@@ -64,10 +65,9 @@ public class DockerExecution {
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
 	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
 
-	public ElasEtmTjobexec executeTJob(String image) {
+	public ElasEtmTjobexec executeTJob(ElasEtmTjob tJob) {
 		ElasEtmTjobexec tjobExec = new ElasEtmTjobexec();
-		this.testImage = image;
-
+		this.testImage = tJob.getElasEtmTjobImname();
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
@@ -102,27 +102,24 @@ public class DockerExecution {
 
 			testContainerId = this.container.getId();
 
-			this.dockerClient.startContainerCmd(testContainerId).exec();
-
-			this.manageLogs();
+			 this.dockerClient.startContainerCmd(testContainerId).exec();
+			 this.manageLogs();
 
 			endTestExec();
 
 			// tjobExec.setElasEtmTjobexecLogs();
 			// tjobExec.setElasEtmTjobexecDuration();
 			tjobExec.setElasEtmTjobexecResult("ok");
-			tJobExecRepo.save(tjobExec);
-			return tjobExec;
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			endTestExec();
 
 			tjobExec.setElasEtmTjobexecResult("error");
-			tJobExecRepo.save(tjobExec);
-			return tjobExec;
-		}
 
+		}
+		tjobExec.setElasEtmTjob(tJob);
+		tJobExecRepo.save(tjobExec);
+		return tjobExec;
 	}
 
 	public void manageLogs() {
@@ -197,7 +194,7 @@ public class DockerExecution {
 			this.dockerClient.removeContainerCmd(testContainerId).exec();
 			this.dockerClient.removeImageCmd(testImage).withForce(true).exec();
 		} catch (Exception e) {
-			
+
 		}
 	}
 
