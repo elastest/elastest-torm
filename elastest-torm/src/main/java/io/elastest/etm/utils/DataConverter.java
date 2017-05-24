@@ -2,6 +2,8 @@ package io.elastest.etm.utils;
 
 import java.util.List;
 
+import javax.xml.ws.http.HTTPException;
+
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.api.model.TestService;
@@ -59,6 +61,12 @@ public class DataConverter {
 		return etmTjobExec;
 	}
 
+	public int getHttpExceptionCode(Exception e){
+		if(e instanceof HTTPException){
+			return ((HTTPException) e).getStatusCode();
+		}
+		return -5;
+	}
 	
 
 

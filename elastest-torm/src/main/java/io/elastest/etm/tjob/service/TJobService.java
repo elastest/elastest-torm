@@ -1,6 +1,10 @@
 package io.elastest.etm.tjob.service;
+
 import java.util.List;
 
+import javax.xml.ws.http.HTTPException;
+
+import org.apache.http.HttpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,48 +19,56 @@ import io.elastest.etm.model.ElasEtmTjobexec;
 public class TJobService {
 	@Autowired
 	private DockerExecution dockerExec;
-	
+
 	@Autowired
 	private TJobRepository tJobRepo;
-	
+
 	@Autowired
 	private TJobExecRepository tJobExecRepo;
-	
-	public ElasEtmTjob createTJob(ElasEtmTjob tjob){
+
+	public ElasEtmTjob createTJob(ElasEtmTjob tjob) {
 		return tJobRepo.save(tjob);
 	}
-	
-	public void deleteTJob(Long tJobId){
-		ElasEtmTjob tJob=  tJobRepo.findOne(tJobId); 
+
+	public void deleteTJob(Long tJobId) {
+		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
 		tJobRepo.delete(tJob);
 	}
-	
-	public List<ElasEtmTjob> getAllTJobs(){
-		return tJobRepo.findAll();		
+
+	public List<ElasEtmTjob> getAllTJobs() {
+		return tJobRepo.findAll();
 	}
-	
+
 	public ElasEtmTjobexec executeTJob(Long tJobId) {
 		ElasEtmTjob tjob = tJobRepo.findOne(tJobId);
-		ElasEtmTjobexec tJobExec=  dockerExec.executeTJob(tjob); 
+		ElasEtmTjobexec tJobExec = dockerExec.executeTJob(tjob);
 		return tJobExec;
 	}
-	
-	public void deleteTJobExec(Long tJobExecId){
-		ElasEtmTjobexec tJobExec=  tJobExecRepo.findOne(tJobExecId); 
+
+	public void deleteTJobExec(Long tJobExecId) {
+		ElasEtmTjobexec tJobExec = tJobExecRepo.findOne(tJobExecId);
 		tJobExecRepo.delete(tJobExec);
 	}
-	
-	public ElasEtmTjob getTJobById(Long tJobId){
+
+	public ElasEtmTjob getTJobById(Long tJobId) {
 		return tJobRepo.findOne(tJobId);
 	}
-	
-	public List<ElasEtmTjobexec> getTJobsExecutionsByTJob(Long tJobId){
+
+	public List<ElasEtmTjobexec> getTJobsExecutionsByTJob(Long tJobId) {
 		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
-		return tJobExecRepo.getByTjobId(tJob);
+		return tJobExecRepo.findByElasEtmTjob(tJob);
 	}
-	
-	public ElasEtmTjobexec getTJobsExecution(Long tJobId, Long tJobExecId){
+
+	public ElasEtmTjobexec getTJobsExecution(Long tJobId, Long tJobExecId) {
 		ElasEtmTjob tJob = tJobRepo.findOne(tJobId);
-		return tJobExecRepo.getTjobExec(tJob, tJobExecId);
+		return tJobExecRepo.findByElasEtmTjobexecIdAndElasEtmTjob(tJobExecId, tJob);
+	}
+
+	public ElasEtmTjob modifyTJob(ElasEtmTjob tJob) throws Exception {
+		if (tJobRepo.findOne(tJob.getElasEtmTjobId()) != null) {
+			return tJobRepo.save(tJob);
+		} else {
+			throw new HTTPException(405);
+		}
 	}
 }
