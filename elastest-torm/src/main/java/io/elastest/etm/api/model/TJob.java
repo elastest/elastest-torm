@@ -4,15 +4,17 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.api.model.TJobExecution.BasicAtt;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,53 +30,55 @@ import javax.validation.constraints.*;
 @NamedQuery(name="TJob.findAll", query="SELECT e FROM TJob e")
 public class TJob {
 	
-	public interface BasicAtt {
+	public interface BasicAttTJob {
 	}
 	
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="ELAS_ETM_TJOB_ID")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
 	@Column(name="ELAS_ETM_TJOB_NAME")
 	@JsonProperty("name")
 	private String name = null;
 
-//	@JsonView(BasicAtt.class)
+//	@JsonView(BasicAttTJob.class)
 //	@Column(name="ELAS_ETM_TJOB_TSERV")
 //	@JsonProperty("testServices")
 //	private List<TestService> testServices = new ArrayList<TestService>();
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
 	@Column(name="ELAS_ETM_TJOB_IMNAME")
 	@JsonProperty("imageName")
 	private String imageName = null;
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
 	@Column(name="ELAS_ETM_TJOB_SUT")
 	@JsonProperty("sut")
 	private Integer sut = null;
 		
-	//bi-directional many-to-one association to ElasEtmTjobexec
+	//bi-directional many-to-one association to TJobExec
 	@OneToMany(mappedBy="tJob")
 	private List<TJobExecution> tjobExecs;
+	
+	//bi-directional many-to-one association to Project
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ELAS_ETM_TJOB_PROJECT")
+	private Project project;
+	
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, Integer sut) {
+	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, Integer sut, Project project) {
 		this.id = id==null? 0: id;
 		this.name = name;
 //		this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
-	}
-
-	public TJob id(Long id) {
-		this.id = id;
-		return this;
+		this.project = project;
 	}
 
 	/**
@@ -92,10 +96,11 @@ public class TJob {
 		this.id = id==null? 0: id;
 	}
 
-	public TJob name(String name) {
-		this.name = name;
+	public TJob id(Long id) {
+		this.id = id;
 		return this;
 	}
+
 
 	/**
 	 * Get name
@@ -112,16 +117,12 @@ public class TJob {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public TJob name(String name) {
+		this.name = name;
+		return this;
+	}
 
-//	public TJob testServices(List<TestService> testServices) {
-//		this.testServices = testServices;
-//		return this;
-//	}
-
-//	public TJob addTestServicesItem(TestService testServicesItem) {
-//		this.testServices.add(testServicesItem);
-//		return this;
-//	}
 
 //	/**
 //	 * Get testServices
@@ -140,11 +141,16 @@ public class TJob {
 //	public void setTestServices(List<TestService> testServices) {
 //		this.testServices = testServices;
 //	}
+//	
+//	public TJob testServices(List<TestService> testServices) {
+//	this.testServices = testServices;
+//	return this;
+//}
 
-	public TJob imageName(String imageName) {
-		this.imageName = imageName;
-		return this;
-	}
+//  public TJob addTestServicesItem(TestService testServicesItem) {
+//	  this.testServices.add(testServicesItem);
+//	  return this;
+//  }
 
 	/**
 	 * Get imageName
@@ -160,9 +166,9 @@ public class TJob {
 	public void setImageName(String imageName) {
 		this.imageName = imageName;
 	}
-
-	public TJob sut(Integer sut) {
-		this.sut = sut;
+	
+	public TJob imageName(String imageName) {
+		this.imageName = imageName;
 		return this;
 	}
 
@@ -181,7 +187,33 @@ public class TJob {
 		this.sut = sut;
 	}
 	
+	public TJob sut(Integer sut) {
+		this.sut = sut;
+		return this;
+	}	
 	
+	/**
+	 * Get project
+	 * 
+	 * @return project
+	 **/
+	@ApiModelProperty(example = "21714", value = "")
+
+	public Integer getProject() {
+		return sut;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+	
+	
+	
+	/**
+	 * Get TJobExecutions
+	 * 
+	 * @return project
+	 **/
 	
 	public List<TJobExecution> getTjobExecs() {
 		return this.tjobExecs;
@@ -199,11 +231,15 @@ public class TJob {
 		return tjobExec;
 	}
 
-	public TJobExecution removeElasEtmTjobexec(TJobExecution tjobExec) {
+	public TJobExecution removeTjobExec(TJobExecution tjobExec) {
 		getTjobExecs().remove(tjobExec);
 		tjobExec.setTjob(null);
 		return tjobExec;
 	}
+	
+	
+	
+	
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -216,12 +252,13 @@ public class TJob {
 		TJob tjob = (TJob) o;
 		return Objects.equals(this.id, tjob.id) && Objects.equals(this.name, tjob.name)
 //				&& Objects.equals(this.testServices, tjob.testServices)
-				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut);
+				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut)
+				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, /*testServices,*/ imageName, sut);
+		return Objects.hash(id, name, /*testServices,*/ imageName, sut, project, tjobExecs);
 	}
 
 	@Override
@@ -234,6 +271,8 @@ public class TJob {
 //		sb.append("    testServices: ").append(toIndentedString(testServices)).append("\n");
 		sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
 		sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
+		sb.append("    project: ").append(toIndentedString(project)).append("\n");
+		sb.append("    tjobExecs: ").append(toIndentedString(tjobExecs)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.Log;
-import io.elastest.etm.api.model.TJob.BasicAtt;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,32 +33,32 @@ import javax.validation.constraints.*;
 @NamedQuery(name="TJobExecution.findAll", query="SELECT e FROM TJobExecution e")
 public class TJobExecution {
 	
-	public interface BasicAtt {
+	public interface BasicAttTJobExec {
 	}
 	
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="ELAS_ETM_TJOBEXEC_ID")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
 	@Column(name="ELAS_ETM_TJOBEXEC_DURATION")
 	@JsonProperty("duration")
 	private Long duration = null;
 	
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
 	@Column(name="ELAS_ETM_TJOBEXEC_RESULT")
 	@JsonProperty("result")
 	private ResultEnum result = null;
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
 	@Column(name="ELAS_ETM_TJOBEXEC_SUT_EXEC")
 	@JsonProperty("sutExecution")
 	private Long sutExecution = null;
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
 	@Column(name="ELAS_ETM_TJOBEXEC_ERROR_EXEC")
 	@JsonProperty("error")
 	private String error = null;
@@ -68,7 +67,7 @@ public class TJobExecution {
 //	@JsonProperty("logs")
 //	private List<Log> logs = null;
 	
-	//bi-directional many-to-one association to ElasEtmTjob
+	//bi-directional many-to-one association to Tjob
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ELAS_ETM_TJOBEXEC_TJOB")
 	private TJob tJob;

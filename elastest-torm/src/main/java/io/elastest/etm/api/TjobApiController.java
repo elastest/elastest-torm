@@ -1,8 +1,9 @@
 package io.elastest.etm.api;
 
 import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.api.model.TJobExecution.BasicAtt;
+import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.tjob.service.TJobService;
 import io.elastest.etm.utils.DataConverter;
 import io.swagger.annotations.*;
@@ -29,7 +30,7 @@ public class TjobApiController implements TjobApi {
 	
 	private DataConverter dataConverter = new DataConverter();
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
     public ResponseEntity<TJob> createTJob(@ApiParam(value = "Tjob object that needs to create" ,required=true )  @Valid @RequestBody TJob body) {
     	try{
     		TJob tJob = tJobService.createTJob(body);
@@ -40,7 +41,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
     public ResponseEntity<Long> deleteTJob(@ApiParam(value = "ID of tJob to delete.",required=true ) @PathVariable("tJobId") Long tJobId) {
     	try{
     		tJobService.deleteTJob(tJobId);
@@ -50,7 +51,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
     public ResponseEntity<Long> deleteTJobExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
         @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
     	try{
@@ -62,7 +63,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
     public ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
     	try{
     		TJobExecution tJobExec = tJobService.executeTJob(tJobId);
@@ -73,7 +74,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
     public ResponseEntity<List<TJob>> getAllTJobs() {
     	try{
     		List<TJob> tjobList = tJobService.getAllTJobs();
@@ -84,7 +85,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
 	public ResponseEntity<TJob> getTJobById(@ApiParam(value = "ID of tJob to retrieve.",required=true ) @PathVariable("tJobId") Long tJobId) {
     	try{
     		TJob tJob = tJobService.getTJobById(tJobId);
@@ -95,7 +96,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
     public ResponseEntity<TJobExecution> getTJobsExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
         @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
     	try{
@@ -107,7 +108,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJobExec.class)
     public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
         try{
         	List<TJobExecution> tjobExecList = tJobService.getTJobsExecutionsByTJob(tJobId);
@@ -118,7 +119,7 @@ public class TjobApiController implements TjobApi {
 		}
     }
 
-	@JsonView(BasicAtt.class)
+	@JsonView(BasicAttTJob.class)
     public ResponseEntity<TJob> modifyTJob(@ApiParam(value = "Tjob object that needs to modify." ,required=true )  @Valid @RequestBody TJob body) {
     	try{
     		TJob tJob = tJobService.modifyTJob(body);
