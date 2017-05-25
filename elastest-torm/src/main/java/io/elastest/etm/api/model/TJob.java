@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import io.elastest.etm.api.model.TestService;
+import io.elastest.etm.model.ElasEtmTjob;
 import io.elastest.etm.model.ElasEtmTjobexec;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,9 +14,12 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -56,6 +60,9 @@ public class TJob {
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="tJob")
 	private List<TJobExecution> tjobExecs;
+	
+	@ManyToOne(fetch=FetchType.LAZY)	
+	private Project project;
 
 	public TJob() {	}
 	
@@ -65,6 +72,7 @@ public class TJob {
 		this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
+		this.project = project;
 	}
 
 	public TJob id(Long id) {
