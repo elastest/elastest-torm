@@ -1,33 +1,50 @@
 package io.elastest.etm.api.model;
 
+import java.util.List;
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * TOJob
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
+@Entity
 public class TOJob {
+	
+	public interface TOJobView {
+	}
+	
+	@Id
+	@JsonView(TOJobView.class)
 	@JsonProperty("id")
 	private Long id = null;
 
+	@JsonView(TOJobView.class)
 	@JsonProperty("name")
 	private String name = null;
 
+	@JsonView(TOJobView.class)
 	@JsonProperty("tOScript")
 	private String tOScript = null;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Project project = null;
+	
+	@OneToMany(mappedBy="tOJob")
+	private List<TOJobExecution> tOJobExecutions = null;
+	
 
 	public TOJob id(Long id) {
 		this.id = id;
@@ -110,6 +127,39 @@ public class TOJob {
 		this.project = project;
 		return this;
 	}
+	
+	
+	/**
+	 * Get tOJobExecutions
+	 * 
+	 * @return tOJobExecutions
+	 **/
+	@ApiModelProperty(required = false, value = "")
+	
+	public List<TOJobExecution> getTOJobExecutions() {
+		return tOJobExecutions;
+	}
+
+	public void setTOJobExecutions(List<TOJobExecution> tOJobExecutions) {
+		this.tOJobExecutions = tOJobExecutions;
+	}
+	
+	public TOJob tOJobExecutions(List<TOJobExecution> tOJobExecutions) {
+		this.tOJobExecutions = tOJobExecutions;
+		return this;
+	}
+	
+	public TOJobExecution addTOJobExecution(TOJobExecution tOJobExecution) {
+		getTOJobExecutions().add(tOJobExecution);
+		tOJobExecution.setTOJob(this);
+		return tOJobExecution;
+	}
+
+	public TJobExecution removeTjobExec(TJobExecution tjobExec) {
+		getTOJobExecutions().remove(tjobExec);
+		tjobExec.setTjob(null);
+		return tjobExec;
+	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -121,12 +171,13 @@ public class TOJob {
 		}
 		TOJob toJob = (TOJob) o;
 		return Objects.equals(this.id, toJob.id) && Objects.equals(this.name, toJob.name)
-				&& Objects.equals(this.tOScript, toJob.tOScript) && Objects.equals(this.project, toJob.project);
+				&& Objects.equals(this.tOScript, toJob.tOScript) && Objects.equals(this.project, toJob.project)
+				&& Objects.equals(this.tOJobExecutions, toJob.tOJobExecutions);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, tOScript, project);
+		return Objects.hash(id, name, tOScript, project, tOJobExecutions);
 	}
 
 	@Override
@@ -138,6 +189,7 @@ public class TOJob {
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    tOScript: ").append(toIndentedString(tOScript)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
+		sb.append("    tOJobExecutions: ").append(toIndentedString(tOJobExecutions)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

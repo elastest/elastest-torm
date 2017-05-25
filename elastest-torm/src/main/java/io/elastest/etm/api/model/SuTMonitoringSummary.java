@@ -1,12 +1,11 @@
 package io.elastest.etm.api.model;
 
+import java.util.List;
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.annotations.ApiModel;
+
 import io.swagger.annotations.ApiModelProperty;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * SuTMonitoringSummary
@@ -14,57 +13,15 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 public class SuTMonitoringSummary   {
-  @JsonProperty("CPU Average")
-  private String cpUAverage = null;
+  @JsonProperty("CPU Use")
+  private List<String> cpu = null;
 
-  @JsonProperty("CPU temp Average")
-  private String cpUTempAverage = null;
+  @JsonProperty("Mem Use")
+  private List<String> cpUTempAverage = null;
 
   @JsonProperty("CPU cores")
   private String cpUCores = null;
-
-  @JsonProperty("CPU speed")
-  private String cpUSpeed = null;
-
-  public SuTMonitoringSummary cpUAverage(String cpUAverage) {
-    this.cpUAverage = cpUAverage;
-    return this;
-  }
-
-   /**
-   * Get cpUAverage
-   * @return cpUAverage
-  **/
-  @ApiModelProperty(example = "71%", value = "")
-
-
-  public String getCpUAverage() {
-    return cpUAverage;
-  }
-
-  public void setCpUAverage(String cpUAverage) {
-    this.cpUAverage = cpUAverage;
-  }
-
-  public SuTMonitoringSummary cpUTempAverage(String cpUTempAverage) {
-    this.cpUTempAverage = cpUTempAverage;
-    return this;
-  }
-
-   /**
-   * Get cpUTempAverage
-   * @return cpUTempAverage
-  **/
-  @ApiModelProperty(example = "78ºC", value = "")
-
-
-  public String getCpUTempAverage() {
-    return cpUTempAverage;
-  }
-
-  public void setCpUTempAverage(String cpUTempAverage) {
-    this.cpUTempAverage = cpUTempAverage;
-  }
+  
 
   public SuTMonitoringSummary cpUCores(String cpUCores) {
     this.cpUCores = cpUCores;
@@ -86,26 +43,6 @@ public class SuTMonitoringSummary   {
     this.cpUCores = cpUCores;
   }
 
-  public SuTMonitoringSummary cpUSpeed(String cpUSpeed) {
-    this.cpUSpeed = cpUSpeed;
-    return this;
-  }
-
-   /**
-   * Get cpUSpeed
-   * @return cpUSpeed
-  **/
-  @ApiModelProperty(example = "3.1 GHz", value = "")
-
-
-  public String getCpUSpeed() {
-    return cpUSpeed;
-  }
-
-  public void setCpUSpeed(String cpUSpeed) {
-    this.cpUSpeed = cpUSpeed;
-  }
-
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -116,26 +53,23 @@ public class SuTMonitoringSummary   {
       return false;
     }
     SuTMonitoringSummary suTMonitoringSummary = (SuTMonitoringSummary) o;
-    return Objects.equals(this.cpUAverage, suTMonitoringSummary.cpUAverage) &&
-        Objects.equals(this.cpUTempAverage, suTMonitoringSummary.cpUTempAverage) &&
-        Objects.equals(this.cpUCores, suTMonitoringSummary.cpUCores) &&
-        Objects.equals(this.cpUSpeed, suTMonitoringSummary.cpUSpeed);
+    return Objects.equals(this.cpUTempAverage, suTMonitoringSummary.cpUTempAverage) &&
+        Objects.equals(this.cpUCores, suTMonitoringSummary.cpUCores);
+        
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cpUAverage, cpUTempAverage, cpUCores, cpUSpeed);
+    return Objects.hash(cpUTempAverage, cpUCores);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SuTMonitoringSummary {\n");
-    
-    sb.append("    cpUAverage: ").append(toIndentedString(cpUAverage)).append("\n");
+        
     sb.append("    cpUTempAverage: ").append(toIndentedString(cpUTempAverage)).append("\n");
-    sb.append("    cpUCores: ").append(toIndentedString(cpUCores)).append("\n");
-    sb.append("    cpUSpeed: ").append(toIndentedString(cpUSpeed)).append("\n");
+    sb.append("    cpUCores: ").append(toIndentedString(cpUCores)).append("\n");    
     sb.append("}");
     return sb.toString();
   }

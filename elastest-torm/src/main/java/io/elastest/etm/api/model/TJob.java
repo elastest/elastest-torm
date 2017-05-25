@@ -237,9 +237,6 @@ public class TJob {
 		return tjobExec;
 	}
 	
-	
-	
-	
 
 	@Override
 	public boolean equals(java.lang.Object o) {

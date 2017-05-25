@@ -1,49 +1,67 @@
 package io.elastest.etm.api.model;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import io.elastest.etm.api.model.DeployedSut;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * SutSpecification
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
+@Entity
 public class SutSpecification {
+	
+	public interface SutView {
+	}
+		
+	@Id
+	@JsonView(SutView.class)
 	@JsonProperty("id")
 	private Long id = null;
 
+	@JsonView(SutView.class)
 	@JsonProperty("name")
 	private String name = null;
 
+	@JsonView(SutView.class)
 	@JsonProperty("specification")
 	private String specification = null;
 
-	@JsonProperty("desc")
-	private String desc = null;
+	@JsonView(SutView.class)
+	@JsonProperty("description")
+	private String description = null;
 
+	@JsonView(SutView.class)
 	@JsonProperty("deployedSut")
+	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
 	private List<DeployedSut> deployedSut = null;
+		
+	@JsonView(SutView.class)
+	@JsonProperty("sutExecution")
+	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
+	private List<SuTExecution> sutExecution = null;
 
 	@JsonProperty("project")
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Project project = null;
+	
 
 	public SutSpecification id(Long id) {
-		this.id = id;
+		this.id = id==null? 0: id;
 		return this;
 	}
 
@@ -59,7 +77,7 @@ public class SutSpecification {
 	}
 
 	public void setId(Long id) {
-		this.id = id;
+		this.id = id==null? 0: id;
 	}
 
 	public SutSpecification name(String name) {
@@ -104,8 +122,8 @@ public class SutSpecification {
 		this.specification = specification;
 	}
 
-	public SutSpecification desc(String desc) {
-		this.desc = desc;
+	public SutSpecification description(String description) {
+		this.description = description;
 		return this;
 	}
 
@@ -116,12 +134,12 @@ public class SutSpecification {
 	 **/
 	@ApiModelProperty(example = "This is a SuT description example", value = "")
 
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String desc) {
+		this.description = desc;
 	}
 
 	public SutSpecification deployedSut(List<DeployedSut> deployedSut) {
@@ -154,6 +172,29 @@ public class SutSpecification {
 		this.deployedSut = deployedSut;
 	}
 	
+	
+	public List<SuTExecution> getSutExecution() {
+		return sutExecution;
+	}
+
+	public void setSutExecution(List<SuTExecution> sutExecution) {
+		this.sutExecution = sutExecution;
+	}
+	
+	public SuTExecution addSuTExecution(SuTExecution sutExecution) {
+		getSutExecution().add(sutExecution);
+		sutExecution.setSutSpecification(this);
+
+		return sutExecution;
+	}
+
+	public SuTExecution removeSuTExecution(SuTExecution sutExecution) {
+		getSutExecution().remove(sutExecution);
+		sutExecution.setSutSpecification(null);
+
+		return sutExecution;
+	}
+	
 	/**
 	 * Get name
 	 * 
@@ -169,7 +210,7 @@ public class SutSpecification {
 		this.project = project;
 	}
 	
-	public SutSpecification desc(Project project) {
+	public SutSpecification project(Project project){
 		this.project = project;
 		return this;
 	}
@@ -185,14 +226,14 @@ public class SutSpecification {
 		SutSpecification sutSpecification = (SutSpecification) o;
 		return Objects.equals(this.id, sutSpecification.id) && Objects.equals(this.name, sutSpecification.name)
 				&& Objects.equals(this.specification, sutSpecification.specification)
-				&& Objects.equals(this.desc, sutSpecification.desc)
+				&& Objects.equals(this.description, sutSpecification.description)
 				&& Objects.equals(this.deployedSut, sutSpecification.deployedSut)
 				&& Objects.equals(this.project, sutSpecification.project);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, desc, deployedSut, project);
+		return Objects.hash(id, name, specification, description, deployedSut, project);
 	}
 
 	@Override
@@ -203,7 +244,7 @@ public class SutSpecification {
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    specification: ").append(toIndentedString(specification)).append("\n");
-		sb.append("    desc: ").append(toIndentedString(desc)).append("\n");
+		sb.append("    desc: ").append(toIndentedString(description)).append("\n");
 		sb.append("    deployedSut: ").append(toIndentedString(deployedSut)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("}");

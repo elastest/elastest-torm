@@ -9,9 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,11 +17,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
-@Table(name="ELAS_ETM_PROJECT")
-@NamedQuery(name="Project.findAll", query="SELECT e FROM Project e")
 public class Project implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -155,7 +150,8 @@ public class Project implements Serializable {
 			return false;
 		}
 		Project project = (Project) o;
-		return Objects.equals(this.name, project.name)  && Objects.equals(this.id, project.id);
+		return Objects.equals(this.name, project.name)  && Objects.equals(this.id, project.id) && Objects.equals(this.tJobs, project.tJobs)
+				&& Objects.equals(this.suts, project.suts) && Objects.equals(this.tOJobs, project.tOJobs);
 	}
 
 	@Override
@@ -169,7 +165,10 @@ public class Project implements Serializable {
 		sb.append("class DeployConfig {\n");
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		sb.append("    name: ").append(toIndentedString(name)).append("\n");		
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    tJobs: ").append(toIndentedString(tJobs)).append("\n");
+		sb.append("    suts: ").append(toIndentedString(suts)).append("\n");
+		sb.append("    tOJobs: ").append(toIndentedString(tOJobs)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

@@ -1,15 +1,6 @@
 package io.elastest.etm.api.model;
 
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.api.model.Log;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,8 +12,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * TJobExecution
@@ -71,9 +68,11 @@ public class TJobExecution {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ELAS_ETM_TJOBEXEC_TJOB")
 	private TJob tJob;
+		
+	@ManyToOne(fetch = FetchType.LAZY)
+	private TOJobExecution tOJobExecution = null;		
 	
 
-	
 	public TJobExecution() {
 		this.id = (long) 0;
 		this.duration = (long) 0;
@@ -82,9 +81,7 @@ public class TJobExecution {
 	public TJobExecution(Long id, Long duration) {
 		this.id = id==null? 0: id;
 		this.duration = duration==null? 0: duration;
-	}
-	
-	
+	}	
 
 	/**
 	 * Gets or Sets result
@@ -118,8 +115,6 @@ public class TJobExecution {
 			return null;
 		}
 	}
-
-
 
 	public TJobExecution id(Long id) {
 		this.id = id;
@@ -267,6 +262,19 @@ public class TJobExecution {
 		this.tJob = tjob;
 	}
 	
+	public TOJobExecution getTOJobExecutionb() {
+		return tOJobExecution;
+	}
+
+	public void setTOJobExecution(TOJobExecution tOJobExecution) {
+		this.tOJobExecution = tOJobExecution;
+	}
+	
+	public TJobExecution tOJobExecution(TOJobExecution tOJobExecution){
+		this.tOJobExecution = tOJobExecution;
+		return this;
+	}
+	
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -282,12 +290,13 @@ public class TJobExecution {
 				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
 				&& Objects.equals(this.error, tjobExecution.error)
 //				&& Objects.equals(this.logs, tjobExecution.logs)
+				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
 				;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, duration, result, sutExecution, error /*, logs*/);
+		return Objects.hash(id, duration, result, sutExecution, error /*, logs*/, tOJobExecution);
 	}
 
 	@Override
@@ -301,6 +310,7 @@ public class TJobExecution {
 		sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
 //		sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
+		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
