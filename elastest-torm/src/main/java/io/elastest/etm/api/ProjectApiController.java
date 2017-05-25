@@ -1,5 +1,7 @@
 package io.elastest.etm.api;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,30 @@ public class ProjectApiController implements ProjectApi {
 
 	@Override
 	public ResponseEntity<Project> createProject(@ApiParam(value = "Project object that needs to create" ,required=true )@Valid @RequestBody Project body) {
-		// TODO Auto-generated method stub
-		return new ResponseEntity<Project>(projectService.createProject(body),HttpStatus.OK);
+
+		try{
+			return new ResponseEntity<Project>(projectService.createProject(body),HttpStatus.OK);
+		}catch(Exception e){
+			return new ResponseEntity<Project>(body, HttpStatus.CONFLICT);			
+		}		
+	}
+
+	@Override
+	public ResponseEntity<List<Project>> getAllProjects() {		
+		try{
+			return new ResponseEntity<List<Project>>(projectService.getAllProjects(),HttpStatus.OK);
+		}catch(Exception e){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);			
+		}		
+	}
+
+	@Override
+	public ResponseEntity<Project> getProject(Long id) {
+		try{
+			return new ResponseEntity<Project>(projectService.getProjectById(id),HttpStatus.OK);
+		}catch(Exception e){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);			
+		}		
 	}
 
 }

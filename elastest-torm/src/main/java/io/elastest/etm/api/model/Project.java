@@ -1,6 +1,7 @@
 package io.elastest.etm.api.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -32,11 +34,30 @@ public class Project implements Serializable {
 	@JsonProperty("name")
 	private String name = null;
 	
+	@JsonProperty("tJobs")
+	//bi-directional many-to-one association to ElasEtmTjobexec
+	@OneToMany(mappedBy="project")
+	private List<TJob> tJobs;
+	
+	@JsonProperty("tOJobs")
+	//bi-directional many-to-one association to ElasEtmTjobexec
+	@OneToMany(mappedBy="project")
+	private List<TOJob> tOJobs;
+	
+	@JsonProperty("suts")
+	//bi-directional many-to-one association to ElasEtmTjobexec
+	@OneToMany(mappedBy="project")
+	private List<SutSpecification> suts;
+	
 	public Project() {}
 	
-	public Project(Long id, String name){
+	public Project(Long id, String name, List<TJob> tJobs, List<TOJob> tOJobs, List<SutSpecification> suts){
 		this.id = id==null? 0: id;
 		this.name = name;
+		this.tJobs = tJobs;
+		this.tOJobs = tOJobs;
+		this.suts = suts;
+		
 	}
 
 	public Project id(Long id) {
@@ -79,6 +100,50 @@ public class Project implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public Project name(String name) {
+		this.name = name;
+		return this;
+	}	
+	
+	public List<TJob> getTJobs() {
+		return this.tJobs;
+	}
+
+	public void setTJobs(List<TJob> tJobs) {
+		this.tJobs = tJobs;
+	}
+	
+	public Project tJobs(List<TJob> tJobs) {
+		this.tJobs = tJobs;
+		return this;
+	}
+	
+	public List<TOJob> getTOJob() {
+		return this.tOJobs;
+	}
+
+	public void setTOJobs(List<TOJob> tOJobs) {
+		this.tOJobs = tOJobs;
+	}
+	
+	public Project tOJobs(List<TOJob> tOJobs) {
+		this.tOJobs = tOJobs;
+		return this;
+	}
+		
+	public List<SutSpecification> getSuts() {
+		return this.suts;
+	}
+
+	public void setSuts(List<SutSpecification> suts) {
+		this.suts = suts;
+	}
+	
+	public Project suts(List<SutSpecification> suts) {
+		this.suts = suts;
+		return this;
 	}
 
 	@Override
