@@ -5,38 +5,61 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import io.elastest.etm.api.model.TestService;
+import io.elastest.etm.model.ElasEtmTjobexec;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * TJob
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
+@Entity
+@Table(name="ELAS_ETM_TJOB")
+@NamedQuery(name="TJob.findAll", query="SELECT e FROM TJob e")
 public class TJob {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="ELAS_ETM_TJOB_ID")
 	@JsonProperty("id")
 	private Long id = null;
 
+	@Column(name="ELAS_ETM_TJOB_NAME")
 	@JsonProperty("name")
 	private String name = null;
 
+	@Column(name="ELAS_ETM_TJOB_TSERV")
 	@JsonProperty("testServices")
-	private List<TestService> testServices = new ArrayList<TestService>();
+//	private List<TestService> testServices = new ArrayList<TestService>();
+	private Long testServices = null;
 
+	@Column(name="ELAS_ETM_TJOB_IMNAME")
 	@JsonProperty("imageName")
 	private String imageName = null;
 
+	@Column(name="ELAS_ETM_TJOB_SUT")
 	@JsonProperty("sut")
 	private Integer sut = null;
+		
+	//bi-directional many-to-one association to ElasEtmTjobexec
+	@OneToMany(mappedBy="tJob")
+	private List<TJobExecution> tjobExecs;
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, List<TestService> testServices, String imageName, Integer sut) {
+	public TJob(Long id, String name, Long testServices, String imageName, Integer sut) {
 		this.id = id;
 		this.name = name;
 		this.testServices = testServices;
@@ -85,15 +108,15 @@ public class TJob {
 		this.name = name;
 	}
 
-	public TJob testServices(List<TestService> testServices) {
+	public TJob testServices(Long testServices) {
 		this.testServices = testServices;
 		return this;
 	}
 
-	public TJob addTestServicesItem(TestService testServicesItem) {
-		this.testServices.add(testServicesItem);
-		return this;
-	}
+//	public TJob addTestServicesItem(TestService testServicesItem) {
+//		this.testServices.add(testServicesItem);
+//		return this;
+//	}
 
 	/**
 	 * Get testServices
@@ -105,11 +128,11 @@ public class TJob {
 
 	@Valid
 
-	public List<TestService> getTestServices() {
+	public Long getTestServices() {
 		return testServices;
 	}
 
-	public void setTestServices(List<TestService> testServices) {
+	public void setTestServices(Long testServices) {
 		this.testServices = testServices;
 	}
 
@@ -151,6 +174,30 @@ public class TJob {
 
 	public void setSut(Integer sut) {
 		this.sut = sut;
+	}
+	
+	
+	
+	public List<TJobExecution> getTjobExecs() {
+		return this.tjobExecs;
+	}
+
+	public void setTjobExecs(List<TJobExecution> tjobExec) {
+		this.tjobExecs = tjobExec;
+	}
+	
+	
+	public TJobExecution addTjobExec(TJobExecution tjobExec) {
+		getTjobExecs().add(tjobExec);
+		tjobExec.setTjob(this);
+
+		return tjobExec;
+	}
+
+	public TJobExecution removeElasEtmTjobexec(TJobExecution tjobExec) {
+		getTjobExecs().remove(tjobExec);
+		tjobExec.setTjob(null);
+		return tjobExec;
 	}
 
 	@Override

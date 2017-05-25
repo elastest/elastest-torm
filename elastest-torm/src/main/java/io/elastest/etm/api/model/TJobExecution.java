@@ -6,26 +6,67 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.etm.api.model.Log;
+import io.elastest.etm.model.ElasEtmTjob;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * TJobExecution
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
+@Entity
+@Table(name="ELAS_ETM_TJOBEXEC")
+@NamedQuery(name="TJobExecution.findAll", query="SELECT e FROM TJobExecution e")
 public class TJobExecution {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="ELAS_ETM_TJOBEXEC_ID")
 	@JsonProperty("id")
 	private Long id = null;
 
+	@Column(name="ELAS_ETM_TJOBEXEC_DURATION")
 	@JsonProperty("duration")
 	private Long duration = null;
+	
+	
+	@Column(name="ELAS_ETM_TJOBEXEC_RESULT")
+	@JsonProperty("result")
+	private ResultEnum result = null;
 
+	@Column(name="ELAS_ETM_TJOBEXEC_SUT_EXEC")
+	@JsonProperty("sutExecution")
+	private Long sutExecution = null;
+
+	@Column(name="ELAS_ETM_TJOBEXEC_ERROR_EXEC")
+	@JsonProperty("error")
+	private String error = null;
+
+	@Column(name="ELAS_ETM_TJOBEXEC_LOGS")
+	@JsonProperty("logs")
+	private List<Log> logs = null;
+	
+	//bi-directional many-to-one association to ElasEtmTjob
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ELAS_ETM_TJOBEXEC_TJOB")
+	private TJob tJob;
+	
+
+	
 	public TJobExecution() {
 	}
 
@@ -33,6 +74,8 @@ public class TJobExecution {
 		this.id = id;
 		this.duration = duration;
 	}
+	
+	
 
 	/**
 	 * Gets or Sets result
@@ -67,17 +110,7 @@ public class TJobExecution {
 		}
 	}
 
-	@JsonProperty("result")
-	private ResultEnum result = null;
 
-	@JsonProperty("sutExecution")
-	private Long sutExecution = null;
-
-	@JsonProperty("error")
-	private String error = null;
-
-	@JsonProperty("logs")
-	private List<Log> logs = null;
 
 	public TJobExecution id(Long id) {
 		this.id = id;
@@ -211,6 +244,20 @@ public class TJobExecution {
 	public void setLogs(List<Log> logs) {
 		this.logs = logs;
 	}
+	
+	/**
+	 * tJob
+	 * 
+	 * 
+	 **/
+	public TJob getTjob() {
+		return this.tJob;
+	}
+
+	public void setTjob(TJob tjob) {
+		this.tJob = tjob;
+	}
+	
 
 	@Override
 	public boolean equals(java.lang.Object o) {
