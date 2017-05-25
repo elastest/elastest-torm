@@ -31,12 +31,12 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 
+import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.docker.utils.IOUtils;
 import io.elastest.etm.docker.utils.StompMessageSenderService;
-import io.elastest.etm.model.ElasEtmTjob;
-import io.elastest.etm.model.ElasEtmTjobexec;
 
 @Service
 public class DockerExecution {
@@ -65,9 +65,9 @@ public class DockerExecution {
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
 	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
 
-	public ElasEtmTjobexec executeTJob(ElasEtmTjob tJob) {
-		ElasEtmTjobexec tjobExec = new ElasEtmTjobexec();
-		this.testImage = tJob.getElasEtmTjobImname();
+	public TJobExecution executeTJob(TJob tJob) {
+		TJobExecution tjobExec = new TJobExecution();
+		this.testImage = tJob.getImageName();
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
@@ -109,17 +109,17 @@ public class DockerExecution {
 
 			// tjobExec.setElasEtmTjobexecLogs();
 			// tjobExec.setElasEtmTjobexecDuration();
-			tjobExec.setElasEtmTjobexecResult("ok");
+			
+			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			endTestExec();
 
-			tjobExec.setElasEtmTjobexecResult("error");
+			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
 
 		}
-		tjobExec.setElasEtmTjob(tJob);
-		tJobExecRepo.save(tjobExec);
-		return tjobExec;
+		tjobExec.setTjob(tJob);
+		return tJobExecRepo.save(tjobExec);
 	}
 
 	public void manageLogs() {

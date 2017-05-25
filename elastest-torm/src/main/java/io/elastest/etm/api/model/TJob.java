@@ -2,24 +2,17 @@ package io.elastest.etm.api.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.api.model.TestService;
-import io.elastest.etm.model.ElasEtmTjob;
-import io.elastest.etm.model.ElasEtmTjobexec;
-import io.swagger.annotations.ApiModel;
+import io.elastest.etm.api.model.TJobExecution.BasicAtt;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -34,25 +27,33 @@ import javax.validation.constraints.*;
 @Table(name="ELAS_ETM_TJOB")
 @NamedQuery(name="TJob.findAll", query="SELECT e FROM TJob e")
 public class TJob {
+	
+	public interface BasicAtt {
+	}
+	
+	@JsonView(BasicAtt.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="ELAS_ETM_TJOB_ID")
 	@JsonProperty("id")
 	private Long id = null;
 
+	@JsonView(BasicAtt.class)
 	@Column(name="ELAS_ETM_TJOB_NAME")
 	@JsonProperty("name")
 	private String name = null;
 
-	@Column(name="ELAS_ETM_TJOB_TSERV")
-	@JsonProperty("testServices")
+//	@JsonView(BasicAtt.class)
+//	@Column(name="ELAS_ETM_TJOB_TSERV")
+//	@JsonProperty("testServices")
 //	private List<TestService> testServices = new ArrayList<TestService>();
-	private Long testServices = null;
 
+	@JsonView(BasicAtt.class)
 	@Column(name="ELAS_ETM_TJOB_IMNAME")
 	@JsonProperty("imageName")
 	private String imageName = null;
 
+	@JsonView(BasicAtt.class)
 	@Column(name="ELAS_ETM_TJOB_SUT")
 	@JsonProperty("sut")
 	private Integer sut = null;
@@ -60,19 +61,15 @@ public class TJob {
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="tJob")
 	private List<TJobExecution> tjobExecs;
-	
-	@ManyToOne(fetch=FetchType.LAZY)	
-	private Project project;
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, Long testServices, String imageName, Integer sut) {
-		this.id = id;
+	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, Integer sut) {
+		this.id = id==null? 0: id;
 		this.name = name;
-		this.testServices = testServices;
+//		this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
-		this.project = project;
 	}
 
 	public TJob id(Long id) {
@@ -92,7 +89,7 @@ public class TJob {
 	}
 
 	public void setId(Long id) {
-		this.id = id;
+		this.id = id==null? 0: id;
 	}
 
 	public TJob name(String name) {
@@ -116,33 +113,33 @@ public class TJob {
 		this.name = name;
 	}
 
-	public TJob testServices(Long testServices) {
-		this.testServices = testServices;
-		return this;
-	}
+//	public TJob testServices(List<TestService> testServices) {
+//		this.testServices = testServices;
+//		return this;
+//	}
 
 //	public TJob addTestServicesItem(TestService testServicesItem) {
 //		this.testServices.add(testServicesItem);
 //		return this;
 //	}
 
-	/**
-	 * Get testServices
-	 * 
-	 * @return testServices
-	 **/
-	@ApiModelProperty(required = true, value = "")
-	@NotNull
-
-	@Valid
-
-	public Long getTestServices() {
-		return testServices;
-	}
-
-	public void setTestServices(Long testServices) {
-		this.testServices = testServices;
-	}
+//	/**
+//	 * Get testServices
+//	 * 
+//	 * @return testServices
+//	 **/
+//	@ApiModelProperty(required = true, value = "")
+//	@NotNull
+//
+//	@Valid
+//
+//	public List<TestService> getTestServices() {
+//		return testServices;
+//	}
+//
+//	public void setTestServices(List<TestService> testServices) {
+//		this.testServices = testServices;
+//	}
 
 	public TJob imageName(String imageName) {
 		this.imageName = imageName;
@@ -218,13 +215,13 @@ public class TJob {
 		}
 		TJob tjob = (TJob) o;
 		return Objects.equals(this.id, tjob.id) && Objects.equals(this.name, tjob.name)
-				&& Objects.equals(this.testServices, tjob.testServices)
+//				&& Objects.equals(this.testServices, tjob.testServices)
 				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, testServices, imageName, sut);
+		return Objects.hash(id, name, /*testServices,*/ imageName, sut);
 	}
 
 	@Override
@@ -234,7 +231,7 @@ public class TJob {
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
-		sb.append("    testServices: ").append(toIndentedString(testServices)).append("\n");
+//		sb.append("    testServices: ").append(toIndentedString(testServices)).append("\n");
 		sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
 		sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
 		sb.append("}");
