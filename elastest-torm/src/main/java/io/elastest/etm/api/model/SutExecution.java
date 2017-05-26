@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Entity
-public class SuTExecution {
+public class SutExecution {
 	
 	public interface SutExecView{		
 	}
@@ -89,7 +89,7 @@ public class SuTExecution {
 	@JsonProperty("deployStatus")
 	private DeployStatusEnum deployStatus = null;
 
-	public SuTExecution id(Long id) {
+	public SutExecution id(Long id) {
 		this.id = id;
 		return this;
 	}
@@ -181,7 +181,7 @@ public class SuTExecution {
 //		this.monitoringSummary = monitoringSummary;
 //	}
 
-	public SuTExecution deployStatus(DeployStatusEnum deployStatus) {
+	public SutExecution deployStatus(DeployStatusEnum deployStatus) {
 		this.deployStatus = deployStatus;
 		return this;
 	}
@@ -216,7 +216,7 @@ public class SuTExecution {
 		this.sutSpecification = sutSpecification;
 	}
 	
-	public SuTExecution sutSpecification(SutSpecification sutSpecification) {
+	public SutExecution sutSpecification(SutSpecification sutSpecification) {
 		this.sutSpecification = sutSpecification;
 		return this;
 	}
@@ -229,7 +229,7 @@ public class SuTExecution {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		SuTExecution suTExecution = (SuTExecution) o;
+		SutExecution suTExecution = (SutExecution) o;
 		return Objects.equals(this.id, suTExecution.id) //&& Objects.equals(this.logs, suTExecution.logs)
 //				&& Objects.equals(this.monitoringCurrent, suTExecution.monitoringCurrent)
 				//&& Objects.equals(this.monitoringSummary, suTExecution.monitoringSummary)

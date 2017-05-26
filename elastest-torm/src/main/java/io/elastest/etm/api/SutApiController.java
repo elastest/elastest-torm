@@ -2,7 +2,7 @@ package io.elastest.etm.api;
 
 import io.elastest.etm.api.model.DeployConfig;
 import io.elastest.etm.api.model.Log;
-import io.elastest.etm.api.model.SuTExecution;
+import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SuTMonitoring;
 import io.elastest.etm.api.model.SutSpecification;
 import io.swagger.annotations.*;
@@ -43,16 +43,16 @@ public class SutApiController implements SutApi {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuTExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,
+    public ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,
         @ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig) {
         // do some magic!
-        return new ResponseEntity<SuTExecution>(HttpStatus.OK);
+        return new ResponseEntity<SutExecution>(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuTExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
+    public ResponseEntity<SutExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
         @ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId) {
         // do some magic!
-        return new ResponseEntity<SuTExecution>(HttpStatus.OK);
+        return new ResponseEntity<SutExecution>(HttpStatus.OK);
     }
 
     public ResponseEntity<List<Log>> suTLogs(@ApiParam(value = "SuT id to return logs",required=true ) @PathVariable("sutId") Long sutId,
@@ -83,9 +83,9 @@ public class SutApiController implements SutApi {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    public ResponseEntity<List<SuTExecution>> sutSutIdExecGet() {
+    public ResponseEntity<List<SutExecution>> getAllSutExecBySut() {
         // do some magic!
-        return new ResponseEntity<List<SuTExecution>>(HttpStatus.OK);
+        return new ResponseEntity<List<SutExecution>>(HttpStatus.OK);
     }
 
     public ResponseEntity<SutSpecification> sutSutIdGet(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId) {

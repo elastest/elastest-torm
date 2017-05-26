@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import io.elastest.etm.api.model.TJob;
 
-@Repository(value="io.elastest.etm.dao.TJobRepository")
 public interface TJobRepository extends JpaRepository<TJob, Long> {
 
 }

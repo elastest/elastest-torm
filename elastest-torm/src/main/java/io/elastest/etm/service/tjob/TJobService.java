@@ -1,4 +1,4 @@
-package io.elastest.etm.tjob.service;
+package io.elastest.etm.service.tjob;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class TJobService {
 
 	@Autowired
 	private TJobRepository tJobRepo;
-
+	
 	@Autowired
 	private TJobExecRepository tJobExecRepo;
 
@@ -68,5 +68,13 @@ public class TJobService {
 		} else {
 			throw new HTTPException(405);
 		}
+	}
+	
+	public TJobRepository gettJobRepo() {
+		return tJobRepo;
+	}
+
+	public void settJobRepo(TJobRepository tJobRepo) {
+		this.tJobRepo = tJobRepo;
 	}
 }

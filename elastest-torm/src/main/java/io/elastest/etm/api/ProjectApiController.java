@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.elastest.etm.api.model.Project;
-import io.elastest.etm.tjob.service.ProjectService;
+import io.elastest.etm.service.project.ProjectService;
 import io.swagger.annotations.ApiParam;
 
 @Controller

@@ -53,7 +53,7 @@ public class SutSpecification {
 	@JsonView(SutView.class)
 	@JsonProperty("sutExecution")
 	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
-	private List<SuTExecution> sutExecution = null;
+	private List<SutExecution> sutExecution = null;
 
 	@JsonProperty("project")
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -173,22 +173,22 @@ public class SutSpecification {
 	}
 	
 	
-	public List<SuTExecution> getSutExecution() {
+	public List<SutExecution> getSutExecution() {
 		return sutExecution;
 	}
 
-	public void setSutExecution(List<SuTExecution> sutExecution) {
+	public void setSutExecution(List<SutExecution> sutExecution) {
 		this.sutExecution = sutExecution;
 	}
 	
-	public SuTExecution addSuTExecution(SuTExecution sutExecution) {
+	public SutExecution addSuTExecution(SutExecution sutExecution) {
 		getSutExecution().add(sutExecution);
 		sutExecution.setSutSpecification(this);
 
 		return sutExecution;
 	}
 
-	public SuTExecution removeSuTExecution(SuTExecution sutExecution) {
+	public SutExecution removeSuTExecution(SutExecution sutExecution) {
 		getSutExecution().remove(sutExecution);
 		sutExecution.setSutSpecification(null);
 

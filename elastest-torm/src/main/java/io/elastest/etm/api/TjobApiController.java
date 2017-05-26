@@ -4,7 +4,7 @@ import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
-import io.elastest.etm.tjob.service.TJobService;
+import io.elastest.etm.service.tjob.TJobService;
 import io.elastest.etm.utils.DataConverter;
 import io.swagger.annotations.*;
 

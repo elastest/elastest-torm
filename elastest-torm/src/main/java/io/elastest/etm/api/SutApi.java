@@ -2,7 +2,7 @@ package io.elastest.etm.api;
 
 import io.elastest.etm.api.model.DeployConfig;
 import io.elastest.etm.api.model.Log;
-import io.elastest.etm.api.model.SuTExecution;
+import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SuTMonitoring;
 import io.elastest.etm.api.model.SutSpecification;
 import io.swagger.annotations.*;
@@ -59,28 +59,28 @@ public interface SutApi {
     ResponseEntity<Void> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId);
 
 
-    @ApiOperation(value = "Deploys a SuT", notes = "", response = SuTExecution.class, tags={ "sut execution", })
+    @ApiOperation(value = "Deploys a SuT", notes = "", response = SutExecution.class, tags={ "sut execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "SuT has been deployed successfully", response = SuTExecution.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SuTExecution.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = SuTExecution.class) })
+        @ApiResponse(code = 200, message = "SuT has been deployed successfully", response = SutExecution.class),
+        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SutExecution.class),
+        @ApiResponse(code = 404, message = "SuT not found", response = SutExecution.class) })
     
     @RequestMapping(value = "/sut/{sutId}/exec",
         produces = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<SuTExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig);
+    ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig);
 
 
-    @ApiOperation(value = "Returns a SuT Execution information", notes = "", response = SuTExecution.class, tags={ "sut execution", })
+    @ApiOperation(value = "Returns a SuT Execution information", notes = "", response = SutExecution.class, tags={ "sut execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = SuTExecution.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SuTExecution.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = SuTExecution.class) })
+        @ApiResponse(code = 200, message = "OK", response = SutExecution.class),
+        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SutExecution.class),
+        @ApiResponse(code = 404, message = "SuT not found", response = SutExecution.class) })
     
     @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<SuTExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
+    ResponseEntity<SutExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
 
 
     @ApiOperation(value = "Returns a SuT logs", notes = "", response = Log.class, responseContainer = "List", tags={ "sut execution", })
@@ -143,16 +143,16 @@ public interface SutApi {
     ResponseEntity<Void> sutPut(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body);
 
 
-    @ApiOperation(value = "List all SuT executions", notes = "", response = SuTExecution.class, responseContainer = "List", tags={ "sut execution", })
+    @ApiOperation(value = "List all SuT executions", notes = "", response = SutExecution.class, responseContainer = "List", tags={ "sut execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = SuTExecution.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "SuTs not found", response = SuTExecution.class) })
+        @ApiResponse(code = 200, message = "OK", response = SutExecution.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "SuTs not found", response = SutExecution.class) })
     
     @RequestMapping(value = "/sut/{sutId}/exec",
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<SuTExecution>> sutSutIdExecGet();
+    ResponseEntity<List<SutExecution>> getAllSutExecBySut();
 
 
     @ApiOperation(value = "Returns a Sut.", notes = "Returns the Sut that matches the given id.", response = SutSpecification.class, tags={ "sut", })
