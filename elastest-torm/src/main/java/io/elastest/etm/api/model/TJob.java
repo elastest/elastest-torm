@@ -56,15 +56,17 @@ public class TJob {
 	private String imageName = null;
 
 	@JsonView(BasicAttTJob.class)
-	@Column(name="ELAS_ETM_TJOB_SUT")
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ELAS_ETM_TJOB_SUT")
 	@JsonProperty("sut")
-	private Integer sut = null;
+	private SutSpecification sut = null;
 		
 	//bi-directional many-to-one association to TJobExec
 	@OneToMany(mappedBy="tJob")
 	private List<TJobExecution> tjobExecs;
 	
 	//bi-directional many-to-one association to Project
+	@JsonView(BasicAttTJob.class)
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ELAS_ETM_TJOB_PROJECT")
 	private Project project;
@@ -72,7 +74,7 @@ public class TJob {
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, Integer sut, Project project) {
+	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, SutSpecification sut, Project project) {
 		this.id = id==null? 0: id;
 		this.name = name;
 //		this.testServices = testServices;
@@ -179,15 +181,15 @@ public class TJob {
 	 **/
 	@ApiModelProperty(example = "12345678", value = "")
 
-	public Integer getSut() {
+	public SutSpecification getSut() {
 		return sut;
 	}
 
-	public void setSut(Integer sut) {
+	public void setSut(SutSpecification sut) {
 		this.sut = sut;
 	}
 	
-	public TJob sut(Integer sut) {
+	public TJob sut(SutSpecification sut) {
 		this.sut = sut;
 		return this;
 	}	

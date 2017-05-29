@@ -24,41 +24,29 @@ import javax.validation.Valid;
 @Api(value = "sut", description = "the sut API")
 public interface SutApi {
 
-    @ApiOperation(value = "Create SuT Description", notes = "", response = Void.class, tags={ "sut", })
+    @ApiOperation(value = "Create SuT Description", notes = "", response = SutSpecification.class, tags={ "sut", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = Void.class),
-        @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
+        @ApiResponse(code = 200, message = "OK", response = SutSpecification.class),
+        @ApiResponse(code = 405, message = "Invalid input") })
     
     @RequestMapping(value = "/sut",
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    ResponseEntity<Void> createSuT(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body);
+    ResponseEntity<SutSpecification> createSuT(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body);
 
 
-    @ApiOperation(value = "Deletes a SuT", notes = "", response = Void.class, tags={ "sut", })
+    @ApiOperation(value = "Deletes a SuT", notes = "", response = Long.class, tags={ "sut", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "SuT deleteted successfully", response = Void.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = Void.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = Void.class) })
+        @ApiResponse(code = 200, message = "SuT deleteted successfully", response = Long.class),
+        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = Long.class),
+        @ApiResponse(code = 404, message = "SuT not found", response = Long.class) })
     
     @RequestMapping(value = "/sut/{sutId}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
-    ResponseEntity<Void> deleteSuT(@ApiParam(value = "SuT id to delete",required=true ) @PathVariable("sutId") Long sutId);
+    ResponseEntity<Long> deleteSuT(@ApiParam(value = "SuT id to delete",required=true ) @PathVariable("sutId") Long sutId);
 
-
-    @ApiOperation(value = "Deletes a SuT execution", notes = "", response = Void.class, tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "SuT Execution deleteted successfully", response = Void.class),
-        @ApiResponse(code = 400, message = "Invalid SuT Execution ID supplied", response = Void.class),
-        @ApiResponse(code = 404, message = "SuT Execution not found", response = Void.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}",
-        produces = { "application/json" }, 
-        method = RequestMethod.DELETE)
-    ResponseEntity<Void> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId);
-
-
+    //Create SutExecution
     @ApiOperation(value = "Deploys a SuT", notes = "", response = SutExecution.class, tags={ "sut execution", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "SuT has been deployed successfully", response = SutExecution.class),
@@ -69,6 +57,18 @@ public interface SutApi {
         produces = { "application/json" }, 
         method = RequestMethod.POST)
     ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig);
+
+    
+    @ApiOperation(value = "Deletes a SuT execution", notes = "", response = Long.class, tags={ "sut execution", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "SuT Execution deleteted successfully", response = Long.class),
+        @ApiResponse(code = 400, message = "Invalid SuT Execution ID supplied", response = Long.class),
+        @ApiResponse(code = 404, message = "SuT Execution not found", response = Long.class) })
+    
+    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}",
+        produces = { "application/json" }, 
+        method = RequestMethod.DELETE)
+    ResponseEntity<Long> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId);
 
 
     @ApiOperation(value = "Returns a SuT Execution information", notes = "", response = SutExecution.class, tags={ "sut execution", })

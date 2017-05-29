@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.annotations.ApiModelProperty;
 
@@ -20,12 +21,17 @@ import io.swagger.annotations.ApiModelProperty;
 public class Project implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
+	public interface BasicAttProject{
+	}
+	
+	@JsonView(BasicAttProject.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 	
+	@JsonView(BasicAttProject.class)
 	@JsonProperty("name")
 	private String name = null;
 	

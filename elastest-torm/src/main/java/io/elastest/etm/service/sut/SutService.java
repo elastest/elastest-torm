@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SutSpecification;
+import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 
@@ -24,6 +25,11 @@ public class SutService {
 		return sutRepository.save(sutSpecification);
 	}
 	
+	public void deleteSut(Long sutId) {
+		SutSpecification sut = sutRepository.findOne(sutId);
+		sutRepository.delete(sut);
+	}
+	
 	public List<SutSpecification> getAllSutSpecification(){
 		
 		return sutRepository.findAll();
@@ -33,11 +39,16 @@ public class SutService {
 		return sutRepository.findOne(id);
 	}
 	
-	public SutExecution createSutExecution(SutExecution sutExecution){
-		
+	public SutExecution createSutExecution(Long sutId){
+		SutSpecification sut = sutRepository.findOne(sutId);
 		//TODO Start up instance for a given SUT
-		
+		SutExecution sutExecution = null;
 		return sutExecutionRepository.save(sutExecution);
+	}
+	
+	public void deleteSutExec(Long sutExecId) {
+		SutExecution sutExec = sutExecutionRepository.findOne(sutExecId);
+		sutExecutionRepository.delete(sutExec);
 	}
 	
 	public List<SutExecution> getAllSutExecBySutSpec(SutSpecification sut){

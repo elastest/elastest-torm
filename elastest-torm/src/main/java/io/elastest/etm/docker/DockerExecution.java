@@ -34,7 +34,6 @@ import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
@@ -42,7 +41,6 @@ import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
-import io.elastest.etm.docker.utils.IOUtils;
 
 @Service
 public class DockerExecution {
@@ -139,11 +137,12 @@ public class DockerExecution {
 			Ports portBindings = new Ports();
 			portBindings.bind(tcp5000, Binding.bindPort(5000));
 
-			String a = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
-			String envVar = "ELASID="+a;
-			System.out.println("pulling logstash image...");
+			String elasticsearchId = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
+			String envVar = "ELASID="+elasticsearchId;
+			System.out.println("Pulling logstash image...");
 			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("pulling logstash image ends");
+			System.out.println("Pulling logstash image ends");
+			
 			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withExposedPorts(tcp5000)
 					.withPortBindings(portBindings).withEnv(envVar).exec();
 
@@ -232,7 +231,10 @@ public class DockerExecution {
 	public void endTestExec() {
 		try {
 			System.out.println("Ending test execution");
-			this.dockerClient.stopContainerCmd(testContainerId).exec();
+			try{
+				this.dockerClient.stopContainerCmd(testContainerId).exec();
+			}
+			catch (Exception e) {}
 			this.dockerClient.removeContainerCmd(testContainerId).exec();
 			this.dockerClient.removeImageCmd(testImage).withForce(true).exec();
 		} catch (Exception e) {
@@ -246,7 +248,6 @@ public class DockerExecution {
 			System.out.println("Ending Logstash execution");
 			this.dockerClient.stopContainerCmd(logstashContainerId).exec();
 			this.dockerClient.removeContainerCmd(logstashContainerId).exec();
-			this.dockerClient.removeImageCmd(logstashImage).withForce(true).exec();
 		} catch (Exception e) {
 			System.out.println("Error on ending Logstash execution");
 		}

@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -30,6 +32,7 @@ public class SutSpecification {
 		
 	@Id
 	@JsonView(SutView.class)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	@JsonProperty("id")
 	private Long id = null;
 
@@ -59,6 +62,24 @@ public class SutSpecification {
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Project project = null;
 	
+	@JsonProperty("tJobs")
+	@OneToMany(mappedBy="sut")
+	private List<TJob> tJobs;
+	
+	
+	public SutSpecification() {}
+	
+	public SutSpecification(Long id, String name, String specification, String description,
+			List<DeployedSut> deployedSut, Project project, List<TJob> tJobs) {
+		this.id = id==null? 0: id;
+		this.name = name;
+		this.specification = specification;
+		this.description = description;
+		this.deployedSut = deployedSut;
+		this.project = project;
+		this.tJobs = tJobs;
+	}
+
 
 	public SutSpecification id(Long id) {
 		this.id = id==null? 0: id;
@@ -214,6 +235,40 @@ public class SutSpecification {
 		this.project = project;
 		return this;
 	}
+	
+	
+	/**
+	 * Get deployedSut
+	 * 
+	 * @return deployedSut
+	 **/
+	@ApiModelProperty(value = "")
+
+	@Valid
+
+	public List<TJob> getTJobs() {
+		return tJobs;
+	}
+
+	public void setTJobs(List<TJob> tJobs) {
+		this.tJobs = tJobs;
+	}
+	
+	
+	public TJob addTJob(TJob tJob) {
+		getTJobs().add(tJob);
+		tJob.setSut(this);
+
+		return tJob;
+	}
+
+	public TJob removeTJob(TJob tJob) {
+		getTJobs().remove(tJob);
+		tJob.setSut(null);
+
+		return tJob;
+	}
+	
 
 	@Override
 	public boolean equals(java.lang.Object o) {
