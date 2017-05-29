@@ -1,6 +1,8 @@
 package io.elastest.etm.test.tjob;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -14,15 +16,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
+import io.elastest.etm.docker.DockerExecution;
 import io.elastest.etm.service.tjob.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 
 
 @RunWith(JUnitPlatform.class)
-@SpringBootTest
+@SpringBootTest(classes=ElastestConfigTest.class)
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-public class TjobAPITest {
+public class TJobServiceTest {
 	
 //	@Mock TJobRepository tJobRepository;
 //	
@@ -35,13 +39,19 @@ public class TjobAPITest {
 //	}
 	
 	@Test
-	public void createTJobTest(@Autowired TJob tJob, @Autowired TJobService tJobService, @Mock TJobRepository tJobRepository){
+	public void createTJobTest(@Autowired TJob tJob  
+			, @Mock TJobRepository tJobRepo, @Mock DockerExecution dockerExec, @Mock TJobExecRepository tJobExecRepo){
 		//TJob createdTJob = 
-		when(tJobRepository.save(tJob)).thenReturn(tJob);
-		tJobService.settJobRepo(tJobRepository);
-		tJob = tJobService.createTJob(tJob);
-		System.out.println("ImageName:"+tJob.getImageName());
-		assertNotNull(tJob.getId());
+		when(tJobRepo.save(tJob)).thenReturn(tJob);
+		TJobService tJobService = new TJobService(dockerExec, tJobRepo, tJobExecRepo);		
+		TJob tJob1 = tJobService.createTJob(tJob);
+		System.out.println("ImageName:"+tJob1.getImageName());
+		assertNotNull(tJob1.getId());		
+        assertAll("Validating Project Properties",
+                () -> assertTrue(tJob1.getName().equals("SimpleTest")),
+                () -> assertTrue(tJob1.getProject().getName().equals("TestProject1"))
+        );
+		
 	}
 	
 	

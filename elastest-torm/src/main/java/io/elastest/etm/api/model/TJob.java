@@ -197,10 +197,10 @@ public class TJob {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(example = "21714", value = "")
+	@ApiModelProperty(example = "{ id:\"1\", name: \"Project1\"" , value = "")
 
-	public Integer getProject() {
-		return sut;
+	public Project getProject() {
+		return project;
 	}
 
 	public void setProject(Project project) {

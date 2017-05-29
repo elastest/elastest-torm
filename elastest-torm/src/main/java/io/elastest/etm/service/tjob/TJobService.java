@@ -4,27 +4,35 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.dao.ProjectRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.docker.DockerExecution;
 
 @Service
 public class TJobService {
-	@Autowired
-	private DockerExecution dockerExec;
-
-	@Autowired
-	private TJobRepository tJobRepo;
 	
-	@Autowired
-	private TJobExecRepository tJobExecRepo;
+	private final DockerExecution dockerExec;
 
-	public TJob createTJob(TJob tjob) {
+	
+	private final TJobRepository tJobRepo;
+	
+	private final TJobExecRepository tJobExecRepo;
+
+		
+	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo) {
+		super();		
+		this.dockerExec = dockerExec;
+		this.tJobRepo = tJobRepo;
+		this.tJobExecRepo = tJobExecRepo;		
+	}
+
+	public TJob createTJob(TJob tjob) {		
 		return tJobRepo.save(tjob);
 	}
 
@@ -68,13 +76,6 @@ public class TJobService {
 		} else {
 			throw new HTTPException(405);
 		}
-	}
-	
-	public TJobRepository gettJobRepo() {
-		return tJobRepo;
-	}
+	}	
 
-	public void settJobRepo(TJobRepository tJobRepo) {
-		this.tJobRepo = tJobRepo;
-	}
 }
