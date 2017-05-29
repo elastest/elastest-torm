@@ -1,11 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.swagger</groupId>
+	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm</artifactId>
 	<packaging>jar</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	
 	<name>elastest-torm</name>
-	<version>1.0.0</version>
+	<description>This artifact contains the Elastest Torm project, part of the Elastest platform.</description>
+	<url>https://github.com/elastest/elastest-torm</url>
+
+	<developers>
+		<developer>
+			<id>URJC</id>
+			<name>URJC</name>
+			<organization>URJC</organization>
+			<organizationUrl>https://www.urjc.es/</organizationUrl>
+		</developer>
+	</developers>
+		
 	<properties>
 		<java.version>1.8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -13,9 +26,7 @@
 		<junit.jupiter.version>5.0.0-M4</junit.jupiter.version>
 		<junit.platform.version>1.0.0-M4</junit.platform.version>
 		<springfox-version>2.6.1</springfox-version>
-		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.source>${java.version}</maven.compiler.source>		
+		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>		
 	</properties>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -127,10 +138,8 @@
             <artifactId>spring-test-junit5</artifactId>
             <version>1.0.0.M4</version>
             <scope>test</scope>            
-        </dependency> 
-
-	</dependencies>
-	
+        </dependency>
+	</dependencies>	
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
