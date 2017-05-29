@@ -6,9 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.apache.maven.plugins.surefire.report.SurefireReportParser;
 import org.apache.maven.reporting.MavenReportException;
@@ -23,40 +26,38 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Info;
+import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Volume;
+import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.docker.utils.IOUtils;
-import io.elastest.etm.docker.utils.StompMessageSenderService;
 
 @Service
 public class DockerExecution {
 
 	private static String testImage = "";
+	private static String logstashImage = "edujgurjc/logstash";
 	private static final String volumeDirectory = "/testcontainers-java-examples/selenium-container";
-	private static final String topicEndExecutionMessage = "/topic/endExecutionTest";
 
 	@Autowired
 	private ApplicationContext context;
 
-	@Autowired
-	private StompMessageSenderService stompMessageSenderService;
-
-	@Autowired
-	private IOUtils iOUtils;
 
 	private DockerClient dockerClient;
-	private CreateContainerResponse container;
-	private String testContainerId, appContainerId;
+	private CreateContainerResponse container, logstashContainer;
+	private String testContainerId, appContainerId, logstashContainerId;
 	@Autowired
 	private TJobExecRepository tJobExecRepo;
 
@@ -67,7 +68,7 @@ public class DockerExecution {
 
 	public TJobExecution executeTJob(TJob tJob) {
 		TJobExecution tjobExec = new TJobExecution();
-		this.testImage = tJob.getImageName();
+		testImage = tJob.getImageName();
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
@@ -84,7 +85,8 @@ public class DockerExecution {
 		System.out.println("Info: " + info);
 
 		try {
-
+			startLogstash();
+//            Thread.sleep(10000);
 			ExposedPort tcp6080 = ExposedPort.tcp(6080);
 
 			Ports portBindings = new Ports();
@@ -93,19 +95,27 @@ public class DockerExecution {
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
 
 			Volume volume = new Volume(volumeDirectory);
-
+			LogConfig logConfig = new LogConfig();
+			logConfig.setType(LoggingType.SYSLOG);
+			
+			Map<String, String> configMap = new HashMap<String, String>();
+			configMap.put("syslog-address", "tcp://localhost:5000");
+			logConfig.setConfig(configMap);
+			
 			this.dockerClient.pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 			this.container = this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
-					.withEnv(envVar).exec();
+					.withEnv(envVar).withLogConfig(logConfig).exec();
 
 			testContainerId = this.container.getId();
 
 			this.dockerClient.startContainerCmd(testContainerId).exec();
-			this.manageLogs();
-
-			endTestExec();
+			int code = this.dockerClient.waitContainerCmd(testContainerId).exec(new WaitContainerResultCallback()).awaitStatusCode();
+			System.out.println("Test container ends with code " + code);
+			
+			this.saveTestSuite();
+			endExec();
 
 			// tjobExec.setElasEtmTjobexecLogs();
 			// tjobExec.setElasEtmTjobexecDuration();
@@ -113,38 +123,68 @@ public class DockerExecution {
 			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 		} catch (Exception e) {
 			e.printStackTrace();
-			endTestExec();
-
+			endExec();
 			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
 
 		}
 		tjobExec.setTjob(tJob);
 		return tJobExecRepo.save(tjobExec);
 	}
+	
+	
+	public void startLogstash(){
+		try {
+			ExposedPort tcp5000 = ExposedPort.tcp(5000);
+
+			Ports portBindings = new Ports();
+			portBindings.bind(tcp5000, Binding.bindPort(5000));
+
+			String a = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
+			String envVar = "ELASID="+a;
+			System.out.println("pulling logstash image...");
+			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("pulling logstash image ends");
+			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withExposedPorts(tcp5000)
+					.withPortBindings(portBindings).withEnv(envVar).exec();
+
+			logstashContainerId = this.logstashContainer.getId();
+
+			this.dockerClient.startContainerCmd(logstashContainerId).exec();
+			this.manageLogs();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			endLogstashExec();
+		}
+	}
 
 	public void manageLogs() {
 		FileWriter file = null;
 		PrintWriter pw = null;
-
+		System.out.println("Starting logstash");
 		try {
 
 			file = new FileWriter(this.logPath);
 			pw = new PrintWriter(file);
 
+			Object lock = new Object();
+
 			ExecStartResultCallbackWebsocket execStartResultCallbackWebsocket = context
 					.getBean(ExecStartResultCallbackWebsocket.class);
 			execStartResultCallbackWebsocket.setStdout(pw);
 			execStartResultCallbackWebsocket.setStderr(pw);
+			execStartResultCallbackWebsocket.setLock(lock);
 
-			try {
-				this.dockerClient.logContainerCmd(testContainerId).withStdErr(true).withStdOut(true)
-						.withFollowStream(true).exec(execStartResultCallbackWebsocket).awaitCompletion();
+			synchronized(lock){
+				this.dockerClient.logContainerCmd(logstashContainerId).withStdErr(true).withStdOut(true)
+						.withFollowStream(true).exec(execStartResultCallbackWebsocket);
+				lock.wait();
+			}		
 
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -156,10 +196,6 @@ public class DockerExecution {
 				e.printStackTrace();
 			}
 		}
-
-		this.saveTestSuite();
-		stompMessageSenderService.sendStompMessage(topicEndExecutionMessage, new EndExecutionMessage("END"));
-		iOUtils.getLogLines().add("END");
 	}
 
 	public void saveTestSuite() {
@@ -186,15 +222,33 @@ public class DockerExecution {
 		} catch (MavenReportException e) {
 			e.printStackTrace();
 		}
+	}	
+		
+	public void endExec() {
+		endTestExec();
+		endLogstashExec();
 	}
-
+	
 	public void endTestExec() {
 		try {
+			System.out.println("Ending test execution");
 			this.dockerClient.stopContainerCmd(testContainerId).exec();
 			this.dockerClient.removeContainerCmd(testContainerId).exec();
 			this.dockerClient.removeImageCmd(testImage).withForce(true).exec();
 		} catch (Exception e) {
+			System.out.println("Error on ending test execution");
 
+		}
+	}
+	
+	public void endLogstashExec() {
+		try {
+			System.out.println("Ending Logstash execution");
+			this.dockerClient.stopContainerCmd(logstashContainerId).exec();
+			this.dockerClient.removeContainerCmd(logstashContainerId).exec();
+			this.dockerClient.removeImageCmd(logstashImage).withForce(true).exec();
+		} catch (Exception e) {
+			System.out.println("Error on ending Logstash execution");
 		}
 	}
 
