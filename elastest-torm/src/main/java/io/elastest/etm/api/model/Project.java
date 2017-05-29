@@ -30,7 +30,7 @@ public class Project implements Serializable {
 	private String name = null;
 	
 	@JsonProperty("tJobs")
-	//bi-directional many-to-one association to ElasEtmTjobexec
+	//bi-directional many-to-one association to TJob
 	@OneToMany(mappedBy="project")
 	private List<TJob> tJobs;
 	

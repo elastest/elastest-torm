@@ -32,6 +32,8 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 	private IOUtils iOUtils;
 	
 	private PrintWriter stdout, stderr;
+	
+	private Object lock;
 
 	@Override
 	public void onNext(Frame frame) {
@@ -41,12 +43,12 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 				case STDOUT:
 				case RAW:
 					if (stdout != null) {
-						writeTrace(frame, stdout, "");
+						checkLogstashStarted(frame);
 					}					
 					break;
 				case STDERR:
 					if (stderr != null) {
-						writeTrace(frame, stderr, "Stderr: ");
+						checkLogstashStarted(frame);
 					}
 					break;
 				default:
@@ -65,7 +67,7 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 		
 		LogTrace trace = new LogTrace(frameString);
 		afterTradeExecuted(trace, "/topic/logs");
-		
+				
 		pw.println(frameString);
 		iOUtils.getLogLines().add(frameString);
 		
@@ -93,6 +95,17 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 			e.printStackTrace();
 		}
 	}
+	
+	public void checkLogstashStarted(Frame frame) throws IOException{
+		String frameString = frame.toString();
+		System.out.println(frameString);		
+		if (frameString.contains("Successfully started Logstash")){
+			System.out.println("Successfully started Logstash");
+			synchronized (getLock()) {
+				getLock().notify();
+			}
+		}
+	}
 
 	public PrintWriter getStdout() {
 		return stdout;
@@ -109,5 +122,14 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 	public void setStderr(PrintWriter stderr) {
 		this.stderr = stderr;
 	}
+
+	public Object getLock() {
+		return lock;
+	}
+
+	public void setLock(Object lock) {
+		this.lock = lock;
+	}
+	
 	
 }
