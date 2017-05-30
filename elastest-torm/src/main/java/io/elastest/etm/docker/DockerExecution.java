@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.xml.ws.http.HTTPException;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.apache.maven.plugins.surefire.report.SurefireReportParser;
@@ -40,7 +42,6 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.service.sut.SutService;
 
@@ -64,18 +65,23 @@ public class DockerExecution {
 	private boolean windowsSo = false;
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
 	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
+	
+	private String network, logstashIP;
 
 	public void configureDocker() {
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
 			this.dockerClient = DockerClientBuilder.getInstance(config).build();
-
+			
 			this.surefirePath = "";
 			this.testsuitesPath = "";
 		} else {
 			this.dockerClient = DockerClientBuilder.getInstance().build();
 		}
+		
+		network = RandomStringUtils.randomAlphanumeric(19);
+		this.dockerClient.createNetworkCmd().withName(network).exec();
 		
 		Info info = this.dockerClient.infoCmd().exec();
 		System.out.println("Info: " + info);
@@ -120,14 +126,14 @@ public class DockerExecution {
 			logConfig.setType(LoggingType.SYSLOG);
 	
 			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://localhost:5000");
+			configMap.put("syslog-address", "tcp://"+logstashIP+":5000");
 			logConfig.setConfig(configMap);
 	
 			this.dockerClient.pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 	
 			this.container = this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
-					.withEnv(envVar).withLogConfig(logConfig).exec();
+					.withEnv(envVar).withLogConfig(logConfig).withNetworkMode(network).exec();
 	
 			testContainerId = this.container.getId();
 	
@@ -155,12 +161,17 @@ public class DockerExecution {
 			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
 			System.out.println("Pulling logstash image ends");
 
-			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withExposedPorts(tcp5000)
-					.withPortBindings(portBindings).withEnv(envVar).exec();
+			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage)
+					.withEnv(envVar).withNetworkMode(network).exec();
 
 			logstashContainerId = this.logstashContainer.getId();
 
 			this.dockerClient.startContainerCmd(logstashContainerId).exec();
+			
+			logstashIP = this.dockerClient.inspectContainerCmd(logstashContainerId).exec().getNetworkSettings().getNetworks().get(network).getIpAddress();
+			if(logstashIP == null || logstashIP.isEmpty()){
+				throw new Exception();
+			}
 			this.manageLogs();
 
 		} catch (Exception e) {
@@ -242,6 +253,7 @@ public class DockerExecution {
 		} catch (Exception e) {
 			System.out.println("Error on ending Logstash execution");
 		}
+		this.dockerClient.removeNetworkCmd(network).exec();
 	}
 
 }
