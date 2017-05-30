@@ -1,7 +1,10 @@
 package io.elastest.etm.api.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,8 +14,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,8 +32,6 @@ import io.swagger.annotations.ApiModelProperty;
  */
 
 @Entity
-@Table(name="ELAS_ETM_TJOBEXEC")
-@NamedQuery(name="TJobExecution.findAll", query="SELECT e FROM TJobExecution e")
 public class TJobExecution {
 	
 	public interface BasicAttTJobExec {
@@ -37,38 +40,37 @@ public class TJobExecution {
 	@JsonView(BasicAttTJobExec.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="ELAS_ETM_TJOBEXEC_ID")
+	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 
 	@JsonView(BasicAttTJobExec.class)
-	@Column(name="ELAS_ETM_TJOBEXEC_DURATION")
+	@Column(name="duration")
 	@JsonProperty("duration")
 	private Long duration = null;
 	
 	@JsonView(BasicAttTJobExec.class)
-	@Column(name="ELAS_ETM_TJOBEXEC_RESULT")
+	@Column(name="result")
 	@JsonProperty("result")
 	private ResultEnum result = null;
 
 	@JsonView(BasicAttTJobExec.class)
 	@OneToOne (fetch = FetchType.LAZY)
-	@JoinColumn(name="ELAS_ETM_TJOBEXEC_SUT_EXEC")
+	@JoinColumn(name="sut_execution")
 	@JsonProperty("sutExecution")
 	private SutExecution sutExecution = null;
 
 	@JsonView(BasicAttTJobExec.class)
-	@Column(name="ELAS_ETM_TJOBEXEC_ERROR_EXEC")
+	@Column(name="error")
 	@JsonProperty("error")
 	private String error = null;
 
-//	@Column(name="ELAS_ETM_TJOBEXEC_LOGS")
-//	@JsonProperty("logs")
-//	private List<Log> logs = null;
+	@OneToMany(mappedBy="tJobExec", cascade = {CascadeType.ALL})
+	private List<Log> logs = null;
 	
 	//bi-directional many-to-one association to Tjob
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ELAS_ETM_TJOBEXEC_TJOB")
+	@JoinColumn(name="tjob")
 	private TJob tJob;
 		
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -118,10 +120,6 @@ public class TJobExecution {
 		}
 	}
 
-	public TJobExecution id(Long id) {
-		this.id = id;
-		return this;
-	}
 
 	/**
 	 * Get id
@@ -138,12 +136,13 @@ public class TJobExecution {
 	public void setId(Long id) {
 		this.id = id==null? 0: id;
 	}
-
-	public TJobExecution duration(Long duration) {
-		this.duration = duration;
+	
+	public TJobExecution id(Long id) {
+		this.id = id;
 		return this;
 	}
-
+	
+	
 	/**
 	 * Get duration
 	 * 
@@ -159,9 +158,9 @@ public class TJobExecution {
 	public void setDuration(Long duration) {
 		this.duration = duration==null? 0: duration;
 	}
-
-	public TJobExecution result(ResultEnum result) {
-		this.result = result;
+	
+	public TJobExecution duration(Long duration) {
+		this.duration = duration;
 		return this;
 	}
 
@@ -181,11 +180,11 @@ public class TJobExecution {
 		this.result = result;
 	}
 
-	public TJobExecution sutExecution(SutExecution sutExecution) {
-		this.sutExecution = sutExecution;
+	public TJobExecution result(ResultEnum result) {
+		this.result = result;
 		return this;
 	}
-
+	
 	/**
 	 * Get sutExecution
 	 * 
@@ -201,11 +200,11 @@ public class TJobExecution {
 		this.sutExecution = sutExecution;
 	}
 
-	public TJobExecution error(String error) {
-		this.error = error;
+	public TJobExecution sutExecution(SutExecution sutExecution) {
+		this.sutExecution = sutExecution;
 		return this;
 	}
-
+	
 	/**
 	 * Get error
 	 * 
@@ -220,36 +219,43 @@ public class TJobExecution {
 	public void setError(String error) {
 		this.error = error;
 	}
+	
+	public TJobExecution error(String error) {
+		this.error = error;
+		return this;
+	}
 
-//	public TJobExecution logs(List<Log> logs) {
-//		this.logs = logs;
-//		return this;
-//	}
-//
-//	public TJobExecution addLogsItem(Log logsItem) {
-//		if (this.logs == null) {
-//			this.logs = new ArrayList<Log>();
-//		}
-//		this.logs.add(logsItem);
-//		return this;
-//	}
 
-//	/**
-//	 * URLs of logs
-//	 * 
-//	 * @return logs
-//	 **/
-//	@ApiModelProperty(value = "URLs of logs")
-//
-//	@Valid
-//
-//	public List<Log> getLogs() {
-//		return logs;
-//	}
-//
-//	public void setLogs(List<Log> logs) {
-//		this.logs = logs;
-//	}
+	/**
+	 * URLs of logs
+	 * 
+	 * @return logs
+	 **/
+	@ApiModelProperty(value = "URLs of logs")
+
+	@Valid
+	public List<Log> getLogs() {
+		return logs;
+	}
+
+	public void setLogs(List<Log> logs) {
+		this.logs = logs;
+	}
+	
+	
+	public TJobExecution logs(List<Log> logs) {
+		this.logs = logs;
+		return this;
+	}
+
+	public TJobExecution addLogsItem(Log logsItem) {
+		if (this.logs == null) {
+			this.logs = new ArrayList<Log>();
+		}
+		this.logs.add(logsItem);
+		return this;
+	}
+	
 	
 	/**
 	 * tJob
@@ -291,7 +297,7 @@ public class TJobExecution {
 				&& Objects.equals(this.result, tjobExecution.result)
 				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
 				&& Objects.equals(this.error, tjobExecution.error)
-//				&& Objects.equals(this.logs, tjobExecution.logs)
+				&& Objects.equals(this.logs, tjobExecution.logs)
 				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
 				;
 	}
@@ -311,7 +317,7 @@ public class TJobExecution {
 		sb.append("    result: ").append(toIndentedString(result)).append("\n");
 		sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
-//		sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
+		sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
 		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
 		sb.append("}");
 		return sb.toString();

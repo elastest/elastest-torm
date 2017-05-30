@@ -2,12 +2,23 @@ package io.elastest.etm.api.model;
 
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.Project.BasicAttProject;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -15,12 +26,84 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
+@Entity
 public class Log {
+	
+	public interface BasicAttLog{
+	}
+	
+	@JsonView(BasicAttProject.class)
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="id")
+	@JsonProperty("id")
+	private Long id = null;
+	
+	@JsonView(BasicAttLog.class)
+	@JsonProperty("logType")
+	private LogTypeEnum logType = null;
+
+	@JsonView(BasicAttLog.class)
+	@JsonProperty("logUrl")
+	private String logUrl = null;
+	
+	@ManyToOne(fetch=FetchType.LAZY, cascade = {CascadeType.ALL})
+	@JoinColumn(name="tJobExec")
+	private TJobExecution tJobExec;
+	
+	
+	/* Constructors */
+	public Log(){}	
+	
+	public Log(Long id, LogTypeEnum logType, String logUrl, TJobExecution tJobExec) {
+		this.id = id==null? 0: id;
+		this.logType = logType;
+		this.logUrl = logUrl;
+		this.tJobExec = tJobExec;
+	}
+	
+	
+
+	/**
+	 * Gets or Sets Id
+	 */
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id==null? 0: id;
+	}
+	
+	public Log id(Long id) {
+		this.id = id;
+		return this;
+	}
+	
+	/**
+	 * Gets or Sets tJobExec
+	 */
+
+	public TJobExecution gettJobExec() {
+		return tJobExec;
+	}
+
+	public void settJobExec(TJobExecution tJobExec) {
+		this.tJobExec = tJobExec;
+	}
+
+	public Log tJobExec(TJobExecution tJobExec) {
+		this.tJobExec = tJobExec;
+		return this;
+	}
+
+
 	/**
 	 * Gets or Sets logType
 	 */
 	public enum LogTypeEnum {
-		BROWSERLOG("BrowserLog"),
+		SUTLOG("SutLog"),
 
 		TESTLOG("TestLog");
 
@@ -47,17 +130,6 @@ public class Log {
 		}
 	}
 
-	@JsonProperty("logType")
-	private LogTypeEnum logType = null;
-
-	@JsonProperty("logUrl")
-	private String logUrl = null;
-
-	public Log logType(LogTypeEnum logType) {
-		this.logType = logType;
-		return this;
-	}
-
 	/**
 	 * Get logType
 	 * 
@@ -73,9 +145,9 @@ public class Log {
 	public void setLogType(LogTypeEnum logType) {
 		this.logType = logType;
 	}
-
-	public Log logUrl(String logUrl) {
-		this.logUrl = logUrl;
+	
+	public Log logType(LogTypeEnum logType) {
+		this.logType = logType;
 		return this;
 	}
 
@@ -94,6 +166,13 @@ public class Log {
 	public void setLogUrl(String logUrl) {
 		this.logUrl = logUrl;
 	}
+	
+	public Log logUrl(String logUrl) {
+		this.logUrl = logUrl;
+		return this;
+	}
+	
+	
 
 	@Override
 	public boolean equals(java.lang.Object o) {

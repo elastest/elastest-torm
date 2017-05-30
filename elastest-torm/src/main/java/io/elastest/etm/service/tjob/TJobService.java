@@ -7,11 +7,11 @@ import javax.xml.ws.http.HTTPException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.api.model.Project;
+import io.elastest.etm.api.model.Log;
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.dao.ProjectRepository;
+import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.docker.DockerExecution;
@@ -21,18 +21,20 @@ import io.elastest.etm.service.sut.SutService;
 public class TJobService {
 
 	private final DockerExecution dockerExec;
-
 	private final TJobRepository tJobRepo;
-
 	private final TJobExecRepository tJobExecRepo;
+	private final LogRepository logRepo;
+
 	@Autowired
 	private SutService sutService;
 
-	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo) {
+	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
+			LogRepository logRepo) {
 		super();
 		this.dockerExec = dockerExec;
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepo = tJobExecRepo;
+		this.logRepo = logRepo;
 	}
 
 	public TJob createTJob(TJob tjob) {
@@ -55,6 +57,7 @@ public class TJobService {
 
 		SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
+		String testLogUrl = dockerExec.initializeLog();
 		try {
 			dockerExec.configureDocker();
 			dockerExec.startLogstash();
@@ -62,7 +65,7 @@ public class TJobService {
 			e.printStackTrace();
 			throw new HTTPException(500);
 		}
-		
+
 		try {
 			dockerExec.startTest(tjob.getImageName());
 			dockerExec.endExec();
@@ -72,6 +75,12 @@ public class TJobService {
 			e.printStackTrace();
 			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
 		}
+
+		Log testLog = new Log();
+		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
+		testLog.setLogUrl(testLogUrl);
+		testLog.settJobExec(tjobExec);
+		logRepo.save(testLog);
 
 		tjobExec.setSutExecution(sutExec);
 		return tJobExecRepo.save(tjobExec);

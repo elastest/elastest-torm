@@ -2,16 +2,12 @@ package io.elastest.etm.docker;
 
 import org.springframework.stereotype.Service;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.xml.ws.http.HTTPException;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
@@ -65,87 +61,73 @@ public class DockerExecution {
 	private boolean windowsSo = false;
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
 	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
-	
+
 	private String network, logstashIP;
+
+	private String testLogId;
 
 	public void configureDocker() {
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
 			this.dockerClient = DockerClientBuilder.getInstance(config).build();
-			
+
 			this.surefirePath = "";
 			this.testsuitesPath = "";
 		} else {
 			this.dockerClient = DockerClientBuilder.getInstance().build();
 		}
-		
-		network = RandomStringUtils.randomAlphanumeric(19);
+
+		network = "Logstash-" + RandomStringUtils.randomAlphanumeric(19);
 		this.dockerClient.createNetworkCmd().withName(network).exec();
-		
+
 		Info info = this.dockerClient.infoCmd().exec();
 		System.out.println("Info: " + info);
 	}
 
-	public TJobExecution executeTJob(TJob tJob, TJobExecution tjobExec) {
-		this.configureDocker();
-
-		SutExecution sutExec = sutService.createSutExecutionBySut(tJob.getSut());
-		try {
-			startLogstash();
-			startTest(tJob.getImageName());
-			endExec();
-
-			// tjobExec.setElasEtmTjobexecLogs();
-			// tjobExec.setElasEtmTjobexecDuration();
-
-			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
-		} catch (Exception e) {
-			e.printStackTrace();
-			endExec();
-			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
-
-		}
-		return tjobExec;
+	public void startSut() {
 	}
-	
-	public void startSut(){}
-	
-	public void startTest(String testImage){
-		try{
+
+	public void startTest(String testImage) {
+		try {
 			this.testImage = testImage;
 			ExposedPort tcp6080 = ExposedPort.tcp(6080);
-	
+
 			Ports portBindings = new Ports();
 			portBindings.bind(tcp6080, Binding.bindPort(6080));
-	
+
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
-	
+
 			Volume volume = new Volume(volumeDirectory);
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
-	
+
 			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://"+logstashIP+":5000");
+			configMap.put("syslog-address", "tcp://" + logstashIP + ":5000");
 			logConfig.setConfig(configMap);
-	
+
 			this.dockerClient.pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
-	
+
 			this.container = this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
 					.withEnv(envVar).withLogConfig(logConfig).withNetworkMode(network).exec();
-	
+
 			testContainerId = this.container.getId();
-	
+
 			this.dockerClient.startContainerCmd(testContainerId).exec();
 			int code = this.dockerClient.waitContainerCmd(testContainerId).exec(new WaitContainerResultCallback())
 					.awaitStatusCode();
 			System.out.println("Test container ends with code " + code);
-	
+
 			this.saveTestSuite();
 		} catch (Exception e) {
 			endExec();
 		}
+	}
+
+	public String initializeLog() {
+		testLogId = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
+		return "localhost:9200/" + testLogId;
 	}
 
 	public void startLogstash() {
@@ -155,24 +137,24 @@ public class DockerExecution {
 			Ports portBindings = new Ports();
 			portBindings.bind(tcp5000, Binding.bindPort(5000));
 
-			String elasticsearchId = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
-			String envVar = "ELASID=" + elasticsearchId;
+			String envVar = "ELASID=" + testLogId;
 			System.out.println("Pulling logstash image...");
 			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
 			System.out.println("Pulling logstash image ends");
 
-			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage)
-					.withEnv(envVar).withNetworkMode(network).exec();
+			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withEnv(envVar)
+					.withNetworkMode(network).exec();
 
 			logstashContainerId = this.logstashContainer.getId();
 
 			this.dockerClient.startContainerCmd(logstashContainerId).exec();
-			
-			logstashIP = this.dockerClient.inspectContainerCmd(logstashContainerId).exec().getNetworkSettings().getNetworks().get(network).getIpAddress();
-			if(logstashIP == null || logstashIP.isEmpty()){
+
+			logstashIP = this.dockerClient.inspectContainerCmd(logstashContainerId).exec().getNetworkSettings()
+					.getNetworks().get(network).getIpAddress();
+			if (logstashIP == null || logstashIP.isEmpty()) {
 				throw new Exception();
 			}
-			this.manageLogs();
+			this.manageLogstash();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -180,7 +162,7 @@ public class DockerExecution {
 		}
 	}
 
-	public void manageLogs() {
+	public void manageLogstash() {
 		System.out.println("Starting logstash");
 		try {
 
@@ -196,7 +178,7 @@ public class DockerExecution {
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 
 	public void saveTestSuite() {
@@ -256,4 +238,26 @@ public class DockerExecution {
 		this.dockerClient.removeNetworkCmd(network).exec();
 	}
 
+	public TJobExecution executeTJob(TJob tJob, TJobExecution tjobExec) {
+		this.configureDocker();
+
+		SutExecution sutExec = sutService.createSutExecutionBySut(tJob.getSut());
+		try {
+			initializeLog();
+			startLogstash();
+			startTest(tJob.getImageName());
+			endExec();
+
+			// tjobExec.setElasEtmTjobexecLogs();
+			// tjobExec.setElasEtmTjobexecDuration();
+
+			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			endExec();
+			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
+
+		}
+		return tjobExec;
+	}
 }

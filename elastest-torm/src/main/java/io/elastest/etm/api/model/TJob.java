@@ -26,8 +26,6 @@ import javax.validation.constraints.*;
  */
 
 @Entity
-@Table(name="ELAS_ETM_TJOB")
-@NamedQuery(name="TJob.findAll", query="SELECT e FROM TJob e")
 public class TJob {
 	
 	public interface BasicAttTJob {
@@ -36,12 +34,12 @@ public class TJob {
 	@JsonView(BasicAttTJob.class)
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="ELAS_ETM_TJOB_ID")
+	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 
 	@JsonView(BasicAttTJob.class)
-	@Column(name="ELAS_ETM_TJOB_NAME")
+	@Column(name="name")
 	@JsonProperty("name")
 	private String name = null;
 
@@ -51,13 +49,13 @@ public class TJob {
 //	private List<TestService> testServices = new ArrayList<TestService>();
 
 	@JsonView(BasicAttTJob.class)
-	@Column(name="ELAS_ETM_TJOB_IMNAME")
+	@Column(name="image_name")
 	@JsonProperty("imageName")
 	private String imageName = null;
 
 	@JsonView(BasicAttTJob.class)
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ELAS_ETM_TJOB_SUT")
+	@JoinColumn(name="sut")
 	@JsonProperty("sut")
 	private SutSpecification sut = null;
 		
@@ -68,7 +66,7 @@ public class TJob {
 	//bi-directional many-to-one association to Project
 	@JsonView(BasicAttTJob.class)
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ELAS_ETM_TJOB_PROJECT")
+	@JoinColumn(name="project")
 	private Project project;
 	
 
