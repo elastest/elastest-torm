@@ -1,15 +1,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.2.RELEASE</version>
+	</parent>
+	
 	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	
-	<name>elastest-torm</name>
+	<name>${project.groupId}:${project.artifactId}</name>
 	<description>This artifact contains the Elastest Torm project, part of the Elastest platform.</description>
 	<url>https://github.com/elastest/elastest-torm</url>
 
+<!-- organization & developers -->
+	<organization>
+		<name>Elastest</name>
+		<url>http://elastest.io</url>
+	</organization>
+	
 	<developers>
 		<developer>
 			<id>URJC</id>
@@ -26,13 +39,48 @@
 		<junit.jupiter.version>5.0.0-M4</junit.jupiter.version>
 		<junit.platform.version>1.0.0-M4</junit.platform.version>
 		<springfox-version>2.6.1</springfox-version>
-		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>		
+		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+	
+	<!-- Cross plugins settings -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	
+	<!-- plugins versions -->
+		<maven.source.plugin.version>2.2.1</maven.source.plugin.version>
+		<maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
+		<maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
+				
 	</properties>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.2.RELEASE</version>
-	</parent>
+
+	<!-- as agreed Public Artifacts will be under Apache Software License -->
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	
+	<!-- Source Code Manager -->
+	<scm>
+		<url>https://github.com/elastest/elastest-torm</url>
+		<connection>scm:git:https://github.com/elastest/elastest-torm</connection>
+		<developerConnection>scm:git://git@github.com:elastest/elastest-torm</developerConnection>
+		<tag>develop</tag>
+	</scm>
+	
+	<!-- Distribution management (all elastest public artifacts should set this configuration)-->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>		
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -140,6 +188,7 @@
             <scope>test</scope>            
         </dependency>
 	</dependencies>	
+	
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
@@ -184,6 +233,59 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <!-- maven source plugin required for Central deploy--> 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>${maven.javadoc.plugin.version}</version>
+			<executions>
+				<execution>
+					<id>attach-javadocs</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-gpg-plugin</artifactId>
+			<version>${maven.gpg.plugin.version}</version>
+			<executions>
+				<execution>
+					<id>sign-artifacts</id>
+					<phase>verify</phase>
+					<goals>
+						<goal>sign</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>org.sonatype.plugins</groupId>
+		  	<artifactId>nexus-staging-maven-plugin</artifactId>
+		  	<version>${nexus.staging.maven.plugin.version}</version>
+		  	<extensions>true</extensions>
+		  	<configuration>
+		    	 	<serverId>ossrh</serverId>
+		     		<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+		     		<autoReleaseAfterClose>false</autoReleaseAfterClose>
+		  	</configuration>
+		</plugin>
 			
 		</plugins>
 	</build>
