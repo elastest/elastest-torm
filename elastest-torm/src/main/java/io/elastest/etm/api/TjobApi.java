@@ -58,9 +58,10 @@ public interface TjobApi {
 
     @ApiOperation(value = "Executes a TJob.", notes = "Runs the TJob for a give tJobId and returns a Tjob Execution Id.", response = Long.class, tags={ "tjob execution", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "successful operation", response = TJobExecution.class),
+        @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
         @ApiResponse(code = 400, message = "Invalid ID supplied"),
-        @ApiResponse(code = 404, message = "TJob not found") })
+        @ApiResponse(code = 404, message = "TJob not found"),
+    	@ApiResponse(code = 500, message = "Server Error") })
     
     @RequestMapping(value = "/tjob/{tJobId}/exec",
         produces = { "application/json" }, 

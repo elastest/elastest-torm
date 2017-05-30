@@ -70,7 +70,12 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     	}
     	catch (Exception e) {
-	        return new ResponseEntity<TJobExecution>(HttpStatus.NOT_FOUND);
+    		if(dataConverter.getHttpExceptionCode(e) == 500){
+    			return new ResponseEntity<TJobExecution>(HttpStatus.INTERNAL_SERVER_ERROR);
+    		}
+    		else{
+    			return new ResponseEntity<TJobExecution>(HttpStatus.NOT_FOUND);
+	        }
 		}
     }
 

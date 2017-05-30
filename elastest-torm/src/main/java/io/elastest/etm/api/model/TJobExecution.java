@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -51,9 +52,10 @@ public class TJobExecution {
 	private ResultEnum result = null;
 
 	@JsonView(BasicAttTJobExec.class)
-	@Column(name="ELAS_ETM_TJOBEXEC_SUT_EXEC")
+	@OneToOne (fetch = FetchType.LAZY)
+	@JoinColumn(name="ELAS_ETM_TJOBEXEC_SUT_EXEC")
 	@JsonProperty("sutExecution")
-	private Long sutExecution = null;
+	private SutExecution sutExecution = null;
 
 	@JsonView(BasicAttTJobExec.class)
 	@Column(name="ELAS_ETM_TJOBEXEC_ERROR_EXEC")
@@ -179,7 +181,7 @@ public class TJobExecution {
 		this.result = result;
 	}
 
-	public TJobExecution sutExecution(Long sutExecution) {
+	public TJobExecution sutExecution(SutExecution sutExecution) {
 		this.sutExecution = sutExecution;
 		return this;
 	}
@@ -191,11 +193,11 @@ public class TJobExecution {
 	 **/
 	@ApiModelProperty(value = "")
 
-	public Long getSutExecution() {
+	public SutExecution getSutExecution() {
 		return sutExecution;
 	}
 
-	public void setSutExecution(Long sutExecution) {
+	public void setSutExecution(SutExecution sutExecution) {
 		this.sutExecution = sutExecution;
 	}
 

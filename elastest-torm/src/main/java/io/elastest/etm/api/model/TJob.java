@@ -179,7 +179,7 @@ public class TJob {
 	 * 
 	 * @return sut
 	 **/
-	@ApiModelProperty(example = "12345678", value = "")
+	@ApiModelProperty(example = "{ id:\"1\" }", value = "")
 
 	public SutSpecification getSut() {
 		return sut;
@@ -199,7 +199,7 @@ public class TJob {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(example = "{ id:\"1\", name: \"Project1\"" , value = "")
+	@ApiModelProperty(example = "{ id:\"1\" }" , value = "")
 
 	public Project getProject() {
 		return project;

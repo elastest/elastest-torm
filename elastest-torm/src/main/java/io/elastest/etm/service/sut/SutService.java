@@ -39,10 +39,17 @@ public class SutService {
 		return sutRepository.findOne(id);
 	}
 	
-	public SutExecution createSutExecution(Long sutId){
+	public SutExecution createSutExecutionById(Long sutId){
 		SutSpecification sut = sutRepository.findOne(sutId);
-		//TODO Start up instance for a given SUT
-		SutExecution sutExecution = null;
+		SutExecution sutExecution = new SutExecution();
+		sutExecution.setSutSpecification(sut);
+		
+		return sutExecutionRepository.save(sutExecution);
+	}
+	
+	public SutExecution createSutExecutionBySut(SutSpecification sut){
+		SutExecution sutExecution = new SutExecution();
+		sutExecution.setSutSpecification(sut);
 		return sutExecutionRepository.save(sutExecution);
 	}
 	

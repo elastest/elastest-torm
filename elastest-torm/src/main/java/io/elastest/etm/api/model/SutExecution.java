@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.Valid;
@@ -24,30 +26,40 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 public class SutExecution {
-	
-	public interface SutExecView{		
+
+	public interface SutExecView {
 	}
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonView(SutExecView.class)
 	@JsonProperty("id")
 	private Long id = null;
 
-//	@JsonView(SutExecView.class)
-//	@JsonProperty("logs")
-//	private List<String> logs = null;
+	// @JsonView(SutExecView.class)
+	// @JsonProperty("logs")
+	// private List<String> logs = null;
 
-//	@JsonView(SutExecView.class)
-//	@JsonProperty("monitoringCurrent")
-//	private SuTMonitoring monitoringCurrent = null;
-//
-//	@JsonView(SutExecView.class)
-//	@JsonProperty("monitoringSummary")
-//	private SuTMonitoringSummary monitoringSummary = null;
-//	
+	// @JsonView(SutExecView.class)
+	// @JsonProperty("monitoringCurrent")
+	// private SuTMonitoring monitoringCurrent = null;
+	//
+	// @JsonView(SutExecView.class)
+	// @JsonProperty("monitoringSummary")
+	// private SuTMonitoringSummary monitoringSummary = null;
+	//
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonProperty("sutSpecification")
-	private SutSpecification sutSpecification = null;	
+	private SutSpecification sutSpecification = null;
+
+	public SutExecution() {
+	}
+
+	public SutExecution(Long id, SutSpecification sutSpecification, DeployStatusEnum deployStatus) {
+		this.id = id==null? 0: id;
+		this.sutSpecification = sutSpecification;
+		this.deployStatus = deployStatus;
+	}
 
 	/**
 	 * Gets or Sets deployStatus
@@ -90,7 +102,7 @@ public class SutExecution {
 	private DeployStatusEnum deployStatus = null;
 
 	public SutExecution id(Long id) {
-		this.id = id;
+		this.id = id==null? 0: id;
 		return this;
 	}
 
@@ -106,80 +118,82 @@ public class SutExecution {
 	}
 
 	public void setId(Long id) {
-		this.id = id;
+		this.id = id==null? 0: id;
 	}
 
-//	public SuTExecution logs(List<String> logs) {
-//		this.logs = logs;
-//		return this;
-//	}
-//
-//	public SuTExecution addLogsItem(String logsItem) {
-//		if (this.logs == null) {
-//			this.logs = new ArrayList<String>();
-//		}
-//		this.logs.add(logsItem);
-//		return this;
-//	}
+	// public SuTExecution logs(List<String> logs) {
+	// this.logs = logs;
+	// return this;
+	// }
+	//
+	// public SuTExecution addLogsItem(String logsItem) {
+	// if (this.logs == null) {
+	// this.logs = new ArrayList<String>();
+	// }
+	// this.logs.add(logsItem);
+	// return this;
+	// }
 
 	/**
 	 * Get logs
 	 * 
 	 * @return logs
 	 **/
-//	@ApiModelProperty(value = "")
-//
-//	public List<String> getLogs() {
-//		return logs;
-//	}
-//
-//	public void setLogs(List<String> logs) {
-//		this.logs = logs;
-//	}
-//
-//	public SuTExecution monitoringCurrent(SuTMonitoring monitoringCurrent) {
-//		this.monitoringCurrent = monitoringCurrent;
-//		return this;
-//	}
+	// @ApiModelProperty(value = "")
+	//
+	// public List<String> getLogs() {
+	// return logs;
+	// }
+	//
+	// public void setLogs(List<String> logs) {
+	// this.logs = logs;
+	// }
+	//
+	// public SuTExecution monitoringCurrent(SuTMonitoring monitoringCurrent) {
+	// this.monitoringCurrent = monitoringCurrent;
+	// return this;
+	// }
 
-//	/**
-//	 * Get monitoringCurrent
-//	 * 
-//	 * @return monitoringCurrent
-//	 **/
-//	@ApiModelProperty(value = "")
-//
-//	@Valid
-//
-//	public SuTMonitoring getMonitoringCurrent() {
-//		return monitoringCurrent;
-//	}
-//
-//	public void setMonitoringCurrent(SuTMonitoring monitoringCurrent) {
-//		this.monitoringCurrent = monitoringCurrent;
-//	}
+	// /**
+	// * Get monitoringCurrent
+	// *
+	// * @return monitoringCurrent
+	// **/
+	// @ApiModelProperty(value = "")
+	//
+	// @Valid
+	//
+	// public SuTMonitoring getMonitoringCurrent() {
+	// return monitoringCurrent;
+	// }
+	//
+	// public void setMonitoringCurrent(SuTMonitoring monitoringCurrent) {
+	// this.monitoringCurrent = monitoringCurrent;
+	// }
 
-//	public SuTExecution monitoringSummary(SuTMonitoringSummary monitoringSummary) {
-//		this.monitoringSummary = monitoringSummary;
-//		return this;
-//	}
-//
-//	/**
-//	 * Get monitoringSummary
-//	 * 
-//	 * @return monitoringSummary
-//	 **/
-//	@ApiModelProperty(value = "")
-//
-//	@Valid
-//
-//	public SuTMonitoringSummary getMonitoringSummary() {
-//		return monitoringSummary;
-//	}
-//
-//	public void setMonitoringSummary(SuTMonitoringSummary monitoringSummary) {
-//		this.monitoringSummary = monitoringSummary;
-//	}
+	// public SuTExecution monitoringSummary(SuTMonitoringSummary
+	// monitoringSummary) {
+	// this.monitoringSummary = monitoringSummary;
+	// return this;
+	// }
+	//
+	// /**
+	// * Get monitoringSummary
+	// *
+	// * @return monitoringSummary
+	// **/
+	// @ApiModelProperty(value = "")
+	//
+	// @Valid
+	//
+	// public SuTMonitoringSummary getMonitoringSummary() {
+	// return monitoringSummary;
+	// }
+	//
+	// public void setMonitoringSummary(SuTMonitoringSummary monitoringSummary)
+	// {
+	// this.monitoringSummary = monitoringSummary;
+	// }
 
 	public SutExecution deployStatus(DeployStatusEnum deployStatus) {
 		this.deployStatus = deployStatus;
@@ -200,14 +214,14 @@ public class SutExecution {
 	public void setDeployStatus(DeployStatusEnum deployStatus) {
 		this.deployStatus = deployStatus;
 	}
-		
+
 	/**
 	 * Get sutSpecification
 	 * 
 	 * @return sutSpecification
 	 **/
 	@ApiModelProperty(value = "")
-	
+
 	public SutSpecification getSutSpecification() {
 		return sutSpecification;
 	}
@@ -215,7 +229,7 @@ public class SutExecution {
 	public void setSutSpecification(SutSpecification sutSpecification) {
 		this.sutSpecification = sutSpecification;
 	}
-	
+
 	public SutExecution sutSpecification(SutSpecification sutSpecification) {
 		this.sutSpecification = sutSpecification;
 		return this;
@@ -230,16 +244,21 @@ public class SutExecution {
 			return false;
 		}
 		SutExecution suTExecution = (SutExecution) o;
-		return Objects.equals(this.id, suTExecution.id) //&& Objects.equals(this.logs, suTExecution.logs)
-//				&& Objects.equals(this.monitoringCurrent, suTExecution.monitoringCurrent)
-				//&& Objects.equals(this.monitoringSummary, suTExecution.monitoringSummary)
+		return Objects.equals(this.id, suTExecution.id) // &&
+														// Objects.equals(this.logs,
+														// suTExecution.logs)
+				// && Objects.equals(this.monitoringCurrent,
+				// suTExecution.monitoringCurrent)
+				// && Objects.equals(this.monitoringSummary,
+				// suTExecution.monitoringSummary)
 				&& Objects.equals(this.deployStatus, suTExecution.deployStatus)
-				&& Objects.equals(this.sutSpecification, suTExecution.sutSpecification);		
+				&& Objects.equals(this.sutSpecification, suTExecution.sutSpecification);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, /*logs, monitoringCurrent, monitoringSummary,*/ deployStatus, sutSpecification);
+		return Objects.hash(id,
+				/* logs, monitoringCurrent, monitoringSummary, */ deployStatus, sutSpecification);
 	}
 
 	@Override
@@ -248,9 +267,11 @@ public class SutExecution {
 		sb.append("class SuTExecution {\n");
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		//sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
-//		sb.append("    monitoringCurrent: ").append(toIndentedString(monitoringCurrent)).append("\n");
-//		sb.append("    monitoringSummary: ").append(toIndentedString(monitoringSummary)).append("\n");
+		// sb.append(" logs: ").append(toIndentedString(logs)).append("\n");
+		// sb.append(" monitoringCurrent:
+		// ").append(toIndentedString(monitoringCurrent)).append("\n");
+		// sb.append(" monitoringSummary:
+		// ").append(toIndentedString(monitoringSummary)).append("\n");
 		sb.append("    deployStatus: ").append(toIndentedString(deployStatus)).append("\n");
 		sb.append("    sutSpecification: ").append(toIndentedString(sutSpecification)).append("\n");
 		sb.append("}");

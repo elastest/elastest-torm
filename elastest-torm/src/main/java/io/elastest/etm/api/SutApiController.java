@@ -50,7 +50,7 @@ public class SutApiController implements SutApi {
     public ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,
             @ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig) {
     	try{
-    		SutExecution sutExec = sutService.createSutExecution(sutId);
+    		SutExecution sutExec = sutService.createSutExecutionById(sutId);
 	        return new ResponseEntity<SutExecution>(sutExec, HttpStatus.OK);
     	}
     	catch (Exception e) {

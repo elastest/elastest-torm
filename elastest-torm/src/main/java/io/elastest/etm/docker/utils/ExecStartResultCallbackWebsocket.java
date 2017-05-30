@@ -42,14 +42,10 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 				switch (frame.getStreamType()) {
 				case STDOUT:
 				case RAW:
-					if (stdout != null) {
-						checkLogstashStarted(frame);
-					}					
+						checkLogstashStarted(frame);				
 					break;
 				case STDERR:
-					if (stderr != null) {
 						checkLogstashStarted(frame);
-					}
 					break;
 				default:
 					LOGGER.error("unknown stream type:" + frame.getStreamType());
