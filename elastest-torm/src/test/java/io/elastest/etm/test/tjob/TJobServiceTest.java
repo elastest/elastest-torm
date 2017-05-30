@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.docker.DockerExecution;
@@ -40,10 +40,10 @@ public class TJobServiceTest {
 	
 	@Test
 	public void createTJobTest(@Autowired TJob tJob  
-			, @Mock TJobRepository tJobRepo, @Mock DockerExecution dockerExec, @Mock TJobExecRepository tJobExecRepo){
+			, @Mock TJobRepository tJobRepo, @Mock DockerExecution dockerExec, @Mock TJobExecRepository tJobExecRepo, @Mock LogRepository logRepository){
 		//TJob createdTJob = 
 		when(tJobRepo.save(tJob)).thenReturn(tJob);
-		TJobService tJobService = new TJobService(dockerExec, tJobRepo, tJobExecRepo);		
+		TJobService tJobService = new TJobService(dockerExec, tJobRepo, tJobExecRepo, logRepository);		
 		TJob tJob1 = tJobService.createTJob(tJob);
 		System.out.println("ImageName:"+tJob1.getImageName());
 		assertNotNull(tJob1.getId());		
