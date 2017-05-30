@@ -5,7 +5,7 @@ import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.service.tjob.TJobService;
-import io.elastest.etm.utils.DataConverter;
+import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class TjobApiController implements TjobApi {
 	@Autowired
 	private TJobService tJobService;
 	
-	private DataConverter dataConverter = new DataConverter();
+	private UtilTools utilTools = new UtilTools();
 
 	@JsonView(BasicAttTJob.class)
     public ResponseEntity<TJob> createTJob(@ApiParam(value = "Tjob object that needs to create" ,required=true )  @Valid @RequestBody TJob body) {
@@ -70,7 +70,7 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		if(dataConverter.getHttpExceptionCode(e) == 500){
+    		if(utilTools.getHttpExceptionCode(e) == 500){
     			return new ResponseEntity<TJobExecution>(HttpStatus.INTERNAL_SERVER_ERROR);
     		}
     		else{
@@ -131,7 +131,7 @@ public class TjobApiController implements TjobApi {
     		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		if(dataConverter.getHttpExceptionCode(e) == 405){
+    		if(utilTools.getHttpExceptionCode(e) == 405){
 				return new ResponseEntity<TJob>(HttpStatus.METHOD_NOT_ALLOWED);
     		}
     		return new ResponseEntity<TJob>(HttpStatus.BAD_REQUEST);

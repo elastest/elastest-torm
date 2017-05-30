@@ -76,6 +76,7 @@ public interface TjobApi {
         @ApiResponse(code = 404, message = "Resource not found") })
     
     @RequestMapping(value = "/tjob",
+    	produces = { "application/json" },
         method = RequestMethod.GET)
     ResponseEntity<List<TJob>> getAllTJobs();
 

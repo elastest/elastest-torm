@@ -80,7 +80,7 @@ public interface SutApi {
     @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<SutExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
+    ResponseEntity<SutExecution> getSutExec(@ApiParam(value = "SuT id to return logs",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
 
 
     @ApiOperation(value = "Returns a SuT logs", notes = "", response = Log.class, responseContainer = "List", tags={ "sut execution", })
@@ -122,25 +122,24 @@ public interface SutApi {
     @ApiOperation(value = "List all SuT definitions", notes = "", response = SutSpecification.class, responseContainer = "List", tags={ "sut", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = SutSpecification.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "SuTs not found", response = SutSpecification.class) })
+        @ApiResponse(code = 404, message = "SuTs not found") })
     
     @RequestMapping(value = "/sut",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
+        produces = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<SutSpecification>> sutGet();
+    ResponseEntity<List<SutSpecification>> getSutList();
 
 
-    @ApiOperation(value = "Updates an existing SuT Description", notes = "", response = Void.class, tags={ "sut", })
+    @ApiOperation(value = "Updates an existing SuT Description", notes = "", response = SutSpecification.class, tags={ "sut", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = Void.class),
-        @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
+        @ApiResponse(code = 200, message = "OK", response = SutSpecification.class),
+        @ApiResponse(code = 405, message = "Invalid input", response = SutSpecification.class) })
     
     @RequestMapping(value = "/sut",
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    ResponseEntity<Void> sutPut(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body);
+    ResponseEntity<SutSpecification> modifySut(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body);
 
 
     @ApiOperation(value = "List all SuT executions", notes = "", response = SutExecution.class, responseContainer = "List", tags={ "sut execution", })
@@ -162,7 +161,7 @@ public interface SutApi {
     @RequestMapping(value = "/sut/{sutId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<SutSpecification> sutSutIdGet(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId);
+    ResponseEntity<SutSpecification> getSutById(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId);
 
 
     @ApiOperation(value = "Undeploys a SuT", notes = "", response = Void.class, tags={ "sut execution", })

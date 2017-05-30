@@ -2,25 +2,28 @@ package io.elastest.etm.service.sut;
 
 import java.util.List;
 
+import javax.xml.ws.http.HTTPException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SutSpecification;
-import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 
 @Service
 public class SutService {
 	
-	@Autowired
-	SutRepository sutRepository;
-	
-	@Autowired
-	SutExecutionRepository sutExecutionRepository;
-	
-	
+	private final SutRepository sutRepository;
+	private final SutExecutionRepository sutExecutionRepository;
+		
+	public SutService(SutRepository sutRepository, SutExecutionRepository sutExecutionRepository) {
+		super();
+		this.sutRepository = sutRepository;
+		this.sutExecutionRepository = sutExecutionRepository;
+	}
+
 	public SutSpecification createSutSpecification(SutSpecification sutSpecification){
 		return sutRepository.save(sutSpecification);
 	}
@@ -64,10 +67,21 @@ public class SutService {
 	}
 	
 	public SutExecution getSutExecutionById(Long id){
-		
 		return sutExecutionRepository.findOne(id);
 	}
 	
+	public SutSpecification modifySut(SutSpecification sut){
+		if (sutRepository.findOne(sut.getId()) != null) {
+			return sutRepository.save(sut);
+		} else {
+			throw new HTTPException(405);
+		}
+	}
 	
-
+	public void undeploySut(Long sutId, Long sutExecId){
+		SutSpecification sut = sutRepository.findOne(sutId);
+		SutExecution sutExec = sutExecutionRepository.findByIdAndSutSpecification(sutExecId, sut);
+		sutExec.setDeployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
+		sutExecutionRepository.save(sutExec);
+	}
 }

@@ -24,17 +24,16 @@ public class TJobService {
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepo;
 	private final LogRepository logRepo;
-
-	@Autowired
-	private SutService sutService;
+	private final SutService sutService;
 
 	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
-			LogRepository logRepo) {
-		super();
+			LogRepository logRepo, SutService sutService) {
+		super();		
 		this.dockerExec = dockerExec;
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepo = tJobExecRepo;
 		this.logRepo = logRepo;
+		this.sutService = sutService;
 	}
 
 	public TJob createTJob(TJob tjob) {

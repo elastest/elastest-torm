@@ -47,17 +47,16 @@ public class SutSpecification {
 	@JsonView(SutView.class)
 	@JsonProperty("description")
 	private String description = null;
-
-	@JsonView(SutView.class)
+	
 	@JsonProperty("deployedSut")
 	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
 	private List<DeployedSut> deployedSut = null;
 		
-	@JsonView(SutView.class)
 	@JsonProperty("sutExecution")
 	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
 	private List<SutExecution> sutExecution = null;
 
+	@JsonView(SutView.class)
 	@JsonProperty("project")
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Project project = null;

@@ -6,8 +6,11 @@ import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SuTMonitoring;
 import io.elastest.etm.api.model.SutSpecification;
 import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.dao.SutRepository;
+import io.elastest.etm.api.model.SutExecution.SutExecView;
+import io.elastest.etm.api.model.SutSpecification.SutView;
 import io.elastest.etm.service.sut.SutService;
+import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
 
@@ -27,7 +32,10 @@ public class SutApiController implements SutApi {
 
 	@Autowired
 	SutService sutService;
+	
+	private UtilTools utilTools = new UtilTools();
 
+	@JsonView(SutView.class)
     public ResponseEntity<SutSpecification> createSuT(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body) {
     	try{
     		SutSpecification sut = sutService.createSutSpecification(body);
@@ -38,6 +46,7 @@ public class SutApiController implements SutApi {
 		}
     }
 
+	@JsonView(SutView.class)
     public ResponseEntity<Long> deleteSuT(@ApiParam(value = "SuT id to delete",required=true ) @PathVariable("sutId") Long sutId) {
     	try{
     		sutService.deleteSut(sutId);
@@ -46,7 +55,34 @@ public class SutApiController implements SutApi {
     		return new ResponseEntity<Long>(sutId, HttpStatus.NOT_FOUND);
 		}
     }
+	
+	
+	@JsonView(SutView.class)
+    public ResponseEntity<List<SutSpecification>> getSutList() {
+    	try{
+        	List<SutSpecification> sutList = sutService.getAllSutSpecification();
+        	return new ResponseEntity<List<SutSpecification>>(sutList, HttpStatus.OK);
+    	}catch (Exception e) {
+        	return new ResponseEntity<List<SutSpecification>>(HttpStatus.NOT_FOUND);
+		}
+    }
 
+	@JsonView(SutView.class)	
+    public ResponseEntity<SutSpecification> modifySut(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body) {
+    	try{
+    		SutSpecification sut = sutService.modifySut(body);
+    		return new ResponseEntity<SutSpecification>(sut, HttpStatus.OK);
+    	}
+    	catch (Exception e) {
+    		if(utilTools.getHttpExceptionCode(e) == 405){
+				return new ResponseEntity<SutSpecification>(HttpStatus.METHOD_NOT_ALLOWED);
+    		}
+    		return new ResponseEntity<SutSpecification>(HttpStatus.BAD_REQUEST);
+		} 
+    }
+
+    
+	@JsonView(SutExecView.class)
     public ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,
             @ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig) {
     	try{
@@ -57,7 +93,32 @@ public class SutApiController implements SutApi {
 	        return new ResponseEntity<SutExecution>(HttpStatus.NOT_FOUND);
 		}
     }
-    
+	
+
+	@JsonView(SutView.class)
+    public ResponseEntity<SutSpecification> getSutById(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId) {
+    	try{
+    		SutSpecification sut = sutService.getSutSpecById(sutId);
+	        return new ResponseEntity<SutSpecification>(sut, HttpStatus.OK);
+    	}
+    	catch (Exception e) {
+	        return new ResponseEntity<SutSpecification>(HttpStatus.BAD_REQUEST);
+		}
+    }
+
+    public ResponseEntity<Void> undeploySuT(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
+        @ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId) {
+        sutService.undeploySut(sutId, sutExecId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+	@JsonView(SutExecView.class)
+    public ResponseEntity<List<SutExecution>> getAllSutExecBySut() {
+        // do some magic!
+        return new ResponseEntity<List<SutExecution>>(HttpStatus.OK);
+    }
+	
+	@JsonView(SutExecView.class)
     public ResponseEntity<Long> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId) {
     	try{
     		sutService.deleteSutExec(sutExecId);
@@ -66,13 +127,20 @@ public class SutApiController implements SutApi {
     		return new ResponseEntity<Long>(sutExecId, HttpStatus.NOT_FOUND);
 		}
     }
-    
-//TODO
-
-    public ResponseEntity<SutExecution> suTExecInfo(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
-        @ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId) {
-        // do some magic!
-        return new ResponseEntity<SutExecution>(HttpStatus.OK);
+	@JsonView(SutExecView.class)
+    public ResponseEntity<SutExecution> getSutExec(@ApiParam(value = "SuT id to get info",required=true ) @PathVariable("sutId") Long sutId,
+        @ApiParam(value = "SuT Execution id to get info",required=true ) @PathVariable("sutExecId") Long sutExecId) {        
+    	try{
+        	SutExecution sutExec = sutService.getSutExecutionById(sutExecId);
+        	return new ResponseEntity<SutExecution>(sutExec, HttpStatus.OK);
+    	}catch (Exception e) {
+    		if(utilTools.getHttpExceptionCode(e) == 400){
+    			return new ResponseEntity<SutExecution>(HttpStatus.BAD_REQUEST);
+    		}
+    		else{
+        		return new ResponseEntity<SutExecution>(HttpStatus.NOT_FOUND);
+	        }
+		}
     }
 
     public ResponseEntity<List<Log>> suTLogs(@ApiParam(value = "SuT id to return logs",required=true ) @PathVariable("sutId") Long sutId,
@@ -92,31 +160,4 @@ public class SutApiController implements SutApi {
         // do some magic!
         return new ResponseEntity<String>(HttpStatus.OK);
     }
-
-    public ResponseEntity<List<SutSpecification>> sutGet() {
-        // do some magic!
-        return new ResponseEntity<List<SutSpecification>>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<Void> sutPut(@ApiParam(value = "SuT configuration" ,required=true )  @Valid @RequestBody SutSpecification body) {
-        // do some magic!
-        return new ResponseEntity<Void>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<List<SutExecution>> getAllSutExecBySut() {
-        // do some magic!
-        return new ResponseEntity<List<SutExecution>>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<SutSpecification> sutSutIdGet(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId) {
-        // do some magic!
-        return new ResponseEntity<SutSpecification>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<Void> undeploySuT(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
-        @ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId) {
-        // do some magic!
-        return new ResponseEntity<Void>(HttpStatus.OK);
-    }
-
 }
