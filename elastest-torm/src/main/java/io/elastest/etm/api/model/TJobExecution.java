@@ -13,10 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -74,6 +72,7 @@ public class TJobExecution {
 	private TJob tJob;
 		
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="to_job_execution")
 	private TOJobExecution tOJobExecution = null;		
 	
 

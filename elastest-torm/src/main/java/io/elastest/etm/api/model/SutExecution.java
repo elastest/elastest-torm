@@ -2,12 +2,14 @@ package io.elastest.etm.api.model;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,19 +52,12 @@ public class SutExecution {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonProperty("sutSpecification")
 	private SutSpecification sutSpecification = null;
+	
+	@JsonView(SutExecView.class)
+	@JsonProperty("url")
+	@Column(name="url")
+	private String url = null;
 
-	public SutExecution() {
-	}
-
-	public SutExecution(Long id, SutSpecification sutSpecification, DeployStatusEnum deployStatus) {
-		this.id = id==null? 0: id;
-		this.sutSpecification = sutSpecification;
-		this.deployStatus = deployStatus;
-	}
-
-	/**
-	 * Gets or Sets deployStatus
-	 */
 	public enum DeployStatusEnum {
 		DEPLOYING("deploying"),
 
@@ -101,10 +96,17 @@ public class SutExecution {
 	@JsonProperty("deployStatus")
 	private DeployStatusEnum deployStatus = null;
 
-	public SutExecution id(Long id) {
+	
+	/* Constructors */
+	public SutExecution() {	}
+
+	public SutExecution(Long id, SutSpecification sutSpecification, String url, DeployStatusEnum deployStatus) {
 		this.id = id==null? 0: id;
-		return this;
+		this.sutSpecification = sutSpecification;
+		this.url = url==null? "": url;
+		this.deployStatus = deployStatus;
 	}
+
 
 	/**
 	 * Get id
@@ -121,6 +123,12 @@ public class SutExecution {
 		this.id = id==null? 0: id;
 	}
 
+
+	public SutExecution id(Long id) {
+		this.id = id==null? 0: id;
+		return this;
+	}
+	
 	// public SuTExecution logs(List<String> logs) {
 	// this.logs = logs;
 	// return this;
@@ -201,6 +209,28 @@ public class SutExecution {
 	}
 
 	/**
+	 * Get url
+	 * 
+	 * @return url
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url==null? "": url;
+	}
+	
+	
+	public SutExecution url(String url) {
+		this.url = url==null? "": url;
+		return this;
+	}
+	
+	/**
 	 * Get deployStatus
 	 * 
 	 * @return deployStatus
@@ -244,21 +274,19 @@ public class SutExecution {
 			return false;
 		}
 		SutExecution suTExecution = (SutExecution) o;
-		return Objects.equals(this.id, suTExecution.id) // &&
-														// Objects.equals(this.logs,
-														// suTExecution.logs)
-				// && Objects.equals(this.monitoringCurrent,
-				// suTExecution.monitoringCurrent)
-				// && Objects.equals(this.monitoringSummary,
-				// suTExecution.monitoringSummary)
+		return Objects.equals(this.id, suTExecution.id) 
+				// && Objects.equals(this.logs,suTExecution.logs)
+				// && Objects.equals(this.monitoringCurrent, suTExecution.monitoringCurrent)
+				// && Objects.equals(this.monitoringSummary, suTExecution.monitoringSummary)
+				&& Objects.equals(this.url, suTExecution.url)
 				&& Objects.equals(this.deployStatus, suTExecution.deployStatus)
 				&& Objects.equals(this.sutSpecification, suTExecution.sutSpecification);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id,
-				/* logs, monitoringCurrent, monitoringSummary, */ deployStatus, sutSpecification);
+		return Objects.hash(id, url, deployStatus, sutSpecification 
+				/* logs, monitoringCurrent, monitoringSummary, */ );
 	}
 
 	@Override
@@ -268,10 +296,9 @@ public class SutExecution {
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		// sb.append(" logs: ").append(toIndentedString(logs)).append("\n");
-		// sb.append(" monitoringCurrent:
-		// ").append(toIndentedString(monitoringCurrent)).append("\n");
-		// sb.append(" monitoringSummary:
-		// ").append(toIndentedString(monitoringSummary)).append("\n");
+		// sb.append(" monitoringCurrent: ").append(toIndentedString(monitoringCurrent)).append("\n");
+		// sb.append(" monitoringSummary: ").append(toIndentedString(monitoringSummary)).append("\n");
+		sb.append("    url: ").append(toIndentedString(url)).append("\n");
 		sb.append("    deployStatus: ").append(toIndentedString(deployStatus)).append("\n");
 		sb.append("    sutSpecification: ").append(toIndentedString(sutSpecification)).append("\n");
 		sb.append("}");
