@@ -26,7 +26,7 @@ public class TJobService {
 
 	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
 			LogRepository logRepo, SutService sutService) {
-		super();		
+		super();
 		this.dockerExec = dockerExec;
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepo = tJobExecRepo;
@@ -47,12 +47,56 @@ public class TJobService {
 		return tJobRepo.findAll();
 	}
 
-	public TJobExecution executeTJob(Long tJobId) {
+	public TJobExecution executeTJob(Long tJobId) {//TODO Refactor
+		TJob tjob = tJobRepo.findOne(tJobId);
+
+		if (tjob.getSut() == null) {
+			return executeTJobWithoutSut(tJobId);
+		} else {
+
+			TJobExecution tjobExec = new TJobExecution();
+			tjobExec.setTjob(tjob);
+
+			SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
+
+			String testLogUrl = dockerExec.initializeLog();
+			try {
+				dockerExec.configureDocker();
+				dockerExec.startLogstash();
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new HTTPException(500);
+			}
+
+			try {
+				sutExec = dockerExec.startSut(sutExec);
+				dockerExec.startTest(tjob.getImageName());
+				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
+				dockerExec.endExec();
+				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
+				tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
+			}
+
+			Log testLog = new Log();
+			testLog.setLogType(Log.LogTypeEnum.TESTLOG);
+			testLog.setLogUrl(testLogUrl);
+			testLog.settJobExec(tjobExec);
+			logRepo.save(testLog);
+
+			sutService.modifySutExec(sutExec);
+			tjobExec.setSutExecution(sutExec);
+			return tJobExecRepo.save(tjobExec);
+		}
+	}
+
+	public TJobExecution executeTJobWithoutSut(Long tJobId) {//TODO Refactor
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tjobExec = new TJobExecution();
 		tjobExec.setTjob(tjob);
-
-		SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
 		String testLogUrl = dockerExec.initializeLog();
 		try {
@@ -79,7 +123,6 @@ public class TJobService {
 		testLog.settJobExec(tjobExec);
 		logRepo.save(testLog);
 
-		tjobExec.setSutExecution(sutExec);
 		return tJobExecRepo.save(tjobExec);
 	}
 
@@ -91,7 +134,7 @@ public class TJobService {
 	public TJob getTJobById(Long tJobId) {
 		return tJobRepo.findOne(tJobId);
 	}
-	
+
 	public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
 		TJob tJob = tJobRepo.findOne(tJobId);
 		return getTJobsExecutionsByTJob(tJob);

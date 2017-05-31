@@ -8,7 +8,7 @@ public class UtilTools {
 		if(e instanceof HTTPException){
 			return ((HTTPException) e).getStatusCode();
 		}
-		return -5;
+		return 500;
 	}
 	
 

@@ -47,11 +47,7 @@ public class SutSpecification {
 	@JsonView(SutView.class)
 	@JsonProperty("description")
 	private String description = null;
-	
-	@JsonProperty("deployedSut")
-	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
-	private List<DeployedSut> deployedSut = null;
-		
+			
 	@JsonProperty("sutExecution")
 	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
 	private List<SutExecution> sutExecution = null;
@@ -68,13 +64,11 @@ public class SutSpecification {
 	
 	public SutSpecification() {}
 	
-	public SutSpecification(Long id, String name, String specification, String description,
-			List<DeployedSut> deployedSut, Project project, List<TJob> tJobs) {
+	public SutSpecification(Long id, String name, String specification, String description, Project project, List<TJob> tJobs) {
 		this.id = id==null? 0: id;
 		this.name = name;
 		this.specification = specification;
 		this.description = description;
-		this.deployedSut = deployedSut;
 		this.project = project;
 		this.tJobs = tJobs;
 	}
@@ -160,38 +154,7 @@ public class SutSpecification {
 
 	public void setDescription(String desc) {
 		this.description = desc;
-	}
-
-	public SutSpecification deployedSut(List<DeployedSut> deployedSut) {
-		this.deployedSut = deployedSut;
-		return this;
-	}
-
-	public SutSpecification addDeployedSutItem(DeployedSut deployedSutItem) {
-		if (this.deployedSut == null) {
-			this.deployedSut = new ArrayList<DeployedSut>();
-		}
-		this.deployedSut.add(deployedSutItem);
-		return this;
-	}
-
-	/**
-	 * Get deployedSut
-	 * 
-	 * @return deployedSut
-	 **/
-	@ApiModelProperty(value = "")
-
-	@Valid
-
-	public List<DeployedSut> getDeployedSut() {
-		return deployedSut;
-	}
-
-	public void setDeployedSut(List<DeployedSut> deployedSut) {
-		this.deployedSut = deployedSut;
-	}
-	
+	}	
 	
 	public List<SutExecution> getSutExecution() {
 		return sutExecution;
@@ -237,9 +200,9 @@ public class SutSpecification {
 	
 	
 	/**
-	 * Get deployedSut
+	 * Get tJobs
 	 * 
-	 * @return deployedSut
+	 * @return tJobs
 	 **/
 	@ApiModelProperty(value = "")
 
@@ -281,13 +244,12 @@ public class SutSpecification {
 		return Objects.equals(this.id, sutSpecification.id) && Objects.equals(this.name, sutSpecification.name)
 				&& Objects.equals(this.specification, sutSpecification.specification)
 				&& Objects.equals(this.description, sutSpecification.description)
-				&& Objects.equals(this.deployedSut, sutSpecification.deployedSut)
 				&& Objects.equals(this.project, sutSpecification.project);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, description, deployedSut, project);
+		return Objects.hash(id, name, specification, description, project);
 	}
 
 	@Override
@@ -299,7 +261,6 @@ public class SutSpecification {
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    specification: ").append(toIndentedString(specification)).append("\n");
 		sb.append("    desc: ").append(toIndentedString(description)).append("\n");
-		sb.append("    deployedSut: ").append(toIndentedString(deployedSut)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("}");
 		return sb.toString();

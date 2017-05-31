@@ -25,6 +25,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Info;
 import com.github.dockerjava.api.model.LogConfig;
+import com.github.dockerjava.api.model.Network;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -44,9 +45,9 @@ import io.elastest.etm.service.sut.SutService;
 @Service
 public class DockerExecution {
 
-	private static String testImage = "";
+	private static String testImage = "", appImage = "edujgurjc/torm-loadapp";
 	private static String logstashImage = "edujgurjc/logstash";
-	private static final String volumeDirectory = "/testcontainers-java-examples/selenium-container";
+	private static final String volumeDirectory = "/springbootdemotest/springbootdemotest";
 
 	@Autowired
 	private ApplicationContext context;
@@ -62,7 +63,7 @@ public class DockerExecution {
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
 	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
 
-	private String network, logstashIP;
+	private String network, logstashIP, sutIP;
 
 	private String testLogId;
 
@@ -85,11 +86,36 @@ public class DockerExecution {
 		System.out.println("Info: " + info);
 	}
 
-	public void startSut() {
+	public SutExecution startSut(SutExecution sutExec) {
+		try {
+			System.out.println("Starting sut");
+			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
+			this.dockerClient.pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
+
+			CreateContainerResponse appContainer = this.dockerClient.createContainerCmd(appImage).withEnv(envVar)
+					.withNetworkMode(network).exec();
+
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+			
+			appContainerId = appContainer.getId();
+
+			this.dockerClient.startContainerCmd(appContainerId).exec();
+			sutIP = getContainerIp(appContainerId);
+			sutIP = sutIP.split("/")[0];
+			sutIP = "http://" + sutIP + ":8080";
+			
+			sutExec.setUrl(sutIP);
+		} catch (Exception e) {
+			e.printStackTrace();
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
+			endExec();
+		}
+		return sutExec;
 	}
 
 	public void startTest(String testImage) {
 		try {
+			System.out.println("Starting test");
 			this.testImage = testImage;
 			ExposedPort tcp6080 = ExposedPort.tcp(6080);
 
@@ -97,6 +123,12 @@ public class DockerExecution {
 			portBindings.bind(tcp6080, Binding.bindPort(6080));
 
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
+			String envVar2 = "APP_IP="+sutIP;
+			String envVar3 = "NETWORK="+network;
+			ArrayList<String> envList = new ArrayList<>();
+			envList.add(envVar);
+			envList.add(envVar2);
+			envList.add(envVar3);
 
 			Volume volume = new Volume(volumeDirectory);
 			LogConfig logConfig = new LogConfig();
@@ -110,7 +142,7 @@ public class DockerExecution {
 
 			this.container = this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
-					.withEnv(envVar).withLogConfig(logConfig).withNetworkMode(network).exec();
+					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(network).exec();
 
 			testContainerId = this.container.getId();
 
@@ -149,8 +181,7 @@ public class DockerExecution {
 
 			this.dockerClient.startContainerCmd(logstashContainerId).exec();
 
-			logstashIP = this.dockerClient.inspectContainerCmd(logstashContainerId).exec().getNetworkSettings()
-					.getNetworks().get(network).getIpAddress();
+			logstashIP = getContainerIp(logstashContainerId);
 			if (logstashIP == null || logstashIP.isEmpty()) {
 				throw new Exception();
 			}
@@ -209,6 +240,7 @@ public class DockerExecution {
 
 	public void endExec() {
 		endTestExec();
+		endSutExec();
 		endLogstashExec();
 	}
 
@@ -227,6 +259,19 @@ public class DockerExecution {
 		}
 	}
 
+	public void endSutExec() {
+		try {
+			try {
+				this.dockerClient.stopContainerCmd(appContainerId).exec();
+			} catch (Exception e) {
+			}
+			this.dockerClient.removeContainerCmd(appContainerId).exec();
+			this.dockerClient.removeImageCmd(appImage).withForce(true).exec();
+		} catch (Exception e) {
+			System.out.println("Error on ending Sut execution");
+		}
+	}
+
 	public void endLogstashExec() {
 		try {
 			System.out.println("Ending Logstash execution");
@@ -236,6 +281,11 @@ public class DockerExecution {
 			System.out.println("Error on ending Logstash execution");
 		}
 		this.dockerClient.removeNetworkCmd(network).exec();
+	}
+
+	public String getContainerIp(String containerId) {
+		return this.dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().get(network)
+				.getIpAddress();
 	}
 
 	public TJobExecution executeTJob(TJob tJob, TJobExecution tjobExec) {
