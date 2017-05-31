@@ -1,5 +1,5 @@
 #!/bin/sh
-while ! nc -z config-server 8888 ; do
+while ! nc -z config-server 3306 ; do
     echo "Waiting for upcoming Config Server"
     sleep 2
 done
