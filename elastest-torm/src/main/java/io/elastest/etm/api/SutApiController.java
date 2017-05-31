@@ -5,8 +5,6 @@ import io.elastest.etm.api.model.Log;
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.api.model.SuTMonitoring;
 import io.elastest.etm.api.model.SutSpecification;
-import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.api.model.SutExecution.SutExecView;
 import io.elastest.etm.api.model.SutSpecification.SutView;
 import io.elastest.etm.service.sut.SutService;
@@ -42,7 +40,7 @@ public class SutApiController implements SutApi {
     		return new ResponseEntity<SutSpecification>(sut,HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		return new ResponseEntity<SutSpecification>(HttpStatus.METHOD_NOT_ALLOWED);
+    		return new ResponseEntity<SutSpecification>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -52,7 +50,7 @@ public class SutApiController implements SutApi {
     		sutService.deleteSut(sutId);
     		return new ResponseEntity<Long>(sutId, HttpStatus.OK);
     	}catch (Exception e) {
-    		return new ResponseEntity<Long>(sutId, HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<Long>(sutId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 	
@@ -63,7 +61,7 @@ public class SutApiController implements SutApi {
         	List<SutSpecification> sutList = sutService.getAllSutSpecification();
         	return new ResponseEntity<List<SutSpecification>>(sutList, HttpStatus.OK);
     	}catch (Exception e) {
-        	return new ResponseEntity<List<SutSpecification>>(HttpStatus.NOT_FOUND);
+        	return new ResponseEntity<List<SutSpecification>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -74,10 +72,7 @@ public class SutApiController implements SutApi {
     		return new ResponseEntity<SutSpecification>(sut, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		if(utilTools.getHttpExceptionCode(e) == 405){
-				return new ResponseEntity<SutSpecification>(HttpStatus.METHOD_NOT_ALLOWED);
-    		}
-    		return new ResponseEntity<SutSpecification>(HttpStatus.BAD_REQUEST);
+    		return new ResponseEntity<SutSpecification>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		} 
     }
 
@@ -90,7 +85,7 @@ public class SutApiController implements SutApi {
 	        return new ResponseEntity<SutExecution>(sutExec, HttpStatus.OK);
     	}
     	catch (Exception e) {
-	        return new ResponseEntity<SutExecution>(HttpStatus.NOT_FOUND);
+	        return new ResponseEntity<SutExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 	
@@ -102,31 +97,20 @@ public class SutApiController implements SutApi {
 	        return new ResponseEntity<SutSpecification>(sut, HttpStatus.OK);
     	}
     	catch (Exception e) {
-	        return new ResponseEntity<SutSpecification>(HttpStatus.BAD_REQUEST);
+	        return new ResponseEntity<SutSpecification>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
     public ResponseEntity<Void> undeploySuT(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,
         @ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId) {
-        sutService.undeploySut(sutId, sutExecId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
-    }
-
-	@JsonView(SutExecView.class)
-    public ResponseEntity<List<SutExecution>> getAllSutExecBySut() {
-        // do some magic!
-        return new ResponseEntity<List<SutExecution>>(HttpStatus.OK);
-    }
-	
-	@JsonView(SutExecView.class)
-    public ResponseEntity<Long> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId) {
     	try{
-    		sutService.deleteSutExec(sutExecId);
-    		return new ResponseEntity<Long>(sutExecId, HttpStatus.OK);
+    		sutService.undeploySut(sutId, sutExecId);
+    		return new ResponseEntity<Void>(HttpStatus.OK);
     	}catch (Exception e) {
-    		return new ResponseEntity<Long>(sutExecId, HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<Void>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
+
 	@JsonView(SutExecView.class)
     public ResponseEntity<SutExecution> getSutExec(@ApiParam(value = "SuT id to get info",required=true ) @PathVariable("sutId") Long sutId,
         @ApiParam(value = "SuT Execution id to get info",required=true ) @PathVariable("sutExecId") Long sutExecId) {        
@@ -134,12 +118,28 @@ public class SutApiController implements SutApi {
         	SutExecution sutExec = sutService.getSutExecutionById(sutExecId);
         	return new ResponseEntity<SutExecution>(sutExec, HttpStatus.OK);
     	}catch (Exception e) {
-    		if(utilTools.getHttpExceptionCode(e) == 400){
-    			return new ResponseEntity<SutExecution>(HttpStatus.BAD_REQUEST);
-    		}
-    		else{
-        		return new ResponseEntity<SutExecution>(HttpStatus.NOT_FOUND);
-	        }
+			return new ResponseEntity<SutExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+    }
+    
+	@JsonView(SutExecView.class)
+    public ResponseEntity<List<SutExecution>> getAllSutExecBySut(@ApiParam(value = "Sut id",required=true ) @PathVariable("sutId") Long sutId) {
+        try{
+        	List<SutExecution> sutExecList = sutService.getAllSutExecBySutId(sutId);
+	        return new ResponseEntity<List<SutExecution>>(sutExecList, HttpStatus.OK);
+        }
+        catch (Exception e) {
+        	return new ResponseEntity<List<SutExecution>>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@JsonView(SutExecView.class)
+    public ResponseEntity<Long> deleteSuTExec(@ApiParam(value = "SuT execution id to delete",required=true ) @PathVariable("sutExecId") Long sutExecId) {
+    	try{
+    		sutService.deleteSutExec(sutExecId);
+    		return new ResponseEntity<Long>(sutExecId, HttpStatus.OK);
+    	}catch (Exception e) {
+    		return new ResponseEntity<Long>(sutExecId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 

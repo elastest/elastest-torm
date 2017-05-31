@@ -45,6 +45,8 @@ public class SutExecution {
 	// @JsonProperty("monitoringSummary")
 	// private SuTMonitoringSummary monitoringSummary = null;
 	//
+	
+	@JsonView(SutExecView.class)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonProperty("sutSpecification")
 	private SutSpecification sutSpecification = null;
@@ -94,7 +96,8 @@ public class SutExecution {
 			return null;
 		}
 	}
-
+	
+	@JsonView(SutExecView.class)
 	@JsonProperty("deployStatus")
 	private DeployStatusEnum deployStatus = null;
 

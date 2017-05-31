@@ -37,7 +37,7 @@ public class TjobApiController implements TjobApi {
     		return new ResponseEntity<TJob>(tJob ,HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		return new ResponseEntity<TJob>(HttpStatus.METHOD_NOT_ALLOWED);
+    		return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -47,7 +47,7 @@ public class TjobApiController implements TjobApi {
     		tJobService.deleteTJob(tJobId);
     		return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
     	}catch (Exception e) {
-    		return new ResponseEntity<Long>(tJobId, HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<Long>(tJobId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -59,7 +59,7 @@ public class TjobApiController implements TjobApi {
     		return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		return new ResponseEntity<Long>(tJobExecId, HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<Long>(tJobExecId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -70,12 +70,7 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		if(utilTools.getHttpExceptionCode(e) == 500){
-    			return new ResponseEntity<TJobExecution>(HttpStatus.INTERNAL_SERVER_ERROR);
-    		}
-    		else{
-    			return new ResponseEntity<TJobExecution>(HttpStatus.NOT_FOUND);
-	        }
+    		return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -86,7 +81,7 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		return new ResponseEntity<List<TJob>>(HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<List<TJob>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -97,7 +92,7 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     	}
     	catch (Exception e) {
-	        return new ResponseEntity<TJob>(HttpStatus.BAD_REQUEST);
+	        return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -109,18 +104,18 @@ public class TjobApiController implements TjobApi {
 	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    	    return new ResponseEntity<TJobExecution>(HttpStatus.NOT_FOUND);
+    	    return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
 	@JsonView(BasicAttTJobExec.class)
     public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
         try{
-        	List<TJobExecution> tjobExecList = tJobService.getTJobsExecutionsByTJob(tJobId);
+        	List<TJobExecution> tjobExecList = tJobService.getTJobsExecutionsByTJobId(tJobId);
 	        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
         }
         catch (Exception e) {
-        	return new ResponseEntity<List<TJobExecution>>(HttpStatus.NOT_FOUND);
+        	return new ResponseEntity<List<TJobExecution>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
     }
 
@@ -131,10 +126,7 @@ public class TjobApiController implements TjobApi {
     		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     	}
     	catch (Exception e) {
-    		if(utilTools.getHttpExceptionCode(e) == 405){
-				return new ResponseEntity<TJob>(HttpStatus.METHOD_NOT_ALLOWED);
-    		}
-    		return new ResponseEntity<TJob>(HttpStatus.BAD_REQUEST);
+    		return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		} 
     }
 

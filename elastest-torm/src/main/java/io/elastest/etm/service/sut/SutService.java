@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.SutExecution;
@@ -61,8 +60,12 @@ public class SutService {
 		sutExecutionRepository.delete(sutExec);
 	}
 	
+	public List<SutExecution> getAllSutExecBySutId(Long sutId){
+		SutSpecification sut = sutRepository.findOne(sutId);
+		return getAllSutExecBySutSpec(sut);
+	}
+	
 	public List<SutExecution> getAllSutExecBySutSpec(SutSpecification sut){
-		
 		return sutExecutionRepository.findAll();
 	}
 	

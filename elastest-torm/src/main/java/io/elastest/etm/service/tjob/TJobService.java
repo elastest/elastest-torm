@@ -3,8 +3,6 @@ package io.elastest.etm.service.tjob;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.Log;
@@ -93,9 +91,13 @@ public class TJobService {
 	public TJob getTJobById(Long tJobId) {
 		return tJobRepo.findOne(tJobId);
 	}
-
-	public List<TJobExecution> getTJobsExecutionsByTJob(Long tJobId) {
+	
+	public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
 		TJob tJob = tJobRepo.findOne(tJobId);
+		return getTJobsExecutionsByTJob(tJob);
+	}
+
+	public List<TJobExecution> getTJobsExecutionsByTJob(TJob tJob) {
 		return tJobExecRepo.findByTJob(tJob);
 	}
 
