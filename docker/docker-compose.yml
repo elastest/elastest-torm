@@ -1,0 +1,34 @@
+version: '2.1'
+services:
+    mysql:
+        container_name: mysql-db
+        build: ./mysql            
+        image: mysql
+        expose:
+            - 3306
+        ports:
+            - 3310:3306
+        networks:
+            - build-image-network
+    
+    elastest-torm:
+        depends_on:
+            - mysql-db
+        container_name: elastest-torm
+        build: ./elastest-torm            
+        image: elastest/elastest-torm
+        entrypoint: ./elastest-torm/testing-mysqlstate-entrypoint.sh
+        environment:
+            - MYSQL_DATABASE=elastest-etm
+            - MYSQL_ROOT_PASSWORD=admin
+        expose:
+            - 8091
+        ports:
+            - 8091:8091
+        networks:
+            - build-image-network
+        links:
+            - config-server:config-server        
+networks:
+    build-image-network:
+        driver: bridge
