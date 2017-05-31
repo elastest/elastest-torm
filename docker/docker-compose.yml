@@ -13,7 +13,7 @@ services:
     
     elastest-torm:
         depends_on:
-            - mysql-db
+            - mysql
         container_name: elastest-torm
         build: ./elastest-torm            
         image: elastest/elastest-torm
@@ -28,7 +28,7 @@ services:
         networks:
             - build-image-network
         links:
-            - config-server:config-server        
+            - mysql:mysql-db        
 networks:
     build-image-network:
         driver: bridge
