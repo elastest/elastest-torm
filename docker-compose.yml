@@ -30,7 +30,7 @@ services:
         networks:
             - build-image-network
         links:
-            - mysql:mysql-db        
+            - mysql       
 networks:
     build-image-network:
         driver: bridge
