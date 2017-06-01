@@ -240,6 +240,11 @@ public class DockerExecution {
 
 	public void endExec() {
 		endTestExec();
+		endLogstashExec();
+	}
+	
+	public void endAllExec() {
+		endTestExec();
 		endSutExec();
 		endLogstashExec();
 	}

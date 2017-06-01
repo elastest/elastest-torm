@@ -72,7 +72,7 @@ public class TJobService {
 				sutExec = dockerExec.startSut(sutExec);
 				dockerExec.startTest(tjob.getImageName());
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
-				dockerExec.endExec();
+				dockerExec.endAllExec();
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 				tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
