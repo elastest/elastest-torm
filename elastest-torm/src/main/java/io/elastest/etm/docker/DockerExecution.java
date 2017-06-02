@@ -52,9 +52,6 @@ public class DockerExecution {
 	@Autowired
 	private ApplicationContext context;
 
-	@Autowired
-	private SutService sutService;
-
 	private DockerClient dockerClient;
 	private CreateContainerResponse container, logstashContainer, dockbeatContainer;
 	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
@@ -66,6 +63,14 @@ public class DockerExecution {
 	private String network, logstashIP, sutIP;
 
 	private String testLogId;
+	
+	
+	/* Methods */
+	
+	public String initializeLog() {
+		testLogId = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
+		return "localhost:9200/" + testLogId;
+	}
 
 	public void configureDocker() {
 		if (windowsSo) {
@@ -84,6 +89,83 @@ public class DockerExecution {
 
 		Info info = this.dockerClient.infoCmd().exec();
 		System.out.println("Info: " + info);
+	}
+	
+	
+	public void startLogstash() {
+		try {
+			String envVar = "ELASID=" + testLogId;
+			String envVar2 = "HOSTIP=" + getHostIp();
+
+			ArrayList<String> envList = new ArrayList<>();
+			envList.add(envVar);
+			envList.add(envVar2);
+			
+			System.out.println("Pulling logstash image...");
+			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("Pulling logstash image ends");
+
+			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withEnv(envList)
+					.withNetworkMode(network).exec();
+
+			logstashContainerId = this.logstashContainer.getId();
+
+			this.dockerClient.startContainerCmd(logstashContainerId).exec();
+
+			logstashIP = getContainerIp(logstashContainerId);
+			if (logstashIP == null || logstashIP.isEmpty()) {
+				throw new Exception();
+			}
+			this.manageLogstash();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			endLogstashExec();
+		}
+	}
+
+	public void manageLogstash() {
+		System.out.println("Starting logstash");
+		try {
+
+			Object lock = new Object();
+			ExecStartResultCallbackWebsocket execStartResultCallbackWebsocket = context
+					.getBean(ExecStartResultCallbackWebsocket.class);
+			execStartResultCallbackWebsocket.setLock(lock);
+
+			synchronized (lock) {
+				this.dockerClient.logContainerCmd(logstashContainerId).withStdErr(true).withStdOut(true)
+						.withFollowStream(true).exec(execStartResultCallbackWebsocket);
+				lock.wait();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	public void startBeats() {
+		try {
+			String envVar = "LOGSTASHIP=" + logstashIP + ":5044";
+			
+			System.out.println("Pulling dockbeat image...");
+			this.dockerClient.pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("Pulling dockbeat image ends");
+			
+			Volume volume = new Volume("/var/run/docker.sock");
+
+			this.dockbeatContainer = this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
+					.withNetworkMode(network)
+					.withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume)).exec();
+
+			dockbeatContainerId = this.dockbeatContainer.getId();
+
+			this.dockerClient.startContainerCmd(dockbeatContainerId).exec();
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			endBeatsExec();
+		}
 	}
 
 	public SutExecution startSut(SutExecution sutExec) {
@@ -157,80 +239,7 @@ public class DockerExecution {
 		}
 	}
 
-	public String initializeLog() {
-		testLogId = RandomStringUtils.randomAlphanumeric(17).toLowerCase();
-		return "localhost:9200/" + testLogId;
-	}
-
-	public void startLogstash() {
-		try {
-			String envVar = "ELASID=" + testLogId;
-			System.out.println("Pulling logstash image...");
-			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling logstash image ends");
-
-			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withEnv(envVar)
-					.withNetworkMode(network).exec();
-
-			logstashContainerId = this.logstashContainer.getId();
-
-			this.dockerClient.startContainerCmd(logstashContainerId).exec();
-
-			logstashIP = getContainerIp(logstashContainerId);
-			if (logstashIP == null || logstashIP.isEmpty()) {
-				throw new Exception();
-			}
-			this.manageLogstash();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			endLogstashExec();
-		}
-	}
-
-	public void manageLogstash() {
-		System.out.println("Starting logstash");
-		try {
-
-			Object lock = new Object();
-			ExecStartResultCallbackWebsocket execStartResultCallbackWebsocket = context
-					.getBean(ExecStartResultCallbackWebsocket.class);
-			execStartResultCallbackWebsocket.setLock(lock);
-
-			synchronized (lock) {
-				this.dockerClient.logContainerCmd(logstashContainerId).withStdErr(true).withStdOut(true)
-						.withFollowStream(true).exec(execStartResultCallbackWebsocket);
-				lock.wait();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	
-	public void startBeats() {
-		try {
-			String envVar = "LOGSTASHIP=" + logstashIP + ":5044";
-			
-			System.out.println("Pulling dockbeat image...");
-			this.dockerClient.pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling dockbeat image ends");
-			
-			Volume volume = new Volume("/var/run/docker.sock");
-
-			this.dockbeatContainer = this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
-					.withNetworkMode(network)
-					.withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume)).exec();
-
-			dockbeatContainerId = this.dockbeatContainer.getId();
-
-			this.dockerClient.startContainerCmd(dockbeatContainerId).exec();
-			Thread.sleep(2000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			endBeatsExec();
-		}
-	}
 	
 	
 	public void saveTestSuite() {
@@ -258,6 +267,10 @@ public class DockerExecution {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
+	/* End execution methods */
 
 	public void endExec() {
 		endTestExec();
@@ -321,31 +334,16 @@ public class DockerExecution {
 		}
 	}
 
+	
+	
+	/* Utils */ 
+	
 	public String getContainerIp(String containerId) {
 		return this.dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().get(network)
 				.getIpAddress();
 	}
-
-	public TJobExecution executeTJob(TJob tJob, TJobExecution tjobExec) {
-		this.configureDocker();
-
-		SutExecution sutExec = sutService.createSutExecutionBySut(tJob.getSut());
-		try {
-			initializeLog();
-			startLogstash();
-			startTest(tJob.getImageName());
-			endExec();
-
-			// tjobExec.setElasEtmTjobexecLogs();
-			// tjobExec.setElasEtmTjobexecDuration();
-
-			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
-		} catch (Exception e) {
-			e.printStackTrace();
-			endExec();
-			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
-
-		}
-		return tjobExec;
+	
+	public String getHostIp(){
+		return this.dockerClient.inspectNetworkCmd().withNetworkId(network).exec().getIpam().getConfig().get(0).getGateway();
 	}
 }
