@@ -63,8 +63,11 @@ public class TJobService {
 			try {
 				dockerExec.configureDocker();
 				dockerExec.startLogstash();
+				dockerExec.startBeats();
 			} catch (Exception e) {
 				e.printStackTrace();
+				dockerExec.endBeatsExec();
+				dockerExec.endLogstashExec();
 				throw new HTTPException(500);
 			}
 
@@ -102,7 +105,11 @@ public class TJobService {
 		try {
 			dockerExec.configureDocker();
 			dockerExec.startLogstash();
+			dockerExec.startBeats();
 		} catch (Exception e) {
+			e.printStackTrace();
+			dockerExec.endBeatsExec();
+			dockerExec.endLogstashExec();
 			e.printStackTrace();
 			throw new HTTPException(500);
 		}

@@ -46,7 +46,7 @@ import io.elastest.etm.service.sut.SutService;
 public class DockerExecution {
 
 	private static String testImage = "", appImage = "edujgurjc/torm-loadapp";
-	private static String logstashImage = "edujgurjc/logstash";
+	private static String logstashImage = "edujgurjc/logstash", dockbeatImage = "edujgurjc/dockbeat";
 	private static final String volumeDirectory = "/springbootdemotest/springbootdemotest";
 
 	@Autowired
@@ -56,8 +56,8 @@ public class DockerExecution {
 	private SutService sutService;
 
 	private DockerClient dockerClient;
-	private CreateContainerResponse container, logstashContainer;
-	private String testContainerId, appContainerId, logstashContainerId;
+	private CreateContainerResponse container, logstashContainer, dockbeatContainer;
+	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
 
 	private boolean windowsSo = false;
 	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
@@ -164,11 +164,6 @@ public class DockerExecution {
 
 	public void startLogstash() {
 		try {
-			ExposedPort tcp5000 = ExposedPort.tcp(5000);
-
-			Ports portBindings = new Ports();
-			portBindings.bind(tcp5000, Binding.bindPort(5000));
-
 			String envVar = "ELASID=" + testLogId;
 			System.out.println("Pulling logstash image...");
 			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
@@ -212,6 +207,32 @@ public class DockerExecution {
 		}
 	}
 
+	
+	public void startBeats() {
+		try {
+			String envVar = "LOGSTASHIP=" + logstashIP + ":5044";
+			
+			System.out.println("Pulling dockbeat image...");
+			this.dockerClient.pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("Pulling dockbeat image ends");
+			
+			Volume volume = new Volume("/var/run/docker.sock");
+
+			this.dockbeatContainer = this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
+					.withNetworkMode(network)
+					.withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume)).exec();
+
+			dockbeatContainerId = this.dockbeatContainer.getId();
+
+			this.dockerClient.startContainerCmd(dockbeatContainerId).exec();
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			endBeatsExec();
+		}
+	}
+	
+	
 	public void saveTestSuite() {
 		File surefireXML = new File(this.surefirePath);
 		List<File> reportsDir = new ArrayList<>();
@@ -240,12 +261,14 @@ public class DockerExecution {
 
 	public void endExec() {
 		endTestExec();
+		endBeatsExec();
 		endLogstashExec();
 	}
 	
 	public void endAllExec() {
 		endTestExec();
 		endSutExec();
+		endBeatsExec();
 		endLogstashExec();
 	}
 
@@ -286,6 +309,16 @@ public class DockerExecution {
 			System.out.println("Error on ending Logstash execution");
 		}
 		this.dockerClient.removeNetworkCmd(network).exec();
+	}
+	
+	public void endBeatsExec(){
+		try {
+			System.out.println("Ending dockbeat execution");
+			this.dockerClient.stopContainerCmd(dockbeatContainerId).exec();
+			this.dockerClient.removeContainerCmd(dockbeatContainerId).exec();
+		} catch (Exception e) {
+			System.out.println("Error on ending dockbeat execution");
+		}
 	}
 
 	public String getContainerIp(String containerId) {
