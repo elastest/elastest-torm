@@ -3,8 +3,8 @@ package io.elastest.etm.rabbitmq.service;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,22 +14,23 @@ import com.rabbitmq.client.Channel;
 @Service
 public class RabbitmqService {
 	@Autowired
-	private CachingConnectionFactory rabbitConnectionFactory;
+	//private CachingConnectionFactory rabbitConnectionFactory;
+	private SimpleMessageListenerContainer container;	
 	private Connection connection;
 	private Channel channel;
 
 	public Connection createRabbitmqConnection(String host, String user, String pass) {
-		rabbitConnectionFactory = new CachingConnectionFactory(host);
-		rabbitConnectionFactory.setUsername(user);
-		rabbitConnectionFactory.setPassword(pass);
-		connection = rabbitConnectionFactory.createConnection();
+//		rabbitConnectionFactory = new CachingConnectionFactory(host);
+//		rabbitConnectionFactory.setUsername(user);
+//		rabbitConnectionFactory.setPassword(pass);
+		connection = container.getConnectionFactory().createConnection();
 		createChannel();
 		return connection;
 	}
 
 	public void closeConnection() {
 		connection.close();
-		rabbitConnectionFactory.destroy();
+		container.getConnectionFactory();
 	}
 
 	public void createChannel() {

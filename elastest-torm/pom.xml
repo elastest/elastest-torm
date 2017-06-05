@@ -104,12 +104,16 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
+		</dependency>	
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>         
+		<!-- dependency>
 			<groupId>org.springframework.amqp</groupId>
 			<artifactId>spring-rabbit</artifactId>
 			<version>1.7.2.RELEASE</version>
-		</dependency>
+		</dependency-->
 		<!-- MySql dependencies -->
 		<dependency>
 			<groupId>mysql</groupId>
