@@ -126,7 +126,7 @@ public class DockerExecution {
 			System.out.println("Pulling logstash image ends");
 
 			this.logstashContainer = this.dockerClient.createContainerCmd(logstashImage).withEnv(envList)
-					.withNetworkMode(network).exec();
+					.withNetworkMode(network).withName("logstash_container").exec();
 
 			logstashContainerId = this.logstashContainer.getId();
 
@@ -176,7 +176,7 @@ public class DockerExecution {
 
 			this.dockbeatContainer = this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
 					.withNetworkMode(network).withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume))
-					.exec();
+					.withName("beats_container").exec();
 
 			dockbeatContainerId = this.dockbeatContainer.getId();
 
@@ -205,7 +205,8 @@ public class DockerExecution {
 			this.dockerClient.pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 			CreateContainerResponse appContainer = this.dockerClient.createContainerCmd(appImage).withEnv(envVar)
-					.withLogConfig(logConfig).withNetworkMode(network).exec();
+					.withLogConfig(logConfig).withNetworkMode(network)
+					.withName("sut_container").exec();
 
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
@@ -257,7 +258,8 @@ public class DockerExecution {
 
 			this.container = this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
-					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(network).exec();
+					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(network)
+					.withName("test_container").exec();
 
 			testContainerId = this.container.getId();
 
