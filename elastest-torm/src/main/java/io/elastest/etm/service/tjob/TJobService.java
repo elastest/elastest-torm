@@ -12,6 +12,7 @@ import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
+import io.elastest.etm.docker.DockerExecution;
 import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.service.sut.SutService;
 
@@ -58,23 +59,24 @@ public class TJobService {
 
 			SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
-			String testLogUrl = dockerService.initializeLog();
+			DockerExecution dockerExec = new DockerExecution();
+			String testLogUrl = dockerExec.initializeLog();
 			
 			try {
-				dockerService.createNetwork();
-				dockerService.startRabbitmq();
-				dockerService.startLogstash();
-				dockerService.startBeats();
+				dockerService.createNetwork(dockerExec);
+				dockerService.startRabbitmq(dockerExec);
+				dockerService.startLogstash(dockerExec);
+				dockerService.startBeats(dockerExec);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new HTTPException(500);
 			}
 			
 			try {
-				sutExec = dockerService.startSut(sutExec);
-				dockerService.startTest(tjob.getImageName());
+				sutExec = dockerService.startSut(sutExec,dockerExec);
+				dockerService.startTest(tjob.getImageName(),dockerExec);
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
-				dockerService.endAllExec();
+				dockerService.endAllExec(dockerExec);
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 				tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
@@ -100,21 +102,22 @@ public class TJobService {
 		TJobExecution tjobExec = new TJobExecution();
 		tjobExec.setTjob(tjob);
 
-		String testLogUrl = dockerService.initializeLog();
+		DockerExecution dockerExec = new DockerExecution();
+		String testLogUrl = dockerExec.initializeLog();
 		
 		try {
-			dockerService.createNetwork();
-			dockerService.startRabbitmq();
-			dockerService.startLogstash();
-			dockerService.startBeats();
+			dockerService.createNetwork(dockerExec);
+			dockerService.startRabbitmq(dockerExec);
+			dockerService.startLogstash(dockerExec);
+			dockerService.startBeats(dockerExec);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new HTTPException(500);
 		}
 
 		try {
-			dockerService.startTest(tjob.getImageName());
-			dockerService.endExec();
+			dockerService.startTest(tjob.getImageName(),dockerExec);
+			dockerService.endExec(dockerExec);
 			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
 		} catch (Exception e) {

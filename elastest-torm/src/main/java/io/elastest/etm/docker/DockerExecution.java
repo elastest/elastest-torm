@@ -1,5 +1,7 @@
 package io.elastest.etm.docker;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.github.dockerjava.api.command.CreateContainerResponse;
 
 public class DockerExecution {
@@ -15,6 +17,25 @@ public class DockerExecution {
 	String exchange, queue;
 	
 	public DockerExecution(){}
+	
+	
+
+	public String initializeLog() {
+		setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
+		return "localhost:9200/" + executionId;
+	}
+	
+	public void generateNetwork(){
+		setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
+	}
+	
+	public void createRabbitmqConfig(){
+		setExchange("ex-" + executionId);
+		setQueue("q-" + executionId);
+	}
+	
+	
+	/* Getters and Setters */
 
 	public CreateContainerResponse getTestcontainer() {
 		return testcontainer;
