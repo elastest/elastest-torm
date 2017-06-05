@@ -53,24 +53,23 @@ public class TJobService {
 		if (tjob.getSut() == null) {
 			return executeTJobWithoutSut(tJobId);
 		} else {
-
 			TJobExecution tjobExec = new TJobExecution();
 			tjobExec.setTjob(tjob);
 
 			SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
 			String testLogUrl = dockerExec.initializeLog();
+			
 			try {
 				dockerExec.configureDocker();
+				dockerExec.startRabbitmq();
 				dockerExec.startLogstash();
 				dockerExec.startBeats();
 			} catch (Exception e) {
 				e.printStackTrace();
-				dockerExec.endBeatsExec();
-				dockerExec.endLogstashExec();
 				throw new HTTPException(500);
 			}
-
+			
 			try {
 				sutExec = dockerExec.startSut(sutExec);
 				dockerExec.startTest(tjob.getImageName());
@@ -102,14 +101,13 @@ public class TJobService {
 		tjobExec.setTjob(tjob);
 
 		String testLogUrl = dockerExec.initializeLog();
+		
 		try {
 			dockerExec.configureDocker();
+			dockerExec.startRabbitmq();
 			dockerExec.startLogstash();
 			dockerExec.startBeats();
 		} catch (Exception e) {
-			e.printStackTrace();
-			dockerExec.endBeatsExec();
-			dockerExec.endLogstashExec();
 			e.printStackTrace();
 			throw new HTTPException(500);
 		}

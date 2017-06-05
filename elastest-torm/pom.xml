@@ -7,22 +7,22 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.5.2.RELEASE</version>
 	</parent>
-	
+
 	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm</artifactId>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	
+
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>This artifact contains the Elastest Torm project, part of the Elastest platform.</description>
 	<url>https://github.com/elastest/elastest-torm</url>
 
-<!-- organization & developers -->
+	<!-- organization & developers -->
 	<organization>
 		<name>Elastest</name>
 		<url>http://elastest.io</url>
 	</organization>
-	
+
 	<developers>
 		<developer>
 			<id>URJC</id>
@@ -31,7 +31,7 @@
 			<organizationUrl>https://www.urjc.es/</organizationUrl>
 		</developer>
 	</developers>
-		
+
 	<properties>
 		<java.version>1.8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -40,17 +40,17 @@
 		<junit.platform.version>1.0.0-M4</junit.platform.version>
 		<springfox-version>2.6.1</springfox-version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-	
-	<!-- Cross plugins settings -->
+
+		<!-- Cross plugins settings -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	
-	<!-- plugins versions -->
+
+		<!-- plugins versions -->
 		<maven.source.plugin.version>2.2.1</maven.source.plugin.version>
 		<maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
 		<maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
-				
+
 	</properties>
 
 	<!-- as agreed Public Artifacts will be under Apache Software License -->
@@ -60,7 +60,7 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
-	
+
 	<!-- Source Code Manager -->
 	<scm>
 		<url>https://github.com/elastest/elastest-torm</url>
@@ -68,8 +68,9 @@
 		<developerConnection>scm:git://git@github.com:elastest/elastest-torm</developerConnection>
 		<tag>develop</tag>
 	</scm>
-	
-	<!-- Distribution management (all elastest public artifacts should set this configuration)-->
+
+	<!-- Distribution management (all elastest public artifacts should set this 
+		configuration) -->
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -79,7 +80,7 @@
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
-	</distributionManagement>		
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -87,27 +88,32 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
-        </dependency>
-        <dependency>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <!-- MySql dependencies -->
-        <dependency>
-      		<groupId>mysql</groupId>
-      		<artifactId>mysql-connector-java</artifactId>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit</artifactId>
+			<version>1.7.2.RELEASE</version>
+		</dependency>
+		<!-- MySql dependencies -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		<!--SpringFox dependencies -->
 		<dependency>
@@ -150,45 +156,45 @@
 			<artifactId>surefire-report-parser</artifactId>
 			<version>2.20</version>
 		</dependency>
-		
-		<!-- Junit 5 dependencies -->		
+
+		<!-- Junit 5 dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>${junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
-		 <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
-        </dependency> 		
 		<dependency>
-		    <groupId>org.mockito</groupId>
-		    <artifactId>mockito-core</artifactId>
-		    <version>2.8.9</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>1.0.0-M4</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.sbrannen</groupId>
-            <artifactId>spring-test-junit5</artifactId>
-            <version>1.0.0.M4</version>
-            <scope>test</scope>            
-        </dependency>
-	</dependencies>	
-	
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.8.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-runner</artifactId>
+			<version>1.0.0-M4</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.sbrannen</groupId>
+			<artifactId>spring-test-junit5</artifactId>
+			<version>1.0.0.M4</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
@@ -203,7 +209,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-surefire-plugin.version}</version>
@@ -220,21 +226,21 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-			
-			 <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>  
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <!-- maven source plugin required for Central deploy--> 
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- maven source plugin required for Central deploy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -248,48 +254,48 @@
 					</execution>
 				</executions>
 			</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>${maven.javadoc.plugin.version}</version>
-			<executions>
-				<execution>
-					<id>attach-javadocs</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-gpg-plugin</artifactId>
-			<version>${maven.gpg.plugin.version}</version>
-			<executions>
-				<execution>
-					<id>sign-artifacts</id>
-					<phase>verify</phase>
-					<goals>
-						<goal>sign</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-			<groupId>org.sonatype.plugins</groupId>
-		  	<artifactId>nexus-staging-maven-plugin</artifactId>
-		  	<version>${nexus.staging.maven.plugin.version}</version>
-		  	<extensions>true</extensions>
-		  	<configuration>
-		    	 	<serverId>ossrh</serverId>
-		     		<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-		     		<autoReleaseAfterClose>false</autoReleaseAfterClose>
-		  	</configuration>
-		</plugin>
-			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven.javadoc.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>${maven.gpg.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>${nexus.staging.maven.plugin.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
-	
+
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
