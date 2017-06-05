@@ -12,22 +12,22 @@ import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
-import io.elastest.etm.docker.DockerExecution;
+import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.service.sut.SutService;
 
 @Service
 public class TJobService {
 
-	private final DockerExecution dockerExec;
+	private final DockerService dockerService;
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepo;
 	private final LogRepository logRepo;
 	private final SutService sutService;
 
-	public TJobService(DockerExecution dockerExec, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
+	public TJobService(DockerService dockerService, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
 			LogRepository logRepo, SutService sutService) {
 		super();
-		this.dockerExec = dockerExec;
+		this.dockerService = dockerService;
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepo = tJobExecRepo;
 		this.logRepo = logRepo;
@@ -58,23 +58,23 @@ public class TJobService {
 
 			SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
-			String testLogUrl = dockerExec.initializeLog();
+			String testLogUrl = dockerService.initializeLog();
 			
 			try {
-				dockerExec.configureDocker();
-				dockerExec.startRabbitmq();
-				dockerExec.startLogstash();
-				dockerExec.startBeats();
+				dockerService.createNetwork();
+				dockerService.startRabbitmq();
+				dockerService.startLogstash();
+				dockerService.startBeats();
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new HTTPException(500);
 			}
 			
 			try {
-				sutExec = dockerExec.startSut(sutExec);
-				dockerExec.startTest(tjob.getImageName());
+				sutExec = dockerService.startSut(sutExec);
+				dockerService.startTest(tjob.getImageName());
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
-				dockerExec.endAllExec();
+				dockerService.endAllExec();
 				sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 				tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
@@ -100,21 +100,21 @@ public class TJobService {
 		TJobExecution tjobExec = new TJobExecution();
 		tjobExec.setTjob(tjob);
 
-		String testLogUrl = dockerExec.initializeLog();
+		String testLogUrl = dockerService.initializeLog();
 		
 		try {
-			dockerExec.configureDocker();
-			dockerExec.startRabbitmq();
-			dockerExec.startLogstash();
-			dockerExec.startBeats();
+			dockerService.createNetwork();
+			dockerService.startRabbitmq();
+			dockerService.startLogstash();
+			dockerService.startBeats();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new HTTPException(500);
 		}
 
 		try {
-			dockerExec.startTest(tjob.getImageName());
-			dockerExec.endExec();
+			dockerService.startTest(tjob.getImageName());
+			dockerService.endExec();
 			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
 		} catch (Exception e) {

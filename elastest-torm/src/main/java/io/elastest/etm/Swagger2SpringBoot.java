@@ -1,7 +1,5 @@
 package io.elastest.etm;
 
-import javax.sound.midi.Receiver;
-
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -16,65 +14,56 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
 @ComponentScan(basePackages = "io.elastest.etm")
 public class Swagger2SpringBoot implements CommandLineRunner {
-	
-	final static String queueName = "spring-boot";
 
-    @Override
-    public void run(String... arg0) throws Exception {
-        if (arg0.length > 0 && arg0[0].equals("exitcode")) {
-            throw new ExitException();
-        }
-    }
+	@Override
+	public void run(String... arg0) throws Exception {
+		if (arg0.length > 0 && arg0[0].equals("exitcode")) {
+			throw new ExitException();
+		}
+	}
 
-    public static void main(String[] args) throws Exception {
-        new SpringApplication(Swagger2SpringBoot.class).run(args);
-    }
+	public static void main(String[] args) throws Exception {
+		new SpringApplication(Swagger2SpringBoot.class).run(args);
+	}
 
-    class ExitException extends RuntimeException implements ExitCodeGenerator {
-        private static final long serialVersionUID = 1L;
+	class ExitException extends RuntimeException implements ExitCodeGenerator {
+		private static final long serialVersionUID = 1L;
 
-        @Override
-        public int getExitCode() {
-            return 10;
-        }
+		@Override
+		public int getExitCode() {
+			return 10;
+		}
 
-    }
-    
-    
+	}
 
-    @Bean
-    Queue queue() {
-        return new Queue(queueName, false);
-    }
+	@Bean
+	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory) {
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		return container;
+	}
 
-    @Bean
-    TopicExchange exchange() {
-        return new TopicExchange("spring-boot-exchange");
-    }
+	@Bean
+	DockerClient dockerClient() {
+		boolean windowsSo= false;
+		if (windowsSo) {
+			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+					.withDockerHost("tcp://192.168.99.100:2376").build();
+			return DockerClientBuilder.getInstance(config).build();
+		} else {
+			return DockerClientBuilder.getInstance().build();
+		}
+	}
 
-    @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(queueName);
-    }
-
-    @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(queueName);
-        container.setMessageListener(listenerAdapter);
-        return container;
-    }
-
-    @Bean
-    MessageListenerAdapter listenerAdapter(Receiver receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
-    }
 }

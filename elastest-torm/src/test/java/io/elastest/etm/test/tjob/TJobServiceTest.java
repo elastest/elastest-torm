@@ -18,7 +18,7 @@ import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
-import io.elastest.etm.docker.DockerExecution;
+import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.service.sut.SutService;
 import io.elastest.etm.service.tjob.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
@@ -41,7 +41,7 @@ public class TJobServiceTest {
 	
 	@Test
 	public void createTJobTest(@Autowired TJob tJob  
-			, @Mock TJobRepository tJobRepo, @Mock DockerExecution dockerExec, @Mock TJobExecRepository tJobExecRepo, 
+			, @Mock TJobRepository tJobRepo, @Mock DockerService dockerExec, @Mock TJobExecRepository tJobExecRepo, 
 			@Mock LogRepository logRepository, @Mock SutService sutService){
 		//TJob createdTJob = 
 		when(tJobRepo.save(tJob)).thenReturn(tJob);
