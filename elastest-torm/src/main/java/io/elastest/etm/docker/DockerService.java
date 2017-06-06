@@ -3,6 +3,7 @@ package io.elastest.etm.docker;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Volume;
@@ -79,10 +81,15 @@ public class DockerService {
 			envList.add(envVar2);
 			envList.add(envVar3);
 
-			System.out.println("Pulling logstash image...");
-			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling logstash image ends");
-
+			if(!imageExist(logstashImage)){
+				System.out.println("Pulling logstash image...");
+				this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
+				System.out.println("Pulling logstash image ends");
+			}
+			else{
+				System.out.println("Logstash image already pulled");
+			}
+			
 			dockerExec.setLogstashContainer(this.dockerClient.createContainerCmd(logstashImage).withEnv(envList)
 					.withNetworkMode(dockerExec.getNetwork())
 					.withName("logstash_container_" + dockerExec.getExecutionId()).exec());
@@ -131,10 +138,14 @@ public class DockerService {
 		try {
 			String envVar = "LOGSTASHIP=" + dockerExec.getLogstashIP() + ":5044";
 
-			System.out.println("Pulling dockbeat image...");
-			this.dockerClient.pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling dockbeat image ends");
-
+			if(!imageExist(dockbeatImage)){
+				System.out.println("Pulling dockbeat image...");
+				this.dockerClient.pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
+				System.out.println("Pulling dockbeat image ends");
+			}
+			else{
+				System.out.println("Dockbeat image already pulled");
+			}
 			Volume volume = new Volume("/var/run/docker.sock");
 
 			dockerExec.setDockbeatContainer(this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
@@ -360,6 +371,10 @@ public class DockerService {
 	public String getHostIp(DockerExecution dockerExec) {
 		return this.dockerClient.inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam().getConfig()
 				.get(0).getGateway();
+	}
+	
+	public boolean imageExist(String imageName){
+		return !this.dockerClient.searchImagesCmd("edujgurjc/logstash").exec().isEmpty();		
 	}
 
 	/* */
