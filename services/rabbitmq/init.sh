@@ -15,5 +15,7 @@ rabbitmqctl set_user_tags admin administrator ; \
 # Set vhost permissions
 # rabbitmqctl set_permissions -p <vhostname> <username> ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / admin ".*" ".*" ".*" ; \
+
+rabbitmq-plugins enable rabbitmq_stomp; \ 	
 ) &    
 rabbitmq-server $@
