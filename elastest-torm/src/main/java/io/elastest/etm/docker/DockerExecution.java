@@ -8,8 +8,8 @@ public class DockerExecution {
 	private CreateContainerResponse testcontainer, appContainer, logstashContainer, dockbeatContainer;
 	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
 
-	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
-	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
+//	private String surefirePath = "/testcontainers-java-examples/selenium-container/target/surefire-reports";
+//	private String testsuitesPath = "/home/edujg/torm/testsuites.json";
 
 	private String network, logstashIP, sutIP;
 
@@ -100,22 +100,22 @@ public class DockerExecution {
 	public void setDockbeatContainerId(String dockbeatContainerId) {
 		this.dockbeatContainerId = dockbeatContainerId;
 	}
-
-	public String getSurefirePath() {
-		return surefirePath;
-	}
-
-	public void setSurefirePath(String surefirePath) {
-		this.surefirePath = surefirePath;
-	}
-
-	public String getTestsuitesPath() {
-		return testsuitesPath;
-	}
-
-	public void setTestsuitesPath(String testsuitesPath) {
-		this.testsuitesPath = testsuitesPath;
-	}
+//
+//	public String getSurefirePath() {
+//		return surefirePath;
+//	}
+//
+//	public void setSurefirePath(String surefirePath) {
+//		this.surefirePath = surefirePath;
+//	}
+//
+//	public String getTestsuitesPath() {
+//		return testsuitesPath;
+//	}
+//
+//	public void setTestsuitesPath(String testsuitesPath) {
+//		this.testsuitesPath = testsuitesPath;
+//	}
 
 	public String getNetwork() {
 		return network;

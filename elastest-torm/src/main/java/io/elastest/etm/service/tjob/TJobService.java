@@ -63,10 +63,7 @@ public class TJobService {
 			String testLogUrl = dockerExec.initializeLog();
 			
 			try {
-				dockerService.createNetwork(dockerExec);
-				dockerService.startRabbitmq(dockerExec);
-				dockerService.startLogstash(dockerExec);
-				dockerService.startBeats(dockerExec);
+				dockerService.loadBasicServices(dockerExec);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new HTTPException(500);
@@ -85,14 +82,15 @@ public class TJobService {
 				tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
 			}
 
+			sutService.modifySutExec(sutExec);
+			tjobExec.setSutExecution(sutExec);
+
 			Log testLog = new Log();
 			testLog.setLogType(Log.LogTypeEnum.TESTLOG);
 			testLog.setLogUrl(testLogUrl);
 			testLog.settJobExec(tjobExec);
 			logRepo.save(testLog);
 
-			sutService.modifySutExec(sutExec);
-			tjobExec.setSutExecution(sutExec);
 			return tJobExecRepo.save(tjobExec);
 		}
 	}
@@ -106,10 +104,7 @@ public class TJobService {
 		String testLogUrl = dockerExec.initializeLog();
 		
 		try {
-			dockerService.createNetwork(dockerExec);
-			dockerService.startRabbitmq(dockerExec);
-			dockerService.startLogstash(dockerExec);
-			dockerService.startBeats(dockerExec);
+			dockerService.loadBasicServices(dockerExec);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new HTTPException(500);

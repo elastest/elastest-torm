@@ -86,3 +86,7 @@ network.host: 0 #With 0 allows all hosts #[172.17.0.1, 127.0.0.1]
 # Require explicit names when deleting indices:
 #
 #action.destructive_requires_name: true
+
+xpack.security.enabled: false
+xpack.monitoring.enabled: false
+

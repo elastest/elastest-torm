@@ -19,10 +19,7 @@ public class RabbitmqService {
 	private Connection connection;
 	private Channel channel;
 
-	public Connection createRabbitmqConnection(String host, String user, String pass) {
-//		rabbitConnectionFactory = new CachingConnectionFactory(host);
-//		rabbitConnectionFactory.setUsername(user);
-//		rabbitConnectionFactory.setPassword(pass);
+	public Connection createRabbitmqConnection() {
 		connection = container.getConnectionFactory().createConnection();
 		createChannel();
 		return connection;

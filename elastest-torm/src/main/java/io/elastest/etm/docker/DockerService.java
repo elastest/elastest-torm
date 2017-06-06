@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Bind;
@@ -44,8 +42,7 @@ public class DockerService {
 
 	/* Config Methods */
 
-	
-	public void createNetwork(DockerExecution dockerExec){
+	public void createNetwork(DockerExecution dockerExec) {
 		dockerExec.generateNetwork();
 		this.dockerClient.createNetworkCmd().withName(dockerExec.getNetwork()).exec();
 	}
@@ -55,12 +52,12 @@ public class DockerService {
 	public void startRabbitmq(DockerExecution dockerExec) {
 		try {
 			System.out.println("Starting Rabbitmq...");
-			rabbitmqService.createRabbitmqConnection("localhost", "admin", "admin");
+			rabbitmqService.createRabbitmqConnection();
 			dockerExec.createRabbitmqConfig();
-			
+
 			String exchange = dockerExec.getExchange();
 			String queue = dockerExec.getQueue();
-			
+
 			rabbitmqService.createFanoutExchange(exchange);
 			rabbitmqService.createQueue(queue);
 			rabbitmqService.bindQueueToExchange(queue, exchange, "1");
@@ -86,13 +83,11 @@ public class DockerService {
 			this.dockerClient.pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
 			System.out.println("Pulling logstash image ends");
 
-			dockerExec.setLogstashContainer(
-					this.dockerClient.createContainerCmd(logstashImage).withEnv(envList)
+			dockerExec.setLogstashContainer(this.dockerClient.createContainerCmd(logstashImage).withEnv(envList)
 					.withNetworkMode(dockerExec.getNetwork())
-					.withName("logstash_container_"+dockerExec.getExecutionId()).exec()
-					);
-			
-			String logstashContainerId =  dockerExec.getLogstashContainer().getId();
+					.withName("logstash_container_" + dockerExec.getExecutionId()).exec());
+
+			String logstashContainerId = dockerExec.getLogstashContainer().getId();
 
 			dockerExec.setLogstashContainerId(logstashContainerId);
 
@@ -103,7 +98,7 @@ public class DockerService {
 				throw new Exception();
 			}
 			dockerExec.setLogstashIP(logstashIP);
-			
+
 			this.manageLogstash(dockerExec);
 
 		} catch (Exception e) {
@@ -142,11 +137,10 @@ public class DockerService {
 
 			Volume volume = new Volume("/var/run/docker.sock");
 
-			dockerExec.setDockbeatContainer(
-					this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
-					.withNetworkMode(dockerExec.getNetwork()).withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume))
-					.withName("beats_container_"+dockerExec.getExecutionId()).exec()
-					);
+			dockerExec.setDockbeatContainer(this.dockerClient.createContainerCmd(dockbeatImage).withEnv(envVar)
+					.withNetworkMode(dockerExec.getNetwork()).withVolumes(volume)
+					.withBinds(new Bind("/var/run/docker.sock", volume))
+					.withName("beats_container_" + dockerExec.getExecutionId()).exec());
 
 			String dockbeatContainerId = dockerExec.getDockbeatContainer().getId();
 			dockerExec.setDockbeatContainerId(dockbeatContainerId);
@@ -166,20 +160,18 @@ public class DockerService {
 		try {
 			System.out.println("Starting sut");
 			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
-			
+
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
 			Map<String, String> configMap = new HashMap<String, String>();
 			configMap.put("syslog-address", "tcp://" + dockerExec.getLogstashIP() + ":5001");
 			logConfig.setConfig(configMap);
-			
+
 			this.dockerClient.pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
 
-			dockerExec.setAppContainer(
-					this.dockerClient.createContainerCmd(appImage).withEnv(envVar)
+			dockerExec.setAppContainer(this.dockerClient.createContainerCmd(appImage).withEnv(envVar)
 					.withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
-					.withName("sut_container_"+dockerExec.getExecutionId()).exec()
-					);
+					.withName("sut_container_" + dockerExec.getExecutionId()).exec());
 
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
@@ -187,7 +179,7 @@ public class DockerService {
 			dockerExec.setAppContainerId(appContainerId);
 
 			this.dockerClient.startContainerCmd(appContainerId).exec();
-			
+
 			String sutIP = getContainerIp(appContainerId, dockerExec);
 			sutIP = sutIP.split("/")[0];
 			sutIP = "http://" + sutIP + ":8080";
@@ -223,7 +215,7 @@ public class DockerService {
 			envList.add(envVar3);
 
 			Volume volume = new Volume(volumeDirectory);
-			
+
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
 			Map<String, String> configMap = new HashMap<String, String>();
@@ -232,12 +224,10 @@ public class DockerService {
 
 			this.dockerClient.pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
-			dockerExec.setTestcontainer(
-					this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
+			dockerExec.setTestcontainer(this.dockerClient.createContainerCmd(testImage).withExposedPorts(tcp6080)
 					.withPortBindings(portBindings).withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
 					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
-					.withName("test_container_"+dockerExec.getExecutionId()).exec()
-					);
+					.withName("test_container_" + dockerExec.getExecutionId()).exec());
 
 			String testContainerId = dockerExec.getTestcontainer().getId();
 			dockerExec.setTestContainerId(testContainerId);
@@ -247,37 +237,38 @@ public class DockerService {
 					.awaitStatusCode();
 			System.out.println("Test container ends with code " + code);
 
-//			this.saveTestSuite();
+			// this.saveTestSuite();
 		} catch (Exception e) {
 			endExec(dockerExec);
 		}
 	}
 
-//	public void saveTestSuite() {
-//		File surefireXML = new File(this.surefirePath);
-//		List<File> reportsDir = new ArrayList<>();
-//		reportsDir.add(surefireXML);
-//
-//		SurefireReportParser surefireReport = new SurefireReportParser(reportsDir, new Locale("en", "US"), null);
-//		try {
-//			List<ReportTestSuite> testSuites = surefireReport.parseXMLReportFiles();
-//
-//			ObjectMapper mapper = new ObjectMapper();
-//			// Object to JSON in file
-//			try {
-//				mapper.writeValue(new File(this.testsuitesPath), testSuites);
-//			} catch (JsonGenerationException e) {
-//				e.printStackTrace();
-//			} catch (JsonMappingException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//
-//		} catch (MavenReportException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	// public void saveTestSuite() {
+	// File surefireXML = new File(this.surefirePath);
+	// List<File> reportsDir = new ArrayList<>();
+	// reportsDir.add(surefireXML);
+	//
+	// SurefireReportParser surefireReport = new
+	// SurefireReportParser(reportsDir, new Locale("en", "US"), null);
+	// try {
+	// List<ReportTestSuite> testSuites = surefireReport.parseXMLReportFiles();
+	//
+	// ObjectMapper mapper = new ObjectMapper();
+	// // Object to JSON in file
+	// try {
+	// mapper.writeValue(new File(this.testsuitesPath), testSuites);
+	// } catch (JsonGenerationException e) {
+	// e.printStackTrace();
+	// } catch (JsonMappingException e) {
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// } catch (MavenReportException e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	/* End execution methods */
 
@@ -362,12 +353,26 @@ public class DockerService {
 	/* Utils */
 
 	public String getContainerIp(String containerId, DockerExecution dockerExec) {
-		return this.dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().get(dockerExec.getNetwork())
-				.getIpAddress();
+		return this.dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks()
+				.get(dockerExec.getNetwork()).getIpAddress();
 	}
 
 	public String getHostIp(DockerExecution dockerExec) {
-		return this.dockerClient.inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam().getConfig().get(0)
-				.getGateway();
+		return this.dockerClient.inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam().getConfig()
+				.get(0).getGateway();
 	}
+
+	/* */
+
+	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
+		try {
+			createNetwork(dockerExec);
+			startRabbitmq(dockerExec);
+			startLogstash(dockerExec);
+			startBeats(dockerExec);
+		} catch (Exception e) {
+			throw new Exception();
+		}
+	}
+
 }
