@@ -56,13 +56,13 @@ public class DockerService {
 			System.out.println("Starting Rabbitmq...");
 			rabbitmqService.createRabbitmqConnection();
 			dockerExec.createRabbitmqConfig();
-
-			String exchange = dockerExec.getExchange();
-			String queue = dockerExec.getQueue();
-
-			rabbitmqService.createFanoutExchange(exchange);
-			rabbitmqService.createQueue(queue);
-			rabbitmqService.bindQueueToExchange(queue, exchange, "1");
+			
+			for (Map.Entry<String, String> rabbitLine: dockerExec.getRabbitMap().entrySet()){
+				rabbitmqService.createFanoutExchange(rabbitLine.getKey());
+				rabbitmqService.createQueue(rabbitLine.getValue());
+				rabbitmqService.bindQueueToExchange(rabbitLine.getValue(), rabbitLine.getKey(), "1");
+			}
+			
 			System.out.println("Successfully started Rabbitmq...");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,7 +74,7 @@ public class DockerService {
 		try {
 			String envVar = "ELASID=" + dockerExec.getExecutionId();
 			String envVar2 = "HOSTIP=" + getHostIp(dockerExec);
-			String envVar3 = "EXCHANGENAME=" + dockerExec.getExchange();
+			String envVar3 = "EXCHANGENAME=" + dockerExec.getExchangePrefix();
 
 			ArrayList<String> envList = new ArrayList<>();
 			envList.add(envVar);
@@ -352,8 +352,12 @@ public class DockerService {
 	public void purgeRabbitmq(DockerExecution dockerExec) {
 		try {
 			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
-			rabbitmqService.deleteQueue(dockerExec.getQueue());
-			rabbitmqService.deleteFanoutExchange(dockerExec.getExchange());
+			
+			
+			for (Map.Entry<String, String> rabbitLine: dockerExec.getRabbitMap().entrySet()){
+				rabbitmqService.deleteQueue(rabbitLine.getValue());
+				rabbitmqService.deleteFanoutExchange(rabbitLine.getKey());
+			}
 			rabbitmqService.closeChannel();
 			rabbitmqService.closeConnection();
 		} catch (Exception e) {

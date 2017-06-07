@@ -1,5 +1,8 @@
 package io.elastest.etm.docker;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.RandomStringUtils;
 
 import com.github.dockerjava.api.DockerClient;
@@ -18,7 +21,9 @@ public class DockerExecution {
 	private String network, logstashIP, sutIP;
 
 	private String executionId;
-	private String exchange, queue;
+	
+	private String exchangePrefix, queuePrefix;
+	private Map<String, String> rabbitMap;
 	
 	private TJobExecution tJobexec;
 	
@@ -38,8 +43,11 @@ public class DockerExecution {
 	}
 	
 	public void createRabbitmqConfig(){
-		setExchange("ex-" + executionId);
-		setQueue("q-" + executionId);
+		exchangePrefix = "ex-" + executionId;
+		queuePrefix = "q-" + executionId;
+		rabbitMap = new HashMap<String, String>();
+		rabbitMap.put(exchangePrefix + "-sut", queuePrefix + "-sut");
+		rabbitMap.put(exchangePrefix + "-test", queuePrefix + "-test");
 	}
 	
 	
@@ -169,23 +177,30 @@ public class DockerExecution {
 	public void setExecutionId(String executionId) {
 		this.executionId = executionId;
 	}
-
-	public String getExchange() {
-		return exchange;
+	
+	public String getExchangePrefix() {
+		return exchangePrefix;
 	}
 
-	public void setExchange(String exchange) {
-		this.exchange = exchange;
+	public void setExchangePrefix(String exchangePrefix) {
+		this.exchangePrefix = exchangePrefix;
 	}
 
-	public String getQueue() {
-		return queue;
+	public String getQueuePrefix() {
+		return queuePrefix;
 	}
 
-	public void setQueue(String queue) {
-		this.queue = queue;
+	public void setQueuePrefix(String queuePrefix) {
+		this.queuePrefix = queuePrefix;
 	}
 
+	public Map<String, String> getRabbitMap() {
+		return rabbitMap;
+	}
+
+	public void setRabbitMap(Map<String, String> rabbitMap) {
+		this.rabbitMap = rabbitMap;
+	}
 
 	public TJobExecution gettJobexec() {
 		return tJobexec;
