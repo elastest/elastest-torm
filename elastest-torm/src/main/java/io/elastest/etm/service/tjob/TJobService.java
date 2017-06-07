@@ -54,12 +54,13 @@ public class TJobService {
 		if (tjob.getSut() == null) {
 			return executeTJobWithoutSut(tJobId);
 		} else {
-			TJobExecution tjobExec = new TJobExecution();
+			TJobExecution tjobExec = tJobExecRepo.save(new TJobExecution());
 			tjobExec.setTjob(tjob);
 
 			SutExecution sutExec = sutService.createSutExecutionBySut(tjob.getSut());
 
 			DockerExecution dockerExec = new DockerExecution();
+			dockerExec.settJobexec(tjobExec);
 			String testLogUrl = dockerExec.initializeLog();
 			
 			try {
@@ -97,10 +98,11 @@ public class TJobService {
 
 	public TJobExecution executeTJobWithoutSut(Long tJobId) {//TODO Refactor
 		TJob tjob = tJobRepo.findOne(tJobId);
-		TJobExecution tjobExec = new TJobExecution();
+		TJobExecution tjobExec = tJobExecRepo.save(new TJobExecution());
 		tjobExec.setTjob(tjob);
 
 		DockerExecution dockerExec = new DockerExecution();
+		dockerExec.settJobexec(tjobExec);
 		String testLogUrl = dockerExec.initializeLog();
 		
 		try {

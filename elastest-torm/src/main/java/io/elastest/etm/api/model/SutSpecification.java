@@ -179,11 +179,11 @@ public class SutSpecification {
 	}
 	
 	/**
-	 * Get name
+	 * Get project
 	 * 
-	 * @return name
+	 * @return project
 	 **/
-	@ApiModelProperty(example = "12345678", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@NotNull
 	public Project getProject() {
 		return project;

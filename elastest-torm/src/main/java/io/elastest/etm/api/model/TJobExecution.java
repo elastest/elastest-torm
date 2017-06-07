@@ -79,11 +79,13 @@ public class TJobExecution {
 	public TJobExecution() {
 		this.id = (long) 0;
 		this.duration = (long) 0;
+		this.result = ResultEnum.IN_PROGRESS;
 	}
 
-	public TJobExecution(Long id, Long duration) {
+	public TJobExecution(Long id, Long duration, ResultEnum result) {
 		this.id = id==null? 0: id;
 		this.duration = duration==null? 0: duration;
+		this.result = result;
 	}	
 
 	/**

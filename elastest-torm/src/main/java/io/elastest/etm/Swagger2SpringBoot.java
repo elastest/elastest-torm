@@ -54,16 +54,4 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 		return container;
 	}
 
-	@Bean
-	DockerClient dockerClient() {
-		boolean windowsSo= false;
-		if (windowsSo) {
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://192.168.99.100:2376").build();
-			return DockerClientBuilder.getInstance(config).build();
-		} else {
-			return DockerClientBuilder.getInstance().build();
-		}
-	}
-
 }

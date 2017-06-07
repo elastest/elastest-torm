@@ -2,9 +2,13 @@ package io.elastest.etm.docker;
 
 import org.apache.commons.lang.RandomStringUtils;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 
+import io.elastest.etm.api.model.TJobExecution;
+
 public class DockerExecution {
+	private DockerClient dockerClient;
 	private CreateContainerResponse testcontainer, appContainer, logstashContainer, dockbeatContainer;
 	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
 
@@ -14,19 +18,23 @@ public class DockerExecution {
 	private String network, logstashIP, sutIP;
 
 	private String executionId;
-	String exchange, queue;
+	private String exchange, queue;
+	
+	private TJobExecution tJobexec;
 	
 	public DockerExecution(){}
 	
 	
 
 	public String initializeLog() {
-		setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
+//		setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
+		setExecutionId(tJobexec.getId().toString());
 		return "localhost:9200/" + executionId;
 	}
 	
 	public void generateNetwork(){
-		setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
+//		setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
+		setNetwork("Logstash-" + tJobexec.getId().toString());
 	}
 	
 	public void createRabbitmqConfig(){
@@ -37,9 +45,22 @@ public class DockerExecution {
 	
 	/* Getters and Setters */
 
+	
 	public CreateContainerResponse getTestcontainer() {
 		return testcontainer;
 	}
+
+	public DockerClient getDockerClient() {
+		return dockerClient;
+	}
+
+
+
+	public void setDockerClient(DockerClient dockerClient) {
+		this.dockerClient = dockerClient;
+	}
+
+
 
 	public void setTestcontainer(CreateContainerResponse testcontainer) {
 		this.testcontainer = testcontainer;
@@ -164,7 +185,16 @@ public class DockerExecution {
 	public void setQueue(String queue) {
 		this.queue = queue;
 	}
-	
+
+
+	public TJobExecution gettJobexec() {
+		return tJobexec;
+	}
+
+
+	public void settJobexec(TJobExecution tJobexec) {
+		this.tJobexec = tJobexec;
+	}
 	
 	
 }
