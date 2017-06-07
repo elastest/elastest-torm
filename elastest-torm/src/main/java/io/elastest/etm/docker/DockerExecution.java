@@ -1,10 +1,17 @@
 package io.elastest.etm.docker;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.RandomStringUtils;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 
+import io.elastest.etm.api.model.TJobExecution;
+
 public class DockerExecution {
+	private DockerClient dockerClient;
 	private CreateContainerResponse testcontainer, appContainer, logstashContainer, dockbeatContainer;
 	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
 
@@ -14,32 +21,54 @@ public class DockerExecution {
 	private String network, logstashIP, sutIP;
 
 	private String executionId;
-	String exchange, queue;
+	
+	private String exchangePrefix, queuePrefix;
+	private Map<String, String> rabbitMap;
+	
+	private TJobExecution tJobexec;
 	
 	public DockerExecution(){}
 	
 	
 
 	public String initializeLog() {
-		setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
+//		setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
+		setExecutionId(tJobexec.getId().toString());
 		return "localhost:9200/" + executionId;
 	}
 	
 	public void generateNetwork(){
-		setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
+//		setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
+		setNetwork("Logstash-" + tJobexec.getId().toString());
 	}
 	
 	public void createRabbitmqConfig(){
-		setExchange("ex-" + executionId);
-		setQueue("q-" + executionId);
+		exchangePrefix = "ex-" + executionId;
+		queuePrefix = "q-" + executionId;
+		rabbitMap = new HashMap<String, String>();
+		rabbitMap.put(exchangePrefix + "-sut", queuePrefix + "-sut");
+		rabbitMap.put(exchangePrefix + "-test", queuePrefix + "-test");
 	}
 	
 	
 	/* Getters and Setters */
 
+	
 	public CreateContainerResponse getTestcontainer() {
 		return testcontainer;
 	}
+
+	public DockerClient getDockerClient() {
+		return dockerClient;
+	}
+
+
+
+	public void setDockerClient(DockerClient dockerClient) {
+		this.dockerClient = dockerClient;
+	}
+
+
 
 	public void setTestcontainer(CreateContainerResponse testcontainer) {
 		this.testcontainer = testcontainer;
@@ -148,23 +177,39 @@ public class DockerExecution {
 	public void setExecutionId(String executionId) {
 		this.executionId = executionId;
 	}
-
-	public String getExchange() {
-		return exchange;
-	}
-
-	public void setExchange(String exchange) {
-		this.exchange = exchange;
-	}
-
-	public String getQueue() {
-		return queue;
-	}
-
-	public void setQueue(String queue) {
-		this.queue = queue;
-	}
 	
+	public String getExchangePrefix() {
+		return exchangePrefix;
+	}
+
+	public void setExchangePrefix(String exchangePrefix) {
+		this.exchangePrefix = exchangePrefix;
+	}
+
+	public String getQueuePrefix() {
+		return queuePrefix;
+	}
+
+	public void setQueuePrefix(String queuePrefix) {
+		this.queuePrefix = queuePrefix;
+	}
+
+	public Map<String, String> getRabbitMap() {
+		return rabbitMap;
+	}
+
+	public void setRabbitMap(Map<String, String> rabbitMap) {
+		this.rabbitMap = rabbitMap;
+	}
+
+	public TJobExecution gettJobexec() {
+		return tJobexec;
+	}
+
+
+	public void settJobexec(TJobExecution tJobexec) {
+		this.tJobexec = tJobexec;
+	}
 	
 	
 }
