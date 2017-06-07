@@ -50,10 +50,9 @@ public class DockerExecution {
 		queuePrefix = "q-" + executionId;
 		rabbitMap = new HashMap<String, String>();
 		rabbitMap.put(exchangePrefix + "-test", queuePrefix + "-test");
-		if (withSut) {
-			System.out.println("mal");
+//		if (withSut) {
 			rabbitMap.put(exchangePrefix + "-sut", queuePrefix + "-sut");
-		}
+//		}
 	}
 	
 	/* Getters and Setters */
