@@ -20,6 +20,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.rabbitmq.service.RabbitmqService;
+import io.elastest.etm.service.sut.SutService;
 
 @Service
 public class DockerService {
@@ -30,6 +31,9 @@ public class DockerService {
 
 	@Autowired
 	private RabbitmqService rabbitmqService;
+	
+	@Autowired
+	private SutService sutService;
 
 	/* Config Methods */
 
@@ -56,13 +60,13 @@ public class DockerService {
 			System.out.println("Starting Rabbitmq...");
 			rabbitmqService.createRabbitmqConnection();
 			dockerExec.createRabbitmqConfig();
-			
-			for (Map.Entry<String, String> rabbitLine: dockerExec.getRabbitMap().entrySet()){
+
+			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
 				rabbitmqService.createFanoutExchange(rabbitLine.getKey());
 				rabbitmqService.createQueue(rabbitLine.getValue());
 				rabbitmqService.bindQueueToExchange(rabbitLine.getValue(), rabbitLine.getKey(), "1");
 			}
-			
+
 			System.out.println("Successfully started Rabbitmq...");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -148,8 +152,8 @@ public class DockerService {
 			Volume volume = new Volume("/var/run/docker.sock");
 
 			dockerExec.setDockbeatContainer(dockerExec.getDockerClient().createContainerCmd(dockbeatImage)
-					.withEnv(envVar).withNetworkMode(dockerExec.getNetwork())
-					.withVolumes(volume).withBinds(new Bind("/var/run/docker.sock", volume))
+					.withEnv(envVar).withNetworkMode(dockerExec.getNetwork()).withVolumes(volume)
+					.withBinds(new Bind("/var/run/docker.sock", volume))
 					.withName("beats_" + dockerExec.getExecutionId()).exec());
 
 			String dockbeatContainerId = dockerExec.getDockbeatContainer().getId();
@@ -166,7 +170,8 @@ public class DockerService {
 		}
 	}
 
-	public SutExecution startSut(SutExecution sutExec, DockerExecution dockerExec) {
+	public void startSut(DockerExecution dockerExec) {
+		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
 			System.out.println("Starting sut");
 			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
@@ -193,8 +198,6 @@ public class DockerService {
 			String sutIP = getContainerIp(appContainerId, dockerExec);
 			sutIP = sutIP.split("/")[0];
 			sutIP = "http://" + sutIP + ":8080";
-			dockerExec.setSutIP(sutIP);
-
 			sutExec.setUrl(sutIP);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -204,7 +207,7 @@ public class DockerService {
 			endLogstashExec(dockerExec);
 			purgeRabbitmq(dockerExec);
 		}
-		return sutExec;
+		dockerExec.setSutExec(sutExec);
 	}
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
@@ -217,7 +220,7 @@ public class DockerService {
 			// portBindings.bind(tcp6080, Binding.bindPort(6080));
 
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
-			String envVar2 = "APP_IP=" + dockerExec.getSutIP();
+			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
 			String envVar3 = "NETWORK=" + dockerExec.getNetwork();
 			ArrayList<String> envList = new ArrayList<>();
 			envList.add(envVar);
@@ -252,7 +255,7 @@ public class DockerService {
 			// this.saveTestSuite();
 		} catch (Exception e) {
 			e.printStackTrace();
-			endExec(dockerExec);
+			endAllExec(dockerExec);
 		}
 	}
 
@@ -285,16 +288,11 @@ public class DockerService {
 
 	/* End execution methods */
 
-	public void endExec(DockerExecution dockerExec) {
-		endTestExec(dockerExec);
-		endBeatsExec(dockerExec);
-		endLogstashExec(dockerExec);
-		purgeRabbitmq(dockerExec);
-	}
-
 	public void endAllExec(DockerExecution dockerExec) {
 		endTestExec(dockerExec);
-		endSutExec(dockerExec);
+		if (dockerExec.isWithSut()) {
+			endSutExec(dockerExec);
+		}
 		endBeatsExec(dockerExec);
 		endLogstashExec(dockerExec);
 		purgeRabbitmq(dockerExec);
@@ -320,6 +318,8 @@ public class DockerService {
 	}
 
 	public void endSutExec(DockerExecution dockerExec) {
+		SutExecution sutExec = dockerExec.getSutExec();
+		sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
 		try {
 			System.out.println("Ending sut execution " + dockerExec.getExecutionId());
 			try {
@@ -332,9 +332,13 @@ public class DockerService {
 			} catch (Exception e) {
 				System.out.println("Remove image " + appImage + " failed. In use" + dockerExec.getExecutionId());
 			}
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
 			System.out.println("Error on ending Sut execution");
 		}
+		dockerExec.setSutExec(sutExec);
+		sutService.modifySutExec(dockerExec.getSutExec());
 	}
 
 	public void endLogstashExec(DockerExecution dockerExec) {
@@ -352,9 +356,8 @@ public class DockerService {
 	public void purgeRabbitmq(DockerExecution dockerExec) {
 		try {
 			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
-			
-			
-			for (Map.Entry<String, String> rabbitLine: dockerExec.getRabbitMap().entrySet()){
+
+			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
 				rabbitmqService.deleteQueue(rabbitLine.getValue());
 				rabbitmqService.deleteFanoutExchange(rabbitLine.getKey());
 			}
@@ -374,6 +377,8 @@ public class DockerService {
 			System.out.println("Error on ending dockbeat execution");
 		}
 	}
+	
+	
 
 	/* Utils */
 
@@ -391,6 +396,7 @@ public class DockerService {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
 
+	
 	/* */
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
@@ -400,6 +406,9 @@ public class DockerService {
 			startRabbitmq(dockerExec);
 			startLogstash(dockerExec);
 			startBeats(dockerExec);
+			if(dockerExec.isWithSut()){
+				startSut(dockerExec);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception();
