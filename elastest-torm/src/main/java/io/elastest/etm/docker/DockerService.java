@@ -31,9 +31,25 @@ public class DockerService {
 
 	@Autowired
 	private RabbitmqService rabbitmqService;
-	
+
 	@Autowired
 	private SutService sutService;
+
+	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
+		try {
+			configureDocker(dockerExec);
+			createNetwork(dockerExec);
+			startRabbitmq(dockerExec);
+			startLogstash(dockerExec);
+			startBeats(dockerExec);
+			if (dockerExec.isWithSut()) {
+				startSut(dockerExec);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception();
+		}
+	}
 
 	/* Config Methods */
 
@@ -86,14 +102,9 @@ public class DockerService {
 			envList.add(envVar3);
 			envList.add(envVar4);
 
-			if (!imageExist(logstashImage, dockerExec)) {
-				System.out.println("Pulling logstash image...");
-				dockerExec.getDockerClient().pullImageCmd(logstashImage).exec(new PullImageResultCallback())
-						.awaitSuccess();
-				System.out.println("Pulling logstash image ends");
-			} else {
-				System.out.println("Logstash image already pulled");
-			}
+			System.out.println("Pulling logstash image...");
+			dockerExec.getDockerClient().pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("Pulling logstash image ends");
 
 			dockerExec.setLogstashContainer(dockerExec.getDockerClient().createContainerCmd(logstashImage)
 					.withEnv(envList).withNetworkMode(dockerExec.getNetwork())
@@ -142,14 +153,10 @@ public class DockerService {
 		try {
 			String envVar = "LOGSTASHIP=" + dockerExec.getLogstashIP() + ":5044";
 
-			if (!imageExist(dockbeatImage, dockerExec)) {
-				System.out.println("Pulling dockbeat image...");
-				dockerExec.getDockerClient().pullImageCmd(dockbeatImage).exec(new PullImageResultCallback())
-						.awaitSuccess();
-				System.out.println("Pulling dockbeat image ends");
-			} else {
-				System.out.println("Dockbeat image already pulled");
-			}
+			System.out.println("Pulling dockbeat image...");
+			dockerExec.getDockerClient().pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
+			System.out.println("Pulling dockbeat image ends");
+
 			Volume volume = new Volume("/var/run/docker.sock");
 
 			dockerExec.setDockbeatContainer(dockerExec.getDockerClient().createContainerCmd(dockbeatImage)
@@ -377,8 +384,6 @@ public class DockerService {
 			System.out.println("Error on ending dockbeat execution");
 		}
 	}
-	
-	
 
 	/* Utils */
 
@@ -395,24 +400,4 @@ public class DockerService {
 	public boolean imageExist(String imageName, DockerExecution dockerExec) {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
-
-	
-	/* */
-
-	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
-		try {
-			configureDocker(dockerExec);
-			createNetwork(dockerExec);
-			startRabbitmq(dockerExec);
-			startLogstash(dockerExec);
-			startBeats(dockerExec);
-			if(dockerExec.isWithSut()){
-				startSut(dockerExec);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Exception();
-		}
-	}
-
 }
