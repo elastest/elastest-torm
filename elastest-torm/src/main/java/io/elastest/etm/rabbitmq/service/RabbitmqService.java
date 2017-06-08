@@ -6,6 +6,7 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.rabbitmq.client.BuiltinExchangeType;
@@ -18,6 +19,12 @@ public class RabbitmqService {
 	private SimpleMessageListenerContainer container;	
 	private Connection connection;
 	private Channel channel;
+	
+	@Value("${spring.rabbitmq.username}")
+	private String user;
+	
+	@Value("${spring.rabbitmq.password}")
+	private String pass;
 
 	public Connection createRabbitmqConnection() {
 		connection = container.getConnectionFactory().createConnection();
@@ -83,5 +90,50 @@ public class RabbitmqService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	
+	
+	/* Getters Setters */
+
+	public SimpleMessageListenerContainer getContainer() {
+		return container;
+	}
+
+	public void setContainer(SimpleMessageListenerContainer container) {
+		this.container = container;
+	}
+
+	public Connection getConnection() {
+		return connection;
+	}
+
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+
+	public Channel getChannel() {
+		return channel;
+	}
+
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPass() {
+		return pass;
+	}
+
+	public void setPass(String pass) {
+		this.pass = pass;
 	}
 }
