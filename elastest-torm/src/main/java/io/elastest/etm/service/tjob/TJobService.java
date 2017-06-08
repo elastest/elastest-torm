@@ -48,10 +48,12 @@ public class TJobService {
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tjobExec = tJobExecRepo.save(new TJobExecution());
 		
-		Runnable r1 = () -> { executeTJob(tjobExec, tjob);};
-		new Thread(r1).start();
+//		Runnable r1 = () -> { executeTJob(tjobExec, tjob);};
+//		new Thread(r1).start();
+//		
+//		return tjobExec;
 		
-		return tjobExec;
+		return executeTJob(tjobExec, tjob);
 	}
 	
 	
