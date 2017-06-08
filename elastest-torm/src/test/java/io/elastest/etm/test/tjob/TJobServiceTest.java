@@ -42,10 +42,10 @@ public class TJobServiceTest {
 	@Test
 	public void createTJobTest(@Autowired TJob tJob  
 			, @Mock TJobRepository tJobRepo, @Mock DockerService dockerExec, @Mock TJobExecRepository tJobExecRepo, 
-			@Mock LogRepository logRepository, @Mock SutService sutService){
+			@Mock LogRepository logRepository){
 		//TJob createdTJob = 
 		when(tJobRepo.save(tJob)).thenReturn(tJob);
-		TJobService tJobService = new TJobService(dockerExec, tJobRepo, tJobExecRepo, logRepository, sutService);		
+		TJobService tJobService = new TJobService(dockerExec, tJobRepo, tJobExecRepo, logRepository);		
 		TJob tJob1 = tJobService.createTJob(tJob);
 		System.out.println("ImageName:"+tJob1.getImageName());
 		assertNotNull(tJob1.getId());		
