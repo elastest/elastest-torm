@@ -20,7 +20,7 @@ public class DockerExecution {
 
 	private String network, logstashIP;
 	private String executionId;
-	private String exchangePrefix, queuePrefix;
+	private String queuePrefix;
 	private Map<String, String> rabbitMap;
 	private TJobExecution tJobexec;
 	private boolean withSut;
@@ -28,7 +28,7 @@ public class DockerExecution {
 
 	public DockerExecution() {
 	}
-	
+
 	public DockerExecution(TJobExecution tJobExec) {
 		this.tJobexec = tJobExec;
 		this.withSut = tJobExec.getTjob().getSut() != null;
@@ -46,15 +46,16 @@ public class DockerExecution {
 	}
 
 	public void createRabbitmqConfig() {
-		exchangePrefix = "ex-" + executionId;
 		queuePrefix = "q-" + executionId;
 		rabbitMap = new HashMap<String, String>();
-		rabbitMap.put(exchangePrefix + "-test", queuePrefix + "-test");
-//		if (withSut) {
-			rabbitMap.put(exchangePrefix + "-sut", queuePrefix + "-sut");
-//		}
+		rabbitMap.put(queuePrefix + "-test-log", "test." + executionId + ".log");
+		rabbitMap.put(queuePrefix + "-test-metrics", "test." + executionId + ".metrics");
+		if (withSut) {
+			rabbitMap.put(queuePrefix + "-sut-log", "sut." + executionId + ".log");
+			rabbitMap.put(queuePrefix + "-sut-metrics", "sut." + executionId + ".metrics");
+		}
 	}
-	
+
 	/* Getters and Setters */
 
 	public CreateContainerResponse getTestcontainer() {
@@ -167,14 +168,6 @@ public class DockerExecution {
 
 	public void setExecutionId(String executionId) {
 		this.executionId = executionId;
-	}
-
-	public String getExchangePrefix() {
-		return exchangePrefix;
-	}
-
-	public void setExchangePrefix(String exchangePrefix) {
-		this.exchangePrefix = exchangePrefix;
 	}
 
 	public String getQueuePrefix() {

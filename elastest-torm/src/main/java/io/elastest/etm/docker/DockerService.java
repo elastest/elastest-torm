@@ -62,9 +62,8 @@ public class DockerService {
 			dockerExec.createRabbitmqConfig();
 
 			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
-				rabbitmqService.createFanoutExchange(rabbitLine.getKey());
-				rabbitmqService.createQueue(rabbitLine.getValue());
-				rabbitmqService.bindQueueToExchange(rabbitLine.getValue(), rabbitLine.getKey(), "1");
+				rabbitmqService.createQueue(rabbitLine.getKey());
+				rabbitmqService.bindQueueToExchange(rabbitLine.getKey(), "amq.topic", rabbitLine.getValue());
 			}
 
 			System.out.println("Successfully started Rabbitmq...");
@@ -76,14 +75,16 @@ public class DockerService {
 
 	public void startLogstash(DockerExecution dockerExec) {
 		try {
-			String envVar = "ELASID=" + dockerExec.getExecutionId();
+			String envVar = "EXECID=" + dockerExec.getExecutionId();
 			String envVar2 = "HOSTIP=" + getHostIp(dockerExec);
-			String envVar3 = "EXCHANGENAME=" + dockerExec.getExchangePrefix();
+			String envVar3 = "RABBITUSER=" + rabbitmqService.getUser();
+			String envVar4 = "RABBITPASS=" + rabbitmqService.getPass();
 
 			ArrayList<String> envList = new ArrayList<>();
 			envList.add(envVar);
 			envList.add(envVar2);
 			envList.add(envVar3);
+			envList.add(envVar4);
 
 			if (!imageExist(logstashImage, dockerExec)) {
 				System.out.println("Pulling logstash image...");
@@ -358,8 +359,7 @@ public class DockerService {
 			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
 
 			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
-				rabbitmqService.deleteQueue(rabbitLine.getValue());
-				rabbitmqService.deleteFanoutExchange(rabbitLine.getKey());
+				rabbitmqService.deleteQueue(rabbitLine.getKey());
 			}
 			rabbitmqService.closeChannel();
 			rabbitmqService.closeConnection();
