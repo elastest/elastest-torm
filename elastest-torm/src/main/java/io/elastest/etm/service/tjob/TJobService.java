@@ -47,6 +47,15 @@ public class TJobService {
 	public TJobExecution executeTJob(Long tJobId) {
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tjobExec = tJobExecRepo.save(new TJobExecution());
+		
+		Runnable r1 = () -> { executeTJob(tjobExec, tjob);};
+		new Thread(r1).start();
+		
+		return tjobExec;
+	}
+	
+	
+	private TJobExecution executeTJob(TJobExecution tjobExec, TJob tjob){
 		tjobExec.setTjob(tjob);
 
 		DockerExecution dockerExec = new DockerExecution(tjobExec);		
@@ -74,7 +83,7 @@ public class TJobService {
 		testLog.setLogUrl(testLogUrl);
 		testLog.settJobExec(tjobExec);
 		logRepo.save(testLog);
-
+		
 		return tJobExecRepo.save(tjobExec);
 	}
 
