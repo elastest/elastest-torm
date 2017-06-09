@@ -67,6 +67,7 @@ public class TjobApiController implements TjobApi {
     public ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
     	try{
     		TJobExecution tJobExec = tJobService.executeTJob(tJobId);
+    		tJobService.executeTJob(tJobExec);
 	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     	}
     	catch (Exception e) {

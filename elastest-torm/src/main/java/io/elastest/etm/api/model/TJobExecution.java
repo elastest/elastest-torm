@@ -63,7 +63,7 @@ public class TJobExecution {
 	@JsonProperty("error")
 	private String error = null;
 
-	@OneToMany(mappedBy="tJobExec", cascade = {CascadeType.ALL})
+	@OneToMany(mappedBy="tJobExec")
 	private List<Log> logs = null;
 	
 	//bi-directional many-to-one association to Tjob

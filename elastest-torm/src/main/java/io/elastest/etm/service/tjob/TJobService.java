@@ -3,7 +3,12 @@ package io.elastest.etm.service.tjob;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.elastest.etm.api.model.Log;
 import io.elastest.etm.api.model.TJob;
@@ -13,21 +18,25 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.docker.DockerExecution;
 import io.elastest.etm.docker.DockerService;
+import io.elastest.etm.docker.utils.DatabaseSessionManager;
 
 @Service
 public class TJobService {
 
 	private final DockerService dockerService;
 	private final TJobRepository tJobRepo;
-	private final TJobExecRepository tJobExecRepo;
+	private final TJobExecRepository tJobExecRepositoryImpl;
 	private final LogRepository logRepo;
+	
+	@Autowired
+	DatabaseSessionManager dbmanager;
 
-	public TJobService(DockerService dockerService, TJobRepository tJobRepo, TJobExecRepository tJobExecRepo,
+	public TJobService(DockerService dockerService, TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl,
 			LogRepository logRepo) {
 		super();
 		this.dockerService = dockerService;
 		this.tJobRepo = tJobRepo;
-		this.tJobExecRepo = tJobExecRepo;
+		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
 		this.logRepo = logRepo;
 	}
 
@@ -44,23 +53,25 @@ public class TJobService {
 		return tJobRepo.findAll();
 	}
 
+	
 	public TJobExecution executeTJob(Long tJobId) {
 		TJob tjob = tJobRepo.findOne(tJobId);
-		TJobExecution tjobExec = tJobExecRepo.save(new TJobExecution());
+		TJobExecution tJobExcution = new TJobExecution();
+		tJobExcution.setTjob(tjob);
+		tJobExcution = tJobExecRepositoryImpl.save(tJobExcution);
+				
 		
-//		Runnable r1 = () -> { executeTJob(tjobExec, tjob);};
-//		new Thread(r1).start();
-//		
-//		return tjobExec;
-		
-		return executeTJob(tjobExec, tjob);
+		return tJobExcution;
 	}
 	
-	
-	private TJobExecution executeTJob(TJobExecution tjobExec, TJob tjob){
-		tjobExec.setTjob(tjob);
+		
+	@Async	
+	public TJobExecution executeTJob(TJobExecution tJobExec){
+		dbmanager.bindSession();		
+		
+		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());		
 
-		DockerExecution dockerExec = new DockerExecution(tjobExec);		
+		DockerExecution dockerExec = new DockerExecution(tJobExec);		
 		String testLogUrl = dockerExec.initializeLog();
 
 		try {
@@ -68,30 +79,33 @@ public class TJobService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new HTTPException(500);
-		}
+		}		
 
 		try {
-			dockerService.startTest(tjob.getImageName(), dockerExec);
+			dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
 			dockerService.endAllExec(dockerExec);
-			tjobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
+			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 		} catch (Exception e) {
 			e.printStackTrace();
-			tjobExec.setResult(TJobExecution.ResultEnum.FAILURE);
+			tJobExec.setResult(TJobExecution.ResultEnum.FAILURE);
 		}
 		
-		tjobExec.setSutExecution(dockerExec.getSutExec());
+				
+		tJobExec.setSutExecution(dockerExec.getSutExec());
 		Log testLog = new Log();
 		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
 		testLog.setLogUrl(testLogUrl);
-		testLog.settJobExec(tjobExec);
+		testLog.settJobExec(tJobExec);
 		logRepo.save(testLog);
-		
-		return tJobExecRepo.save(tjobExec);
+				
+		TJobExecution tJExecOut = tJobExecRepositoryImpl.save(tJobExec);
+		dbmanager.unbindSession();
+		return tJExecOut;
 	}
 
 	public void deleteTJobExec(Long tJobExecId) {
-		TJobExecution tJobExec = tJobExecRepo.findOne(tJobExecId);
-		tJobExecRepo.delete(tJobExec);
+		TJobExecution tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);
+		tJobExecRepositoryImpl.delete(tJobExec);
 	}
 
 	public TJob getTJobById(Long tJobId) {
@@ -104,12 +118,12 @@ public class TJobService {
 	}
 
 	public List<TJobExecution> getTJobsExecutionsByTJob(TJob tJob) {
-		return tJobExecRepo.findByTJob(tJob);
+		return tJobExecRepositoryImpl.findByTJob(tJob);
 	}
 
 	public TJobExecution getTJobsExecution(Long tJobId, Long tJobExecId) {
 		TJob tJob = tJobRepo.findOne(tJobId);
-		return tJobExecRepo.findByIdAndTJob(tJobExecId, tJob);
+		return tJobExecRepositoryImpl.findByIdAndTJob(tJobExecId, tJob);
 	}
 
 	public TJob modifyTJob(TJob tJob) throws Exception {
