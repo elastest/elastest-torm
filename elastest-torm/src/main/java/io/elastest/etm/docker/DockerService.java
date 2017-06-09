@@ -54,7 +54,7 @@ public class DockerService {
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		boolean windowsSo = true;
+		boolean windowsSo = false;
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
@@ -247,8 +247,7 @@ public class DockerService {
 
 			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage)
 					// .withExposedPorts(tcp6080).withPortBindings(portBindings)
-					// .withVolumes(volume).withBinds(new Bind(volumeDirectory,
-					// volume))
+					// .withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
 					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
 					.withName("test_" + dockerExec.getExecutionId()).exec());
 

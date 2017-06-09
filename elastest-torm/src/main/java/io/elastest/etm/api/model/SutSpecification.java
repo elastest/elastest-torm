@@ -1,6 +1,5 @@
 package io.elastest.etm.api.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,11 +73,6 @@ public class SutSpecification {
 	}
 
 
-	public SutSpecification id(Long id) {
-		this.id = id==null? 0: id;
-		return this;
-	}
-
 	/**
 	 * Get id
 	 * 
@@ -93,9 +87,9 @@ public class SutSpecification {
 	public void setId(Long id) {
 		this.id = id==null? 0: id;
 	}
-
-	public SutSpecification name(String name) {
-		this.name = name;
+	
+	public SutSpecification id(Long id) {
+		this.id = id==null? 0: id;
 		return this;
 	}
 
@@ -115,8 +109,8 @@ public class SutSpecification {
 		this.name = name;
 	}
 
-	public SutSpecification specification(String specification) {
-		this.specification = specification;
+	public SutSpecification name(String name) {
+		this.name = name;
 		return this;
 	}
 
@@ -136,8 +130,8 @@ public class SutSpecification {
 		this.specification = specification;
 	}
 
-	public SutSpecification description(String description) {
-		this.description = description;
+	public SutSpecification specification(String specification) {
+		this.specification = specification;
 		return this;
 	}
 
@@ -155,6 +149,17 @@ public class SutSpecification {
 	public void setDescription(String desc) {
 		this.description = desc;
 	}	
+	
+	public SutSpecification description(String description) {
+		this.description = description;
+		return this;
+	}
+	
+	/**
+	 * Get sutExecution
+	 * 
+	 * @return sutExecution
+	 **/
 	
 	public List<SutExecution> getSutExecution() {
 		return sutExecution;
