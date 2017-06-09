@@ -38,7 +38,7 @@ public class DockerService {
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		boolean windowsSo = false;
+		boolean windowsSo = true;
 		if (windowsSo) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
