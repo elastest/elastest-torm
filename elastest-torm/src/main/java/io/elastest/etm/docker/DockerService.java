@@ -7,9 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -18,7 +16,6 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.docker.utils.ExecStartResultCallbackWebsocket;
 import io.elastest.etm.rabbitmq.service.RabbitmqService;
 import io.elastest.etm.service.sut.SutService;
 
@@ -27,7 +24,6 @@ public class DockerService {
 
 	private String testImage = "";
 	private static String appImage = "edujgurjc/torm-loadapp";
-	private static String logstashImage = "edujgurjc/logstash", dockbeatImage = "edujgurjc/dockbeat";
 
 	@Autowired
 	private RabbitmqService rabbitmqService;
@@ -71,7 +67,7 @@ public class DockerService {
 
 	public void startRabbitmq(DockerExecution dockerExec) {
 		try {
-			System.out.println("Starting Rabbitmq...");
+			System.out.println("Starting Rabbitmq queues "+ dockerExec.getExecutionId());
 			rabbitmqService.createRabbitmqConnection();
 			dockerExec.createRabbitmqConfig();
 
@@ -91,8 +87,8 @@ public class DockerService {
 	public void startSut(DockerExecution dockerExec) {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
-			System.out.println("Starting sut");
-			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
+			System.out.println("Starting sut "+ dockerExec.getExecutionId());		
+			String envVar = "REPO_URL="+sutExec.getSutSpecification().getSpecification();
 
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
@@ -131,12 +127,8 @@ public class DockerService {
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
 		try {
-			System.out.println("Starting test");
+			System.out.println("Starting test "+ dockerExec.getExecutionId());
 			this.testImage = testImage;
-			// ExposedPort tcp6080 = ExposedPort.tcp(6080);
-			//
-			// Ports portBindings = new Ports();
-			// portBindings.bind(tcp6080, Binding.bindPort(6080));
 
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
 			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
@@ -145,8 +137,6 @@ public class DockerService {
 			envList.add(envVar);
 			envList.add(envVar2);
 			envList.add(envVar3);
-
-			// Volume volume = new Volume(volumeDirectory);
 
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
@@ -159,8 +149,6 @@ public class DockerService {
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage)
-					// .withExposedPorts(tcp6080).withPortBindings(portBindings)
-					// .withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
 					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
 					.withName("test_" + dockerExec.getExecutionId()).exec());
 
@@ -178,34 +166,7 @@ public class DockerService {
 			endAllExec(dockerExec);
 		}
 	}
-
-	// public void saveTestSuite() {
-	// File surefireXML = new File(this.surefirePath);
-	// List<File> reportsDir = new ArrayList<>();
-	// reportsDir.add(surefireXML);
-	//
-	// SurefireReportParser surefireReport = new
-	// SurefireReportParser(reportsDir, new Locale("en", "US"), null);
-	// try {
-	// List<ReportTestSuite> testSuites = surefireReport.parseXMLReportFiles();
-	//
-	// ObjectMapper mapper = new ObjectMapper();
-	// // Object to JSON in file
-	// try {
-	// mapper.writeValue(new File(this.testsuitesPath), testSuites);
-	// } catch (JsonGenerationException e) {
-	// e.printStackTrace();
-	// } catch (JsonMappingException e) {
-	// e.printStackTrace();
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// } catch (MavenReportException e) {
-	// e.printStackTrace();
-	// }
-	// }
-
+	
 	/* End execution methods */
 
 	public void endAllExec(DockerExecution dockerExec) {
@@ -295,121 +256,4 @@ public class DockerService {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
 	
-	
-	
-	
-	
-	/* Old */
-	
-	public void startLogstash(DockerExecution dockerExec) {
-		try {
-			String envVar = "EXECID=" + dockerExec.getExecutionId();
-			String envVar2 = "HOSTIP=" + getHostIp(dockerExec);
-			String envVar3 = "RABBITUSER=" + rabbitmqService.getUser();
-			String envVar4 = "RABBITPASS=" + rabbitmqService.getPass();
-
-			ArrayList<String> envList = new ArrayList<>();
-			envList.add(envVar);
-			envList.add(envVar2);
-			envList.add(envVar3);
-			envList.add(envVar4);
-
-			System.out.println("Pulling logstash image...");
-			dockerExec.getDockerClient().pullImageCmd(logstashImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling logstash image ends");
-
-			dockerExec.setLogstashContainer(dockerExec.getDockerClient().createContainerCmd(logstashImage)
-					.withEnv(envList).withNetworkMode(dockerExec.getNetwork())
-					.withName("logstash_" + dockerExec.getExecutionId()).exec());
-
-			String logstashContainerId = dockerExec.getLogstashContainer().getId();
-
-			dockerExec.setLogstashContainerId(logstashContainerId);
-
-			dockerExec.getDockerClient().startContainerCmd(logstashContainerId).exec();
-
-			String logstashIP = getContainerIp(logstashContainerId, dockerExec);
-			if (logstashIP == null || logstashIP.isEmpty()) {
-				throw new Exception();
-			}
-			dockerExec.setLogstashIP(logstashIP);
-
-			this.manageLogstash(dockerExec);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			endLogstashExec(dockerExec);
-			purgeRabbitmq(dockerExec);
-		}
-	}
-
-	public void manageLogstash(DockerExecution dockerExec) {
-		System.out.println("Starting logstash");
-		try {
-
-			Object lock = new Object();
-			ExecStartResultCallbackWebsocket execStartResultCallbackWebsocket = new ExecStartResultCallbackWebsocket();
-			execStartResultCallbackWebsocket.setLock(lock);
-
-			synchronized (execStartResultCallbackWebsocket.getLock()) {
-				dockerExec.getDockerClient().logContainerCmd(dockerExec.getLogstashContainerId()).withStdErr(true)
-						.withStdOut(true).withFollowStream(true).exec(execStartResultCallbackWebsocket);
-				execStartResultCallbackWebsocket.getLock().wait();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void startBeats(DockerExecution dockerExec) {
-		try {
-			String envVar = "LOGSTASHIP=" + dockerExec.getLogstashIP() + ":5044";
-
-			System.out.println("Pulling dockbeat image...");
-			dockerExec.getDockerClient().pullImageCmd(dockbeatImage).exec(new PullImageResultCallback()).awaitSuccess();
-			System.out.println("Pulling dockbeat image ends");
-
-			Volume volume = new Volume("/var/run/docker.sock");
-
-			dockerExec.setDockbeatContainer(dockerExec.getDockerClient().createContainerCmd(dockbeatImage)
-					.withEnv(envVar).withNetworkMode(dockerExec.getNetwork()).withVolumes(volume)
-					.withBinds(new Bind("/var/run/docker.sock", volume))
-					.withName("beats_" + dockerExec.getExecutionId()).exec());
-
-			String dockbeatContainerId = dockerExec.getDockbeatContainer().getId();
-			dockerExec.setDockbeatContainerId(dockbeatContainerId);
-
-			dockerExec.getDockerClient().startContainerCmd(dockbeatContainerId).exec();
-			Thread.sleep(2000);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			endBeatsExec(dockerExec);
-			endLogstashExec(dockerExec);
-			purgeRabbitmq(dockerExec);
-		}
-	}
-	
-	
-	public void endLogstashExec(DockerExecution dockerExec) {
-		try {
-			System.out.println("Ending Logstash execution " + dockerExec.getExecutionId());
-			dockerExec.getDockerClient().stopContainerCmd(dockerExec.getLogstashContainerId()).exec();
-			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getLogstashContainerId()).exec();
-		} catch (Exception e) {
-			System.out.println("Error on ending Logstash execution");
-		}
-		System.out.println("Removing docker network... " + dockerExec.getExecutionId());
-		dockerExec.getDockerClient().removeNetworkCmd(dockerExec.getNetwork()).exec();
-	}
-
-	public void endBeatsExec(DockerExecution dockerExec) {
-		try {
-			System.out.println("Ending dockbeat execution " + dockerExec.getExecutionId());
-			dockerExec.getDockerClient().stopContainerCmd(dockerExec.getDockbeatContainerId()).exec();
-			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getDockbeatContainerId()).exec();
-		} catch (Exception e) {
-			System.out.println("Error on ending dockbeat execution");
-		}
-	}
 }
