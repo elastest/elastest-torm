@@ -58,9 +58,7 @@ public class TJobService {
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tJobExcution = new TJobExecution();
 		tJobExcution.setTjob(tjob);
-		tJobExcution = tJobExecRepositoryImpl.save(tJobExcution);
-				
-		
+		tJobExcution = tJobExecRepositoryImpl.save(tJobExcution);		
 		return tJobExcution;
 	}
 	

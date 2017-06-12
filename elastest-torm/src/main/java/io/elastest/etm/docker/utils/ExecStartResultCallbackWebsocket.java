@@ -6,11 +6,8 @@ import java.io.PrintWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
 
@@ -22,9 +19,6 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 	
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
-	
-	@Autowired
-	private IOUtils iOUtils;
 	
 	private PrintWriter stdout, stderr;
 	
@@ -52,33 +46,7 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 			LOGGER.debug(frame.toString());
 		}
 	}
-
-	public void writeTrace(Frame frame, PrintWriter pw, String label) throws IOException{
-		String frameString = frame.toString();
-		
-		LogTrace trace = new LogTrace(frameString);
-		afterTradeExecuted(trace, "/topic/logs");
-				
-		pw.println(frameString);
-		iOUtils.getLogLines().add(frameString);
-		
-		ObjectMapper mapper = new ObjectMapper();
-		if (frameString.contains("urlvnc")){
-			String[] cadenas = frameString.split(" ");
-//			cadenas[2] = cadenas[2].replace("localhost", "192.168.99.101");
-			sendUrlVnc(mapper.writeValueAsString(cadenas[2]), "/topic/urlsVNC");
-			//sendUrlVnc("{\"testUrl' : '"+cadenas[2]+"'}", "/topic/urlsVNC");
-		}
-	}
 	
-	public void sendUrlVnc(String urlVnc, String topic) {
-		try{
-			this.messagingTemplate.convertAndSend(topic, urlVnc);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-    
 	public void afterTradeExecuted(LogTrace trace, String topic) {
 		try{
 			this.messagingTemplate.convertAndSend(topic, trace.toJSON());
@@ -95,6 +63,9 @@ public class ExecStartResultCallbackWebsocket extends ResultCallbackTemplate<Exe
 			synchronized (getLock()) {
 				getLock().notify();
 			}
+		}
+		else{
+			//TODO control Logstash error
 		}
 	}
 

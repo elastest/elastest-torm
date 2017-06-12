@@ -40,8 +40,6 @@ public class DockerService {
 			configureDocker(dockerExec);
 			createNetwork(dockerExec);
 			startRabbitmq(dockerExec);
-			startLogstash(dockerExec);
-			startBeats(dockerExec);
 			if (dockerExec.isWithSut()) {
 				startSut(dockerExec);
 			}
@@ -89,6 +87,220 @@ public class DockerService {
 		}
 	}
 
+
+	public void startSut(DockerExecution dockerExec) {
+		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
+		try {
+			System.out.println("Starting sut");
+			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
+
+			LogConfig logConfig = new LogConfig();
+			logConfig.setType(LoggingType.SYSLOG);
+			Map<String, String> configMap = new HashMap<String, String>();
+			configMap.put("syslog-address", "tcp://" + getHostIp(dockerExec) + ":5001");
+			configMap.put("tag", "sut_" + dockerExec.getExecutionId() + "_tjobexec");
+
+			logConfig.setConfig(configMap);
+
+			dockerExec.getDockerClient().pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
+
+			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(appImage).withEnv(envVar)
+					.withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
+					.withName("sut_" + dockerExec.getExecutionId()).exec());
+
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+
+			String appContainerId = dockerExec.getAppContainer().getId();
+			dockerExec.setAppContainerId(appContainerId);
+
+			dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
+
+			String sutIP = getContainerIp(appContainerId, dockerExec);
+			sutIP = sutIP.split("/")[0];
+			sutIP = "http://" + sutIP + ":8080";
+			sutExec.setUrl(sutIP);
+		} catch (Exception e) {
+			e.printStackTrace();
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
+			endSutExec(dockerExec);
+			removeNetwork(dockerExec);
+			purgeRabbitmq(dockerExec);
+		}
+		dockerExec.setSutExec(sutExec);
+	}
+
+	public void startTest(String testImage, DockerExecution dockerExec) {
+		try {
+			System.out.println("Starting test");
+			this.testImage = testImage;
+			// ExposedPort tcp6080 = ExposedPort.tcp(6080);
+			//
+			// Ports portBindings = new Ports();
+			// portBindings.bind(tcp6080, Binding.bindPort(6080));
+
+			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
+			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
+			String envVar3 = "NETWORK=" + dockerExec.getNetwork();
+			ArrayList<String> envList = new ArrayList<>();
+			envList.add(envVar);
+			envList.add(envVar2);
+			envList.add(envVar3);
+
+			// Volume volume = new Volume(volumeDirectory);
+
+			LogConfig logConfig = new LogConfig();
+			logConfig.setType(LoggingType.SYSLOG);
+			Map<String, String> configMap = new HashMap<String, String>();
+			configMap.put("syslog-address", "tcp://" + getHostIp(dockerExec) + ":5000");
+			configMap.put("tag", "test_" + dockerExec.getExecutionId() + "_tjobexec");
+
+			logConfig.setConfig(configMap);
+
+			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
+
+			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage)
+					// .withExposedPorts(tcp6080).withPortBindings(portBindings)
+					// .withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
+					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
+					.withName("test_" + dockerExec.getExecutionId()).exec());
+
+			String testContainerId = dockerExec.getTestcontainer().getId();
+			dockerExec.setTestContainerId(testContainerId);
+
+			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
+			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
+					.exec(new WaitContainerResultCallback()).awaitStatusCode();
+			System.out.println("Test container ends with code " + code);
+
+			// this.saveTestSuite();
+		} catch (Exception e) {
+			e.printStackTrace();
+			endAllExec(dockerExec);
+		}
+	}
+
+	// public void saveTestSuite() {
+	// File surefireXML = new File(this.surefirePath);
+	// List<File> reportsDir = new ArrayList<>();
+	// reportsDir.add(surefireXML);
+	//
+	// SurefireReportParser surefireReport = new
+	// SurefireReportParser(reportsDir, new Locale("en", "US"), null);
+	// try {
+	// List<ReportTestSuite> testSuites = surefireReport.parseXMLReportFiles();
+	//
+	// ObjectMapper mapper = new ObjectMapper();
+	// // Object to JSON in file
+	// try {
+	// mapper.writeValue(new File(this.testsuitesPath), testSuites);
+	// } catch (JsonGenerationException e) {
+	// e.printStackTrace();
+	// } catch (JsonMappingException e) {
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// } catch (MavenReportException e) {
+	// e.printStackTrace();
+	// }
+	// }
+
+	/* End execution methods */
+
+	public void endAllExec(DockerExecution dockerExec) {
+		endTestExec(dockerExec);
+		if (dockerExec.isWithSut()) {
+			endSutExec(dockerExec);
+		}
+		removeNetwork(dockerExec);
+		purgeRabbitmq(dockerExec);
+	}
+
+	public void endTestExec(DockerExecution dockerExec) {
+		try {
+			System.out.println("Ending test execution " + dockerExec.getExecutionId());
+			try {
+				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getTestContainerId()).exec();
+			} catch (Exception e) {
+			}
+			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getTestContainerId()).exec();
+			try {
+				dockerExec.getDockerClient().removeImageCmd(testImage).withForce(true).exec();
+			} catch (Exception e) {
+				System.out.println("Remove image " + testImage + " failed. In use" + dockerExec.getExecutionId());
+			}
+		} catch (Exception e) {
+			System.out.println("Error on ending test execution");
+
+		}
+	}
+
+	public void endSutExec(DockerExecution dockerExec) {
+		SutExecution sutExec = dockerExec.getSutExec();
+		sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
+		try {
+			System.out.println("Ending sut execution " + dockerExec.getExecutionId());
+			try {
+				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getAppContainerId()).exec();
+			} catch (Exception e) {
+			}
+			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getAppContainerId()).exec();
+			try {
+				dockerExec.getDockerClient().removeImageCmd(appImage).withForce(true).exec();
+			} catch (Exception e) {
+				System.out.println("Remove image " + appImage + " failed. In use" + dockerExec.getExecutionId());
+			}
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
+		} catch (Exception e) {
+			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
+			System.out.println("Error on ending Sut execution");
+		}
+		dockerExec.setSutExec(sutExec);
+		sutService.modifySutExec(dockerExec.getSutExec());
+	}
+	
+	public void removeNetwork(DockerExecution dockerExec) {
+		System.out.println("Removing docker network... " + dockerExec.getExecutionId());
+		dockerExec.getDockerClient().removeNetworkCmd(dockerExec.getNetwork()).exec();
+	}
+
+	public void purgeRabbitmq(DockerExecution dockerExec) {
+		try {
+			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
+
+			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
+				rabbitmqService.deleteQueue(rabbitLine.getKey());
+			}
+			rabbitmqService.closeChannel();
+			rabbitmqService.closeConnection();
+		} catch (Exception e) {
+			System.out.println("Error on purging Rabbitmq");
+		}
+	}
+	
+	/* Utils */
+
+	public String getContainerIp(String containerId, DockerExecution dockerExec) {
+		return dockerExec.getDockerClient().inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks()
+				.get(dockerExec.getNetwork()).getIpAddress();
+	}
+
+	public String getHostIp(DockerExecution dockerExec) {
+		return dockerExec.getDockerClient().inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam()
+				.getConfig().get(0).getGateway();
+	}
+
+	public boolean imageExist(String imageName, DockerExecution dockerExec) {
+		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
+	}
+	
+	
+	
+	
+	
+	/* Old */
+	
 	public void startLogstash(DockerExecution dockerExec) {
 		try {
 			String envVar = "EXECID=" + dockerExec.getExecutionId();
@@ -177,177 +389,8 @@ public class DockerService {
 			purgeRabbitmq(dockerExec);
 		}
 	}
-
-	public void startSut(DockerExecution dockerExec) {
-		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
-		try {
-			System.out.println("Starting sut");
-			String envVar = "REPO_URL=https://github.com/EduJGURJC/springbootdemo";
-
-			LogConfig logConfig = new LogConfig();
-			logConfig.setType(LoggingType.SYSLOG);
-			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://" + dockerExec.getLogstashIP() + ":5001");
-			logConfig.setConfig(configMap);
-
-			dockerExec.getDockerClient().pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
-
-			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(appImage).withEnv(envVar)
-					.withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
-					.withName("sut_" + dockerExec.getExecutionId()).exec());
-
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
-
-			String appContainerId = dockerExec.getAppContainer().getId();
-			dockerExec.setAppContainerId(appContainerId);
-
-			dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
-
-			String sutIP = getContainerIp(appContainerId, dockerExec);
-			sutIP = sutIP.split("/")[0];
-			sutIP = "http://" + sutIP + ":8080";
-			sutExec.setUrl(sutIP);
-		} catch (Exception e) {
-			e.printStackTrace();
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
-			endSutExec(dockerExec);
-			endBeatsExec(dockerExec);
-			endLogstashExec(dockerExec);
-			purgeRabbitmq(dockerExec);
-		}
-		dockerExec.setSutExec(sutExec);
-	}
-
-	public void startTest(String testImage, DockerExecution dockerExec) {
-		try {
-			System.out.println("Starting test");
-			this.testImage = testImage;
-			// ExposedPort tcp6080 = ExposedPort.tcp(6080);
-			//
-			// Ports portBindings = new Ports();
-			// portBindings.bind(tcp6080, Binding.bindPort(6080));
-
-			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
-			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
-			String envVar3 = "NETWORK=" + dockerExec.getNetwork();
-			ArrayList<String> envList = new ArrayList<>();
-			envList.add(envVar);
-			envList.add(envVar2);
-			envList.add(envVar3);
-
-			// Volume volume = new Volume(volumeDirectory);
-
-			LogConfig logConfig = new LogConfig();
-			logConfig.setType(LoggingType.SYSLOG);
-			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://" + dockerExec.getLogstashIP() + ":5000");
-			logConfig.setConfig(configMap);
-
-			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
-
-			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage)
-					// .withExposedPorts(tcp6080).withPortBindings(portBindings)
-					// .withVolumes(volume).withBinds(new Bind(volumeDirectory, volume))
-					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
-					.withName("test_" + dockerExec.getExecutionId()).exec());
-
-			String testContainerId = dockerExec.getTestcontainer().getId();
-			dockerExec.setTestContainerId(testContainerId);
-
-			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
-			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
-					.exec(new WaitContainerResultCallback()).awaitStatusCode();
-			System.out.println("Test container ends with code " + code);
-
-			// this.saveTestSuite();
-		} catch (Exception e) {
-			e.printStackTrace();
-			endAllExec(dockerExec);
-		}
-	}
-
-	// public void saveTestSuite() {
-	// File surefireXML = new File(this.surefirePath);
-	// List<File> reportsDir = new ArrayList<>();
-	// reportsDir.add(surefireXML);
-	//
-	// SurefireReportParser surefireReport = new
-	// SurefireReportParser(reportsDir, new Locale("en", "US"), null);
-	// try {
-	// List<ReportTestSuite> testSuites = surefireReport.parseXMLReportFiles();
-	//
-	// ObjectMapper mapper = new ObjectMapper();
-	// // Object to JSON in file
-	// try {
-	// mapper.writeValue(new File(this.testsuitesPath), testSuites);
-	// } catch (JsonGenerationException e) {
-	// e.printStackTrace();
-	// } catch (JsonMappingException e) {
-	// e.printStackTrace();
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// } catch (MavenReportException e) {
-	// e.printStackTrace();
-	// }
-	// }
-
-	/* End execution methods */
-
-	public void endAllExec(DockerExecution dockerExec) {
-		endTestExec(dockerExec);
-		if (dockerExec.isWithSut()) {
-			endSutExec(dockerExec);
-		}
-		endBeatsExec(dockerExec);
-		endLogstashExec(dockerExec);
-		purgeRabbitmq(dockerExec);
-	}
-
-	public void endTestExec(DockerExecution dockerExec) {
-		try {
-			System.out.println("Ending test execution " + dockerExec.getExecutionId());
-			try {
-				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getTestContainerId()).exec();
-			} catch (Exception e) {
-			}
-			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getTestContainerId()).exec();
-			try {
-				dockerExec.getDockerClient().removeImageCmd(testImage).withForce(true).exec();
-			} catch (Exception e) {
-				System.out.println("Remove image " + testImage + " failed. In use" + dockerExec.getExecutionId());
-			}
-		} catch (Exception e) {
-			System.out.println("Error on ending test execution");
-
-		}
-	}
-
-	public void endSutExec(DockerExecution dockerExec) {
-		SutExecution sutExec = dockerExec.getSutExec();
-		sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
-		try {
-			System.out.println("Ending sut execution " + dockerExec.getExecutionId());
-			try {
-				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getAppContainerId()).exec();
-			} catch (Exception e) {
-			}
-			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getAppContainerId()).exec();
-			try {
-				dockerExec.getDockerClient().removeImageCmd(appImage).withForce(true).exec();
-			} catch (Exception e) {
-				System.out.println("Remove image " + appImage + " failed. In use" + dockerExec.getExecutionId());
-			}
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
-		} catch (Exception e) {
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
-			System.out.println("Error on ending Sut execution");
-		}
-		dockerExec.setSutExec(sutExec);
-		sutService.modifySutExec(dockerExec.getSutExec());
-	}
-
+	
+	
 	public void endLogstashExec(DockerExecution dockerExec) {
 		try {
 			System.out.println("Ending Logstash execution " + dockerExec.getExecutionId());
@@ -360,20 +403,6 @@ public class DockerService {
 		dockerExec.getDockerClient().removeNetworkCmd(dockerExec.getNetwork()).exec();
 	}
 
-	public void purgeRabbitmq(DockerExecution dockerExec) {
-		try {
-			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
-
-			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
-				rabbitmqService.deleteQueue(rabbitLine.getKey());
-			}
-			rabbitmqService.closeChannel();
-			rabbitmqService.closeConnection();
-		} catch (Exception e) {
-			System.out.println("Error on purging Rabbitmq");
-		}
-	}
-
 	public void endBeatsExec(DockerExecution dockerExec) {
 		try {
 			System.out.println("Ending dockbeat execution " + dockerExec.getExecutionId());
@@ -382,21 +411,5 @@ public class DockerService {
 		} catch (Exception e) {
 			System.out.println("Error on ending dockbeat execution");
 		}
-	}
-
-	/* Utils */
-
-	public String getContainerIp(String containerId, DockerExecution dockerExec) {
-		return dockerExec.getDockerClient().inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks()
-				.get(dockerExec.getNetwork()).getIpAddress();
-	}
-
-	public String getHostIp(DockerExecution dockerExec) {
-		return dockerExec.getDockerClient().inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam()
-				.getConfig().get(0).getGateway();
-	}
-
-	public boolean imageExist(String imageName, DockerExecution dockerExec) {
-		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
 }
