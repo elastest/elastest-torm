@@ -18,7 +18,7 @@ public class WebSocketConfiguration {
 		@Override
 		public void configureMessageBroker(MessageBrokerRegistry config) {
 			config.setApplicationDestinationPrefixes("/app");
-			config.enableStompBrokerRelay("/topic")
+			config.enableStompBrokerRelay("/queue")
 					.setAutoStartup(true)
 					.setClientLogin("elastest-etm")
 					.setClientPasscode("elastest-etm")
@@ -33,10 +33,8 @@ public class WebSocketConfiguration {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
-			stompEndpointRegistry.addEndpoint("/application1")
-					.setHandshakeHandler(new DefaultHandshakeHandler())
-					.withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
+			stompEndpointRegistry.addEndpoint("/rabbitMq").setHandshakeHandler(new DefaultHandshakeHandler())
+			.setAllowedOrigins("http://localhost").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 	}
 }
