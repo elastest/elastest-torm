@@ -144,7 +144,7 @@ output:
   ### Logstash as output
   logstash:
     # The Logstash hosts
-    hosts: ["LOGSTASHIPENV"]
+    hosts: ["LOGSTASHHOST:5044"]
 
     # Number of workers per Logstash host.
     #worker: 1
