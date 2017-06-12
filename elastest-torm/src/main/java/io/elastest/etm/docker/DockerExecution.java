@@ -11,14 +11,10 @@ import io.elastest.etm.api.model.TJobExecution;
 
 public class DockerExecution {
 	private DockerClient dockerClient;
-	private CreateContainerResponse testcontainer, appContainer, logstashContainer, dockbeatContainer;
-	private String testContainerId, appContainerId, logstashContainerId, dockbeatContainerId;
+	private CreateContainerResponse testcontainer, appContainer;
+	private String testContainerId, appContainerId;
 
-	// private String surefirePath =
-	// "/testcontainers-java-examples/selenium-container/target/surefire-reports";
-	// private String testsuitesPath = "/home/edujg/torm/testsuites.json";
-
-	private String network, logstashIP;
+	private String network;
 	private String executionId;
 	private String queuePrefix;
 	private Map<String, String> rabbitMap;
@@ -35,14 +31,12 @@ public class DockerExecution {
 	}
 
 	public String initializeLog() {
-		// setExecutionId(RandomStringUtils.randomAlphanumeric(17).toLowerCase());
 		setExecutionId(tJobexec.getId().toString());
 		return "localhost:9200/" + executionId;
 	}
 
 	public void generateNetwork() {
-		// setNetwork("Logstash-" + RandomStringUtils.randomAlphanumeric(19));
-		setNetwork("Logstash-" + tJobexec.getId().toString());
+		setNetwork("TORM-" + tJobexec.getId().toString());
 	}
 
 	public void createRabbitmqConfig() {
@@ -82,22 +76,6 @@ public class DockerExecution {
 		this.appContainer = appContainer;
 	}
 
-	public CreateContainerResponse getLogstashContainer() {
-		return logstashContainer;
-	}
-
-	public void setLogstashContainer(CreateContainerResponse logstashContainer) {
-		this.logstashContainer = logstashContainer;
-	}
-
-	public CreateContainerResponse getDockbeatContainer() {
-		return dockbeatContainer;
-	}
-
-	public void setDockbeatContainer(CreateContainerResponse dockbeatContainer) {
-		this.dockbeatContainer = dockbeatContainer;
-	}
-
 	public String getTestContainerId() {
 		return testContainerId;
 	}
@@ -114,52 +92,12 @@ public class DockerExecution {
 		this.appContainerId = appContainerId;
 	}
 
-	public String getLogstashContainerId() {
-		return logstashContainerId;
-	}
-
-	public void setLogstashContainerId(String logstashContainerId) {
-		this.logstashContainerId = logstashContainerId;
-	}
-
-	public String getDockbeatContainerId() {
-		return dockbeatContainerId;
-	}
-
-	public void setDockbeatContainerId(String dockbeatContainerId) {
-		this.dockbeatContainerId = dockbeatContainerId;
-	}
-	//
-	// public String getSurefirePath() {
-	// return surefirePath;
-	// }
-	//
-	// public void setSurefirePath(String surefirePath) {
-	// this.surefirePath = surefirePath;
-	// }
-	//
-	// public String getTestsuitesPath() {
-	// return testsuitesPath;
-	// }
-	//
-	// public void setTestsuitesPath(String testsuitesPath) {
-	// this.testsuitesPath = testsuitesPath;
-	// }
-
 	public String getNetwork() {
 		return network;
 	}
 
 	public void setNetwork(String network) {
 		this.network = network;
-	}
-
-	public String getLogstashIP() {
-		return logstashIP;
-	}
-
-	public void setLogstashIP(String logstashIP) {
-		this.logstashIP = logstashIP;
 	}
 
 	public String getExecutionId() {
