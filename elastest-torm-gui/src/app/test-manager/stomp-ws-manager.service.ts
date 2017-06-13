@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs/Subscription';
 export class StompWSManager {
 
   private wsConf = {
-    host: '/logs',
+    host: '/rabbitMq',
     debug: true,
     queue:{'init':false}
   }
@@ -60,9 +60,9 @@ export class StompWSManager {
        * @param {Function} callback(message,headers): called after server response.
        * @param {object} headers: optional headers.
        */
-      this.subscription = this.stomp.subscribe('/topic/logs', this.response);
-      this.subscription = this.stomp.subscribe('/topic/endExecutionTest', this.processEndExecutionTest);
-      this.subscription = this.stomp.subscribe('/topic/urlsVNC', this.loadUrl);
+      this.subscription = this.stomp.subscribe('/queue/q-67-test-log', this.response);
+      this.subscription = this.stomp.subscribe('/queue/endExecutionTest', this.processEndExecutionTest);
+      this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
 
     });
   }
@@ -107,7 +107,7 @@ export class StompWSManager {
   // Response
   public response = (data) => {
     console.log(data);
-    this.traces.push(data);
+    //this.traces.push(data);
   }
 
   // Response

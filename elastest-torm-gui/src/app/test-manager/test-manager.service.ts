@@ -13,14 +13,14 @@ export class TestManagerService {
 
   createAndRunTest(testInfo: TestInfo) {
     //let url = 'http://localhost:8080/containers/';
-    let url = 'http://localhost:8090/containers/external/api/';
+    let url = 'http://localhost:8091/containers/external/api/';
     return this.http.post(url, testInfo)
       .map(response => this.createTestInfo(response.json()))
   }
 
   getTestResults() {
     console.log("Invoking api rest to get the test results");
-    let url = 'http://localhost:8090/containers/testInfo';
+    let url = 'http://localhost:8091/containers/testInfo';
     return this.http.get(url)
       .map(
       response => this.createTestInfo(response.json()),

@@ -28,14 +28,14 @@ export class TestManagerComponent implements  OnInit, OnDestroy, AfterViewChecke
   constructor(private testManagerService: TestManagerService, private stompWSManager: StompWSManager) {
     /* TODO: in the future, fill it with the database content */
     this.images.push({name:"edujgurjc/torm-test-01"});
-    this.images.push({name:"edujgurjc/torm-test-02"});
+    this.images.push({name:"edujgurjc/torm-test-02"});  
   }
 
   ngOnInit(){
-    this.stompWSManager.configWSConnection('/logs');
+    this.stompWSManager.configWSConnection('/rabbitMq');
     this.stompWSManager.startWsConnection();
     this.urlNoVNCClient = this.stompWSManager.urlNoVNCClient[this.stompWSManager.urlNoVNCClient.length - 1];
-   
+
     this.traces = this.stompWSManager.traces;
     if (this.traces.length > 0){
       this.traces.splice(0, this.stompWSManager.traces.length);

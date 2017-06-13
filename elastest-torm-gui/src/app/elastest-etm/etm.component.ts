@@ -5,11 +5,11 @@ import { Title } from '@angular/platform-browser';
 import { TdMediaService } from '@covalent/core';
 
 @Component({
-  selector: 'qs-dashboard-product',
-  templateUrl: './dashboard-product.component.html',
-  styleUrls: ['./dashboard-product.component.scss'],
+  selector: 'etm-etm',
+  templateUrl: './etm.component.html',
+  styleUrls: ['./etm.component.scss'],
 })
-export class DashboardProductComponent implements AfterViewInit {
+export class EtmComponent implements AfterViewInit {
 
   title: string;
   constructor(private _titleService: Title,

@@ -1,11 +1,11 @@
 {
 
-    "/" :{
-        "target" : "http://localhost:8090",
+    "/rabbitMq" :{
+        "target" : "http://localhost:8091",
         "secure" : false
     },
 
-    "/logs" :{
+    "/logs1" :{
       "target" : "http://localhost:8090",
       "secure" : false
     }

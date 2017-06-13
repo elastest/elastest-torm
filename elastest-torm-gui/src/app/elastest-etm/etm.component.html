@@ -1,6 +1,6 @@
-<td-layout-nav logo="assets:covalent">
+<td-layout-nav logo="assets:elastestlogo">
   <div td-toolbar-content layout="row" layout-align="center center" flex>
-    <span>Quickstart</span>
+    <span></span>
     <span flex></span>
     <a md-icon-button mdTooltip="Docs" href="https://teradata.github.io/covalent/" target="_blank"><md-icon>chrome_reader_mode</md-icon></a>
     <a md-icon-button mdTooltip="Github" href="https://github.com/teradata/covalent" target="_blank"><md-icon svgIcon="assets:github"></md-icon></a>
@@ -10,7 +10,7 @@
                         [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
                         [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '257px' : '100%'">
     <md-toolbar td-sidenav-content>
-      <span>Product Name</span>
+      <span>ETM</span>
     </md-toolbar>
     <md-nav-list td-sidenav-content>
       <a md-list-item
@@ -18,7 +18,7 @@
         (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']"
         [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/product']">
+        [routerLink]="['/']">
         <md-icon md-list-icon>dashboard</md-icon>
         Dashboard
       </a>
@@ -27,31 +27,36 @@
         (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']"
         [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['stats']">
+        [routerLink]="['/projects-management']">
         <md-icon md-list-icon>insert_chart</md-icon>
-        Stats
+        Projects
       </a>
       <a md-list-item
         md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']"
         [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['features']">
+        [routerLink]="['/tjobs-management']">
         <md-icon md-list-icon>star</md-icon>
-        Features
+        TJobs
       </a>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative">
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
+         md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/tjobs-management']">        
         <md-icon md-list-icon>people</md-icon>
-        Customers
-      </a>
-      <h3 md-subheader>Admin Menu</h3>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative">
-        <md-icon md-list-icon>receipt</md-icon>
-        Log
-      </a>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative">
+        TOJobs
+      </a>     
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
+         md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/sut-management']">        
         <md-icon md-list-icon>settings</md-icon>
-        Settings
+        Suts
       </a>
     </md-nav-list>
     <div td-toolbar-content layout="row" layout-align="start center" flex>
@@ -64,4 +69,11 @@
     </div>
     <router-outlet></router-outlet>
   </td-layout-manage-list>
+    <td-layout-footer>
+    <div layout="row" layout-align="start center">
+      <span class="md-caption">Copyright &copy; 2017 ElasTest. All rights reserved</span>
+      <span flex></span>
+      <md-icon class="md-icon-ux" svgIcon="assets:elastestlogo"></md-icon>
+    </div>
+  </td-layout-footer>
 </td-layout-nav>
