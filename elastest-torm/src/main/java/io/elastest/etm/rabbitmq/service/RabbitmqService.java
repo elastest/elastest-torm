@@ -140,7 +140,7 @@ public class RabbitmqService {
 			closeChannel();
 			closeConnection();
 		} catch (Exception e) {
-			System.out.println("Error on purging Rabbitmq");
+			System.out.println("Error on purging Rabbitmq " + execId);
 		}
 	}
 	

@@ -169,10 +169,10 @@ public class DockerService {
 			try {
 				dockerExec.getDockerClient().removeImageCmd(testImage).withForce(true).exec();
 			} catch (Exception e) {
-				System.out.println("Remove image " + testImage + " failed. In use" + dockerExec.getExecutionId());
+				System.out.println("Remove image " + testImage + " failed. In use. " + dockerExec.getExecutionId());
 			}
 		} catch (Exception e) {
-			System.out.println("Error on ending test execution");
+			System.out.println("Error on ending test execution  " + dockerExec.getExecutionId());
 
 		}
 	}
@@ -190,12 +190,12 @@ public class DockerService {
 			try {
 				dockerExec.getDockerClient().removeImageCmd(appImage).withForce(true).exec();
 			} catch (Exception e) {
-				System.out.println("Remove image " + appImage + " failed. In use" + dockerExec.getExecutionId());
+				System.out.println("Remove image " + appImage + " failed. In use. " + dockerExec.getExecutionId());
 			}
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
-			System.out.println("Error on ending Sut execution");
+			System.out.println("Error on ending Sut execution " + dockerExec.getExecutionId());
 		}
 		dockerExec.setSutExec(sutExec);
 		sutService.modifySutExec(dockerExec.getSutExec());

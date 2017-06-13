@@ -2,11 +2,11 @@
   <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-sm="60">
       <md-card>
-        <md-card-title>Products Sales</md-card-title>
-        <md-card-subtitle>usage stats for our products</md-card-subtitle>
+        <md-card-title>CPU Usage</md-card-title>
+        <md-card-subtitle>TJob Execution CPU Usage</md-card-subtitle>
         <md-divider></md-divider>
         <div class="chart-height push-top push-right-sm">
-          <ngx-charts-area-chart-stacked
+          <ngx-charts-line-chart
             [scheme]="colorScheme"
             [results]="multi"
             [gradient]="gradient"
@@ -18,7 +18,7 @@
             [xAxisLabel]="xAxisLabel"
             [yAxisLabel]="yAxisLabel"
             [yAxisTickFormatting]="axisDigits">
-          </ngx-charts-area-chart-stacked>
+          </ngx-charts-line-chart>
         </div>
       </md-card>
       <div layout="row">

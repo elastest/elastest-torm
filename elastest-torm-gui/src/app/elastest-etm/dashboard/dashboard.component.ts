@@ -35,10 +35,10 @@ export class DashboardComponent implements AfterViewInit {
   showXAxisLabel: boolean = true;
   xAxisLabel: string = '';
   showYAxisLabel: boolean = true;
-  yAxisLabel: string = 'Sales';
+  yAxisLabel: string = 'Usage %';
 
   colorScheme: any = {
-    domain: ['#1565C0', '#2196F3', '#81D4FA', '#FF9800', '#EF6C00'],
+    domain: ['#1565C0', '#EF6C00', '#2196F3', '#81D4FA', '#FF9800'],
   };
 
   // line, area
@@ -61,7 +61,7 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this._titleService.setTitle( 'Covalent Quickstart' );
+    this._titleService.setTitle( 'ElasTest ETM' );
     this._loadingService.register('items.load');
     this._itemsService.query().subscribe((items: Object[]) => {
       this.items = items;
