@@ -34,6 +34,10 @@ const routes: Routes = [
                 component: TJobsManagerComponent,
             },
             {
+                path: 'tojobs-management',
+                component: TJobsManagerComponent,
+            },
+            {
                 path: 'projects-management',
                 component: ProjectsManagerComponent,
             },
