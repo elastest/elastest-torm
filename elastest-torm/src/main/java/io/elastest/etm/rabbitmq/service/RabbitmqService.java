@@ -1,6 +1,8 @@
 package io.elastest.etm.rabbitmq.service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.springframework.amqp.rabbit.connection.Connection;
@@ -92,6 +94,55 @@ public class RabbitmqService {
 		}
 	}
 	
+	
+	
+	public Map<String, String> createTJobExecQueues(String execId, boolean withSut) {
+		String queuePrefix = "q-" + execId;
+		Map<String, String> rabbitMap = new HashMap<String, String>();
+		rabbitMap.put(queuePrefix + "-test-log", "test." + execId + ".log");
+		rabbitMap.put(queuePrefix + "-test-metrics", "test." + execId + ".metrics");
+		if (withSut) {
+			rabbitMap.put(queuePrefix + "-sut-log", "sut." + execId + ".log");
+			rabbitMap.put(queuePrefix + "-sut-metrics", "sut." + execId + ".metrics");
+		}
+		
+		return rabbitMap;
+	}
+	
+	
+	public Map<String, String> startRabbitmq(String execId, boolean withSut) throws Exception {
+		Map<String, String> rabbitMap = createTJobExecQueues(execId, withSut);
+		try {
+			System.out.println("Starting Rabbitmq queues "+ execId);
+			createRabbitmqConnection();
+			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
+				createQueue(rabbitLine.getKey());
+				bindQueueToExchange(rabbitLine.getKey(), "amq.topic", rabbitLine.getValue());
+			}
+
+			System.out.println("Successfully started Rabbitmq "+ execId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			purgeRabbitmq(rabbitMap, execId);
+			throw e;
+		}
+		return rabbitMap;
+	}
+	
+	
+	public void purgeRabbitmq(Map<String, String> rabbitMap, String execId) {
+		try {
+			System.out.println("Purging Rabbitmq " + execId);
+
+			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
+				deleteQueue(rabbitLine.getKey());
+			}
+			closeChannel();
+			closeConnection();
+		} catch (Exception e) {
+			System.out.println("Error on purging Rabbitmq");
+		}
+	}
 	
 	
 	

@@ -1,8 +1,5 @@
 package io.elastest.etm.docker;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 
@@ -16,8 +13,6 @@ public class DockerExecution {
 
 	private String network;
 	private String executionId;
-	private String queuePrefix;
-	private Map<String, String> rabbitMap;
 	private TJobExecution tJobexec;
 	private boolean withSut;
 	private SutExecution sutExec;
@@ -37,17 +32,6 @@ public class DockerExecution {
 
 	public void generateNetwork() {
 		setNetwork("TORM-" + tJobexec.getId().toString());
-	}
-
-	public void createRabbitmqConfig() {
-		queuePrefix = "q-" + executionId;
-		rabbitMap = new HashMap<String, String>();
-		rabbitMap.put(queuePrefix + "-test-log", "test." + executionId + ".log");
-		rabbitMap.put(queuePrefix + "-test-metrics", "test." + executionId + ".metrics");
-		if (withSut) {
-			rabbitMap.put(queuePrefix + "-sut-log", "sut." + executionId + ".log");
-			rabbitMap.put(queuePrefix + "-sut-metrics", "sut." + executionId + ".metrics");
-		}
 	}
 
 	/* Getters and Setters */
@@ -108,21 +92,6 @@ public class DockerExecution {
 		this.executionId = executionId;
 	}
 
-	public String getQueuePrefix() {
-		return queuePrefix;
-	}
-
-	public void setQueuePrefix(String queuePrefix) {
-		this.queuePrefix = queuePrefix;
-	}
-
-	public Map<String, String> getRabbitMap() {
-		return rabbitMap;
-	}
-
-	public void setRabbitMap(Map<String, String> rabbitMap) {
-		this.rabbitMap = rabbitMap;
-	}
 
 	public TJobExecution gettJobexec() {
 		return tJobexec;

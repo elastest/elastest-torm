@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 
 import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.service.tjob.TJobService;
 
 @Configuration
 public class ElastestConfigTest {

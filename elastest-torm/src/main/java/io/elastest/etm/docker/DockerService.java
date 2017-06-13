@@ -16,7 +16,6 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.rabbitmq.service.RabbitmqService;
 import io.elastest.etm.service.sut.SutService;
 
 @Service
@@ -26,22 +25,18 @@ public class DockerService {
 	private static String appImage = "edujgurjc/torm-loadapp";
 
 	@Autowired
-	private RabbitmqService rabbitmqService;
-
-	@Autowired
 	private SutService sutService;
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
 			configureDocker(dockerExec);
 			createNetwork(dockerExec);
-			startRabbitmq(dockerExec);
 			if (dockerExec.isWithSut()) {
 				startSut(dockerExec);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception();
+			throw e;
 		}
 	}
 
@@ -65,30 +60,11 @@ public class DockerService {
 
 	/* Starting Methods */
 
-	public void startRabbitmq(DockerExecution dockerExec) {
-		try {
-			System.out.println("Starting Rabbitmq queues "+ dockerExec.getExecutionId());
-			rabbitmqService.createRabbitmqConnection();
-			dockerExec.createRabbitmqConfig();
-
-			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
-				rabbitmqService.createQueue(rabbitLine.getKey());
-				rabbitmqService.bindQueueToExchange(rabbitLine.getKey(), "amq.topic", rabbitLine.getValue());
-			}
-
-			System.out.println("Successfully started Rabbitmq...");
-		} catch (Exception e) {
-			e.printStackTrace();
-			purgeRabbitmq(dockerExec);
-		}
-	}
-
-
 	public void startSut(DockerExecution dockerExec) {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
-			System.out.println("Starting sut "+ dockerExec.getExecutionId());		
-			String envVar = "REPO_URL="+sutExec.getSutSpecification().getSpecification();
+			System.out.println("Starting sut " + dockerExec.getExecutionId());
+			String envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
 
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
@@ -120,14 +96,13 @@ public class DockerService {
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
 			endSutExec(dockerExec);
 			removeNetwork(dockerExec);
-			purgeRabbitmq(dockerExec);
 		}
 		dockerExec.setSutExec(sutExec);
 	}
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
 		try {
-			System.out.println("Starting test "+ dockerExec.getExecutionId());
+			System.out.println("Starting test " + dockerExec.getExecutionId());
 			this.testImage = testImage;
 
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
@@ -148,8 +123,8 @@ public class DockerService {
 
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
-			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage)
-					.withEnv(envList).withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
+			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage).withEnv(envList)
+					.withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
 					.withName("test_" + dockerExec.getExecutionId()).exec());
 
 			String testContainerId = dockerExec.getTestcontainer().getId();
@@ -163,19 +138,24 @@ public class DockerService {
 			// this.saveTestSuite();
 		} catch (Exception e) {
 			e.printStackTrace();
-			endAllExec(dockerExec);
+			try {
+				endAllExec(dockerExec);
+			} catch (Exception e1) {}
 		}
 	}
-	
+
 	/* End execution methods */
 
-	public void endAllExec(DockerExecution dockerExec) {
-		endTestExec(dockerExec);
-		if (dockerExec.isWithSut()) {
-			endSutExec(dockerExec);
+	public void endAllExec(DockerExecution dockerExec) throws Exception {
+		try {
+			endTestExec(dockerExec);
+			if (dockerExec.isWithSut()) {
+				endSutExec(dockerExec);
+			}
+			removeNetwork(dockerExec);
+		} catch (Exception e) {
+			throw new Exception("end error"); //TODO Customize Exception
 		}
-		removeNetwork(dockerExec);
-		purgeRabbitmq(dockerExec);
 	}
 
 	public void endTestExec(DockerExecution dockerExec) {
@@ -220,26 +200,12 @@ public class DockerService {
 		dockerExec.setSutExec(sutExec);
 		sutService.modifySutExec(dockerExec.getSutExec());
 	}
-	
+
 	public void removeNetwork(DockerExecution dockerExec) {
 		System.out.println("Removing docker network... " + dockerExec.getExecutionId());
 		dockerExec.getDockerClient().removeNetworkCmd(dockerExec.getNetwork()).exec();
 	}
 
-	public void purgeRabbitmq(DockerExecution dockerExec) {
-		try {
-			System.out.println("Purging Rabbitmq " + dockerExec.getExecutionId());
-
-			for (Map.Entry<String, String> rabbitLine : dockerExec.getRabbitMap().entrySet()) {
-				rabbitmqService.deleteQueue(rabbitLine.getKey());
-			}
-			rabbitmqService.closeChannel();
-			rabbitmqService.closeConnection();
-		} catch (Exception e) {
-			System.out.println("Error on purging Rabbitmq");
-		}
-	}
-	
 	/* Utils */
 
 	public String getContainerIp(String containerId, DockerExecution dockerExec) {
@@ -255,5 +221,5 @@ public class DockerService {
 	public boolean imageExist(String imageName, DockerExecution dockerExec) {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
-	
+
 }
