@@ -1,11 +1,8 @@
-import { TestResult } from './test-result';
 /**
  * Created by frdiaz on 19/04/2017.
  */
 import { Injectable } from "@angular/core";
 import { StompService } from 'ng2-stomp-service';
-import { LogTrace } from "./log-trace";
-import { TestManagerService } from "./test-manager.service";
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Http } from "@angular/http";
 import { Observable } from 'rxjs/Observable';
@@ -23,22 +20,13 @@ export class StompWSManager {
 
   private subscription: any;
 
-  traces: LogTrace[] = [];
-
   endExecution: boolean = false;
 
-  urlNoVNCClient: string[] = [];
-  testResult: TestResult = new TestResult("", "", "", "");
+  urlNoVNCClient: string[] = [];  
   timer: Observable<number>;
   timer_subscription: Subscription;
 
-  private _navItemSource = new BehaviorSubject<string>("");
-  private _testResultSource = new BehaviorSubject<TestResult>(this.testResult);
-
-  navItem$ = this._navItemSource.asObservable();
-  testResult$ = this._testResultSource.asObservable();
-
-  constructor(private stomp: StompService, private testManagerService: TestManagerService, private http: Http) { }
+  constructor(private stomp: StompService, private http: Http) { }
 
   configWSConnection(host: string) {
     this.wsConf.host = host;
@@ -60,9 +48,8 @@ export class StompWSManager {
        * @param {Function} callback(message,headers): called after server response.
        * @param {object} headers: optional headers.
        */
-      this.subscription = this.stomp.subscribe('/queue/q-67-test-log', this.response);
-      this.subscription = this.stomp.subscribe('/queue/endExecutionTest', this.processEndExecutionTest);
-      this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
+     // this.subscription = this.stomp.subscribe('/queue/q-67-test-metrics', this.response);
+     // this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
 
     });
   }
@@ -77,14 +64,14 @@ export class StompWSManager {
     });
   }
 
-  subscribeWSDestination() {
+  subscribeWSDestination(destination: string) {
     /**
      * Subscribe.
      * @param {string} destination: subscibe destination.
      * @param {Function} callback(message,headers): called after server response.
      * @param {object} headers: optional headers.
      */
-    this.subscription = this.stomp.subscribe('/topic/logs', this.response);
+    this.subscription = this.stomp.subscribe('/topic/'+ destination, this.response);
   }
 
   ususcribeWSDestination() {
@@ -110,20 +97,7 @@ export class StompWSManager {
     //this.traces.push(data);
   }
 
-  // Response
-  public processEndExecutionTest = (data) => {
-    console.log(data);
-    this.endExecution = true;
-    this.testManagerService.getTestResults().subscribe(
-      testResults => {
-        console.log(testResults);
-        this.testResult = testResults;
-        this._testResultSource.next(this.testResult);
-      }
-    );
-    console.log("Invoked getTestResults");
-  }
-
+  
   public loadUrl = (data) => {
     console.log("Load Url:" + data);
     // this.urlNoVNCClient = data;
@@ -145,8 +119,7 @@ export class StompWSManager {
     //   },
     //   error => console.log("VNC client is not ready yet")
     //   );
-
-    this._navItemSource.next(data);
+   
     //window.open(data);
   }
 

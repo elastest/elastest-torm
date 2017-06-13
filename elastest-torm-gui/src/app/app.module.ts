@@ -10,11 +10,10 @@ import { AppComponent } from './app.component';
 import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
 import { routedComponents, AppRoutingModule } from './app-routing.module';
-import {TestManagerService} from "./test-manager/test-manager.service";
 
 import { SharedModule } from './shared/shared.module';
 import { StompService } from 'ng2-stomp-service';
-import { StompWSManager } from './test-manager/stomp-ws-manager.service';
+import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 
 
@@ -43,7 +42,6 @@ const httpInterceptorProviders: Type<any>[] = [
   providers: [
     httpInterceptorProviders,
     Title,
-    TestManagerService,
     StompService,
     StompWSManager,
     TJobService,

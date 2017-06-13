@@ -1,3 +1,4 @@
+import { StompWSManager } from '../stomp-ws-manager.service';
 import { ETM_API } from '../../../config/api.config';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
@@ -5,7 +6,7 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobService {
-  constructor(private http: Http) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager) { }
 
   public getTJobs(){
 
@@ -27,11 +28,11 @@ export class TJobService {
 
   }
 
-  public runTJob(){
+  public runTJob(tJobId: number){
 
-    let url = ETM_API + '/tjob/1/exec' ;
-    return this.http.post(url, {}) 
-      .map( response => console.log(response.json()))
+    let url = ETM_API + '/tjob/' + tJobId + '/exec' ;
+    return this.http.post(url, {})
+      .map( response => response.json())
   }
 
   public getTJobsExecutions(){
@@ -46,7 +47,9 @@ export class TJobService {
 
   }
 
-
+private subscribeQueues(tjobExec: any){
+  
+}
   
 
 }

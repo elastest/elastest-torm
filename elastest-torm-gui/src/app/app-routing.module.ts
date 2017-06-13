@@ -9,8 +9,6 @@ import { DashboardTemplateComponent } from './templates/dashboard/dashboard.comp
 import { EmailTemplateComponent } from './templates/email/email.component';
 import { EditorTemplateComponent } from './templates/editor/editor.component';
 
-import { TestManagerComponent } from './test-manager/test-manager.commponent';
-import { SafeUrlPipe } from './test-manager/sanitizer.pipe';
 import { TJobsManagerComponent } from './elastest-etm/tjob/tjobs-manager/tjobs-manager.component';
 import { ProjectsManagerComponent } from './elastest-etm/project/projects-manager/projects-manager.component';
 import { SutsManagerComponent } from './elastest-etm/sut/suts-manager/suts-manager.component';
@@ -30,10 +28,6 @@ const routes: Routes = [
             {
                 component: DashboardComponent,
                 path: '',
-            },
-            {
-                path: 'test-management',
-                component: TestManagerComponent,
             },
             {
                 path: 'tjobs-management',
@@ -69,6 +63,6 @@ export const routedComponents: any[] = [
     LoginComponent,
     TemplatesComponent, EditorTemplateComponent, EmailTemplateComponent, DashboardTemplateComponent,
     UsersComponent, UsersFormComponent,
-    TestManagerComponent, SafeUrlPipe, TJobsManagerComponent, ProjectsManagerComponent,
+    TJobsManagerComponent, ProjectsManagerComponent,
     SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent,
 ];
