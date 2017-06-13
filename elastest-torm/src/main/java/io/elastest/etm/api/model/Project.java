@@ -35,12 +35,12 @@ public class Project implements Serializable {
 	@JsonProperty("name")
 	private String name = null;
 	
-	@JsonProperty("tJobs")
+	@JsonProperty("tjobs")
 	//bi-directional many-to-one association to TJob
 	@OneToMany(mappedBy="project")
 	private List<TJob> tJobs;
 	
-	@JsonProperty("tOJobs")
+	@JsonProperty("tojobs")
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="project")
 	private List<TOJob> tOJobs;
@@ -108,6 +108,13 @@ public class Project implements Serializable {
 		return this;
 	}	
 	
+	
+	/**
+	 * Get tjobs
+	 * 
+	 * @return tjobs
+	 **/
+//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
 	public List<TJob> getTJobs() {
 		return this.tJobs;
 	}
@@ -121,7 +128,13 @@ public class Project implements Serializable {
 		return this;
 	}
 	
-	public List<TOJob> getTOJob() {
+	/**
+	 * Get tojobs
+	 * 
+	 * @return tojobs
+	 **/
+//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
+	public List<TOJob> getTOJobs() {
 		return this.tOJobs;
 	}
 
@@ -133,7 +146,14 @@ public class Project implements Serializable {
 		this.tOJobs = tOJobs;
 		return this;
 	}
-		
+	
+	
+	/**
+	 * Get suts
+	 * 
+	 * @return suts
+	 **/
+//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
 	public List<SutSpecification> getSuts() {
 		return this.suts;
 	}

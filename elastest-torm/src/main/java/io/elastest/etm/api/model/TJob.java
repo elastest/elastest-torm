@@ -194,7 +194,7 @@ public class TJob {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(example = "{ id:\"1\" }" , value = "")
+	@ApiModelProperty(required = true, value = "", example = "{ id:\"1\" }")
 
 	public Project getProject() {
 		return project;
@@ -209,9 +209,10 @@ public class TJob {
 	/**
 	 * Get TJobExecutions
 	 * 
-	 * @return project
+	 * @return tjobexecs
 	 **/
 	
+//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
 	public List<TJobExecution> getTjobExecs() {
 		return this.tjobExecs;
 	}

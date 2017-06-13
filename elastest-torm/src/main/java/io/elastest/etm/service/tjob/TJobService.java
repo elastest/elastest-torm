@@ -3,39 +3,26 @@ package io.elastest.etm.service.tjob;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.api.model.Log;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
-import io.elastest.etm.docker.DockerExecution;
-import io.elastest.etm.docker.DockerService;
-import io.elastest.etm.docker.utils.DatabaseSessionManager;
+import io.elastest.etm.service.epm.EpmIntegrationService;
 
 @Service
 public class TJobService {
 
-	private final DockerService dockerService;
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepositoryImpl;
-	private final LogRepository logRepo;
+	private final EpmIntegrationService epmIntegrationService;
 	
-	@Autowired
-	DatabaseSessionManager dbmanager;
-
-	public TJobService(DockerService dockerService, TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl,
-			LogRepository logRepo) {
+	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, EpmIntegrationService epmIntegrationService) {
 		super();
-		this.dockerService = dockerService;
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
-		this.logRepo = logRepo;
+		this.epmIntegrationService = epmIntegrationService;
 	}
 
 	public TJob createTJob(TJob tjob) {
@@ -54,50 +41,14 @@ public class TJobService {
 	
 	public TJobExecution executeTJob(Long tJobId) {
 		TJob tjob = tJobRepo.findOne(tJobId);
-		TJobExecution tJobExcution = new TJobExecution();
-		tJobExcution.setTjob(tjob);
-		tJobExcution = tJobExecRepositoryImpl.save(tJobExcution);		
-		return tJobExcution;
+		TJobExecution tJobExec = new TJobExecution();
+		tJobExec.setTjob(tjob);
+		tJobExec = tJobExecRepositoryImpl.save(tJobExec);	
+		
+		epmIntegrationService.executeTJob(tJobExec);
+		return tJobExec;
 	}
 	
-		
-	@Async	
-	public TJobExecution executeTJob(TJobExecution tJobExec){
-		dbmanager.bindSession();		
-		
-		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());		
-
-		DockerExecution dockerExec = new DockerExecution(tJobExec);		
-		String testLogUrl = dockerExec.initializeLog();
-
-		try {
-			dockerService.loadBasicServices(dockerExec);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new HTTPException(500);
-		}		
-
-		try {
-			dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
-			dockerService.endAllExec(dockerExec);
-			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
-		} catch (Exception e) {
-			e.printStackTrace();
-			tJobExec.setResult(TJobExecution.ResultEnum.FAILURE);
-		}
-		
-				
-		tJobExec.setSutExecution(dockerExec.getSutExec());
-		Log testLog = new Log();
-		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
-		testLog.setLogUrl(testLogUrl);
-		testLog.settJobExec(tJobExec);
-		logRepo.save(testLog);
-				
-		TJobExecution tJExecOut = tJobExecRepositoryImpl.save(tJobExec);
-		dbmanager.unbindSession();
-		return tJExecOut;
-	}
 
 	public void deleteTJobExec(Long tJobExecId) {
 		TJobExecution tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);

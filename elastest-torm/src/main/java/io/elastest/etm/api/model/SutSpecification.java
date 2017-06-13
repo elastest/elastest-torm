@@ -56,7 +56,7 @@ public class SutSpecification {
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Project project = null;
 	
-	@JsonProperty("tJobs")
+	@JsonProperty("tjobs")
 	@OneToMany(mappedBy="sut")
 	private List<TJob> tJobs;
 	
@@ -160,7 +160,7 @@ public class SutSpecification {
 	 * 
 	 * @return sutExecution
 	 **/
-	
+//	@ApiModelProperty(required = true, value = "", hidden = true)
 	public List<SutExecution> getSutExecution() {
 		return sutExecution;
 	}
@@ -188,7 +188,7 @@ public class SutSpecification {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(required = true, value = "")
+	@ApiModelProperty(required = true, value = "", example = "{ id:\"1\" }")
 	@NotNull
 	public Project getProject() {
 		return project;
@@ -209,10 +209,9 @@ public class SutSpecification {
 	 * 
 	 * @return tJobs
 	 **/
-	@ApiModelProperty(value = "")
 
 	@Valid
-
+//	@ApiModelProperty(required = true, value = "", hidden = true)
 	public List<TJob> getTJobs() {
 		return tJobs;
 	}
