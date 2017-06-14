@@ -7,7 +7,7 @@
       <div class="chart-height push-top push-right-sm">
         <ngx-charts-line-chart [scheme]="colorScheme" [results]="cpuData" [gradient]="gradient" [xAxis]="showXAxis" [yAxis]="showYAxis"
           [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
-          [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits">
+          [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits" [timeline]="timeline">
         </ngx-charts-line-chart>
       </div>
     </md-card>    
@@ -36,8 +36,23 @@
       </md-card-content>
       <md-divider></md-divider>
       <md-card-actions>
-        <button md-button [disabled]="!tJobForm.valid" color="primary" (click)="runTJob()">Execute</button>
+        <button md-button [disabled]="!tJobForm.valid" color="primary" (click)="runTJob()">EXECUTE</button>
       </md-card-actions>
     </md-card>
+  </div>
+</div>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-sm="60">
+    <md-card>
+      <md-card-title>Memory Usage</md-card-title>
+      <md-card-subtitle>TJob Execution Memory Usage</md-card-subtitle>
+      <md-divider></md-divider>
+      <div class="chart-height push-top push-right-sm">
+        <ngx-charts-line-chart [scheme]="colorScheme" [results]="memoryData" [gradient]="gradient" [xAxis]="showXAxis" [yAxis]="showYAxis"
+          [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
+          [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits" [timeline]="timeline">
+        </ngx-charts-line-chart>
+      </div>
+    </md-card>    
   </div>
 </div>

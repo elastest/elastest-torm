@@ -25,13 +25,13 @@ export class StompWSManager {
   urlNoVNCClient: string[] = [];
   timer: Observable<number>;
   timer_subscription: Subscription;
-  public testCpuDataUpdated: EventEmitter<any>;
-  public sutCpuDataUpdated: EventEmitter<any>;
+  public testDataUpdated: EventEmitter<any>;
+  public sutDataUpdated: EventEmitter<any>;
 
 
   constructor(private stomp: StompService, private http: Http) {
-    this.testCpuDataUpdated = new EventEmitter();
-    this.sutCpuDataUpdated = new EventEmitter();
+    this.testDataUpdated = new EventEmitter();
+    this.sutDataUpdated = new EventEmitter();
   }
 
   configWSConnection(host: string) {
@@ -104,12 +104,12 @@ export class StompWSManager {
   // Response
   public testResponse = (data) => {
     console.log(data);
-    this.testCpuDataUpdated.emit(data)
+    this.testDataUpdated.emit(data)
   }
 
     public sutResponse = (data) => {
     console.log(data);
-    this.sutCpuDataUpdated.emit(data)
+    this.sutDataUpdated.emit(data)
   }
 
 

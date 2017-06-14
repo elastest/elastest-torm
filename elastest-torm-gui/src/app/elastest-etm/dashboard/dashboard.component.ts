@@ -6,8 +6,6 @@ import { TdLoadingService, TdDigitsPipe } from '@covalent/core';
 
 import { ItemsService, UsersService, ProductsService, AlertsService } from '../../../services';
 
-import { multi } from './data';
-
 import { TJobService } from '../tjob/tjob.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
 
@@ -26,9 +24,21 @@ export class DashboardComponent implements AfterViewInit {
   alerts: Object[];
 
   // Chart
-  single: any[];
-  multi: any[];
   cpuData: any = [
+    {
+      'name': 'Test',
+      'series': [
+      ],
+    },
+    {
+      'name': 'Sut',
+      'series': [
+      ],
+    },
+  ];
+
+
+  memoryData: any = [
     {
       'name': 'Test',
       'series': [
@@ -52,6 +62,8 @@ export class DashboardComponent implements AfterViewInit {
   xAxisLabel: string = '';
   showYAxisLabel: boolean = true;
   yAxisLabel: string = 'Usage %';
+  timeline: boolean = false;
+
 
   colorScheme: any = {
     domain: ['#1565C0', '#EF6C00', '#2196F3', '#81D4FA', '#FF9800'],
@@ -60,7 +72,8 @@ export class DashboardComponent implements AfterViewInit {
   // line, area
   autoScale: boolean = true;
 
-
+  tJobId: number;
+  withSut: boolean = false;
 
   constructor(private _titleService: Title,
     private _itemsService: ItemsService,
@@ -70,44 +83,78 @@ export class DashboardComponent implements AfterViewInit {
     private _loadingService: TdLoadingService,
     private tJobService: TJobService,
     private stompWSManager: StompWSManager) {
-    this.stompWSManager.testCpuDataUpdated.subscribe((data: any) => this.updateCpuData(data, true));
-    this.stompWSManager.sutCpuDataUpdated.subscribe((data: any) => this.updateCpuData(data, false));
+    this.stompWSManager.testDataUpdated.subscribe((data: any) => this.updateData(data, true));
+    this.stompWSManager.sutDataUpdated.subscribe((data: any) => this.updateData(data, false));
   }
-
-  updateCpuData(data: any, test: boolean) {
-    if (data.type === 'cpu') {
-      let parsedData: any = {
-        'value': data.cpu.totalUsage,
-        'name': new Date('' + data['@timestamp']),
-      }
-      if (test) {
-        this.cpuData[0].series.push(parsedData);
-      }
-      else {
-        this.cpuData[1].series.push(parsedData);
-      }
-      this.cpuData = [...this.cpuData];
-    }
-  }
-
-
-  tJobId: number;
-  withSut: boolean = false;
 
   verifySut() {
     this.withSut = !this.withSut;
   }
 
+  updateData(data: any, test: boolean) {
+    if (data.type === 'cpu') {
+      this.updateCpuData(data, test);
+    } else if (data.type === 'memory') {
+      this.updateMemoryData(data, test);
+    }
+  }
+
+  updateCpuData(data: any, test: boolean) {
+    let parsedData: any = this.parseCpuData(data);
+    if (test) {
+      this.cpuData[0].series.push(parsedData);
+    } else {
+      this.cpuData[1].series.push(parsedData);
+    }
+    this.cpuData = [...this.cpuData];
+  }
+
+  parseCpuData(data: any) {
+    let parsedData: any = {
+      'value': data.cpu.totalUsage,
+      'name': new Date('' + data['@timestamp']),
+    };
+    return parsedData;
+  }
+
+
+
+  updateMemoryData(data: any, test: boolean) {
+    let parsedData: any = this.parseMemoryData(data);
+
+    if (test) {
+      this.memoryData[0].series.push(parsedData);
+    } else {
+      this.memoryData[1].series.push(parsedData);
+    }
+    this.memoryData = [...this.memoryData];
+  }
+
+  parseMemoryData(data: any) {
+    let perMemoryUsage = data.memory.usage * 100 / data.memory.limit;
+    let parsedData: any = {
+      'value': perMemoryUsage,
+      'name': new Date('' + data['@timestamp']),
+    };
+    return parsedData;
+  }
+
+
+
+
+
+
+
   public runTJob() {
 
     this.tJobService.runTJob(this.tJobId)
       .subscribe(
-      tjobExecution => {
+      (tjobExecution) => {
         console.log('TJobExecutionId:' + tjobExecution.id);
         this.createAndSubscribe(tjobExecution);
       },
-      error => console.error("Error:" + error)
-      );
+      (error) => console.error("Error:" + error),
+    );
   }
 
   public createAndSubscribe(tjobExecution: any) {
