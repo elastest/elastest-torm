@@ -18,13 +18,13 @@ public class WebSocketConfiguration {
 		@Override
 		public void configureMessageBroker(MessageBrokerRegistry config) {
 			config.setApplicationDestinationPrefixes("/app");
-			config.enableStompBrokerRelay("/queue")
+			config.enableStompBrokerRelay("/queue", "/topic")
 					.setAutoStartup(true)
 					.setClientLogin("elastest-etm")
 					.setClientPasscode("elastest-etm")
 					.setSystemLogin("elastest-etm")
 					.setSystemPasscode("elastest-etm")
-					.setRelayHost("192.168.99.100")
+					.setRelayHost("localhost")
 					.setSystemHeartbeatReceiveInterval(24000)
 					.setSystemHeartbeatSendInterval(24000)
 					.setRelayPort(61613)

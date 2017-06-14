@@ -71,7 +71,7 @@ export class StompWSManager {
      * @param {Function} callback(message,headers): called after server response.
      * @param {object} headers: optional headers.
      */
-    this.subscription = this.stomp.subscribe('/topic/'+ destination, this.response);
+    this.subscription = this.stomp.subscribe('/queue/'+ destination, this.response);
   }
 
   ususcribeWSDestination() {

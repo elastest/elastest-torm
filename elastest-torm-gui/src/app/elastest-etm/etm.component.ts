@@ -17,7 +17,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
               public media: TdMediaService, private stompWSManager: StompWSManager) { }
 
   ngOnInit(){
-    this.stompWSManager.configWSConnection('/logs');
+    this.stompWSManager.configWSConnection('/rabbitMq');
     this.stompWSManager.startWsConnection();
   }
 
