@@ -1,7 +1,7 @@
 /**
  * Created by frdiaz on 19/04/2017.
  */
-import { Injectable } from "@angular/core";
+import { EventEmitter, Injectable } from '@angular/core';
 import { StompService } from 'ng2-stomp-service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Http } from "@angular/http";
@@ -15,18 +15,22 @@ export class StompWSManager {
   private wsConf = {
     host: '/rabbitMq',
     debug: true,
-    queue:{'init':false}
+    queue: { 'init': false }
   }
 
   private subscription: any;
 
   endExecution: boolean = false;
 
-  urlNoVNCClient: string[] = [];  
+  urlNoVNCClient: string[] = [];
   timer: Observable<number>;
   timer_subscription: Subscription;
+  public cpuDataUpdated: EventEmitter<any>;
 
-  constructor(private stomp: StompService, private http: Http) { }
+
+  constructor(private stomp: StompService, private http: Http) {
+    this.cpuDataUpdated = new EventEmitter();
+  }
 
   configWSConnection(host: string) {
     this.wsConf.host = host;
@@ -48,8 +52,8 @@ export class StompWSManager {
        * @param {Function} callback(message,headers): called after server response.
        * @param {object} headers: optional headers.
        */
-     // this.subscription = this.stomp.subscribe('/queue/q-67-test-metrics', this.response);
-     // this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
+      // this.subscription = this.stomp.subscribe('/queue/q-67-test-metrics', this.response);
+      // this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
 
     });
   }
@@ -71,7 +75,7 @@ export class StompWSManager {
      * @param {Function} callback(message,headers): called after server response.
      * @param {object} headers: optional headers.
      */
-    this.subscription = this.stomp.subscribe('/queue/'+ destination, this.response);
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.response);
   }
 
   ususcribeWSDestination() {
@@ -94,10 +98,12 @@ export class StompWSManager {
   // Response
   public response = (data) => {
     console.log(data);
+    this.cpuDataUpdated.emit(data)
+
     //this.traces.push(data);
   }
 
-  
+
   public loadUrl = (data) => {
     console.log("Load Url:" + data);
     // this.urlNoVNCClient = data;
@@ -119,7 +125,7 @@ export class StompWSManager {
     //   },
     //   error => console.log("VNC client is not ready yet")
     //   );
-   
+
     //window.open(data);
   }
 

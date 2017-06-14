@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 
-import { Title }     from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
 
 import { TdLoadingService, TdDigitsPipe } from '@covalent/core';
 
@@ -8,11 +8,15 @@ import { ItemsService, UsersService, ProductsService, AlertsService } from '../.
 
 import { multi } from './data';
 
+import { TJobService } from '../tjob/tjob.service';
+import { StompWSManager } from '../stomp-ws-manager.service';
+
+
 @Component({
   selector: 'etm-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  viewProviders: [ ItemsService, UsersService, ProductsService, AlertsService ],
+  viewProviders: [ItemsService, UsersService, ProductsService, AlertsService],
 })
 export class DashboardComponent implements AfterViewInit {
 
@@ -24,6 +28,18 @@ export class DashboardComponent implements AfterViewInit {
   // Chart
   single: any[];
   multi: any[];
+  cpuData: any = [
+    {
+      'name': 'Test',
+      'series': [
+      ],
+    },
+    {
+      'name': 'Sut',
+      'series': [
+      ],
+    },
+  ];
 
   view: any[] = [700, 400];
 
@@ -44,24 +60,66 @@ export class DashboardComponent implements AfterViewInit {
   // line, area
   autoScale: boolean = true;
 
+
+
   constructor(private _titleService: Title,
-              private _itemsService: ItemsService,
-              private _usersService: UsersService,
-              private _alertsService: AlertsService,
-              private _productsService: ProductsService,
-              private _loadingService: TdLoadingService) {
-                // Chart
-                this.multi = multi.map((group: any) => {
-                  group.series = group.series.map((dataItem: any) => {
-                    dataItem.name = new Date(dataItem.name);
-                    return dataItem;
-                  });
-                  return group;
-                });
+    private _itemsService: ItemsService,
+    private _usersService: UsersService,
+    private _alertsService: AlertsService,
+    private _productsService: ProductsService,
+    private _loadingService: TdLoadingService,
+    private tJobService: TJobService,
+    private stompWSManager: StompWSManager) {
+    // Chart
+    this.multi = multi.map((group: any) => {
+      group.series = group.series.map((dataItem: any) => {
+        dataItem.name = new Date(dataItem.name);
+        return dataItem;
+      });
+      return group;
+    });
+
+    this.stompWSManager.cpuDataUpdated.subscribe((data: any) => this.updateCpuData(data));
   }
 
+  updateCpuData(data: any) {
+    if (data.type === 'cpu') {
+      let parsedData: any = {
+        'value': data.cpu.totalUsage,
+        'name': '' + data['@timestamp'],
+      }
+      this.cpuData[0].series.push(parsedData);
+      this.cpuData = [...this.cpuData];
+    }
+  }
+
+
+  tJobId: number;
+
+  public runTJob() {
+
+    this.tJobService.runTJob(this.tJobId)
+      .subscribe(
+      tjobExecution => {
+        console.log('TJobExecutionId:' + tjobExecution.id);
+        this.createAndSubscribe(tjobExecution);
+      },
+      error => console.error("Error:" + error)
+      );
+  }
+
+  public createAndSubscribe(tjobExecution: any) {
+    this.stompWSManager.subscribeWSDestination('q-' + tjobExecution.id + '-test-metrics');
+
+  }
+
+
+
+
+
+
   ngAfterViewInit(): void {
-    this._titleService.setTitle( 'ElasTest ETM' );
+    this._titleService.setTitle('ElasTest ETM');
     this._loadingService.register('items.load');
     this._itemsService.query().subscribe((items: Object[]) => {
       this.items = items;
