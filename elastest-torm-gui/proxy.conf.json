@@ -1,7 +1,7 @@
 {
 
     "/rabbitMq" :{
-        "target" : "http://localhost:8091",
+        "target" : "http://localhost:8091/elastest/etm",
         "secure" : false
     },
 

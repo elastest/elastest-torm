@@ -25,7 +25,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
     // broadcast to all listener observables when loading the page
     this.media.broadcast();
 
-    this._titleService.setTitle( 'Product Dashboard' );
+    this._titleService.setTitle( 'Test Management' );
     this.title = this._titleService.getTitle();
   }
 }

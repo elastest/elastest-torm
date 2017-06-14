@@ -20,7 +20,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableAsync
 @ComponentScan(basePackages = "io.elastest.etm")
-public class Swagger2SpringBoot extends AsyncConfigurerSupport  implements CommandLineRunner {
+public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements CommandLineRunner {
 
 	@Override
 	public void run(String... arg0) throws Exception {
@@ -30,7 +30,7 @@ public class Swagger2SpringBoot extends AsyncConfigurerSupport  implements Comma
 	}
 
 	public static void main(String[] args) throws Exception {
-		new SpringApplication(Swagger2SpringBoot.class).run(args);
+		new SpringApplication(ElastestETMSpringBoot.class).run(args);
 	}
 
 	class ExitException extends RuntimeException implements ExitCodeGenerator {

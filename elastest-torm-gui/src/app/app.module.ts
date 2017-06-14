@@ -16,7 +16,6 @@ import { StompService } from 'ng2-stomp-service';
 import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 
-
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
 ];
@@ -24,7 +23,7 @@ const httpInterceptorProviders: Type<any>[] = [
 @NgModule({
   declarations: [
     AppComponent,
-    routedComponents,
+    routedComponents,   
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
