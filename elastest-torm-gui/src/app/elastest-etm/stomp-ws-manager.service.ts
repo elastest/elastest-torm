@@ -25,11 +25,13 @@ export class StompWSManager {
   urlNoVNCClient: string[] = [];
   timer: Observable<number>;
   timer_subscription: Subscription;
-  public cpuDataUpdated: EventEmitter<any>;
+  public testCpuDataUpdated: EventEmitter<any>;
+  public sutCpuDataUpdated: EventEmitter<any>;
 
 
   constructor(private stomp: StompService, private http: Http) {
-    this.cpuDataUpdated = new EventEmitter();
+    this.testCpuDataUpdated = new EventEmitter();
+    this.sutCpuDataUpdated = new EventEmitter();
   }
 
   configWSConnection(host: string) {
@@ -68,14 +70,18 @@ export class StompWSManager {
     });
   }
 
-  subscribeWSDestination(destination: string) {
+  subscribeWSDestinationTest(destination: string) {
     /**
      * Subscribe.
      * @param {string} destination: subscibe destination.
      * @param {Function} callback(message,headers): called after server response.
      * @param {object} headers: optional headers.
      */
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.response);
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testResponse);
+  }
+
+    subscribeWSDestinationSut(destination: string) {
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutResponse);
   }
 
   ususcribeWSDestination() {
@@ -96,11 +102,14 @@ export class StompWSManager {
   }
 
   // Response
-  public response = (data) => {
+  public testResponse = (data) => {
     console.log(data);
-    this.cpuDataUpdated.emit(data)
+    this.testCpuDataUpdated.emit(data)
+  }
 
-    //this.traces.push(data);
+    public sutResponse = (data) => {
+    console.log(data);
+    this.sutCpuDataUpdated.emit(data)
   }
 
 

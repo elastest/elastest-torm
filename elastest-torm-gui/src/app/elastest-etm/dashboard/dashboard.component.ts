@@ -70,31 +70,33 @@ export class DashboardComponent implements AfterViewInit {
     private _loadingService: TdLoadingService,
     private tJobService: TJobService,
     private stompWSManager: StompWSManager) {
-    // Chart
-    this.multi = multi.map((group: any) => {
-      group.series = group.series.map((dataItem: any) => {
-        dataItem.name = new Date(dataItem.name);
-        return dataItem;
-      });
-      return group;
-    });
-
-    this.stompWSManager.cpuDataUpdated.subscribe((data: any) => this.updateCpuData(data));
+    this.stompWSManager.testCpuDataUpdated.subscribe((data: any) => this.updateCpuData(data, true));
+    this.stompWSManager.sutCpuDataUpdated.subscribe((data: any) => this.updateCpuData(data, false));
   }
 
-  updateCpuData(data: any) {
+  updateCpuData(data: any, test: boolean) {
     if (data.type === 'cpu') {
       let parsedData: any = {
         'value': data.cpu.totalUsage,
-        'name': '' + data['@timestamp'],
+        'name': new Date('' + data['@timestamp']),
       }
-      this.cpuData[0].series.push(parsedData);
+      if (test) {
+        this.cpuData[0].series.push(parsedData);
+      }
+      else {
+        this.cpuData[1].series.push(parsedData);
+      }
       this.cpuData = [...this.cpuData];
     }
   }
 
 
   tJobId: number;
+  withSut: boolean = false;
+
+  verifySut() {
+    this.withSut = !this.withSut;
+  }
 
   public runTJob() {
 
@@ -109,11 +111,11 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   public createAndSubscribe(tjobExecution: any) {
-    this.stompWSManager.subscribeWSDestination('q-' + tjobExecution.id + '-test-metrics');
-
+    this.stompWSManager.subscribeWSDestinationTest('q-' + tjobExecution.id + '-test-metrics');
+    if (this.withSut) {
+      this.stompWSManager.subscribeWSDestinationSut('q-' + tjobExecution.id + '-sut-metrics');
+    }
   }
-
-
 
 
 
