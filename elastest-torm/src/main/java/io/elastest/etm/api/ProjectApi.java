@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(value = "project", description = "the sut API")
+@Api(value = "project", description = "the Project API")
 public interface ProjectApi {
 	
 	@ApiOperation(value = "Create new Project", notes = "", response = Project.class, tags={ "Project", })

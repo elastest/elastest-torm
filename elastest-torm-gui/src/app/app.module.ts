@@ -15,6 +15,7 @@ import { SharedModule } from './shared/shared.module';
 import { StompService } from 'ng2-stomp-service';
 import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
+import { ProjectService } from './elastest-etm/project/project.service'
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -23,7 +24,7 @@ const httpInterceptorProviders: Type<any>[] = [
 @NgModule({
   declarations: [
     AppComponent,
-    routedComponents,   
+    routedComponents,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
@@ -44,6 +45,7 @@ const httpInterceptorProviders: Type<any>[] = [
     StompService,
     StompWSManager,
     TJobService,
+    ProjectService,
   ], // additional providers needed for this module
   entryComponents: [ ],
   bootstrap: [ AppComponent ],

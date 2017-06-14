@@ -1,0 +1,32 @@
+<md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
+  <md-card-title>
+    Project Form
+  </md-card-title>
+  <md-divider></md-divider>
+  <md-card-content class="push-bottom-none">
+    <form #projectForm="ngForm">
+      <div layout="row">
+        <md-input-container flex>
+          <input mdInput
+                  #nameElement
+                  #nameControl="ngModel" 
+                  type="text" 
+                  placeholder="Project Name" 
+                  [(ngModel)]="project.name" 
+                  name="project.name" 
+                  maxlength="20" 
+                  required>
+          <md-hint align="start">
+            <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>
+          </md-hint>
+          <md-hint align="end">{{nameElement.value.length}} / 20</md-hint>
+        </md-input-container>
+      </div>           
+    </form>
+    </md-card-content>
+    <md-divider></md-divider>
+    <md-card-actions>
+      <button md-button [disabled]="!projectForm.valid" color="primary" (click)="save()">SAVE</button>
+      <button md-button (click)="goBack()">CANCEL</button>
+    </md-card-actions>
+  </md-card>

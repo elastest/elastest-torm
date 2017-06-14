@@ -1,3 +1,5 @@
+import { ProjectModel } from '../project-model';
+import { ProjectService } from '../project.service';
 import { Title } from '@angular/platform-browser';
 import {
     IPageChangeEvent,
@@ -15,11 +17,14 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   columns: any[] = [
-    { name: 'project',  label: 'Project' },
-    { name: 'edit', label: 'Edit' },    
+    { name: 'id', label: 'Id' }, 
+    { name: 'name',  label: 'Project' },
+    /*{ name: 'edit', label: 'Edit' },    
     { name: 'run', label: 'Run'},    
-    { name: 'delete', label: 'Delete'},
+    { name: 'delete', label: 'Delete'},*/
   ];
+
+  data: ProjectModel[] = [];
 
   filteredData: any[] = [];
   filteredTotal: number = 0;
@@ -27,13 +32,28 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   fromRow: number = 1;
   currentPage: number = 1;
   pageSize: number = 5;
-  sortBy: string = 'project';
+  sortBy: string = 'name';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
 
+
   constructor(private _titleService: Title,
-              private _dataTableService: TdDataTableService) { }
+              private _dataTableService: TdDataTableService, private projectService: ProjectService) { }
 
   ngOnInit() {
+    this.projectService.getProjects()
+    .subscribe(
+      projects => this.prepareDataTable(projects),
+    );
+  }
+
+  prepareDataTable(projects: ProjectModel[]){
+    console.log("Retrived Projects:"+projects);
+    for(let pro of projects){
+      console.log(pro.name);
+    }
+    this.data = projects;
+    this.filteredData = this.data;
+    this.filteredTotal = this.data.length;
   }
 
   ngAfterViewInit(): void {
@@ -60,7 +80,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   filter(): void {
-    let newData: any[] = [];
+    let newData: any[] = this.data;
     newData = this._dataTableService.filterData(newData, this.searchTerm, true);
     this.filteredTotal = newData.length;
     newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
