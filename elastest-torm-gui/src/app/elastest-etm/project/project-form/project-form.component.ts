@@ -1,3 +1,4 @@
+import { ActivatedRoute, Params } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { ProjectModel } from '../project-model';
 import { Component, OnInit } from '@angular/core';
@@ -10,11 +11,18 @@ import { Component, OnInit } from '@angular/core';
 export class ProjectFormComponent implements OnInit {
 
   project: ProjectModel;
+  editMode: boolean = false;
 
-  constructor(private projectService: ProjectService) { }
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, ) { }
 
   ngOnInit() {
     this.project = new ProjectModel();
+    if (this.route.params !== null || this.route.params !== undefined){
+      console.log('ENTRAMOS EN MODO EDICIÓN.')
+      this.route.params.switchMap((params: Params) => this.projectService.getProject(params['id']))
+      .subscribe ((project: ProjectModel) => this.project = project);
+    }
+    
   }
 
   goBack(): void {

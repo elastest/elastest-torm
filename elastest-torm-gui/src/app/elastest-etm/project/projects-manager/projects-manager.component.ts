@@ -1,8 +1,10 @@
+import { Router } from '@angular/router';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
 import { Title } from '@angular/platform-browser';
 import {
     IPageChangeEvent,
+    ITdDataTableRowClickEvent,
     ITdDataTableSortChangeEvent,
     TdDataTableService,
     TdDataTableSortingOrder
@@ -37,7 +39,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
 
   constructor(private _titleService: Title,
-              private _dataTableService: TdDataTableService, private projectService: ProjectService) { }
+              private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router) { }
 
   ngOnInit() {
     this.projectService.getProjects()
@@ -86,6 +88,12 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
     newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
     this.filteredData = newData;
-  } 
+  }
+
+  rowClick(clickEvent: ITdDataTableRowClickEvent){
+    //alert("CLICK");
+    this.router.navigate(['/projects-management/edit', clickEvent.row.id]);
+
+  }
 
 }

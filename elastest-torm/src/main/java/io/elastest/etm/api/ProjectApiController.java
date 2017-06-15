@@ -7,19 +7,19 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.Project.BasicAttProject;
-import io.elastest.etm.api.model.SutSpecification.SutView;
 import io.elastest.etm.service.project.ProjectService;
 import io.swagger.annotations.ApiParam;
 
-@Controller
+@RestController
 public class ProjectApiController implements ProjectApi {
 	
 	@Autowired
@@ -47,8 +47,11 @@ public class ProjectApiController implements ProjectApi {
 	}
 
 	
-	public ResponseEntity<Project> getProject(Long id) {
+	@CrossOrigin(origins = {"http://localhost:4200"})
+	@JsonView(BasicAttProject.class)
+	public ResponseEntity<Project> getProject(@PathVariable("id") Long id) {
 		try{
+			System.out.println("INPUT ID:"+ id);
 			return new ResponseEntity<Project>(projectService.getProjectById(id),HttpStatus.OK);
 		}catch(Exception e){
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);			

@@ -49,6 +49,14 @@ const routes: Routes = [
                         path: 'add',
                         component: ProjectFormComponent,
                     },
+                    {
+                        path: 'edit/:id',
+                        component: ProjectFormComponent,
+                    },
+                    {
+                        path: 'edit',
+                        component: ProjectFormComponent,
+                    },
                 ]
             },
             {

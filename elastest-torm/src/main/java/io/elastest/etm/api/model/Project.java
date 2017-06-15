@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,17 +38,17 @@ public class Project implements Serializable {
 	
 	@JsonProperty("tjobs")
 	//bi-directional many-to-one association to TJob
-	@OneToMany(mappedBy="project")
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
 	private List<TJob> tJobs;
 	
 	@JsonProperty("tojobs")
 	//bi-directional many-to-one association to ElasEtmTjobexec
-	@OneToMany(mappedBy="project")
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY )
 	private List<TOJob> tOJobs;
 	
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
-	@OneToMany(mappedBy="project")
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
 	private List<SutSpecification> suts;
 	
 	public Project() {}

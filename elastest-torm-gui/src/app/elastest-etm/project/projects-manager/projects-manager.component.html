@@ -13,11 +13,14 @@
                 <td-data-table
                     #dataTable
                     [data]="filteredData"
+                    [selectable]="true"
+                    [clickable]="true"
                     [columns]="columns"
-                    [sortable]="true"
+                    [sortable]="true"                    
                     [sortBy]="sortBy"
                     [sortOrder]="sortOrder"
-                    (sortChange)="sort($event)">
+                    (sortChange)="sort($event)"
+                    (rowClick)= "rowClick($event)">
                 </td-data-table>
                 <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
                     <h3>No results to display.</h3>

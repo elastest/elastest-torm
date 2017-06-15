@@ -1,5 +1,5 @@
 import { ProjectModel } from './project-model';
-import { Http } from '@angular/http';
+import { Http, RequestOptions } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { ETM_API } from '../../../config/api.config';
 
@@ -9,9 +9,9 @@ export class ProjectService {
   constructor(private http: Http) { }
 
  
-  public getProject(tJobId: number){
+  public getProject(id: string){
 
-    let url = ETM_API + '/project/{'+tJobId+'}';
+    let url = ETM_API + '/project/' + id;  
     return this.http.get(url)
       .map( response => response.json());
   }
@@ -23,17 +23,27 @@ export class ProjectService {
       .map( response => this.transformDataToDataTable(response.json()));
   }
 
-  transformDataToDataTable(projects: any){
+  transformDataToDataTable(projects: any[]){
     let projectsDataToTable: ProjectModel[] = []; 
-    let projectDataToTable: ProjectModel;
+    /*let projectDataToTable: ProjectModel;*/
     for(let project of projects){
       console.log(project.name);
-      projectDataToTable = new ProjectModel();
+      /*projectDataToTable = new ProjectModel();
       projectDataToTable.id = project.id;
-      projectDataToTable.name = project.name;
-      projectsDataToTable.push(projectDataToTable);
+      projectDataToTable.name = project.name;*/
+      projectsDataToTable.push(this.transformToProjectmodel(project));
     }
     return projectsDataToTable;
+  }
+
+  transformToProjectmodel(project: any) {
+    let projectDataToTable: ProjectModel;
+
+    projectDataToTable = new ProjectModel();
+    projectDataToTable.id = project.id;
+    projectDataToTable.name = project.name;
+
+    return projectDataToTable;
   }
 
   public createProject(project: ProjectModel){
