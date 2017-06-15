@@ -17,14 +17,14 @@ import com.rabbitmq.client.Channel;
 @Service
 public class RabbitmqService {
 	@Autowired
-	//private CachingConnectionFactory rabbitConnectionFactory;
-	private SimpleMessageListenerContainer container;	
+	// private CachingConnectionFactory rabbitConnectionFactory;
+	private SimpleMessageListenerContainer container;
 	private Connection connection;
 	private Channel channel;
-	
+
 	@Value("${spring.rabbitmq.username}")
 	private String user;
-	
+
 	@Value("${spring.rabbitmq.password}")
 	private String pass;
 
@@ -42,8 +42,8 @@ public class RabbitmqService {
 	public void createChannel() {
 		channel = connection.createChannel(false);
 	}
-	
-	public void closeChannel(){
+
+	public void closeChannel() {
 		try {
 			channel.close();
 			channel.abort();
@@ -61,8 +61,8 @@ public class RabbitmqService {
 			e.printStackTrace();
 		}
 	}
-	
-	public void deleteFanoutExchange(String name){
+
+	public void deleteFanoutExchange(String name) {
 		try {
 			channel.exchangeDelete(name);
 		} catch (IOException e) {
@@ -77,8 +77,8 @@ public class RabbitmqService {
 			e.printStackTrace();
 		}
 	}
-	
-	public void deleteQueue(String name){
+
+	public void deleteQueue(String name) {
 		try {
 			channel.queueDelete(name);
 		} catch (IOException e) {
@@ -93,9 +93,7 @@ public class RabbitmqService {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
+
 	public Map<String, String> createTJobExecQueues(String execId, boolean withSut) {
 		String queuePrefix = "q-" + execId;
 		Map<String, String> rabbitMap = new HashMap<String, String>();
@@ -105,22 +103,21 @@ public class RabbitmqService {
 			rabbitMap.put(queuePrefix + "-sut-log", "sut." + execId + ".log");
 			rabbitMap.put(queuePrefix + "-sut-metrics", "sut." + execId + ".metrics");
 		}
-		
+
 		return rabbitMap;
 	}
-	
-	
+
 	public Map<String, String> startRabbitmq(String execId, boolean withSut) throws Exception {
 		Map<String, String> rabbitMap = createTJobExecQueues(execId, withSut);
 		try {
-			System.out.println("Starting Rabbitmq queues "+ execId);
+			System.out.println("Starting Rabbitmq queues " + execId);
 			createRabbitmqConnection();
 			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
 				createQueue(rabbitLine.getKey());
 				bindQueueToExchange(rabbitLine.getKey(), "amq.topic", rabbitLine.getValue());
 			}
 
-			System.out.println("Successfully started Rabbitmq "+ execId);
+			System.out.println("Successfully started Rabbitmq " + execId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			purgeRabbitmq(rabbitMap, execId);
@@ -128,11 +125,12 @@ public class RabbitmqService {
 		}
 		return rabbitMap;
 	}
-	
-	
+
 	public void purgeRabbitmq(Map<String, String> rabbitMap, String execId) {
+
 		try {
 			System.out.println("Purging Rabbitmq " + execId);
+			queueIsEmpty("q-" + execId + "-test-log");
 
 			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
 				deleteQueue(rabbitLine.getKey());
@@ -143,9 +141,37 @@ public class RabbitmqService {
 			System.out.println("Error on purging Rabbitmq " + execId);
 		}
 	}
-	
-	
-	
+
+	public void queueIsEmpty(String queue) {
+		try {
+			long n1 = channel.messageCount(queue);
+			if (n1 > 0) {
+				System.out.println("Queue is not empty, waiting for consuming messages");
+				Thread.sleep(2000);
+				long n2 = channel.messageCount(queue);
+
+				if (n1 <= n2) {
+					int counter = 2;
+					while (n1 <= n2 && counter > 0) {
+						System.out.println("Not consumming messages. Retrying, rabbitmq counter " + counter);
+						Thread.sleep(2000);
+						n2 = channel.messageCount(queue);
+						counter--;
+					}
+					System.out.println("Not consumming messages. End retry. Purging queue");
+
+				} else {
+					System.out.println("Consumming messages. Rechecking queue");
+					queueIsEmpty(queue);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/* Getters Setters */
 
 	public SimpleMessageListenerContainer getContainer() {

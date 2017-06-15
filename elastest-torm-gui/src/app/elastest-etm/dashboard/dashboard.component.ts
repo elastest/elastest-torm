@@ -169,7 +169,7 @@ export class DashboardComponent implements AfterViewInit {
     try {
       this.myScrollContainerTest.nativeElement.scrollTop = this.myScrollContainerTest.nativeElement.scrollHeight;
     } catch (err) {
-      console.log("[Error]:" + err.toString());
+      console.log('[Error]:' + err.toString());
     }
   }
 
@@ -177,7 +177,7 @@ export class DashboardComponent implements AfterViewInit {
     try {
       this.myScrollContainerSut.nativeElement.scrollTop = this.myScrollContainerSut.nativeElement.scrollHeight;
     } catch (err) {
-      console.log("[Error]:" + err.toString());
+      console.log('[Error]:' + err.toString());
     }
   }
 
@@ -189,7 +189,7 @@ export class DashboardComponent implements AfterViewInit {
         console.log('TJobExecutionId:' + tjobExecution.id);
         this.createAndSubscribe(tjobExecution);
       },
-      (error) => console.error("Error:" + error),
+      (error) => console.error('Error:' + error),
     );
   }
 
@@ -199,6 +199,8 @@ export class DashboardComponent implements AfterViewInit {
     if (this.withSut) {
       this.stompWSManager.subscribeWSDestinationSutLog('q-' + tjobExecution.id + '-sut-log');
       this.stompWSManager.subscribeWSDestinationSutMetrics('q-' + tjobExecution.id + '-sut-metrics');
+    } else {
+      this.sutTraces.push('TJob without Sut');
     }
   }
 
