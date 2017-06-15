@@ -1,19 +1,5 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-sm="60">
-    <md-card>
-      <md-card-title>CPU Usage</md-card-title>
-      <md-card-subtitle>TJob Execution CPU Usage</md-card-subtitle>
-      <md-divider></md-divider>
-      <div class="chart-height push-top push-right-sm">
-        <ngx-charts-line-chart [scheme]="colorScheme" [results]="cpuData" [gradient]="gradient" [xAxis]="showXAxis" [yAxis]="showYAxis"
-          [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
-          [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits" [timeline]="timeline">
-        </ngx-charts-line-chart>
-      </div>
-    </md-card>    
-  </div>
-  
-  <div flex-gt-sm="40">
+  <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         Test Run TJobs
@@ -31,7 +17,9 @@
               <md-hint align="end">{{tJobElement.value.length}} / 20</md-hint>
             </md-input-container>
           </div>
-          <div layout="row"><md-checkbox [checked]="withSut" (change)="verifySut()">With Sut?</md-checkbox></div>
+          <div layout="row">
+            <md-checkbox [checked]="withSut" (change)="verifySut()">With Sut?</md-checkbox>
+          </div>
         </form>
       </md-card-content>
       <md-divider></md-divider>
@@ -41,8 +29,23 @@
     </md-card>
   </div>
 </div>
+
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-sm="60">
+  <div flex-gt-sm="50">
+    <md-card>
+      <md-card-title>CPU Usage</md-card-title>
+      <md-card-subtitle>TJob Execution CPU Usage</md-card-subtitle>
+      <md-divider></md-divider>
+      <div class="chart-height push-top push-right-sm">
+        <ngx-charts-line-chart [scheme]="colorScheme" [results]="cpuData" [gradient]="gradient" [xAxis]="showXAxis" [yAxis]="showYAxis"
+          [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
+          [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits" [timeline]="timeline">
+        </ngx-charts-line-chart>
+      </div>
+    </md-card>
+  </div>
+
+  <div flex-gt-sm="50">
     <md-card>
       <md-card-title>Memory Usage</md-card-title>
       <md-card-subtitle>TJob Execution Memory Usage</md-card-subtitle>
@@ -53,6 +56,41 @@
           [yAxisLabel]="yAxisLabel" [yAxisTickFormatting]="axisDigits" [timeline]="timeline">
         </ngx-charts-line-chart>
       </div>
-    </md-card>    
+    </md-card>
   </div>
+</div>
+
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-sm="50" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Test Logs
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
+        <ul>
+          <li *ngFor="let trace of testTraces">
+            {{trace}}
+          </li>
+        </ul>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div flex-gt-sm="50" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Sut Logs
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeSut style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
+        <ul>
+          <li *ngFor="let trace of sutTraces">
+            {{trace}}
+          </li>
+        </ul>
+      </md-card-content>
+    </md-card>
+  </div>
+
 </div>

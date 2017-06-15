@@ -29,7 +29,7 @@ export class TJobsManagerComponent implements OnInit {
   }
 
 public createAndSubscribe(tjobExecution: any){
-  this.stompWSManager.subscribeWSDestination('q-'+tjobExecution.id + '-test-metrics');
+  // this.stompWSManager.subscribeWSDestination('q-'+tjobExecution.id + '-test-metrics');
   
 }
 

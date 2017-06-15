@@ -17,6 +17,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
+import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class DockerService {
@@ -26,6 +27,8 @@ public class DockerService {
 
 	@Autowired
 	private SutService sutService;
+
+	private UtilTools utilTools = new UtilTools();
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
@@ -89,8 +92,14 @@ public class DockerService {
 
 			String sutIP = getContainerIp(appContainerId, dockerExec);
 			sutIP = sutIP.split("/")[0];
-			sutIP = "http://" + sutIP + ":8080";
-			sutExec.setUrl(sutIP);
+			int sutPort = 8080;
+			String sutUrl = "http://" + sutIP + ":" + sutPort;
+			sutExec.setUrl(sutUrl);
+			//Wait for Sut started
+			while(!utilTools.pingHost(sutIP, sutPort, 300000)){
+				
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
@@ -99,6 +108,7 @@ public class DockerService {
 		}
 		dockerExec.setSutExec(sutExec);
 	}
+
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
 		try {
@@ -140,7 +150,8 @@ public class DockerService {
 			e.printStackTrace();
 			try {
 				endAllExec(dockerExec);
-			} catch (Exception e1) {}
+			} catch (Exception e1) {
+			}
 		}
 	}
 
@@ -154,7 +165,7 @@ public class DockerService {
 			}
 			removeNetwork(dockerExec);
 		} catch (Exception e) {
-			throw new Exception("end error"); //TODO Customize Exception
+			throw new Exception("end error"); // TODO Customize Exception
 		}
 	}
 

@@ -19,6 +19,8 @@ export class StompWSManager {
   }
 
   private subscription: any;
+  testTraces: string[] = [];
+  sutTraces: string[] = [];
 
   endExecution: boolean = false;
 
@@ -70,18 +72,26 @@ export class StompWSManager {
     });
   }
 
-  subscribeWSDestinationTest(destination: string) {
+  subscribeWSDestinationTestMetrics(destination: string) {
     /**
      * Subscribe.
      * @param {string} destination: subscibe destination.
      * @param {Function} callback(message,headers): called after server response.
      * @param {object} headers: optional headers.
      */
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testResponse);
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testMetricsResponse);
   }
 
-    subscribeWSDestinationSut(destination: string) {
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutResponse);
+  subscribeWSDestinationTestLog(destination: string) {
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testLogResponse);
+  }
+
+  subscribeWSDestinationSutMetrics(destination: string) {
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutMetricsResponse);
+  }
+
+  subscribeWSDestinationSutLog(destination: string) {
+    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutLogResponse);
   }
 
   ususcribeWSDestination() {
@@ -98,18 +108,28 @@ export class StompWSManager {
      * @param {object} body: a object that sends.
      * @param {object} headers: optional headers.
      */
-    this.stomp.send('/topic/logs', { "data": "data" });
+    this.stomp.send('/topic/logs', { 'data': 'data' });
   }
 
   // Response
-  public testResponse = (data) => {
-    console.log(data);
-    this.testDataUpdated.emit(data)
+  public testMetricsResponse = (data) => {
+    // console.log(data);
+    this.testDataUpdated.emit(data);
   }
 
-    public sutResponse = (data) => {
-    console.log(data);
-    this.sutDataUpdated.emit(data)
+  public testLogResponse = (data) => {
+    // console.log(data.message);
+    this.testTraces.push(data.message);
+  }
+
+  public sutMetricsResponse = (data) => {
+    // console.log(data);
+    this.sutDataUpdated.emit(data);
+  }
+
+  public sutLogResponse = (data) => {
+    // console.log(data.message);
+    this.sutTraces.push(data.message);
   }
 
 

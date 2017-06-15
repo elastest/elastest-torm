@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import { Title } from '@angular/platform-browser';
 
@@ -17,6 +17,8 @@ import { StompWSManager } from '../stomp-ws-manager.service';
   viewProviders: [ItemsService, UsersService, ProductsService, AlertsService],
 })
 export class DashboardComponent implements AfterViewInit {
+  @ViewChild('scrollMeTest') private myScrollContainerTest: ElementRef;
+  @ViewChild('scrollMeSut') private myScrollContainerSut: ElementRef;
 
   items: Object[];
   users: Object[];
@@ -66,7 +68,7 @@ export class DashboardComponent implements AfterViewInit {
 
 
   colorScheme: any = {
-    domain: ['#1565C0', '#EF6C00', '#2196F3', '#81D4FA', '#FF9800'],
+    domain: ['#ffac2f', '#666666', '#2196F3', '#81D4FA', '#FF9800'],
   };
 
   // line, area
@@ -74,6 +76,9 @@ export class DashboardComponent implements AfterViewInit {
 
   tJobId: number;
   withSut: boolean = false;
+  testTraces: string[] = [];
+  sutTraces: string[] = [];
+
 
   constructor(private _titleService: Title,
     private _itemsService: ItemsService,
@@ -85,6 +90,20 @@ export class DashboardComponent implements AfterViewInit {
     private stompWSManager: StompWSManager) {
     this.stompWSManager.testDataUpdated.subscribe((data: any) => this.updateData(data, true));
     this.stompWSManager.sutDataUpdated.subscribe((data: any) => this.updateData(data, false));
+  }
+
+  ngOnInit() {
+    this.testTraces = this.stompWSManager.testTraces;
+    if (this.testTraces.length > 0) {
+      this.testTraces.splice(0, this.stompWSManager.testTraces.length);
+    }
+    this.scrollToBottomTest();
+
+    this.sutTraces = this.stompWSManager.sutTraces;
+    if (this.sutTraces.length > 0) {
+      this.sutTraces.splice(0, this.stompWSManager.sutTraces.length);
+    }
+    this.scrollToBottomSut();
   }
 
   verifySut() {
@@ -141,9 +160,26 @@ export class DashboardComponent implements AfterViewInit {
 
 
 
+  ngAfterViewChecked() {
+    this.scrollToBottomTest();
+    this.scrollToBottomSut();
+  }
 
+  scrollToBottomTest(): void {
+    try {
+      this.myScrollContainerTest.nativeElement.scrollTop = this.myScrollContainerTest.nativeElement.scrollHeight;
+    } catch (err) {
+      console.log("[Error]:" + err.toString());
+    }
+  }
 
-
+  scrollToBottomSut(): void {
+    try {
+      this.myScrollContainerSut.nativeElement.scrollTop = this.myScrollContainerSut.nativeElement.scrollHeight;
+    } catch (err) {
+      console.log("[Error]:" + err.toString());
+    }
+  }
 
   public runTJob() {
 
@@ -158,12 +194,13 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   public createAndSubscribe(tjobExecution: any) {
-    this.stompWSManager.subscribeWSDestinationTest('q-' + tjobExecution.id + '-test-metrics');
+    this.stompWSManager.subscribeWSDestinationTestLog('q-' + tjobExecution.id + '-test-log');
+    this.stompWSManager.subscribeWSDestinationTestMetrics('q-' + tjobExecution.id + '-test-metrics');
     if (this.withSut) {
-      this.stompWSManager.subscribeWSDestinationSut('q-' + tjobExecution.id + '-sut-metrics');
+      this.stompWSManager.subscribeWSDestinationSutLog('q-' + tjobExecution.id + '-sut-log');
+      this.stompWSManager.subscribeWSDestinationSutMetrics('q-' + tjobExecution.id + '-sut-metrics');
     }
   }
-
 
 
 
