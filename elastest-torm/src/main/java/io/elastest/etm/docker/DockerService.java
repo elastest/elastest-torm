@@ -120,11 +120,18 @@ public class DockerService {
 				.withNetworkMode(dockerExec.getNetwork()).withName("check_" + dockerExec.getExecutionId()).exec()
 				.getId();
 		dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
-		
-		dockerExec.getDockerClient().waitContainerCmd(checkContainerId)
-				.exec(new WaitContainerResultCallback()).awaitStatusCode();
+
+		dockerExec.getDockerClient().waitContainerCmd(checkContainerId).exec(new WaitContainerResultCallback())
+				.awaitStatusCode();
 		System.out.println("Sut is ready " + dockerExec.getExecutionId());
 
+		try {
+			try {
+				dockerExec.getDockerClient().stopContainerCmd(checkContainerId).exec();
+			} catch (Exception e) {
+			}
+			dockerExec.getDockerClient().removeContainerCmd(checkContainerId).exec();
+		} catch (Exception e) {	}
 	}
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
