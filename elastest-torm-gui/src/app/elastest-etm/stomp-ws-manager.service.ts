@@ -15,7 +15,9 @@ export class StompWSManager {
   private wsConf = {
     host: '/rabbitMq',
     debug: true,
-    queue: { 'init': false }
+    queue: { 'init': false },
+    heartbeatOut: 5000,
+    heartbeatIn: 5000
   }
 
   private subscription: any;
