@@ -50,15 +50,6 @@ export class StompWSManager {
     this.stomp.startConnect().then(() => {
       console.log('connected');
 
-      /**
-       * Subscribe.
-       * @param {string} destination: subscibe destination.
-       * @param {Function} callback(message,headers): called after server response.
-       * @param {object} headers: optional headers.
-       */
-      // this.subscription = this.stomp.subscribe('/queue/q-67-test-metrics', this.response);
-      // this.subscription = this.stomp.subscribe('/queue/urlsVNC', this.loadUrl);
-
     });
   }
 
@@ -95,9 +86,6 @@ export class StompWSManager {
   }
 
   ususcribeWSDestination() {
-    /**
-     * Unsubscribe subscription.
-     */
     this.subscription.unsubscribe();
   }
 
@@ -134,7 +122,7 @@ export class StompWSManager {
 
 
   public loadUrl = (data) => {
-    console.log("Load Url:" + data);
+    // console.log("Load Url:" + data);
     // this.urlNoVNCClient = data;
     // this.urlNoVNCClient[0] = "http://www.elpais.com";
 

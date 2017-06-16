@@ -23,7 +23,7 @@ import io.elastest.etm.utils.UtilTools;
 public class DockerService {
 
 	private String testImage = "";
-	private static String appImage = "edujgurjc/torm-loadapp";
+	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
 
 	@Autowired
 	private SutService sutService;
@@ -95,11 +95,8 @@ public class DockerService {
 			int sutPort = 8080;
 			String sutUrl = "http://" + sutIP + ":" + sutPort;
 			sutExec.setUrl(sutUrl);
-			//Wait for Sut started
-			while(!utilTools.pingHost(sutIP, sutPort, 300000)){
-				
-			}
-			
+			// Wait for Sut started
+			checkSut(dockerExec, sutIP, sutPort + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
@@ -109,6 +106,26 @@ public class DockerService {
 		dockerExec.setSutExec(sutExec);
 	}
 
+	public void checkSut(DockerExecution dockerExec, String ip, String port) {
+
+		String envVar = "IP=" + ip;
+		String envVar2 = "PORT=" + port;
+		ArrayList<String> envList = new ArrayList<>();
+		envList.add(envVar);
+		envList.add(envVar2);
+
+		dockerExec.getDockerClient().pullImageCmd(checkImage).exec(new PullImageResultCallback()).awaitSuccess();
+
+		String checkContainerId = dockerExec.getDockerClient().createContainerCmd(checkImage).withEnv(envList)
+				.withNetworkMode(dockerExec.getNetwork()).withName("check_" + dockerExec.getExecutionId()).exec()
+				.getId();
+		dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
+		
+		dockerExec.getDockerClient().waitContainerCmd(checkContainerId)
+				.exec(new WaitContainerResultCallback()).awaitStatusCode();
+		System.out.println("Sut is ready " + dockerExec.getExecutionId());
+
+	}
 
 	public void startTest(String testImage, DockerExecution dockerExec) {
 		try {
