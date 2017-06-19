@@ -28,8 +28,6 @@ public class DockerService {
 	@Autowired
 	private SutService sutService;
 
-	private UtilTools utilTools = new UtilTools();
-
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
 			configureDocker(dockerExec);

@@ -24,21 +24,19 @@ export class StompWSManager {
 
   endExecution: boolean = false;
 
-  urlNoVNCClient: string[] = [];
-  timer: Observable<number>;
-  timer_subscription: Subscription;
-  public testDataUpdated: EventEmitter<any>;
-  public sutDataUpdated: EventEmitter<any>;
+  private _testMetricsSource = new BehaviorSubject<any>("");
+  testMetrics$ = this._testMetricsSource.asObservable();
+
+  private _sutMetricsSource = new BehaviorSubject<any>("");
+  sutMetrics$ = this._sutMetricsSource.asObservable();
+
 
 
   constructor(private stomp: StompService, private http: Http) {
-    this.testDataUpdated = new EventEmitter();
-    this.sutDataUpdated = new EventEmitter();
   }
 
   configWSConnection(host: string) {
     this.wsConf.host = host;
-    this.urlNoVNCClient.push('');
     this.stomp.configure(this.wsConf);
   }
 
@@ -102,7 +100,7 @@ export class StompWSManager {
   // Response
   public testMetricsResponse = (data) => {
     // console.log(data);
-    this.testDataUpdated.emit(data);
+    this._testMetricsSource.next(data);
   }
 
   public testLogResponse = (data) => {
@@ -112,38 +110,12 @@ export class StompWSManager {
 
   public sutMetricsResponse = (data) => {
     // console.log(data);
-    this.sutDataUpdated.emit(data);
+    this._sutMetricsSource.next(data);
   }
 
   public sutLogResponse = (data) => {
     // console.log(data.message);
     this.sutTraces.push(data.message);
-  }
-
-
-  public loadUrl = (data) => {
-    // console.log("Load Url:" + data);
-    // this.urlNoVNCClient = data;
-    // this.urlNoVNCClient[0] = "http://www.elpais.com";
-
-
-    // this.timer = Observable.interval(500);
-    // this.timer_subscription = this.timer
-    //   .subscribe(
-    //   res => {
-    //     this.testManagerService.checkUrlStatus(data)
-    //       .subscribe(
-    //       (data) => {
-    //         this.timer_subscription.unsubscribe();
-    //         console.log("Unsuscribe from timer.");
-    //       },
-    //       (err) => console.log("Show error:" +err)
-    //       );
-    //   },
-    //   error => console.log("VNC client is not ready yet")
-    //   );
-
-    //window.open(data);
   }
 
 }

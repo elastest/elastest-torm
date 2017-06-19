@@ -1,13 +1,15 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-
-import { TdLoadingService, TdDigitsPipe } from '@covalent/core';
+import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
+import { Subscription } from 'rxjs/Rx';
 
 import { ItemsService, UsersService, ProductsService, AlertsService } from '../../../services';
 
 import { TJobService } from '../tjob/tjob.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
+
+import { cpuData, memoryData } from './data';
+
 
 
 @Component({
@@ -26,32 +28,8 @@ export class DashboardComponent implements AfterViewInit {
   alerts: Object[];
 
   // Chart
-  cpuData: any = [
-    {
-      'name': 'Test',
-      'series': [
-      ],
-    },
-    {
-      'name': 'Sut',
-      'series': [
-      ],
-    },
-  ];
-
-
-  memoryData: any = [
-    {
-      'name': 'Test',
-      'series': [
-      ],
-    },
-    {
-      'name': 'Sut',
-      'series': [
-      ],
-    },
-  ];
+  cpuData: any = [];
+  memoryData: any = [];
 
   view: any[] = [700, 400];
 
@@ -78,6 +56,8 @@ export class DashboardComponent implements AfterViewInit {
   withSut: boolean = false;
   testTraces: string[] = [];
   sutTraces: string[] = [];
+  testMetricsSubscription: Subscription;
+  sutMetricsSubscription: Subscription;
 
 
   constructor(private _titleService: Title,
@@ -88,8 +68,8 @@ export class DashboardComponent implements AfterViewInit {
     private _loadingService: TdLoadingService,
     private tJobService: TJobService,
     private stompWSManager: StompWSManager) {
-    this.stompWSManager.testDataUpdated.subscribe((data: any) => this.updateData(data, true));
-    this.stompWSManager.sutDataUpdated.subscribe((data: any) => this.updateData(data, false));
+    this.cpuData = cpuData;
+    this.memoryData = memoryData;
   }
 
   ngOnInit() {
@@ -104,6 +84,12 @@ export class DashboardComponent implements AfterViewInit {
       this.sutTraces.splice(0, this.stompWSManager.sutTraces.length);
     }
     this.scrollToBottomSut();
+
+    this.testMetricsSubscription = this.stompWSManager.testMetrics$
+      .subscribe(data => this.updateData(data, true));
+
+    this.sutMetricsSubscription = this.stompWSManager.sutMetrics$
+      .subscribe(data => this.updateData(data, false));
   }
 
   verifySut() {
