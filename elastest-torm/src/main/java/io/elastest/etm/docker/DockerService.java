@@ -27,9 +27,9 @@ public class DockerService {
 
 	@Autowired
 	private SutService sutService;
-	
-	@Value ("${so.windowsSO}")
-	private String windowsSO; 
+
+	@Value ("${os.name}")
+	private String windowsSO;
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
@@ -48,7 +48,7 @@ public class DockerService {
 
 	public void configureDocker(DockerExecution dockerExec) {
 		
-		if (windowsSO.equals("true")) {
+		if (windowsSO.equals("win")) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
