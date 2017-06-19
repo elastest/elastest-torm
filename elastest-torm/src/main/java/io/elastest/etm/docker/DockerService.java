@@ -1,11 +1,12 @@
 package io.elastest.etm.docker;
 
-import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -17,7 +18,6 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
-import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class DockerService {
@@ -27,6 +27,9 @@ public class DockerService {
 
 	@Autowired
 	private SutService sutService;
+	
+	@Value ("${so.windowsSO}")
+	private String windowsSO; 
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
@@ -44,8 +47,8 @@ public class DockerService {
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		boolean windowsSo = false;
-		if (windowsSo) {
+		
+		if (windowsSO.equals("true")) {
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://192.168.99.100:2376").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
