@@ -16,6 +16,7 @@ import { EtmComponent } from './elastest-etm/etm.component';
 import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-manager.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { ProjectFormComponent } from './elastest-etm/project/project-form/project-form.component';
+import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 
 const routes: Routes = [
     {
@@ -67,6 +68,10 @@ const routes: Routes = [
                 path: 'etm-app',
                 component: EtmComponent,
             },
+            {
+                path: 'eus',
+                component: ElastestEusComponent,
+            },
 
         ]
     },
@@ -86,5 +91,5 @@ export const routedComponents: any[] = [
     TemplatesComponent, EditorTemplateComponent, EmailTemplateComponent, DashboardTemplateComponent,
     UsersComponent, UsersFormComponent,
     TJobsManagerComponent, ProjectsManagerComponent,
-    SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
+    SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent, ElastestEusComponent,
 ];
