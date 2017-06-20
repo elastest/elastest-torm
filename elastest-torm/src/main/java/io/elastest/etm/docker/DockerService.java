@@ -1,5 +1,8 @@
 package io.elastest.etm.docker;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,11 +50,37 @@ public class DockerService {
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
+		System.out.println("OPERATING SYSTEM: "+ windowsSO);
 		
-		if (windowsSO.equals("win")) {
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://192.168.99.100:2376").build();
-			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
+		if (windowsSO.toLowerCase().contains("win")) {
+			System.out.println("DOCKER HOST");
+			BufferedReader reader = null;
+			try {
+				Process child = Runtime.getRuntime().exec("docker-machine url");
+				reader=new BufferedReader(
+	                    new InputStreamReader(child.getInputStream())
+	                ); 
+				
+				String dockerHostUrl = reader.readLine(); 
+				System.out.println("DOCKER HOST:"+ dockerHostUrl);
+                
+				DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+						.withDockerHost(dockerHostUrl).build();
+				dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
+				
+			} catch (IOException e) {				
+				System.out.println("DOCKER HOST2");
+				e.printStackTrace();
+				
+			} finally {
+				try {
+					if (reader != null)
+						reader.close();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
+			
 		} else {
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 		}
@@ -140,6 +169,8 @@ public class DockerService {
 			System.out.println("Starting test " + dockerExec.getExecutionId());
 			this.testImage = testImage;
 
+			System.out.println("host: "+getHostIpByNetwork(dockerExec, "bridge"));
+			
 			String envVar = "DOCKER_HOST=tcp://172.17.0.1:2376";
 			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
 			String envVar3 = "NETWORK=" + dockerExec.getNetwork();
@@ -251,7 +282,12 @@ public class DockerService {
 
 	public String getHostIp(DockerExecution dockerExec) {
 		return dockerExec.getDockerClient().inspectNetworkCmd().withNetworkId(dockerExec.getNetwork()).exec().getIpam()
-				.getConfig().get(0).getGateway();
+				.getConfig().get(0).getGateway();	
+	}
+	
+	public String getHostIpByNetwork(DockerExecution dockerExec, String network) {
+		return dockerExec.getDockerClient().inspectNetworkCmd().withNetworkId(network).exec().getIpam().getConfig()
+				.get(0).getGateway();
 	}
 
 	public boolean imageExist(String imageName, DockerExecution dockerExec) {
