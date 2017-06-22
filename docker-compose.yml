@@ -10,27 +10,75 @@ services:
         environment:
             - MYSQL_DATABASE=elastest-etm
             - MYSQL_ROOT_PASSWORD=admin 
+        volumes:
+            - /var/lib/elastest/mysql/data:/var/lib/mysql
         networks:
             - build-image-network
-    
-    elastest-torm:
-        depends_on:
-            - mysql
-        container_name: elastest-torm
-        build: ./docker/elastest-torm            
-        image: elastest/elastest-torm
-        entrypoint: /testing-mysqlstate-entrypoint.sh
+    beats:
+        container_name: beats
+        image: edujgurjc/dockbeat
         environment:
-            - MYSQL_DATABASE=elastest-etm
-            - MYSQL_ROOT_PASSWORD=admin
-        expose:
-            - 8091
+            - LOGSTASHHOST=172.17.0.1
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        
+    logstash:
+        container_name: logstash
+        image: edujgurjc/logstash
         ports:
-            - 8091:8091
-        networks:
-            - build-image-network
-        links:
-            - mysql       
+            - 5000:5000
+            - 5001:5001
+            - 5044:5044
+        environment:
+            - HOSTIP=172.17.0.1
+            - RABBITUSER=elastest-etm
+            - RABBITPASS=elastest-etm
+        
+    elasticsearch:
+        container_name: elasticsearch
+        image: edujgurjc/elasticsearch
+        ports:
+            - 9200:9200
+        volumes:
+            - /var/lib/elastest/elasticsearch/data:/usr/share/elasticsearch/data
+        sysctls:
+            - vm.max_map_count: 262144
+            
+    rabbit-MQ:
+        container_name: rabbit-MQ
+        image: edujgurjc/rabbitmq
+        ports:
+            - 15672:15672
+            - 5672:5672
+            - 15671:15671
+            - 25672:25672
+            - 61613:61613
+               
+  #  elastest-torm:
+  #      depends_on:
+  #          - mysql
+#            - rabbit-MQ
+#            - elasticsearch
+#            - logstash
+#            - beats
+#        container_name: elastest-torm
+#        build: ./docker/elastest-torm            
+#        image: elastest/elastest-torm
+#        entrypoint: /testing-mysqlstate-entrypoint.sh
+#        environment:
+#            - MYSQL_DATABASE=elastest-etm
+#            - MYSQL_ROOT_PASSWORD=admin
+#        expose:
+#            - 8091
+#        ports:
+#            - 8091:8091
+#        networks:
+#            - build-image-network
+#        links:
+#            - mysql       
 networks:
     build-image-network:
         driver: bridge
+
+
+    
