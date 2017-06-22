@@ -41,8 +41,6 @@ services:
             - 9200:9200
         volumes:
             - /var/lib/elastest/elasticsearch/data:/usr/share/elasticsearch/data
-        sysctls:
-            - vm.max_map_count: 262144
             
     rabbit-MQ:
         container_name: rabbit-MQ
