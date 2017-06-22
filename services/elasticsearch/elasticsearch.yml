@@ -53,6 +53,11 @@
 # Set the bind address to a specific IP (IPv4 or IPv6):
 #
 network.host: 0 #With 0 allows all hosts #[172.17.0.1, 127.0.0.1]
+
+http.cors.enabled : true
+http.cors.allow-origin : "*"
+http.cors.allow-methods: OPTIONS, HEAD, GET, POST, PUT, DELETE
+http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, X-User"
 #
 # Set a custom port for HTTP:
 #
