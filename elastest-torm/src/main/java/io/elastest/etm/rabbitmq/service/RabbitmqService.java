@@ -93,6 +93,14 @@ public class RabbitmqService {
 			e.printStackTrace();
 		}
 	}
+	
+	public void bindExchangeToExchange(String child, String parent, String routingKey) {
+		try {
+			channel.exchangeBind(child, parent, routingKey);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public Map<String, String> createTJobExecQueues(String execId, boolean withSut) {
 		String queuePrefix = "q-" + execId;
@@ -107,8 +115,11 @@ public class RabbitmqService {
 		return rabbitMap;
 	}
 
+	
+	// For create execution queues and bind to topic
+	
 	public Map<String, String> startRabbitmq(String execId, boolean withSut) throws Exception {
-		Map<String, String> rabbitMap = createTJobExecQueues(execId, withSut);
+		Map<String, String> rabbitMap = createTJobExecQueues(execId, withSut);//Key=Queue Name; Value= Routing key
 		try {
 			System.out.println("Starting Rabbitmq queues " + execId);
 			createRabbitmqConnection();
@@ -125,7 +136,8 @@ public class RabbitmqService {
 		}
 		return rabbitMap;
 	}
-
+	
+	
 	public void purgeRabbitmq(Map<String, String> rabbitMap, String execId) {
 
 		try {
@@ -171,6 +183,58 @@ public class RabbitmqService {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	// For create execution fanouts and bind to topic
+	
+//	public Map<String, String> createTJobExecFanouts(String execId, boolean withSut) {
+//		String fanoutPrefix = "fanout-" + execId;
+//		Map<String, String> rabbitMap = new HashMap<String, String>(); //Key=Fanout Name; Value= Routing key 
+//		rabbitMap.put(fanoutPrefix + "-test-log", "test." + execId + ".log");
+//		rabbitMap.put(fanoutPrefix + "-test-metrics", "test." + execId + ".metrics");
+//		if (withSut) {
+//			rabbitMap.put(fanoutPrefix + "-sut-log", "sut." + execId + ".log");
+//			rabbitMap.put(fanoutPrefix + "-sut-metrics", "sut." + execId + ".metrics");
+//		}
+//
+//		return rabbitMap;
+//	}
+//	
+//	public Map<String, String> startRabbitmq(String execId, boolean withSut) throws Exception {
+//		Map<String, String> rabbitMap = createTJobExecFanouts(execId, withSut);
+//		try {
+//			System.out.println("Starting Rabbitmq fanouts " + execId);
+//			createRabbitmqConnection();
+//			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
+//				createFanoutExchange(rabbitLine.getKey());
+//				bindExchangeToExchange(rabbitLine.getKey(), "amq.topic", rabbitLine.getValue());
+//			}
+//
+//			System.out.println("Successfully started Rabbitmq " + execId);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			purgeRabbitmq(rabbitMap, execId);
+//			throw e;
+//		}
+//		return rabbitMap;
+//	}
+//	
+//	public void purgeRabbitmq(Map<String, String> rabbitMap, String execId) {
+//
+//		try {
+//			System.out.println("Purging Rabbitmq " + execId);
+//
+//			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
+//				deleteFanoutExchange(rabbitLine.getKey());
+//			}
+//			closeChannel();
+//			closeConnection();
+//		} catch (Exception e) {
+//			System.out.println("Error on purging Rabbitmq " + execId);
+//		}
+//	}
+
+
 
 	/* Getters Setters */
 
