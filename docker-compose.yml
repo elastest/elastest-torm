@@ -40,7 +40,7 @@ services:
         ports:
             - 9200:9200
         volumes:
-            - /var/lib/elastest/elasticsearch/data:/usr/share/elasticsearch/data
+            - elasticsearch-data:/usr/share/elasticsearch/data
             
     rabbit-MQ:
         container_name: rabbit-MQ
@@ -77,6 +77,6 @@ services:
 networks:
     build-image-network:
         driver: bridge
-
-
-    
+volumes:
+    elasticsearch-data:
+      driver: local
