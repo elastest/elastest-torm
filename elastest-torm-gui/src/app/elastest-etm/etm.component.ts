@@ -13,6 +13,7 @@ import { TdMediaService } from '@covalent/core';
 export class EtmComponent implements AfterViewInit, OnInit {
 
   title: string;
+
   constructor(private _titleService: Title,
               public media: TdMediaService, private stompWSManager: StompWSManager) { }
 

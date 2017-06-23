@@ -22,23 +22,24 @@ public class EpmIntegrationService {
 
 	private final TJobExecRepository tJobExecRepositoryImpl;
 
-	@Autowired
-	DatabaseSessionManager dbmanager;
-
-	@Autowired
+	private DatabaseSessionManager dbmanager;
+	
 	private RabbitmqService rabbitmqService;
 
 	public EpmIntegrationService(DockerService dockerService, LogRepository logRepo,
-			TJobExecRepository tJobExecRepositoryImpl, DatabaseSessionManager dbmanager) {
+			TJobExecRepository tJobExecRepositoryImpl, DatabaseSessionManager dbmanager, RabbitmqService rabbitmqService) {
 		super();
 		this.dockerService = dockerService;
 		this.logRepo = logRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
 		this.dbmanager = dbmanager;
+		this.rabbitmqService = rabbitmqService;
 	}
 
 	@Async
 	public void executeTJob(TJobExecution tJobExec) {
+		
+		
 		dbmanager.bindSession();
 
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
@@ -77,5 +78,6 @@ public class EpmIntegrationService {
 		// Saving execution data
 		tJobExecRepositoryImpl.save(tJobExec);
 		dbmanager.unbindSession();
-	}
+	}	
+	
 }

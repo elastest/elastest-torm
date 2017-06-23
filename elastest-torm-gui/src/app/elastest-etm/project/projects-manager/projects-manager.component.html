@@ -28,11 +28,11 @@
                 <td-paging-bar #pagingBar [pageSizes]="[5, 10, 15, 20]" [total]="filteredTotal" (change)="page($event)">
                     <span td-paging-bar-label hide-xs>Row per page:</span>
                     {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
-                </td-paging-bar>
+                </td-paging-bar>                         
             </md-card>
             <a md-fab color="accent" class="mat-fab-bottom-right fixed" [routerLink]="['add']"> 
-              <md-icon>add</md-icon>
-            </a>
+                <md-icon>add</md-icon>
+            </a>            
         </div>
     </div>
 </div>
