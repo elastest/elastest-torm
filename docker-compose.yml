@@ -52,28 +52,28 @@ services:
             - 25672:25672
             - 61613:61613
                
-  #  elastest-torm:
-  #      depends_on:
-  #          - mysql
-#            - rabbit-MQ
-#            - elasticsearch
-#            - logstash
-#            - beats
-#        container_name: elastest-torm
-#        build: ./docker/elastest-torm            
-#        image: elastest/elastest-torm
-#        entrypoint: /testing-mysqlstate-entrypoint.sh
-#        environment:
-#            - MYSQL_DATABASE=elastest-etm
-#            - MYSQL_ROOT_PASSWORD=admin
-#        expose:
-#            - 8091
-#        ports:
-#            - 8091:8091
-#        networks:
-#            - build-image-network
-#        links:
-#            - mysql       
+    elastest-torm:
+        depends_on:
+            - mysql
+            - rabbit-MQ
+            - elasticsearch
+            - logstash
+            - beats
+        container_name: elastest-torm
+        build: ./docker/elastest-torm            
+        image: elastest/elastest-torm
+        entrypoint: /testing-mysqlstate-entrypoint.sh
+        environment:
+            - MYSQL_DATABASE=elastest-etm
+            - MYSQL_ROOT_PASSWORD=admin
+        expose:
+            - 8091
+        ports:
+            - 8091:8091
+        networks:
+            - build-image-network
+        links:
+            - mysql       
 networks:
     build-image-network:
         driver: bridge
