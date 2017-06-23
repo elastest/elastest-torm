@@ -230,7 +230,13 @@
 		</dependency>
 	</dependencies>
 
-	<build>
+	<build>	
+	    <resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>true</filtering>
+	        </resource>	        
+	    </resources>    
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
@@ -351,6 +357,24 @@
 			
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<activatedProperties>dev</activatedProperties>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+		    <id>ci</id>
+		    <properties>
+		        <activatedProperties>ci</activatedProperties>
+		    </properties>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
