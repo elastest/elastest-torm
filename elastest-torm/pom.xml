@@ -108,20 +108,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>         
-		<!-- dependency>
-			<groupId>org.springframework.amqp</groupId>
-			<artifactId>spring-rabbit</artifactId>
-			<version>1.7.2.RELEASE</version>
-		</dependency-->
-		<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
-		<!-- <dependency>
-		    <groupId>io.projectreactor</groupId>
-		    <artifactId>reactor-core</artifactId>
-		    <version>2.0.5.RELEASE</version>
-		</dependency> -->
-		<!-- https://mvnrepository.com/artifact/org.projectreactor/reactor-net -->
-		<!-- https://mvnrepository.com/artifact/org.projectreactor/reactor-net -->
+        </dependency>
 		<dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
@@ -137,14 +124,6 @@
             <artifactId>netty-all</artifactId>
             <version>4.0.33.Final</version>
         </dependency>
-		 
-		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
-<!-- 		<dependency>
-		    <groupId>io.netty</groupId>
-		    <artifactId>netty-all</artifactId>
-		    <version>4.0.33.Final</version>
-		</dependency> -->
-
 		<!-- MySql dependencies -->
 		<dependency>
 			<groupId>mysql</groupId>
@@ -250,7 +229,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-surefire-plugin.version}</version>
@@ -267,7 +245,6 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -280,7 +257,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<!-- maven source plugin required for Central deploy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -332,8 +308,7 @@
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
-			</plugin>
-			
+			</plugin>			
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
@@ -360,20 +335,55 @@
 	
 	<profiles>
 		<profile>
-			<id>dev</id>
-			<properties>
-				<activatedProperties>dev</activatedProperties>
-			</properties>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-		<profile>
-		    <id>ci</id>
-		    <properties>
-		        <activatedProperties>ci</activatedProperties>
-		    </properties>
-		</profile>
+		     <id>dev</id>
+		     <build>
+		       <plugins>
+		         <plugin>
+		           <artifactId>maven-antrun-plugin</artifactId>
+		           <executions>
+		             <execution>
+		               <phase>test</phase>
+		               <goals>
+		                 <goal>run</goal>
+		               </goals>
+		               <configuration>
+		                 <tasks>
+		                   <delete file="${project.build.outputDirectory}/application.properties"/>
+		                   <copy file="src/main/resources/application-dev.properties"
+		                         tofile="${project.build.outputDirectory}/application.properties"/>
+		                 </tasks>
+		               </configuration>
+		             </execution>
+		           </executions>
+		         </plugin>
+		       </plugins>
+		      </build>
+		 </profile>
+	     <profile>
+		     <id>ci</id>
+		     <build>
+		       <plugins>
+		         <plugin>
+		           <artifactId>maven-antrun-plugin</artifactId>
+		           <executions>
+		             <execution>
+		               <phase>test</phase>
+		               <goals>
+		                 <goal>run</goal>
+		               </goals>
+		               <configuration>
+		                 <tasks>
+		                   <delete file="${project.build.outputDirectory}/application.properties"/>
+		                   <copy file="src/main/resources/application-ci.properties"
+		                         tofile="${project.build.outputDirectory}/application.properties"/>
+		                 </tasks>
+		               </configuration>
+		             </execution>
+		           </executions>
+		         </plugin>
+		        </plugins>
+	         </build>
+	      </profile>
 	</profiles>
 
 	<repositories>
