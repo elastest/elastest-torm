@@ -13,6 +13,7 @@
         "favicon.ico"
       ],
       "index": "index.html",
+      "deployUrl": "/",
       "main": "main.ts",
       "polyfills": "polyfills.ts",
       "test": "test.ts",

@@ -52,8 +52,7 @@ public class DockerService {
 	public void configureDocker(DockerExecution dockerExec) {
 		System.out.println("OPERATING SYSTEM: "+ windowsSO);
 		
-		if (windowsSO.toLowerCase().contains("win")) {
-			System.out.println("DOCKER HOST");
+		if (windowsSO.toLowerCase().contains("win")) {			
 			BufferedReader reader = null;
 			try {
 				Process child = Runtime.getRuntime().exec("docker-machine url");
@@ -61,15 +60,13 @@ public class DockerService {
 	                    new InputStreamReader(child.getInputStream())
 	                ); 
 				
-				String dockerHostUrl = reader.readLine(); 
-				System.out.println("DOCKER HOST:"+ dockerHostUrl);
+				String dockerHostUrl = reader.readLine(); 				
                 
 				DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 						.withDockerHost(dockerHostUrl).build();
 				dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 				
 			} catch (IOException e) {				
-				System.out.println("DOCKER HOST2");
 				e.printStackTrace();
 				
 			} finally {

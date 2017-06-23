@@ -1,32 +1,83 @@
-<md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
-  <md-card-title>
-    Project Form
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content class="push-bottom-none">
-    <form #projectForm="ngForm">
-      <div layout="row">
-        <md-input-container flex>
-          <input mdInput
-                  #nameElement
-                  #nameControl="ngModel" 
-                  type="text" 
-                  placeholder="Project Name" 
-                  [(ngModel)]="project.name" 
-                  name="project.name" 
-                  maxlength="20" 
-                  required>
-          <md-hint align="start">
-            <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>
-          </md-hint>
-          <md-hint align="end">{{nameElement.value.length}} / 20</md-hint>
-        </md-input-container>
-      </div>           
-    </form>
-    </md-card-content>
-    <md-divider></md-divider>
-    <md-card-actions>
-      <button md-button [disabled]="!projectForm.valid" color="primary" (click)="save()">SAVE</button>
-      <button md-button (click)="goBack()">CANCEL</button>
-    </md-card-actions>
-  </md-card>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Project Form
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <form #projectForm="ngForm">
+          <div layout="row">
+            <md-input-container flex>
+              <input mdInput
+                      #nameElement
+                      #nameControl="ngModel" 
+                      type="text" 
+                      placeholder="Project Name" 
+                      [(ngModel)]="project.name" 
+                      name="project.name" 
+                      maxlength="20" 
+                      required>
+              <md-hint align="start">
+                <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>
+              </md-hint>
+              <md-hint align="end">{{nameElement.value.length}} / 20</md-hint>
+            </md-input-container>
+          </div>           
+        </form>
+        </md-card-content>
+        <md-divider></md-divider>
+        <md-card-actions>
+          <button md-button [disabled]="!projectForm.valid" color="primary" (click)="save()">SAVE</button>
+          <button md-button (click)="goBack()">CANCEL</button>
+        </md-card-actions>
+      </md-card>
+  </div>
+</div>
+
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" flex-gt-sm="100">
+  <div flex-gt-sm="33,3" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        TJobs
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
+        <ul>
+          <li>            
+          </li>
+        </ul>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div flex-gt-sm="33,3" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Suts
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeSut style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
+        <ul>
+          <li>
+          </li>
+        </ul>
+      </md-card-content>
+    </md-card>
+  </div>
+  
+  <div flex-gt-sm="33,3" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        TOJobs
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeSut style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
+        <ul>
+         <li></li>
+        </ul>
+      </md-card-content>
+    </md-card>
+  </div>
+
+</div>
