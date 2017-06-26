@@ -17,6 +17,7 @@ import { EditorTemplateComponent } from './templates/editor/editor.component';
 import { EmailTemplateComponent } from './templates/email/email.component';
 import { TemplatesComponent } from './templates/templates.component';
 import { UsersFormComponent } from './users/form/form.component';
+import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
 
 const routes: Routes = [
     {
@@ -72,6 +73,10 @@ const routes: Routes = [
                 path: 'eus',
                 component: ElastestEusComponent,
             },
+            {
+                path: 'logmanager',
+                component: ElastestLogManagerComponent,
+            },
 
         ]
     },
@@ -83,7 +88,7 @@ const routes: Routes = [
     ],
     exports: [
         RouterModule,
-    ]
+    ],
 })
 export class AppRoutingModule { }
 export const routedComponents: any[] = [
@@ -91,5 +96,5 @@ export const routedComponents: any[] = [
     TemplatesComponent, EditorTemplateComponent, EmailTemplateComponent, DashboardTemplateComponent,
     UsersComponent, UsersFormComponent,
     TJobsManagerComponent, ProjectsManagerComponent,
-    SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent, ElastestEusComponent, TjobFormComponent
+    SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent, ElastestEusComponent, TjobFormComponent, ElastestLogManagerComponent
 ];

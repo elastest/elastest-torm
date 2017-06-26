@@ -1,5 +1,6 @@
 import { NgModule, Type } from '@angular/core';
-import { BrowserModule, Title }  from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
@@ -16,6 +17,9 @@ import { StompService } from 'ng2-stomp-service';
 import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 import { ProjectService } from './elastest-etm/project/project.service';
+import { ElasticSearchService } from './elastest-log-manager/services/elasticSearch.service';
+import { MdDatepickerModule, MdNativeDateModule, MdRadioModule } from '@angular/material';
+
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -31,6 +35,11 @@ const httpInterceptorProviders: Type<any>[] = [
     BrowserModule,
     BrowserAnimationsModule,
     SharedModule,
+    MdDatepickerModule,
+    MdNativeDateModule,
+    MdRadioModule,
+    BrowserModule,
+    FormsModule,
     CovalentHttpModule.forRoot({
       interceptors: [{
         interceptor: RequestInterceptor, paths: ['**'],
@@ -46,8 +55,9 @@ const httpInterceptorProviders: Type<any>[] = [
     StompWSManager,
     TJobService,
     ProjectService,
-  ], // additional providers needed for this module
-  entryComponents: [ ],
-  bootstrap: [ AppComponent ],
+    ElasticSearchService,
+  ],
+  entryComponents: [],
+  bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

@@ -67,6 +67,15 @@
         <md-icon md-list-icon>web</md-icon>
         EUS
       </a>
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
+         md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/logmanager']">        
+        <md-icon md-list-icon>web</md-icon>
+        Log Manager
+      </a>
     </md-nav-list>
     <div td-toolbar-content layout="row" layout-align="start center" flex>
       <span>{{title}}</span>

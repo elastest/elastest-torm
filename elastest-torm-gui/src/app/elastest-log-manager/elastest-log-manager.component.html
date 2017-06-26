@@ -1,0 +1,105 @@
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-xs="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Search Configuration
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <form #logManagerForm="ngForm">
+          <div layout="row">
+            <md-input-container flex-gt-xs="20">
+              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" (change)="updateUrlElastic($event)"
+                placeholder="ElasticSearch Url" name="urlElastic" required>
+            </md-input-container>
+
+            <md-select flex-gt-xs="10" flex-offset-gt-sm="5" ng-model="clusterSelected" (ngModelChange)="updateClusterSelected($event)"
+              placeholder="Select a cluster name">
+              <md-option ng-value="c.cluster.name" ng-repeat="c in indices">{{ c }}</md-option>
+            </md-select>
+            <button (click)="updateUrlElastic()"><md-icon>autorenew</md-icon></button>
+            <!--<md-input-container flex-gt-xs="10">
+              <input mdInput type="text" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName" value="" readonly name="clusterName">
+            </md-input-container>-->
+
+            <md-input-container flex-gt-xs="20" flex-offset-gt-sm="5">
+              <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" placeholder="Index"
+                name="indexName" required>
+            </md-input-container>
+
+            <md-input-container flex-gt-xs="20" flex-offset-gt-sm="5">
+              <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="maxResults" placeholder="Max log entries"
+                name="max_results">
+            </md-input-container>
+          </div>
+
+          <div layout="row" class="push-top">
+            <md-radio-group flex-gt-xs="20">
+              <md-card-subtitle>Range</md-card-subtitle>
+              <md-radio-button value="false" name="typeSearch" (click)="setUseTail(false)" checked="checked">
+                <div class="radio-button-title">By Date</div>
+                <div layout="row">
+                  <md-input-container>
+                    <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From"
+                      novalidate="true" [value]="getDefaultFromValue()" step=1> <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                  </md-input-container>
+                  <md-datepicker #pickerFrom></md-datepicker>
+                </div>
+                <div layout="row">
+                  <md-input-container>
+                    <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To"
+                      novalidate="true" [value]="getDefaultToValue()" step=1>
+                    <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                  </md-input-container>
+                  <md-datepicker #pickerTo></md-datepicker>
+                </div>
+              </md-radio-button>
+              <md-radio-button value="true" (click)="setUseTail(true)" name="typeSearch">By Tail</md-radio-button>
+            </md-radio-group>
+
+            <div flex-gt-xs="30">
+              <md-card-subtitle>Fields</md-card-subtitle>
+              <md-input-container flex-offset-gt-sm="5">
+                <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Search on message">
+              </md-input-container>
+              <md-input-container flex-offset-gt-sm="5">
+                <input mdInput #hostsCmp class="form-control input-sm" id="hosts" name="hosts" value="" [(ngModel)]="hosts" placeholder="Search on hosts">
+              </md-input-container>
+              <md-input-container flex-offset-gt-sm="5">
+                <input mdInput class="form-control input-sm" id="componentType" name="componentType" value="" [(ngModel)]="componentType"
+                  placeholder="Search on Component Type">
+              </md-input-container>
+            </div>
+
+            <div flex-gt-xs="20">
+              <md-card-subtitle>Log Level</md-card-subtitle>
+              <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked" checked>DEBUG</md-checkbox>
+              <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked" checked>INFO</md-checkbox>
+              <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked" checked>WARN</md-checkbox>
+              <md-checkbox #error name="infoLevel" [(ngModel)]="infoLevel" (change)="errorLevel = error.checked" checked>ERROR</md-checkbox>
+            </div>
+          </div>
+
+          <div layout="row" class="push-top">
+            <button md-button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
+            </button>
+            <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)" class="btn btn-default">Load More
+            </button>
+            <button md-button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)" class="btn btn-default">Add more from row selected
+            </button>
+            <input md-button *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
+            <button *ngIf="showClearData" (click)="clearData()" class="btn btn-default">Clear Data
+            </button>
+            <button md-button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
+              Copy to Clipboard <br/> Share this search
+            </button>
+          </div>
+        </form>
+      </md-card-content>
+      <md-divider></md-divider>
+      <md-card-actions>
+        <!--<button md-button [disabled]="!tJobForm.valid" color="primary" (click)="runTJob()">EXECUTE</button>-->
+      </md-card-actions>
+    </md-card>
+  </div>
+</div>
