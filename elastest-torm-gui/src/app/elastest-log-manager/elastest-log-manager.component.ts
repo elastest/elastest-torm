@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 
 import { dateToInputLiteral } from './utils/Utils';
 import { ElasticSearchService } from './services/elasticSearch.service';
-// import { GridComponent } from './grid/components/grid.component';
+import { GridComponent } from './grid/components/grid.component';
 import { ActivatedRoute } from '@angular/router';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
@@ -34,7 +34,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   public errorMsg: string = '';
 
-  public sutlogsType: boolean = false;
+  public sutlogsType: boolean = true;
   public testlogsType: boolean = true;
 
   public debugLevel: boolean = false;
@@ -60,6 +60,8 @@ export class ElastestLogManagerComponent implements OnInit {
 
   //Search Table parameters
 
+  emptyTableTextInitial: string = "No results to display.";
+  emptyTableText: string = this.emptyTableTextInitial;
   filteredData: any[] = this.rowData;
   filteredTotal: number = this.rowData.length;
 
@@ -71,6 +73,8 @@ export class ElastestLogManagerComponent implements OnInit {
   sortBy: string = 'time';
   selectedRows: any[] = [];
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+
+  currentRowSelected: number = -1;
 
   columns: any[] = [
     { name: 'time', label: 'Time' },
@@ -132,13 +136,13 @@ export class ElastestLogManagerComponent implements OnInit {
       autoSearch = true;
     }
 
-    // if (params.sutlogsType !== undefined && params.sutlogsType !== null && params.sutlogsType === 'false') {
-    //   autoSearch = true;
-    //   this.sutlogsType = false;
-    // } else if (params.sutlogsType === 'true') {
-    //   autoSearch = true;
-    //   this.sutlogsType = true;
-    // }
+    if (params.sutlogsType !== undefined && params.sutlogsType !== null && params.sutlogsType === 'false') {
+      autoSearch = true;
+      this.sutlogsType = false;
+    } else if (params.sutlogsType === 'true') {
+      autoSearch = true;
+      this.sutlogsType = true;
+    }
 
     if (params.testlogsType !== undefined && params.testlogsType !== null && params.testlogsType === 'false') {
       autoSearch = true;
@@ -447,6 +451,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   public clearData() {
     this.rowData = [];
+    this.filteredData = [];
     clearInterval(this.tailInterval);
     this.tailInterval = undefined;
     this.showGrid = false;
@@ -468,11 +473,13 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   public search(from: string, to: string, append: boolean = false, position: number = -1) {
+    this.emptyTableText = "Searching...";
     this.generateCopyUrl(from, to);
     if (!append) {
       this.showGrid = false;
       this.waiting = true;
       this.rowData = [];
+      this.filteredData = [];
     }
     this.showError = false;
     this.showClearData = true;
@@ -481,16 +488,16 @@ export class ElastestLogManagerComponent implements OnInit {
 
     let types: Array<string> = [];
 
-    // if (this.sutlogsType) {
-    //   types.push('sutlogs');
-    // }
+    if (this.sutlogsType) {
+      types.push('sutlogs');
+    }
 
-    // if (this.testlogsType) {
-    //   types.push('testlogs');
-    // }
+    if (this.testlogsType) {
+      types.push('testlogs');
+    }
 
-    //Filter only testlogs type
-    types.push('testlogs');
+    // //Filter only testlogs type
+    // types.push('testlogs');
 
     let levels: Array<string> = [];
 
@@ -643,7 +650,13 @@ export class ElastestLogManagerComponent implements OnInit {
       }
     }
 
-    this._elasticSearchService.internalSearch(url, theQuery, this.maxResults, append).subscribe(
+    this._elasticSearchService.internalSearch(url, theQuery, this.maxResults, append)
+      .finally(
+      () => {
+        this.emptyTableText = this.emptyTableTextInitial;
+      }
+      )
+      .subscribe(
       data => {
 
         console.log('Data:', data);
@@ -775,10 +788,9 @@ export class ElastestLogManagerComponent implements OnInit {
           }
 
           //Update table
-          // this.filteredData = this.rowData;
-
-          this.initSearchTable(1,1,this.initPageSize);
+          this.initSearchTable(1, 1, this.initPageSize);
         }
+        this.emptyTableText = this.emptyTableTextInitial;
 
         this.showGrid = true;
         this.waiting = false;
@@ -789,8 +801,9 @@ export class ElastestLogManagerComponent implements OnInit {
         this.showError = true;
         this.waiting = false;
         this.clearData();
+        this.emptyTableText = this.emptyTableTextInitial;
       }
-    );
+      );
   }
 
 
@@ -828,6 +841,36 @@ export class ElastestLogManagerComponent implements OnInit {
     newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
     newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
     this.filteredData = newData;
+  }
+
+
+
+
+
+  onRowClicked($event) {
+    if ($event.node !== undefined && $event.node.selected) {
+      this.currentRowSelected = $event.node.id;
+      let initDate: String = this.rowData[$event.node.id].time;
+      let endDate: String;
+      let i: number = 1;
+      do {
+        let endRow = this.rowData[$event.node.id + i];
+        if (endRow !== undefined) {
+          endDate = endRow.time;
+        }
+        if (endDate === '') {
+          endDate = undefined;
+        }
+        i++;
+      } while (i < this.rowData.length && endDate === undefined);
+
+      let event = {
+        position: $event.node.id,
+        initDate: initDate,
+        endDate: endDate
+      };
+      this.updateDatesForMoreDate(event);
+    }
   }
 
 }

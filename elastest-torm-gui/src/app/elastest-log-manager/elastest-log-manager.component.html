@@ -43,14 +43,14 @@
                 <div layout="row">
                   <md-input-container>
                     <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
-                      step=1> <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                      step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
                   </md-input-container>
                   <md-datepicker #pickerFrom></md-datepicker>
                 </div>
                 <div layout="row">
                   <md-input-container>
                     <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
-                      step=1>
+                      step=1 required>
                     <button mdSuffix [mdDatepickerToggle]="picker"></button>
                   </md-input-container>
                   <md-datepicker #pickerTo></md-datepicker>
@@ -75,15 +75,20 @@
 
             <div flex-gt-xs="20">
               <md-card-subtitle>Log Level</md-card-subtitle>
-              <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked" checked>DEBUG</md-checkbox>
-              <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked" checked>INFO</md-checkbox>
-              <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked" checked>WARN</md-checkbox>
-              <md-checkbox #error name="errorLevel" [(ngModel)]="errorLevel" (change)="errorLevel = error.checked" checked>ERROR</md-checkbox>
+              <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>
+              <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked">INFO</md-checkbox>
+              <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked">WARN</md-checkbox>
+              <md-checkbox #error name="errorLevel" [(ngModel)]="errorLevel" (change)="errorLevel = error.checked">ERROR</md-checkbox>
+            </div>
+            <div flex-gt-xs="20">
+              <md-card-subtitle>Log type</md-card-subtitle>
+              <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
+              <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
             </div>
           </div>
 
           <div layout="row" class="push-top">
-            <button md-button (click)="search(from.value, to.value, false)">Get Data
+            <button md-raised-button color="accent" (click)="search(from.value, to.value, false)">Get Data
             </button>
             <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)">Load More
             </button>
@@ -106,6 +111,7 @@
   </div>
 </div>
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+
   <div flex-gt-xs="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
@@ -117,13 +123,14 @@
           flex>
         </td-search-box>
         <md-divider></md-divider>
-        <td-data-table #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="true" [sortBy]="sortBy"
-          [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="rowClick($event)">
+        <td-data-table #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="true"
+          [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="onRowClicked($event)">
         </td-data-table>
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
-          <h3>No results to display.</h3>
+          <h3>{{emptyTableText}}</h3>
         </div>
-        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="initPageSize" [total]="filteredTotal" (change)="page($event)">
+        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="initPageSize" [total]="filteredTotal"
+          (change)="page($event)">
           <span td-paging-bar-label hide-xs>Row per page:</span> {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
         </td-paging-bar>
       </md-card-content>

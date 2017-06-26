@@ -56,6 +56,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.data = projects;
     this.filteredData = this.data;
     this.filteredTotal = this.data.length;
+    this.filter();
   }
 
   ngAfterViewInit(): void {
