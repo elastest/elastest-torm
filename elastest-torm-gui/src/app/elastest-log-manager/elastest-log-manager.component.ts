@@ -2,7 +2,6 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 
 import { dateToInputLiteral } from './utils/Utils';
 import { ElasticSearchService } from './services/elasticSearch.service';
-import { GridComponent } from './grid/components/grid.component';
 import { ActivatedRoute } from '@angular/router';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
