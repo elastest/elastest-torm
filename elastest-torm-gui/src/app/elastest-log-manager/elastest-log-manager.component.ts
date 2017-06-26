@@ -4,6 +4,9 @@ import { dateToInputLiteral } from './utils/Utils';
 import { ElasticSearchService } from './services/elasticSearch.service';
 // import { GridComponent } from './grid/components/grid.component';
 import { ActivatedRoute } from '@angular/router';
+import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
+import { IPageChangeEvent } from '@covalent/core';
+
 
 @Component({
   selector: 'app-elastest-log-manager',
@@ -54,7 +57,31 @@ export class ElastestLogManagerComponent implements OnInit {
   public showClearData: boolean = false;
   public tailInterval: number;
 
-  constructor(public _elasticSearchService: ElasticSearchService, public activatedRoute: ActivatedRoute) {
+
+  //Search Table parameters
+
+  filteredData: any[] = this.rowData;
+  filteredTotal: number = this.rowData.length;
+
+  searchTerm: string = '';
+  fromRow: number = 1;
+  currentPage: number = 1;
+  initPageSize: number = 200;
+  pageSize: number = this.initPageSize;
+  sortBy: string = 'time';
+  selectedRows: any[] = [];
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+
+  columns: any[] = [
+    { name: 'time', label: 'Time' },
+    { name: 'message', label: 'Message' },
+    { name: 'level', label: 'Level' },
+    { name: 'type', label: 'Type' },
+    { name: 'componentType', label: 'Component Type' },
+    { name: 'host', label: 'Host' },
+  ];
+
+  constructor(public _elasticSearchService: ElasticSearchService, public activatedRoute: ActivatedRoute, private _dataTableService: TdDataTableService) {
     let params: any = this.activatedRoute.snapshot.params;
     this.showGrid = false;
     this.showError = false;
@@ -179,6 +206,7 @@ export class ElastestLogManagerComponent implements OnInit {
     let url = this.urlElastic + '_mapping';
     this.updateIndices(url);
   }
+
 
   ngOnInit() {
   }
@@ -745,6 +773,11 @@ export class ElastestLogManagerComponent implements OnInit {
           if (data.hits.hits.length > 0) {
             this.rowData = this.rowData.slice();
           }
+
+          //Update table
+          // this.filteredData = this.rowData;
+
+          this.initSearchTable(1,1,this.initPageSize);
         }
 
         this.showGrid = true;
@@ -758,6 +791,43 @@ export class ElastestLogManagerComponent implements OnInit {
         this.clearData();
       }
     );
+  }
+
+
+  // Table Search functions TODO refactor
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.filter();
+  }
+
+  searchTable(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.filter();
+  }
+
+  initSearchTable(fromRow: number, page: number, pageSize: number) {
+    this.fromRow = fromRow;
+    this.currentPage = page;
+    this.pageSize = pageSize;
+    this.filter();
+  }
+
+  page(pagingEvent: IPageChangeEvent): void {
+    this.fromRow = pagingEvent.fromRow;
+    this.currentPage = pagingEvent.page;
+    this.pageSize = pagingEvent.pageSize;
+    this.filter();
+  }
+
+  filter(): void {
+    let newData: any[] = this.rowData;
+    newData = this._dataTableService.filterData(newData, this.searchTerm, true);
+    this.filteredTotal = newData.length;
+    newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
+    newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
+    this.filteredData = newData;
   }
 
 }

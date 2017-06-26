@@ -1,4 +1,6 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <!--<textarea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" class="js-copytextarea" style="margin-left:-1000px; float: left;"
+  [(ngModel)]="urlCopied"></textarea>-->
   <div flex-gt-xs="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
@@ -12,12 +14,12 @@
               <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" (change)="updateUrlElastic($event)"
                 placeholder="ElasticSearch Url" name="urlElastic" required>
             </md-input-container>
-
+            <!--
             <md-select flex-gt-xs="10" flex-offset-gt-sm="5" ng-model="clusterSelected" (ngModelChange)="updateClusterSelected($event)"
               placeholder="Select a cluster name">
               <md-option ng-value="c.cluster.name" ng-repeat="c in indices">{{ c }}</md-option>
             </md-select>
-            <button (click)="updateUrlElastic()"><md-icon>autorenew</md-icon></button>
+            <button (click)="updateUrlElastic()"><md-icon>autorenew</md-icon></button>-->
             <!--<md-input-container flex-gt-xs="10">
               <input mdInput type="text" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName" value="" readonly name="clusterName">
             </md-input-container>-->
@@ -40,15 +42,15 @@
                 <div class="radio-button-title">By Date</div>
                 <div layout="row">
                   <md-input-container>
-                    <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From"
-                      novalidate="true" [value]="getDefaultFromValue()" step=1> <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                    <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
+                      step=1> <button mdSuffix [mdDatepickerToggle]="picker"></button>
                   </md-input-container>
                   <md-datepicker #pickerFrom></md-datepicker>
                 </div>
                 <div layout="row">
                   <md-input-container>
-                    <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To"
-                      novalidate="true" [value]="getDefaultToValue()" step=1>
+                    <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
+                      step=1>
                     <button mdSuffix [mdDatepickerToggle]="picker"></button>
                   </md-input-container>
                   <md-datepicker #pickerTo></md-datepicker>
@@ -76,19 +78,19 @@
               <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked" checked>DEBUG</md-checkbox>
               <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked" checked>INFO</md-checkbox>
               <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked" checked>WARN</md-checkbox>
-              <md-checkbox #error name="infoLevel" [(ngModel)]="infoLevel" (change)="errorLevel = error.checked" checked>ERROR</md-checkbox>
+              <md-checkbox #error name="errorLevel" [(ngModel)]="errorLevel" (change)="errorLevel = error.checked" checked>ERROR</md-checkbox>
             </div>
           </div>
 
           <div layout="row" class="push-top">
-            <button md-button (click)="search(from.value, to.value, false)" class="btn btn-default">Get Data
+            <button md-button (click)="search(from.value, to.value, false)">Get Data
             </button>
-            <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)" class="btn btn-default">Load More
+            <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)">Load More
             </button>
-            <button md-button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)" class="btn btn-default">Add more from row selected
+            <button md-button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)">Add more from row selected
             </button>
-            <input md-button *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
-            <button *ngIf="showClearData" (click)="clearData()" class="btn btn-default">Clear Data
+            <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
+            <button md-button *ngIf="showClearData" (click)="clearData()">Clear Data
             </button>
             <button md-button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
               Copy to Clipboard <br/> Share this search
@@ -100,6 +102,31 @@
       <md-card-actions>
         <!--<button md-button [disabled]="!tJobForm.valid" color="primary" (click)="runTJob()">EXECUTE</button>-->
       </md-card-actions>
+    </md-card>
+  </div>
+</div>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-xs="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Search Results
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="searchTable($event)"
+          flex>
+        </td-search-box>
+        <md-divider></md-divider>
+        <td-data-table #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="true" [sortBy]="sortBy"
+          [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="rowClick($event)">
+        </td-data-table>
+        <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
+          <h3>No results to display.</h3>
+        </div>
+        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="initPageSize" [total]="filteredTotal" (change)="page($event)">
+          <span td-paging-bar-label hide-xs>Row per page:</span> {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
+        </td-paging-bar>
+      </md-card-content>
     </md-card>
   </div>
 </div>
