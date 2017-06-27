@@ -5,7 +5,9 @@ Copyright © 2017-2019 [ElasTest]. Licensed under [Apache 2.0 License].
 elastest-torm
 ==============================
 
-ElasTest Torm.
+The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM will provide a web interface to be used by testers and administrators. It will also provide a remote API. That API will be used by ElasTest-CLI (a command line interface tool), by ElasTest Jenkins Plugin and by ElasTest Eclipse Plugin.
+
+The ElasTest TORM component is currently in development. If you want to contribute to the ElasTest TORM project you need to read the [Development documentation](https://github.com/elastest/elastest-torm/blob/master/docs/index.md) 
 
 What is ElasTest
 -----------------

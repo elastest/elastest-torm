@@ -1,10 +1,20 @@
 # Elastest Test Recommendation and Orchestrator Manager
 
-[High level description of the version 0.1 of the component]
+The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers to manage Projects, TJobs, SuTs, TOJobs, analyze logs, execute TJobs and SuTs and much more (the terms mentioned above are described in the [Features](#Features) section).
+
+In then next diagram, you can to see The ElasTest TORM Components Architecture.
+
+![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture.png)
 
 ## Features
 
-[Features provided in the version 0.1 of the component. Planned features can be specified, but in a different subsection from implemented features]
+Features provided in the version 0.1 of the TORM component.
+
+- Project Creation. Project is a set of TJobs and SuTs. 
+- TJob Creation. TJob represents a test to execute over a SuT.
+- SuT Creation.  SUT (System Under Test) represents a system to test. 
+- TJob Execution. Is the action to execute a TJob (a test). This action create a TJob Execution entity and generate several information as a test logs, sut logs, metrics and test results, at this moment.
+- Log Manager. Tool for analize stored logs of past executions. 
 
 ## Execution
 
@@ -12,14 +22,49 @@
 
 ## Basic usage
 
-[Basic instructions on how to use 0.1 version of the component]
+To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project.
+
+- **Create Project.** To do this, you can use the API provided by the elastest-torm application, use the GUI of elastest-torm or insert them directly into DDBB. 
+    - *Using TORM API.* Go to http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST fill in the field `body` with the next JSON.
+    ```json
+    {
+        "id": "0",
+        "name": "projectX"
+    }
+    ```
+    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+    ```json
+    {
+        "tojobs": null,
+        "tjobs": null,
+        "id": 1,
+        "name": "prjectX",
+        "suts": null
+    }
+    ```
+    - *Using TORM GUI.* Go to http://localhost:8091/index.html and create a project from project management.
+
+    ![ElasTest TORM Project Management](imgs/project-management.PNG)
+
+    - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
+
+    ```sql
+    INSERT INTO `elastest-etm`.`Project` (name) VALUES ('name');
+    ```
+
+- **Create TJob.** To do this, you can use the API provided by the elastest-torm application, or insert them directly into DDBB.
+
+    - *Using TORM API.*
+    - *Using DB client.*
+
+- **Run Test.** At this point, you can run the TJob using the REST API provided by elatest-torm at http://localhost:8091/swagger-ui.html or using the ElasTest graphical interface at http://localhost:4200/. 
+    
+    - *Using TORM API.*
+    - *Using TORM GUI.*    
 
 ## Development documentation
 
-[Documentation about how to develop the component. Programming language, frameworks, libs, etc.]
-
-### Development instructions for working on Elastes-etm
-Following are the necessary instructions to configure the elastest-etm module development environment. Some of the actions to be performed will depend on the SO. But the first thing is to download the repository code from GitHub:
+Following are the necessary instructions to configure the elastest-etm component development environment. Some of the actions to be performed will depend on the SO. But the first thing is to download the repository code from GitHub:
 
  - Create a Fork
  - Clone the new repository `git clone https://github.com/forkrepository/elastest-torm.git` 
@@ -56,11 +101,11 @@ Now, if you want to work with docker you need to do `docker-machine ssh` from th
 #### Install docker-compose on boo2docker
 
 - `docker-machine ssh from Windows terminal
-- `curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose`
+- ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
 - `chmod +x /usr/local/bin/docker-compose`
 
 #### Add shared folder to boot2docker on Virtual box
-To provide access to project files from the docker host, you must share the project folder with boot2docker from the virtual box.
+To provide access to project files from the docker host, you must share the project folder with boot2docker from virtual box.
 
 #### Running elastest-etm services
 
@@ -72,7 +117,7 @@ To provide access to project files from the docker host, you must share the proj
 ### Docker configuration on Linux
 
 - change the working directory to the project folder.
-- `docker-compose up -d
+- `docker-compose up -d`
 
 ### Running elastest etm in development mode
 
@@ -90,17 +135,9 @@ To provide access to project files from the docker host, you must share the proj
 
 The graphical client will be accessible at http://localhost:4200 
  
-### How to execute tests 
+### How to compile and execute tests 
 
-To execute a test on ElasTest, you need to create at least two elements:
-
-- One Project
-- One TJob associated to the project (you must attach to this, the docker image with the test to run)
-
-To do this, you can use the API provided by the elastest-etm application or insert them directly into BBDD. 
-
-At this point, you can run the TJob using the REST API provided by elatest-etm at http://localhost:8091/swagger-ui.html or the ElasTest graphical interface at http://localhost:4200/. 
-
+[Precise instructions on how to compile the repository code and how to execute tests.]
 
 ### Component arquitecture
 
