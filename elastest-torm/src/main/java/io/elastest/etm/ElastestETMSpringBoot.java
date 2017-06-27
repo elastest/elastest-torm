@@ -21,7 +21,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @EnableAsync
-@EnableConfigurationProperties(GlobalProperties.class)
 @ComponentScan(basePackages = "io.elastest.etm")
 public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements CommandLineRunner {
 
