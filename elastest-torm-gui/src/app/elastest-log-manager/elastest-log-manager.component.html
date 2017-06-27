@@ -119,7 +119,7 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
-        <md-card-subtitle *ngIf="dataTable.hasData"><strong>[ Total log entries {{pagingBar.total}} ] [ {{initPageSize}} max. per page ] [ Showing entries {{pagingBar.range}} ]</strong></md-card-subtitle>
+        <md-card-subtitle *ngIf="dataTable.hasData"><strong>[ Total log entries {{pagingBar.total}} ] [ {{pageSize}} max. per page ] [ Showing entries {{pagingBar.range}} ]</strong></md-card-subtitle>
         <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="searchTable($event)"
           flex>
         </td-search-box>
@@ -130,7 +130,7 @@
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
           <h3>{{emptyTableText}}</h3>
         </div>
-        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="initPageSize" [total]="filteredTotal"
+        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="pageSizeDefault" [total]="filteredTotal"
           (change)="page($event)">
           <span td-paging-bar-label hide-xs>Row per page:</span> {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
         </td-paging-bar>
