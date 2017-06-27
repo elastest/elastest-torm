@@ -59,19 +59,21 @@ export class ElastestLogManagerComponent implements OnInit {
 
   //Search Table parameters
 
-  emptyTableTextInitial: string = "No results to display.";
-  emptyTableText: string = this.emptyTableTextInitial;
+  emptyTableTextDefault: string = "No results to display.";
+  emptyTableText: string = this.emptyTableTextDefault;
   filteredData: any[] = this.rowData;
   filteredTotal: number = this.rowData.length;
 
   searchTerm: string = '';
   fromRow: number = 1;
   currentPage: number = 1;
-  initPageSize: number = 200;
-  pageSize: number = this.initPageSize;
-  sortBy: string = 'time';
+  pageSizeDefault: number = 200;
+  pageSize: number = this.pageSizeDefault;
+  sortByDefault: string = 'time';
+  sortBy: string = this.sortByDefault;
   selectedRows: any[] = [];
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+  sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+  sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
 
   currentRowSelected: number = -1;
 
@@ -458,6 +460,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this.showPauseTail = false;
     this.showClearData = false;
     this._scroll_id = '';
+    this.sortBy = this.sortByDefault;
+    this.sortOrder = this.sortOrderDefault;
   }
 
   // Used in html file
@@ -475,10 +479,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this.emptyTableText = "Searching...";
     this.generateCopyUrl(from, to);
     if (!append) {
-      this.showGrid = false;
       this.waiting = true;
-      this.rowData = [];
-      this.filteredData = [];
+      this.clearData();
     }
     this.showError = false;
     this.showClearData = true;
@@ -652,7 +654,7 @@ export class ElastestLogManagerComponent implements OnInit {
     this._elasticSearchService.internalSearch(url, theQuery, this.maxResults, append)
       .finally(
       () => {
-        this.emptyTableText = this.emptyTableTextInitial;
+        this.emptyTableText = this.emptyTableTextDefault;
       }
       )
       .subscribe(
@@ -787,9 +789,9 @@ export class ElastestLogManagerComponent implements OnInit {
           }
 
           //Update table
-          this.initSearchTable(1, 1, this.initPageSize);
+          this.initSearchTable(1, 1, this.pageSizeDefault);
         }
-        this.emptyTableText = this.emptyTableTextInitial;
+        this.emptyTableText = this.emptyTableTextDefault;
 
         this.showGrid = true;
         this.waiting = false;
@@ -800,7 +802,7 @@ export class ElastestLogManagerComponent implements OnInit {
         this.showError = true;
         this.waiting = false;
         this.clearData();
-        this.emptyTableText = this.emptyTableTextInitial;
+        this.emptyTableText = this.emptyTableTextDefault;
       }
       );
   }
