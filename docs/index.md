@@ -44,7 +44,7 @@ It is necessary to have installed the following tools:
 
 #### Enable Docker API access from Windows
 
-- docker-machine ssh from power shell or nay terminal emulator
+- docker-machine ssh from power shell or any terminal emulator
 - `sudo vi /var/lib/boot2docker/profile`
 - set `DOCKER_TLS=no`
 - exit from docker host
