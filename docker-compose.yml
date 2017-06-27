@@ -46,10 +46,12 @@ services:
             - 9200:9200
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
+
                    
     rabbit-MQ:
         container_name: rabbit-MQ
         image: edujgurjc/rabbitmq
+        hostname: my-rabbit
         ports:
             - 15672:15672
             - 5672:5672

@@ -23,7 +23,7 @@ export class ElastestLogManagerComponent implements OnInit {
   public indices = [];
   public clusterSelected: string;
   public defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
-  public defaultTo = new Date(new Date().valueOf() - (60 * 60 * 1000));
+  public defaultTo = new Date(new Date().valueOf() + (2 * 60 * 60 * 1000));
 
   // show/hide the grid and spinner
   public rowData: any[] = [];
