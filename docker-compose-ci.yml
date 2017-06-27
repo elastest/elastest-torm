@@ -1,0 +1,85 @@
+version: '2.1'
+services:
+    mysql:
+        container_name: mysql-db
+        image: mysql
+        expose:
+            - 3306        
+        environment:
+            - MYSQL_DATABASE=elastest-etm
+            - MYSQL_ROOT_PASSWORD=admin 
+        volumes:
+            - mysql:/var/lib/mysql        
+    beats:
+        container_name: beats
+        image: edujgurjc/dockbeat
+        environment:
+            - LOGSTASHHOST=172.17.0.1
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - logstash        
+        
+    logstash:        
+        container_name: logstash
+        image: edujgurjc/logstash
+        expose:
+            - 5000
+            - 5001
+            - 5044        
+        depends_on:
+            - rabbit-MQ
+            - elasticsearch
+        environment:
+            - HOSTIP=172.17.0.1
+            - RABBITUSER=elastest-etm
+            - RABBITPASS=elastest-etm        
+               
+    elasticsearch:
+        container_name: elasticsearch
+        image: edujgurjc/elasticsearch
+        expose:
+            - 9200
+        volumes:
+            - elasticsearch-data:/usr/share/elasticsearch/data
+                   
+    rabbit-MQ:
+        container_name: rabbit-MQ
+        image: edujgurjc/rabbitmq
+        hostname: my-rabbit
+        expose:
+            - 15672
+            - 5672
+            - 15671
+            - 25672
+            - 61613
+                      
+    elastest-torm:
+        depends_on:
+            - mysql
+            - rabbit-MQ
+            - elasticsearch
+            - logstash
+            - beats
+        container_name: elastest-torm
+        build: ./docker/elastest-torm            
+        image: elastest/elastest-torm
+        entrypoint: /testing-mysqlstate-entrypoint.sh
+        environment:
+            - MYSQL_DATABASE=elastest-etm
+            - MYSQL_ROOT_PASSWORD=admin
+        expose:
+            - 8091
+        ports:
+            - 8091:8091
+              
+networks:
+    build-image-network:
+        driver: bridge
+volumes:
+    elasticsearch-data:
+      driver: local
+    beats-data:
+      driver: local
+    mysql:
+      driver: local
