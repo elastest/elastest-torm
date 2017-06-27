@@ -44,10 +44,10 @@ It is necessary to have installed the following tools:
 
 #### Enable Docker API access from Windows
 
-- docker-machine ssh from power shell or any terminal emulator
+- `docker-machine ssh` from power shell or any terminal emulator
 - `sudo vi /var/lib/boot2docker/profile`
 - set `DOCKER_TLS=no`
-- exit from docker host
+- `exit` from docker host
 - `docker-machine restart`
 
 When access to the API is active, the graphical client for Docker Toolbox and Windows CLI, will no longer be operational.
