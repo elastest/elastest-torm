@@ -8,17 +8,20 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import io.elastest.etm.utils.UtilTools;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
 @EnableAsync
+@EnableConfigurationProperties(GlobalProperties.class)
 @ComponentScan(basePackages = "io.elastest.etm")
 public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements CommandLineRunner {
 
@@ -48,6 +51,12 @@ public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements Co
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
 		return container;
+	}
+	
+	@Bean
+	UtilTools utils(){
+		UtilTools utils = new UtilTools();
+		return utils;
 	}
 	
 	@Override

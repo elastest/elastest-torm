@@ -11,7 +11,7 @@ services:
             - MYSQL_DATABASE=elastest-etm
             - MYSQL_ROOT_PASSWORD=admin 
         volumes:
-            - /var/lib/elastest/mysql/data:/var/lib/mysql
+            - mysql:/var/lib/mysql
         networks:
             - build-image-network
     beats:
@@ -21,19 +21,24 @@ services:
             - LOGSTASHHOST=172.17.0.1
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - logstash        
         
-    logstash:
+    logstash:        
         container_name: logstash
         image: edujgurjc/logstash
         ports:
             - 5000:5000
             - 5001:5001
             - 5044:5044
+        depends_on:
+            - rabbit-MQ
+            - elasticsearch
         environment:
             - HOSTIP=172.17.0.1
             - RABBITUSER=elastest-etm
-            - RABBITPASS=elastest-etm
-        
+            - RABBITPASS=elastest-etm        
+               
     elasticsearch:
         container_name: elasticsearch
         image: edujgurjc/elasticsearch
@@ -41,7 +46,7 @@ services:
             - 9200:9200
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
-            
+                   
     rabbit-MQ:
         container_name: rabbit-MQ
         image: edujgurjc/rabbitmq
@@ -51,32 +56,36 @@ services:
             - 15671:15671
             - 25672:25672
             - 61613:61613
-               
-    elastest-torm:
-        depends_on:
-            - mysql
-            - rabbit-MQ
-            - elasticsearch
-            - logstash
-            - beats
-        container_name: elastest-torm
-        build: ./docker/elastest-torm            
-        image: elastest/elastest-torm
-        entrypoint: /testing-mysqlstate-entrypoint.sh
-        environment:
-            - MYSQL_DATABASE=elastest-etm
-            - MYSQL_ROOT_PASSWORD=admin
-        expose:
-            - 8091
-        ports:
-            - 8091:8091
-        networks:
-            - build-image-network
-        links:
-            - mysql       
+                      
+#    elastest-torm:
+#        depends_on:
+#            - mysql
+#            - rabbit-MQ
+#            - elasticsearch
+#            - logstash
+#            - beats
+#        container_name: elastest-torm
+#        build: ./docker/elastest-torm            
+#        image: elastest/elastest-torm
+#        entrypoint: /testing-mysqlstate-entrypoint.sh
+#        environment:
+#            - MYSQL_DATABASE=elastest-etm
+#            - MYSQL_ROOT_PASSWORD=admin
+#        expose:
+#            - 8091
+#        ports:
+#            - 8091:8091
+#        networks:
+#            - build-image-network
+#        links:
+#            - mysql       
 networks:
     build-image-network:
         driver: bridge
 volumes:
     elasticsearch-data:
+      driver: local
+    beats-data:
+      driver: local
+    mysql:
       driver: local

@@ -1,12 +1,10 @@
 package io.elastest.etm.docker;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,15 +19,21 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
+import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class DockerService {
+	
+	private static final Logger logger = Logger.getLogger(DockerService.class);
 
 	private String testImage = "";
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
 
 	@Autowired
 	private SutService sutService;
+	
+	@Autowired
+	public UtilTools utilTools;
 
 	@Value ("${os.name}")
 	private String windowsSO;
@@ -50,33 +54,13 @@ public class DockerService {
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		System.out.println("OPERATING SYSTEM: "+ windowsSO);
+		logger.info("Url docker: "+ utilTools.getDockerHostUrlOnWin());
 		
-		if (windowsSO.toLowerCase().contains("win")) {			
-			BufferedReader reader = null;
-			try {
-				Process child = Runtime.getRuntime().exec("docker-machine url");
-				reader=new BufferedReader(
-	                    new InputStreamReader(child.getInputStream())
-	                ); 
-				
-				String dockerHostUrl = reader.readLine(); 				
-                
-				DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-						.withDockerHost(dockerHostUrl).build();
-				dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
-				
-			} catch (IOException e) {				
-				e.printStackTrace();
-				
-			} finally {
-				try {
-					if (reader != null)
-						reader.close();
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			}
+		if (windowsSO.toLowerCase().contains("win")) {
+
+			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+					.withDockerHost(utilTools.getDockerHostUrlOnWin()).build();
+			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 			
 		} else {
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());

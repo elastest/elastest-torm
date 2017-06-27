@@ -27,7 +27,7 @@ public class DockerExecution {
 
 	public String initializeLog() {
 		setExecutionId(tJobexec.getId().toString());
-		return "localhost:9200/" + executionId;
+		return "localhost:9200/" + executionId + "_search";
 	}
 
 	public void generateNetwork() {
