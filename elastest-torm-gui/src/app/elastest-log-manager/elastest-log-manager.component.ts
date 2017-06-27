@@ -69,9 +69,11 @@ export class ElastestLogManagerComponent implements OnInit {
   currentPage: number = 1;
   initPageSize: number = 200;
   pageSize: number = this.initPageSize;
-  sortBy: string = 'time';
+  sortByDefault: string = 'time';
+  sortBy: string = this.sortByDefault;
   selectedRows: any[] = [];
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+  sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+  sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
 
   currentRowSelected: number = -1;
 
@@ -458,6 +460,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this.showPauseTail = false;
     this.showClearData = false;
     this._scroll_id = '';
+    this.sortBy = this.sortByDefault;
+    this.sortOrder = this.sortOrderDefault;
   }
 
   // Used in html file
@@ -475,10 +479,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this.emptyTableText = "Searching...";
     this.generateCopyUrl(from, to);
     if (!append) {
-      this.showGrid = false;
       this.waiting = true;
-      this.rowData = [];
-      this.filteredData = [];
+      this.clearData();
     }
     this.showError = false;
     this.showClearData = true;
