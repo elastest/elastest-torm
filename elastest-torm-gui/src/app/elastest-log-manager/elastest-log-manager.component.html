@@ -36,32 +36,35 @@
           </div>
 
           <div layout="row" class="push-top">
-            <md-radio-group flex-gt-xs="20">
+            <md-radio-group flex-gt-xs="25">
               <md-card-subtitle>Range</md-card-subtitle>
-              <md-radio-button value="false" name="typeSearch" (click)="setUseTail(false)" checked="checked">
-                <div class="radio-button-title">By Date</div>
-                <div layout="row">
-                  <md-input-container>
-                    <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
-                      step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
-                  </md-input-container>
-                  <md-datepicker #pickerFrom></md-datepicker>
-                </div>
-                <div layout="row">
-                  <md-input-container>
-                    <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
-                      step=1 required>
-                    <button mdSuffix [mdDatepickerToggle]="picker"></button>
-                  </md-input-container>
-                  <md-datepicker #pickerTo></md-datepicker>
-                </div>
-              </md-radio-button>
-              <md-radio-button value="true" (click)="setUseTail(true)" name="typeSearch">By Tail</md-radio-button>
+              <div layout="row">
+                <md-radio-button value="false" name="typeSearch" (click)="setUseTail(false)" checked="checked">
+                  <div layout="row">
+                    <div class="radio-button-title" flex-gt-xs="10">By Date</div>
+                    <md-input-container flex-gt-xs="40" flex-offset-gt-xs="10">
+                      <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
+                        step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                    </md-input-container>
+                    <md-datepicker #pickerFrom></md-datepicker>
+                    <md-input-container flex-gt-xs="40" flex-offset-gt-xs="10">
+                      <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
+                        step=1 required>
+                      <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                    </md-input-container>
+                    <md-datepicker #pickerTo></md-datepicker>
+                  </div>
+                </md-radio-button>
+              </div>
+
+              <div layout="row">
+                <md-radio-button value="true" (click)="setUseTail(true)" name="typeSearch">By Tail</md-radio-button>
+              </div>
             </md-radio-group>
 
             <div flex-gt-xs="30">
               <md-card-subtitle>Fields</md-card-subtitle>
-              <md-input-container flex-offset-gt-sm="5">
+              <md-input-container>
                 <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Search on message">
               </md-input-container>
               <md-input-container flex-offset-gt-sm="5">
@@ -119,7 +122,7 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
-        <md-card-subtitle *ngIf="dataTable.hasData"><strong>[ Total log entries {{pagingBar.total}} ] [ {{pageSize}} max. per page ] [ Showing entries {{pagingBar.range}} ]</strong></md-card-subtitle>
+        <md-card-subtitle *ngIf="dataTable.hasData"><strong>[ Total log entries found {{rowData.length}} of {{maxResults}}]</strong></md-card-subtitle>
         <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="searchTable($event)"
           flex>
         </td-search-box>
@@ -130,10 +133,10 @@
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
           <h3>{{emptyTableText}}</h3>
         </div>
-        <td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="[5, 10, 15, 20, 40, 100, 200]" [pageSize]="pageSizeDefault" [total]="filteredTotal"
+        <!--<td-paging-bar #pagingBar [pageSizeAll]="true" [pageSizes]="pageSizesList" [pageSize]="pageSizeDefault" [total]="filteredTotal"
           (change)="page($event)">
           <span td-paging-bar-label hide-xs>Row per page:</span> {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
-        </td-paging-bar>
+        </td-paging-bar>-->
       </md-card-content>
     </md-card>
   </div>
