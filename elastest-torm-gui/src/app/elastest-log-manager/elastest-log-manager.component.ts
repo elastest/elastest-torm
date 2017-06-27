@@ -72,8 +72,10 @@ export class ElastestLogManagerComponent implements OnInit {
   sortByDefault: string = 'time';
   sortBy: string = this.sortByDefault;
   selectedRows: any[] = [];
-  sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+  sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
   sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
+  pageSizesListDefault: number[] = [5, 10, 15, 20, 40, 100, 200];
+  pageSizesList: number[] = this.pageSizesListDefault;
 
   currentRowSelected: number = -1;
 
@@ -789,7 +791,9 @@ export class ElastestLogManagerComponent implements OnInit {
           }
 
           //Update table
-          this.initSearchTable(1, 1, this.pageSizeDefault);
+          this.initSearchTable(1, 1, this.rowData.length);
+          // this.initSearchTable(1, 1, this.pageSizeDefault); code for pagination
+
         }
         this.emptyTableText = this.emptyTableTextDefault;
 
