@@ -89,7 +89,7 @@ public class UtilTools {
 	
 	
 	public String getDockerHostIp(){		
-		System.out.println("GET IP DOCKER HOST ON WINDOWS.");
+		
 		if (windowsSO.toLowerCase().contains("win")) {
 			return getDockerHostIpOnWin();					
 		}else
