@@ -1,6 +1,6 @@
 # Elastest Test Recommendation and Orchestrator Manager
 
-The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers to manage Projects, TJobs, SuTs, TOJobs, analyze logs, execute TJobs and SuTs and much more (the terms mentioned above are described in the [Features](#Features) section).
+The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers to manage Projects, TJobs, SuTs, TOJobs, analyze logs, execute TJobs and SuTs and much more (the terms mentioned above are described in the [Features](##Features) section).
 
 ### Component arquitecture
 In the next diagram, you can to see The ElasTest TORM Components Architecture.
@@ -25,7 +25,7 @@ To start this componet, you need to download the docker-compose-exec.yml and exe
 
 >*Nota:* You need to have the docker-compose application installed beforehand.
 
->**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](#Development_documentation)).
+>**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](##Development_documentation)).
 
 ## Basic usage
 
