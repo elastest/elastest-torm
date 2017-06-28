@@ -23,7 +23,9 @@ To start this componet, you need to download the docker-compose-exec.yml and exe
 
 `docker-compose -f docker-compose-exec.yml up -d`
 
-*Nota:* `You need to have the docker-compose application installed beforehand.`
+>*Nota:* You need to have the docker-compose application installed beforehand.
+
+>**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](#Development_documentation)).
 
 ## Basic usage
 
@@ -154,7 +156,7 @@ Now, if you want to work with docker you need to do `docker-machine ssh` from th
 
 #### Install docker-compose on boo2docker
 
-- `docker-machine ssh from Windows terminal
+- `docker-machine ssh from Windows terminal`
 - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
 - `chmod +x /usr/local/bin/docker-compose`
 
