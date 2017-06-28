@@ -1,14 +1,21 @@
 package io.elastest.etm.docker;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -19,15 +26,22 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
+import io.elastest.etm.utils.Shell;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class DockerService {
 	
-	private static final Logger logger = Logger.getLogger(DockerService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
 
-	private String testImage = "";
+	private static Boolean isRunningInContainer;	
+	private static String hostIp;
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
+	
+	private String testImage = "";
+	
+	
+
 
 	@Autowired
 	private SutService sutService;
@@ -67,10 +81,67 @@ public class DockerService {
 			logger.info("Execute on Linux.");
 			//dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://172.17.0.1:2376").build();
+					.withDockerHost(getHostIp()).build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
+		
+	public boolean isRunningInContainer() {
+	    return isRunningInContainerInternal();
+	  }
+
+	  private static synchronized boolean isRunningInContainerInternal() {
+
+	    if (isRunningInContainer == null) {
+
+	      try (BufferedReader br =
+	          Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
+
+	        String line = null;
+	        while ((line = br.readLine()) != null) {
+	          if (!line.endsWith("/")) {
+	            return true;
+	          }
+	        }
+	        isRunningInContainer = false;
+
+	      } catch (IOException e) {
+	        isRunningInContainer = false;
+	      }
+	    }
+
+	    return isRunningInContainer;
+	  }
+
+	  private static synchronized String getHostIp() {
+
+	    if (hostIp == null) {
+
+	      if (isRunningInContainerInternal()) {
+
+	        try {
+
+	          String ipRoute = Shell.runAndWait("sh", "-c", "/sbin/ip route");
+
+	          String[] tokens = ipRoute.split("\\s");
+
+	          hostIp = tokens[2];
+
+	        } catch (Exception e) {
+	          throw new DockerClientException("Exception executing /sbin/ip route", e);
+	        }
+
+	      } else {
+	        hostIp = "127.0.0.1";
+	      }
+	    }
+
+	    logger.debug("Host IP is {}", hostIp);
+
+	    return hostIp;
+	  }
+	
+	
 
 	public void createNetwork(DockerExecution dockerExec) {
 		dockerExec.generateNetwork();
