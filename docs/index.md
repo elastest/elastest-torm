@@ -23,15 +23,15 @@ To start this componet, you need to download the docker-compose-exec.yml and exe
 
 `docker-compose -f docker-compose-exec.yml up -d`
 
->*Nota:* You need to have the docker-compose application installed beforehand.
+>**Note:** You need to have the docker-compose application installed beforehand.
 
->**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](#development-documentation)).
+>**Note:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windows (see the section [Development documentation](#development-documentation)).
 
 ## Basic usage
 
 To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project.
 
-- **Create Project.** To do this, you can use the API provided by the elastest-torm application, use the GUI of elastest-torm or insert them directly into DDBB. 
+- **Create Project.** To do this, you can use the API provided by the elastest-torm application, the GUI of elastest-torm or insert them directly into DDBB. 
     - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST` and fill in the field `body` with the next JSON.
         ```json
         {
@@ -60,7 +60,7 @@ To use ElasTest and run your first test, you need to create at least one project
         INSERT INTO `elastest-etm`.`Project` (name) VALUES ('name');
         ```
 
-- **Create TJob.** To do this, you can use the API provided by the elastest-torm application, or insert them directly into DDBB.
+- **Create TJob.** To do this, you can use the API provided by the elastest-torm application or insert them directly into DDBB.
 
     - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob/createTJobUsingPOST`and fill in the field `body` with the next JSON.
         ```json
@@ -151,7 +151,7 @@ It is necessary to have installed the following tools:
 - `exit` from docker host
 - `docker-machine restart`
 
-When access to the API is active, the graphical client for Docker Toolbox and Windows CLI, will no longer be operational.
+>**Note:** When access to the API is active, the graphical client for Docker Toolbox and Windows CLI, will no longer be operational.
 Now, if you want to work with docker you need to do `docker-machine ssh` from the terminal.
 
 #### Install docker-compose on boo2docker
@@ -191,10 +191,3 @@ To provide access to project files from the docker host, you must share the proj
 
 The graphical client will be accessible at http://localhost:4200 
  
-### How to compile and execute tests 
-
-[Precise instructions on how to compile the repository code and how to execute tests.]
-
-
-
-[Description of the architecture/structure of the 0.1 version of the component. This description should allow a developer to understand how source code is structured to start working on it if he/she wants to.]
