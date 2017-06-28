@@ -25,7 +25,7 @@ To start this componet, you need to download the docker-compose-exec.yml and exe
 
 >*Nota:* You need to have the docker-compose application installed beforehand.
 
->**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](##development-documentation)).
+>**Nota:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windwos (see the section [Development documentation](#development-documentation)).
 
 ## Basic usage
 
