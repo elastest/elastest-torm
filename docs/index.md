@@ -2,7 +2,8 @@
 
 The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers to manage Projects, TJobs, SuTs, TOJobs, analyze logs, execute TJobs and SuTs and much more (the terms mentioned above are described in the [Features](#Features) section).
 
-In then next diagram, you can to see The ElasTest TORM Components Architecture.
+### Component arquitecture
+In the next diagram, you can to see The ElasTest TORM Components Architecture.
 
 ![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture.png)
 
@@ -18,14 +19,18 @@ Features provided in the version 0.1 of the TORM component.
 
 ## Execution
 
-[How to install the version 0.1 of component. This version should be installable wihout using any other ElasTest component. It is ok to provide a docker-compose.yml file to start the component dockerized with its dependencies.]
+To start this componet, you need to download the docker-compose-exec.yml and exectute the folloiwng command from any terminal:
+
+`docker-compose -f docker-compose-exec.yml up -d`
+
+*Nota:* `You need to have the docker-compose application installed beforehand.`
 
 ## Basic usage
 
 To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project.
 
 - **Create Project.** To do this, you can use the API provided by the elastest-torm application, use the GUI of elastest-torm or insert them directly into DDBB. 
-    - *Using TORM API.* Go to http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST fill in the field `body` with the next JSON.
+    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST` and fill in the field `body` with the next JSON.
     ```json
     {
         "id": "0",
@@ -44,7 +49,7 @@ To use ElasTest and run your first test, you need to create at least one project
     ```
     - *Using TORM GUI.* Go to http://localhost:8091/index.html and create a project from project management.
 
-    ![ElasTest TORM Project Management](imgs/project-management.PNG)
+    ![ElasTest TORM Project Management](imgs/project-management.png)
 
     - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
 
@@ -54,13 +59,61 @@ To use ElasTest and run your first test, you need to create at least one project
 
 - **Create TJob.** To do this, you can use the API provided by the elastest-torm application, or insert them directly into DDBB.
 
-    - *Using TORM API.*
-    - *Using DB client.*
+    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob/createTJobUsingPOST`and fill in the field `body` with the next JSON.
+    ```json
+    {
+        "id": 0,
+        "imageName": "edujgurjc/torm-test-01",
+        "name": "testApp1",
+        "project": { "id": 1 }
+    }
+    ```
+    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+    ```json
+    {
+        "project": {},
+        "id": 4,
+        "name": "testApp1",
+        "imageName": "edujgurjc/torm-test-01",
+        "sut": null
+    }
+    ```
+    - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
+
+    ```sql
+    INSERT INTO `elastest-etm`.`TJob` (`image_name`,`name`,`project`) VALUES ('image_name', 'name', 1);
+    ```
+    A TJob by itself does nothing, needs to be associated with a test, by the image name, as you can see above in the TJob json. To this day, the test needs to be contained by a docker image. To build a simple Docker image of a test, you only need the following:
+    - A Java proyect with one JUnit Test at least.
+    - A Docker file with the instrucctions to execute the JUnit test.
+        ```maven
+        FROM maven:alpine
+        COPY * /
+        CMD mvn clean test
+        ```   
+    - Build the image.
+        ```docker
+        docker build -t image_name .
+        ```
+    - Publish the image in your docker hub respository `https://docs.docker.com/docker-cloud/builds/push-images/`
 
 - **Run Test.** At this point, you can run the TJob using the REST API provided by elatest-torm at http://localhost:8091/swagger-ui.html or using the ElasTest graphical interface at http://localhost:4200/. 
     
-    - *Using TORM API.*
-    - *Using TORM GUI.*    
+    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob_execution/execTJobUsingPOST` and fill in the field `tJobId` with the id of a TJob.
+
+    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+    ```json
+    {
+        "id": 10,
+        "duration": 0,
+        "result": "IN PROGRESS",
+        "sutExecution": null,
+        "error": null
+    }
+    ```
+    - *Using TORM GUI.* From Dashboard page, you can execute a TJob and monitorize the logs and metrics generated during this execution. Fill in the TJob fild with a valid TJob id and click on execute button. 
+
+    ![Execute TJob](imgs/TJobExecution.jpg)   
 
 ## Development documentation
 
@@ -139,6 +192,6 @@ The graphical client will be accessible at http://localhost:4200
 
 [Precise instructions on how to compile the repository code and how to execute tests.]
 
-### Component arquitecture
+
 
 [Description of the architecture/structure of the 0.1 version of the component. This description should allow a developer to understand how source code is structured to start working on it if he/she wants to.]
