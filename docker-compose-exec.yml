@@ -16,7 +16,7 @@ services:
         container_name: beats
         image: edujgurjc/dockbeat
         environment:
-            - LOGSTASHHOST=172.17.0.1
+            - LOGSTASHHOST=logstash
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
@@ -33,7 +33,8 @@ services:
             - rabbit-MQ
             - elasticsearch
         environment:
-            - HOSTIP=172.17.0.1
+            - ELASTICHOST=elasticsearch
+            - RABBITHOST=rabbit-MQ
             - RABBITUSER=elastest-etm
             - RABBITPASS=elastest-etm        
                
@@ -64,15 +65,16 @@ services:
             - elasticsearch
             - logstash
             - beats
-        container_name: elastest-torm                 
-        image: elastest/elastest-torm        
+        container_name: elastest-torm
+        image: elastest/elastest-torm
+        entrypoint: /testing-mysqlstate-entrypoint.sh
         expose:
             - 8091
         ports:
             - 8091:8091               
-networks:
-    build-image-network:
-        driver: bridge
+#networks:
+#    build-image-network:
+#        driver: bridge
 volumes:
     elasticsearch-data:
       driver: local

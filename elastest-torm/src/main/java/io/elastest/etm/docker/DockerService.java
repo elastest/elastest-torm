@@ -56,12 +56,15 @@ public class DockerService {
 	public void configureDocker(DockerExecution dockerExec) {		
 		
 		if (windowsSO.toLowerCase().contains("win")) {
+			
+			logger.info("Execute on Windows.");
 
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost(utilTools.getDockerHostUrlOnWin()).build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 			
 		} else {
+			logger.info("Execute on Linux.");
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 		}
 	}

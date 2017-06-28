@@ -14,7 +14,7 @@ services:
         container_name: beats
         image: edujgurjc/dockbeat
         environment:
-            - LOGSTASHHOST=172.17.0.1
+            - LOGSTASHHOST=logstash
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
@@ -31,7 +31,8 @@ services:
             - rabbit-MQ
             - elasticsearch
         environment:
-            - HOSTIP=172.17.0.1
+            - ELASTICHOST=elasticsearch
+            - RABBITHOST=rabbit-MQ
             - RABBITUSER=elastest-etm
             - RABBITPASS=elastest-etm        
                
@@ -73,9 +74,9 @@ services:
         ports:
             - 8091:8091
               
-networks:
-    build-image-network:
-        driver: bridge
+#networks:
+#    build-image-network:
+#        driver: bridge
 volumes:
     elasticsearch-data:
       driver: local
