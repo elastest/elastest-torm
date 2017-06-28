@@ -166,13 +166,13 @@ To provide access to project files from the docker host, you must share the proj
 #### Running elastest-etm services
 
 - `docker-machine ssh` from windows terminal
-- change the working directory to the shared folder of the project.
+- Change the working directory to the shared folder of the project.
 - `sudo sysctl -w vm.max_map_count=262144` (It is necessary for elasticsearch service)
 - `docker-compose up -d`
 
 ### Docker configuration on Linux
 
-- change the working directory to the project folder.
+- Change the working directory to the project folder.
 - `docker-compose up -d`
 
 ### Running elastest etm in development mode
