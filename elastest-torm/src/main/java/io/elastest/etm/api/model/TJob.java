@@ -1,11 +1,12 @@
 package io.elastest.etm.api.model;
 
+import java.util.List;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.Project.BasicAttProject;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,15 +28,14 @@ public class TJob {
 	
 	public interface BasicAttTJob {
 	}
-	
-	@JsonView(BasicAttTJob.class)
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(BasicAttTJob.class)
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
 	@Column(name="name")
 	@JsonProperty("name")
 	private String name = null;
@@ -45,23 +45,23 @@ public class TJob {
 //	@JsonProperty("testServices")
 //	private List<TestService> testServices = new ArrayList<TestService>();
 
-	@JsonView(BasicAttTJob.class)
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
 	@Column(name="image_name")
 	@JsonProperty("imageName")
 	private String imageName = null;
 
-	@JsonView(BasicAttTJob.class)
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="sut")
 	@JsonProperty("sut")
 	private SutSpecification sut = null;
 		
 	//bi-directional many-to-one association to TJobExec
+	@JsonView(BasicAttTJob.class)
 	@OneToMany(mappedBy="tJob")
 	private List<TJobExecution> tjobExecs;
 	
 	//bi-directional many-to-one association to Project
-	@JsonView(BasicAttTJob.class)
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="project")
 	private Project project;

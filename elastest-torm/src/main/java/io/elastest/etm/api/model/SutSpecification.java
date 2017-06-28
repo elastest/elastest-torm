@@ -16,6 +16,8 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.Project.BasicAttProject;
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -28,22 +30,21 @@ public class SutSpecification {
 	
 	public interface SutView {
 	}
-		
 	@Id
-	@JsonView(SutView.class)
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(SutView.class)
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("name")
 	private String name = null;
 
-	@JsonView(SutView.class)
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("specification")
 	private String specification = null;
 
-	@JsonView(SutView.class)
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("description")
 	private String description = null;
 			

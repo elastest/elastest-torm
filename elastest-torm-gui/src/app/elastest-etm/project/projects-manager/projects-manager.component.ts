@@ -1,5 +1,6 @@
 import { Router } from '@angular/router';
 import { SutModel } from '../../sut/sut-model';
+import { TJobModel } from '../../tjob/tjob-model';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
 import { Title } from '@angular/platform-browser';
@@ -53,6 +54,17 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   sutData: SutModel[] = [];
 
+  // TJob Data
+  tjobColumns: any[] = [
+    { name: 'id', label: 'Id' },
+    { name: 'name', label: 'Name' },
+    { name: 'imageName', label: 'Image Name' },
+    { name: 'sut.id', label: 'Sut' },
+    { name: 'options', label: 'Options' },
+  ];
+
+  tjobData: TJobModel[] = [];
+
 
   constructor(private _titleService: Title,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
@@ -70,10 +82,11 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   prepareDataTable(projects: ProjectModel[]) {
-    console.log("Retrived Projects:" + projects);
-    for (let pro of projects) {
-      console.log(pro.name);
-    }
+    // console.log("Retrived Projects:" + projects);
+    // for (let pro of projects) {
+    //   console.log(pro.name);
+    //   console.log(pro.suts);
+    // }
     this.projectData = projects;
     this.filteredData = this.projectData;
     this.filteredTotal = this.projectData.length;
@@ -116,6 +129,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     console.log(project);
     this.router.navigate(['/projects-management/edit', project.id]);
   }
+
   deleteProject(project: ProjectModel) {
     let iConfirmConfig: IConfirmConfig = {
       message: 'Project ' + project.id + ' will be deleted, do you want to continue?',
@@ -135,9 +149,15 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     });
   }
 
-
   showProjectChilds(event: ITdDataTableRowClickEvent) {
+    let project: ProjectModel = event.row;
     this.projectChildsActived = true;
-    this.projectSelected = event.row.name;
+    this.projectSelected = project.name;
+    this.sutData = project.suts;
+    this.tjobData = project.tjobs;
+  }
+
+  createTJob(){
+    
   }
 }

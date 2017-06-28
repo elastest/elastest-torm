@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.Project.BasicAttProject;
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -27,15 +29,15 @@ public class TOJob {
 	}
 	
 	@Id
-	@JsonView(TOJobView.class)
+	@JsonView({ TOJobView.class, BasicAttProject.class })
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(TOJobView.class)
+	@JsonView({ TOJobView.class, BasicAttProject.class })
 	@JsonProperty("name")
 	private String name = null;
 
-	@JsonView(TOJobView.class)
+	@JsonView({ TOJobView.class, BasicAttProject.class })
 	@JsonProperty("tOScript")
 	private String tOScript = null;
 

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -33,31 +34,31 @@ public class TJobExecution {
 	
 	public interface BasicAttTJobExec {
 	}
-	
-	@JsonView(BasicAttTJobExec.class)
+
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView(BasicAttTJobExec.class)
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
 	@Column(name="duration")
 	@JsonProperty("duration")
 	private Long duration = null;
 	
-	@JsonView(BasicAttTJobExec.class)
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
 	@Column(name="result")
 	@JsonProperty("result")
 	private ResultEnum result = null;
 
-	@JsonView(BasicAttTJobExec.class)
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
 	@OneToOne (fetch = FetchType.LAZY)
 	@JoinColumn(name="sut_execution")
 	@JsonProperty("sutExecution")
 	private SutExecution sutExecution = null;
 
-	@JsonView(BasicAttTJobExec.class)
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
 	@Column(name="error")
 	@JsonProperty("error")
 	private String error = null;

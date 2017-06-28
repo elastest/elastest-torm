@@ -36,16 +36,19 @@ public class Project implements Serializable {
 	@JsonProperty("name")
 	private String name = null;
 	
+	@JsonView(BasicAttProject.class)
 	@JsonProperty("tjobs")
 	//bi-directional many-to-one association to TJob
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
 	private List<TJob> tJobs;
 	
+	@JsonView(BasicAttProject.class)
 	@JsonProperty("tojobs")
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY )
 	private List<TOJob> tOJobs;
 	
+	@JsonView(BasicAttProject.class)
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
