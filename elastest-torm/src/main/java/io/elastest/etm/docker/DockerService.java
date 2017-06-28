@@ -67,7 +67,7 @@ public class DockerService {
 			logger.info("Execute on Linux.");
 			//dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("172.17.0.1:2376").build();
+					.withDockerHost("tcp://172.17.0.1:2376").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
