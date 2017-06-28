@@ -21,3 +21,11 @@ td-layout-manage-list .mat-toolbar {
 .mat-icon.md-icon-logo{
     width: 185px !important;
 }
+
+//
+#dataTable > div{
+    max-height: 74vh !important;
+}
+#dataTable table{
+    overflow-y: auto !important;
+}

@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 
-import { dateToInputLiteral } from './utils/Utils';
+import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { ElasticSearchService } from './services/elasticSearch.service';
+import { dateToInputLiteral } from './utils/Utils';
 import { ActivatedRoute } from '@angular/router';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
@@ -65,12 +66,14 @@ export class ElastestLogManagerComponent implements OnInit {
   filteredTotal: number = this.rowData.length;
 
   searchTerm: string = '';
+  sortByDefault: string = 'time';
+  sortBy: string = this.sortByDefault;
+
+  //Search table Pagination params. (DISABLED)
   fromRow: number = 1;
   currentPage: number = 1;
   pageSizeDefault: number = 200;
   pageSize: number = this.pageSizeDefault;
-  sortByDefault: string = 'time';
-  sortBy: string = this.sortByDefault;
   selectedRows: any[] = [];
   sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
   sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
@@ -78,6 +81,11 @@ export class ElastestLogManagerComponent implements OnInit {
   pageSizesList: number[] = this.pageSizesListDefault;
 
   currentRowSelected: number = -1;
+  currentPos: number = -1;
+
+  //Filter Results
+  patternDefault: SearchPatternModel = new SearchPatternModel();
+  patterns: SearchPatternModel[] = [this.patternDefault];
 
   columns: any[] = [
     { name: 'time', label: 'Time' },
@@ -464,6 +472,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this._scroll_id = '';
     this.sortBy = this.sortByDefault;
     this.sortOrder = this.sortOrderDefault;
+    this.removeAllPatterns();
+    this.addPattern();
   }
 
   // Used in html file
@@ -878,4 +888,144 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
+
+
+  // Filter results functions
+  addPattern() {
+    this.patterns.push(new SearchPatternModel());
+  }
+
+  removePattern(position: number) {
+    this.patterns.splice(position, 1);
+  }
+
+  clearPatterns() {
+    for (let pattern of this.patterns) {
+      pattern.searchValue = '';
+      pattern.results = [];
+    }
+    this.currentPos = -1;
+    this.currentRowSelected = -1;
+    this.cleanRowsColor();
+  }
+
+  removeAllPatterns() {
+    this.patterns = [];
+    this.currentPos = -1;
+    this.currentRowSelected = -1;
+    this.cleanRowsColor();
+  }
+
+  cleanRowsColor() {
+    let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+    if (rows !== undefined && rows !== null) {
+      let i: number = 0;
+      while (rows[i] !== undefined && rows[i] !== null) {
+        rows[i].removeAttribute('style');
+        i++;
+      }
+    }
+  }
+
+  searchByPatterns() {
+    this.currentPos = -1;
+    let i: number = 0;
+    this.filteredData.map(e => {
+      for (let pattern of this.patterns) {
+        if ((pattern.searchValue !== '') && (e.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
+          if (pattern.results.indexOf(i) === -1) {
+            pattern.results.push(i);
+          }
+        }
+      }
+      i++;
+    });
+
+    let j: number = 0;
+    for (let pattern of this.patterns) {
+      if (pattern.results.length > 0) {
+        this.next(j);
+        this.paintResults(j);
+      }
+      j++;
+    }
+  }
+
+  paintResults(index: number) {
+    let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+    for (let result of this.patterns[index].results) {
+      rows[result].style.color = this.patterns[index].color;
+    }
+  }
+
+
+  next(index: number) {
+    let pattern = this.patterns[index];
+    if (pattern.results.length > 0) {
+      pattern.results.sort(this.sorted);
+
+      if (this.currentPos === -1) {
+        pattern.position = 0;
+      } else {
+        pattern.position = this.getNextPosition(this.currentPos, pattern.results);
+        if (pattern.position === -1) {
+          pattern.position = 0;
+        }
+      }
+
+      this.currentPos = pattern.results[pattern.position];
+      let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+      rows[this.currentPos].focus();
+    }
+  }
+
+
+  prev(index: number) {
+    let pattern = this.patterns[index];
+    if (pattern.results.length > 0) {
+
+      pattern.results.sort(this.sorted);
+
+      if (this.currentPos === -1) {
+        this.patterns[index].position = pattern.results.length - 1;
+      } else {
+        this.patterns[index].position = this.getPrevPosition(this.currentPos, pattern.results);
+        if (this.patterns[index].position === -1) {
+          this.patterns[index].position = pattern.results.length - 1;
+        }
+      }
+
+      this.currentPos = pattern.results[this.patterns[index].position];
+      let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+      rows[this.currentPos].focus();
+    }
+  }
+
+  getNextPosition(element: number, array: Array<number>) {
+    let i: number;
+    for (i = 0; i < array.length; i++) {
+      if (element < array[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  getPrevPosition(element: number, array: Array<number>) {
+    let i: number;
+    for (i = array.length; i >= 0; i--) {
+      if (element > array[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  sorted(a: number, b: number) {
+    return a - b;
+  }
+
+  getSearchTableRows() {
+    return document.getElementById('dataTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+  }
 }

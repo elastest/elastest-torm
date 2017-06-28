@@ -10,7 +10,7 @@
       <md-card-content class="push-bottom-none">
         <form #logManagerForm="ngForm">
           <div layout="row">
-            <md-input-container flex-gt-xs="20">
+            <md-input-container flex-gt-xs="25">
               <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" (change)="updateUrlElastic($event)"
                 placeholder="ElasticSearch Url" name="urlElastic" required>
             </md-input-container>
@@ -24,7 +24,7 @@
               <input mdInput type="text" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName" value="" readonly name="clusterName">
             </md-input-container>-->
 
-            <md-input-container flex-gt-xs="20" flex-offset-gt-sm="5">
+            <md-input-container flex-gt-xs="25" flex-offset-gt-sm="5">
               <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" placeholder="Index"
                 name="indexName" required>
             </md-input-container>
@@ -36,23 +36,22 @@
           </div>
 
           <div layout="row" class="push-top">
-            <md-radio-group flex-gt-xs="25">
+            <md-radio-group flex-gt-xs="30">
               <md-card-subtitle>Range</md-card-subtitle>
               <div layout="row">
                 <md-radio-button value="false" name="typeSearch" (click)="setUseTail(false)" checked="checked">
                   <div layout="row">
-                    <div class="radio-button-title" flex-gt-xs="10">By Date</div>
-                    <md-input-container flex-gt-xs="40" flex-offset-gt-xs="10">
+                    <div class="radio-button-title" flex-gt-xs="5">By Date</div>
+                    <md-input-container flex-gt-xs="35" flex-offset-gt-xs="10">
                       <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
                         step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
                     </md-input-container>
-                    <md-datepicker #pickerFrom></md-datepicker>
-                    <md-input-container flex-gt-xs="40" flex-offset-gt-xs="10">
+
+                    <md-input-container flex-gt-xs="35" flex-offset-gt-xs="15">
                       <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
                         step=1 required>
                       <button mdSuffix [mdDatepickerToggle]="picker"></button>
                     </md-input-container>
-                    <md-datepicker #pickerTo></md-datepicker>
                   </div>
                 </md-radio-button>
               </div>
@@ -100,7 +99,7 @@
             <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
             <button md-button *ngIf="showClearData" (click)="clearData()">Clear Data
             </button>
-            <button md-button *ngIf="showGrid && !showPauseTail" class="btn btn-sm" (click)="copyToClipboard()">
+            <button md-button *ngIf="showGrid && !showPauseTail" (click)="copyToClipboard()">
               Copy to Clipboard <br/> Share this search
             </button>
           </div>
@@ -114,8 +113,54 @@
   </div>
 </div>
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-
-  <div flex-gt-xs="100">
+  <div flex-gt-xs="20">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Filter Results
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <div *ngIf="!dataTable.hasData">
+          There are not search results to filter
+        </div>
+        <div *ngIf="dataTable.hasData">
+          <div class="push-top push-bottom" layout="row">
+            <button md-raised-button (click)="addPattern()">Add pattern</button>
+          </div>
+          <div class="push-top push-bottom">
+            <div *ngFor="let pattern of patterns; let i = index" layout="row" class="push-top push-bottom">
+              <md-list-item flex-gt-xs="100">
+                <div md-line>
+                  <md-input-container>
+                    <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message">
+                  </md-input-container>
+                  <label flex-offset-gt-xs="5">Found {{pattern.results.length}}</label>
+                  <button md-icon-button [md-menu-trigger-for]="menu" style="float: right;">
+                  <md-icon>more_vert</md-icon>
+                </button>
+                  <md-menu x-position="before" #menu="mdMenu">
+                    <button md-button (click)="removePattern(i)" aria-label="close"><md-icon>delete</md-icon> Delete</button>
+                  </md-menu>
+                </div>
+                <div md-line>
+                  <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color">
+                  <button md-raised-button (click)="prev(i)" flex-offset-gt-xs="10">Prev</button>
+                  <button md-raised-button (click)="next(i)">Next</button>
+                </div>
+              </md-list-item>
+            </div>
+            <md-divider></md-divider>
+          </div>
+          <div class="push-top" *ngIf="(patterns.length > 0)" layout="row">
+            <button md-raised-button color="accent" (click)="searchByPatterns()">Search</button>
+            <button md-raised-button (click)="clearPatterns()">Clear</button>
+            <button md-raised-button (click)="removeAllPatterns()">Remove all</button>
+          </div>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div flex-gt-xs="80">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         Search Results
@@ -127,7 +172,7 @@
           flex>
         </td-search-box>
         <md-divider></md-divider>
-        <td-data-table #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="true"
+        <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="false"
           [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="onRowClicked($event)">
         </td-data-table>
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
