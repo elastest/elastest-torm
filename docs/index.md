@@ -31,58 +31,59 @@ To use ElasTest and run your first test, you need to create at least one project
 
 - **Create Project.** To do this, you can use the API provided by the elastest-torm application, use the GUI of elastest-torm or insert them directly into DDBB. 
     - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST` and fill in the field `body` with the next JSON.
-    ```json
-    {
-        "id": "0",
-        "name": "projectX"
-    }
-    ```
-    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
-    ```json
-    {
-        "tojobs": null,
-        "tjobs": null,
-        "id": 1,
-        "name": "prjectX",
-        "suts": null
-    }
-    ```
+        ```json
+        {
+            "id": "0",
+            "name": "projectX"
+        }
+        ```
+        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+
+        ```json
+        {
+            "tojobs": null,
+            "tjobs": null,
+            "id": 1,
+            "name": "prjectX",
+            "suts": null
+        }
+        ```
     - *Using TORM GUI.* Go to http://localhost:8091/index.html and create a project from project management.
 
-    ![ElasTest TORM Project Management](imgs/project-management.png)
+        ![ElasTest TORM Project Management](imgs/project-management.png)
 
     - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
 
-    ```sql
-    INSERT INTO `elastest-etm`.`Project` (name) VALUES ('name');
-    ```
+        ```sql
+        INSERT INTO `elastest-etm`.`Project` (name) VALUES ('name');
+        ```
 
 - **Create TJob.** To do this, you can use the API provided by the elastest-torm application, or insert them directly into DDBB.
 
     - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob/createTJobUsingPOST`and fill in the field `body` with the next JSON.
-    ```json
-    {
-        "id": 0,
-        "imageName": "edujgurjc/torm-test-01",
-        "name": "testApp1",
-        "project": { "id": 1 }
-    }
-    ```
-    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
-    ```json
-    {
-        "project": {},
-        "id": 4,
-        "name": "testApp1",
-        "imageName": "edujgurjc/torm-test-01",
-        "sut": null
-    }
-    ```
+        ```json
+        {
+            "id": 0,
+            "imageName": "edujgurjc/torm-test-01",
+            "name": "testApp1",
+            "project": { "id": 1 }
+        }
+        ```
+        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+        ```json
+        {
+            "project": {},
+            "id": 4,
+            "name": "testApp1",
+            "imageName": "edujgurjc/torm-test-01",
+            "sut": null
+        }
+        ```
     - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
 
-    ```sql
-    INSERT INTO `elastest-etm`.`TJob` (`image_name`,`name`,`project`) VALUES ('image_name', 'name', 1);
-    ```
+        ```sql
+        INSERT INTO `elastest-etm`.`TJob` (`image_name`,`name`,`project`) VALUES ('image_name', 'name', 1);
+        ```
     A TJob by itself does nothing, needs to be associated with a test, by the image name, as you can see above in the TJob json. To this day, the test needs to be contained by a docker image. To build a simple Docker image of a test, you only need the following:
     - A Java proyect with one JUnit Test at least.
     - A Docker file with the instrucctions to execute the JUnit test.
@@ -101,19 +102,19 @@ To use ElasTest and run your first test, you need to create at least one project
     
     - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob_execution/execTJobUsingPOST` and fill in the field `tJobId` with the id of a TJob.
 
-    Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
-    ```json
-    {
-        "id": 10,
-        "duration": 0,
-        "result": "IN PROGRESS",
-        "sutExecution": null,
-        "error": null
-    }
-    ```
+        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+        ```json
+        {
+            "id": 10,
+            "duration": 0,
+            "result": "IN PROGRESS",
+            "sutExecution": null,
+            "error": null
+        }
+        ```
     - *Using TORM GUI.* From Dashboard page, you can execute a TJob and monitorize the logs and metrics generated during this execution. Fill in the TJob fild with a valid TJob id and click on execute button. 
 
-    ![Execute TJob](imgs/TJobExecution.jpg)   
+        ![Execute TJob](imgs/TJobExecution.jpg)   
 
 ## Development documentation
 
