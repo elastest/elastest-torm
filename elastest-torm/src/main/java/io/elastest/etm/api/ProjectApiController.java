@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.Project.BasicAttProject;
 import io.elastest.etm.service.project.ProjectService;
+import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 
 @RestController
@@ -24,6 +25,8 @@ public class ProjectApiController implements ProjectApi {
 	
 	@Autowired
 	ProjectService projectService;
+
+	private UtilTools utilTools = new UtilTools();
 
 	@CrossOrigin(origins = {"http://localhost:4200"})		
 	public ResponseEntity<Project> createProject(@ApiParam(value = "Project object that needs to create" ,required=true )@Valid @RequestBody Project body) {
@@ -57,5 +60,16 @@ public class ProjectApiController implements ProjectApi {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);			
 		}		
 	}
+	
+	@CrossOrigin(origins = {"http://localhost:4200"})
+	@JsonView(BasicAttProject.class)
+    public ResponseEntity<Long> deleteProject(@ApiParam(value = "ID of Project to delete.",required=true ) @PathVariable("projectId") Long projectId) {
+    	try{
+    		projectService.deleteProject(projectId);
+    		return new ResponseEntity<Long>(projectId, HttpStatus.OK);
+    	}catch (Exception e) {
+    		return new ResponseEntity<Long>(projectId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+    }
 
 }

@@ -51,5 +51,14 @@ public interface ProjectApi {
     ResponseEntity<Project> getProject(@ApiParam(value = "Project id." ,required=true )  @PathVariable("id") Long id);
 	
 	
+	@ApiOperation(value = "Deletes a Project.", notes = "Delete the Project that matches with a given a ProjectId.", response = Long.class, tags={ "Project", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Deleteted successful", response = Long.class),
+        @ApiResponse(code = 404, message = "Project not found", response = Long.class) })
+    
+    @RequestMapping(value = "/project/{projectId}",
+        method = RequestMethod.DELETE)
+    ResponseEntity<Long> deleteProject(@ApiParam(value = "ID of project to delete.",required=true ) @PathVariable("projectId") Long projectId);
+	
 
 }

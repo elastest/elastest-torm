@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 
 import javax.validation.Valid;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Controller
@@ -28,108 +29,115 @@ public class TjobApiController implements TjobApi {
 
 	@Autowired
 	private TJobService tJobService;
-	
+
 	private UtilTools utilTools = new UtilTools();
 
+	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJob.class)
-    public ResponseEntity<TJob> createTJob(@ApiParam(value = "Tjob object that needs to create" ,required=true )  @Valid @RequestBody TJob body) {
-    	try{
-    		TJob tJob = tJobService.createTJob(body);
-    		return new ResponseEntity<TJob>(tJob ,HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    		return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+	public ResponseEntity<TJob> createTJob(
+			@ApiParam(value = "Tjob object that needs to create", required = true) @Valid @RequestBody TJob body) {
+		try {
+			TJob tJob = tJobService.createTJob(body);
+			return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
-    }
+	}
 
+	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJob.class)
-    public ResponseEntity<Long> deleteTJob(@ApiParam(value = "ID of tJob to delete.",required=true ) @PathVariable("tJobId") Long tJobId) {
-    	try{
-    		tJobService.deleteTJob(tJobId);
-    		return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
-    	}catch (Exception e) {
-    		return new ResponseEntity<Long>(tJobId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+	public ResponseEntity<Long> deleteTJob(
+			@ApiParam(value = "ID of tJob to delete.", required = true) @PathVariable("tJobId") Long tJobId) {
+		try {
+			tJobService.deleteTJob(tJobId);
+			return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<Long>(tJobId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
-    }
+	}
+
+	@CrossOrigin(origins = { "http://localhost:4200" })
+	@JsonView(BasicAttTJobExec.class)
+	public ResponseEntity<Long> deleteTJobExecution(
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+			@ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+		try {
+			tJobService.deleteTJobExec(tJobExecId);
+			return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<Long>(tJobExecId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+	}
+
+	@CrossOrigin(origins = { "http://localhost:4200" })
+	@JsonView(BasicAttTJobExec.class)
+	public ResponseEntity<TJobExecution> execTJob(
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
+		try {
+			TJobExecution tJobExec = tJobService.executeTJob(tJobId);
+			return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+	}
+
+	@CrossOrigin(origins = { "http://localhost:4200" })
+	@JsonView(BasicAttTJob.class)
+	public ResponseEntity<List<TJob>> getAllTJobs() {
+		try {
+			List<TJob> tjobList = tJobService.getAllTJobs();
+			return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<TJob>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+	}
+
+	@CrossOrigin(origins = { "http://localhost:4200" })
+	@JsonView(BasicAttTJob.class)
+	public ResponseEntity<TJob> getTJobById(
+			@ApiParam(value = "ID of tJob to retrieve.", required = true) @PathVariable("tJobId") Long tJobId) {
+		try {
+			TJob tJob = tJobService.getTJobById(tJobId);
+			return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+		}
+	}
 
 	@JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<Long> deleteTJobExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
-        @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
-    	try{
-    		tJobService.deleteTJobExec(tJobExecId);
-    		return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    		return new ResponseEntity<Long>(tJobExecId, HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+	public ResponseEntity<TJobExecution> getTJobsExecution(
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+			@ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+		try {
+			TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId, tJobExecId);
+			return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
-    }
+	}
 
-	@CrossOrigin(origins = {"http://localhost:4200"})
+	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
-    	try{
-    		TJobExecution tJobExec = tJobService.executeTJob(tJobId);
-	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    		return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+	public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
+		try {
+			List<TJobExecution> tjobExecList = tJobService.getTJobsExecutionsByTJobId(tJobId);
+			return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<TJobExecution>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
-    }
+	}
 
+	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJob.class)
-    public ResponseEntity<List<TJob>> getAllTJobs() {
-    	try{
-    		List<TJob> tjobList = tJobService.getAllTJobs();
-	        return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    		return new ResponseEntity<List<TJob>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
+	public ResponseEntity<TJob> modifyTJob(
+			@ApiParam(value = "Tjob object that needs to modify.", required = true) @Valid @RequestBody TJob body) {
+		try {
+			TJob tJob = tJobService.modifyTJob(body);
+			return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
 		}
-    }
-
-	@JsonView(BasicAttTJob.class)
-	public ResponseEntity<TJob> getTJobById(@ApiParam(value = "ID of tJob to retrieve.",required=true ) @PathVariable("tJobId") Long tJobId) {
-    	try{
-    		TJob tJob = tJobService.getTJobById(tJobId);
-	        return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-	        return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
-		}
-    }
-
-	@JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<TJobExecution> getTJobsExecution(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId,
-        @ApiParam(value = "TJob Execution Id.",required=true ) @PathVariable("tJobExecId") Long tJobExecId) {
-    	try{
-    		TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId, tJobExecId);
-	        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    	    return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
-		}
-    }
-
-	@JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId) {
-        try{
-        	List<TJobExecution> tjobExecList = tJobService.getTJobsExecutionsByTJobId(tJobId);
-	        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
-        }
-        catch (Exception e) {
-        	return new ResponseEntity<List<TJobExecution>>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
-		}
-    }
-
-	@JsonView(BasicAttTJob.class)
-    public ResponseEntity<TJob> modifyTJob(@ApiParam(value = "Tjob object that needs to modify." ,required=true )  @Valid @RequestBody TJob body) {
-    	try{
-    		TJob tJob = tJobService.modifyTJob(body);
-    		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
-    	}
-    	catch (Exception e) {
-    		return new ResponseEntity<TJob>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));
-		} 
-    }
+	}
 
 }

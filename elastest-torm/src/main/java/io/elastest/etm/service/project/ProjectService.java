@@ -26,4 +26,9 @@ public class ProjectService {
 	public List<Project> getAllProjects(){
 		return projectRepository.findAll();
 	}
+	
+	public void deleteProject(Long projectId) {
+		Project project = projectRepository.findOne(projectId);
+		projectRepository.delete(project);
+	}
 }
