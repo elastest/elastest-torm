@@ -53,8 +53,7 @@ public class DockerService {
 
 	/* Config Methods */
 
-	public void configureDocker(DockerExecution dockerExec) {
-		logger.info("Url docker: "+ utilTools.getDockerHostUrlOnWin());
+	public void configureDocker(DockerExecution dockerExec) {		
 		
 		if (windowsSO.toLowerCase().contains("win")) {
 
