@@ -20,11 +20,10 @@ node('docker'){
                 
             stage "Prepare docker-compose"
                 echo ("Preparing..")                
-				sh 'cd ./elastest-torm; cp ./target/elastest*OT.jar ../docker/elastest-torm'
+				sh 'cd ./elastest-torm; cp ./target/elastest*SNAPSHOT.jar ../docker/elastest-torm'
                 
             stage "Run docker-compose"
-                echo ("docker compose..")
-                sh 'ls -la;'// cd ./docker; ls -la'
+                echo ("docker compose..")                
                 sh 'docker-compose -f docker-compose-ci.yml up -d --build'
            
 			stage "Integration Test"

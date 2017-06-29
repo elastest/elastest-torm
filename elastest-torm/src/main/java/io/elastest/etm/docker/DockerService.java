@@ -39,10 +39,7 @@ public class DockerService {
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
 	
 	private String testImage = "";
-	
-	
-
-
+		
 	@Autowired
 	private SutService sutService;
 	
@@ -81,67 +78,12 @@ public class DockerService {
 			logger.info("Execute on Linux.");
 			//dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(getHostIp()).build();
+					.withDockerHost("tcp://172.17.0.1:2376").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
 		
-	public boolean isRunningInContainer() {
-	    return isRunningInContainerInternal();
-	  }
-
-	  private static synchronized boolean isRunningInContainerInternal() {
-
-	    if (isRunningInContainer == null) {
-
-	      try (BufferedReader br =
-	          Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
-
-	        String line = null;
-	        while ((line = br.readLine()) != null) {
-	          if (!line.endsWith("/")) {
-	            return true;
-	          }
-	        }
-	        isRunningInContainer = false;
-
-	      } catch (IOException e) {
-	        isRunningInContainer = false;
-	      }
-	    }
-
-	    return isRunningInContainer;
-	  }
-
-	  private static synchronized String getHostIp() {
-
-	    if (hostIp == null) {
-
-	      if (isRunningInContainerInternal()) {
-
-	        try {
-
-	          String ipRoute = Shell.runAndWait("sh", "-c", "/sbin/ip route");
-
-	          String[] tokens = ipRoute.split("\\s");
-
-	          hostIp = tokens[2];
-
-	        } catch (Exception e) {
-	          throw new DockerClientException("Exception executing /sbin/ip route", e);
-	        }
-
-	      } else {
-	        hostIp = "127.0.0.1";
-	      }
-	    }
-
-	    logger.debug("Host IP is {}", hostIp);
-
-	    return hostIp;
-	  }
-	
-	
+		
 
 	public void createNetwork(DockerExecution dockerExec) {
 		dockerExec.generateNetwork();

@@ -5,14 +5,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.github.dockerjava.api.exception.DockerClientException;
+
 @Component
 public class UtilTools {
+	private static final Logger logger = LoggerFactory.getLogger(UtilTools.class);
+	
+	private static Boolean isRunningInContainer;	
+	private static String hostIp;
 	
 	@Value ("${os.name}")
 	private String windowsSO;
@@ -86,6 +97,62 @@ public class UtilTools {
 		
 		return dockerHostIp;
 	}
+	
+	
+	public boolean isRunningInContainer() {
+	    return isRunningInContainerInternal();
+	  }
+
+	  private static synchronized boolean isRunningInContainerInternal() {
+
+	    if (isRunningInContainer == null) {
+
+	      try (BufferedReader br =
+	          Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
+
+	        String line = null;
+	        while ((line = br.readLine()) != null) {
+	          if (!line.endsWith("/")) {
+	            return true;
+	          }
+	        }
+	        isRunningInContainer = false;
+
+	      } catch (IOException e) {
+	        isRunningInContainer = false;
+	      }
+	    }
+
+	    return isRunningInContainer;
+	  }
+
+	  private static synchronized String getHostIp() {
+
+	    if (hostIp == null) {
+
+	      if (isRunningInContainerInternal()) {
+
+	        try {
+
+	          String ipRoute = Shell.runAndWait("sh", "-c", "/sbin/ip route");
+
+	          String[] tokens = ipRoute.split("\\s");
+
+	          hostIp = tokens[2];
+
+	        } catch (Exception e) {
+	          throw new DockerClientException("Exception executing /sbin/ip route", e);
+	        }
+
+	      } else {
+	        hostIp = "127.0.0.1";
+	      }
+	    }
+
+	    logger.debug("Host IP is {}", hostIp);
+
+	    return hostIp;
+	  }
 	
 	
 	public String getDockerHostIp(){		
