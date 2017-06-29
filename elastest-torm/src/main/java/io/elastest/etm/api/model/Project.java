@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.TJob.BasicAttTJob;
+import io.elastest.etm.api.model.SutSpecification.SutView;
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
@@ -28,7 +29,7 @@ public class Project implements Serializable {
 	}
 
 	
-	@JsonView({ BasicAttProject.class, BasicAttTJob.class })
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")

@@ -8,6 +8,7 @@ import { ProjectFormComponent } from './elastest-etm/project/project-form/projec
 import { ProjectsManagerComponent } from './elastest-etm/project/projects-manager/projects-manager.component';
 import { SutsManagerComponent } from './elastest-etm/sut/suts-manager/suts-manager.component';
 import { TJobFormComponent } from './elastest-etm/tjob/tjob-form/tjob-form.component';
+import { SutFormComponent } from './elastest-etm/sut/sut-form/sut-form.component';
 import { TJobsManagerComponent } from './elastest-etm/tjob/tjobs-manager/tjobs-manager.component';
 import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
@@ -39,7 +40,7 @@ const routes: Routes = [
                         path: '',
                         component: TJobsManagerComponent,
                     },
-                                        {
+                    {
                         path: 'edit/:id',
                         component: TJobFormComponent,
                     },
@@ -75,8 +76,21 @@ const routes: Routes = [
                 ]
             },
             {
-                path: 'sut-management',
-                component: SutsManagerComponent,
+                path: 'suts-management',
+                children: [
+                    {
+                        path: '',
+                        component: SutsManagerComponent,
+                    },
+                    {
+                        path: 'edit/:id',
+                        component: SutFormComponent,
+                    },
+                    {
+                        path: 'edit',
+                        component: SutFormComponent,
+                    },
+                ]
             },
             {
                 path: 'etm-app',
@@ -110,5 +124,5 @@ export const routedComponents: any[] = [
     UsersComponent, UsersFormComponent,
     TJobsManagerComponent, ProjectsManagerComponent,
     SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
-    TJobFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
+    TJobFormComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
 ];

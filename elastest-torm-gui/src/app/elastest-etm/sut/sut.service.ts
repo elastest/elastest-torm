@@ -38,8 +38,10 @@ export class SutService {
     return sutsDataToTable;
   }
 
-  public getSut() {
-
+  public getSut(id: number) {
+    let url = ETM_API + '/sut/' + id;
+    return this.http.get(url)
+      .map(response => this.transformToSutmodel(response.json()));
   }
 
   public createSut(sut: SutModel) {

@@ -1,0 +1,32 @@
+<md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
+  <md-card-title>
+    Test Run Suts
+  </md-card-title>
+  <md-divider></md-divider>
+  <md-card-content class="push-bottom-none">
+    <form #sutForm="ngForm">
+      <div layout="row" class="push-top push-bottom">
+        <md-input-container flex>
+          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut Name" [(ngModel)]="sut.name" name="sutName" required>
+        </md-input-container>
+      </div>
+      <div layout="row" class="push-top push-bottom">
+        <md-input-container flex>
+          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut Description" [(ngModel)]="sut.description"
+            name="sutDesc" required>
+        </md-input-container>
+      </div>
+      <div layout="row" class="push-top push-bottom">
+        <md-input-container flex>
+          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut GitHub App Repository" [(ngModel)]="sut.specification"
+            name="sutRepo" required>
+        </md-input-container>
+      </div>
+    </form>
+  </md-card-content>
+  <md-divider></md-divider>
+  <md-card-actions>
+    <button md-button [disabled]="!sutForm.valid" color="primary" (click)="save()">SAVE</button>
+    <button md-button color="primary" (click)="cancel()">CANCEL</button>
+  </md-card-actions>
+</md-card>

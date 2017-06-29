@@ -240,6 +240,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     });
   }
 
+
   // Suts functions
   createSut() {
     let sut: SutModel = new SutModel();
@@ -264,7 +265,9 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.newSutDesc = '';
   }
 
-  editSut() { }
+  editSut(sut: SutModel) {
+    this.router.navigate(['/suts-management/edit', sut.id]);
+  }
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
       message: 'Sut ' + sut.id + ' will be deleted with all SuT Executions, do you want to continue? (SuT only will be deleted if hasn\'t associated TJobs)',
