@@ -1,6 +1,8 @@
 import { Router } from '@angular/router';
 import { SutModel } from '../../sut/sut-model';
+import { SutService } from '../../sut/sut.service';
 import { TJobModel } from '../../tjob/tjob-model';
+import { TJobService } from '../../tjob/tjob.service';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
 import { Title } from '@angular/platform-browser';
@@ -41,7 +43,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   projectChildsActived: boolean = false;
-  projectSelected: string = '';
+  projectSelected: ProjectModel = undefined;
 
   // SuT Data
   sutColumns: any[] = [
@@ -65,10 +67,23 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   tjobData: TJobModel[] = [];
 
+  // Create TJob
+  newTJobName: string = '';
+  newTJobImage: string = '';
+  sutEmpty: SutModel = new SutModel();
+  selectedSut: SutModel = this.sutEmpty;
+
+  // Create SuT
+  newSutName: string = '';
+  newSutRepo: string = '';
+  newSutDesc: string = '';
+
+
 
   constructor(private _titleService: Title,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef) { }
+    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    private tJobService: TJobService, private sutService: SutService) { }
 
   ngOnInit() {
     this.loadProjects();
@@ -81,12 +96,18 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     );
   }
 
+  reloadProjects() {
+    this.projectService.getProjects()
+      .subscribe(
+      (projects) => {
+        this.prepareDataTable(projects);
+        this.projectSelected = this.projectData.find((project) => project.id === this.projectSelected.id);
+        this.showProjectChildsByProject(this.projectSelected);
+      },
+    );
+  }
+
   prepareDataTable(projects: ProjectModel[]) {
-    // console.log("Retrived Projects:" + projects);
-    // for (let pro of projects) {
-    //   console.log(pro.name);
-    //   console.log(pro.suts);
-    // }
     this.projectData = projects;
     this.filteredData = this.projectData;
     this.filteredTotal = this.projectData.length;
@@ -150,14 +171,105 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   showProjectChilds(event: ITdDataTableRowClickEvent) {
-    let project: ProjectModel = event.row;
-    this.projectChildsActived = true;
-    this.projectSelected = project.name;
-    this.sutData = project.suts;
-    this.tjobData = project.tjobs;
+    this.showProjectChildsByProject(event.row);
   }
 
-  createTJob(){
-    
+  showProjectChildsByProject(project: ProjectModel) {
+    this.projectChildsActived = true;
+    this.projectSelected = project;
+    this.sutData = project.suts;
+    this.tjobData = project.tjobs;
+    this.clearTJobForm();
   }
+
+  // TJobs functions
+
+  createTJob() {
+    let tJob: TJobModel = new TJobModel();
+    tJob.name = this.newTJobName;
+    tJob.imageName = this.newTJobImage;
+    if (this.selectedSut.id > 0) {
+      tJob.sut = this.selectedSut;
+    }
+    tJob.project = this.projectSelected;
+
+    this.tJobService.createTJob(tJob).subscribe(
+      (tJob) => {
+        this.reloadProjects();
+        this.clearTJobForm();
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  clearTJobForm() {
+    this.newTJobName = ''
+    this.newTJobImage = '';
+    this.selectedSut = this.sutEmpty;
+  }
+
+  editTJob() { }
+  deleteTJob(tJob: TJobModel) {
+    let iConfirmConfig: IConfirmConfig = {
+      message: 'TJob ' + tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
+      disableClose: false,
+      viewContainerRef: this._viewContainerRef,
+      title: 'Confirm',
+      cancelButton: 'Cancel',
+      acceptButton: 'Yes, delete',
+    };
+    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
+      if (accept) {
+        this.tJobService.deleteTJob(tJob).subscribe(
+          (tJob) => this.reloadProjects(),
+          (error) => console.log(error)
+        );
+      }
+    });
+  }
+
+  // Suts functions
+  createSut() {
+    let sut: SutModel = new SutModel();
+    sut.name = this.newSutName;
+    sut.specification = this.newSutRepo;
+    sut.description = this.newSutDesc;
+
+    sut.project = this.projectSelected;
+
+    this.sutService.createSut(sut).subscribe(
+      (tJob) => {
+        this.reloadProjects();
+        this.clearSutForm();
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  clearSutForm() {
+    this.newSutName = '';
+    this.newSutRepo = '';
+    this.newSutDesc = '';
+  }
+  editSut() { }
+  deleteSut(sut: SutModel) {
+    let iConfirmConfig: IConfirmConfig = {
+      message: 'Sut ' + sut.id + ' will be deleted with all SuT Executions, associated TJobs and their TJob executions, do you want to continue?',
+      disableClose: false,
+      viewContainerRef: this._viewContainerRef,
+      title: 'Confirm',
+      cancelButton: 'Cancel',
+      acceptButton: 'Yes, delete',
+    };
+    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
+      if (accept) {
+        this.sutService.deleteSut(sut).subscribe(
+          (sut) => this.reloadProjects(),
+          (error) => console.log(error)
+        );
+      }
+    });
+  }
+
+
 }

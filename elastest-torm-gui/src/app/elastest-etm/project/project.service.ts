@@ -24,7 +24,6 @@ export class ProjectService {
     projectDataToTable.name = project.name;
     projectDataToTable.suts = project.suts;
     projectDataToTable.tjobs = project.tjobs;
-
     return projectDataToTable;
   }
 
@@ -48,7 +47,7 @@ export class ProjectService {
   }
 
   public deleteProject(project: ProjectModel) {
-    let url = ETM_API + '/project/'+ project.id;
+    let url = ETM_API + '/project/' + project.id;
     return this.http.delete(url)
       .map(response => response.json());
   }

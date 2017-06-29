@@ -3,6 +3,7 @@ package io.elastest.etm.api.model;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -49,7 +50,7 @@ public class SutSpecification {
 	private String description = null;
 			
 	@JsonProperty("sutExecution")
-	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy="sutSpecification", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<SutExecution> sutExecution = null;
 
 	@JsonView(SutView.class)

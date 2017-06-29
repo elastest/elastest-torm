@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.Project.BasicAttProject;
+import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,7 +30,7 @@ public class TJob {
 	
 	public interface BasicAttTJob {
 	}
-	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class, BasicAttTJobExec.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
@@ -57,8 +59,8 @@ public class TJob {
 	private SutSpecification sut = null;
 		
 	//bi-directional many-to-one association to TJobExec
-	@JsonView(BasicAttTJob.class)
-	@OneToMany(mappedBy="tJob")
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
+	@OneToMany(mappedBy="tJob", cascade = CascadeType.REMOVE)
 	private List<TJobExecution> tjobExecs;
 	
 	//bi-directional many-to-one association to Project

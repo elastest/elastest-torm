@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -39,19 +40,19 @@ public class Project implements Serializable {
 	@JsonView(BasicAttProject.class)
 	@JsonProperty("tjobs")
 	//bi-directional many-to-one association to TJob
-	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<TJob> tJobs;
 	
 	@JsonView(BasicAttProject.class)
 	@JsonProperty("tojobs")
 	//bi-directional many-to-one association to ElasEtmTjobexec
-	@OneToMany(mappedBy="project", fetch=FetchType.LAZY )
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<TOJob> tOJobs;
 	
 	@JsonView(BasicAttProject.class)
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
-	@OneToMany(mappedBy="project", fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<SutSpecification> suts;
 	
 	public Project() {}

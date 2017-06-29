@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.Project.BasicAttProject;
 import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -35,35 +37,35 @@ public class TJobExecution {
 	public interface BasicAttTJobExec {
 	}
 
-	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Column(name="duration")
 	@JsonProperty("duration")
 	private Long duration = null;
 	
-	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Column(name="result")
 	@JsonProperty("result")
 	private ResultEnum result = null;
 
-	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@OneToOne (fetch = FetchType.LAZY)
 	@JoinColumn(name="sut_execution")
 	@JsonProperty("sutExecution")
 	private SutExecution sutExecution = null;
 
-	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class })
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Column(name="error")
 	@JsonProperty("error")
 	private String error = null;
-
-	@OneToMany(mappedBy="tJobExec")
+	
+	@OneToMany(mappedBy="tJobExec", cascade = CascadeType.REMOVE)
 	private List<Log> logs = null;
 	
 	//bi-directional many-to-one association to Tjob

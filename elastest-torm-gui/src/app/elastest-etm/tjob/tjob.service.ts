@@ -1,8 +1,10 @@
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobModel } from './tjob-model';
+import { TJobExecModel } from './tjobExec-model';
 import { ETM_API } from '../../../config/api.config';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 
 @Injectable()
@@ -12,10 +14,10 @@ export class TJobService {
   public getTJobs() {
     let url = ETM_API + '/tjob';
     return this.http.get(url)
-      .map((response) => this.transformDataToDataTable(response.json()));
+      .map((response) => this.transformTJobDataToDataTable(response.json()));
   }
 
-  transformDataToDataTable(tjobs: any[]) {
+  transformTJobDataToDataTable(tjobs: any[]) {
     let tjobsDataToTable: TJobModel[] = [];
     for (let tjob of tjobs) {
       tjobsDataToTable.push(this.transformToTjobmodel(tjob));
@@ -31,6 +33,8 @@ export class TJobService {
     tjobsDataToTable.name = tjob.name;
     tjobsDataToTable.imageName = tjob.imageName;
     tjobsDataToTable.sut = tjob.sut;
+    tjobsDataToTable.project = tjob.project;
+    tjobsDataToTable.tjobExecs = tjob.tjobExecs;
 
     return tjobsDataToTable;
   }
@@ -49,9 +53,13 @@ export class TJobService {
 
   }
 
-  public deleteTJob() {
-
+  public deleteTJob(tJob: TJobModel) {
+    let url = ETM_API + '/tjob/' + tJob.id;
+    return this.http.delete(url)
+      .map((response) => response.json());
   }
+
+  //  TJobExecution functions
 
   public runTJob(tJobId: number) {
     let url = ETM_API + '/tjob/' + tJobId + '/exec';
@@ -59,16 +67,43 @@ export class TJobService {
       .map((response) => response.json());
   }
 
-  public getTJobsExecutions() {
+  public getTJobsExecutions(tJob: TJobModel) {
+    let url = ETM_API + '/tjob/' + tJob.id + '/exec';
+    return this.http.get(url)
+      .map((response) => this.transformTJobExecDataToDataTable(response.json()));
+  }
 
+  transformTJobExecDataToDataTable(tjobExecs: any[]) {
+    let tjobExecsDataToTable: TJobExecModel[] = [];
+    for (let tjobExec of tjobExecs) {
+      tjobExecsDataToTable.push(this.transformToTjobExecmodel(tjobExec));
+    }
+    return tjobExecsDataToTable;
+  }
+
+
+  transformToTjobExecmodel(tjobExec: any) {
+    let tjobExecsDataToTable: TJobExecModel;
+
+    tjobExecsDataToTable = new TJobExecModel();
+    tjobExecsDataToTable.id = tjobExec.id;
+    tjobExecsDataToTable.duration = tjobExec.duration;
+    tjobExecsDataToTable.error = tjobExec.error;
+    tjobExecsDataToTable.result = tjobExec.result;
+    tjobExecsDataToTable.tJob = tjobExec.tjob;
+
+    return tjobExecsDataToTable;
   }
 
   public getTJobExecution(idTJobExecution: number) {
 
   }
 
-  public deleteTJobExecution(idTJobExecution: number) {
-
+  public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
+    let url = ETM_API + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
+    console.log("url: " + url);
+    return this.http.delete(url)
+      .map((response) => response.json());
   }
 
   private subscribeQueues(tjobExec: any) {
