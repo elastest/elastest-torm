@@ -5,7 +5,7 @@ The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTes
 ### Component arquitecture
 In the next diagram, you can to see The ElasTest TORM Components Architecture.
 
-![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture2.png)
+![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture.png)
 
 ## Features
 
