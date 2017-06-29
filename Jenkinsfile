@@ -1,17 +1,20 @@
 node('docker'){
     stage "Container Prep"
         echo("the node is up")
-        def mycontainer = docker.image('franciscordiaz/docker-in-docker-etm3')
+        def mycontainer = docker.image('franciscordiaz/docker-in-docker-etm5')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
             git 'https://github.com/elastest/elastest-torm.git'
             
-            stage "Build project"
-				echo ("Build project")
-				sh 'cd ./elastest-torm; ls -la; mvn clean -Pci package;'
+            stage "Build elastest-torm-gui"
+				echo ("Build elastest-torm-gui")
+				sh 'cd ./elastest-torm-gui; npm install; mvn clean package;'
+            
+            stage "Build elastes-torm"
+				echo ("Build elastest-torm")
+				sh 'cd ./elastest-torm; mvn clean -Pci package;'
 			
 			stage "Unit Test"
-                sh 'ls -la'
                 echo ("Starting maven tests")
                 echo ("No tests yet in this stage")
                 
