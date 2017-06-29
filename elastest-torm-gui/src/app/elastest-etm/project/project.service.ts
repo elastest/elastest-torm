@@ -28,10 +28,9 @@ export class ProjectService {
   }
 
   public getProject(id: string) {
-
     let url = ETM_API + '/project/' + id;
     return this.http.get(url)
-      .map(response => response.json());
+      .map(response => this.transformToProjectmodel(response.json()));
   }
 
   public getProjects() {
@@ -42,8 +41,12 @@ export class ProjectService {
 
   public createProject(project: ProjectModel) {
     let url = ETM_API + '/project';
-    return this.http.post(url, project)
+    return this.http.post(url, this.convertProjectToBackProject(project))
       .map(response => response.json());
+  }
+
+  public convertProjectToBackProject(project: ProjectModel){
+    return {"id":project.id, "name": project.name};
   }
 
   public deleteProject(project: ProjectModel) {

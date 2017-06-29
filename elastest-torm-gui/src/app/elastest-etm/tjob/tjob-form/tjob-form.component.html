@@ -5,27 +5,31 @@
   <md-divider></md-divider>
   <md-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
-      <div layout="row">
+      <div layout="row" class="push-top push-bottom">
         <md-input-container flex>
-          <input mdInput
-                  #tJobFormElement
-                  #tJobFormControl="ngModel" 
-                  type="text" 
-                  placeholder="TJob Id" 
-                  [(ngModel)]="idTJob" 
-                  name="tJobId" 
-                  maxlength="20" 
-                  required>
-          <md-hint align="start">
-            <span [hidden]="tJobFormControl.pristine || !tJobFormControl.errors?.required" class="tc-red-600">Required</span>
-          </md-hint>
-          <md-hint align="end">{{tJobFormElement.value.length}} / 20</md-hint>
+          <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name" name="tJobName"
+            maxlength="20" required>
         </md-input-container>
-      </div>    
+      </div>
+      <div layout="row" class="push-top push-bottom">
+        <md-input-container flex>
+          <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Image Name" [(ngModel)]="tJob.imageName"
+            name="tJobImageName" required>
+        </md-input-container>
+      </div>
+      <div layout="row" *ngIf="tJob.project"  class="push-top push-bottom">
+        <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
+          <md-option [value]="sutEmpty">None</md-option>
+          <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
+            {{sut.id}}
+          </md-option>
+        </md-select>
+      </div>
     </form>
-    </md-card-content>
-    <md-divider></md-divider>
-    <md-card-actions>
-      <button md-button [disabled]="!tJobForm.valid" color="primary" (click)="save()">SAVE</button>      
-    </md-card-actions>
-  </md-card>
+  </md-card-content>
+  <md-divider></md-divider>
+  <md-card-actions>
+    <button md-button [disabled]="!tJobForm.valid" color="primary" (click)="save()">SAVE</button>
+    <button md-button color="primary" (click)="cancel()">CANCEL</button>
+  </md-card-actions>
+</md-card>

@@ -2,6 +2,7 @@ import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobModel } from './tjob-model';
 import { TJobExecModel } from './tjobExec-model';
 import { ETM_API } from '../../../config/api.config';
+import { SutModel } from '../sut/sut-model';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
@@ -33,17 +34,26 @@ export class TJobService {
     tjobsDataToTable.name = tjob.name;
     tjobsDataToTable.imageName = tjob.imageName;
     tjobsDataToTable.sut = tjob.sut;
+    if (tjobsDataToTable.sut === undefined || tjobsDataToTable.sut === null || ((tjobsDataToTable.sut !== undefined && tjobsDataToTable.sut !== null) && tjobsDataToTable.sut.id === 0)) {
+      tjobsDataToTable.sut = new SutModel();
+    }
     tjobsDataToTable.project = tjob.project;
     tjobsDataToTable.tjobExecs = tjob.tjobExecs;
 
     return tjobsDataToTable;
   }
 
-  public getTJob() {
-
+  public getTJob(id: string) {
+    let url = ETM_API + '/tjob/' + id;
+    return this.http.get(url)
+      .map(response => this.transformToTjobmodel(response.json()));
   }
 
   public createTJob(tjob: TJobModel) {
+    if (tjob.sut !== undefined && tjob.sut.id === 0) {
+      tjob.sut = undefined;
+    }
+
     let url = ETM_API + '/tjob';
     return this.http.post(url, tjob)
       .map((response) => response.json());

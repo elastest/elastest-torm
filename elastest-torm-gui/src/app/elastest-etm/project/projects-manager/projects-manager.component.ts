@@ -208,7 +208,19 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.selectedSut = this.sutEmpty;
   }
 
-  editTJob() { }
+  runTJob(tJob: TJobModel) {
+    this.tJobService.runTJob(tJob.id)
+      .subscribe(
+      (tjobExecution) => {
+        console.log('TJobExecutionId:' + tjobExecution.id);
+        // this.createAndSubscribe(tjobExecution);
+      },
+      (error) => console.error('Error:' + error),
+    );
+  }
+  editTJob(tJob: TJobModel) {
+    this.router.navigate(['/tjobs-management/edit', tJob.id]);
+  }
   deleteTJob(tJob: TJobModel) {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob ' + tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
@@ -251,10 +263,11 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.newSutRepo = '';
     this.newSutDesc = '';
   }
+
   editSut() { }
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
-      message: 'Sut ' + sut.id + ' will be deleted with all SuT Executions, associated TJobs and their TJob executions, do you want to continue?',
+      message: 'Sut ' + sut.id + ' will be deleted with all SuT Executions, do you want to continue? (SuT only will be deleted if hasn\'t associated TJobs)',
       disableClose: false,
       viewContainerRef: this._viewContainerRef,
       title: 'Confirm',

@@ -64,6 +64,7 @@ public class TJob {
 	private List<TJobExecution> tjobExecs;
 	
 	//bi-directional many-to-one association to Project
+	@JsonView(BasicAttTJob.class)
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="project")
 	private Project project;

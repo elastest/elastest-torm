@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
@@ -25,8 +26,9 @@ public class Project implements Serializable {
 	
 	public interface BasicAttProject{
 	}
+
 	
-	@JsonView(BasicAttProject.class)
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
@@ -49,7 +51,7 @@ public class Project implements Serializable {
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<TOJob> tOJobs;
 	
-	@JsonView(BasicAttProject.class)
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)

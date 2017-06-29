@@ -40,7 +40,8 @@
                 <div class="push-top push-bottom" layout="row">
                     <md-list-item flex-gt-xs="100">
                         <div md-line>
-                            <md-input-container>
+                            <span>Add New TJob</span>
+                            <md-input-container flex-offset-gt-sm="5">
                                 <input mdInput [(ngModel)]="newTJobName" placeholder="TJob Name" required>
                             </md-input-container>
                             <md-input-container flex-offset-gt-sm="5">
@@ -63,6 +64,7 @@
                     [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
+                            <button md-button (click)="runTJob(row)" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
                             <button md-button (click)="editTJob(row)" title="Edit TJob"><md-icon>mode_edit</md-icon></button>
                             <button md-button (click)="deleteTJob(row)" title="Delete TJob"><md-icon>delete</md-icon></button>
                             <button md-button title="View TJob"><md-icon>remove_red_eye</md-icon></button>
@@ -83,14 +85,15 @@
                 <div class="push-top push-bottom" layout="row">
                     <md-list-item flex-gt-xs="100">
                         <div md-line>
-                            <md-input-container>
-                                <input mdInput [(ngModel)]="newSutName" placeholder="Sut Name" required>
+                            <span>Add New SuT</span>
+                            <md-input-container flex-offset-gt-sm="5">
+                                <input mdInput [(ngModel)]="newSutName" placeholder="SuT Name" required>
                             </md-input-container>
                             <md-input-container flex-offset-gt-sm="5">
                                 <input mdInput [(ngModel)]="newSutRepo" placeholder="GitHub App Repo" required>
                             </md-input-container>
                             <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newSutDesc" placeholder="Sut Description" required>
+                                <input mdInput [(ngModel)]="newSutDesc" placeholder="SuT Description" required>
                             </md-input-container>
                             <span flex-offset-gt-sm="5">
                                 <button md-raised-button color="accent" (click)="createSut()">Create SuT</button>

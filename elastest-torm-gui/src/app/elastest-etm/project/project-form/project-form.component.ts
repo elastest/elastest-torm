@@ -33,7 +33,7 @@ export class ProjectFormComponent implements OnInit {
     this.projectService.createProject(this.project)
     .subscribe(
       project => this.postSave(project),
-      error => console.log("Error creating project.")
+      error => console.log(error)
     );
 
   }
