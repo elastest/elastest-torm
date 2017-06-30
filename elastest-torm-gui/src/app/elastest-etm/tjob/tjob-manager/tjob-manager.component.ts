@@ -38,12 +38,12 @@ export class TjobManagerComponent implements OnInit {
 
   ngOnInit() {
     this.tJob = new TJobModel();
-    this.reloadTJobExec();
+    this.reloadTJob();
   }
 
-  reloadTJobExec() {
+  reloadTJob() {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['id']))
+      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
         .subscribe((tJob: TJobModel) => {
           this.tJob = tJob;
           if (this.tJob.sut.id === 0) {
@@ -67,7 +67,7 @@ export class TjobManagerComponent implements OnInit {
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
         this.tJobExecService.deleteTJobExecution(this.tJob, tJobExec).subscribe(
-          (tJob) => this.reloadTJobExec(),
+          (tJob) => this.reloadTJob(),
           (error) => console.log(error)
         );
       }

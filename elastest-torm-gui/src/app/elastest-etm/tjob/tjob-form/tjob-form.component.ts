@@ -23,7 +23,7 @@ export class TJobFormComponent implements OnInit {
   ngOnInit() {
     this.tJob = new TJobModel();
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['id']))
+      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
         .subscribe((tJob: TJobModel) => {
           this.tJob = tJob;
           if (this.tJob.sut.id === 0) {

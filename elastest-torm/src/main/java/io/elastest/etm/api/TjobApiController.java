@@ -104,6 +104,7 @@ public class TjobApiController implements TjobApi {
 		}
 	}
 
+	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJobExec.class)
 	public ResponseEntity<TJobExecution> getTJobsExecution(
 			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,

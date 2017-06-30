@@ -19,7 +19,7 @@ export class SutFormComponent implements OnInit {
   ngOnInit() {
     this.sut = new SutModel();
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.sutService.getSut(params['id']))
+      this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
         .subscribe((sut: SutModel) => {
           this.sut = sut;
         });

@@ -19,7 +19,7 @@ export class ProjectFormComponent implements OnInit {
     this.project = new ProjectModel();
     if (this.route.params !== null || this.route.params !== undefined){
       console.log('ENTRAMOS EN MODO EDICIÓN.')
-      this.route.params.switchMap((params: Params) => this.projectService.getProject(params['id']))
+      this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
       .subscribe ((project: ProjectModel) => this.project = project);
     }
     

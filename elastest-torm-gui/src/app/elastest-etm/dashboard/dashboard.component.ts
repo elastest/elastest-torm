@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { Subscription } from 'rxjs/Rx';
 
 import { AlertsService, ItemsService, ProductsService, UsersService } from '../../../services';
 import { StompWSManager } from '../stomp-ws-manager.service';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
 import { cpuData, memoryData } from './data';
@@ -58,6 +60,9 @@ export class DashboardComponent implements AfterViewInit {
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
 
+  tJobExecId: number;
+  tJobExec: TJobExecModel;
+
 
   constructor(private _titleService: Title,
     private _itemsService: ItemsService,
@@ -67,12 +72,26 @@ export class DashboardComponent implements AfterViewInit {
     private _loadingService: TdLoadingService,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
-    private stompWSManager: StompWSManager) {
+    private stompWSManager: StompWSManager,
+    private route: ActivatedRoute, private router: Router, ) {
+    if (this.route.params !== null || this.route.params !== undefined) {
+      this.route.params.subscribe(
+        (params: Params) => {
+          this.tJobId = params.tJobId;
+          this.tJobExecId = params.tJobExecId;
+          this.withSut = params.withSut;
+        }
+      )
+    }
     this.cpuData = cpuData;
     this.memoryData = memoryData;
   }
 
   ngOnInit() {
+
+  }
+
+  ngAfterViewInit(): void {
     this.testTraces = this.stompWSManager.testTraces;
     if (this.testTraces.length > 0) {
       this.testTraces.splice(0, this.stompWSManager.testTraces.length);
@@ -90,6 +109,71 @@ export class DashboardComponent implements AfterViewInit {
 
     this.sutMetricsSubscription = this.stompWSManager.sutMetrics$
       .subscribe(data => this.updateData(data, false));
+
+    this.tJobExec = new TJobExecModel();
+    this.loadTJobExec();
+
+
+
+
+    this._titleService.setTitle('ElasTest ETM');
+    this._loadingService.register('items.load');
+    this._itemsService.query().subscribe((items: Object[]) => {
+      this.items = items;
+      setTimeout(() => {
+        this._loadingService.resolve('items.load');
+      }, 750);
+    }, (error: Error) => {
+      this._itemsService.staticQuery().subscribe((items: Object[]) => {
+        this.items = items;
+        setTimeout(() => {
+          this._loadingService.resolve('items.load');
+        }, 750);
+      });
+    });
+    this._loadingService.register('alerts.load');
+    this._alertsService.query().subscribe((alerts: Object[]) => {
+      this.alerts = alerts;
+      setTimeout(() => {
+        this._loadingService.resolve('alerts.load');
+      }, 750);
+    });
+    this._loadingService.register('products.load');
+    this._productsService.query().subscribe((products: Object[]) => {
+      this.products = products;
+      setTimeout(() => {
+        this._loadingService.resolve('products.load');
+      }, 750);
+    });
+    this._loadingService.register('favorites.load');
+    this._productsService.query().subscribe((products: Object[]) => {
+      this.products = products;
+      setTimeout(() => {
+        this._loadingService.resolve('favorites.load');
+      }, 750);
+    });
+    this._loadingService.register('users.load');
+    this._usersService.query().subscribe((users: Object[]) => {
+      this.users = users;
+      setTimeout(() => {
+        this._loadingService.resolve('users.load');
+      }, 750);
+    }, (error: Error) => {
+      this._usersService.staticQuery().subscribe((users: Object[]) => {
+        this.users = users;
+        setTimeout(() => {
+          this._loadingService.resolve('users.load');
+        }, 750);
+      });
+    });
+  }
+
+  loadTJobExec() {
+    this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+      .subscribe((tJobExec: TJobExecModel) => {
+        this.tJobExec = tJobExec;
+        this.createAndSubscribe(this.tJobExec);
+      });
   }
 
   verifySut() {
@@ -188,61 +272,6 @@ export class DashboardComponent implements AfterViewInit {
     } else {
       this.sutTraces.push('TJob without Sut');
     }
-  }
-
-
-
-  ngAfterViewInit(): void {
-    this._titleService.setTitle('ElasTest ETM');
-    this._loadingService.register('items.load');
-    this._itemsService.query().subscribe((items: Object[]) => {
-      this.items = items;
-      setTimeout(() => {
-        this._loadingService.resolve('items.load');
-      }, 750);
-    }, (error: Error) => {
-      this._itemsService.staticQuery().subscribe((items: Object[]) => {
-        this.items = items;
-        setTimeout(() => {
-          this._loadingService.resolve('items.load');
-        }, 750);
-      });
-    });
-    this._loadingService.register('alerts.load');
-    this._alertsService.query().subscribe((alerts: Object[]) => {
-      this.alerts = alerts;
-      setTimeout(() => {
-        this._loadingService.resolve('alerts.load');
-      }, 750);
-    });
-    this._loadingService.register('products.load');
-    this._productsService.query().subscribe((products: Object[]) => {
-      this.products = products;
-      setTimeout(() => {
-        this._loadingService.resolve('products.load');
-      }, 750);
-    });
-    this._loadingService.register('favorites.load');
-    this._productsService.query().subscribe((products: Object[]) => {
-      this.products = products;
-      setTimeout(() => {
-        this._loadingService.resolve('favorites.load');
-      }, 750);
-    });
-    this._loadingService.register('users.load');
-    this._usersService.query().subscribe((users: Object[]) => {
-      this.users = users;
-      setTimeout(() => {
-        this._loadingService.resolve('users.load');
-      }, 750);
-    }, (error: Error) => {
-      this._usersService.staticQuery().subscribe((users: Object[]) => {
-        this.users = users;
-        setTimeout(() => {
-          this._loadingService.resolve('users.load');
-        }, 750);
-      });
-    });
   }
 
   // ngx transform using covalent digits pipe

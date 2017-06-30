@@ -48,7 +48,7 @@ const routes: Routes = [
                         component: ProjectFormComponent,
                     },
                     {
-                        path: 'edit/:id',
+                        path: 'edit/:projectId',
                         component: ProjectFormComponent,
                     },
                     {
@@ -59,7 +59,15 @@ const routes: Routes = [
                         path: 'tjob-management',
                         children: [
                             {
-                                path: ':id',
+                                path: 'edit/:tJobId',
+                                component: TJobFormComponent,
+                            },
+                            {
+                                path: 'edit',
+                                component: TJobFormComponent,
+                            },
+                            {
+                                path: ':tJobId',
                                 children: [
                                     {
                                         path: '',
@@ -67,19 +75,25 @@ const routes: Routes = [
 
                                     },
                                     {
-                                        path: 'edit/:id',
-                                        component: TJobFormComponent,
-                                    },
-                                    {
-                                        path: 'edit',
-                                        component: TJobFormComponent,
-                                    },
-                                    {
                                         path: 'tjobExec-management',
                                         children: [
                                             {
-                                                path: ':id',
-                                                component: TjobExecManagerComponent,
+                                                path: ':tJobExecId',
+                                                children: [
+                                                    {
+                                                        path: '',
+                                                        component: TjobExecManagerComponent,
+                                                    },
+                                                    {
+                                                        path: 'dashboard',
+                                                        children: [
+                                                            {
+                                                                path: ':withSut',
+                                                                component: DashboardComponent,
+                                                            },
+                                                        ]
+                                                    }
+                                                ]
                                             },
                                         ]
                                     },
@@ -95,7 +109,7 @@ const routes: Routes = [
                                 component: SutManagerComponent,
                             },
                             {
-                                path: 'edit/:id',
+                                path: 'edit/:sutId',
                                 component: SutFormComponent,
                             },
                             {

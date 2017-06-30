@@ -1,6 +1,8 @@
 import { Router } from '@angular/router';
 import { SutModel } from '../../sut/sut-model';
 import { SutService } from '../../sut/sut.service';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { ProjectModel } from '../project-model';
@@ -83,7 +85,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   constructor(private _titleService: Title,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    private tJobService: TJobService, private sutService: SutService) { }
+    private tJobService: TJobService, private tJobExecService: TJobExecService, private sutService: SutService) { }
 
   ngOnInit() {
     this.loadProjects();
@@ -209,11 +211,10 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   runTJob(tJob: TJobModel) {
-    this.tJobService.runTJob(tJob.id)
+    this.tJobExecService.runTJob(tJob.id)
       .subscribe(
-      (tjobExecution) => {
-        console.log('TJobExecutionId:' + tjobExecution.id);
-        // this.createAndSubscribe(tjobExecution);
+      (tjobExecution: TJobExecModel) => {
+        this.router.navigate(['/projects-management/tjob-management', tJob.id, 'tjobExec-management', tjobExecution.id, 'dashboard', tJob.sut.id === 0]);
       },
       (error) => console.error('Error:' + error),
     );
