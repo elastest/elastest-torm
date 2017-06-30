@@ -18,14 +18,14 @@ export class TJobsManagerComponent implements OnInit {
 
   public runTJob(){    
         
-    this.tJobService.runTJob(this.idTJob)
+   /* this.tJobService.runTJob(this.idTJob)
       .subscribe(
         tjobExecution => {
           console.log('TJobExecutionId:'+ tjobExecution.id);
           this.createAndSubscribe(tjobExecution);
         },
         error => console.error("Error:" + error)
-      );
+      );*/
   }
 
 public createAndSubscribe(tjobExecution: any){

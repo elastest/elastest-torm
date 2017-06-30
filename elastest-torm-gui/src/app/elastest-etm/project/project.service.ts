@@ -1,12 +1,12 @@
 import { ProjectModel } from './project-model';
 import { Http, RequestOptions } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { ETM_API } from '../../../config/api.config';
+import { ConfigurationService } from '../../config/configuration-service.service';
 
 @Injectable()
 export class ProjectService {
 
-  constructor(private http: Http) { }
+  constructor(private http: Http, private confgurationService: ConfigurationService) { }
 
   transformDataToDataTable(projects: any[]) {
     let projectsDataToTable: ProjectModel[] = [];
@@ -28,19 +28,19 @@ export class ProjectService {
   }
 
   public getProject(id: string) {
-    let url = ETM_API + '/project/' + id;
+    let url = this.confgurationService.configModel.hostApi + '/project/' + id;
     return this.http.get(url)
       .map(response => this.transformToProjectmodel(response.json()));
   }
 
   public getProjects() {
-    let url = ETM_API + '/project';
+    let url = this.confgurationService.configModel.hostApi + '/project';
     return this.http.get(url)
       .map(response => this.transformDataToDataTable(response.json()));
   }
 
   public createProject(project: ProjectModel) {
-    let url = ETM_API + '/project';
+    let url = this.confgurationService.configModel.hostApi + '/project';
     return this.http.post(url, this.convertProjectToBackProject(project))
       .map(response => response.json());
   }
@@ -50,7 +50,7 @@ export class ProjectService {
   }
 
   public deleteProject(project: ProjectModel) {
-    let url = ETM_API + '/project/' + project.id;
+    let url = this.confgurationService.configModel.hostApi + '/project/' + project.id;
     return this.http.delete(url)
       .map(response => response.json());
   }

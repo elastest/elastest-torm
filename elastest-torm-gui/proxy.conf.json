@@ -5,8 +5,9 @@
         "secure" : false
     },
 
-    "/logs1" :{
-      "target" : "http://localhost:8090",
-      "secure" : false
+    "/api" :{
+        "target" : "http://localhost:8091",
+        "secure" : false
     }
+ 
 }

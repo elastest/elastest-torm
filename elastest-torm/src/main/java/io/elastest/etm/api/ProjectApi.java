@@ -18,7 +18,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Api(value = "project", description = "the Project API")
-public interface ProjectApi {
+public interface ProjectApi extends EtmApiRoot {
 	
 	@ApiOperation(value = "Create new Project", notes = "", response = Project.class, tags={ "Project", })
     @ApiResponses(value = { 

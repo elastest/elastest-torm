@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Api(value = "sut", description = "the sut API")
-public interface SutApi {
+public interface SutApi extends EtmApiRoot {
 
     @ApiOperation(value = "Create SuT Description", notes = "", response = SutSpecification.class, tags={ "sut", })
     @ApiResponses(value = { 

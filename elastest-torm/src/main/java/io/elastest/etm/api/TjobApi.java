@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Api(value = "tjob", description = "the tjob API")
-public interface TjobApi {
+public interface TjobApi extends EtmApiRoot{
 
     @ApiOperation(value = "Create a new tjob.", notes = "Creates a new tjob with the received information.", response = TJob.class, tags={ "tjob", })
     @ApiResponses(value = { 
