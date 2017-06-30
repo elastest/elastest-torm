@@ -3,7 +3,7 @@ import { SutModel } from '../sut/sut-model';
 import { SutExecModel } from '../sut/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 
-export class TJobExecModel {
+export class TJobExecModel { 
     id: number;
     duration: number;
     error: string;

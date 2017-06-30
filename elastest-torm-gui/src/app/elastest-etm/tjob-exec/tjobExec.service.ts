@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 
 @Injectable()
-export class TJobExecService {
+export class TJobExecService { 
   constructor(private http: Http, private stompWSManager: StompWSManager) { }
 
   //  TJobExecution functions
