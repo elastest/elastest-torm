@@ -219,7 +219,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     );
   }
   editTJob(tJob: TJobModel) {
-    this.router.navigate(['/tjobs-management/edit', tJob.id]);
+    this.router.navigate(['/projects-management/tjob-management/edit', tJob.id]);
   }
   deleteTJob(tJob: TJobModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -238,6 +238,10 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
         );
       }
     });
+  }
+
+  viewTJob(tJob: TJobModel) {
+    this.router.navigate(['/projects-management/tjob-management', tJob.id]);
   }
 
 
@@ -266,7 +270,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   editSut(sut: SutModel) {
-    this.router.navigate(['/suts-management/edit', sut.id]);
+    this.router.navigate(['/projects-management/sut-management/edit', sut.id]);
   }
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -287,5 +291,8 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     });
   }
 
+  viewSut(sut: SutModel) {
+    this.router.navigate(['/projects-management/sut-management', sut.id]);
+  }
 
 }

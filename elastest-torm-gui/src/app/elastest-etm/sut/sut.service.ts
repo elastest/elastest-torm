@@ -62,7 +62,7 @@ export class SutService {
 
   //  SutExecution functions
 
-  public runSut(sutId: number) {
+  public deploySut(sutId: number) {
     let url = ETM_API + '/sut/' + sutId + '/exec';
     return this.http.post(url, {})
       .map((response) => response.json());
@@ -95,8 +95,10 @@ export class SutService {
     return sutExecsDataToTable;
   }
 
-  public getSutExecution(idSutExecution: number) {
-
+  public getSutExecution(sut: SutModel, idSutExecution: number) {
+    let url = ETM_API + '/sut/' + sut.id + '/exec/' + idSutExecution;
+    return this.http.get(url)
+      .map(response => this.transformToSutExecmodel(response.json()));
   }
 
   public deleteSutExecution(sut: SutModel, sutExecution: SutExecModel) {

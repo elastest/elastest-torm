@@ -3,11 +3,10 @@ import { Title } from '@angular/platform-browser';
 import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { Subscription } from 'rxjs/Rx';
 
-import { ItemsService, UsersService, ProductsService, AlertsService } from '../../../services';
-
-import { TJobService } from '../tjob/tjob.service';
+import { AlertsService, ItemsService, ProductsService, UsersService } from '../../../services';
 import { StompWSManager } from '../stomp-ws-manager.service';
-
+import { TJobExecService } from '../tjob-exec/tjobExec.service';
+import { TJobService } from '../tjob/tjob.service';
 import { cpuData, memoryData } from './data';
 
 
@@ -67,6 +66,7 @@ export class DashboardComponent implements AfterViewInit {
     private _productsService: ProductsService,
     private _loadingService: TdLoadingService,
     private tJobService: TJobService,
+    private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager) {
     this.cpuData = cpuData;
     this.memoryData = memoryData;
@@ -169,7 +169,7 @@ export class DashboardComponent implements AfterViewInit {
 
   public runTJob() {
 
-    this.tJobService.runTJob(this.tJobId)
+    this.tJobExecService.runTJob(this.tJobId)
       .subscribe(
       (tjobExecution) => {
         console.log('TJobExecutionId:' + tjobExecution.id);

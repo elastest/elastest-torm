@@ -7,9 +7,12 @@ import { EtmComponent } from './elastest-etm/etm.component';
 import { ProjectFormComponent } from './elastest-etm/project/project-form/project-form.component';
 import { ProjectsManagerComponent } from './elastest-etm/project/projects-manager/projects-manager.component';
 import { SutsManagerComponent } from './elastest-etm/sut/suts-manager/suts-manager.component';
+import { SutManagerComponent } from './elastest-etm/sut/sut-manager/sut-manager.component';
 import { TJobFormComponent } from './elastest-etm/tjob/tjob-form/tjob-form.component';
 import { SutFormComponent } from './elastest-etm/sut/sut-form/sut-form.component';
 import { TJobsManagerComponent } from './elastest-etm/tjob/tjobs-manager/tjobs-manager.component';
+import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
+import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
 import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
@@ -34,6 +37,77 @@ const routes: Routes = [
                 path: '',
             },
             {
+                path: 'projects-management',
+                children: [
+                    {
+                        path: '',
+                        component: ProjectsManagerComponent,
+                    },
+                    {
+                        path: 'add',
+                        component: ProjectFormComponent,
+                    },
+                    {
+                        path: 'edit/:id',
+                        component: ProjectFormComponent,
+                    },
+                    {
+                        path: 'edit',
+                        component: ProjectFormComponent,
+                    },
+                    {
+                        path: 'tjob-management',
+                        children: [
+                            {
+                                path: ':id',
+                                children: [
+                                    {
+                                        path: '',
+                                        component: TjobManagerComponent,
+
+                                    },
+                                    {
+                                        path: 'edit/:id',
+                                        component: TJobFormComponent,
+                                    },
+                                    {
+                                        path: 'edit',
+                                        component: TJobFormComponent,
+                                    },
+                                    {
+                                        path: 'tjobExec-management',
+                                        children: [
+                                            {
+                                                path: ':id',
+                                                component: TjobExecManagerComponent,
+                                            },
+                                        ]
+                                    },
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        path: 'sut-management',
+                        children: [
+                            {
+                                path: '',
+                                component: SutManagerComponent,
+                            },
+                            {
+                                path: 'edit/:id',
+                                component: SutFormComponent,
+                            },
+                            {
+                                path: 'edit',
+                                component: SutFormComponent,
+                            },
+                        ]
+                    },
+
+                ]
+            },
+            {
                 path: 'tjobs-management',
                 children: [
                     {
@@ -53,27 +127,6 @@ const routes: Routes = [
             {
                 path: 'tojobs-management',
                 component: TJobsManagerComponent,
-            },
-            {
-                path: 'projects-management',
-                children: [
-                    {
-                        path: '',
-                        component: ProjectsManagerComponent,
-                    },
-                    {
-                        path: 'add',
-                        component: ProjectFormComponent,
-                    },
-                    {
-                        path: 'edit/:id',
-                        component: ProjectFormComponent,
-                    },
-                    {
-                        path: 'edit',
-                        component: ProjectFormComponent,
-                    },
-                ]
             },
             {
                 path: 'suts-management',
@@ -123,6 +176,6 @@ export const routedComponents: any[] = [
     TemplatesComponent, EditorTemplateComponent, EmailTemplateComponent, DashboardTemplateComponent,
     UsersComponent, UsersFormComponent,
     TJobsManagerComponent, ProjectsManagerComponent,
-    SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
-    TJobFormComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
+    SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
+    TjobManagerComponent, TJobFormComponent, TjobExecManagerComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
 ];

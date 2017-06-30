@@ -1,6 +1,6 @@
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobModel } from './tjob-model';
-import { TJobExecModel } from './tjobExec-model';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { ETM_API } from '../../../config/api.config';
 import { SutModel } from '../sut/sut-model';
 import { Http } from '@angular/http';
@@ -68,57 +68,4 @@ export class TJobService {
     return this.http.delete(url)
       .map((response) => response.json());
   }
-
-  //  TJobExecution functions
-
-  public runTJob(tJobId: number) {
-    let url = ETM_API + '/tjob/' + tJobId + '/exec';
-    return this.http.post(url, {})
-      .map((response) => response.json());
-  }
-
-  public getTJobsExecutions(tJob: TJobModel) {
-    let url = ETM_API + '/tjob/' + tJob.id + '/exec';
-    return this.http.get(url)
-      .map((response) => this.transformTJobExecDataToDataTable(response.json()));
-  }
-
-  transformTJobExecDataToDataTable(tjobExecs: any[]) {
-    let tjobExecsDataToTable: TJobExecModel[] = [];
-    for (let tjobExec of tjobExecs) {
-      tjobExecsDataToTable.push(this.transformToTjobExecmodel(tjobExec));
-    }
-    return tjobExecsDataToTable;
-  }
-
-
-  transformToTjobExecmodel(tjobExec: any) {
-    let tjobExecsDataToTable: TJobExecModel;
-
-    tjobExecsDataToTable = new TJobExecModel();
-    tjobExecsDataToTable.id = tjobExec.id;
-    tjobExecsDataToTable.duration = tjobExec.duration;
-    tjobExecsDataToTable.error = tjobExec.error;
-    tjobExecsDataToTable.result = tjobExec.result;
-    tjobExecsDataToTable.tJob = tjobExec.tjob;
-
-    return tjobExecsDataToTable;
-  }
-
-  public getTJobExecution(idTJobExecution: number) {
-
-  }
-
-  public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
-    let url = ETM_API + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
-    console.log("url: " + url);
-    return this.http.delete(url)
-      .map((response) => response.json());
-  }
-
-  private subscribeQueues(tjobExec: any) {
-
-  }
-
-
 }

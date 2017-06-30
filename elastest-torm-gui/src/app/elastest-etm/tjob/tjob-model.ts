@@ -1,6 +1,6 @@
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
-import { TJobExecModel } from './tjobExec-model';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 
 export class TJobModel {
     id: number;
