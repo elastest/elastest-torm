@@ -133,7 +133,7 @@ public class UtilTools {
 
 	    if (hostIp == null) {
 
-	      if (inContainer.equals(true)) {
+	      if (inContainer.equals("true")) {
 
 	        try {
 
