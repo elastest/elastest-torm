@@ -85,6 +85,8 @@ export class DashboardComponent implements AfterViewInit {
     }
     this.cpuData = cpuData;
     this.memoryData = memoryData;
+    this.testTraces = this.stompWSManager.testTraces;
+    this.sutTraces = this.stompWSManager.sutTraces;
   }
 
   ngOnInit() {
@@ -92,13 +94,11 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.testTraces = this.stompWSManager.testTraces;
     if (this.testTraces.length > 0) {
       this.testTraces.splice(0, this.stompWSManager.testTraces.length);
     }
     this.scrollToBottomTest();
 
-    this.sutTraces = this.stompWSManager.sutTraces;
     if (this.sutTraces.length > 0) {
       this.sutTraces.splice(0, this.stompWSManager.sutTraces.length);
     }
