@@ -27,6 +27,9 @@ public class UtilTools {
 	
 	@Value ("${os.name}")
 	private String windowsSO;
+	
+	@Value ("${elastest.incontainer}")
+	private String inContainer;
 
 	public int getHttpExceptionCode(Exception e){
 		if(e instanceof HTTPException){
@@ -103,7 +106,7 @@ public class UtilTools {
 	    return isRunningInContainerInternal();
 	  }
 
-	  private static synchronized boolean isRunningInContainerInternal() {
+	  private boolean isRunningInContainerInternal() {
 
 	    if (isRunningInContainer == null) {
 
@@ -126,11 +129,11 @@ public class UtilTools {
 	    return isRunningInContainer;
 	  }
 
-	  private static synchronized String getHostIp() {
+	  public String getHostIp() {
 
 	    if (hostIp == null) {
 
-	      if (isRunningInContainerInternal()) {
+	      if (inContainer.equals(true)) {
 
 	        try {
 

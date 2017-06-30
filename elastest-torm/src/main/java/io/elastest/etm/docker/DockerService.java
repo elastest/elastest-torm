@@ -1,10 +1,5 @@
 package io.elastest.etm.docker;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -26,7 +20,6 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
-import io.elastest.etm.utils.Shell;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -76,9 +69,11 @@ public class DockerService {
 			
 		} else {
 			logger.info("Execute on Linux.");
+			String linuxHostIP ="tcp://"+ utilTools.getHostIp()+":2376";
+			System.out.println("*************HOST IP LINUX***********"+ linuxHostIP);
 			//dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://172.18.0.1:2376").build();
+					.withDockerHost("tcp://"+ utilTools.getHostIp()+":2376").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
