@@ -65,6 +65,8 @@ services:
             - elasticsearch
             - logstash
             - beats
+        links:
+            - rabbit-MQ 
         container_name: elastest-torm
         image: elastest/elastest-torm
         entrypoint: /testing-mysqlstate-entrypoint.sh
