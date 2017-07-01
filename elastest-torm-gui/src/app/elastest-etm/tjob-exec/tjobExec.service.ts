@@ -1,7 +1,7 @@
+import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobModel } from '../tjob/tjob-model';
 import { TJobExecModel } from './tjobExec-model';
-import { ETM_API } from '../../../config/api.config';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
@@ -9,17 +9,17 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobExecService { 
-  constructor(private http: Http, private stompWSManager: StompWSManager) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
 
   //  TJobExecution functions
   public runTJob(tJobId: number) {
-    let url = ETM_API + '/tjob/' + tJobId + '/exec';
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
     return this.http.post(url, {})
       .map((response) => response.json());
   }
 
   public getTJobsExecutions(tJob: TJobModel) {
-    let url = ETM_API + '/tjob/' + tJob.id + '/exec';
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
     return this.http.get(url)
       .map((response) => this.transformTJobExecDataToDataTable(response.json()));
   }
@@ -51,13 +51,13 @@ export class TJobExecService {
   }
 
   public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number) {
-    let url = ETM_API + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url)
       .map(response => this.transformToTjobExecmodel(response.json()));
   }
 
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
-    let url = ETM_API + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
     return this.http.delete(url)
       .map((response) => response.json());
   }

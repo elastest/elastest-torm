@@ -1,7 +1,7 @@
+import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
-import { TJobModel } from './tjob-model';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
-import { ETM_API } from '../../../config/api.config';
+import { TJobModel } from './tjob-model';
 import { SutModel } from '../sut/sut-model';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
@@ -10,10 +10,10 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobService {
-  constructor(private http: Http, private stompWSManager: StompWSManager) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
 
   public getTJobs() {
-    let url = ETM_API + '/tjob';
+    let url = this.configurationService.configModel.hostApi + '/tjob';
     return this.http.get(url)
       .map((response) => this.transformTJobDataToDataTable(response.json()));
   }
@@ -44,7 +44,7 @@ export class TJobService {
   }
 
   public getTJob(id: string) {
-    let url = ETM_API + '/tjob/' + id;
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + id;
     return this.http.get(url)
       .map(response => this.transformToTjobmodel(response.json()));
   }
@@ -54,7 +54,7 @@ export class TJobService {
       tjob.sut = undefined;
     }
 
-    let url = ETM_API + '/tjob';
+    let url = this.configurationService.configModel.hostApi + '/tjob';
     return this.http.post(url, tjob)
       .map((response) => response.json());
   }
@@ -64,7 +64,7 @@ export class TJobService {
   }
 
   public deleteTJob(tJob: TJobModel) {
-    let url = ETM_API + '/tjob/' + tJob.id;
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id;
     return this.http.delete(url)
       .map((response) => response.json());
   }
