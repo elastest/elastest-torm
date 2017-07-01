@@ -163,6 +163,6 @@ public class UtilTools {
 		if (windowsSO.toLowerCase().contains("win")) {
 			return getDockerHostIpOnWin();					
 		}else
-			return "localhost";
+			return getHostIp();
 	}
 }
