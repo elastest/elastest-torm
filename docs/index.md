@@ -1,149 +1,125 @@
 # Elastest Test Recommendation and Orchestrator Manager
 
-The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers to manage Projects, TJobs, SuTs, TOJobs, analyze logs, execute TJobs and SuTs and much more (the terms mentioned above are described in the [Features](#features) section).
+The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM allows developers and testers managing tests, systems under test, orchestrate tests, analyze logs and much more.
 
-### Component arquitecture
-In the next diagram, you can to see The ElasTest TORM Components Architecture.
+## Terminology
 
-![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture.png)
+Before you start using ElasTest, you need to know the following terms:
+
+- **Project**: Set of test specifications.
+- **TJob**: Specification of a Test to run against any software.
+- **SuT (System under Test):** Specification of the System that is being tested for correct operation.
 
 ## Features
 
 Features provided in the version 0.1 of the TORM component.
 
-- Project Creation. Project is a set of TJobs and SuTs. 
-- TJob Creation. TJob represents a test to execute over a SuT.
-- SuT Creation.  SUT (System Under Test) represents a system to test. 
-- TJob Execution. Is the action to execute a TJob (a test). This action create a TJob Execution entity and generate several information as a test logs, sut logs, metrics and test results, at this moment.
-- Log Manager. Tool for analize stored logs of past executions. 
+- Projects Management. 
+- TJobs Management.  
+- SuTs Management.
+- Logs Management.
 
-## Execution
+## Execute ElasTest TORM
 
-To start this componet, you need to download the docker-compose-exec.yml and exectute the folloiwng command from any terminal:
+To start using ElasTest, you need to follow the next steps.
 
-`docker-compose -f docker-compose-exec.yml up -d`
+### Windows Prerequisites
 
->**Note:** You need to have the docker-compose application installed beforehand.
+- Install Docker Toolbox for windows. You can download it from https://docs.docker.com/toolbox/toolbox_install_windows/.
+- Install [Docker Compose](https://docs.docker.com/compose/install/.) on the Virtual Machine Boot2docker created by Docker Toolbox installation.
+    - `docker-machine ssh` from power shell or any terminal emulator.
+    - sudo -i (get access as superuser).    
+    - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
+    - `chmod +x /usr/local/bin/docker-compose` 
+    - `sudo sysctl -w vm.max_map_count=262144` (required for elastic boot)
+>**Note:** To this day, for each time the docker machine reboots, you will have to repeat the steps above.
 
->**Note:** There are some differences between running on Linux and Windows. The most important thing is that the ip address of the docker host changes. Localhost on linux, an ip on the local network in Windows (see the section [Development documentation](#development-documentation)).
+### Linux Prerequisites
+- Install [Docker Compose](https://docs.docker.com/compose/install/).
+    - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
+    - `chmod +x /usr/local/bin/docker-compose` 
+
+### Download ElasTest TORM 
+- Create a directory named *elastest-torm*, and change your current directory to this one.
+
+- Download the docker compose file from the ElasTest TORM repository  
+ `wget https://raw.githubusercontent.com/elastest/elastest-torm/master/docker-compose.yml`
+
+    >**Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
+
+### Deploy ElasTest TORM
+
+#### Linux
+From a Linux terminal, execute the following commands:
+- `cd elastest-torm`.
+- `docker-compose up -d` (if you want to see the logs information, delete the parameter '-d').
+
+#### Windows
+From a Windows terminal, execute the following commands:
+- `docker-machine ssh`
+- `cd elastest-torm`.
+- `docker-compose up -d` (if you want to see the logs information, delete the parameter '-d').
+
+>**Note:** If you want to run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/elastest-torm`, before running the docker-compose command.
 
 ## Basic usage
 
 To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project.
 
-- **Create Project.** To do this, you can use the API provided by the elastest-torm application, the GUI of elastest-torm or insert them directly into DDBB. 
-    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/Project/createProjectUsingPOST` and fill in the field `body` with the next JSON.
-        ```json
-        {
-            "id": "0",
-            "name": "projectX"
-        }
-        ```
-        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
+### Create a Project.
+- Start a Web Browser, enter the following URL http://docker-host:8091/index.html and click on item *Projects*, in the menu on the left.
+![ElasTest TORM index.html](imgs/indexHtml.png)
+>**Note:** If you run Elastest TORM on Windows, the *docker-host" will be the ip of the VM created by Docker Toolbox. If you run it on Linux the value of *docker-host* will be localhost.
+- Create a new Project.
+![ElasTest TORM. Creation of a new Project](imgs/new_project.png)
+![ElasTest TORM. Creation of a new Project](imgs/new_project_2.png)
+- Select the Project.
+![ElasTest TORM. Select a Project](imgs/select_a_project.png)
 
-        ```json
-        {
-            "tojobs": null,
-            "tjobs": null,
-            "id": 1,
-            "name": "prjectX",
-            "suts": null
-        }
-        ```
-    - *Using TORM GUI.* Go to http://localhost:8091/index.html and create a project from project management.
-
-        ![ElasTest TORM Project Management](imgs/project-management.png)
-
-    - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
-
-        ```sql
-        INSERT INTO `elastest-etm`.`Project` (name) VALUES ('name');
-        ```
-
-- **Create TJob.** To do this, you can use the API provided by the elastest-torm application or insert them directly into DDBB.
-
-    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob/createTJobUsingPOST`and fill in the field `body` with the next JSON.
-        ```json
-        {
-            "id": 0,
-            "imageName": "edujgurjc/torm-test-01",
-            "name": "testApp1",
-            "project": { "id": 1 }
-        }
-        ```
-        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
-        ```json
-        {
-            "project": {},
-            "id": 4,
-            "name": "testApp1",
-            "imageName": "edujgurjc/torm-test-01",
-            "sut": null
-        }
-        ```
-    - *Using DB client.* Open any DB client to conneting to mysql (the mysql port is 3306). Execute the query:
-
-        ```sql
-        INSERT INTO `elastest-etm`.`TJob` (`image_name`,`name`,`project`) VALUES ('image_name', 'name', 1);
-        ```
-    A TJob by itself does nothing, needs to be associated with a test, by the image name, as you can see above in the TJob json. To this day, the test needs to be contained by a docker image. To build a simple Docker image of a test, you only need the following:
-    - A Java proyect with one JUnit Test at least.
-    - A Docker file with the instrucctions to execute the JUnit test.
-        ```maven
-        FROM maven:alpine
-        COPY * /
-        CMD mvn clean test
-        ```   
-    - Build the image.
-        ```docker
-        docker build -t image_name .
-        ```
-    - Publish the image in your docker hub respository `https://docs.docker.com/docker-cloud/builds/push-images/`
-
-- **Run Test.** At this point, you can run the TJob using the REST API provided by elatest-torm at http://localhost:8091/swagger-ui.html or using the ElasTest graphical interface at http://localhost:4200/. 
+   
+### Create a TJob
+- From the Project edition page, create a new TJob. Fill in the fields *TJob Name* and *Image Name*.
+![ElasTest TORM. Creation of a new TJob](imgs/tjob_creation.png)
     
-    - *Using TORM API.* Go to `http://localhost:8091/swagger-ui.html#!/tjob_execution/execTJobUsingPOST` and fill in the field `tJobId` with the id of a TJob.
+### Execute a TJob
+- From the list of TJobs you can execute a TJob by pressing the play button.
+![ElasTest TORM. Execution of a TJob](imgs/execute_tjob.png)
 
-        Click the button with the text `Try it out!`. Displays the `Response body` field with the response.
-        ```json
-        {
-            "id": 10,
-            "duration": 0,
-            "result": "IN PROGRESS",
-            "sutExecution": null,
-            "error": null
-        }
-        ```
-    - *Using TORM GUI.* From Dashboard page, you can execute a TJob and monitorize the logs and metrics generated during this execution. Fill in the TJob fild with a valid TJob id and click on execute button. 
-
-        ![Execute TJob](imgs/TJobExecution.jpg)   
+- Then you will see the logs and metrics generated by the TJob execution.
+![ElasTest TORM. Logs and metrics of a TJob Execution ](imgs/tjob_execution.png)
 
 ## Development documentation
 
-Following are the necessary instructions to configure the elastest-etm component development environment. Some of the actions to be performed will depend on the SO. But the first thing is to download the repository code from GitHub:
+### TORM arquitecture
+In the next diagram, you can to see The ElasTest TORM Components Architecture.
+
+![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Architecture.png)
+
+Following describes the necessary steps to configure the elastest-etm component development environment. Some of the actions to be performed will depend on the SO. But the first thing is to download the repository code from GitHub:
 
  - Create a Fork
- - Clone the new repository `git clone https://github.com/forkrepository/elastest-torm.git` 
+ - Clone the new repository  
 	
 ### Prerequisites
 It is necessary to have installed the following tools:
 
-- Eclipse IDE or similar
-- Visual Studio Code or similar
-- Angular CLI (View Angular CLI [Prerequisites](https://github.com/angular/angular-cli)) 
-- Maven 3.3.9
+- [Eclipse IDE](https://eclipse.org/ide/) or similar
+- [Visual Studio Code](https://code.visualstudio.com/) or similar
+- [Angular CLI](https://cli.angular.io/) 
+- [Maven 3.3.9](https://maven.apache.org/download.cgi)
 
 #### Windows
 
-- Install Docker Toolbox.
+- Install [Docker Toolbox](https://www.docker.com/products/docker-toolbox).
 
 #### Linux 
 
-- Install docker-compose.
+- Install [Docker Compose](https://docs.docker.com/compose/install/).
 
 ### Docker configuration on Windows
 
 #### Enable Docker API access from Windows
+To enable Docker Java to make requests to the Docker API provided, you need to follow the next steps:
 
 - `docker-machine ssh` from power shell or any terminal emulator
 - `sudo vi /var/lib/boot2docker/profile`
@@ -152,9 +128,9 @@ It is necessary to have installed the following tools:
 - `docker-machine restart`
 
 >**Note:** When access to the API is active, the graphical client for Docker Toolbox and Windows CLI, will no longer be operational.
-Now, if you want to work with docker you need to do `docker-machine ssh` from the terminal.
+Now, if you want to work with docker, you need to do `docker-machine ssh` from the terminal, to enter to the Docker VM.
 
-#### Install docker-compose on boo2docker
+#### Install docker-compose on boot2docker
 
 - `docker-machine ssh from Windows terminal`
 - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
@@ -163,10 +139,10 @@ Now, if you want to work with docker you need to do `docker-machine ssh` from th
 #### Add shared folder to boot2docker on Virtual box
 To provide access to project files from the docker host, you must share the project folder with boot2docker from virtual box.
 
-#### Running elastest-etm services
+![Share folder using VB](imgs/share_folder_vb.png)
 
-- `docker-machine ssh` from windows terminal
-- Change the working directory to the shared folder of the project.
+#### Running ElasTest TORM services
+- Change the working directory to the shared folder of the project. In this case `cd /git/elastest-torm`.
 - `sudo sysctl -w vm.max_map_count=262144` (It is necessary for elasticsearch service)
 - `docker-compose up -d`
 
@@ -175,17 +151,40 @@ To provide access to project files from the docker host, you must share the proj
 - Change the working directory to the project folder.
 - `docker-compose up -d`
 
-### Running elastest etm in development mode
+### Running ElasTest TORM in development mode
 
-#### Elastest-etm server application
+#### ElasTest Server Application
+From Eclipse IDE:
+- Import *elastest-torm* project from local Git Repository.
+- Modify the value of the following properties, defined within the *application-dev.properties* file, depending on whether you are on windows or linux
 
-- Build project with `mvn clean -Pdev package`
-- Run Spring Boot application
+    ```
+    #application-dev.properties
+    
+    #Windows
+    #Configuration for the dababase connection
+    spring.datasource.url=jdbc:mysql://192.168.99.100:3306/elastest-etm?useSSL=false
+    spring.rabbitmq.host
 
+    #RabbitMQ
+    spring.rabbitmq.host= 192.168.99.100
 
-#### Elastest-etm client application
+    #Linux
+    #Configuration for the dababase connection
+    spring.datasource.url=jdbc:mysql://localhost:3306/elastest-etm?useSSL=false
+    spring.rabbitmq.host
 
-- Open a terminal and change the working directory to the project folder
+    #RabbitMQ
+    spring.rabbitmq.host= localhost
+
+    ```
+ 
+- Build project with `mvn clean -Pdev package`.
+- Run Spring Boot application.
+
+#### ElasTest TORM Client Application
+From Visual Studio Code:
+- Open the integrated terminal
 - `npm install`
 - `npm start`
 

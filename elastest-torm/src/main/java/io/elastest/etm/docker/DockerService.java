@@ -69,8 +69,7 @@ public class DockerService {
 			
 		} else {
 			logger.info("Execute on Linux.");
-			String linuxHostIP ="tcp://"+ utilTools.getHostIp()+":2376";
-			System.out.println("*************HOST IP LINUX***********"+ linuxHostIP);
+			String linuxHostIP ="tcp://"+ utilTools.getHostIp()+":2376";			
 			//dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://"+ utilTools.getHostIp()+":2376").build();

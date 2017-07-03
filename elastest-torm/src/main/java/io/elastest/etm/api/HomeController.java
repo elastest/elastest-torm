@@ -1,4 +1,4 @@
-package io.elastest.etm.swagger.configuration;
+package io.elastest.etm.api;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomeController {
     @RequestMapping(value = "/")
-    public String index() {
-        System.out.println("swagger-ui.html");
-        return "redirect:swagger-ui.html";
+    public String index() {        
+        return "redirect:index.html";
     }
 }
