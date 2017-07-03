@@ -75,7 +75,7 @@ export class TjobManagerComponent implements OnInit {
   }
 
   viewTJobExec(tJobExec: TJobExecModel) {
-    this.router.navigate(['/projects-management/tjob-management', this.tJob.id, 'tjobExec-management', tJobExec.id]);
+    this.router.navigate(['/projects/tjob', this.tJob.id, 'tjob-exec', tJobExec.id]);
   }
 
 }

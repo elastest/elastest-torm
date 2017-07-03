@@ -9,9 +9,7 @@ import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
-import { cpuData, memoryData } from './data';
-
-
+import { MetricsDataModel } from './metrics-data-model';
 
 @Component({
   selector: 'etm-dashboard',
@@ -29,8 +27,8 @@ export class DashboardComponent implements AfterViewInit {
   alerts: Object[];
 
   // Chart
-  cpuData: any = [];
-  memoryData: any = [];
+  cpuData: MetricsDataModel = new MetricsDataModel();
+  memoryData: MetricsDataModel = new MetricsDataModel();
 
   view: any[] = [700, 400];
 
@@ -63,7 +61,6 @@ export class DashboardComponent implements AfterViewInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-
   constructor(private _titleService: Title,
     private _itemsService: ItemsService,
     private _usersService: UsersService,
@@ -74,6 +71,9 @@ export class DashboardComponent implements AfterViewInit {
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
     private route: ActivatedRoute, private router: Router, ) {
+    this.testTraces = this.stompWSManager.testTraces;
+    this.sutTraces = this.stompWSManager.sutTraces;
+
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -83,17 +83,12 @@ export class DashboardComponent implements AfterViewInit {
         }
       )
     }
-    this.cpuData = cpuData;
-    this.memoryData = memoryData;
-    this.testTraces = this.stompWSManager.testTraces;
-    this.sutTraces = this.stompWSManager.sutTraces;
   }
 
-  ngOnInit() {
-
-  }
+  ngOnInit() { }
 
   ngAfterViewInit(): void {
+
     if (this.testTraces.length > 0) {
       this.testTraces.splice(0, this.stompWSManager.testTraces.length);
     }
@@ -191,11 +186,11 @@ export class DashboardComponent implements AfterViewInit {
   updateCpuData(data: any, test: boolean) {
     let parsedData: any = this.parseCpuData(data);
     if (test) {
-      this.cpuData[0].series.push(parsedData);
+      this.cpuData.data[0].series.push(parsedData);
     } else {
-      this.cpuData[1].series.push(parsedData);
+      this.cpuData.data[1].series.push(parsedData);
     }
-    this.cpuData = [...this.cpuData];
+    this.cpuData.data = [...this.cpuData.data];
   }
 
   parseCpuData(data: any) {
@@ -212,11 +207,11 @@ export class DashboardComponent implements AfterViewInit {
     let parsedData: any = this.parseMemoryData(data);
 
     if (test) {
-      this.memoryData[0].series.push(parsedData);
+      this.memoryData.data[0].series.push(parsedData);
     } else {
-      this.memoryData[1].series.push(parsedData);
+      this.memoryData.data[1].series.push(parsedData);
     }
-    this.memoryData = [...this.memoryData];
+    this.memoryData.data = [...this.memoryData.data];
   }
 
   parseMemoryData(data: any) {

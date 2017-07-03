@@ -33,11 +33,11 @@ const routes: Routes = [
         component: EtmComponent,
         children: [
             {
-                component: DashboardComponent,
+                component: ProjectsManagerComponent,
                 path: '',
             },
             {
-                path: 'projects-management',
+                path: 'projects',
                 children: [
                     {
                         path: '',
@@ -56,7 +56,7 @@ const routes: Routes = [
                         component: ProjectFormComponent,
                     },
                     {
-                        path: 'tjob-management',
+                        path: 'tjob',
                         children: [
                             {
                                 path: 'edit/:tJobId',
@@ -75,7 +75,7 @@ const routes: Routes = [
 
                                     },
                                     {
-                                        path: 'tjobExec-management',
+                                        path: 'tjob-exec',
                                         children: [
                                             {
                                                 path: ':tJobExecId',
@@ -102,7 +102,7 @@ const routes: Routes = [
                         ]
                     },
                     {
-                        path: 'sut-management',
+                        path: 'sut',
                         children: [
                             {
                                 path: '',
@@ -122,7 +122,7 @@ const routes: Routes = [
                 ]
             },
             {
-                path: 'tjobs-management',
+                path: 'tjobs',
                 children: [
                     {
                         path: '',
@@ -139,11 +139,11 @@ const routes: Routes = [
                 ]
             },
             {
-                path: 'tojobs-management',
+                path: 'tojobs',
                 component: TJobsManagerComponent,
             },
             {
-                path: 'suts-management',
+                path: 'suts',
                 children: [
                     {
                         path: '',

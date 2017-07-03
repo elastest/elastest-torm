@@ -41,8 +41,11 @@ export class TjobExecManagerComponent implements OnInit {
         if (this.tJobExec.result === 'IN PROGRESS') {
           this.tJobService.getTJob(this.tJobId.toString())
             .subscribe(
-            (tJob: TJobModel) => this.router.navigate(['/projects-management/tjob-management', this.tJobId, 'tjobExec-management', this.tJobExecId, 'dashboard', (tJob.sut !== undefined && tJob.sut.id !== 0) ])
+            (tJob: TJobModel) => this.router.navigate(['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard', (tJob.sut !== undefined && tJob.sut.id !== 0) ])
             )
+        }
+        else{
+
         }
         // this.tJobExecData = tJob.tjobExecs;
       });

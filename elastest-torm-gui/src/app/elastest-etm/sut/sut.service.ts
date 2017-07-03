@@ -1,18 +1,18 @@
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { SutModel } from './sut-model';
 import { SutExecModel } from './sutExec-model';
-import { ETM_API } from '../../../config/api.config';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+import { ConfigurationService } from '../../config/configuration-service.service';
 import 'rxjs/Rx';
 
 @Injectable()
 export class SutService {
-  constructor(private http: Http, private stompWSManager: StompWSManager) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
 
   public getSuts() {
-    let url = ETM_API + '/sut';
+    let url = this.configurationService.configModel.hostApi + '/sut';
     return this.http.get(url)
       .map((response) => this.transformSutDataToDataTable(response.json()));
   }
@@ -39,13 +39,13 @@ export class SutService {
   }
 
   public getSut(id: number) {
-    let url = ETM_API + '/sut/' + id;
+    let url = this.configurationService.configModel.hostApi + '/sut/' + id;
     return this.http.get(url)
       .map(response => this.transformToSutmodel(response.json()));
   }
 
   public createSut(sut: SutModel) {
-    let url = ETM_API + '/sut';
+    let url = this.configurationService.configModel.hostApi + '/sut';
     return this.http.post(url, sut)
       .map((response) => response.json());
   }
@@ -55,7 +55,7 @@ export class SutService {
   }
 
   public deleteSut(sut: SutModel) {
-    let url = ETM_API + '/sut/' + sut.id;
+    let url = this.configurationService.configModel.hostApi + '/sut/' + sut.id;
     return this.http.delete(url)
       .map((response) => response.json());
   }
@@ -63,13 +63,13 @@ export class SutService {
   //  SutExecution functions
 
   public deploySut(sutId: number) {
-    let url = ETM_API + '/sut/' + sutId + '/exec';
+    let url = this.configurationService.configModel.hostApi + '/sut/' + sutId + '/exec';
     return this.http.post(url, {})
       .map((response) => response.json());
   }
 
   public getSutsExecutions(sut: SutModel) {
-    let url = ETM_API + '/sut/' + sut.id + '/exec';
+    let url = this.configurationService.configModel.hostApi + '/sut/' + sut.id + '/exec';
     return this.http.get(url)
       .map((response) => this.transformSutExecDataToDataTable(response.json()));
   }
@@ -96,13 +96,13 @@ export class SutService {
   }
 
   public getSutExecution(sut: SutModel, idSutExecution: number) {
-    let url = ETM_API + '/sut/' + sut.id + '/exec/' + idSutExecution;
+    let url = this.configurationService.configModel.hostApi + '/sut/' + sut.id + '/exec/' + idSutExecution;
     return this.http.get(url)
       .map(response => this.transformToSutExecmodel(response.json()));
   }
 
   public deleteSutExecution(sut: SutModel, sutExecution: SutExecModel) {
-    let url = ETM_API + '/sut/' + sut.id + '/exec/' + sutExecution.id;
+    let url = this.configurationService.configModel.hostApi + '/sut/' + sut.id + '/exec/' + sutExecution.id;
     console.log("url: " + url);
     return this.http.delete(url)
       .map((response) => response.json());

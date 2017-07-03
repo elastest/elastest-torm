@@ -94,7 +94,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   loadProjects() {
     this.projectService.getProjects()
       .subscribe(
-      (projects) => this.prepareDataTable(projects),
+      (projects) => { this.prepareDataTable(projects); this.showProjectChildsByProject(projects[0]) },
     );
   }
 
@@ -150,7 +150,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   editProject(project: ProjectModel) {
     console.log(project);
-    this.router.navigate(['/projects-management/edit', project.id]);
+    this.router.navigate(['/projects/edit', project.id]);
   }
 
   deleteProject(project: ProjectModel) {
@@ -214,13 +214,13 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.tJobExecService.runTJob(tJob.id)
       .subscribe(
       (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects-management/tjob-management', tJob.id, 'tjobExec-management', tjobExecution.id, 'dashboard', (tJob.sut !== undefined && tJob.sut !== null && tJob.sut.id !== 0)]);
+        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard', (tJob.sut !== undefined && tJob.sut !== null && tJob.sut.id !== 0)]);
       },
       (error) => console.error('Error:' + error),
     );
   }
   editTJob(tJob: TJobModel) {
-    this.router.navigate(['/projects-management/tjob-management/edit', tJob.id]);
+    this.router.navigate(['/projects/tjob/edit', tJob.id]);
   }
   deleteTJob(tJob: TJobModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -242,7 +242,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   viewTJob(tJob: TJobModel) {
-    this.router.navigate(['/projects-management/tjob-management', tJob.id]);
+    this.router.navigate(['/projects/tjob', tJob.id]);
   }
 
 
@@ -271,7 +271,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   editSut(sut: SutModel) {
-    this.router.navigate(['/projects-management/sut-management/edit', sut.id]);
+    this.router.navigate(['/projects/sut/edit', sut.id]);
   }
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -293,7 +293,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   viewSut(sut: SutModel) {
-    this.router.navigate(['/projects-management/sut-management', sut.id]);
+    this.router.navigate(['/projects/sut', sut.id]);
   }
 
 }
