@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.Project.BasicAttProject;
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
+import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -43,7 +45,7 @@ public class Log {
 	@JsonProperty("logType")
 	private LogTypeEnum logType = null;
 
-	@JsonView(BasicAttLog.class)
+	@JsonView({BasicAttLog.class, BasicAttTJob.class, BasicAttTJobExec.class})
 	@JsonProperty("logUrl")
 	private String logUrl = null;
 	

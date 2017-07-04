@@ -9,6 +9,7 @@ export class TJobExecModel {
     error: string;
     result: string;
     sutExec: SutExecModel;
+    logs: string;
     tJob: TJobModel;
     // toJobExec: TOJobExecModel:
 
@@ -18,6 +19,7 @@ export class TJobExecModel {
         this.error = undefined;
         this.result = '';
         this.sutExec = undefined;
+        this.logs = '';
         this.tJob = undefined;
     }
 }

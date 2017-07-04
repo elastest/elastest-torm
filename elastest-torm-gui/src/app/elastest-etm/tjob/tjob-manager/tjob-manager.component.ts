@@ -20,6 +20,12 @@ export class TjobManagerComponent implements OnInit {
 
   sutEmpty: SutModel = new SutModel();
 
+  tjobColumns: any[] = [
+    { name: 'id', label: 'Id' },
+    { name: 'name', label: 'Name' },
+    { name: 'imageName', label: 'Image Name' },
+    { name: 'sut.id', label: 'Sut' },
+  ];
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
@@ -28,6 +34,7 @@ export class TjobManagerComponent implements OnInit {
     { name: 'duration', label: 'Duration' },
     { name: 'sutExecution', label: 'Sut Execution' },
     { name: 'error', label: 'Error' },
+    { name: 'logs', label: 'Logs Url' },
     { name: 'options', label: 'Options' },
   ];
   tJobExecData: TJobExecModel[] = [];
@@ -49,7 +56,7 @@ export class TjobManagerComponent implements OnInit {
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }
-          this.tJobExecData = tJob.tjobExecs;
+          this.tJobExecData = this.tJobExecService.transformTJobExecDataToDataTable(tJob.tjobExecs);
         });
     }
   }

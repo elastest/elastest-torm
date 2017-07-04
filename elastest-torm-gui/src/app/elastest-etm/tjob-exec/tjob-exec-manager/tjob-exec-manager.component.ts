@@ -1,3 +1,4 @@
+import { ElasticSearchService } from '../../../elastest-log-manager/services/elasticsearch.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -16,7 +17,10 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
+  testTraces: string[] = [];
+  sutTraces: string[] = [];
+
+  constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
     private route: ActivatedRoute, private router: Router,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -41,13 +45,27 @@ export class TjobExecManagerComponent implements OnInit {
         if (this.tJobExec.result === 'IN PROGRESS') {
           this.tJobService.getTJob(this.tJobId.toString())
             .subscribe(
-            (tJob: TJobModel) => this.router.navigate(['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard', (tJob.sut !== undefined && tJob.sut.id !== 0) ])
+            (tJob: TJobModel) => this.router.navigate(
+              ['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard', (tJob.sut !== undefined && tJob.sut.id !== 0)]
+            )
             )
         }
-        else{
+        else {
+          //Load logs
+          this.elasticService.searchTestLogs('http://' + tJobExec.logs)
+            .subscribe(
+            (data) => {
+              this.testTraces = data;
+            }
+            );
 
+          this.elasticService.searchSutLogs('http://' + tJobExec.logs)
+            .subscribe(
+            (data) => {
+              this.sutTraces = data;
+            }
+            );
         }
-        // this.tJobExecData = tJob.tjobExecs;
       });
   }
 

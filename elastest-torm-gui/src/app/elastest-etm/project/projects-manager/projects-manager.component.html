@@ -15,7 +15,7 @@
                     <button md-raised-button color="accent" [routerLink]="['add']">New Project</button>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #projectsTable [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true" [sortable]="false"
+                <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true" [sortable]="false"
                     [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="showProjectChilds($event)">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
@@ -60,7 +60,7 @@
                     </md-list-item>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #tjobsTable [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true" [sortable]="false"
+                <td-data-table #tjobsTable class="scroll_table" [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true" [sortable]="false"
                     [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
@@ -102,7 +102,7 @@
                     </md-list-item>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #sutsTable [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true" [sortable]="false"
+                <td-data-table #sutsTable class="scroll_table" [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true" [sortable]="false"
                     [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">

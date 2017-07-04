@@ -23,9 +23,9 @@ td-layout-manage-list .mat-toolbar {
 }
 
 //
-#dataTable > div{
+#dataTable > div, .scroll_table div{
     max-height: 74vh !important;
 }
-#dataTable table{
+#dataTable table, .scroll_table table{
     overflow-y: auto !important;
 }

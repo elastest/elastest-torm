@@ -24,7 +24,7 @@ export class TJobExecService {
       .map((response) => this.transformTJobExecDataToDataTable(response.json()));
   }
 
-  transformTJobExecDataToDataTable(tjobExecs: any[]) {
+  public transformTJobExecDataToDataTable(tjobExecs: any[]) {
     let tjobExecsDataToTable: TJobExecModel[] = [];
     for (let tjobExec of tjobExecs) {
       tjobExecsDataToTable.push(this.transformToTjobExecmodel(tjobExec));
@@ -33,7 +33,7 @@ export class TJobExecService {
   }
 
 
-  transformToTjobExecmodel(tjobExec: any) {
+  public transformToTjobExecmodel(tjobExec: any) {
     let tjobExecsDataToTable: TJobExecModel;
 
     tjobExecsDataToTable = new TJobExecModel();
@@ -41,6 +41,7 @@ export class TJobExecService {
     tjobExecsDataToTable.duration = tjobExec.duration;
     tjobExecsDataToTable.error = tjobExec.error;
     tjobExecsDataToTable.result = tjobExec.result;
+    tjobExecsDataToTable.logs = tjobExec.logs[0].logUrl;
     tjobExecsDataToTable.tJob = tjobExec.tjob;
 
     return tjobExecsDataToTable;

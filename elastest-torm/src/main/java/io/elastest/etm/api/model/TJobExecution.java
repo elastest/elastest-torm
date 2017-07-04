@@ -65,6 +65,7 @@ public class TJobExecution {
 	@JsonProperty("error")
 	private String error = null;
 	
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@OneToMany(mappedBy="tJobExec", cascade = CascadeType.REMOVE)
 	private List<Log> logs = null;
 	
