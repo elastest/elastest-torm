@@ -2,11 +2,14 @@ import { ProjectModel } from './project-model';
 import { Http, RequestOptions } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
+import { TJobService } from '../tjob/tjob.service';
+import { SutService } from '../sut/sut.service';
 
 @Injectable()
 export class ProjectService {
 
-  constructor(private http: Http, private confgurationService: ConfigurationService) { }
+  constructor(private http: Http, private confgurationService: ConfigurationService,
+    private tJobService: TJobService, private sutService: SutService) { }
 
   transformDataToDataTable(projects: any[]) {
     let projectsDataToTable: ProjectModel[] = [];
@@ -22,15 +25,24 @@ export class ProjectService {
     projectDataToTable = new ProjectModel();
     projectDataToTable.id = project.id;
     projectDataToTable.name = project.name;
-    projectDataToTable.suts = project.suts;
-    projectDataToTable.tjobs = project.tjobs;
+    projectDataToTable.suts = this.sutService.transformSutDataToDataTable(project.suts);
+    projectDataToTable.tjobs = this.tJobService.transformTJobDataToDataTable(project.tjobs);
     return projectDataToTable;
   }
 
   public getProject(id: string) {
     let url = this.confgurationService.configModel.hostApi + '/project/' + id;
     return this.http.get(url)
-      .map(response => this.transformToProjectmodel(response.json()));
+      .map(
+      (response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.transformToProjectmodel(data);
+        }
+        else {
+          throw new Error('Empty response. Project not exist or you don\'t have permissions to access it');
+        }
+      });
   }
 
   public getProjects() {
@@ -45,8 +57,8 @@ export class ProjectService {
       .map(response => response.json());
   }
 
-  public convertProjectToBackProject(project: ProjectModel){
-    return {"id":project.id, "name": project.name};
+  public convertProjectToBackProject(project: ProjectModel) {
+    return { "id": project.id, "name": project.name };
   }
 
   public deleteProject(project: ProjectModel) {

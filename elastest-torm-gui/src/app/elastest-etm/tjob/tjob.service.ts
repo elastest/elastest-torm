@@ -34,7 +34,7 @@ export class TJobService {
     tjobsDataToTable.name = tjob.name;
     tjobsDataToTable.imageName = tjob.imageName;
     tjobsDataToTable.sut = tjob.sut;
-    if (tjobsDataToTable.sut === undefined || tjobsDataToTable.sut === null || ((tjobsDataToTable.sut !== undefined && tjobsDataToTable.sut !== null) && tjobsDataToTable.sut.id === 0)) {
+    if (!tjobsDataToTable.hasSut()) {
       tjobsDataToTable.sut = new SutModel();
     }
     tjobsDataToTable.project = tjob.project;
@@ -46,11 +46,20 @@ export class TJobService {
   public getTJob(id: string) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + id;
     return this.http.get(url)
-      .map(response => this.transformToTjobmodel(response.json()));
+      .map(
+      (response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.transformToTjobmodel(data);
+        }
+        else {
+          throw new Error('Empty response. TJob not exist or you don\'t have permissions to access it');
+        }
+      });
   }
 
   public createTJob(tjob: TJobModel) {
-    if (tjob.sut !== undefined && tjob.sut.id === 0) {
+    if (!tjob.hasSut()) {
       tjob.sut = undefined;
     }
 

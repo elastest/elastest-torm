@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 
 @Injectable()
-export class TJobExecService { 
+export class TJobExecService {
   constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
 
   //  TJobExecution functions
@@ -35,26 +35,39 @@ export class TJobExecService {
 
   public transformToTjobExecmodel(tjobExec: any) {
     let tjobExecsDataToTable: TJobExecModel;
-
     tjobExecsDataToTable = new TJobExecModel();
+
     tjobExecsDataToTable.id = tjobExec.id;
     tjobExecsDataToTable.duration = tjobExec.duration;
     tjobExecsDataToTable.error = tjobExec.error;
     tjobExecsDataToTable.result = tjobExec.result;
-    tjobExecsDataToTable.logs = tjobExec.logs[0].logUrl;
+    if (tjobExec.logs[0] !== undefined && tjobExec.logs[0] !== null) { //If tjob execution is in progress, logurl is undefined
+      tjobExecsDataToTable.logs = tjobExec.logs[0].logUrl;
+    } else {
+      tjobExecsDataToTable.logs = '';
+    }
     tjobExecsDataToTable.tJob = tjobExec.tjob;
 
     return tjobExecsDataToTable;
   }
 
   public getTJobExecution(tJob: TJobModel, idTJobExecution: number) {
-    this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
+    return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
   public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url)
-      .map(response => this.transformToTjobExecmodel(response.json()));
+      .map(
+      (response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.transformToTjobExecmodel(data);
+        }
+        else {
+          throw new Error('Empty response. TJob Execution not exist or you don\'t have permissions to access it');
+        }
+      });
   }
 
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {

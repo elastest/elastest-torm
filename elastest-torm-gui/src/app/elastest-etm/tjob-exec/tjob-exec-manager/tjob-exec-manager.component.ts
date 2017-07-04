@@ -17,8 +17,8 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  testTraces: string[] = [];
-  sutTraces: string[] = [];
+  testTraces: string[] = ['Loading Logs...'];
+  sutTraces: string[] = ['Loading Logs...'];
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
     private route: ActivatedRoute, private router: Router,
@@ -42,30 +42,39 @@ export class TjobExecManagerComponent implements OnInit {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
-        if (this.tJobExec.result === 'IN PROGRESS') {
-          this.tJobService.getTJob(this.tJobId.toString())
-            .subscribe(
-            (tJob: TJobModel) => this.router.navigate(
-              ['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard', (tJob.sut !== undefined && tJob.sut.id !== 0)]
-            )
-            )
-        }
-        else {
-          //Load logs
-          this.elasticService.searchTestLogs('http://' + tJobExec.logs)
-            .subscribe(
-            (data) => {
-              this.testTraces = data;
-            }
-            );
+        this.tJobService.getTJob(this.tJobId.toString())
+          .subscribe(
+          (tJob: TJobModel) => {
+            if (this.tJobExec.result === 'IN PROGRESS') {
+              this.router.navigate(
+                ['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard', (tJob.hasSut())]
+              )
 
-          this.elasticService.searchSutLogs('http://' + tJobExec.logs)
-            .subscribe(
-            (data) => {
-              this.sutTraces = data;
             }
-            );
-        }
+            else {
+              //Load logs
+              this.elasticService.searchTestLogs('http://' + tJobExec.logs)
+                .subscribe(
+                (data) => {
+                  this.testTraces = data;
+                }
+                );
+
+              if (tJob.hasSut()) {
+                this.elasticService.searchSutLogs('http://' + tJobExec.logs)
+                  .subscribe(
+                  (data) => {
+                    this.sutTraces = data;
+                  }
+                  );
+              }
+              else {
+                this.sutTraces = ['TJob Without Sut. There aren\'t logs'];
+              }
+            }
+          },
+          (error) => console.log(error),
+        );
       });
   }
 

@@ -214,7 +214,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.tJobExecService.runTJob(tJob.id)
       .subscribe(
       (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard', (tJob.sut !== undefined && tJob.sut !== null && tJob.sut.id !== 0)]);
+        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard', (tJob.hasSut())]);
       },
       (error) => console.error('Error:' + error),
     );

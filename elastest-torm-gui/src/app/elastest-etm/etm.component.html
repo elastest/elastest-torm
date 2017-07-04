@@ -2,13 +2,15 @@
   <div td-toolbar-content layout="row" layout-align="center center" flex>
     <span></span>
     <span flex></span>
-    <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/api/etm" target="_blank"><md-icon>chrome_reader_mode</md-icon></a>
-    <a md-icon-button mdTooltip="Github" href="https://github.com/elastest/elastest-torm" target="_blank"><md-icon svgIcon="assets:github"></md-icon></a>
+    <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/api/etm" target="_blank">
+      <md-icon>chrome_reader_mode</md-icon>
+    </a>
+    <a md-icon-button mdTooltip="Github" href="https://github.com/elastest/elastest-torm" target="_blank">
+      <md-icon svgIcon="assets:github"></md-icon>
+    </a>
   </div>
-  <td-layout-manage-list #manageList
-                        [opened]="media.registerQuery('gt-sm') | async"
-                        [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-                        [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '257px' : '100%'">
+  <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '257px' : '100%'">
     <md-toolbar td-sidenav-content>
       <span>ETM</span>
     </md-toolbar>
@@ -22,12 +24,8 @@
         <md-icon md-list-icon>dashboard</md-icon>
         Dashboard
       </a>-->
-      <a md-list-item
-        md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/projects']">
+      <a md-list-item md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']">
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
@@ -58,21 +56,15 @@
         <md-icon md-list-icon>web</md-icon>
         Suts
       </a>-->
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
-         md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/eus']">        
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/eus']">
         <md-icon md-list-icon>web</md-icon>
         EUS
       </a>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
-         md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/logmanager']">        
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/logmanager']">
         <md-icon md-list-icon>web</md-icon>
         Log Manager
       </a>
@@ -87,7 +79,7 @@
     </div>
     <router-outlet></router-outlet>
   </td-layout-manage-list>
-    <td-layout-footer>
+  <td-layout-footer>
     <div layout="row" layout-align="start center">
       <span class="md-caption">Copyright &copy; 2017 ElasTest. All rights reserved</span>
       <span flex></span>

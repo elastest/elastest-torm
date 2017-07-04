@@ -19,7 +19,7 @@ export class TJobModel {
         this.tjobExecs = [];
     }
 
-    public hasSut():boolean{
+    public hasSut(): boolean {
         return (this.sut !== undefined && this.sut !== null && this.sut.id !== 0);
     }
 }

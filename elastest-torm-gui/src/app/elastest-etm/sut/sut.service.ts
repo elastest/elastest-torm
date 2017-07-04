@@ -41,7 +41,16 @@ export class SutService {
   public getSut(id: number) {
     let url = this.configurationService.configModel.hostApi + '/sut/' + id;
     return this.http.get(url)
-      .map(response => this.transformToSutmodel(response.json()));
+      .map(
+      (response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.transformToSutmodel(data);
+        }
+        else {
+          throw new Error('Empty response. SuT not exist or you don\'t have permissions to access it');
+        }
+      });
   }
 
   public createSut(sut: SutModel) {
