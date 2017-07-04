@@ -1,6 +1,6 @@
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
-import { SutExecModel } from '../sut/sutExec-model';
+import { SutExecModel } from '../sut-exec/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 
 export class TJobExecModel {
@@ -21,5 +21,9 @@ export class TJobExecModel {
         this.sutExec = undefined;
         this.logs = '';
         this.tJob = undefined;
+    }
+
+    public hasSutExec(): boolean {
+        return (this.sutExec !== undefined && this.sutExec !== null && this.sutExec.id !== 0);
     }
 }

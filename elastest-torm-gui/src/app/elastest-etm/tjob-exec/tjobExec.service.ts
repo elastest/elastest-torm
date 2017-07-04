@@ -1,5 +1,9 @@
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
+import { SutExecModel } from '../sut-exec/sutExec-model';
+import { SutExecService } from '../sut-exec/sutExec.service';
+import { SutModel } from '../sut/sut-model';
+import { SutService } from '../sut/sut.service';
 import { TJobModel } from '../tjob/tjob-model';
 import { TJobExecModel } from './tjobExec-model';
 import { Http } from '@angular/http';
@@ -9,7 +13,8 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobExecService {
-  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService,
+    private sutExecService: SutExecService, private sutService: SutService) { }
 
   //  TJobExecution functions
   public runTJob(tJobId: number) {
@@ -41,12 +46,24 @@ export class TJobExecService {
     tjobExecsDataToTable.duration = tjobExec.duration;
     tjobExecsDataToTable.error = tjobExec.error;
     tjobExecsDataToTable.result = tjobExec.result;
+    if (tjobExec.sutExecution !== undefined && tjobExec.sutExecution !== null) {
+      tjobExecsDataToTable.sutExec = this.sutExecService.transformToSutExecmodel(tjobExec.sutExecution);
+    }
+    else {
+      tjobExecsDataToTable.sutExec = new SutExecModel();
+    }
     if (tjobExec.logs[0] !== undefined && tjobExec.logs[0] !== null) { //If tjob execution is in progress, logurl is undefined
       tjobExecsDataToTable.logs = tjobExec.logs[0].logUrl;
     } else {
       tjobExecsDataToTable.logs = '';
     }
-    tjobExecsDataToTable.tJob = tjobExec.tjob;
+
+    if (tjobExec.tJob !== undefined && tjobExec.tJob !== null) {
+      tjobExecsDataToTable.tJob = this.transformToTjobmodelForTJobExec(tjobExec.tJob);
+    }
+    else {
+      tjobExecsDataToTable.tJob = new TJobModel();
+    }
 
     return tjobExecsDataToTable;
   }
@@ -76,9 +93,23 @@ export class TJobExecService {
       .map((response) => response.json());
   }
 
-  private subscribeQueues(tjobExec: any) {
+  transformToTjobmodelForTJobExec(tjob: any) { // Not convert tjob exec list 
+    let tjobsDataToTable: TJobModel;
 
+    tjobsDataToTable = new TJobModel();
+    tjobsDataToTable.id = tjob.id;
+    tjobsDataToTable.name = tjob.name;
+    tjobsDataToTable.imageName = tjob.imageName;
+    if (tjob.sut !== undefined && tjob.sut !== null) {
+      tjobsDataToTable.sut = this.sutService.transformToSutmodel(tjob.sut);
+    }
+    else {
+      tjobsDataToTable.sut = new SutModel();
+    }
+    tjobsDataToTable.project = tjob.project;
+    tjobsDataToTable.tjobExecs = tjob.tjobExecs;
+
+    return tjobsDataToTable;
   }
-
 
 }

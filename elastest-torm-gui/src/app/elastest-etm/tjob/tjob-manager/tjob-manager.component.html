@@ -9,10 +9,10 @@
         <div layout="row">
           <span flex-gt-xs="25"><md-card-subtitle>Name</md-card-subtitle><h4>{{tJob.name}}</h4></span>
           <span flex-gt-xs="25"><md-card-subtitle>Image Name</md-card-subtitle><h4>{{tJob.imageName}}</h4></span>
-          <span flex-gt-xs="25" *ngIf="tJob.sut !== undefined && tJob.sut.id === 0">
+          <span flex-gt-xs="25" *ngIf="!tJob.hasSut()">
             <md-card-subtitle>Sut</md-card-subtitle><h4>None</h4>
           </span>
-          <span flex-gt-xs="25" *ngIf="tJob.sut !== undefined && tJob.sut.id !== 0">
+          <span flex-gt-xs="25" *ngIf="tJob.hasSut()">
             <md-card-subtitle>Sut</md-card-subtitle><h4>{{tJob.sut.id}}</h4>
           </span>
         </div>
@@ -31,6 +31,10 @@
       <md-card-content>
         <td-data-table #tjobsTable class="scroll_table" [data]="tJobExecData" [columns]="tJobExecColumns" [selectable]="false" [clickable]="true"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+          <ng-template tdDataTableTemplate="sutExecution" let-value="value" let-row="row" let-column="column">
+            <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>
+            <span *ngIf="!row.hasSutExec()">None</span>
+          </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row">
               <button md-button (click)="viewTJobExec(row)" title="View TJob Execution"><md-icon>remove_red_eye</md-icon></button>

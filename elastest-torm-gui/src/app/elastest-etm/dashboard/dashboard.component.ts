@@ -79,7 +79,6 @@ export class DashboardComponent implements AfterViewInit {
         (params: Params) => {
           this.tJobId = params.tJobId;
           this.tJobExecId = params.tJobExecId;
-          this.withSut = params.withSut;
         }
       )
     }
@@ -167,6 +166,7 @@ export class DashboardComponent implements AfterViewInit {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
+        this.withSut = this.tJobExec.tJob.hasSut();
         this.createAndSubscribe(this.tJobExec);
       });
   }

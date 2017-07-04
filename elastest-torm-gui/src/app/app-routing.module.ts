@@ -86,12 +86,7 @@ const routes: Routes = [
                                                     },
                                                     {
                                                         path: 'dashboard',
-                                                        children: [
-                                                            {
-                                                                path: ':withSut',
-                                                                component: DashboardComponent,
-                                                            },
-                                                        ]
+                                                        component: DashboardComponent,
                                                     }
                                                 ]
                                             },

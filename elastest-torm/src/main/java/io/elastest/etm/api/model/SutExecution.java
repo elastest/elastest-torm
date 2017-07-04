@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.api.model.TJob.BasicAttTJob;
+import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -31,7 +33,7 @@ public class SutExecution {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@JsonView(SutExecView.class)
+	@JsonView({ SutExecView.class, BasicAttTJob.class, BasicAttTJobExec.class })
 	@JsonProperty("id")
 	private Long id = null;
 

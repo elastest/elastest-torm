@@ -15,8 +15,8 @@
                     <button md-raised-button color="accent" [routerLink]="['add']">New Project</button>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true" [sortable]="false"
-                    [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="showProjectChilds($event)">
+                <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
+                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="showProjectChilds($event)">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
                             <button md-button (click)="editProject(row)" title="Edit Project"><md-icon>mode_edit</md-icon></button>
@@ -33,7 +33,7 @@
     <div flex-gt-sm="50" layout-gt-sm="column">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
-                Project  {{projectSelected.id}} TJobs
+                Project {{projectSelected.id}} TJobs
             </md-card-title>
             <md-divider></md-divider>
             <md-card-content #scrollMeTest>
@@ -60,8 +60,12 @@
                     </md-list-item>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #tjobsTable class="scroll_table" [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true" [sortable]="false"
-                    [sortBy]="sortBy" [sortOrder]="sortOrder">
+                <td-data-table #tjobsTable class="scroll_table" [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true"
+                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+                    <ng-template tdDataTableTemplate="sut" let-value="value" let-row="row" let-column="column">
+                        <span *ngIf="row.hasSut()">{{row.sut.id}}</span>
+                        <span *ngIf="!row.hasSut()">None</span>
+                    </ng-template>
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
                             <button md-button (click)="runTJob(row)" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
@@ -78,7 +82,7 @@
     <div flex-gt-sm="50" layout-gt-sm="column">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
-                Project  {{projectSelected.id}} SuTs
+                Project {{projectSelected.id}} SuTs
             </md-card-title>
             <md-divider></md-divider>
             <md-card-content #scrollMeSut>
@@ -102,8 +106,8 @@
                     </md-list-item>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #sutsTable class="scroll_table" [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true" [sortable]="false"
-                    [sortBy]="sortBy" [sortOrder]="sortOrder">
+                <td-data-table #sutsTable class="scroll_table" [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true"
+                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
                             <button md-button (click)="viewSut(row)" title="View Sut"><md-icon>remove_red_eye</md-icon></button>

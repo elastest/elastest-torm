@@ -52,7 +52,7 @@ public class TJob {
 	@JsonProperty("imageName")
 	private String imageName = null;
 
-	@JsonView({ BasicAttTJob.class,  BasicAttProject.class })
+	@JsonView({ BasicAttTJob.class,  BasicAttProject.class, BasicAttTJobExec.class })
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="sut")
 	@JsonProperty("sut")

@@ -63,7 +63,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
     { name: 'imageName', label: 'Image Name' },
-    { name: 'sut.id', label: 'Sut' },
+    { name: 'sut', label: 'Sut' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -214,7 +214,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.tJobExecService.runTJob(tJob.id)
       .subscribe(
       (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard', (tJob.hasSut())]);
+        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
       },
       (error) => console.error('Error:' + error),
     );

@@ -1,8 +1,10 @@
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
-import { TJobExecModel } from '../tjob-exec/tjobExec-model';
-import { TJobModel } from './tjob-model';
 import { SutModel } from '../sut/sut-model';
+import { SutService } from '../sut/sut.service';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
+import { TJobExecService } from '../tjob-exec/tjobExec.service';
+import { TJobModel } from './tjob-model';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
@@ -10,7 +12,8 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobService {
-  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
+  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService,
+    private sutService: SutService) { }
 
   public getTJobs() {
     let url = this.configurationService.configModel.hostApi + '/tjob';
@@ -33,8 +36,10 @@ export class TJobService {
     tjobsDataToTable.id = tjob.id;
     tjobsDataToTable.name = tjob.name;
     tjobsDataToTable.imageName = tjob.imageName;
-    tjobsDataToTable.sut = tjob.sut;
-    if (!tjobsDataToTable.hasSut()) {
+    if (tjob.sut !== undefined && tjob.sut !== null) {
+      tjobsDataToTable.sut = this.sutService.transformToSutmodel(tjob.sut);
+    }
+    else {
       tjobsDataToTable.sut = new SutModel();
     }
     tjobsDataToTable.project = tjob.project;

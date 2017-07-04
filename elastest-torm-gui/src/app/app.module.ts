@@ -18,6 +18,7 @@ import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 import { TJobExecService } from './elastest-etm/tjob-exec/tjobExec.service';
 import { SutService } from './elastest-etm/sut/sut.service';
+import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { ElasticSearchService } from './elastest-log-manager/services/elasticsearch.service';
 import { MdDatepickerModule, MdNativeDateModule, MdRadioModule } from '@angular/material';
@@ -26,6 +27,7 @@ import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
 import { SutManagerComponent } from './elastest-etm/sut/sut-manager/sut-manager.component';
 import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
+import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manager/sut-exec-manager.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -39,6 +41,7 @@ const httpInterceptorProviders: Type<any>[] = [
     TjobManagerComponent,
     SutManagerComponent,
     TjobExecManagerComponent,
+    SutExecManagerComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
@@ -64,6 +67,7 @@ const httpInterceptorProviders: Type<any>[] = [
     StompService,
     StompWSManager,
     SutService,
+    SutExecService,
     TJobService,
     TJobExecService,
     ProjectService,

@@ -70,6 +70,7 @@ public class TJobExecution {
 	private List<Log> logs = null;
 	
 	//bi-directional many-to-one association to Tjob
+	@JsonView({ BasicAttTJobExec.class })
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="tjob")
 	private TJob tJob;
