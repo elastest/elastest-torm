@@ -10,14 +10,14 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 export class LogsViewComponent implements OnInit {
   @ViewChild('scrollMe') private myScrollContainer: ElementRef;
 
-  @Input() 
+  @Input()
   public logView: LogViewModel;
-  @Input() 
+  @Input()
   public loadPreviousLogs: Function;
 
-  constructor() {
+  lockScroll: boolean = false;
 
-  }
+  constructor() { }
 
   ngOnInit() {
   }
@@ -28,7 +28,9 @@ export class LogsViewComponent implements OnInit {
 
   scrollToBottom(): void {
     try {
-      this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+      if (!this.lockScroll) {
+        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+      }
     } catch (err) {
       console.log('[Error]:' + err.toString());
     }
