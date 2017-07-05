@@ -1,7 +1,6 @@
 package io.elastest.etm.ws.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
@@ -18,10 +17,6 @@ public class WebSocketConfiguration {
 	
 	@Autowired
 	public UtilTools utilTools;
-	
-	@Value ("${os.name}")
-	private String windowsSO;
-	
 
 	@Configuration
 	public class WebSocketMessageBrokerConfiguration extends AbstractWebSocketMessageBrokerConfigurer {

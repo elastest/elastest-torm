@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
@@ -19,7 +19,7 @@ import { MdSnackBar } from '@angular/material';
   styleUrls: ['./dashboard.component.scss'],
   viewProviders: [ItemsService, UsersService, ProductsService, AlertsService],
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('scrollMeTest') private myScrollContainerTest: ElementRef;
   @ViewChild('scrollMeSut') private myScrollContainerSut: ElementRef;
 
@@ -69,6 +69,8 @@ export class DashboardComponent implements AfterViewInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
+  fromTJobPage: boolean = false;
+
   constructor(private _titleService: Title,
     private _itemsService: ItemsService,
     private _usersService: UsersService,
@@ -90,11 +92,18 @@ export class DashboardComponent implements AfterViewInit {
           this.tJobId = params.tJobId;
           this.tJobExecId = params.tJobExecId;
         }
-      )
+      );    
     }
+
+    this.route.queryParams.subscribe(
+        params => {
+          this.fromTJobPage = params['fromTJobManager'];
+        }
+    );
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+   }
 
   ngAfterViewInit(): void {
 
@@ -116,9 +125,6 @@ export class DashboardComponent implements AfterViewInit {
 
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
-
-
-
 
     this._titleService.setTitle('ElasTest ETM');
     this._loadingService.register('items.load');
@@ -173,12 +179,17 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   loadTJobExec() {
-    this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-      .subscribe((tJobExec: TJobExecModel) => {
-        this.tJobExec = tJobExec;
-        this.withSut = this.tJobExec.tJob.hasSut();
-        this.createAndSubscribe(this.tJobExec);
-      });
+    if (this.fromTJobPage){
+      console.log('Suscribe to TJob execution.')
+      this.createAndSubscribeToTopic(this.tJobExecId);
+    }else{
+      this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+        .subscribe((tJobExec: TJobExecModel) => {
+          this.tJobExec = tJobExec;
+          this.withSut = this.tJobExec.tJob.hasSut();
+          this.createAndSubscribe(this.tJobExec);
+        });
+    }
   }
 
   verifySut() {
@@ -211,8 +222,6 @@ export class DashboardComponent implements AfterViewInit {
     return parsedData;
   }
 
-
-
   updateMemoryData(data: any, test: boolean) {
     let parsedData: any = this.parseMemoryData(data);
 
@@ -233,8 +242,6 @@ export class DashboardComponent implements AfterViewInit {
     return parsedData;
   }
 
-
-
   ngAfterViewChecked() {
     this.scrollToBottomTest();
     this.scrollToBottomSut();
@@ -254,26 +261,25 @@ export class DashboardComponent implements AfterViewInit {
     } catch (err) {
       console.log('[Error]:' + err.toString());
     }
-  }
+  } 
 
-  public runTJob() {
-
-    this.tJobExecService.runTJob(this.tJobId)
-      .subscribe(
-      (tjobExecution) => {
-        console.log('TJobExecutionId:' + tjobExecution.id);
-        this.createAndSubscribe(tjobExecution);
-      },
-      (error) => console.error('Error:' + error),
-    );
-  }
-
-  public createAndSubscribe(tjobExecution: any) {
-    this.stompWSManager.subscribeWSDestinationTestLog('q-' + tjobExecution.id + '-test-log');
-    this.stompWSManager.subscribeWSDestinationTestMetrics('q-' + tjobExecution.id + '-test-metrics');
+ public createAndSubscribe(tjobExecution: any) {
+    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);
+    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-metrics', this.stompWSManager.testMetricsResponse);
     if (this.withSut) {
-      this.stompWSManager.subscribeWSDestinationSutLog('q-' + tjobExecution.id + '-sut-log');
-      this.stompWSManager.subscribeWSDestinationSutMetrics('q-' + tjobExecution.id + '-sut-metrics');
+      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-log', this.stompWSManager.sutLogResponse);
+      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-metrics', this.stompWSManager.sutMetricsResponse);
+    } else {
+      this.sutTraces.push('TJob without Sut');
+    }
+  }
+
+  public createAndSubscribeToTopic(tjobExecution: any) {
+    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution + '.log', this.stompWSManager.testLogResponse);
+    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution + '.metrics', this.stompWSManager.testMetricsResponse);
+    if (this.withSut) {
+      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.log', this.stompWSManager.sutLogResponse);
+      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.metrics', this.stompWSManager.sutMetricsResponse);
     } else {
       this.sutTraces.push('TJob without Sut');
     }
@@ -317,5 +323,9 @@ export class DashboardComponent implements AfterViewInit {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
+  }
+
+  ngOnDestroy(){    
+    this.stompWSManager.ususcribeWSDestination('');
   }
 }

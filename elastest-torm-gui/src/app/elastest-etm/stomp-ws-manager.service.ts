@@ -20,7 +20,9 @@ export class StompWSManager {
     heartbeatIn: 5000
   }
 
-  private subscription: any;
+  subscription: any;
+  subscriptions: Map<string, any>; 
+  
   testTraces: string[] = [];
   sutTraces: string[] = [];
 
@@ -35,6 +37,7 @@ export class StompWSManager {
 
 
   constructor(private stomp: StompService, private http: Http) {
+    this.subscriptions = new Map<string, any>();
   }
 
   configWSConnection(host: string) {
@@ -49,6 +52,7 @@ export class StompWSManager {
      */
     this.stomp.startConnect().then(() => {
       console.log('connected');
+      console.log('Url Ws: ' + this.stomp.getSessionWsId());
 
     });
   }
@@ -85,8 +89,20 @@ export class StompWSManager {
     this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutLogResponse);
   }
 
-  ususcribeWSDestination() {
-    this.subscription.unsubscribe();
+  subscribeToQueDestination(destination: string, callbackFunction: any) {
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction));
+  }
+
+  subscribeToTopicDestination(destination: string, callbackFunction: any) {
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/topic/' + destination, callbackFunction));
+  }
+
+  ususcribeWSDestination(destination: string) {    
+    this.subscriptions.forEach((value, key) => {
+      console.log("UNSUSCRIBE TOPICS", key, value);
+      this.stomp.unsubscribe(value);
+    });
+    
   }
 
   sendWSMessage() {
