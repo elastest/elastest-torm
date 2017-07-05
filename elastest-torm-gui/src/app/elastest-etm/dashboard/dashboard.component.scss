@@ -7,3 +7,9 @@
 .chart-height {
   height: 300px;
 }
+
+:host /deep/ .logsViewContent{
+    height: 30vh;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    overflow-y: auto; overflow-x: hidden
+}

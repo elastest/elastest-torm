@@ -2,7 +2,9 @@
     padding-left: 0 !important;
 }
 
-.logs{
+
+
+:host /deep/ .logsViewContent{
     height: 60vh;
     font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     overflow-y: auto; overflow-x: hidden

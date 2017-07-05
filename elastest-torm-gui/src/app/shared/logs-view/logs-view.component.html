@@ -1,18 +1,18 @@
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        {{logView.name}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <button md-raised-button color="accent" (click)="loadPreviousLogs" [disabled]="logView.prevTracesLoaded" [hidden]="logView.hidePrevBtn">Load Previous</button>
-        <ul #scrollMe class="scroll_log">
-          <li *ngFor="let trace of logView.prevTraces">
-            {{trace}}
-          </li>
-          <md-divider *ngIf="logView.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
-          <li *ngFor="let trace of logView.traces">
-            {{trace}}
-          </li>
-        </ul>
-      </md-card-content>
-    </md-card>
+<md-card tdMediaToggle="gt-xs">
+  <md-card-title>
+    {{logView.name}}
+  </md-card-title>
+  <md-divider></md-divider>
+  <md-card-content>
+    <button md-raised-button color="accent" (click)="loadPreviousLogs" [disabled]="logView.prevTracesLoaded" *ngIf="!logView.hidePrevBtn">Load Previous</button>
+    <ul #scrollMe class="scroll_log" class="logsViewContent">
+      <li *ngFor="let trace of logView.prevTraces">
+        {{trace}}
+      </li>
+      <md-divider *ngIf="logView.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
+      <li *ngFor="let trace of logView.traces">
+        {{trace}}
+      </li>
+    </ul>
+  </md-card-content>
+</md-card>
