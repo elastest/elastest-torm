@@ -63,6 +63,7 @@ const CHART_MODULES: any[] = [
     COVALENT_MODULES,
     CHART_MODULES,
     FLEX_LAYOUT_MODULES,
+    LogsViewComponent,
   ]
 })
 export class SharedModule { }

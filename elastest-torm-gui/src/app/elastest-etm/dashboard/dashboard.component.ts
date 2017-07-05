@@ -12,6 +12,7 @@ import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
 import { MetricsDataModel } from './metrics-data-model';
 import { MdSnackBar } from '@angular/material';
+import { LogViewModel } from '../../shared/logs-view/log-view-model';
 
 @Component({
   selector: 'etm-dashboard',
@@ -20,8 +21,6 @@ import { MdSnackBar } from '@angular/material';
   viewProviders: [ItemsService, UsersService, ProductsService, AlertsService],
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('scrollMeTest') private myScrollContainerTest: ElementRef;
-  @ViewChild('scrollMeSut') private myScrollContainerSut: ElementRef;
 
   items: Object[];
   users: Object[];
@@ -56,12 +55,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobId: number;
   withSut: boolean = false;
 
-  testTraces: string[] = [];
-  sutTraces: string[] = [];
-  testPrevTraces: string[] = [];
-  sutPrevTraces: string[] = [];
-  prevTestLoaded: boolean = false;
-  prevSutLoaded: boolean = false;
+  sutLogView: LogViewModel = new LogViewModel();
+  testLogView: LogViewModel = new LogViewModel();
 
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
@@ -81,10 +76,13 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
     private elasticService: ElasticSearchService,
-    private route: ActivatedRoute, private router: Router, 
+    private route: ActivatedRoute, private router: Router,
     private snackBar: MdSnackBar) {
-    this.testTraces = this.stompWSManager.testTraces;
-    this.sutTraces = this.stompWSManager.sutTraces;
+    this.testLogView.name = 'Test Logs';
+    this.sutLogView.name = 'Sut Logs';
+
+    this.testLogView.traces = this.stompWSManager.testTraces;
+    this.sutLogView.traces = this.stompWSManager.sutTraces;
 
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
@@ -92,31 +90,28 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
           this.tJobId = params.tJobId;
           this.tJobExecId = params.tJobExecId;
         }
-      );    
+      );
     }
 
     this.route.queryParams.subscribe(
-        params => {
-          this.fromTJobPage = params['fromTJobManager'];
-        }
+      params => {
+        this.fromTJobPage = params['fromTJobManager'];
+      }
     );
   }
 
   ngOnInit() {
-   }
+  }
 
   ngAfterViewInit(): void {
 
-    if (this.testTraces.length > 0) {
-      this.testTraces.splice(0, this.stompWSManager.testTraces.length);
+    if (this.testLogView.traces.length > 0) {
+      this.testLogView.traces.splice(0, this.stompWSManager.testTraces.length);
     }
-    this.scrollToBottomTest();
 
-    if (this.sutTraces.length > 0) {
-      this.sutTraces.splice(0, this.stompWSManager.sutTraces.length);
+    if (this.sutLogView.traces.length > 0) {
+      this.sutLogView.traces.splice(0, this.stompWSManager.sutTraces.length);
     }
-    this.scrollToBottomSut();
-
     this.testMetricsSubscription = this.stompWSManager.testMetrics$
       .subscribe(data => this.updateData(data, true));
 
@@ -179,10 +174,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   loadTJobExec() {
-    if (this.fromTJobPage){
+    if (this.fromTJobPage) {
       console.log('Suscribe to TJob execution.')
       this.createAndSubscribeToTopic(this.tJobExecId);
-    }else{
+    } else {
       this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
         .subscribe((tJobExec: TJobExecModel) => {
           this.tJobExec = tJobExec;
@@ -243,34 +238,18 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewChecked() {
-    this.scrollToBottomTest();
-    this.scrollToBottomSut();
   }
 
-  scrollToBottomTest(): void {
-    try {
-      this.myScrollContainerTest.nativeElement.scrollTop = this.myScrollContainerTest.nativeElement.scrollHeight;
-    } catch (err) {
-      console.log('[Error]:' + err.toString());
-    }
-  }
+  
 
-  scrollToBottomSut(): void {
-    try {
-      this.myScrollContainerSut.nativeElement.scrollTop = this.myScrollContainerSut.nativeElement.scrollHeight;
-    } catch (err) {
-      console.log('[Error]:' + err.toString());
-    }
-  } 
-
- public createAndSubscribe(tjobExecution: any) {
+  public createAndSubscribe(tjobExecution: any) {
     this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);
     this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-metrics', this.stompWSManager.testMetricsResponse);
     if (this.withSut) {
       this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-log', this.stompWSManager.sutLogResponse);
       this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-metrics', this.stompWSManager.sutMetricsResponse);
     } else {
-      this.sutTraces.push('TJob without Sut');
+      this.sutLogView.traces.push('TJob without Sut');
     }
   }
 
@@ -281,7 +260,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.log', this.stompWSManager.sutLogResponse);
       this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.metrics', this.stompWSManager.sutMetricsResponse);
     } else {
-      this.sutTraces.push('TJob without Sut');
+      this.sutLogView.traces.push('TJob without Sut');
     }
   }
 
@@ -291,12 +270,12 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   public loadPrevTestLogs() {
-    if (this.testTraces[0] !== undefined && this.testTraces[0] !== null) {
-      this.elasticService.getFromGivenTestLog(this.tJobExec.logs, this.testTraces[0])
+    if (this.testLogView.traces[0] !== undefined && this.testLogView.traces[0] !== null) {
+      this.elasticService.getFromGivenTestLog(this.tJobExec.logs, this.testLogView.traces[0])
         .subscribe(
         (messages) => {
-          this.testPrevTraces = messages;
-          this.prevTestLoaded = true;
+          this.testLogView.prevTraces = messages;
+          this.testLogView.prevTracesLoaded = true;
         },
         (error) => console.log(error),
       );
@@ -304,28 +283,28 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   public loadPrevSutLogs() {
-    if (this.sutTraces[0] !== undefined && this.sutTraces[0] !== null) {
-      this.elasticService.getFromGivenSutLog(this.tJobExec.logs, this.sutTraces[0])
+    if (this.sutLogView.traces[0] !== undefined && this.sutLogView.traces[0] !== null) {
+      this.elasticService.getFromGivenSutLog(this.tJobExec.logs, this.sutLogView.traces[0])
         .subscribe(
         (messages) => {
-          this.sutPrevTraces = messages;
-          this.prevSutLoaded = true;
+          this.sutLogView.prevTraces = messages;
+          this.sutLogView.prevTracesLoaded = true;
         },
         (error) => console.log(error),
       );
     }
-    else{
+    else {
       // this.openSnackBar("Test", null);
     }
   }
 
-   openSnackBar(message: string, action: string) {
+  openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
   }
 
-  ngOnDestroy(){    
+  ngOnDestroy() {
     this.stompWSManager.ususcribeWSDestination('');
   }
 }

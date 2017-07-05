@@ -25,33 +25,10 @@
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-sm="50" layout-gt-sm="column">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                Test Logs
-            </md-card-title>
-            <md-divider></md-divider>
-            <md-card-content class="logs">
-                <ul>
-                    <li *ngFor="let trace of testTraces">
-                        {{trace}}
-                    </li>
-                </ul>
-            </md-card-content>
-        </md-card>
+        <logs-view [logView]="testLogView" [loadPreviousLogs]="null"></logs-view>
     </div>
 
     <div flex-gt-sm="50" layout-gt-sm="column">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                Sut Logs
-            </md-card-title>
-            <md-divider></md-divider>
-            <md-card-content class="logs">
-                <ul>
-                    <li *ngFor="let trace of sutTraces">
-                        {{trace}}
-                    </li>
-                </ul>
-            </md-card-content>
-        </md-card>
+        <logs-view [logView]="sutLogView" [loadPreviousLogs]="null"></logs-view>
     </div>
+</div>

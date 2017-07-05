@@ -16,11 +16,10 @@ export class SutFormComponent implements OnInit {
   sut: SutModel;
   editMode: boolean = false;
 
-  constructor(private sutService: SutService, private route: ActivatedRoute, 
-  private projectService: ProjectService) { }
+  constructor(private sutService: SutService, private route: ActivatedRoute,
+    private projectService: ProjectService) { }
 
   ngOnInit() {
-
     this.sut = new SutModel();
     let currentPath: string = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {

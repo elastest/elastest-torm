@@ -1,4 +1,5 @@
 import { ElasticSearchService } from '../../../elastest-log-manager/services/elasticsearch.service';
+import { LogViewModel } from '../../../shared/logs-view/log-view-model';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -17,12 +18,20 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  testTraces: string[] = ['Loading Logs...'];
-  sutTraces: string[] = ['Loading Logs...'];
+  sutLogView: LogViewModel = new LogViewModel();
+  testLogView: LogViewModel = new LogViewModel();
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
-    private route: ActivatedRoute, private router: Router,
-  ) {
+    private route: ActivatedRoute, private router: Router,)
+  {
+    this.testLogView.name = 'Test Logs';
+    this.sutLogView.name = 'Sut Logs';
+    this.testLogView.hidePrevBtn = true;
+    this.sutLogView.hidePrevBtn = true;
+
+    this.testLogView.traces = ['Loading Logs...'];
+    this.sutLogView.traces = ['Loading Logs...'];
+
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -48,14 +57,14 @@ export class TjobExecManagerComponent implements OnInit {
             if (this.tJobExec.result === 'IN PROGRESS') {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
-               { queryParams: { fromTJobManager: true } });
+                { queryParams: { fromTJobManager: true } });
             }
             else {
               //Load logs
               this.elasticService.searchTestLogs(tJobExec.logs)
                 .subscribe(
                 (data) => {
-                  this.testTraces = data;
+                  this.testLogView.traces = data;
                 }
                 );
 
@@ -63,12 +72,12 @@ export class TjobExecManagerComponent implements OnInit {
                 this.elasticService.searchSutLogs(tJobExec.logs)
                   .subscribe(
                   (data) => {
-                    this.sutTraces = data;
+                    this.sutLogView.traces = data;
                   }
                   );
               }
               else {
-                this.sutTraces = ['TJob Without Sut. There aren\'t logs'];
+                this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
               }
             }
           },

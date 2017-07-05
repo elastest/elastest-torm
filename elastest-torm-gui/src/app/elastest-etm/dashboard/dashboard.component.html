@@ -70,45 +70,10 @@
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        Test Logs
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <button md-raised-button color="accent" (click)="loadPrevTestLogs()" [disabled]="prevTestLoaded">Load Previous</button>
-        <ul #scrollMeTest class="scroll_log">
-          <li *ngFor="let trace of testPrevTraces">
-            {{trace}}
-          </li>
-          <md-divider *ngIf="testPrevTraces.length > 0" class="push-bottom push-top"></md-divider>
-          <li *ngFor="let trace of testTraces">
-            {{trace}}
-          </li>
-        </ul>
-      </md-card-content>
-    </md-card>
+    <logs-view [logView]="testLogView" [loadPreviousLogs]="loadPrevTestLogs.bind(this)"></logs-view>
   </div>
 
   <div flex-gt-sm="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        Sut Logs
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <button md-raised-button color="accent" (click)="loadPrevSutLogs()" [disabled]="prevSutLoaded">Load Previous</button>
-        <ul #scrollMeSut class="scroll_log">
-          <li *ngFor="let trace of sutPrevTraces">
-            {{trace}}
-          </li>
-          <md-divider *ngIf="sutPrevTraces.length > 0" class="push-bottom push-top"></md-divider>
-          <li *ngFor="let trace of sutTraces">
-            {{trace}}
-          </li>
-        </ul>
-      </md-card-content>
-    </md-card>
+    <logs-view [logView]="sutLogView" [loadPreviousLogs]="loadPrevSutLogs.bind(this)"></logs-view>
   </div>
-
 </div>
