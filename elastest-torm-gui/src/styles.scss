@@ -29,3 +29,10 @@ td-layout-manage-list .mat-toolbar {
 #dataTable table, .scroll_table table{
     overflow-y: auto !important;
 }
+
+.scroll_log{
+    height: 300px;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+}

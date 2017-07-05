@@ -5,11 +5,13 @@ import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { Subscription } from 'rxjs/Rx';
 
 import { AlertsService, ItemsService, ProductsService, UsersService } from '../../../services';
+import { ElasticSearchService } from '../../elastest-log-manager/services/elasticsearch.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
 import { MetricsDataModel } from './metrics-data-model';
+import { MdSnackBar } from '@angular/material';
 
 @Component({
   selector: 'etm-dashboard',
@@ -53,8 +55,14 @@ export class DashboardComponent implements AfterViewInit {
 
   tJobId: number;
   withSut: boolean = false;
+
   testTraces: string[] = [];
   sutTraces: string[] = [];
+  testPrevTraces: string[] = [];
+  sutPrevTraces: string[] = [];
+  prevTestLoaded: boolean = false;
+  prevSutLoaded: boolean = false;
+
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
 
@@ -70,7 +78,9 @@ export class DashboardComponent implements AfterViewInit {
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
-    private route: ActivatedRoute, private router: Router, ) {
+    private elasticService: ElasticSearchService,
+    private route: ActivatedRoute, private router: Router, 
+    private snackBar: MdSnackBar) {
     this.testTraces = this.stompWSManager.testTraces;
     this.sutTraces = this.stompWSManager.sutTraces;
 
@@ -272,5 +282,40 @@ export class DashboardComponent implements AfterViewInit {
   // ngx transform using covalent digits pipe
   axisDigits(val: any): any {
     return new TdDigitsPipe().transform(val);
+  }
+
+  public loadPrevTestLogs() {
+    if (this.testTraces[0] !== undefined && this.testTraces[0] !== null) {
+      this.elasticService.getFromGivenTestLog(this.tJobExec.logs, this.testTraces[0])
+        .subscribe(
+        (messages) => {
+          this.testPrevTraces = messages;
+          this.prevTestLoaded = true;
+        },
+        (error) => console.log(error),
+      );
+    }
+  }
+
+  public loadPrevSutLogs() {
+    if (this.sutTraces[0] !== undefined && this.sutTraces[0] !== null) {
+      this.elasticService.getFromGivenSutLog(this.tJobExec.logs, this.sutTraces[0])
+        .subscribe(
+        (messages) => {
+          this.sutPrevTraces = messages;
+          this.prevSutLoaded = true;
+        },
+        (error) => console.log(error),
+      );
+    }
+    else{
+      // this.openSnackBar("Test", null);
+    }
+  }
+
+   openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
   }
 }

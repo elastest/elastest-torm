@@ -32,7 +32,7 @@
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="100">
-    <md-card  class="pad-top pad-bottom">
+    <md-card class="pad-top pad-bottom">
       <md-card-title>TJob Execution: {{tJobExecId}}</md-card-title>
     </md-card>
   </div>
@@ -75,8 +75,13 @@
         Test Logs
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content #scrollMeTest style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
-        <ul>
+      <md-card-content>
+        <button md-raised-button color="accent" (click)="loadPrevTestLogs()" [disabled]="prevTestLoaded">Load Previous</button>
+        <ul #scrollMeTest class="scroll_log">
+          <li *ngFor="let trace of testPrevTraces">
+            {{trace}}
+          </li>
+          <md-divider *ngIf="testPrevTraces.length > 0" class="push-bottom push-top"></md-divider>
           <li *ngFor="let trace of testTraces">
             {{trace}}
           </li>
@@ -91,8 +96,13 @@
         Sut Logs
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content #scrollMeSut style="height: 300px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow-y: auto; overflow-x: hidden">
-        <ul>
+      <md-card-content>
+        <button md-raised-button color="accent" (click)="loadPrevSutLogs()" [disabled]="prevSutLoaded">Load Previous</button>
+        <ul #scrollMeSut class="scroll_log">
+          <li *ngFor="let trace of sutPrevTraces">
+            {{trace}}
+          </li>
+          <md-divider *ngIf="sutPrevTraces.length > 0" class="push-bottom push-top"></md-divider>
           <li *ngFor="let trace of sutTraces">
             {{trace}}
           </li>

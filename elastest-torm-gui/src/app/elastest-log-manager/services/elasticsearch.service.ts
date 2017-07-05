@@ -44,37 +44,38 @@ export class ElasticSearchService {
     return messagesList;
   }
 
- /**
-  * returns an observable. When all data has been received (recursively), obeservable calls next method to send data
-  * @param url 
-  * @param type 
-  * @param from 
-  */
-  searchLogsByType(url: string, type: string, from?: number) {
+  /**
+   * returns an observable. When all data has been received (recursively), obeservable calls next method to send data
+   * @param url 
+   * @param type 
+   * @param from 
+   */
+  searchLogsByType(url: string, type: string, from?: number, theQuery?: any) {
     let size: number = 1000;
     if (from === undefined || from === null) {
       from = 0;
     }
 
     let searchUrl: string = url + '/_search';
-    let theQuery = {
-      sort: [
-        { '@timestamp': 'asc' }
-      ],
-      query: {
-        term: {
-          _type: type
-        }
-      },
-      size: size,
-      from: from,
-      highlight: {
-        fields: {
-          message: { number_of_fragments: 0 }
-        }
-      },
-      _source: ['message']
-    };
+
+    if (theQuery === undefined || theQuery === null) {
+      theQuery = {
+        sort: [
+          { '@timestamp': 'asc' }
+        ],
+        query: {
+          term: {
+            _type: type
+          }
+        },
+        size: size,
+        from: from
+      };
+    }
+    else {
+      theQuery['size'] = size;
+      theQuery['from'] = from;
+    }
 
     let _logs = new BehaviorSubject<string[]>([]);
     let logs = _logs.asObservable();
@@ -157,7 +158,64 @@ export class ElasticSearchService {
         console.error('Error:', err);
       });
   }
+
+  getFromGivenLog(url: string, fromMessage: string, type: string) {
+    let searchUrl: string = url + '/_search';
+    let theQuery = {
+      sort: [
+        { '@timestamp': 'asc' }
+      ],
+      query: {
+        bool: {
+          must: {
+            match_phrase: { message: fromMessage }
+          },
+          filter: {
+            term: { _type: type }
+          }
+        }
+      }
+    };
+
+
+    let _logs = new BehaviorSubject<string[]>([]);
+    let logs = _logs.asObservable();
+
+    this.internalSearch(searchUrl, theQuery, 10000)
+      .subscribe(
+      (data) => {
+        let sortId: number = data.hits.hits[0].sort[0];
+
+        let newQuery: any = {
+          search_after: [sortId],
+          sort: [
+            { '@timestamp': 'desc' }
+          ],
+          query: {
+            term: { _type: type }
+          },
+        }
+
+        this.searchLogsByType(url, type, 0, newQuery).subscribe(
+          (messages) => {
+            let orderedMessages: string[] = messages.reverse();
+            _logs.next(orderedMessages);
+          }
+        );
+      });
+
+    return logs;
+  }
+
+  getFromGivenTestLog(url: string, fromMessage: string) {
+    return this.getFromGivenLog(url, fromMessage, 'testlogs');
+  }
+
+  getFromGivenSutLog(url: string, fromMessage: string) {
+    return this.getFromGivenLog(url, fromMessage, 'sutlogs');
+  }
+
+  getFromSutLog(url: string) {
+
+  }
 }
-/**
- * Created by rbenitez on 19/4/16.
- */

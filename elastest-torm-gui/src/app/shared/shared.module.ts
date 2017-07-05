@@ -16,6 +16,7 @@ import {
   MdTabsModule, MdSelectModule,
 } from '@angular/material';
 import { NgxChartsModule, } from '@swimlane/ngx-charts';
+import { LogsViewComponent } from './logs-view/logs-view.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -55,7 +56,7 @@ const CHART_MODULES: any[] = [
   ],
   declarations: [
 
-  ],
+  LogsViewComponent],
   exports: [
     ANGULAR_MODULES,
     MATERIAL_MODULES,
