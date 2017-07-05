@@ -2,7 +2,7 @@
  * Created by frdiaz on 19/04/2017.
  */
 import { EventEmitter, Injectable } from '@angular/core';
-import { StompService } from 'ng2-stomp-service';
+import { StompService } from './stomp.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Http } from "@angular/http";
 import { Observable } from 'rxjs/Observable';

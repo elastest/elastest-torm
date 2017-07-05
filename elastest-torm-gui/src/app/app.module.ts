@@ -13,7 +13,7 @@ import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 import { routedComponents, AppRoutingModule } from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
-import { StompService } from 'ng2-stomp-service';
+import { StompService } from './elastest-etm/stomp.service';
 import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 import { TJobExecService } from './elastest-etm/tjob-exec/tjobExec.service';
