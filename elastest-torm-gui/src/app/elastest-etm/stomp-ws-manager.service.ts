@@ -67,37 +67,15 @@ export class StompWSManager {
     });
   }
 
-  subscribeWSDestinationTestMetrics(destination: string) {
-    /**
-     * Subscribe.
-     * @param {string} destination: subscibe destination.
-     * @param {Function} callback(message,headers): called after server response.
-     * @param {object} headers: optional headers.
-     */
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testMetricsResponse);
-  }
-
-  subscribeWSDestinationTestLog(destination: string) {
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.testLogResponse);
-  }
-
-  subscribeWSDestinationSutMetrics(destination: string) {
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutMetricsResponse);
-  }
-
-  subscribeWSDestinationSutLog(destination: string) {
-    this.subscription = this.stomp.subscribe('/queue/' + destination, this.sutLogResponse);
-  }
-
   subscribeToQueDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction));
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction,{ auto_delete : true }));
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any) {
     this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/topic/' + destination, callbackFunction));
   }
 
-  ususcribeWSDestination(destination: string) {    
+  ususcribeWSDestination(destination: string) {
     this.subscriptions.forEach((value, key) => {
       console.log("UNSUSCRIBE TOPICS", key, value);
       this.stomp.unsubscribe(value);

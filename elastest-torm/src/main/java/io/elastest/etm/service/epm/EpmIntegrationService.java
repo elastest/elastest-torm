@@ -2,7 +2,6 @@ package io.elastest.etm.service.epm;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -69,6 +68,7 @@ public class EpmIntegrationService {
 
 			// End and purge services
 			dockerService.endAllExec(dockerExec);
+			Thread.sleep(5000);
 			rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
 		} catch (Exception e) {
 			e.printStackTrace();

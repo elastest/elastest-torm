@@ -184,8 +184,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         } else {
         this.createAndSubscribe(this.tJobExec);
         }
-      });
-  
+      });  
   }
 
   verifySut() {
