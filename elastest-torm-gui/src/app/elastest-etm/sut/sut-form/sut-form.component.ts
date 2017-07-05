@@ -1,3 +1,5 @@
+import { ProjectModel } from '../../project/project-model';
+import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
 import { SutService } from '../sut.service';
 
@@ -14,17 +16,30 @@ export class SutFormComponent implements OnInit {
   sut: SutModel;
   editMode: boolean = false;
 
-  constructor(private sutService: SutService, private route: ActivatedRoute, ) { }
+  constructor(private sutService: SutService, private route: ActivatedRoute, 
+  private projectService: ProjectService) { }
 
   ngOnInit() {
-    this.sut = new SutModel();
-    if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
-        .subscribe((sut: SutModel) => {
-          this.sut = sut;
-        });
-    }
 
+    this.sut = new SutModel();
+    let currentPath: string = this.route.snapshot.url[0].path;
+    if (this.route.params !== null || this.route.params !== undefined) {
+      if (currentPath === 'edit') {
+        this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
+          .subscribe((sut: SutModel) => {
+            this.sut = sut;
+          });
+      }
+      else if (currentPath === 'new') {
+        this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+          .subscribe(
+          (project: ProjectModel) => {
+            this.sut = new SutModel();
+            this.sut.project = project;
+          },
+        );
+      }
+    }
   }
 
   goBack(): void {

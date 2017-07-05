@@ -38,26 +38,7 @@
             <md-divider></md-divider>
             <md-card-content #scrollMeTest>
                 <div class="push-top push-bottom" layout="row">
-                    <md-list-item flex-gt-xs="100">
-                        <div md-line>
-                            <span>Add New TJob</span>
-                            <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newTJobName" placeholder="TJob Name" required>
-                            </md-input-container>
-                            <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newTJobImage" placeholder="Image Name" required>
-                            </md-input-container>
-                            <md-select [(ngModel)]="selectedSut" placeholder="Select a SuT" required flex-offset-gt-sm="5">
-                                <md-option [value]="sutEmpty">None</md-option>
-                                <md-option *ngFor="let sut of projectSelected.suts" [value]="sut">
-                                    {{sut.id}}
-                                </md-option>
-                            </md-select>
-                            <span flex-offset-gt-sm="5">
-                                <button md-raised-button color="accent" (click)="createTJob()">Create TJob</button>
-                            </span>
-                        </div>
-                    </md-list-item>
+                    <button md-raised-button color="accent" (click)="newTJob()">New TJob</button>
                 </div>
                 <md-divider></md-divider>
                 <td-data-table #tjobsTable class="scroll_table" [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true"
@@ -87,23 +68,7 @@
             <md-divider></md-divider>
             <md-card-content #scrollMeSut>
                 <div class="push-top push-bottom" layout="row">
-                    <md-list-item flex-gt-xs="100">
-                        <div md-line>
-                            <span>Add New SuT</span>
-                            <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newSutName" placeholder="SuT Name" required>
-                            </md-input-container>
-                            <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newSutRepo" placeholder="GitHub App Repo" required>
-                            </md-input-container>
-                            <md-input-container flex-offset-gt-sm="5">
-                                <input mdInput [(ngModel)]="newSutDesc" placeholder="SuT Description" required>
-                            </md-input-container>
-                            <span flex-offset-gt-sm="5">
-                                <button md-raised-button color="accent" (click)="createSut()">Create SuT</button>
-                            </span>
-                        </div>
-                    </md-list-item>
+                    <button md-raised-button color="accent" (click)="newSut()">New SuT</button>
                 </div>
                 <md-divider></md-divider>
                 <td-data-table #sutsTable class="scroll_table" [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true"

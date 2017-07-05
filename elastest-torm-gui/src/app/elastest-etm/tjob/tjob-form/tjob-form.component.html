@@ -17,13 +17,14 @@
             name="tJobImageName" required>
         </md-input-container>
       </div>
-      <div layout="row" *ngIf="tJob.project"  class="push-top push-bottom">
+      <div layout="row" *ngIf="tJob.project !== undefined" class="push-top push-bottom">
         <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
           <md-option [value]="sutEmpty">None</md-option>
           <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
             {{sut.id}}
           </md-option>
         </md-select>
+        <span>Current SuT: {{currentSut}}</span>
       </div>
     </form>
   </md-card-content>

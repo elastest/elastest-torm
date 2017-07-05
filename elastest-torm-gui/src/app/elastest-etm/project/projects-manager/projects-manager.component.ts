@@ -186,6 +186,9 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   // TJobs functions
 
+  newTJob() {
+    this.router.navigate(['/projects', this.projectSelected.id, 'tjob', 'new']);
+  }
   createTJob() {
     let tJob: TJobModel = new TJobModel();
     tJob.name = this.newTJobName;
@@ -214,13 +217,13 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.tJobExecService.runTJob(tJob.id)
       .subscribe(
       (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects/tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
+        this.router.navigate(['/projects', this.projectSelected.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
       },
       (error) => console.error('Error:' + error),
     );
   }
   editTJob(tJob: TJobModel) {
-    this.router.navigate(['/projects/tjob/edit', tJob.id]);
+    this.router.navigate(['/projects', this.projectSelected.id, 'tjob', 'edit', tJob.id]);
   }
   deleteTJob(tJob: TJobModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -242,11 +245,15 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   viewTJob(tJob: TJobModel) {
-    this.router.navigate(['/projects/tjob', tJob.id]);
+    this.router.navigate(['/projects', this.projectSelected.id, 'tjob', tJob.id]);
   }
 
 
   // Suts functions
+
+  newSut() {
+    this.router.navigate(['/projects', this.projectSelected.id, 'sut', 'new']);
+  }
   createSut() {
     let sut: SutModel = new SutModel();
     sut.name = this.newSutName;
@@ -271,7 +278,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   editSut(sut: SutModel) {
-    this.router.navigate(['/projects/sut/edit', sut.id]);
+    this.router.navigate(['/projects', this.projectSelected.id, 'sut', 'edit', sut.id]);
   }
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -293,7 +300,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   viewSut(sut: SutModel) {
-    this.router.navigate(['/projects/sut', sut.id]);
+    this.router.navigate(['/projects', this.projectSelected.id, 'sut', sut.id]);
   }
 
 }

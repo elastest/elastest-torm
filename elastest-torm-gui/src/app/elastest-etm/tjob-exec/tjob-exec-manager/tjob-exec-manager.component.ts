@@ -47,9 +47,8 @@ export class TjobExecManagerComponent implements OnInit {
           (tJob: TJobModel) => {
             if (this.tJobExec.result === 'IN PROGRESS') {
               this.router.navigate(
-                ['/projects/tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard']
-              )
-
+                ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
+              );
             }
             else {
               //Load logs

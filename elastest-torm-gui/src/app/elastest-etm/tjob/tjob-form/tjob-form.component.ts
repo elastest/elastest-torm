@@ -1,3 +1,5 @@
+import { ProjectModel } from '../../project/project-model';
+import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../../sut/sut-model';
 import { TJobModel } from '../tjob-model';
 import { TJobService } from '../tjob.service';
@@ -16,22 +18,33 @@ export class TJobFormComponent implements OnInit {
   editMode: boolean = false;
 
   sutEmpty: SutModel = new SutModel();
+  currentSut: string = 'None';
 
-
-  constructor(private tJobService: TJobService, private route: ActivatedRoute, ) { }
+  constructor(private tJobService: TJobService, private route: ActivatedRoute,
+    private projectService: ProjectService) { }
 
   ngOnInit() {
     this.tJob = new TJobModel();
+    let currentPath: string = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
-        .subscribe((tJob: TJobModel) => {
-          this.tJob = tJob;
-          if (this.tJob.sut.id === 0) {
-            this.tJob.sut = this.sutEmpty;
-          }
-        });
+      if (currentPath === 'edit') {
+        this.editMode = true;
+        this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
+          .subscribe((tJob: TJobModel) => {
+            this.tJob = tJob;
+            this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
+          });
+      }
+      else if (currentPath === 'new') {
+        this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+          .subscribe(
+          (project: ProjectModel) => {
+            this.tJob = new TJobModel();
+            this.tJob.project = project;
+          },
+        );
+      }
     }
-
   }
 
   goBack(): void {

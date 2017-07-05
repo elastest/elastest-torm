@@ -56,60 +56,65 @@ const routes: Routes = [
                         component: ProjectFormComponent,
                     },
                     {
-                        path: 'tjob',
+                        path: ':projectId',
                         children: [
                             {
-                                path: 'edit/:tJobId',
-                                component: TJobFormComponent,
-                            },
-                            {
-                                path: 'edit',
-                                component: TJobFormComponent,
-                            },
-                            {
-                                path: ':tJobId',
+                                path: 'tjob',
                                 children: [
                                     {
-                                        path: '',
-                                        component: TjobManagerComponent,
-
+                                        path: 'edit/:tJobId',
+                                        component: TJobFormComponent,
                                     },
                                     {
-                                        path: 'tjob-exec',
+                                        path: 'new',
+                                        component: TJobFormComponent,
+                                    },
+                                    {
+                                        path: ':tJobId',
                                         children: [
                                             {
-                                                path: ':tJobExecId',
+                                                path: '',
+                                                component: TjobManagerComponent,
+
+                                            },
+                                            {
+                                                path: 'tjob-exec',
                                                 children: [
                                                     {
-                                                        path: '',
-                                                        component: TjobExecManagerComponent,
+                                                        path: ':tJobExecId',
+                                                        children: [
+                                                            {
+                                                                path: '',
+                                                                component: TjobExecManagerComponent,
+                                                            },
+                                                            {
+                                                                path: 'dashboard',
+                                                                component: DashboardComponent,
+                                                            }
+                                                        ]
                                                     },
-                                                    {
-                                                        path: 'dashboard',
-                                                        component: DashboardComponent,
-                                                    }
                                                 ]
                                             },
                                         ]
                                     },
                                 ]
                             },
-                        ]
-                    },
-                    {
-                        path: 'sut',
-                        children: [
                             {
-                                path: '',
-                                component: SutManagerComponent,
-                            },
-                            {
-                                path: 'edit/:sutId',
-                                component: SutFormComponent,
-                            },
-                            {
-                                path: 'edit',
-                                component: SutFormComponent,
+                                path: 'sut',
+                                children: [
+                                    {
+                                        path: '',
+                                        component: SutManagerComponent,
+                                    },
+                                    {
+                                        path: 'edit/:sutId',
+                                        component: SutFormComponent,
+                                    },
+                                    {
+                                        path: 'new',
+                                        component: SutFormComponent,
+                                    },
+                                ]
                             },
                         ]
                     },
