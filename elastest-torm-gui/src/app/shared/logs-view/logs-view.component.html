@@ -5,7 +5,7 @@
   <md-divider></md-divider>
   <md-card-content>
     <button md-raised-button color="accent" (click)="loadPreviousLogs" [disabled]="logView.prevTracesLoaded" *ngIf="!logView.hidePrevBtn">Load Previous</button>
-    <ul #scrollMe class="scroll_log" class="logsViewContent">
+    <ul #scrollMe class="logsViewContent">
       <li *ngFor="let trace of logView.prevTraces">
         {{trace}}
       </li>

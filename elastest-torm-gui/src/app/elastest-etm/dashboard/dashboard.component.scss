@@ -9,7 +9,5 @@
 }
 
 :host /deep/ .logsViewContent{
-    height: 30vh;
-    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    overflow-y: auto; overflow-x: hidden
+    height: 30vh !important;
 }
