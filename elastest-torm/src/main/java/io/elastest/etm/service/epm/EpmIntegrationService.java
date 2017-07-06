@@ -67,9 +67,8 @@ public class EpmIntegrationService {
 			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
 			// End and purge services
-			dockerService.endAllExec(dockerExec);
-			Thread.sleep(5000);
-			//rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
+			dockerService.endAllExec(dockerExec);			
+			rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize

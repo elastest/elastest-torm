@@ -35,8 +35,8 @@ public class RabbitmqService {
 	}
 
 	public void closeConnection() {
-//		connection.close();
-//		container.getConnectionFactory();
+		connection.close();
+		container.getConnectionFactory();
 	}
 
 	public void createChannel() {
