@@ -147,8 +147,8 @@ public class RabbitmqService {
 			for (Map.Entry<String, String> rabbitLine : rabbitMap.entrySet()) {
 				deleteQueue(rabbitLine.getKey());
 			}
-			closeChannel();
-			closeConnection();
+			//closeChannel();
+			//closeConnection();
 		} catch (Exception e) {
 			System.out.println("Error on purging Rabbitmq " + execId);
 		}
