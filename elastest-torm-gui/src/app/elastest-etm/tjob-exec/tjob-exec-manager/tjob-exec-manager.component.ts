@@ -57,7 +57,8 @@ export class TjobExecManagerComponent implements OnInit {
             }
             else {
               //Load logs
-              this.elasticService.searchTestLogs(tJobExec.logs)
+
+              this.elasticService.searchLogsByType(tJobExec.logs, this.testLogView.logType)
                 .subscribe(
                 (data) => {
                   this.testLogView.traces = data;
@@ -65,7 +66,7 @@ export class TjobExecManagerComponent implements OnInit {
                 );
 
               if (tJob.hasSut()) {
-                this.elasticService.searchSutLogs(tJobExec.logs)
+                this.elasticService.searchLogsByType(tJobExec.logs, this.sutLogView.logType)
                   .subscribe(
                   (data) => {
                     this.sutLogView.traces = data;
