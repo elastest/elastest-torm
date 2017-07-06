@@ -83,25 +83,32 @@ export class ElasticSearchService {
     this.searchMessage(url, fromMessage, type) //To Do: recursive search (if message is not in first 10000)
       .subscribe(
       (data) => {
-        let sortId: number = data.hits.hits[0].sort[0];
+        let dataReceived: number = data.hits.hits.length;
+        if (dataReceived > 0) {
+          let sortId: number = data.hits.hits[0].sort[0];
 
-        let newQuery: any = {
-          search_after: [sortId],
-          sort: [
-            { '@timestamp': 'desc' }
-          ],
-          query: {
-            term: { _type: type }
-          },
-        }
-
-        this.searchLogsByType(url, type, newQuery).subscribe(
-          (messages) => {
-            let orderedMessages: string[] = messages.reverse();
-            _logs.next(orderedMessages);
+          let newQuery: any = {
+            search_after: [sortId],
+            sort: [
+              { '@timestamp': 'desc' }
+            ],
+            query: {
+              term: { _type: type }
+            },
           }
-        );
-      });
+
+          this.searchLogsByType(url, type, newQuery).subscribe(
+            (messages) => {
+              let orderedMessages: string[] = messages.reverse();
+              _logs.next(orderedMessages);
+            }
+          );
+        }
+        else {
+          _logs.next([]);
+        }
+      }
+      );
 
     return logs;
   }
@@ -128,12 +135,12 @@ export class ElasticSearchService {
   }
 
 
-/**
- * Search all logs recursively by type
- * @param url 
- * @param type 
- * @param theQuery optional
- */
+  /**
+   * Search all logs recursively by type
+   * @param url 
+   * @param type 
+   * @param theQuery optional
+   */
   searchLogsByType(url: string, type: string, theQuery?: any) {
     let size: number = 1000;
     let searchUrl: string = url + '/_search';

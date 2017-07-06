@@ -1,5 +1,6 @@
 import { ElasticSearchService } from '../services/elasticsearch.service';
 import { LogViewModel } from './log-view-model';
+import { MdSnackBar } from '@angular/material';
 
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 
@@ -17,10 +18,10 @@ export class LogsViewComponent implements OnInit {
   lockScroll: boolean = false;
 
   constructor(
-        private elasticService: ElasticSearchService,
+    private elasticService: ElasticSearchService, private snackBar: MdSnackBar,
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
@@ -38,15 +39,30 @@ export class LogsViewComponent implements OnInit {
 
 
   loadPreviousLogs() {
-      if (this.logView.traces[0] !== undefined && this.logView.traces[0] !== null) {
+    if (this.logView.traces[0] !== undefined && this.logView.traces[0] !== null) {
       this.elasticService.getFromGivenLog(this.logView.logUrl, this.logView.traces[0], this.logView.logType)
         .subscribe(
         (messages) => {
           this.logView.prevTraces = messages;
           this.logView.prevTracesLoaded = true;
+          if (messages.length > 0) {
+            this.openSnackBar('Previous logs has been loaded', 'OK');
+          }
+          else {
+            this.openSnackBar('There aren\'t previous logs to load', 'OK');
+          }
         },
         (error) => console.log(error),
       );
     }
+    else {
+      this.openSnackBar('There isn\'t reference log messages yet to load previous', 'OK');
+    }
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 3500,
+    });
   }
 }

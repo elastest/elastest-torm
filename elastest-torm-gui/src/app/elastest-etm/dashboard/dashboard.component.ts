@@ -10,7 +10,6 @@ import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
 import { MetricsDataModel } from './metrics-data-model';
-import { MdSnackBar } from '@angular/material';
 import { LogViewModel } from '../../shared/logs-view/log-view-model';
 
 @Component({
@@ -66,16 +65,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   fromTJobPage: boolean = false;
 
   constructor(private _titleService: Title,
-    private _itemsService: ItemsService,
-    private _usersService: UsersService,
-    private _alertsService: AlertsService,
-    private _productsService: ProductsService,
-    private _loadingService: TdLoadingService,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
     private route: ActivatedRoute, private router: Router,
-    private snackBar: MdSnackBar) {
+    ) {
     this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
@@ -106,66 +100,17 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       this.sutLogView.traces.splice(0, this.stompWSManager.sutTraces.length);
     }
     this.testMetricsSubscription = this.stompWSManager.testMetrics$
-      .subscribe(data => this.updateData(data, true));
+      .subscribe((data) => this.updateData(data, true));
 
     this.sutMetricsSubscription = this.stompWSManager.sutMetrics$
-      .subscribe(data => this.updateData(data, false));
+      .subscribe((data) => this.updateData(data, false));
 
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
 
     this._titleService.setTitle('ElasTest ETM');
-    this._loadingService.register('items.load');
-    this._itemsService.query().subscribe((items: Object[]) => {
-      this.items = items;
-      setTimeout(() => {
-        this._loadingService.resolve('items.load');
-      }, 750);
-    }, (error: Error) => {
-      this._itemsService.staticQuery().subscribe((items: Object[]) => {
-        this.items = items;
-        setTimeout(() => {
-          this._loadingService.resolve('items.load');
-        }, 750);
-      });
-    });
-    this._loadingService.register('alerts.load');
-    this._alertsService.query().subscribe((alerts: Object[]) => {
-      this.alerts = alerts;
-      setTimeout(() => {
-        this._loadingService.resolve('alerts.load');
-      }, 750);
-    });
-    this._loadingService.register('products.load');
-    this._productsService.query().subscribe((products: Object[]) => {
-      this.products = products;
-      setTimeout(() => {
-        this._loadingService.resolve('products.load');
-      }, 750);
-    });
-    this._loadingService.register('favorites.load');
-    this._productsService.query().subscribe((products: Object[]) => {
-      this.products = products;
-      setTimeout(() => {
-        this._loadingService.resolve('favorites.load');
-      }, 750);
-    });
-    this._loadingService.register('users.load');
-    this._usersService.query().subscribe((users: Object[]) => {
-      this.users = users;
-      setTimeout(() => {
-        this._loadingService.resolve('users.load');
-      }, 750);
-    }, (error: Error) => {
-      this._usersService.staticQuery().subscribe((users: Object[]) => {
-        this.users = users;
-        setTimeout(() => {
-          this._loadingService.resolve('users.load');
-        }, 750);
-      });
-    });
   }
- 
+
   loadTJobExec() {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
@@ -193,11 +138,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
     this.testLogView.logType = 'testlogs';
     this.sutLogView.logType = 'sutlogs';
-  }
-
-
-  verifySut() {
-    this.withSut = !this.withSut;
   }
 
   updateData(data: any, test: boolean) {
@@ -244,12 +184,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       'name': new Date('' + data['@timestamp']),
     };
     return parsedData;
-  }
-
-  ngAfterViewChecked() {
-  }
-
-  
+  } 
 
   public createAndSubscribe(tjobExecution: any) {
     this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);
@@ -276,12 +211,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   // ngx transform using covalent digits pipe
   axisDigits(val: any): any {
     return new TdDigitsPipe().transform(val);
-  }
-
-  openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, {
-      duration: 2000,
-    });
   }
 
   ngOnDestroy() {
