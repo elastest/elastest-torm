@@ -165,8 +165,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       });
     });
   }
-
-  loadTJobExec() {    
+ 
+  loadTJobExec() {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;

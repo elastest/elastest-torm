@@ -87,7 +87,7 @@ export class ElasticSearchService {
         let messages: string[] = this.returnMessages(data);
 
         if (data.hits.total - (from + dataReceived) > 0) {
-          this.searchLogsByType(url, type, from + size).subscribe(
+          this.searchLogsByType(url, type, from + size, theQuery).subscribe(
             (result) => {
               _logs.next(messages.concat(result));
             },
