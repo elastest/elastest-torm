@@ -1,3 +1,4 @@
+import { ElasticSearchService } from '../services/elasticsearch.service';
 import { LogViewModel } from './log-view-model';
 
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
@@ -12,15 +13,14 @@ export class LogsViewComponent implements OnInit {
 
   @Input()
   public logView: LogViewModel;
-  @Input()
-  public loadPreviousLogs: Function;
 
   lockScroll: boolean = false;
 
-  constructor() { }
+  constructor(
+        private elasticService: ElasticSearchService,
+  ) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewChecked() {
     this.scrollToBottom();
@@ -33,6 +33,20 @@ export class LogsViewComponent implements OnInit {
       }
     } catch (err) {
       console.log('[Error]:' + err.toString());
+    }
+  }
+
+
+  loadPreviousLogs() {
+      if (this.logView.traces[0] !== undefined && this.logView.traces[0] !== null) {
+      this.elasticService.getFromGivenLog(this.logView.logUrl, this.logView.traces[0], this.logView.logType)
+        .subscribe(
+        (messages) => {
+          this.logView.prevTraces = messages;
+          this.logView.prevTracesLoaded = true;
+        },
+        (error) => console.log(error),
+      );
     }
   }
 }

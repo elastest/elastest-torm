@@ -20,7 +20,7 @@ import { TJobExecService } from './elastest-etm/tjob-exec/tjobExec.service';
 import { SutService } from './elastest-etm/sut/sut.service';
 import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
-import { ElasticSearchService } from './elastest-log-manager/services/elasticsearch.service';
+import { ElasticSearchService } from './shared/services/elasticsearch.service';
 import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule } from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';

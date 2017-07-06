@@ -4,6 +4,8 @@ export class LogViewModel {
     traces: string[];
     prevTracesLoaded: boolean;
     hidePrevBtn: boolean;
+    logType: string;
+    logUrl: string;
 
     constructor() {
         this.name = '';
@@ -11,5 +13,7 @@ export class LogViewModel {
         this.traces = [];
         this.prevTracesLoaded = false;
         this.hidePrevBtn = false;
+        this.logType = '';
+        this.logUrl = '';
     }
 }

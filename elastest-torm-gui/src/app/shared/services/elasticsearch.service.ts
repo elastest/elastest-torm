@@ -206,16 +206,4 @@ export class ElasticSearchService {
 
     return logs;
   }
-
-  getFromGivenTestLog(url: string, fromMessage: string) {
-    return this.getFromGivenLog(url, fromMessage, 'testlogs');
-  }
-
-  getFromGivenSutLog(url: string, fromMessage: string) {
-    return this.getFromGivenLog(url, fromMessage, 'sutlogs');
-  }
-
-  getFromSutLog(url: string) {
-
-  }
 }

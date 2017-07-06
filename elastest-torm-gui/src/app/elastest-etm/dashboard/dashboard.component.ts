@@ -5,7 +5,6 @@ import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { Subscription } from 'rxjs/Rx';
 
 import { AlertsService, ItemsService, ProductsService, UsersService } from '../../../services';
-import { ElasticSearchService } from '../../elastest-log-manager/services/elasticsearch.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
@@ -75,15 +74,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
-    private elasticService: ElasticSearchService,
     private route: ActivatedRoute, private router: Router,
     private snackBar: MdSnackBar) {
-    this.testLogView.name = 'Test Logs';
-    this.sutLogView.name = 'Sut Logs';
-
-    this.testLogView.traces = this.stompWSManager.testTraces;
-    this.sutLogView.traces = this.stompWSManager.sutTraces;
-
+    this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -178,6 +171,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
+
+        this.testLogView.logUrl = this.tJobExec.logs;
+        this.sutLogView.logUrl = this.tJobExec.logs;
+
         if (this.fromTJobPage) {
           console.log('Suscribe to TJob execution.')
           this.createAndSubscribeToTopic(this.tJobExecId);
@@ -186,6 +183,18 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         }
       });  
   }
+
+  initLogsView(){
+    this.testLogView.name = 'Test Logs';
+    this.sutLogView.name = 'Sut Logs';
+
+    this.testLogView.traces = this.stompWSManager.testTraces;
+    this.sutLogView.traces = this.stompWSManager.sutTraces;
+
+    this.testLogView.logType = 'testlogs';
+    this.sutLogView.logType = 'sutlogs';
+  }
+
 
   verifySut() {
     this.withSut = !this.withSut;
@@ -267,35 +276,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   // ngx transform using covalent digits pipe
   axisDigits(val: any): any {
     return new TdDigitsPipe().transform(val);
-  }
-
-  public loadPrevTestLogs() {
-    if (this.testLogView.traces[0] !== undefined && this.testLogView.traces[0] !== null) {
-      this.elasticService.getFromGivenTestLog(this.tJobExec.logs, this.testLogView.traces[0])
-        .subscribe(
-        (messages) => {
-          this.testLogView.prevTraces = messages;
-          this.testLogView.prevTracesLoaded = true;
-        },
-        (error) => console.log(error),
-      );
-    }
-  }
-
-  public loadPrevSutLogs() {
-    if (this.sutLogView.traces[0] !== undefined && this.sutLogView.traces[0] !== null) {
-      this.elasticService.getFromGivenSutLog(this.tJobExec.logs, this.sutLogView.traces[0])
-        .subscribe(
-        (messages) => {
-          this.sutLogView.prevTraces = messages;
-          this.sutLogView.prevTracesLoaded = true;
-        },
-        (error) => console.log(error),
-      );
-    }
-    else {
-      // this.openSnackBar("Test", null);
-    }
   }
 
   openSnackBar(message: string, action: string) {

@@ -1,4 +1,4 @@
-import { ElasticSearchService } from '../../../elastest-log-manager/services/elasticsearch.service';
+import { ElasticSearchService } from '../../../shared/services/elasticsearch.service';
 import { LogViewModel } from '../../../shared/logs-view/log-view-model';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
@@ -22,16 +22,8 @@ export class TjobExecManagerComponent implements OnInit {
   testLogView: LogViewModel = new LogViewModel();
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
-    private route: ActivatedRoute, private router: Router,)
-  {
-    this.testLogView.name = 'Test Logs';
-    this.sutLogView.name = 'Sut Logs';
-    this.testLogView.hidePrevBtn = true;
-    this.sutLogView.hidePrevBtn = true;
-
-    this.testLogView.traces = ['Loading Logs...'];
-    this.sutLogView.traces = ['Loading Logs...'];
-
+    private route: ActivatedRoute, private router: Router, ) {
+    this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -51,6 +43,10 @@ export class TjobExecManagerComponent implements OnInit {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
+
+        this.testLogView.logUrl = this.tJobExec.logs;
+        this.sutLogView.logUrl = this.tJobExec.logs;
+
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {
@@ -84,6 +80,19 @@ export class TjobExecManagerComponent implements OnInit {
           (error) => console.log(error),
         );
       });
+  }
+
+  initLogsView() {
+    this.testLogView.name = 'Test Logs';
+    this.sutLogView.name = 'Sut Logs';
+    this.testLogView.hidePrevBtn = true;
+    this.sutLogView.hidePrevBtn = true;
+
+    this.testLogView.traces = ['Loading Logs...'];
+    this.sutLogView.traces = ['Loading Logs...'];
+
+    this.testLogView.logType = 'testlogs';
+    this.sutLogView.logType = 'sutlogs';
   }
 
 }

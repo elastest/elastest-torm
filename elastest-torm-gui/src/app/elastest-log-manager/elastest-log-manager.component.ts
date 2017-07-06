@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
-import { ElasticSearchService } from './services/elasticsearch.service';
+import { ElasticSearchService } from '../shared/services/elasticsearch.service';
 import { dateToInputLiteral } from './utils/Utils';
 import { ActivatedRoute } from '@angular/router';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';

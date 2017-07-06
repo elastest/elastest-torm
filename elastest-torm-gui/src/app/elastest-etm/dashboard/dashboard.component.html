@@ -70,10 +70,10 @@
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="50" layout-gt-sm="column">
-    <logs-view [logView]="testLogView" [loadPreviousLogs]="loadPrevTestLogs.bind(this)"></logs-view>
+    <logs-view [logView]="testLogView"></logs-view>
   </div>
 
   <div flex-gt-sm="50" layout-gt-sm="column">
-    <logs-view [logView]="sutLogView" [loadPreviousLogs]="loadPrevSutLogs.bind(this)"></logs-view>
+    <logs-view [logView]="sutLogView"></logs-view>
   </div>
 </div>
