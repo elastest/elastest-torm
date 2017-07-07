@@ -57,10 +57,14 @@ export class TjobManagerComponent implements OnInit {
             this.tJob.sut = this.sutEmpty;
           }
           this.tJobExecData = this.tJobExecService.transformTJobExecDataToDataTable(tJob.tjobExecs);
+          this.sortTJobsExec(); //Id desc
         });
     }
   }
 
+  sortTJobsExec() {
+    this.tJobExecData = this.tJobExecData.reverse();
+  }
 
   deleteTJobExec(tJobExec: TJobExecModel) {
     let iConfirmConfig: IConfirmConfig = {

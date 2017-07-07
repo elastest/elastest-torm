@@ -5,12 +5,14 @@ import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { Subscription } from 'rxjs/Rx';
 
 import { AlertsService, ItemsService, ProductsService, UsersService } from '../../../services';
+import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
+import { ElasticSearchService } from '../../shared/services/elasticsearch.service';
 import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
 import { MetricsDataModel } from './metrics-data-model';
-import { LogViewModel } from '../../shared/logs-view/log-view-model';
+import { RabESLogModel } from '../../shared/logs-view/models/rab-es-log-model';
 
 @Component({
   selector: 'etm-dashboard',
@@ -53,8 +55,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobId: number;
   withSut: boolean = false;
 
-  sutLogView: LogViewModel = new LogViewModel();
-  testLogView: LogViewModel = new LogViewModel();
+  sutLogView: RabESLogModel = new RabESLogModel(this.elasticsearchService);
+  testLogView: RabESLogModel = new RabESLogModel(this.elasticsearchService);
 
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
@@ -69,7 +71,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private tJobExecService: TJobExecService,
     private stompWSManager: StompWSManager,
     private route: ActivatedRoute, private router: Router,
-    ) {
+    private elasticsearchService: ElasticSearchService,
+  ) {
     this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
@@ -124,12 +127,12 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
           console.log('Suscribe to TJob execution.')
           this.createAndSubscribeToTopic(this.tJobExecId);
         } else {
-        this.createAndSubscribe(this.tJobExec);
+          this.createAndSubscribe(this.tJobExec);
         }
-      });  
+      });
   }
 
-  initLogsView(){
+  initLogsView() {
     this.testLogView.name = 'Test Logs';
     this.sutLogView.name = 'Sut Logs';
 
@@ -184,7 +187,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       'name': new Date('' + data['@timestamp']),
     };
     return parsedData;
-  } 
+  }
 
   public createAndSubscribe(tjobExecution: any) {
     this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);

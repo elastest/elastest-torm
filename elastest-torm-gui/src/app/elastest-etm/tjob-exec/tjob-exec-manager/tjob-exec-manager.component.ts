@@ -1,5 +1,5 @@
 import { ElasticSearchService } from '../../../shared/services/elasticsearch.service';
-import { LogViewModel } from '../../../shared/logs-view/log-view-model';
+import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -18,8 +18,8 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  sutLogView: LogViewModel = new LogViewModel();
-  testLogView: LogViewModel = new LogViewModel();
+  sutLogView: ESLogModel = new ESLogModel(this.elasticService);
+  testLogView: ESLogModel = new ESLogModel(this.elasticService);
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
     private route: ActivatedRoute, private router: Router, ) {
@@ -58,12 +58,7 @@ export class TjobExecManagerComponent implements OnInit {
             else {
               //Load logs
 
-              this.elasticService.searchLogsByType(tJobExec.logs, this.testLogView.logType)
-                .subscribe(
-                (data) => {
-                  this.testLogView.traces = data;
-                }
-                );
+              this.testLogView.getAllLogsByType();
 
               if (tJob.hasSut()) {
                 this.elasticService.searchLogsByType(tJobExec.logs, this.sutLogView.logType)
