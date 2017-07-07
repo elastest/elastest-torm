@@ -130,11 +130,13 @@ To provide access to project files from the docker host, you must share the proj
 #### Running ElasTest TORM services
 - Change the working directory to the shared folder of the project. In this case `cd /git/elastest-torm`.
 - `sudo sysctl -w vm.max_map_count=262144` (It is necessary for elasticsearch service)
-- `docker-compose up -d`
+- `docker-compose -f docker-compose-dev.yml up -d`
 
 ### Docker configuration on Linux
 - Change the working directory to the project folder.
-- `docker-compose up -d`
+- `docker-compose -f docker-compose-dev.yml up -d`
+
+>**Note:** To stop the containers you must use the same file docker-compose-dev.yml down.
 
 ### Running ElasTest TORM in development mode
 #### ElasTest Server Application
