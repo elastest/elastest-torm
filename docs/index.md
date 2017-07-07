@@ -150,18 +150,22 @@ From Eclipse IDE:
     #Windows
     #Configuration for the dababase connection
     spring.datasource.url=jdbc:mysql://192.168.99.100:3306/elastest-etm?useSSL=false
-    spring.rabbitmq.host
-
+    
     #RabbitMQ
     spring.rabbitmq.host= 192.168.99.100
 
+    #Elasticsearch properties
+    elastest.elasticsearch.host=http://192.168.99.100:9200/
+
     #Linux
     #Configuration for the dababase connection
-    spring.datasource.url=jdbc:mysql://localhost:3306/elastest-etm?useSSL=false
-    spring.rabbitmq.host
+    spring.datasource.url=jdbc:mysql://localhost:3306/elastest-etm?useSSL=false    
 
     #RabbitMQ
     spring.rabbitmq.host= localhost
+
+    #Elasticsearch properties
+    elastest.elasticsearch.host=http://localhost:9200/
 
     ```
  
