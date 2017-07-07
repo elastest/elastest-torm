@@ -21,8 +21,8 @@ export class StompWSManager {
   }
 
   subscription: any;
-  subscriptions: Map<string, any>; 
-  
+  subscriptions: Map<string, any>;
+
   testTraces: string[] = [];
   sutTraces: string[] = [];
 
@@ -33,8 +33,6 @@ export class StompWSManager {
 
   private _sutMetricsSource = new BehaviorSubject<any>("");
   sutMetrics$ = this._sutMetricsSource.asObservable();
-
-
 
   constructor(private stomp: StompService, private http: Http) {
     this.subscriptions = new Map<string, any>();

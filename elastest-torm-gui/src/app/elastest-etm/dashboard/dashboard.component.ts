@@ -55,8 +55,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobId: number;
   withSut: boolean = false;
 
-  sutLogView: RabESLogModel = new RabESLogModel(this.elasticsearchService);
-  testLogView: RabESLogModel = new RabESLogModel(this.elasticsearchService);
+  sutLogView: RabESLogModel;
+  testLogView: RabESLogModel;
 
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
@@ -94,14 +94,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.testLogView.traces.splice(0, this.stompWSManager.testTraces.length);
+    this.sutLogView.traces.splice(0, this.stompWSManager.sutTraces.length);
 
-    if (this.testLogView.traces.length > 0) {
-      this.testLogView.traces.splice(0, this.stompWSManager.testTraces.length);
-    }
-
-    if (this.sutLogView.traces.length > 0) {
-      this.sutLogView.traces.splice(0, this.stompWSManager.sutTraces.length);
-    }
     this.testMetricsSubscription = this.stompWSManager.testMetrics$
       .subscribe((data) => this.updateData(data, true));
 
@@ -125,14 +120,17 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
         if (this.fromTJobPage) {
           console.log('Suscribe to TJob execution.')
-          this.createAndSubscribeToTopic(this.tJobExecId);
+          this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
         } else {
-          this.createAndSubscribe(this.tJobExec);
+          this.tJobExecService.createAndSubscribe(this.tJobExec);
         }
       });
   }
 
   initLogsView() {
+    this.sutLogView = new RabESLogModel(this.elasticsearchService);
+    this.testLogView = new RabESLogModel(this.elasticsearchService);
+
     this.testLogView.name = 'Test Logs';
     this.sutLogView.name = 'Sut Logs';
 
@@ -187,28 +185,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       'name': new Date('' + data['@timestamp']),
     };
     return parsedData;
-  }
-
-  public createAndSubscribe(tjobExecution: any) {
-    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);
-    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-metrics', this.stompWSManager.testMetricsResponse);
-    if (this.withSut) {
-      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-log', this.stompWSManager.sutLogResponse);
-      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-metrics', this.stompWSManager.sutMetricsResponse);
-    } else {
-      this.sutLogView.traces.push('TJob without Sut');
-    }
-  }
-
-  public createAndSubscribeToTopic(tjobExecution: any) {
-    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution + '.log', this.stompWSManager.testLogResponse);
-    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution + '.metrics', this.stompWSManager.testMetricsResponse);
-    if (this.withSut) {
-      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.log', this.stompWSManager.sutLogResponse);
-      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution + '.metrics', this.stompWSManager.sutMetricsResponse);
-    } else {
-      this.sutLogView.traces.push('TJob without Sut');
-    }
   }
 
   // ngx transform using covalent digits pipe

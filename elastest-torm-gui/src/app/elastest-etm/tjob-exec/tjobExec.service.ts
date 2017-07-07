@@ -112,4 +112,31 @@ export class TJobExecService {
     return tjobsDataToTable;
   }
 
+
+  // Others
+  public createAndSubscribe(tjobExecution: TJobExecModel) {
+    let withSut: boolean = tjobExecution.tJob.hasSut();
+
+    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-log', this.stompWSManager.testLogResponse);
+    this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-test-metrics', this.stompWSManager.testMetricsResponse);
+    if (withSut) {
+      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-log', this.stompWSManager.sutLogResponse);
+      this.stompWSManager.subscribeToQueDestination('q-' + tjobExecution.id + '-sut-metrics', this.stompWSManager.sutMetricsResponse);
+    } else {
+      this.stompWSManager.sutTraces.push('TJob without Sut');
+    }
+  }
+
+  public createAndSubscribeToTopic(tjobExecution: TJobExecModel) {
+    let withSut: boolean = tjobExecution.tJob.hasSut();
+
+    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution.id + '.log', this.stompWSManager.testLogResponse);
+    this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution.id + '.metrics', this.stompWSManager.testMetricsResponse);
+    if (withSut) {
+      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution.id + '.log', this.stompWSManager.sutLogResponse);
+      this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution.id + '.metrics', this.stompWSManager.sutMetricsResponse);
+    } else {
+      this.stompWSManager.sutTraces.push('TJob without Sut');
+    }
+  }
 }
