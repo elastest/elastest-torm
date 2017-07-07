@@ -16,3 +16,15 @@ You can view the api documentation in swagger-ui by pointing to
 http://localhost:8080/  
 
 Change default port value in application.properties
+
+## Build Notes
+
+Note that by running `mvn clean install` the `maven-gpg-plugin` is executed, thus 
+the passphrase in the `settings.xml` file must be configured. Usually this step
+it is not required during the build in local, as any artifact has to be actually 
+deployed. This configuration (i.e. `settings.xml` with a passphrase) is attached
+in Jenkins Job.
+
+In order to build and to test the module run `mvn clean package`.
+Alternatively, comment the plugin configuration of the `maven-gpg-plugin` into
+the `pom.xml` (only in local)
