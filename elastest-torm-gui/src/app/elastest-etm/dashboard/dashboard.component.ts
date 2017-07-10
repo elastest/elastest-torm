@@ -58,6 +58,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   sutLogView: RabESLogModel;
   testLogView: RabESLogModel;
 
+  testLogsSubscription: Subscription;
+  sutLogsSubscription: Subscription;
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
 
@@ -94,8 +96,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.testLogView.traces.splice(0, this.stompWSManager.testTraces.length);
-    this.sutLogView.traces.splice(0, this.stompWSManager.sutTraces.length);
+    this.testLogsSubscription = this.stompWSManager.testLogs$
+      .subscribe((data) => this.testLogView.traces.push(data));
+
+    this.sutLogsSubscription = this.stompWSManager.sutLogs$
+      .subscribe((data) => this.sutLogView.traces.push(data));
 
     this.testMetricsSubscription = this.stompWSManager.testMetrics$
       .subscribe((data) => this.updateData(data, true));
@@ -118,6 +123,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.testLogView.logUrl = this.tJobExec.logs;
         this.sutLogView.logUrl = this.tJobExec.logs;
 
+        if (!this.withSut) {
+          this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
+        }
+
         if (this.fromTJobPage) {
           console.log('Suscribe to TJob execution.')
           this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
@@ -133,9 +142,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
     this.testLogView.name = 'Test Logs';
     this.sutLogView.name = 'Sut Logs';
-
-    this.testLogView.traces = this.stompWSManager.testTraces;
-    this.sutLogView.traces = this.stompWSManager.sutTraces;
 
     this.testLogView.logType = 'testlogs';
     this.sutLogView.logType = 'sutlogs';

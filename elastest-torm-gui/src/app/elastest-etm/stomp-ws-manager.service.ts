@@ -3,7 +3,7 @@
  */
 import { EventEmitter, Injectable } from '@angular/core';
 import { StompService } from './stomp.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subject } from 'rxjs/Subject';
 import { Http } from "@angular/http";
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -28,10 +28,16 @@ export class StompWSManager {
 
   endExecution: boolean = false;
 
-  private _testMetricsSource = new BehaviorSubject<any>("");
+  private _testLogsSource = new Subject<string>();
+  testLogs$ = this._testLogsSource.asObservable();
+
+  private _sutLogsSource = new Subject<string>();
+  sutLogs$ = this._sutLogsSource.asObservable();
+
+  private _testMetricsSource = new Subject<string>();
   testMetrics$ = this._testMetricsSource.asObservable();
 
-  private _sutMetricsSource = new BehaviorSubject<any>("");
+  private _sutMetricsSource = new Subject<string>();
   sutMetrics$ = this._sutMetricsSource.asObservable();
 
   constructor(private stomp: StompService, private http: Http) {
@@ -66,7 +72,7 @@ export class StompWSManager {
   }
 
   subscribeToQueDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction,{ auto_delete : true }));
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction, { auto_delete: true }));
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any) {
@@ -78,7 +84,7 @@ export class StompWSManager {
       console.log("UNSUSCRIBE TOPICS", key, value);
       this.stomp.unsubscribe(value);
     });
-    
+
   }
 
   sendWSMessage() {
@@ -93,23 +99,20 @@ export class StompWSManager {
 
   // Response
   public testMetricsResponse = (data) => {
-    // console.log(data);
     this._testMetricsSource.next(data);
   }
 
   public testLogResponse = (data) => {
-    // console.log(data.message);
-    this.testTraces.push(data.message);
+    console.log('data:',data.message);
+    this._testLogsSource.next(data.message);
   }
 
   public sutMetricsResponse = (data) => {
-    // console.log(data);
     this._sutMetricsSource.next(data);
   }
 
   public sutLogResponse = (data) => {
-    // console.log(data.message);
-    this.sutTraces.push(data.message);
+    this._sutLogsSource.next(data.message);
   }
 
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Request, RequestMethod, RequestOptions, Response } from '@angular/http';
-import { BehaviorSubject } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
 import 'rxjs/Rx';
 
 @Injectable()
@@ -77,7 +77,7 @@ export class ElasticSearchService {
   }
 
   getFromGivenLog(url: string, fromMessage: string, type: string) {
-    let _logs = new BehaviorSubject<string[]>([]);
+    let _logs = new Subject<string[]>();
     let logs = _logs.asObservable();
 
     this.searchMessage(url, fromMessage, type) //To Do: recursive search (if message is not in first 10000)
@@ -162,7 +162,7 @@ export class ElasticSearchService {
       theQuery['size'] = size;
     }
 
-    let _logs = new BehaviorSubject<string[]>([]);
+    let _logs = new Subject<string[]>();
     let logs = _logs.asObservable();
 
     this.internalSearch(searchUrl, theQuery, size)
