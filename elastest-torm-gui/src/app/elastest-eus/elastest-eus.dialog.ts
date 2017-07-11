@@ -10,6 +10,7 @@ export class ElastestEusDialog {
   public title: string;
   public message: string;
   public iframeUrl: string;
+  public loading: boolean = false;
   public closeButton: boolean = false;
 
   constructor(public dialogRef: MdDialogRef<ElastestEusDialog>) {

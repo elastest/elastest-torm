@@ -8,18 +8,18 @@ export class ElastestEusDialogService {
 
   constructor(private dialog: MdDialog) {}
 
-  public open(title: string, message: string, closeButton: boolean, iframeUrl: string): Observable<boolean> {
-
-    let dialogRef: MdDialogRef<ElastestEusDialog>;
-
-    dialogRef = this.dialog.open(ElastestEusDialog, {
-      disableClose: closeButton
+  public getDialog(close: boolean): MdDialogRef<ElastestEusDialog> {
+    let dialogRef: MdDialogRef<ElastestEusDialog> = this.dialog.open(ElastestEusDialog, {
+      disableClose: close
     });
 
+    return dialogRef;
+  }
+
+  public popUpMessage(title: string, message: string): Observable<boolean> {
+    let dialogRef: MdDialogRef<ElastestEusDialog> =  this.dialog.open(ElastestEusDialog);
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
-    dialogRef.componentInstance.iframeUrl = iframeUrl;
-    dialogRef.componentInstance.closeButton = closeButton;
 
     return dialogRef.afterClosed();
   }

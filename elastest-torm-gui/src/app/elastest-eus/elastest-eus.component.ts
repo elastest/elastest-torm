@@ -1,5 +1,6 @@
 import {Component, OnInit, Output, EventEmitter} from '@angular/core';
-
+import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {ElastestEusDialog} from './elastest-eus.dialog';
 import {ElastestEusDialogService} from './elastest-eus.dialog.service';
 import {EusService} from './elastest-eus.service';
 
@@ -13,7 +14,6 @@ export class ElastestEusComponent implements OnInit {
   componentTitle: string = "ElasTest User Emulator Service (EUS)";
   sessionId: string = "";
   vncUrl: string = "";
-  loading: boolean = false;
 
   selectedBrowser: string;
   browsers = [
@@ -43,33 +43,37 @@ export class ElastestEusComponent implements OnInit {
   ngOnInit() {
   }
 
+
   startSession() {
     if (this.selectedBrowser) {
-      this.loading = true;
+      let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+      let message = this.capitalize(this.selectedBrowser);
+      if (this.selectedVersion) {
+        message += " " + this.selectedVersion;
+      }
+      message += " - live session";
+      dialog.componentInstance.title = message;
+      dialog.componentInstance.message = "";
+      dialog.componentInstance.loading = true;
+      dialog.componentInstance.closeButton = true;
+
       this.eusService.startSession(this.selectedBrowser, this.selectedVersion).subscribe(
         id => {
           this.sessionId = id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
             url => {
-              let message = this.capitalize(this.selectedBrowser);
-              if (this.selectedVersion) {
-                message += " " + this.selectedVersion;
-              }
-              message += " - live session";
-              this.eusDialog.open(message, "", true, url)
-                .subscribe(
-                result => this.stopSession()
-                );
-              this.loading = false;
+              dialog.componentInstance.loading = false;
+              dialog.componentInstance.iframeUrl = url;
             },
             error => console.error(error)
           );
         },
         error => console.error(error)
       );
+
     }
     else {
-      this.eusDialog.open('Browser not selected', 'You need to chose one browsers to start a session', false, "")
+      this.eusDialog.popUpMessage('Browser not selected', 'You need to chose one browsers to start a session')
         .subscribe();
     }
   }
