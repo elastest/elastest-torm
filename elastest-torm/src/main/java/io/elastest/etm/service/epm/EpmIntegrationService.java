@@ -54,12 +54,10 @@ public class EpmIntegrationService {
 //		logRepo.save(testLog);
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
-		String testLogUrl = dockerExec.initializeLog();
-		Map<String, String> rabbitMap;
+		String testLogUrl = dockerExec.initializeLog();		
 
 		try {
-			// Create queues and load basic services
-			rabbitMap = rabbitmqService.startRabbitmq(dockerExec.getExecutionId(), dockerExec.isWithSut());
+			// Create queues and load basic services			
 			dockerService.loadBasicServices(dockerExec);
 
 			// Start Test
@@ -68,7 +66,6 @@ public class EpmIntegrationService {
 
 			// End and purge services
 			dockerService.endAllExec(dockerExec);			
-			rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize

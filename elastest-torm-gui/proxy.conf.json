@@ -1,8 +1,9 @@
 {
 
-    "/rabbitMq" :{
-        "target" : "http://localhost:8091",
-        "secure" : false
+   "/rabbitMq" :{
+        "target" : "ws://localhost:8091",
+        "secure" : false,
+        "ws": true
     },
 
     "/api" :{
