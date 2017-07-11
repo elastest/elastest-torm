@@ -13,12 +13,12 @@ export class LogsViewComponent implements OnInit {
   @ViewChild('scrollMe') private myScrollContainer: ElementRef;
 
   @Input()
-  public logView: LogViewModel;
+  public model: LogViewModel;
 
   lockScroll: boolean = false;
 
   constructor(
-    private elasticService: ElasticSearchService, private snackBar: MdSnackBar,
+    private snackBar: MdSnackBar,
   ) { }
 
   ngOnInit() { }
@@ -39,11 +39,11 @@ export class LogsViewComponent implements OnInit {
 
 
   loadPreviousLogs() {
-    this.logView.loadPreviousLogs()
+    this.model.loadPreviousLogs()
       .subscribe(
       (messages) => {
-        this.logView.prevTraces = messages;
-        this.logView.prevTracesLoaded = true;
+        this.model.prevTraces = messages;
+        this.model.prevTracesLoaded = true;
         if (messages.length > 0) {
           this.openSnackBar('Previous logs has been loaded', 'OK');
         }

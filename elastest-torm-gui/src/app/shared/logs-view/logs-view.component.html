@@ -1,22 +1,22 @@
 <md-card tdMediaToggle="gt-xs">
   <md-card-title>
-    {{logView.name}}
+    {{model.name}}
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content>
     <div layout="row">
-      <button md-raised-button color="accent" (click)="loadPreviousLogs()" [disabled]="logView.prevTracesLoaded" *ngIf="!logView.hidePrevBtn">Load Previous</button>
+      <button md-raised-button color="accent" (click)="loadPreviousLogs()" [disabled]="model.prevTracesLoaded" *ngIf="!model.hidePrevBtn">Load Previous</button>
       <md-slide-toggle title="Lock Scroll" [(ngModel)]="lockScroll" style="float: right; margin-left: auto;">
         <md-icon>lock_outline</md-icon>
       </md-slide-toggle>
     </div>
     <div layout="row">
       <ul #scrollMe class="logsViewContent">
-        <li *ngFor="let trace of logView.prevTraces">
+        <li *ngFor="let trace of model.prevTraces">
           {{trace}}
         </li>
-        <md-divider *ngIf="logView.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
-        <li *ngFor="let trace of logView.traces">
+        <md-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
+        <li *ngFor="let trace of model.traces">
           {{trace}}
         </li>
       </ul>

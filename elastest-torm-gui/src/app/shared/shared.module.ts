@@ -17,6 +17,7 @@ import {
 } from '@angular/material';
 import { NgxChartsModule, } from '@swimlane/ngx-charts';
 import { LogsViewComponent } from './logs-view/logs-view.component';
+import { MetricsViewComponent } from './metrics-view/metrics-view.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -55,8 +56,9 @@ const CHART_MODULES: any[] = [
     FLEX_LAYOUT_MODULES,
   ],
   declarations: [
-
-  LogsViewComponent],
+    LogsViewComponent,
+    MetricsViewComponent,
+  ],
   exports: [
     ANGULAR_MODULES,
     MATERIAL_MODULES,
@@ -64,6 +66,7 @@ const CHART_MODULES: any[] = [
     CHART_MODULES,
     FLEX_LAYOUT_MODULES,
     LogsViewComponent,
+    MetricsViewComponent,
   ]
 })
 export class SharedModule { }
