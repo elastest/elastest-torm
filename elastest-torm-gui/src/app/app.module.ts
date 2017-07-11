@@ -13,8 +13,8 @@ import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 import { routedComponents, AppRoutingModule } from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
-import { StompService } from './elastest-etm/stomp.service';
-import { StompWSManager } from './elastest-etm/stomp-ws-manager.service';
+import { StompService } from './shared/services/stomp.service';
+import { StompWSManager } from './shared/services/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 import { TJobExecService } from './elastest-etm/tjob-exec/tjobExec.service';
 import { SutService } from './elastest-etm/sut/sut.service';

@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { ConfigurationService } from '../config/configuration-service.service';
+import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompService } from './stomp.service';
 import { Subject } from 'rxjs/Subject';
 import { Http } from "@angular/http";
@@ -16,8 +16,7 @@ export class StompWSManager {
     heartbeatOut: 10000,
     heartbeatIn: 10000
   }
-
-  subscription: any;
+  
   subscriptions: Map<string, any>;
 
   endExecution: boolean = false;
@@ -41,10 +40,7 @@ export class StompWSManager {
      * @return {Promise} if resolved
      */
     this.stomp.startConnect().then(() => {
-      console.log('connected');
-      console.log('Url Ws: ' + this.stomp.getSessionWsId());
-      //this.subscribeToElastestTopicDestination("spring-boot",this.helloWorld);
-
+      console.log('connected');      
     });
   }
 
@@ -59,21 +55,11 @@ export class StompWSManager {
   }
 
   subscribeToQueDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction, { auto_delete: true }));
+    this.subscriptions.set(destination, this.stomp.subscribe('/queue/' + destination, callbackFunction, { auto_delete: true }));
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/topic/' + destination, callbackFunction));
-  }
-
-  subscribeToElastestTopicDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/exchange/spring-boot-exchange/' + destination, callbackFunction));
-    this.sendWSMessage('/exchange/spring-boot-exchange/spring-boot');
-  }
-
-  public helloWorld = (data) => {
-    console.log("Hello World:" + data.message);
-
+    this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
   }
 
   unsubscribeWSDestination() {

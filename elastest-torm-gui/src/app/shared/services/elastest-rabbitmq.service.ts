@@ -1,4 +1,4 @@
-import { StompWSManager } from '../../elastest-etm/stomp-ws-manager.service';
+import { StompWSManager } from './stomp-ws-manager.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Rx';

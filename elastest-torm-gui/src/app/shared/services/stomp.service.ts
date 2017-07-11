@@ -49,8 +49,6 @@ export class StompService {
 
 	public status: string;
 
-
-
 	constructor() {
 
 		this.status = 'CLOSED';
@@ -103,11 +101,6 @@ export class StompService {
 	 	);
 		
 	}
-
-    public getSessionWsId(){			
-		return this.socket._transport.url.split('/').pop();  
-	}
-
 
 	/**
 	 * Successfull connection to server
@@ -174,7 +167,6 @@ export class StompService {
 		this.stomp.disconnect(() => {this.resolveDisConPromise(); this.status = 'CLOSED'});
 		return this.disconnectPromise;
 	}
-
 
 
 	/**
