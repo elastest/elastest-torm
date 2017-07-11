@@ -44,8 +44,8 @@ export class TjobExecManagerComponent implements OnInit {
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
 
-        this.testLogView.logUrl = this.tJobExec.logs;
-        this.sutLogView.logUrl = this.tJobExec.logs;
+        this.testLogView.logIndex = this.tJobExec.logIndex;
+        this.sutLogView.logIndex = this.tJobExec.logIndex;
 
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
@@ -61,12 +61,7 @@ export class TjobExecManagerComponent implements OnInit {
               this.testLogView.getAllLogsByType();
 
               if (tJob.hasSut()) {
-                this.elasticService.searchLogsByType(tJobExec.logs, this.sutLogView.logType)
-                  .subscribe(
-                  (data) => {
-                    this.sutLogView.traces = data;
-                  }
-                  );
+                this.sutLogView.getAllLogsByType();
               }
               else {
                 this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];

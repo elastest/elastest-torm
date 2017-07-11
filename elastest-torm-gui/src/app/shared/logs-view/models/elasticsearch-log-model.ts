@@ -10,7 +10,7 @@ export class ESLogModel implements LogViewModel {
     prevTracesLoaded: boolean;
     hidePrevBtn: boolean;
     logType: string;
-    logUrl: string;
+    logIndex: string;
 
     constructor(elasticsearchService: ElasticSearchService) {
         this.name = '';
@@ -19,13 +19,13 @@ export class ESLogModel implements LogViewModel {
         this.prevTracesLoaded = false;
         this.hidePrevBtn = false;
         this.logType = '';
-        this.logUrl = '';
+        this.logIndex = '';
 
         this.elasticsearchService = elasticsearchService;
     }
 
     getAllLogsByType() {
-        this.elasticsearchService.searchLogsByType(this.logUrl, this.logType)
+        this.elasticsearchService.searchLogsByType(this.logIndex, this.logType)
             .subscribe(
             (data) => {
                 this.traces = data;

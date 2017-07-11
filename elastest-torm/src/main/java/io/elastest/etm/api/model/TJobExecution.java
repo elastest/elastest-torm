@@ -33,52 +33,56 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 public class TJobExecution {
-	
+
 	public interface BasicAttTJobExec {
 	}
 
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="id")
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
 	@JsonProperty("id")
 	private Long id = null;
 
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
-	@Column(name="duration")
+	@Column(name = "duration")
 	@JsonProperty("duration")
 	private Long duration = null;
-	
+
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
-	@Column(name="result")
+	@Column(name = "result")
 	@JsonProperty("result")
 	private ResultEnum result = null;
 
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
-	@OneToOne (fetch = FetchType.LAZY)
-	@JoinColumn(name="sut_execution")
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sut_execution")
 	@JsonProperty("sutExecution")
 	private SutExecution sutExecution = null;
 
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
-	@Column(name="error")
+	@Column(name = "error")
 	@JsonProperty("error")
 	private String error = null;
-	
+
+	// @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+	// BasicAttProject.class })
+	// @OneToMany(mappedBy="tJobExec", cascade = CascadeType.REMOVE)
+	// private List<Log> logs = null;
+
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
-	@OneToMany(mappedBy="tJobExec", cascade = CascadeType.REMOVE)
-	private List<Log> logs = null;
-	
-	//bi-directional many-to-one association to Tjob
+	@Column(name = "logIndex")
+	private String logIndex = null;
+
+	// bi-directional many-to-one association to Tjob
 	@JsonView({ BasicAttTJobExec.class })
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="tjob")
-	private TJob tJob;
-		
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="to_job_execution")
-	private TOJobExecution tOJobExecution = null;		
-	
+	@JoinColumn(name = "tjob")
+	private TJob tJob;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "to_job_execution")
+	private TOJobExecution tOJobExecution = null;
 
 	public TJobExecution() {
 		this.id = (long) 0;
@@ -87,10 +91,10 @@ public class TJobExecution {
 	}
 
 	public TJobExecution(Long id, Long duration, ResultEnum result) {
-		this.id = id==null? 0: id;
-		this.duration = duration==null? 0: duration;
+		this.id = id == null ? 0 : id;
+		this.duration = duration == null ? 0 : duration;
 		this.result = result;
-	}	
+	}
 
 	/**
 	 * Gets or Sets result
@@ -125,7 +129,6 @@ public class TJobExecution {
 		}
 	}
 
-
 	/**
 	 * Get id
 	 * 
@@ -139,15 +142,14 @@ public class TJobExecution {
 	}
 
 	public void setId(Long id) {
-		this.id = id==null? 0: id;
+		this.id = id == null ? 0 : id;
 	}
-	
+
 	public TJobExecution id(Long id) {
 		this.id = id;
 		return this;
 	}
-	
-	
+
 	/**
 	 * Get duration
 	 * 
@@ -161,9 +163,9 @@ public class TJobExecution {
 	}
 
 	public void setDuration(Long duration) {
-		this.duration = duration==null? 0: duration;
+		this.duration = duration == null ? 0 : duration;
 	}
-	
+
 	public TJobExecution duration(Long duration) {
 		this.duration = duration;
 		return this;
@@ -189,7 +191,7 @@ public class TJobExecution {
 		this.result = result;
 		return this;
 	}
-	
+
 	/**
 	 * Get sutExecution
 	 * 
@@ -209,7 +211,7 @@ public class TJobExecution {
 		this.sutExecution = sutExecution;
 		return this;
 	}
-	
+
 	/**
 	 * Get error
 	 * 
@@ -224,44 +226,61 @@ public class TJobExecution {
 	public void setError(String error) {
 		this.error = error;
 	}
-	
+
 	public TJobExecution error(String error) {
 		this.error = error;
 		return this;
 	}
 
+	// /**
+	// * URLs of logs
+	// *
+	// * @return logs
+	// **/
+	// @ApiModelProperty(value = "URLs of logs")
+	//
+	// @Valid
+	// public List<Log> getLogs() {
+	// return logs;
+	// }
+	//
+	// public void setLogs(List<Log> logs) {
+	// this.logs = logs;
+	// }
+	//
+	//
+	// public TJobExecution logs(List<Log> logs) {
+	// this.logs = logs;
+	// return this;
+	// }
+	//
+	// public TJobExecution addLogsItem(Log logsItem) {
+	// if (this.logs == null) {
+	// this.logs = new ArrayList<Log>();
+	// }
+	// this.logs.add(logsItem);
+	// return this;
+	// }
 
 	/**
-	 * URLs of logs
+	 * Log table Index
 	 * 
-	 * @return logs
-	 **/
-	@ApiModelProperty(value = "URLs of logs")
+	 * @return logIndex
+	 */
 
-	@Valid
-	public List<Log> getLogs() {
-		return logs;
+	public String getLogIndex() {
+		return logIndex;
 	}
 
-	public void setLogs(List<Log> logs) {
-		this.logs = logs;
+	public void setLogIndex(String logIndex) {
+		this.logIndex = logIndex;
 	}
-	
-	
-	public TJobExecution logs(List<Log> logs) {
-		this.logs = logs;
+
+	public TJobExecution logs(String logIndex) {
+		this.logIndex = logIndex;
 		return this;
 	}
 
-	public TJobExecution addLogsItem(Log logsItem) {
-		if (this.logs == null) {
-			this.logs = new ArrayList<Log>();
-		}
-		this.logs.add(logsItem);
-		return this;
-	}
-	
-	
 	/**
 	 * tJob
 	 * 
@@ -274,7 +293,14 @@ public class TJobExecution {
 	public void setTjob(TJob tjob) {
 		this.tJob = tjob;
 	}
-	
+
+	/**
+	 * 
+	 * TOJobExecution
+	 * 
+	 * @return tOJobExecution
+	 */
+
 	public TOJobExecution getTOJobExecutionb() {
 		return tOJobExecution;
 	}
@@ -282,12 +308,11 @@ public class TJobExecution {
 	public void setTOJobExecution(TOJobExecution tOJobExecution) {
 		this.tOJobExecution = tOJobExecution;
 	}
-	
-	public TJobExecution tOJobExecution(TOJobExecution tOJobExecution){
+
+	public TJobExecution tOJobExecution(TOJobExecution tOJobExecution) {
 		this.tOJobExecution = tOJobExecution;
 		return this;
 	}
-	
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -301,15 +326,13 @@ public class TJobExecution {
 		return Objects.equals(this.id, tjobExecution.id) && Objects.equals(this.duration, tjobExecution.duration)
 				&& Objects.equals(this.result, tjobExecution.result)
 				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
-				&& Objects.equals(this.error, tjobExecution.error)
-				&& Objects.equals(this.logs, tjobExecution.logs)
-				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
-				;
+				&& Objects.equals(this.error, tjobExecution.error) && Objects.equals(this.logIndex, tjobExecution.logIndex)
+				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, duration, result, sutExecution, error /*, logs*/, tOJobExecution);
+		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution);
 	}
 
 	@Override
@@ -322,7 +345,7 @@ public class TJobExecution {
 		sb.append("    result: ").append(toIndentedString(result)).append("\n");
 		sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
-		sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
+		sb.append("    logIndex: ").append(toIndentedString(logIndex)).append("\n");
 		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
 		sb.append("}");
 		return sb.toString();

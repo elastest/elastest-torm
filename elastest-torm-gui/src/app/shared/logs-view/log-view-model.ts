@@ -5,7 +5,7 @@ export interface LogViewModel {
     prevTracesLoaded: boolean;
     hidePrevBtn: boolean;
     logType: string;
-    logUrl: string;
+    logIndex: string;
     getAllLogsByType();
     loadPreviousLogs();
 }

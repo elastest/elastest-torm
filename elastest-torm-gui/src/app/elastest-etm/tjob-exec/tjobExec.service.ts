@@ -52,11 +52,7 @@ export class TJobExecService {
     else {
       tjobExecsDataToTable.sutExec = new SutExecModel();
     }
-    if (tjobExec.logs[0] !== undefined && tjobExec.logs[0] !== null) { //If tjob execution is in progress, logurl is undefined
-      tjobExecsDataToTable.logs = tjobExec.logs[0].logUrl;
-    } else {
-      tjobExecsDataToTable.logs = '';
-    }
+    tjobExecsDataToTable.logIndex = tjobExec.logIndex;
 
     if (tjobExec.tJob !== undefined && tjobExec.tJob !== null) {
       tjobExecsDataToTable.tJob = this.transformToTjobmodelForTJobExec(tjobExec.tJob);

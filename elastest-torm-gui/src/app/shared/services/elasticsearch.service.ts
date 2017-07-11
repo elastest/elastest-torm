@@ -10,6 +10,8 @@ export class ElasticSearchService {
   _scroll_id: string;
   noMore: boolean = false;
 
+  esUrl: string = 'http://localhost:9200/'
+
   constructor(public http: Http) {
     console.log('Task Service created.');
     this.rowData = [];
@@ -76,7 +78,9 @@ export class ElasticSearchService {
       });
   }
 
-  getFromGivenLog(url: string, fromMessage: string, type: string) {
+  getFromGivenLog(index: string, fromMessage: string, type: string) {
+    let url = this.esUrl + index;
+
     let _logs = new Subject<string[]>();
     let logs = _logs.asObservable();
 
@@ -97,7 +101,7 @@ export class ElasticSearchService {
             },
           }
 
-          this.searchLogsByType(url, type, newQuery).subscribe(
+          this.searchLogsByType(index, type, newQuery).subscribe(
             (messages) => {
               let orderedMessages: string[] = messages.reverse();
               _logs.next(orderedMessages);
@@ -141,8 +145,9 @@ export class ElasticSearchService {
    * @param type 
    * @param theQuery optional
    */
-  searchLogsByType(url: string, type: string, theQuery?: any) {
+  searchLogsByType(index: string, type: string, theQuery?: any) {
     let size: number = 1000;
+    let url = this.esUrl + index;
     let searchUrl: string = url + '/_search';
 
     if (theQuery === undefined || theQuery === null) {
@@ -175,7 +180,7 @@ export class ElasticSearchService {
           theQuery['search_after'] = [sortId];
 
           let messages: string[] = this.returnMessages(data);
-          this.searchLogsByType(url, type, theQuery).subscribe(
+          this.searchLogsByType(index, type, theQuery).subscribe(
             (result) => {
               _logs.next(messages.concat(result));
             },

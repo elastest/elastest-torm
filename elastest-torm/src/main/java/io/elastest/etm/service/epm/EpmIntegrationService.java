@@ -1,6 +1,5 @@
 package io.elastest.etm.service.epm;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -48,28 +47,28 @@ public class EpmIntegrationService {
 
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 		
-		Log testLog = new Log();
-		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
-		testLog.setLogUrl(elasticsearchHost + tJobExec.getId());
-		testLog.settJobExec(tJobExec);
-		logRepo.save(testLog);
+//		Log testLog = new Log();
+//		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
+//		testLog.setLogUrl(elasticsearchHost + tJobExec.getId());
+//		testLog.settJobExec(tJobExec);
+//		logRepo.save(testLog);
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
 		String testLogUrl = dockerExec.initializeLog();
-		
+		Map<String, String> rabbitMap;
+
 		try {
-			//rabbitmqService.createRabbitmqConnection();
-			//rabbitmqService.createTopicExchange(Long.toString(tJobExec.getId()), "topic.etm.");
-			// Create queues and load basic services			
+			// Create queues and load basic services
+			rabbitMap = rabbitmqService.startRabbitmq(dockerExec.getExecutionId(), dockerExec.isWithSut());
 			dockerService.loadBasicServices(dockerExec);
-			
+
 			// Start Test
 			dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
 			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
 			// End and purge services
 			dockerService.endAllExec(dockerExec);			
-			
+			rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize

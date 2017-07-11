@@ -19,24 +19,25 @@ import { TJobService } from '../tjob/tjob.service';
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
 
-  // Chart
-  cpuData: ETRESMetricsModel;
-  memoryData: ETRESMetricsModel;
-
   tJobId: number;
   withSut: boolean = false;
 
+  tJobExecId: number;
+  tJobExec: TJobExecModel;
+
+  // Logs
   sutLogView: RabESLogModel;
   testLogView: RabESLogModel;
+
+  // Metrics Chart
+  cpuData: ETRESMetricsModel;
+  memoryData: ETRESMetricsModel;
 
   testLogsSubscription: Subscription;
   sutLogsSubscription: Subscription;
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
 
-  tJobExecId: number;
-  tJobExec: TJobExecModel;
-  
   constructor(private _titleService: Title,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
@@ -54,7 +55,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         }
       );
     }
-   
+
   }
 
   ngOnInit() {
@@ -85,13 +86,13 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
 
-        this.testLogView.logUrl = this.tJobExec.logs;
-        this.sutLogView.logUrl = this.tJobExec.logs;
+        this.testLogView.logIndex = this.tJobExec.logIndex;
+        this.sutLogView.logIndex = this.tJobExec.logIndex;
 
         if (!this.withSut) {
           this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
         }
-   
+
         console.log('Suscribe to TJob execution.');
         this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
       });

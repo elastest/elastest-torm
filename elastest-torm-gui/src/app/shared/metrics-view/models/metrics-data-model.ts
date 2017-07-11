@@ -68,7 +68,6 @@ export class MetricsDataModel implements MetricsViewModel {
   }
 
   parseCpuData(data: any) {
-    console.log('parsecpuData', data);
     let parsedData: any = {
       'value': data.cpu.totalUsage,
       'name': new Date('' + data['@timestamp']),

@@ -43,7 +43,10 @@ public class TJobService {
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tJobExec = new TJobExecution();
 		tJobExec.setTjob(tjob);
-		tJobExec = tJobExecRepositoryImpl.save(tJobExec);	
+		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+		
+		tJobExec.setLogIndex(tJobExec.getId().toString());
+		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
 		epmIntegrationService.executeTJob(tJobExec);
 		return tJobExec;
