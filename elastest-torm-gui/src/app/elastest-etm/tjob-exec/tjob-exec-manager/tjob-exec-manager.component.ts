@@ -1,5 +1,6 @@
 import { ElasticSearchService } from '../../../shared/services/elasticsearch.service';
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
+import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -22,6 +23,7 @@ export class TjobExecManagerComponent implements OnInit {
   testLogView: ESLogModel = new ESLogModel(this.elasticService);
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
+    private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router, ) {
     this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -74,16 +76,14 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   initLogsView() {
-    this.testLogView.name = 'Test Logs';
-    this.sutLogView.name = 'Sut Logs';
+    this.elastestESService.initTestLog(this.testLogView);
+    this.elastestESService.initSutLog(this.sutLogView);
+
     this.testLogView.hidePrevBtn = true;
     this.sutLogView.hidePrevBtn = true;
 
     this.testLogView.traces = ['Loading Logs...'];
     this.sutLogView.traces = ['Loading Logs...'];
-
-    this.testLogView.type = 'testlogs';
-    this.sutLogView.type = 'sutlogs';
   }
 
 }

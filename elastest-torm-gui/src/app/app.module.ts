@@ -29,7 +29,7 @@ import { SutManagerComponent } from './elastest-etm/sut/sut-manager/sut-manager.
 import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
 import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manager/sut-exec-manager.component';
 import { ElastestRabbitmqService } from './shared/services/elastest-rabbitmq.service';
-
+import { ElastestESService } from './shared/services/elastest-es.service';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -74,7 +74,8 @@ const httpInterceptorProviders: Type<any>[] = [
     TJobExecService,
     ProjectService,
     ElasticSearchService,
-    ElastestRabbitmqService,    
+    ElastestRabbitmqService,
+    ElastestESService,
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true

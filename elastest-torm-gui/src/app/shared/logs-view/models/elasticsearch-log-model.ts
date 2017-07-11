@@ -10,6 +10,7 @@ export class ESLogModel implements LogViewModel {
     prevLoaded: boolean;
     hidePrevBtn: boolean;
     type: string;
+    componentType: string;
     logIndex: string;
 
     constructor(elasticsearchService: ElasticSearchService) {
@@ -19,6 +20,7 @@ export class ESLogModel implements LogViewModel {
         this.prevLoaded = false;
         this.hidePrevBtn = false;
         this.type = '';
+        this.componentType = '';
         this.logIndex = '';
 
         this.elasticsearchService = elasticsearchService;
