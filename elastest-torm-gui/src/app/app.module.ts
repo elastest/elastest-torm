@@ -1,16 +1,16 @@
-import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BrowserModule, Title } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {APP_INITIALIZER, NgModule, Type} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {BrowserModule, Title} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
-import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
-import { CovalentHighlightModule } from '@covalent/highlight';
-import { CovalentMarkdownModule } from '@covalent/markdown';
+import {CovalentHttpModule, IHttpInterceptor} from '@covalent/http';
+import {CovalentHighlightModule} from '@covalent/highlight';
+import {CovalentMarkdownModule} from '@covalent/markdown';
 
-import { AppComponent } from './app.component';
-import { RequestInterceptor } from '../config/interceptors/request.interceptor';
+import {AppComponent} from './app.component';
+import {RequestInterceptor} from '../config/interceptors/request.interceptor';
 
-import { routedComponents, AppRoutingModule } from './app-routing.module';
+import {routedComponents, AppRoutingModule} from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
@@ -31,6 +31,11 @@ import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manage
 import { ElastestRabbitmqService } from './shared/services/elastest-rabbitmq.service';
 import { ElastestESService } from './shared/services/elastest-es.service';
 
+import { EusService } from './elastest-eus/elastest-eus.service';
+import { SafePipe } from './elastest-eus/safe-pipe';
+import { ElastestEusDialog } from './elastest-eus/elastest-eus.dialog';
+import { ElastestEusDialogService } from './elastest-eus/elastest-eus.dialog.service';
+
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
 ];
@@ -43,6 +48,8 @@ const httpInterceptorProviders: Type<any>[] = [
     SutManagerComponent,
     TjobExecManagerComponent,
     SutExecManagerComponent,
+    SafePipe,
+    ElastestEusDialog
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
@@ -79,9 +86,13 @@ const httpInterceptorProviders: Type<any>[] = [
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true
-    }
+    },
+    EusService,
+    ElastestEusDialogService
   ],
-  entryComponents: [],
+  entryComponents: [
+    ElastestEusDialog
+  ],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

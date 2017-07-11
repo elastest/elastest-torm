@@ -1,3 +1,48 @@
-<p>
-  elastest-eus works!
-</p>
+
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+    <div flex-gt-xs="100">
+        <md-card tdMediaToggle="gt-xs">
+            <md-card-title>Manual tests</md-card-title>
+            <md-divider></md-divider>
+            <md-card-content class="push-bottom-none">
+                <md-radio-group [(ngModel)]="selectedBrowser">
+                  <md-radio-button value="chrome" flex-gt-xs="50">Chrome</md-radio-button>
+                <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('chrome')">
+                    <md-option *ngFor="let version of browserVersions.chrome" [value]="version.value">
+                       {{version.viewValue}}
+                    </md-option>
+                </md-select>
+                <br>
+                <br>
+                  <md-radio-button value="firefox" flex-gt-xs="50">Firefox</md-radio-button>
+                <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('firefox')">
+                    <md-option *ngFor="let version of browserVersions.firefox" [value]="version.value">
+                       {{version.viewValue}}
+                    </md-option>
+                </md-select>
+                </md-radio-group>
+                <div layout="row" class="push-top">
+                    <button md-raised-button color="accent" (click)="startSession()">Start session</button>
+                    <!--
+                    &nbsp;
+                    <button md-raised-button color="accent" (click)="stopSession()">Stop session</button>
+                     -->
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+    <div flex-gt-xs="100">
+        <md-card tdMediaToggle="gt-xs"> 
+            <md-card-title>Automated tests</md-card-title>
+            <md-divider></md-divider>
+            <md-card-content class="push-bottom-none">
+            TBD
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<img *ngIf="loading==true" src="./assets/img/spinner.gif">
