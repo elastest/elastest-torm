@@ -1,10 +1,10 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { ConfigurationService } from '../config/configuration-service.service';
 import { StompService } from './stomp.service';
 import { Subject } from 'rxjs/Subject';
 import { Http } from "@angular/http";
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-
 
 @Injectable()
 export class StompWSManager {
@@ -22,7 +22,7 @@ export class StompWSManager {
 
   endExecution: boolean = false;
 
-  constructor(private stomp: StompService, private http: Http) {
+  constructor(private stomp: StompService, private http: Http, private configurationService: ConfigurationService) {
     this.subscriptions = new Map<string, any>();
     this.wsConf.host = this.configurationService.configModel.hostWsServer + this.wsConf.host;
   }
