@@ -1,5 +1,6 @@
 package io.elastest.etm.service.epm;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -55,20 +56,20 @@ public class EpmIntegrationService {
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
 		String testLogUrl = dockerExec.initializeLog();
-		Map<String, String> rabbitMap;
-
+		
 		try {
-			// Create queues and load basic services
-			rabbitMap = rabbitmqService.startRabbitmq(dockerExec.getExecutionId(), dockerExec.isWithSut());
+			//rabbitmqService.createRabbitmqConnection();
+			//rabbitmqService.createTopicExchange(Long.toString(tJobExec.getId()), "topic.etm.");
+			// Create queues and load basic services			
 			dockerService.loadBasicServices(dockerExec);
-
+			
 			// Start Test
 			dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
 			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 
 			// End and purge services
 			dockerService.endAllExec(dockerExec);			
-			rabbitmqService.purgeRabbitmq(rabbitMap, dockerExec.getExecutionId());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize

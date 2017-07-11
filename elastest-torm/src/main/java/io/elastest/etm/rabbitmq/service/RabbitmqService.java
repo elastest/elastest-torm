@@ -27,6 +27,8 @@ public class RabbitmqService {
 
 	@Value("${spring.rabbitmq.password}")
 	private String pass;
+	
+	private HashMap<String, String> tJobExchanges = new HashMap<>();
 
 	public Connection createRabbitmqConnection() {
 		connection = container.getConnectionFactory().createConnection();
@@ -54,9 +56,11 @@ public class RabbitmqService {
 		}
 	}
 
-	public void createFanoutExchange(String name) {
+	public void createTopicExchange(String tJobExecId, String topicPrefix) {
+		
+		tJobExchanges.put(tJobExecId, topicPrefix + tJobExecId);
 		try {
-			channel.exchangeDeclare(name, BuiltinExchangeType.FANOUT, true);
+			channel.exchangeDeclare(topicPrefix + tJobExecId, BuiltinExchangeType.TOPIC, false, true, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -114,7 +118,6 @@ public class RabbitmqService {
 
 		return rabbitMap;
 	}
-
 	
 	// For create execution queues and bind to topic
 	

@@ -118,12 +118,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.testLogView.logUrl = this.tJobExec.logs;
         this.sutLogView.logUrl = this.tJobExec.logs;
 
-        if (this.fromTJobPage) {
-          console.log('Suscribe to TJob execution.')
-          this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
-        } else {
-          this.tJobExecService.createAndSubscribe(this.tJobExec);
-        }
+        console.log('Suscribe to TJob execution.');
+        this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
       });
   }
 
@@ -193,6 +189,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.stompWSManager.ususcribeWSDestination('');
+    this.stompWSManager.ususcribeWSDestination();
   }
 }

@@ -24,15 +24,15 @@ public class WebSocketConfiguration {
 		@Override
 		public void configureMessageBroker(MessageBrokerRegistry config) {			
 			config.setApplicationDestinationPrefixes("/app");
-			config.enableStompBrokerRelay("/queue", "/topic")
+			config.enableStompBrokerRelay("/queue", "/topic", "/exchange")
 					.setAutoStartup(true)
 					.setClientLogin("elastest-etm")
 					.setClientPasscode("elastest-etm")
 					.setSystemLogin("elastest-etm")
 					.setSystemPasscode("elastest-etm")
 					.setRelayHost(utilTools.getDockerHostIp())
-					.setSystemHeartbeatReceiveInterval(24000)
-					.setSystemHeartbeatSendInterval(24000)
+					.setSystemHeartbeatReceiveInterval(5000)
+					.setSystemHeartbeatSendInterval(5000)
 					.setRelayPort(61613)
 					.setVirtualHost("/elastest-etm");
 		}
