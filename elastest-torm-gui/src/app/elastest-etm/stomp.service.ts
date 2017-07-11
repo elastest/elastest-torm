@@ -81,7 +81,7 @@ export class StompService {
 		this.status = 'CONNECTING';
 
 		//Prepare Client
-		this.socket = new SockJS(this.config.host);
+		this.socket = new WebSocket(this.config.host);		
 		this.stomp = Stomp.over(this.socket);
 
 		this.stomp.heartbeat.outgoing = this.config.heartbeatOut || 10000;
@@ -96,8 +96,8 @@ export class StompService {
 			this.stomp.debug = false;
 		}
 
-		//Connect to server
-		this.stomp.connect(this.config.headers || {}, this.onConnect,this.onError);
+		//Connect to server		
+		this.stomp.connect( {}, this.onConnect,this.onError);
 		return new Promise(
 	 	  (resolve, reject) => this.resolveConPromise = resolve
 	 	);

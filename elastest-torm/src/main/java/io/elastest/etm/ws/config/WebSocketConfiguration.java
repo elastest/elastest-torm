@@ -40,7 +40,7 @@ public class WebSocketConfiguration {
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
 			stompEndpointRegistry.addEndpoint("/rabbitMq").setHandshakeHandler(new DefaultHandshakeHandler())
-			.setAllowedOrigins("http://localhost").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor()).setHeartbeatTime(100000);
+			.setAllowedOrigins("*").addInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 	}
 }

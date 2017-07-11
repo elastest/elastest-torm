@@ -24,13 +24,14 @@ export class StompWSManager {
 
   constructor(private stomp: StompService, private http: Http) {
     this.subscriptions = new Map<string, any>();
+    this.wsConf.host = this.configurationService.configModel.hostWsServer + this.wsConf.host;
   }
 
   configWSConnection(host?: string) {
     if (host !== undefined) {
-      this.wsConf.host = host;
+      this.wsConf.host = this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
     }
-
+    
     this.stomp.configure(this.wsConf);
   }
 
