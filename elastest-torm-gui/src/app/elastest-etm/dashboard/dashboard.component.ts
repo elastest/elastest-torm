@@ -36,9 +36,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   tJobExecId: number;
   tJobExec: TJobExecModel;
-
-  fromTJobPage: boolean = false;
-
+  
   constructor(private _titleService: Title,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
@@ -56,12 +54,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         }
       );
     }
-
-    this.route.queryParams.subscribe(
-      params => {
-        this.fromTJobPage = params['fromTJobManager'];
-      }
-    );
+   
   }
 
   ngOnInit() {
@@ -98,13 +91,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         if (!this.withSut) {
           this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
         }
-
-        if (this.fromTJobPage) {
-          console.log('Suscribe to TJob execution.')
-          this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
-        } else {
-          this.tJobExecService.createAndSubscribe(this.tJobExec);
-        }
+   
+        console.log('Suscribe to TJob execution.');
+        this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
       });
   }
 
@@ -139,6 +128,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.stompWSManager.ususcribeWSDestination('');
+    this.stompWSManager.ususcribeWSDestination();
   }
 }

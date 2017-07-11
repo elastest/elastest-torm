@@ -16,8 +16,8 @@ export class StompWSManager {
     host: '/rabbitMq',
     debug: true,
     queue: { 'init': false },
-    heartbeatOut: 5000,
-    heartbeatIn: 5000
+    heartbeatOut: 10000,
+    heartbeatIn: 10000
   }
 
   subscription: any;
@@ -44,8 +44,11 @@ export class StompWSManager {
     this.subscriptions = new Map<string, any>();
   }
 
-  configWSConnection(host: string) {
-    this.wsConf.host = host;
+  configWSConnection(host?: string) {
+    if(host !== undefined){
+      this.wsConf.host = host;
+    }
+    
     this.stomp.configure(this.wsConf);
   }
 
@@ -57,6 +60,7 @@ export class StompWSManager {
     this.stomp.startConnect().then(() => {
       console.log('connected');
       console.log('Url Ws: ' + this.stomp.getSessionWsId());
+      //this.subscribeToElastestTopicDestination("spring-boot",this.helloWorld);
 
     });
   }
@@ -75,26 +79,37 @@ export class StompWSManager {
     this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/queue/' + destination, callbackFunction, { auto_delete: true }));
   }
 
-  subscribeToTopicDestination(destination: string, callbackFunction: any) {
+  subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string) {
     this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/topic/' + destination, callbackFunction));
   }
 
-  ususcribeWSDestination(destination: string) {
+  subscribeToElastestTopicDestination(destination: string, callbackFunction: any) {
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/exchange/spring-boot-exchange/'+destination, callbackFunction));
+    this.sendWSMessage('/exchange/spring-boot-exchange/spring-boot');
+  }
+
+public helloWorld = (data) => {
+    console.log("Hello World:" +data.message);
+    
+  }
+
+  ususcribeWSDestination() {
     this.subscriptions.forEach((value, key) => {
       console.log("UNSUSCRIBE TOPICS", key, value);
       this.stomp.unsubscribe(value);
+      this.subscriptions.delete(key);
     });
 
   }
 
-  sendWSMessage() {
+  sendWSMessage(destination: string) {
     /**
      * Send message.
      * @param {string} destination: send destination.
      * @param {object} body: a object that sends.
      * @param {object} headers: optional headers.
      */
-    this.stomp.send('/topic/logs', { 'data': 'data' });
+    this.stomp.send(destination, { 'data': 'data' });
   }
 
   // Response
