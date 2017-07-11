@@ -11,9 +11,12 @@ export class ConfigurationService {
    }
 
   load(){
+    let host: string = window.location.host;
     this.configModel = { 
-      'host': "http://" + window.location.host, 
-      'hostApi': "http://"+ window.location.host + "/api"
+      'host': "http://" + host, 
+      'hostApi': "http://" + host + "/api",
+
+      'hostWsServer': "ws://" + host
     };     
   }
 

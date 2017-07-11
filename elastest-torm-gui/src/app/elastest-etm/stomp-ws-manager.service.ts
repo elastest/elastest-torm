@@ -7,6 +7,7 @@ import { Subject } from 'rxjs/Subject';
 import { Http } from "@angular/http";
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { ConfigurationService } from '../config/configuration-service.service';
 
 
 @Injectable()
@@ -40,13 +41,14 @@ export class StompWSManager {
   private _sutMetricsSource = new Subject<string>();
   sutMetrics$ = this._sutMetricsSource.asObservable();
 
-  constructor(private stomp: StompService, private http: Http) {
+  constructor(private stomp: StompService, private http: Http, private configurationService: ConfigurationService ) {
     this.subscriptions = new Map<string, any>();
+    this.wsConf.host = this.configurationService.configModel.hostWsServer + this.wsConf.host;
   }
 
   configWSConnection(host?: string) {
     if(host !== undefined){
-      this.wsConf.host = host;
+      this.wsConf.host = this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
     }
     
     this.stomp.configure(this.wsConf);
