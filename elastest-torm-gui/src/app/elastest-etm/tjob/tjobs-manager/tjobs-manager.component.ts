@@ -1,5 +1,4 @@
 import { TJobService } from '../tjob.service';
-import { StompWSManager } from '../../stomp-ws-manager.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -11,26 +10,10 @@ export class TJobsManagerComponent implements OnInit {
 
   idTJob: number;
 
-  constructor(private stompWSManager: StompWSManager, private tJobService: TJobService) { }
+  constructor(private tJobService: TJobService) { }
 
   ngOnInit() {
   }
 
-  public runTJob(){    
-        
-   /* this.tJobService.runTJob(this.idTJob)
-      .subscribe(
-        tjobExecution => {
-          console.log('TJobExecutionId:'+ tjobExecution.id);
-          this.createAndSubscribe(tjobExecution);
-        },
-        error => console.error("Error:" + error)
-      );*/
-  }
-
-public createAndSubscribe(tjobExecution: any){
-  // this.stompWSManager.subscribeWSDestination('q-'+tjobExecution.id + '-test-metrics');
-  
-}
 
 }

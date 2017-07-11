@@ -1,4 +1,4 @@
-import { StompWSManager } from './stomp-ws-manager.service';
+import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 
 import { Title } from '@angular/platform-browser';
@@ -15,11 +15,11 @@ export class EtmComponent implements AfterViewInit, OnInit {
   title: string;
 
   constructor(private _titleService: Title,
-              public media: TdMediaService, private stompWSManager: StompWSManager) { }
+              public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService) { }
 
   ngOnInit(){
-    this.stompWSManager.configWSConnection();
-    this.stompWSManager.startWsConnection();
+    this.elastestRabbitmqService.configWSConnection();
+    this.elastestRabbitmqService.startWsConnection();
   }
 
   ngAfterViewInit(): void {

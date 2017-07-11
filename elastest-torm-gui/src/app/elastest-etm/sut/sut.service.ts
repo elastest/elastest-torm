@@ -1,4 +1,3 @@
-import { StompWSManager } from '../stomp-ws-manager.service';
 import { SutModel } from './sut-model';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { Http } from '@angular/http';
@@ -9,7 +8,7 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class SutService {
-  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
+  constructor(private http: Http, private configurationService: ConfigurationService) { }
 
   public getSuts() {
     let url = this.configurationService.configModel.hostApi + '/sut';

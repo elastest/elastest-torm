@@ -13,8 +13,9 @@ export class ConfigurationService {
   load(){
     this.configModel = { 
       'host': "http://" + window.location.host, 
-      'hostApi': "http://"+ window.location.host + "/api"
-    };     
+      'hostApi': "http://"+ window.location.host + "/api",
+      'hostElasticsearch': 'http://localhost:9200/'
+    };
   }
 
 }

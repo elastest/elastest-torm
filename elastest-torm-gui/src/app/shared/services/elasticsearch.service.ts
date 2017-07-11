@@ -1,3 +1,6 @@
+import { ConfigModel } from '../../config/config-model';
+import { ConfigurationService } from '../../config/configuration-service.service';
+
 import { Injectable } from '@angular/core';
 import { Http, Request, RequestMethod, RequestOptions, Response } from '@angular/http';
 import { Subject } from 'rxjs/Rx';
@@ -10,11 +13,12 @@ export class ElasticSearchService {
   _scroll_id: string;
   noMore: boolean = false;
 
-  esUrl: string = 'http://localhost:9200/'
+  esUrl: string;
 
-  constructor(public http: Http) {
+  constructor(public http: Http, private configurationService: ConfigurationService) {
     console.log('Task Service created.');
     this.rowData = [];
+    this.esUrl = this.configurationService.configModel.hostElasticsearch;
   }
 
   returnMessages(data: any) {

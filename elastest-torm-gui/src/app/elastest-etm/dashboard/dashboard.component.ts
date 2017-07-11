@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs/Rx';
 import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
 import { RabESLogModel } from '../../shared/logs-view/models/rab-es-log-model';
 import { ETRESMetricsModel } from '../../shared/metrics-view/models/et-res-metrics-model';
+import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
 import { ElasticSearchService } from '../../shared/services/elasticsearch.service';
-import { StompWSManager } from '../stomp-ws-manager.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
@@ -41,7 +41,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   constructor(private _titleService: Title,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
-    private stompWSManager: StompWSManager,
+    private elastestRabbitmqService: ElastestRabbitmqService,
     private route: ActivatedRoute, private router: Router,
     private elasticsearchService: ElasticSearchService,
   ) {
@@ -62,16 +62,16 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.testLogsSubscription = this.stompWSManager.testLogs$
+    this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
       .subscribe((data) => this.testLogView.traces.push(data));
 
-    this.sutLogsSubscription = this.stompWSManager.sutLogs$
+    this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
       .subscribe((data) => this.sutLogView.traces.push(data));
 
-    this.testMetricsSubscription = this.stompWSManager.testMetrics$
+    this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
       .subscribe((data) => this.updateData(data, 0));
 
-    this.sutMetricsSubscription = this.stompWSManager.sutMetrics$
+    this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
       .subscribe((data) => this.updateData(data, 1));
 
     this.tJobExec = new TJobExecModel();
@@ -94,7 +94,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         }
 
         console.log('Suscribe to TJob execution.');
-        this.tJobExecService.createAndSubscribeToTopic(this.tJobExec);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
       });
   }
 
@@ -129,6 +129,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.stompWSManager.ususcribeWSDestination();
+    this.elastestRabbitmqService.unsubscribeWSDestination();
   }
 }

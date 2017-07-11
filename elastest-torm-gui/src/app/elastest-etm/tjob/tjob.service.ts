@@ -1,5 +1,4 @@
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { StompWSManager } from '../stomp-ws-manager.service';
 import { SutModel } from '../sut/sut-model';
 import { SutService } from '../sut/sut.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
@@ -12,7 +11,7 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class TJobService {
-  constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService,
+  constructor(private http: Http, private configurationService: ConfigurationService,
     private sutService: SutService) { }
 
   public getTJobs() {

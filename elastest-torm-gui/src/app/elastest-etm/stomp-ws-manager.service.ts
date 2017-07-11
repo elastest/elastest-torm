@@ -1,6 +1,3 @@
-/**
- * Created by frdiaz on 19/04/2017.
- */
 import { EventEmitter, Injectable } from '@angular/core';
 import { StompService } from './stomp.service';
 import { Subject } from 'rxjs/Subject';
@@ -23,32 +20,17 @@ export class StompWSManager {
   subscription: any;
   subscriptions: Map<string, any>;
 
-  testTraces: string[] = [];
-  sutTraces: string[] = [];
-
   endExecution: boolean = false;
-
-  private _testLogsSource = new Subject<string>();
-  testLogs$ = this._testLogsSource.asObservable();
-
-  private _sutLogsSource = new Subject<string>();
-  sutLogs$ = this._sutLogsSource.asObservable();
-
-  private _testMetricsSource = new Subject<string>();
-  testMetrics$ = this._testMetricsSource.asObservable();
-
-  private _sutMetricsSource = new Subject<string>();
-  sutMetrics$ = this._sutMetricsSource.asObservable();
 
   constructor(private stomp: StompService, private http: Http) {
     this.subscriptions = new Map<string, any>();
   }
 
   configWSConnection(host?: string) {
-    if(host !== undefined){
+    if (host !== undefined) {
       this.wsConf.host = host;
     }
-    
+
     this.stomp.configure(this.wsConf);
   }
 
@@ -84,16 +66,16 @@ export class StompWSManager {
   }
 
   subscribeToElastestTopicDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/exchange/spring-boot-exchange/'+destination, callbackFunction));
+    this.subscriptions.set(destination + this.stomp.getSessionWsId, this.stomp.subscribe('/exchange/spring-boot-exchange/' + destination, callbackFunction));
     this.sendWSMessage('/exchange/spring-boot-exchange/spring-boot');
   }
 
-public helloWorld = (data) => {
-    console.log("Hello World:" +data.message);
-    
+  public helloWorld = (data) => {
+    console.log("Hello World:" + data.message);
+
   }
 
-  ususcribeWSDestination() {
+  unsubscribeWSDestination() {
     this.subscriptions.forEach((value, key) => {
       console.log("UNSUSCRIBE TOPICS", key, value);
       this.stomp.unsubscribe(value);
@@ -111,23 +93,4 @@ public helloWorld = (data) => {
      */
     this.stomp.send(destination, { 'data': 'data' });
   }
-
-  // Response
-  public testMetricsResponse = (data) => {
-    this._testMetricsSource.next(data);
-  }
-
-  public testLogResponse = (data) => {
-    console.log('data:',data.message);
-    this._testLogsSource.next(data.message);
-  }
-
-  public sutMetricsResponse = (data) => {
-    this._sutMetricsSource.next(data);
-  }
-
-  public sutLogResponse = (data) => {
-    this._sutLogsSource.next(data.message);
-  }
-
 }

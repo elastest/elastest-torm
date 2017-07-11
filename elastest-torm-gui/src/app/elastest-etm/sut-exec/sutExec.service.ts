@@ -1,4 +1,3 @@
-import { StompWSManager } from '../stomp-ws-manager.service';
 import { SutModel } from '../sut/sut-model';
 import { SutExecModel } from './sutExec-model';
 import { Http } from '@angular/http';
@@ -9,7 +8,7 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class SutExecService {
-    constructor(private http: Http, private stompWSManager: StompWSManager, private configurationService: ConfigurationService) { }
+    constructor(private http: Http, private configurationService: ConfigurationService) { }
 
 
 
