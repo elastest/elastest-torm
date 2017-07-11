@@ -10,19 +10,14 @@ export class RabESLogModel extends ESLogModel {
     }
 
     getAllLogsByType() {
-        this.elasticsearchService.searchLogsByType(this.logIndex, this.logType)
-            .subscribe(
-            (data) => {
-                this.traces = data;
-            }
-            );
+        super.getAllLogsByType();
     }
 
-    loadPreviousLogs() {
+    loadPrevious() {
         if (this.traces[0] !== undefined && this.traces[0] !== null) {
-            return this.elasticsearchService.getFromGivenLog(this.logIndex, this.traces[0], this.logType);
+            return this.elasticsearchService.getFromGivenMessage(this.logIndex, this.traces[0], this.type);
         }
-        else{
+        else {
             return Observable.throw(new Error('There isn\'t reference log messages yet to load previous'));
         }
     }

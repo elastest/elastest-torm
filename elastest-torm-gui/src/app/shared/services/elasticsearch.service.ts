@@ -82,7 +82,7 @@ export class ElasticSearchService {
       });
   }
 
-  getFromGivenLog(index: string, fromMessage: string, type: string) {
+  getFromGivenMessage(index: string, fromMessage: string, type: string) {
     let url = this.esUrl + index;
 
     let _logs = new Subject<string[]>();

@@ -105,8 +105,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.testLogView.name = 'Test Logs';
     this.sutLogView.name = 'Sut Logs';
 
-    this.testLogView.logType = 'testlogs';
-    this.sutLogView.logType = 'sutlogs';
+    this.testLogView.type = 'testlogs';
+    this.sutLogView.type = 'sutlogs';
   }
 
   initMetricsView() {

@@ -5,7 +5,7 @@
   <md-divider></md-divider>
   <md-card-content>
     <div layout="row">
-      <button md-raised-button color="accent" (click)="loadPreviousLogs()" [disabled]="model.prevTracesLoaded" *ngIf="!model.hidePrevBtn">Load Previous</button>
+      <load-previous-view [model]="model"></load-previous-view>
       <md-slide-toggle title="Lock Scroll" [(ngModel)]="lockScroll" style="float: right; margin-left: auto;">
         <md-icon>lock_outline</md-icon>
       </md-slide-toggle>

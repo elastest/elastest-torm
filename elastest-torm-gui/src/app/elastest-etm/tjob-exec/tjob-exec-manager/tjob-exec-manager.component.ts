@@ -82,8 +82,8 @@ export class TjobExecManagerComponent implements OnInit {
     this.testLogView.traces = ['Loading Logs...'];
     this.sutLogView.traces = ['Loading Logs...'];
 
-    this.testLogView.logType = 'testlogs';
-    this.sutLogView.logType = 'sutlogs';
+    this.testLogView.type = 'testlogs';
+    this.sutLogView.type = 'sutlogs';
   }
 
 }

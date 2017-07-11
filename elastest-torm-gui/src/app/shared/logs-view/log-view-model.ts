@@ -1,11 +1,13 @@
-export interface LogViewModel {
+import { LoadPreviousModel } from '../load-previous-view/load-previous-model';
+
+export interface LogViewModel extends LoadPreviousModel {
     name: string;
-    prevTraces: string[];
     traces: string[];
-    prevTracesLoaded: boolean;
+    prevTraces: string[];
+    prevLoaded: boolean;
     hidePrevBtn: boolean;
-    logType: string;
+    type: string;
     logIndex: string;
     getAllLogsByType();
-    loadPreviousLogs();
+    loadPrevious();
 }

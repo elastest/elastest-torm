@@ -18,6 +18,7 @@ import {
 import { NgxChartsModule, } from '@swimlane/ngx-charts';
 import { LogsViewComponent } from './logs-view/logs-view.component';
 import { MetricsViewComponent } from './metrics-view/metrics-view.component';
+import { LoadPreviousViewComponent } from './load-previous-view/load-previous-view.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -58,6 +59,7 @@ const CHART_MODULES: any[] = [
   declarations: [
     LogsViewComponent,
     MetricsViewComponent,
+    LoadPreviousViewComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -67,6 +69,7 @@ const CHART_MODULES: any[] = [
     FLEX_LAYOUT_MODULES,
     LogsViewComponent,
     MetricsViewComponent,
+    LoadPreviousViewComponent,
   ]
 })
 export class SharedModule { }

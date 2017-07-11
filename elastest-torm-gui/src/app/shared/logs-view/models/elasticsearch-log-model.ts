@@ -7,25 +7,25 @@ export class ESLogModel implements LogViewModel {
     name: string;
     prevTraces: string[];
     traces: string[];
-    prevTracesLoaded: boolean;
+    prevLoaded: boolean;
     hidePrevBtn: boolean;
-    logType: string;
+    type: string;
     logIndex: string;
 
     constructor(elasticsearchService: ElasticSearchService) {
         this.name = '';
         this.prevTraces = [];
         this.traces = [];
-        this.prevTracesLoaded = false;
+        this.prevLoaded = false;
         this.hidePrevBtn = false;
-        this.logType = '';
+        this.type = '';
         this.logIndex = '';
 
         this.elasticsearchService = elasticsearchService;
     }
 
     getAllLogsByType() {
-        this.elasticsearchService.searchLogsByType(this.logIndex, this.logType)
+        this.elasticsearchService.searchLogsByType(this.logIndex, this.type)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -33,5 +33,5 @@ export class ESLogModel implements LogViewModel {
             );
     }
 
-    loadPreviousLogs() { }
+    loadPrevious() { }
 }

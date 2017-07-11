@@ -45,6 +45,7 @@ public class TJobService {
 		tJobExec.setTjob(tjob);
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
+		//After first save, get real Id
 		tJobExec.setLogIndex(tJobExec.getId().toString());
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		

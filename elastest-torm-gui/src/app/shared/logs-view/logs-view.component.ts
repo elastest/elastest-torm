@@ -1,6 +1,5 @@
 import { ElasticSearchService } from '../services/elasticsearch.service';
 import { LogViewModel } from './log-view-model';
-import { MdSnackBar } from '@angular/material';
 
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 
@@ -17,9 +16,7 @@ export class LogsViewComponent implements OnInit {
 
   lockScroll: boolean = false;
 
-  constructor(
-    private snackBar: MdSnackBar,
-  ) { }
+  constructor() { }
 
   ngOnInit() { }
 
@@ -35,31 +32,5 @@ export class LogsViewComponent implements OnInit {
     } catch (err) {
       console.log('[Error]:' + err.toString());
     }
-  }
-
-
-  loadPreviousLogs() {
-    this.model.loadPreviousLogs()
-      .subscribe(
-      (messages) => {
-        this.model.prevTraces = messages;
-        this.model.prevTracesLoaded = true;
-        if (messages.length > 0) {
-          this.openSnackBar('Previous logs has been loaded', 'OK');
-        }
-        else {
-          this.openSnackBar('There aren\'t previous logs to load', 'OK');
-        }
-      },
-      (error) => this.openSnackBar('There isn\'t reference log messages yet to load previous', 'OK'),
-    );
-
-
-  }
-
-  openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, {
-      duration: 3500,
-    });
   }
 }
