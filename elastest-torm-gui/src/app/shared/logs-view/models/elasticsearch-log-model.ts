@@ -27,7 +27,7 @@ export class ESLogModel implements LogViewModel {
     }
 
     getAllLogsByType() {
-        this.elastestESService.searchLogsByType(this.logIndex, this.type)
+        this.elastestESService.searchAllLogs(this.logIndex, this.type, this.componentType)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -36,6 +36,6 @@ export class ESLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        return this.elastestESService.getPrevLogsFromMessage(this.logIndex, this.traces[0], this.type);
+        return this.elastestESService.getPrevLogsFromMessage(this.logIndex, this.traces[0], this.type, this.componentType);
     }
 }

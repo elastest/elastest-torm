@@ -82,13 +82,13 @@ export class ElasticSearchService {
       });
   }
 
-  getPrevFromGivenMessage(index: string, fromMessage: string, type: string) {
+  getPrevFromGivenMessage(index: string, fromMessage: string, terms: any[]) {
     let url = this.esUrl + index;
 
     let _logs = new Subject<string[]>();
     let logs = _logs.asObservable();
 
-    this.searchMessage(url, fromMessage, type) //To Do: recursive search (if message is not in first 10000)
+    this.searchMessage(url, fromMessage, terms) //To Do: recursive search (if message is not in first 10000)
       .subscribe(
       (data) => {
         let dataReceived: number = data.hits.hits.length;
@@ -101,11 +101,13 @@ export class ElasticSearchService {
               { '@timestamp': 'desc' }
             ],
             query: {
-              term: { _type: type }
+              bool: {
+                must: terms
+              }
             },
           }
 
-          this.searchLogsByType(index, type, newQuery).subscribe(
+          this.searchAllByTerm(index, terms, newQuery).subscribe(
             (messages) => {
               let orderedMessages: string[] = messages.reverse();
               _logs.next(orderedMessages);
@@ -121,7 +123,15 @@ export class ElasticSearchService {
     return logs;
   }
 
-  searchMessage(url: string, fromMessage: string, type: string) {
+  searchMessage(url: string, fromMessage: string, terms: any[]) {
+    let must: any[] = [
+      {
+        match_phrase: { message: fromMessage }
+      }
+    ];
+
+    must = must.concat(terms);
+
     let searchUrl: string = url + '/_search';
     let theQuery = {
       sort: [
@@ -129,12 +139,7 @@ export class ElasticSearchService {
       ],
       query: {
         bool: {
-          must: {
-            match_phrase: { message: fromMessage }
-          },
-          filter: {
-            term: { _type: type }
-          }
+          must: must
         }
       }
     };
@@ -144,12 +149,12 @@ export class ElasticSearchService {
 
 
   /**
-   * Search all logs recursively by type
+   * Search all logs recursively by terms and/or given query
    * @param url 
-   * @param type 
+   * @param terms 
    * @param theQuery optional
    */
-  searchLogsByType(index: string, type: string, theQuery?: any) {
+  searchAllByTerm(index: string, terms: any[], theQuery?: any) {
     let size: number = 1000;
     let url = this.esUrl + index;
     let searchUrl: string = url + '/_search';
@@ -160,8 +165,8 @@ export class ElasticSearchService {
           { '@timestamp': 'asc' }
         ],
         query: {
-          term: {
-            _type: type
+          bool: {
+            must: terms
           }
         },
         size: size,
@@ -184,7 +189,7 @@ export class ElasticSearchService {
           theQuery['search_after'] = [sortId];
 
           let messages: string[] = this.returnMessages(data);
-          this.searchLogsByType(index, type, theQuery).subscribe(
+          this.searchAllByTerm(index, terms, theQuery).subscribe(
             (result) => {
               _logs.next(messages.concat(result));
             },
