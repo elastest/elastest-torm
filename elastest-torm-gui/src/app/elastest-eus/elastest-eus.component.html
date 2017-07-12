@@ -5,7 +5,7 @@
             <md-card-title>Manual tests</md-card-title>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <md-radio-group [(ngModel)]="selectedBrowser">
+                <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
                   <md-radio-button value="chrome" flex-gt-xs="50">Chrome</md-radio-button>
                 <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('chrome')">
                     <md-option *ngFor="let version of browserVersions.chrome" [value]="version.value">
@@ -23,10 +23,6 @@
                 </md-radio-group>
                 <div layout="row" class="push-top">
                     <button md-raised-button color="accent" (click)="startSession()">Start session</button>
-                    <!--
-                    &nbsp;
-                    <button md-raised-button color="accent" (click)="stopSession()">Stop session</button>
-                     -->
                 </div>
             </md-card-content>
         </md-card>
