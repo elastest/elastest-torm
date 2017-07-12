@@ -13,11 +13,11 @@
     <div layout="row">
       <ul #scrollMe class="logsViewContent">
         <li *ngFor="let trace of model.prevTraces">
-          {{trace}}
+          {{trace.message}}
         </li>
         <md-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
         <li *ngFor="let trace of model.traces">
-          {{trace}}
+          {{trace.message}}
         </li>
       </ul>
     </div>

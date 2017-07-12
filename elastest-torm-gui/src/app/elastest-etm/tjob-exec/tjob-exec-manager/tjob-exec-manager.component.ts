@@ -58,14 +58,17 @@ export class TjobExecManagerComponent implements OnInit {
             }
             else {
               //Load logs
-
               this.testLogView.getAllLogsByType();
 
               if (tJob.hasSut()) {
                 this.sutLogView.getAllLogsByType();
               }
               else {
-                this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
+                this.sutLogView.traces = [
+                  {
+                    'message': 'TJob Without Sut. There aren\'t logs'
+                  }
+                ];
               }
             }
           },

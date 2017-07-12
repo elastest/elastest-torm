@@ -2,12 +2,14 @@ import { ESLogModel } from '../logs-view/models/elasticsearch-log-model';
 import { ElasticSearchService } from './elasticsearch.service';
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subject } from 'rxjs/Rx';
+import { MdSnackBar } from '@angular/material';
 
 @Injectable()
 export class ElastestESService {
     constructor(
         private elasticsearchService: ElasticSearchService,
+        private snackBar: MdSnackBar,
     ) { }
 
     getTermsByTypeAndComponentType(type: string, componentType: string) {
@@ -18,27 +20,57 @@ export class ElastestESService {
     }
 
     searchAllLogs(index: string, type: string, componentType: string, theQuery?: any) {
+        let _logs = new Subject<string[]>();
+        let logs = _logs.asObservable();
+
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
-        if (theQuery !== undefined) {
-            return this.elasticsearchService.searchAllMessagesByTerm(index, terms, theQuery);
-        }
-        else {
-            return this.elasticsearchService.searchAllMessagesByTerm(index, terms);
-        }
+        this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
+            (data) => {
+                _logs.next(this.convertToLogTraces(data));
+            }
+        );
+
+        return logs;
     }
 
-    getPrevLogsFromMessage(index: string, fromMessage: string, type: string, componentType: string) {
+    getPrevLogsFromTrace(index: string, trace: any, type: string, componentType: string) {
+        let _logs = new Subject<string[]>();
+        let logs = _logs.asObservable();
+
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
-        if (fromMessage !== undefined && fromMessage !== null) {
-            return this.elasticsearchService.getPrevMessagesFromGivenMessage(index, fromMessage, terms);
+        if (trace !== undefined && trace !== null) {
+            this.elasticsearchService.getPrevFromGivenMessage(index, trace.message, terms).subscribe(
+                (data) => {
+                    _logs.next(this.convertToLogTraces(data));
+                    if (data.length > 0) {
+                        this.openSnackBar('Previous traces has been loaded', 'OK');
+                    }
+                    else {
+                        this.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    }
+                }
+            );
+            return logs;
         }
         else {
+            this.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
             return Observable.throw(new Error('There isn\'t reference log messages yet to load previous'));
         }
     }
 
-    loadPreviousTrace(fromMessage: string, type: string, componentType: string) {
-
+    convertToLogTraces(data: any[]) {
+        let tracesList: any[] = [];
+        for (let logEntry of data) {
+            if (logEntry._source['message'] !== undefined) {
+                tracesList.push(
+                    {
+                        'timestamp': logEntry._source['@timestamp'],
+                        'message': logEntry._source['message']
+                    }
+                );
+            }
+        }
+        return tracesList;
     }
 
     initTestLog(log: ESLogModel) {
@@ -51,5 +83,11 @@ export class ElastestESService {
         log.name = 'SuT Logs';
         log.type = 'sutlogs';
         log.componentType = 'sut';
+    }
+
+    openSnackBar(message: string, action: string) {
+        this.snackBar.open(message, action, {
+            duration: 3500,
+        });
     }
 }

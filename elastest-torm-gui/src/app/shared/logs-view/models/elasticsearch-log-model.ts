@@ -5,8 +5,8 @@ export class ESLogModel implements LogViewModel {
     elastestESService: ElastestESService;
 
     name: string;
-    prevTraces: string[];
-    traces: string[];
+    traces: any[];
+    prevTraces: any[];
     prevLoaded: boolean;
     hidePrevBtn: boolean;
     type: string;
@@ -36,6 +36,11 @@ export class ESLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        return this.elastestESService.getPrevLogsFromMessage(this.logIndex, this.traces[0], this.type, this.componentType);
+        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces[0], this.type, this.componentType).subscribe(
+            (data) => {
+                this.prevTraces = data;
+                this.prevLoaded = true;
+            },
+        );
     }
 }

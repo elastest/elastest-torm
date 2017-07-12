@@ -90,7 +90,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.sutLogView.logIndex = this.tJobExec.logIndex;
 
         if (!this.withSut) {
-          this.sutLogView.traces = ['TJob Without Sut. There aren\'t logs'];
+          this.sutLogView.traces = [
+            {
+             'message': 'TJob Without Sut. There aren\'t logs'
+            }
+          ];
         }
 
         console.log('Suscribe to TJob execution.');

@@ -31,7 +31,7 @@ export class ElastestRabbitmqService {
     }
 
     public testLogResponse = (data) => {
-        this._testLogsSource.next(data.message);
+        this._testLogsSource.next(this.convertToLogTrace(data));
     }
 
     public sutMetricsResponse = (data) => {
@@ -39,9 +39,20 @@ export class ElastestRabbitmqService {
     }
 
     public sutLogResponse = (data) => {
-        this._sutLogsSource.next(data.message);
+        this._sutLogsSource.next(this.convertToLogTrace(data));
     }
 
+    convertToLogTrace(data: any) {
+        let trace: any;
+        if (data.message !== undefined) {
+            trace = {
+                'timestamp': data['@timestamp'],
+                'message': data.message
+            }
+        }
+
+        return trace;
+    }
 
 
     // Others
