@@ -7,7 +7,6 @@ import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component'
 import { RabESLogModel } from '../../shared/logs-view/models/rab-es-log-model';
 import { ETRESMetricsModel } from '../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
-import { ElasticSearchService } from '../../shared/services/elasticsearch.service';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
@@ -44,7 +43,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private tJobExecService: TJobExecService,
     private elastestRabbitmqService: ElastestRabbitmqService,
     private route: ActivatedRoute, private router: Router,
-    private elasticsearchService: ElasticSearchService,
     private elastestESService: ElastestESService,
   ) {
     this.initLogsView();
@@ -101,8 +99,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initLogsView() {
-    this.sutLogView = new RabESLogModel(this.elasticsearchService);
-    this.testLogView = new RabESLogModel(this.elasticsearchService);
+    this.sutLogView = new RabESLogModel(this.elastestESService);
+    this.testLogView = new RabESLogModel(this.elastestESService);
 
     this.elastestESService.initTestLog(this.testLogView);
     this.elastestESService.initSutLog(this.sutLogView);

@@ -1,8 +1,8 @@
-import { ElasticSearchService } from '../../services/elasticsearch.service';
+import { ElastestESService } from '../../services/elastest-es.service';
 import { LogViewModel } from '../log-view-model';
 
 export class ESLogModel implements LogViewModel {
-    elasticsearchService: ElasticSearchService;
+    elastestESService: ElastestESService;
 
     name: string;
     prevTraces: string[];
@@ -13,7 +13,7 @@ export class ESLogModel implements LogViewModel {
     componentType: string;
     logIndex: string;
 
-    constructor(elasticsearchService: ElasticSearchService) {
+    constructor(elastestESService: ElastestESService) {
         this.name = '';
         this.prevTraces = [];
         this.traces = [];
@@ -23,11 +23,11 @@ export class ESLogModel implements LogViewModel {
         this.componentType = '';
         this.logIndex = '';
 
-        this.elasticsearchService = elasticsearchService;
+        this.elastestESService = elastestESService;
     }
 
     getAllLogsByType() {
-        this.elasticsearchService.searchLogsByType(this.logIndex, this.type)
+        this.elastestESService.searchLogsByType(this.logIndex, this.type)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -35,5 +35,7 @@ export class ESLogModel implements LogViewModel {
             );
     }
 
-    loadPrevious() { }
+    loadPrevious() {
+        return this.elastestESService.getPrevLogsFromMessage(this.logIndex, this.traces[0], this.type);
+    }
 }

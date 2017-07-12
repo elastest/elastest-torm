@@ -1,4 +1,3 @@
-import { ElasticSearchService } from '../../../shared/services/elasticsearch.service';
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
@@ -19,10 +18,10 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  sutLogView: ESLogModel = new ESLogModel(this.elasticService);
-  testLogView: ESLogModel = new ESLogModel(this.elasticService);
+  sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
+  testLogView: ESLogModel = new ESLogModel(this.elastestESService);
 
-  constructor(private tJobExecService: TJobExecService, private tJobService: TJobService, private elasticService: ElasticSearchService,
+  constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router, ) {
     this.initLogsView();
