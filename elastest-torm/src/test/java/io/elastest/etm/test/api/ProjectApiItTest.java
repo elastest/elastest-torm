@@ -118,7 +118,21 @@ public class ProjectApiItTest {
 	
 	@Test
 	public void testGetProjectById(){
+		log.info("testGetProjectById:");
+
+		Map<String, Long> urlParams = new HashMap<>();
+		urlParams.put("id", createProjectToTesting("P00000000").getId());
 		
+		
+		log.info("GET /project/{id}");
+		ResponseEntity<Project> response = restTemplate.getForEntity("/api/project/{id}", Project.class, urlParams);
+		
+		deleteProject(response.getBody().getId());
+		
+		assertAll("Validating Project Properties",
+				() -> assertNotNull(response.getBody()),
+	    		() -> assertTrue(response.getBody().getName().equals("P00000000"))
+	    );		
 	}
 	
 	@Test
