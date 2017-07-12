@@ -39,7 +39,7 @@ export class ElastestESService {
 
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
         if (trace !== undefined && trace !== null) {
-            this.elasticsearchService.getPrevFromGivenMessage(index, trace.message, terms).subscribe(
+            this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
                 (data) => {
                     _logs.next(this.convertToLogTraces(data));
                     if (data.length > 0) {
