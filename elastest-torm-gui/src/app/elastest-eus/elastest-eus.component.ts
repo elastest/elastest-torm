@@ -57,6 +57,11 @@ export class ElastestEusComponent implements OnInit {
       dialog.componentInstance.loading = true;
       dialog.componentInstance.closeButton = true;
 
+      dialog.afterClosed().subscribe(
+        ok => this.stopSession(),
+        error => console.error(error)
+      );
+
       this.eusService.startSession(this.selectedBrowser, this.selectedVersion).subscribe(
         id => {
           this.sessionId = id;
