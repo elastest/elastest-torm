@@ -20,17 +20,17 @@ export class ElastestESService {
     searchAllLogs(index: string, type: string, componentType: string, theQuery?: any) {
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
         if (theQuery !== undefined) {
-            return this.elasticsearchService.searchAllByTerm(index, terms, theQuery);
+            return this.elasticsearchService.searchAllMessagesByTerm(index, terms, theQuery);
         }
         else {
-            return this.elasticsearchService.searchAllByTerm(index, terms);
+            return this.elasticsearchService.searchAllMessagesByTerm(index, terms);
         }
     }
 
     getPrevLogsFromMessage(index: string, fromMessage: string, type: string, componentType: string) {
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
         if (fromMessage !== undefined && fromMessage !== null) {
-            return this.elasticsearchService.getPrevFromGivenMessage(index, fromMessage, terms);
+            return this.elasticsearchService.getPrevMessagesFromGivenMessage(index, fromMessage, terms);
         }
         else {
             return Observable.throw(new Error('There isn\'t reference log messages yet to load previous'));
