@@ -26,7 +26,7 @@ export class ESLogModel implements LogViewModel {
         this.elastestESService = elastestESService;
     }
 
-    getAllLogsByType() {
+    getAllLogs() {
         this.elastestESService.searchAllLogs(this.logIndex, this.type, this.componentType)
             .subscribe(
             (data) => {

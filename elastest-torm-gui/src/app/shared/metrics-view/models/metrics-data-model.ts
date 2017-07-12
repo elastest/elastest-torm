@@ -24,6 +24,10 @@ export class MetricsDataModel implements MetricsViewModel {
   data: SingleMetricModel[];
   type: string;
 
+  prevTraces: string[];
+  prevLoaded: boolean;
+  hidePrevBtn: boolean;
+
   constructor() {
     this.name = '';
 
@@ -41,47 +45,15 @@ export class MetricsDataModel implements MetricsViewModel {
     this.colorScheme = new ColorSchemeModel();
     this.data = [];
     this.type = '';
+
+    this.prevTraces = [];
+    this.prevLoaded = false;
+    this.hidePrevBtn = false;
   }
 
   axisDigits(val: any): any {
     return new TdDigitsPipe().transform(val);
   }
 
-  updateData(data: any, position: number) {
-    let parsedData: any = this.parseData(data);
-
-    if (parsedData !== undefined) {
-      this.data[position].series.push(parsedData);
-      this.data = [...this.data];
-    }
-  }
-
-  parseData(data: any) {
-    let parsedData: any = undefined;
-    if (data.type === 'cpu' && this.type === 'cpu') {
-      parsedData = this.parseCpuData(data);
-
-    } else if (data.type === 'memory' && this.type === 'memory') {
-      parsedData = this.parseMemoryData(data);
-    }
-    return parsedData;
-  }
-
-  parseCpuData(data: any) {
-    let parsedData: any = {
-      'value': data.cpu.totalUsage,
-      'name': new Date('' + data['@timestamp']),
-    };
-    return parsedData;
-  }
-
-
-  parseMemoryData(data: any) {
-    let perMemoryUsage = data.memory.usage * 100 / data.memory.limit;
-    let parsedData: any = {
-      'value': perMemoryUsage,
-      'name': new Date('' + data['@timestamp']),
-    };
-    return parsedData;
-  }
+  loadPrevious() { }
 }

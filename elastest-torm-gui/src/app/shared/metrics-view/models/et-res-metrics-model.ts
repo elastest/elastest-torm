@@ -2,9 +2,11 @@ import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { ColorSchemeModel } from './color-scheme-model';
 import { MetricsDataModel } from './metrics-data-model';
 import { SingleMetricModel } from './single-metric-model';
-
+import { ElastestESService } from '../../services/elastest-es.service';
 
 export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq ElasticSearch Metrics Model
+    elastestESService: ElastestESService;
+
     name: string;
     colorScheme: ColorSchemeModel;
     gradient: boolean;
@@ -25,7 +27,15 @@ export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq El
     data: SingleMetricModel[];
     type: string;
 
-    constructor() {
+    metricsIndex: string;
+    componentType: string;
+
+    prevTraces: string[];
+    prevLoaded: boolean;
+    hidePrevBtn: boolean;
+
+
+    constructor(elastestESService: ElastestESService) {
         super();
         this.name = '';
 
@@ -54,5 +64,38 @@ export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq El
         this.data.push(sut);
 
         this.type = '';
+        this.componentType = '';
+        this.metricsIndex = '';
+
+        this.prevTraces = [];
+        this.prevLoaded = false;
+        this.hidePrevBtn = false;
+
+        this.elastestESService = elastestESService;
+    }
+
+    getAllMetrics() {
+        this.elastestESService.searchAllMetrics(this.metricsIndex, this.type, this.componentType)
+            .subscribe(
+            (data) => {
+                this.data = data;
+                this.data = [...this.data];
+            }
+            );
+    }
+
+    loadPrevious() {
+    };
+
+    updateData(trace: any) {
+        let position: number = this.elastestESService.getMetricPosition(trace.component_type);
+
+        if (position !== undefined) {
+            let parsedData: any = this.elastestESService.convertToMetricTrace(trace, this.type);
+            if (parsedData !== undefined) {
+                this.data[position].series.push(parsedData);
+                this.data = [...this.data];
+            }
+        }
     }
 }

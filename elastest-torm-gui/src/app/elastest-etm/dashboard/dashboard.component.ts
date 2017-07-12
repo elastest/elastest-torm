@@ -69,10 +69,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       .subscribe((data) => this.sutLogView.traces.push(data));
 
     this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
-      .subscribe((data) => this.updateData(data, 0));
+      .subscribe((data) => this.updateData(data));
 
     this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
-      .subscribe((data) => this.updateData(data, 1));
+      .subscribe((data) => this.updateData(data));
 
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
@@ -111,8 +111,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initMetricsView() {
-    this.cpuData = new ETRESMetricsModel();
-    this.memoryData = new ETRESMetricsModel();
+    this.cpuData = new ETRESMetricsModel(this.elastestESService);
+    this.memoryData = new ETRESMetricsModel(this.elastestESService);
 
     this.cpuData.name = 'CPU Usage';
     this.memoryData.name = 'Memory Usage';
@@ -124,9 +124,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.memoryData.type = 'memory';
   }
 
-  updateData(data: any, position: number) {
-    this.cpuData.updateData(data, position);
-    this.memoryData.updateData(data, position);
+  updateData(data: any) {
+    this.cpuData.updateData(data);
+    this.memoryData.updateData(data);
   }
 
   ngOnDestroy() {

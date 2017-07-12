@@ -1,4 +1,5 @@
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
+import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
@@ -18,13 +19,19 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
+  // Logs
   sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
   testLogView: ESLogModel = new ESLogModel(this.elastestESService);
+
+  // Metrics Chart
+  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService);
+  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService);
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router, ) {
     this.initLogsView();
+    this.initMetricsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -45,8 +52,12 @@ export class TjobExecManagerComponent implements OnInit {
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
 
+        // Init logs and metrics index
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
+
+        this.cpuData.metricsIndex = this.tJobExec.logIndex;
+        this.memoryData.metricsIndex = this.tJobExec.logIndex;
 
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
@@ -58,10 +69,10 @@ export class TjobExecManagerComponent implements OnInit {
             }
             else {
               //Load logs
-              this.testLogView.getAllLogsByType();
+              this.testLogView.getAllLogs();
 
               if (tJob.hasSut()) {
-                this.sutLogView.getAllLogsByType();
+                this.sutLogView.getAllLogs();
               }
               else {
                 this.sutLogView.traces = [
@@ -70,6 +81,10 @@ export class TjobExecManagerComponent implements OnInit {
                   }
                 ];
               }
+
+              //Load metrics
+              this.cpuData.getAllMetrics();
+              this.memoryData.getAllMetrics();
             }
           },
           (error) => console.log(error),
@@ -86,6 +101,20 @@ export class TjobExecManagerComponent implements OnInit {
 
     this.testLogView.traces = ['Loading Logs...'];
     this.sutLogView.traces = ['Loading Logs...'];
+  }
+
+  initMetricsView() {
+    this.cpuData.name = 'CPU Usage';
+    this.memoryData.name = 'Memory Usage';
+
+    this.cpuData.yAxisLabel = 'Usage %';
+    this.memoryData.yAxisLabel = this.cpuData.yAxisLabel;
+
+    this.cpuData.type = 'cpu';
+    this.memoryData.type = 'memory';
+
+    this.cpuData.hidePrevBtn = true;
+    this.memoryData.hidePrevBtn = true;
   }
 
 }

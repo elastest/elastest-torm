@@ -8,6 +8,6 @@ export interface LogViewModel extends LoadPreviousModel {
     hidePrevBtn: boolean;
     type: string;
     logIndex: string;
-    getAllLogsByType();
+    getAllLogs();
     loadPrevious();
 }
