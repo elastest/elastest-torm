@@ -115,16 +115,15 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initMetricsView() {
+    
     this.cpuData = new ETRESMetricsModel(this.elastestESService);
-    this.memoryData = new ETRESMetricsModel(this.elastestESService);
-
     this.cpuData.name = 'CPU Usage';
-    this.memoryData.name = 'Memory Usage';
-
     this.cpuData.yAxisLabel = 'Usage %';
-    this.memoryData.yAxisLabel = this.cpuData.yAxisLabel;
-
     this.cpuData.type = 'cpu';
+
+    this.memoryData = new ETRESMetricsModel(this.elastestESService);
+    this.memoryData.name = 'Memory Usage';
+    this.memoryData.yAxisLabel = this.cpuData.yAxisLabel;
     this.memoryData.type = 'memory';
   }
 

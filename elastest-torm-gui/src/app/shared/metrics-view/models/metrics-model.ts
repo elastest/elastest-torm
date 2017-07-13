@@ -3,7 +3,7 @@ import { MetricsViewModel } from '../metrics-view-model';
 import { ColorSchemeModel } from './color-scheme-model';
 import { SingleMetricModel } from './single-metric-model';
 
-export class MetricsDataModel implements MetricsViewModel {
+export class MetricsModel implements MetricsViewModel {
   name: string;
   colorScheme: ColorSchemeModel;
   gradient: boolean;

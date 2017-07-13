@@ -1,10 +1,10 @@
 import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { ColorSchemeModel } from './color-scheme-model';
-import { MetricsDataModel } from './metrics-data-model';
+import { MetricsModel } from './metrics-model';
 import { SingleMetricModel } from './single-metric-model';
 import { ElastestESService } from '../../services/elastest-es.service';
 
-export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq ElasticSearch Metrics Model
+export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq ElasticSearch Metrics Model
     elastestESService: ElastestESService;
 
     name: string;
