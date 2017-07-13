@@ -8,6 +8,11 @@ export type MetricsType =
     'cpu'
     | 'memory';
 
+export enum MetricsDataType {
+    Test,
+    Sut,
+}
+
 export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq ElasticSearch Metrics Model
     elastestESService: ElastestESService;
 
@@ -64,8 +69,8 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
         sut.name = 'Sut';
 
         this.data = [];
-        this.data.push(test);
-        this.data.push(sut);
+        this.data[MetricsDataType.Test] = test;
+        this.data[MetricsDataType.Sut] = sut;
 
         this.componentType = '';
         this.metricsIndex = '';
@@ -105,22 +110,28 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
 
     loadPrevious() {
         let compareTrace: any[] = [];
-        if (this.data[1].series.length > 0) {
-            compareTrace = this.data[1].series;
+        if (this.data[MetricsDataType.Sut].series.length > 0) { //Sut First
+            compareTrace = this.data[MetricsDataType.Sut].series;
         }
-        else if (this.data[0].series.length > 0) {
-            compareTrace = this.data[0].series;
+        else if (this.data[MetricsDataType.Test].series.length > 0) {
+            compareTrace = this.data[MetricsDataType.Test].series;
         }
         if (compareTrace.length > 0) {
             this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace[0], this.type)
                 .subscribe(
                 (data) => {
-                    if (data[0].series.length > 0) {
-                        this.data[0].series.unshift.apply(this.data[0].series, data[0].series);
+                    if (data[MetricsDataType.Test].series.length > 0) {
+                        this.data[MetricsDataType.Test].series.unshift.apply(
+                            this.data[MetricsDataType.Test].series,
+                            data[MetricsDataType.Test].series
+                        );
                         this.prevLoaded = true;
                     }
-                    if (data[1].series.length > 0) {
-                        this.data[1].series.unshift.apply(this.data[1].series, data[1].series);
+                    if (data[MetricsDataType.Sut].series.length > 0) {
+                        this.data[MetricsDataType.Sut].series.unshift.apply(
+                            this.data[MetricsDataType.Sut].series,
+                             data[MetricsDataType.Sut].series
+                            );
                         this.prevLoaded = true;
                     }
                     this.data = [...this.data];
