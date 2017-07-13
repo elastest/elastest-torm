@@ -1,10 +1,12 @@
 import { ESLogModel } from '../logs-view/models/elasticsearch-log-model';
+import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ElasticSearchService } from './elasticsearch.service';
 
+import { componentFactoryName } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs/Rx';
 import { MdSnackBar } from '@angular/material';
+import { Observable, Subject } from 'rxjs/Rx';
 
 @Injectable()
 export class ElastestESService {
@@ -108,14 +110,7 @@ export class ElastestESService {
 
 
     convertToMetricTraces(data: any[], type: string) {
-        let test: SingleMetricModel = new SingleMetricModel();
-        test.name = 'Test';
-        let sut: SingleMetricModel = new SingleMetricModel();
-        sut.name = 'Sut';
-
-        let tracesList: SingleMetricModel[] = [];
-        tracesList.push(test);
-        tracesList.push(sut);
+        let tracesList: SingleMetricModel[] = this.getInitMetricsData();
 
         let position: number = undefined;
         let parsedMetric: any;
@@ -163,16 +158,27 @@ export class ElastestESService {
 
     getMetricPosition(componentType: string) {
         let position: number = undefined;
-        if (componentType === 'test') {
-            position = 0;
-        }
-        else if (componentType === 'sut') {
-            position = 1;
-        }
 
+        componentType = componentType.toLowerCase();
+        componentType = componentType.charAt(0).toUpperCase() + componentType.slice(1);
+
+        if (MetricsDataType[componentType] !== undefined) {
+            position = MetricsDataType[componentType];
+        }
         return position;
     }
 
+    getInitMetricsData() {
+        let tracesList: SingleMetricModel[] = [];
+
+        for (let type in MetricsDataType) {
+            if (isNaN(parseInt(type))) {
+                tracesList[MetricsDataType[type]] = new SingleMetricModel();
+                tracesList[MetricsDataType[type]].name = type;
+            }
+        }
+        return tracesList;
+    }
 
 
 
