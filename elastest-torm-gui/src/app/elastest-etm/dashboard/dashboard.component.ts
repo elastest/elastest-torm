@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs/Rx';
 import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
 import { RabESLogModel } from '../../shared/logs-view/models/rab-es-log-model';
 import { ETRESMetricsModel } from '../../shared/metrics-view/models/et-res-metrics-model';
-import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
+import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
@@ -115,16 +115,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initMetricsView() {
-    
-    this.cpuData = new ETRESMetricsModel(this.elastestESService);
-    this.cpuData.name = 'CPU Usage';
-    this.cpuData.yAxisLabel = 'Usage %';
-    this.cpuData.type = 'cpu';
-
-    this.memoryData = new ETRESMetricsModel(this.elastestESService);
-    this.memoryData.name = 'Memory Usage';
-    this.memoryData.yAxisLabel = this.cpuData.yAxisLabel;
-    this.memoryData.type = 'memory';
+    this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu');
+    this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory');
   }
 
   updateData(data: any) {

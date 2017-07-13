@@ -24,8 +24,8 @@ export class TjobExecManagerComponent implements OnInit {
   testLogView: ESLogModel = new ESLogModel(this.elastestESService);
 
   // Metrics Chart
-  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService);
-  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService);
+  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu');
+  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory');
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
@@ -104,15 +104,6 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   initMetricsView() {
-    this.cpuData.name = 'CPU Usage';
-    this.memoryData.name = 'Memory Usage';
-
-    this.cpuData.yAxisLabel = 'Usage %';
-    this.memoryData.yAxisLabel = this.cpuData.yAxisLabel;
-
-    this.cpuData.type = 'cpu';
-    this.memoryData.type = 'memory';
-
     this.cpuData.hidePrevBtn = true;
     this.memoryData.hidePrevBtn = true;
   }

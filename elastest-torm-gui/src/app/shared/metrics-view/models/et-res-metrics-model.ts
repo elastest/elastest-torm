@@ -4,6 +4,10 @@ import { MetricsModel } from './metrics-model';
 import { SingleMetricModel } from './single-metric-model';
 import { ElastestESService } from '../../services/elastest-es.service';
 
+export type MetricsType =
+    'cpu'
+    | 'memory';
+
 export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq ElasticSearch Metrics Model
     elastestESService: ElastestESService;
 
@@ -35,9 +39,9 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
     hidePrevBtn: boolean;
 
 
-    constructor(elastestESService: ElastestESService) {
+    constructor(elastestESService: ElastestESService, type: MetricsType) {
         super();
-        this.name = '';
+        this.type = type;
 
         this.showXAxis = true;
         this.showYAxis = true;
@@ -63,7 +67,6 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
         this.data.push(test);
         this.data.push(sut);
 
-        this.type = '';
         this.componentType = '';
         this.metricsIndex = '';
 
@@ -71,7 +74,23 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
         this.prevLoaded = false;
         this.hidePrevBtn = false;
 
+        this.initMetricsData();
         this.elastestESService = elastestESService;
+    }
+
+    initMetricsData() {
+        switch (this.type) {
+            case 'cpu':
+                this.name = 'CPU Usage';
+                this.yAxisLabel = 'Usage %';
+                break;
+            case 'memory':
+                this.name = 'Memory Usage';
+                this.yAxisLabel = 'Usage %';
+                break;
+            default:
+                this.name = '';
+        }
     }
 
     getAllMetrics() {
