@@ -4,7 +4,7 @@
 
 dockbeat:
   # Defines how often a docker stat is sent to the output
-  period: ${PERIOD:5}
+  period: ${PERIOD:1}
 
   # Defines the docker socket path
   # By default, this will get the unix:///var/run/docker.sock
