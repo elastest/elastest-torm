@@ -86,13 +86,17 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
 
+        // Init logs and metrics index
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
+
+        this.cpuData.metricsIndex = this.tJobExec.logIndex;
+        this.memoryData.metricsIndex = this.tJobExec.logIndex;
 
         if (!this.withSut) {
           this.sutLogView.traces = [
             {
-             'message': 'TJob Without Sut. There aren\'t logs'
+              'message': 'TJob Without Sut. There aren\'t logs'
             }
           ];
         }

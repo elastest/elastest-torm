@@ -39,24 +39,18 @@ export class ElastestESService {
         let logs = _logs.asObservable();
 
         let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
-        if (trace !== undefined && trace !== null) {
-            this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
-                (data) => {
-                    _logs.next(this.convertToLogTraces(data));
-                    if (data.length > 0) {
-                        this.openSnackBar('Previous traces has been loaded', 'OK');
-                    }
-                    else {
-                        this.openSnackBar('There aren\'t previous traces to load', 'OK');
-                    }
+        this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
+            (data) => {
+                _logs.next(this.convertToLogTraces(data));
+                if (data.length > 0) {
+                    this.openSnackBar('Previous traces has been loaded', 'OK');
                 }
-            );
-            return logs;
-        }
-        else {
-            this.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
-            return Observable.throw(new Error('There isn\'t reference log messages yet to load previous'));
-        }
+                else {
+                    this.openSnackBar('There aren\'t previous traces to load', 'OK');
+                }
+            }
+        );
+        return logs;
     }
 
     convertToLogTraces(data: any[]) {
@@ -78,7 +72,7 @@ export class ElastestESService {
 
     //Metrics
 
-    searchAllMetrics(index: string, type: string, componentType: string, theQuery?: any) {
+    searchAllMetrics(index: string, type: string, theQuery?: any) {
         let _metrics = new Subject<SingleMetricModel[]>();
         let metrics = _metrics.asObservable();
 
@@ -91,6 +85,27 @@ export class ElastestESService {
 
         return metrics;
     }
+
+    getPrevMetricsFromTrace(index: string, trace: any, type: string) {
+        let _metrics = new Subject<SingleMetricModel[]>();
+        let metrics = _metrics.asObservable();
+
+        let terms: any[] = [{ 'term': { _type: type } }];
+        this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
+            (data) => {
+                _metrics.next(this.convertToMetricTraces(data, type));
+                if (data.length > 0) {
+                    this.openSnackBar('Previous traces has been loaded', 'OK');
+                }
+                else {
+                    this.openSnackBar('There aren\'t previous traces to load', 'OK');
+                }
+            }
+        );
+
+        return metrics;
+    }
+
 
     convertToMetricTraces(data: any[], type: string) {
         let test: SingleMetricModel = new SingleMetricModel();

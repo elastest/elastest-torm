@@ -36,11 +36,17 @@ export class ESLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces[0], this.type, this.componentType).subscribe(
-            (data) => {
-                this.prevTraces = data;
-                this.prevLoaded = true;
-            },
-        );
+        if (this.traces.length > 0) {
+            this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces[0], this.type, this.componentType)
+                .subscribe(
+                (data) => {
+                    this.prevTraces = data;
+                    this.prevLoaded = true;
+                },
+            );
+        }
+        else {
+            this.elastestESService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+        }
     }
 }

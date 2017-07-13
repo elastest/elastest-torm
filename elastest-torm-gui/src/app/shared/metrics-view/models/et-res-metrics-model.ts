@@ -75,7 +75,7 @@ export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq El
     }
 
     getAllMetrics() {
-        this.elastestESService.searchAllMetrics(this.metricsIndex, this.type, this.componentType)
+        this.elastestESService.searchAllMetrics(this.metricsIndex, this.type)
             .subscribe(
             (data) => {
                 this.data = data;
@@ -85,7 +85,33 @@ export class ETRESMetricsModel extends MetricsDataModel { //ElasTest RabbitMq El
     }
 
     loadPrevious() {
-    };
+        let compareTrace: any[] = [];
+        if (this.data[1].series.length > 0) {
+            compareTrace = this.data[1].series;
+        }
+        else if (this.data[0].series.length > 0) {
+            compareTrace = this.data[0].series;
+        }
+        if (compareTrace.length > 0) {
+            this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace[0], this.type)
+                .subscribe(
+                (data) => {
+                    if (data[0].series.length > 0) {
+                        this.data[0].series.unshift.apply(this.data[0].series, data[0].series);
+                        this.prevLoaded = true;
+                    }
+                    if (data[1].series.length > 0) {
+                        this.data[1].series.unshift.apply(this.data[1].series, data[1].series);
+                        this.prevLoaded = true;
+                    }
+                    this.data = [...this.data];
+                },
+            );
+        }
+        else {
+            this.elastestESService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+        }
+    }
 
     updateData(trace: any) {
         let position: number = this.elastestESService.getMetricPosition(trace.component_type);
