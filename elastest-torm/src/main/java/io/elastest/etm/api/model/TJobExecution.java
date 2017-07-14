@@ -1,6 +1,5 @@
 package io.elastest.etm.api.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -84,6 +82,12 @@ public class TJobExecution {
 	@JoinColumn(name = "to_job_execution")
 	private TOJobExecution tOJobExecution = null;
 
+	// bi-directional many-to-one association to TestSuite
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
+	@OneToMany(mappedBy = "tJobExec", cascade = CascadeType.REMOVE)
+	private List<TestSuite> testSuites;
+
+	// Constructors
 	public TJobExecution() {
 		this.id = (long) 0;
 		this.duration = (long) 0;
@@ -314,6 +318,38 @@ public class TJobExecution {
 		return this;
 	}
 
+	/**
+	 * TestSuites
+	 */
+
+	public List<TestSuite> getTestSuites() {
+		return testSuites;
+	}
+
+	public void setTestSuites(List<TestSuite> testSuites) {
+		this.testSuites = testSuites;
+	}
+
+	public TJobExecution testSuites(List<TestSuite> testSuites) {
+		this.testSuites = testSuites;
+		return this;
+	}
+
+	public TestSuite addTestSuite(TestSuite testSuite) {
+		getTestSuites().add(testSuite);
+		testSuite.settJobExec(this);
+
+		return testSuite;
+	}
+
+	public TestSuite removeTestSuite(TestSuite TestSuite) {
+		getTestSuites().remove(TestSuite);
+		TestSuite.settJobExec(null);
+		return TestSuite;
+	}
+
+	// Others
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -326,13 +362,15 @@ public class TJobExecution {
 		return Objects.equals(this.id, tjobExecution.id) && Objects.equals(this.duration, tjobExecution.duration)
 				&& Objects.equals(this.result, tjobExecution.result)
 				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
-				&& Objects.equals(this.error, tjobExecution.error) && Objects.equals(this.logIndex, tjobExecution.logIndex)
-				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution);
+				&& Objects.equals(this.error, tjobExecution.error)
+				&& Objects.equals(this.logIndex, tjobExecution.logIndex)
+				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
+				&& Objects.equals(this.testSuites, tjobExecution.testSuites);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution);
+		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution, testSuites);
 	}
 
 	@Override
@@ -347,6 +385,7 @@ public class TJobExecution {
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
 		sb.append("    logIndex: ").append(toIndentedString(logIndex)).append("\n");
 		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
+		sb.append("    testSuites: ").append(toIndentedString(testSuites)).append("\n");;
 		sb.append("}");
 		return sb.toString();
 	}

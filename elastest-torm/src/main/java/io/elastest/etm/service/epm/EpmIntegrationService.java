@@ -1,15 +1,22 @@
 package io.elastest.etm.service.epm;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.plugins.surefire.report.ReportTestCase;
+import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.Log;
 import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.api.model.TestCase;
+import io.elastest.etm.api.model.TestSuite;
 import io.elastest.etm.dao.LogRepository;
 import io.elastest.etm.dao.TJobExecRepository;
+import io.elastest.etm.dao.TestCaseRepository;
+import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.docker.DockerExecution;
 import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.docker.utils.DatabaseSessionManager;
@@ -17,11 +24,13 @@ import io.elastest.etm.rabbitmq.service.RabbitmqService;
 
 @Service
 public class EpmIntegrationService {
-	
-	@Value ("${elastest.elasticsearch.host}")
+
+	@Value("${elastest.elasticsearch.host}")
 	private String elasticsearchHost;
 	private final DockerService dockerService;
 	private final LogRepository logRepo;
+	private final TestSuiteRepository testSuiteRepo;
+	private final TestCaseRepository testCaseRepo;
 
 	private final TJobExecRepository tJobExecRepositoryImpl;
 
@@ -29,12 +38,14 @@ public class EpmIntegrationService {
 
 	private RabbitmqService rabbitmqService;
 
-	public EpmIntegrationService(DockerService dockerService, LogRepository logRepo,
-			TJobExecRepository tJobExecRepositoryImpl, DatabaseSessionManager dbmanager,
-			RabbitmqService rabbitmqService) {
+	public EpmIntegrationService(DockerService dockerService, LogRepository logRepo, TestSuiteRepository testSuiteRepo,
+			TestCaseRepository testCaseRepo, TJobExecRepository tJobExecRepositoryImpl,
+			DatabaseSessionManager dbmanager, RabbitmqService rabbitmqService) {
 		super();
 		this.dockerService = dockerService;
 		this.logRepo = logRepo;
+		this.testSuiteRepo = testSuiteRepo;
+		this.testCaseRepo = testCaseRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
 		this.dbmanager = dbmanager;
 		this.rabbitmqService = rabbitmqService;
@@ -46,26 +57,28 @@ public class EpmIntegrationService {
 		dbmanager.bindSession();
 
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
-		
-//		Log testLog = new Log();
-//		testLog.setLogType(Log.LogTypeEnum.TESTLOG);
-//		testLog.setLogUrl(elasticsearchHost + tJobExec.getId());
-//		testLog.settJobExec(tJobExec);
-//		logRepo.save(testLog);
+
+		// Log testLog = new Log();
+		// testLog.setLogType(Log.LogTypeEnum.TESTLOG);
+		// testLog.setLogUrl(elasticsearchHost + tJobExec.getId());
+		// testLog.settJobExec(tJobExec);
+		// logRepo.save(testLog);
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
-		String testLogUrl = dockerExec.initializeLog();		
+		String testLogUrl = dockerExec.initializeLog();
 
 		try {
-			// Create queues and load basic services			
+			// Create queues and load basic services
 			dockerService.loadBasicServices(dockerExec);
 
+			List<ReportTestSuite> testSuites;
 			// Start Test
-			dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
+			testSuites = dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
 			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
+			saveTestResults(testSuites, tJobExec);
 
 			// End and purge services
-			dockerService.endAllExec(dockerExec);			
+			dockerService.endAllExec(dockerExec);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize
@@ -80,6 +93,43 @@ public class EpmIntegrationService {
 		// Saving execution data
 		tJobExecRepositoryImpl.save(tJobExec);
 		dbmanager.unbindSession();
+	}
+
+	public void saveTestResults(List<ReportTestSuite> testSuites, TJobExecution tJobExec) {
+		System.out.println("Saving test results " + tJobExec.getId());
+		
+		TestSuite tSuite;
+		TestCase tCase;
+		for (ReportTestSuite reportTestSuite : testSuites) {
+			tSuite = new TestSuite();
+			tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
+			tSuite.setErrors(reportTestSuite.getNumberOfErrors());
+			tSuite.setFailures(reportTestSuite.getNumberOfFailures());
+			tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
+			tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
+			tSuite.setName(reportTestSuite.getName());
+			tSuite.setnumTests(reportTestSuite.getNumberOfTests());
+
+			tSuite.settJobExec(tJobExec);
+
+			tSuite = testSuiteRepo.save(tSuite);
+
+			for (ReportTestCase reportTestCase : reportTestSuite.getTestCases()) {
+				tCase = new TestCase();
+				tCase.setName(reportTestCase.getName());
+				tCase.setTime(reportTestCase.getTime());
+				tCase.setFailureDetail(reportTestCase.getFailureDetail());
+				tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
+				tCase.setFailureMessage(reportTestCase.getFailureMessage());
+				tCase.setFailureType(reportTestCase.getFailureType());
+				tCase.setTestSuite(tSuite);
+
+				testCaseRepo.save(tCase);
+			}
+
+			testSuiteRepo.save(tSuite);
+		}
+
 	}
 
 }
