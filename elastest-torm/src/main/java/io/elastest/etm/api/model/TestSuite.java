@@ -67,7 +67,7 @@ public class TestSuite {
 	private int numTests;
 
 	// bi-directional many-to-one association to TestCase
-	@JsonView({ BasicTestSuite.class, BasicTestCase.class })
+	@JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
 	@OneToMany(mappedBy = "testSuite", cascade = CascadeType.REMOVE)
 	private List<TestCase> testCases;
 
