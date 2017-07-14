@@ -3,6 +3,8 @@ import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 import {ElastestEusDialog} from './elastest-eus.dialog';
 import {ElastestEusDialogService} from './elastest-eus.dialog.service';
 import {EusService} from './elastest-eus.service';
+import {EusTestModel} from './elastest-eus-test-model';
+
 
 @Component({
   selector: 'app-elastest-eus',
@@ -10,10 +12,12 @@ import {EusService} from './elastest-eus.service';
   styleUrls: ['./elastest-eus.component.scss'],
 })
 export class ElastestEusComponent implements OnInit {
-
   componentTitle: string = "ElasTest User Emulator Service (EUS)";
   sessionId: string = "";
+
+  browser: string = "";
   vncUrl: string = "";
+  creationTime: string = "";
 
   selectedBrowser: string;
   browsers = [
@@ -35,19 +39,67 @@ export class ElastestEusComponent implements OnInit {
     ]
   };
 
+
+  testColumns: any[] = [
+    {name: 'id', label: 'Session id'},
+    {name: 'browser', label: 'Browser'},
+    {name: 'version', label: 'Version'},
+    {name: 'creationTime', label: 'Creation Time'},
+    {name: 'url', label: 'Actions'}
+  ];
+
+  testData: EusTestModel[] = [];
+
   @Output()
   onInitComponent = new EventEmitter<string>();
 
   constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService) {}
 
   ngOnInit() {
+    let websocket = new WebSocket("ws://localhost:8080/eus/v1/eus-ws");
+
+    websocket.onopen = () => websocket.send("getSessions");
+
+    websocket.onmessage = (message) => {
+      let json = JSON.parse(message.data);
+
+      if (json.newSession) {
+        let testModel: EusTestModel = new EusTestModel();
+        testModel.id = json.newSession.id;
+        testModel.browser = json.newSession.browser;
+        testModel.version = json.newSession.version;
+        testModel.creationTime = json.newSession.creationTime;
+        testModel.url = json.newSession.url;
+        this.testData.push(testModel);
+        this.testData = Array.from(this.testData);
+      }
+      else if (json.removeSession) {
+        let entry: EusTestModel;
+        let newTestData: EusTestModel[] = [];
+        for (entry of this.testData) {
+          if (entry.id !== json.removeSession.id) {
+            newTestData.push(entry);
+          }
+        }
+        this.testData = Array.from(newTestData);
+      }
+    };
+
   }
 
+  viewSession(url: string, testModel: EusTestModel) {
+    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    let title: string = this.capitalize(testModel.browser) + " " + testModel.version;
+    title += "- automated test";
+    dialog.componentInstance.title = title;
+    dialog.componentInstance.iframeUrl = url;
+    dialog.componentInstance.closeButton = true;
+  }
 
   startSession() {
     if (this.selectedBrowser) {
       let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
-      let message = this.capitalize(this.selectedBrowser);
+      let message: string = this.capitalize(this.selectedBrowser);
       if (this.selectedVersion) {
         message += " " + this.selectedVersion;
       }

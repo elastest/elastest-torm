@@ -15,7 +15,7 @@ export class EusService {
       versionValue = "";
     }
 
-    let data = {'desiredCapabilities': {'browserName': browser, 'version': versionValue, 'platform': 'ANY'}};
+    let data = {'desiredCapabilities': {'browserName': browser, 'version': versionValue, 'platform': 'ANY', 'live': true}};
     return this.http.post(url, data).map(response => response.json().sessionId);
   }
 
