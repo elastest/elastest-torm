@@ -104,26 +104,26 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>	
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
+		</dependency>
 		<dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>2.0.8.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-net</artifactId>
-            <version>2.0.8.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.0.33.Final</version>
-        </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>2.0.8.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-net</artifactId>
+			<version>2.0.8.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.33.Final</version>
+		</dependency>
 		<!-- MySql dependencies -->
 		<dependency>
 			<groupId>mysql</groupId>
@@ -209,13 +209,13 @@
 		</dependency>
 	</dependencies>
 
-	<build>	
-	    <resources>
-	        <resource>
-	            <directory>src/main/resources</directory>
-	            <filtering>true</filtering>
-	        </resource>	        
-	    </resources>    
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
@@ -229,22 +229,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.junit.platform</groupId>
-						<artifactId>junit-platform-surefire-provider</artifactId>
-						<version>${junit.platform.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.junit.jupiter</groupId>
-						<artifactId>junit-jupiter-engine</artifactId>
-						<version>${junit.jupiter.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -308,7 +293,7 @@
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
-			</plugin>			
+			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
@@ -329,61 +314,145 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
-		     <id>dev</id>
-		     <build>
-		       <plugins>
-		         <plugin>
-		           <artifactId>maven-antrun-plugin</artifactId>
-		           <executions>
-		             <execution>
-		               <phase>test</phase>
-		               <goals>
-		                 <goal>run</goal>
-		               </goals>
-		               <configuration>
-		                 <tasks>
-		                   <delete file="${project.build.outputDirectory}/application.properties"/>
-		                   <copy file="src/main/resources/application-dev.properties"
-		                         tofile="${project.build.outputDirectory}/application.properties"/>
-		                 </tasks>
-		               </configuration>
-		             </execution>
-		           </executions>
-		         </plugin>
-		       </plugins>
-		      </build>
-		 </profile>
-	     <profile>
-		     <id>ci</id>
-		     <build>
-		       <plugins>
-		         <plugin>
-		           <artifactId>maven-antrun-plugin</artifactId>
-		           <executions>
-		             <execution>
-		               <phase>test</phase>
-		               <goals>
-		                 <goal>run</goal>
-		               </goals>
-		               <configuration>
-		                 <tasks>
-		                   <delete file="${project.build.outputDirectory}/application.properties"/>
-		                   <copy file="src/main/resources/application-ci.properties"
-		                         tofile="${project.build.outputDirectory}/application.properties"/>
-		                 </tasks>
-		               </configuration>
-		             </execution>
-		           </executions>
-		         </plugin>
-		        </plugins>
-	         </build>
-	      </profile>
+			<id>dev</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${project.build.outputDirectory}/application.properties" />
+										<copy file="src/main/resources/application-dev.properties"
+											tofile="${project.build.outputDirectory}/application.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${maven-surefire-plugin.version}</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.junit.platform</groupId>
+								<artifactId>junit-platform-surefire-provider</artifactId>
+								<version>${junit.platform.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>org.junit.jupiter</groupId>
+								<artifactId>junit-jupiter-engine</artifactId>
+								<version>${junit.jupiter.version}</version>
+							</dependency>
+						</dependencies>						
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>ci</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${project.build.outputDirectory}/application.properties" />
+										<copy file="src/main/resources/application-ci.properties"
+											tofile="${project.build.outputDirectory}/application.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${maven-surefire-plugin.version}</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.junit.platform</groupId>
+								<artifactId>junit-platform-surefire-provider</artifactId>
+								<version>${junit.platform.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>org.junit.jupiter</groupId>
+								<artifactId>junit-jupiter-engine</artifactId>
+								<version>${junit.jupiter.version}</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+          					<skipTests>true</skipTests>
+        				</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>ci-no-it-test</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${project.build.outputDirectory}/application.properties" />
+										<copy file="src/main/resources/application-ci.properties"
+											tofile="${project.build.outputDirectory}/application.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${maven-surefire-plugin.version}</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.junit.platform</groupId>
+								<artifactId>junit-platform-surefire-provider</artifactId>
+								<version>${junit.platform.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>org.junit.jupiter</groupId>
+								<artifactId>junit-jupiter-engine</artifactId>
+								<version>${junit.jupiter.version}</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<excludes>
+								<exclude>**/*ItTest.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<repositories>
