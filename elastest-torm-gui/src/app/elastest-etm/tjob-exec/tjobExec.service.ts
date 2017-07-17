@@ -59,6 +59,7 @@ export class TJobExecService {
     else {
       tjobExecsDataToTable.tJob = new TJobModel();
     }
+    tjobExecsDataToTable.testSuite = tjobExec.testSuite;
 
     return tjobExecsDataToTable;
   }

@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -71,9 +72,8 @@ public class TestSuite {
 	@OneToMany(mappedBy = "testSuite", cascade = CascadeType.REMOVE)
 	private List<TestCase> testCases;
 
-	// bi-directional many-to-one association to testSuite
 	@JsonView({ BasicTestSuite.class })
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "testSuite")
 	@JoinColumn(name = "tJobExec")
 	private TJobExecution tJobExec;
 
