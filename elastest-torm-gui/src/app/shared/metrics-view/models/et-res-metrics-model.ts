@@ -135,11 +135,13 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
     getOldTrace() {
         let oldTrace: any = undefined;
         for (let singleMetric of this.data) {
-            if (oldTrace === undefined && singleMetric.series.length > 0) {
-                oldTrace = singleMetric.series[0];
-            }
-            if (singleMetric.series[0].name < oldTrace.name) {
-                oldTrace = singleMetric.series[0];
+            if (singleMetric.series.length > 0) {
+                if (oldTrace === undefined) {
+                    oldTrace = singleMetric.series[0];
+                }
+                if (singleMetric.series[0].name < oldTrace.name) {
+                    oldTrace = singleMetric.series[0];
+                }
             }
         }
         return oldTrace;
