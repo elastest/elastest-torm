@@ -43,11 +43,9 @@
                 <div layout="row" class="push-top">
                     <md-card-subtitle>Test Cases</md-card-subtitle>
                 </div>
-                <div layout="row">
-                    <td-data-table #testCasesTable class="scroll_table" [data]="tJobExec.testSuite.testCases" [selectable]="false" [clickable]="false"
-                        [sortable]="false">
-                    </td-data-table>
-                </div>
+                <td-data-table #testCasesTable class="scroll_table" [data]="tJobExec.testSuite.testCases" [selectable]="false"
+                    [clickable]="false" [sortable]="false">
+                </td-data-table>
             </md-card-content>
         </md-card>
     </div>

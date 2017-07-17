@@ -117,7 +117,7 @@ export class ElastestESService {
         for (let logEntry of data) {
             parsedMetric = this.convertToMetricTrace(logEntry._source, type);
             position = this.getMetricPosition(logEntry._source.component_type);
-            if (position !== undefined) {
+            if (position !== undefined && parsedMetric !== undefined) {
                 tracesList[position].series.push(parsedMetric);
             }
         }
@@ -137,11 +137,14 @@ export class ElastestESService {
     }
 
     convertToCpuData(trace: any) {
-        let parsedData: any = {
-            'value': trace.cpu.totalUsage,
-            'name': new Date('' + trace['@timestamp']),
-            'timestamp': trace['@timestamp'],
-        };
+        let parsedData: any = undefined;
+        if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            parsedData = {
+                'value': trace.cpu.totalUsage,
+                'name': new Date('' + trace['@timestamp']),
+                'timestamp': trace['@timestamp'],
+            };
+        }
         return parsedData;
     }
 
