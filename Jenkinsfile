@@ -16,7 +16,7 @@ node('docker'){
 			
 			stage "Unit Test"
                 echo ("Starting maven tests")
-                echo ("No tests yet in this stage")
+               sh 'cd ./elastest-torm; mvn clean -Pci-no-it-test package;'
                 
             stage "Prepare docker-compose"
                 echo ("Preparing..")                
