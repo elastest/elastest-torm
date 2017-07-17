@@ -1,9 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild } from '@angular/core';
 
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { ElasticSearchService } from '../shared/services/elasticsearch.service';
 import { dateToInputLiteral } from './utils/Utils';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
 
@@ -14,6 +14,7 @@ import { IPageChangeEvent } from '@covalent/core';
   styleUrls: ['./elastest-log-manager.component.scss'],
 })
 export class ElastestLogManagerComponent implements OnInit {
+  @ViewChild('copyTextArea') copyTextArea: ElementRef;
 
   public _scroll_id: string;
   public noMore: boolean = false;
@@ -96,8 +97,11 @@ export class ElastestLogManagerComponent implements OnInit {
     { name: 'host', label: 'Host' },
   ];
 
-  constructor(public _elasticSearchService: ElasticSearchService, public activatedRoute: ActivatedRoute, private _dataTableService: TdDataTableService) {
-    let params: any = this.activatedRoute.snapshot.params;
+  constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
+    private _dataTableService: TdDataTableService,
+  ) {
+    let params: any = router.parseUrl(router.url).queryParams;
+
     this.showGrid = false;
     this.showError = false;
     let autoSearch: boolean = false;
@@ -198,20 +202,12 @@ export class ElastestLogManagerComponent implements OnInit {
 
     if (params.from !== undefined && params.from !== null) {
       autoSearch = true;
-      let dates = decodeURIComponent(params.from.split('T'));
-      let fromDate = dates[0].split('-').map(Number);
-      let fromHour = dates[1].split(':').map(Number);
-      this.defaultFrom = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1],
-        fromHour[2]));
+      this.defaultFrom = new Date(params.from);
     }
 
     if (params.to !== undefined && params.to !== null) {
       autoSearch = true;
-      let dates = decodeURIComponent(params.to.split('T'));
-      let fromDate = dates[0].split('-').map(Number);
-      let fromHour = dates[1].split(':').map(Number);
-      this.defaultTo = new Date(Date.UTC(fromDate[0], (fromDate[1] - 1), fromDate[2], fromHour[0], fromHour[1],
-        fromHour[2]));
+      this.defaultTo = new Date(params.to);
     }
 
     if (autoSearch) {
@@ -306,14 +302,13 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   public copyToClipboard() {
-    var copyTextarea = document.querySelector('.js-copytextarea')[0];
-    copyTextarea.select();
+    this.copyTextArea.nativeElement.select();
     document.execCommand('copy');
   }
 
   public generateCopyUrl(from: string, to: string) {
-
-    this.urlCopied = document.URL + '?';
+    this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
+    
     if (this.urlElastic !== undefined) {
       this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
     }
@@ -953,8 +948,10 @@ export class ElastestLogManagerComponent implements OnInit {
 
   paintResults(index: number) {
     let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
-    for (let result of this.patterns[index].results) {
-      rows[result].style.color = this.patterns[index].color;
+    if (rows !== undefined && rows !== null) {
+      for (let result of this.patterns[index].results) {
+        rows[result].style.color = this.patterns[index].color;
+      }
     }
   }
 
@@ -975,7 +972,9 @@ export class ElastestLogManagerComponent implements OnInit {
 
       this.currentPos = pattern.results[pattern.position];
       let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
-      rows[this.currentPos].focus();
+      if (rows !== undefined && rows !== null) {
+        rows[this.currentPos].focus();
+      }
     }
   }
 
@@ -997,7 +996,9 @@ export class ElastestLogManagerComponent implements OnInit {
 
       this.currentPos = pattern.results[this.patterns[index].position];
       let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
-      rows[this.currentPos].focus();
+      if (rows !== undefined && rows !== null) {
+        rows[this.currentPos].focus();
+      }
     }
   }
 
@@ -1026,6 +1027,11 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   getSearchTableRows() {
-    return document.getElementById('dataTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    if (document.getElementById('dataTable') !== null && document.getElementById('dataTable') !== undefined) {
+      return document.getElementById('dataTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    }
+    else {
+      return undefined;
+    }
   }
 }

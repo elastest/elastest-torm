@@ -1,6 +1,6 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <!--<textarea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" class="js-copytextarea" style="margin-left:-1000px; float: left;"
-  [(ngModel)]="urlCopied"></textarea>-->
+  <textarea #copyTextArea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" id="copytextarea" class="js-copytextarea" style="position: absolute; margin-left:-50000px"
+    [(ngModel)]="urlCopied"></textarea>
   <div flex-gt-xs="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
@@ -14,15 +14,6 @@
               <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" (change)="updateUrlElastic($event)"
                 placeholder="ElasticSearch Url" name="urlElastic" required>
             </md-input-container>
-            <!--
-            <md-select flex-gt-xs="10" flex-offset-gt-sm="5" ng-model="clusterSelected" (ngModelChange)="updateClusterSelected($event)"
-              placeholder="Select a cluster name">
-              <md-option ng-value="c.cluster.name" ng-repeat="c in indices">{{ c }}</md-option>
-            </md-select>
-            <button (click)="updateUrlElastic()"><md-icon>autorenew</md-icon></button>-->
-            <!--<md-input-container flex-gt-xs="10">
-              <input mdInput type="text" class="form-control input-sm" id="clusterName" [(ngModel)]="clusterName" value="" readonly name="clusterName">
-            </md-input-container>-->
 
             <md-input-container flex-gt-xs="25" flex-offset-gt-sm="5">
               <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" placeholder="Index"
@@ -172,8 +163,8 @@
           flex>
         </td-search-box>
         <md-divider></md-divider>
-        <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns" [sortable]="false"
-          [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="onRowClicked($event)">
+        <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns"
+          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="onRowClicked($event)">
         </td-data-table>
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
           <h3>{{emptyTableText}}</h3>
