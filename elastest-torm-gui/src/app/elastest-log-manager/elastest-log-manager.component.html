@@ -88,10 +88,10 @@
             <button md-button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)">Add more from row selected
             </button>
             <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
-            <button md-button *ngIf="showClearData" (click)="clearData()">Clear Data
+            <button md-button *ngIf="showClearData" (click)="clearData()"><md-icon>clear</md-icon> Clear Data
             </button>
             <button md-button *ngIf="showGrid && !showPauseTail" (click)="copyToClipboard()">
-              Copy to Clipboard <br/> Share this search
+              <md-icon>content_copy</md-icon> Copy to Clipboard
             </button>
           </div>
         </form>

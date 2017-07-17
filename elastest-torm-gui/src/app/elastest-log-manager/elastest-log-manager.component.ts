@@ -16,7 +16,6 @@ import { IPageChangeEvent } from '@covalent/core';
 export class ElastestLogManagerComponent implements OnInit {
   @ViewChild('copyTextArea') copyTextArea: ElementRef;
 
-  public _scroll_id: string;
   public noMore: boolean = false;
   public dataForAdding;
   public onlyTable: boolean = false;
@@ -83,6 +82,8 @@ export class ElastestLogManagerComponent implements OnInit {
 
   currentRowSelected: number = -1;
   currentPos: number = -1;
+
+  searchAfter: number = undefined;
 
   //Filter Results
   patternDefault: SearchPatternModel = new SearchPatternModel();
@@ -308,7 +309,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   public generateCopyUrl(from: string, to: string) {
     this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
-    
+
     if (this.urlElastic !== undefined) {
       this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
     }
@@ -464,7 +465,6 @@ export class ElastestLogManagerComponent implements OnInit {
     this.showLoadMore = false;
     this.showPauseTail = false;
     this.showClearData = false;
-    this._scroll_id = '';
     this.sortBy = this.sortByDefault;
     this.sortOrder = this.sortOrderDefault;
     this.removeAllPatterns();
@@ -604,7 +604,7 @@ export class ElastestLogManagerComponent implements OnInit {
       queries.indices.indices.push(index_);
     }
 
-    let url = this.urlElastic + '_search?scroll=1m&filter_path=_scroll_id,hits.hits._source,hits.hits._type,hits';
+    let url = this.urlElastic + '_search?&filter_path=hits.hits._source,hits.hits._type,hits';
 
     console.log('URL:', url);
 
@@ -630,8 +630,6 @@ export class ElastestLogManagerComponent implements OnInit {
       query: queries,
       size: this.maxResults,
       highlight: {
-        pre_tags: ['<b><i>'],
-        post_tags: ['</i></b>'],
         fields: {
           message: { number_of_fragments: 0 },
           host: { number_of_fragments: 0 },
@@ -649,9 +647,8 @@ export class ElastestLogManagerComponent implements OnInit {
 
     if (append && position === -1) {
       if (!this.noMore) {
-        if (this.rowData.length > 0) {
-          url = this.urlElastic + '_search/scroll';
-          let theQuery = { scroll: '1m', scroll_id: this._scroll_id };
+        if (this.rowData.length > 0 && this.searchAfter !== undefined) {
+          theQuery['search_after'] = [this.searchAfter];
         }
       } else {
         theQuery.query.indices.query.bool.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
@@ -669,8 +666,11 @@ export class ElastestLogManagerComponent implements OnInit {
 
         console.log('Data:', data);
 
-        this._scroll_id = data._scroll_id;
-
+        let dataReceived: number = data.hits.hits.length;
+        if (dataReceived > 0) {
+          let lastReceivedPos: number = dataReceived - 1;
+          this.searchAfter = data.hits.hits[lastReceivedPos].sort[0];
+        }
         if (data.hits !== undefined && data.hits.hits.length === 0 && this.rowData.length === 0) {
           console.log('Returned response without results. Aborting');
           this.rowData = [];
@@ -739,27 +739,26 @@ export class ElastestLogManagerComponent implements OnInit {
                 while (this.rowData[position].message.indexOf('Sub-Search') > -1) {
                   position++;
                 }
-                let positionMessage = this.rowData[position].message.replace('<b><i>', '').replace('</i></b>', '');
+                let positionMessage = this.rowData[position].message;
                 let initPositionMessage =
-                  this.rowData[initPosition - 1].message.replace('<b><i>', '').replace('</i></b>', '');
+                  this.rowData[initPosition - 1].message;
                 if ((this.rowData[position] !== undefined && ((this.rowData[position].time === logValue.time
-                  && positionMessage === message.replace('<b><i>', '').replace('</i></b>', ''))))) {
+                  && positionMessage === message)))) {
                   position++;
                   continue;
                 }
                 if (this.rowData[initPosition - 1] !== undefined && ((this.rowData[initPosition - 1].time === logValue.time
-                  && initPositionMessage === message.replace('<b><i>', '').replace('</i></b>', '')))) {
+                  && initPositionMessage === message))) {
                   continue;
                 }
                 this.rowData.splice(position, 0, logValue);
                 position++;
-              } else {
+              } else { //Load more
                 if (prevSize === 0) {
                   this.rowData.push(logValue);
                 } else {
-                  let prevMessage = this.rowData[prevSize - 1].message.replace('<b><i>', '').replace('</i></b>', '');
-                  if (this.rowData[prevSize - 1].time === logValue.time &&
-                    prevMessage === message.replace('<b><i>', '').replace('</i></b>', '')) {
+                  let prevMessage = this.rowData[prevSize - 1].message;
+                  if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === message) {
                     continue;
                   }
                   this.rowData.push(logValue);
