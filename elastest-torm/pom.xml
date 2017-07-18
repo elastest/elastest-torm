@@ -36,8 +36,9 @@
 		<java.version>1.8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<junit.jupiter.version>5.0.0-M4</junit.jupiter.version>
-		<junit.platform.version>1.0.0-M4</junit.platform.version>
+		<junit.jupiter.version>5.0.0-M5</junit.jupiter.version>
+		<junit.platform.version>1.0.0-M5</junit.platform.version>
+		<spring-test-junit5.version>1.0.0.M5</spring-test-junit5.version>
 		<springfox-version>2.6.1</springfox-version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 
@@ -192,7 +193,7 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-runner</artifactId>
-			<version>1.0.0-M4</version>
+			<version>1.0.0-M5</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -204,7 +205,7 @@
 		<dependency>
 			<groupId>com.github.sbrannen</groupId>
 			<artifactId>spring-test-junit5</artifactId>
-			<version>1.0.0.M4</version>
+			<version>${spring-test-junit5.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -229,19 +230,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			
 			<!-- maven source plugin required for Central deploy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -449,6 +438,19 @@
 								<exclude>**/*ItTest.java</exclude>
 							</excludes>
 						</configuration>
+					</plugin>
+					<plugin>
+					  <groupId>org.jacoco</groupId>
+					  <artifactId>jacoco-maven-plugin</artifactId>
+					  <version>0.7.10-SNAPSHOT</version>
+					  <reportSets>
+				          <reportSet>
+				            <reports>
+				              <!-- select non-aggregate reports -->
+				              <report>report</report>
+				            </reports>
+				          </reportSet>
+				      </reportSets>
 					</plugin>
 				</plugins>
 			</build>

@@ -1,6 +1,5 @@
 package io.elastest.etm.test.api;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,7 +19,6 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -50,6 +48,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import io.elastest.etm.ElastestETMSpringBoot;
 import io.elastest.etm.api.model.Project;
+import io.elastest.etm.api.model.SutSpecification;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 
@@ -123,10 +122,10 @@ public class TJobApiItTest {
 	public void testModifyTJob(){
 		log.info("Start the test testCreateTJob" );
 		
-		createTJobToTesting(projectId);
+		TJob tjob = createTJobToTesting(projectId);
 		String requestJson ="{"					
-					+"\"id\": 0,"
-					+"\"imageName\": \"edujgurjc/torm-test-01\","
+					+"\"id\":" + tjob.getId() + ","
+					+"\"imageName\": \"" + tjob.getImageName() + "\","
 					+"\"name\": \"testApp2\","
 					+"\"project\": { \"id\":" + projectId + "}"
 					+ "}";
@@ -137,14 +136,29 @@ public class TJobApiItTest {
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 		
 		log.info("PUT /api/tjob");
-		ResponseEntity<TJob> response = restTemplate.postForEntity("/api/tjob", entity, TJob.class);
-		log.info("TJob created:" + response.getBody());
+		restTemplate.put("/api/tjob", entity, TJob.class);
+		
+		TJob tJobModified = getTJobById(tjob.getId());
 
-		deleteTJob(response.getBody().getId());
+		deleteTJob(tJobModified.getId());
 
 		assertAll("Validating TJob Properties", 
-				() -> assertTrue(response.getBody().getName().equals("testApp2")),
-				() -> assertNotNull(response.getBody().getId()));		
+				() -> assertTrue(tJobModified.getName().equals("testApp2")),
+				() -> assertNotNull(tJobModified.getId()));		
+	}
+	
+	public TJob getTJobById(Long tJobId){
+		
+		log.info("Start the method getTJobById" );
+
+		Map<String, Long> urlParams = new HashMap<>();
+		urlParams.put("tJobId", tJobId);
+	
+		log.info("GET /api/tjob/{tJobId}");
+		ResponseEntity<TJob> response = restTemplate.getForEntity("/api/tjob/{tJobId}", TJob.class, urlParams);
+		
+		return response.getBody();
+		
 	}
 	
 	
@@ -244,6 +258,8 @@ public class TJobApiItTest {
 		log.info("Finished.");
 		
 	}
+	
+	
 	
 	class DefaultStompFrameHandler implements StompFrameHandler {
         @Override

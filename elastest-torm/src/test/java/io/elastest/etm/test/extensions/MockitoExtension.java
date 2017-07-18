@@ -1,5 +1,3 @@
-package io.elastest.etm.test.extensions;
-
 /*
  * Copyright 2015-2016 the original author or authors.
  *
@@ -10,6 +8,7 @@ package io.elastest.etm.test.extensions;
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
+package io.elastest.etm.test.extensions;
 
 import static org.mockito.Mockito.mock;
 
@@ -31,10 +30,6 @@ import org.mockito.MockitoAnnotations;
  * level via Mockito 2.x's {@link Mock @Mock} annotation.
  *
  * @since 5.0
- * 
- * Copied this directly from https://github.com/junit-team/junit5-samples/tree/master/junit5-mockito-extension
- * to simplify demo since not a downloadable artifact at this time. Shout out to
- * Marc Phillipp for this (https://github.com/marcphilipp)
  */
 public class MockitoExtension implements TestInstancePostProcessor, ParameterResolver {
 
@@ -44,12 +39,12 @@ public class MockitoExtension implements TestInstancePostProcessor, ParameterRes
 	}
 
 	@Override
-	public boolean supports(ParameterContext parameterContext, ExtensionContext extensionContext) {
+	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
 		return parameterContext.getParameter().isAnnotationPresent(Mock.class);
 	}
 
 	@Override
-	public Object resolve(ParameterContext parameterContext, ExtensionContext extensionContext) {
+	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
 		return getMock(parameterContext.getParameter(), extensionContext);
 	}
 
