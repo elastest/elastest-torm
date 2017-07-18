@@ -81,11 +81,11 @@
           </div>
 
           <div layout="row" class="push-top">
-            <button md-raised-button color="accent" (click)="search(from.value, to.value, false)">Get Data
+            <button md-raised-button color="accent" (click)="search(from.value, to.value, false)"><md-icon>search</md-icon> Get Data
             </button>
-            <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true, -1)">Load More
+            <button md-button *ngIf="showLoadMore" (click)="search(from.value, to.value, true)"><md-icon>add</md-icon> Load More
             </button>
-            <button md-button *ngIf="showClearData" (click)="addMore(from.value, to.value, false)">Add more from row selected
+            <button md-button *ngIf="showClearData" (click)="addMore()"><md-icon>subdirectory_arrow_right</md-icon> Add more from row selected
             </button>
             <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
             <button md-button *ngIf="showClearData" (click)="clearData()"><md-icon>clear</md-icon> Clear Data
@@ -163,7 +163,7 @@
           flex>
         </td-search-box>
         <md-divider></md-divider>
-        <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="true" [clickable]="true" [columns]="columns"
+        <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="false" [clickable]="true" [columns]="columns"
           [sortable]="false" (rowClick)="onRowClicked($event)">
         </td-data-table>
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">

@@ -17,7 +17,7 @@ export class ElastestLogManagerComponent implements OnInit {
   @ViewChild('copyTextArea') copyTextArea: ElementRef;
 
   public noMore: boolean = false;
-  public dataForAdding;
+  public dataForAdding: any = undefined;
   public onlyTable: boolean = false;
   public goToLogManager: string;
 
@@ -393,16 +393,17 @@ export class ElastestLogManagerComponent implements OnInit {
 
   // Used in html file
   public addMore() {
-    let position = this.dataForAdding.position;
-    let from = this.dataForAdding.initDate;
-    let to = this.dataForAdding.endDate;
-    if (to === undefined) {
-      to = new Date(new Date().valueOf() - (60 * 60 * 1000));
+    if (this.currentRowSelected >= 0 && this.dataForAdding !== undefined) {
+      let from = this.dataForAdding.initDate;
+      let to = this.dataForAdding.endDate;
+      if (to === undefined) {
+        to = new Date(new Date().valueOf() - (60 * 60 * 1000));
+      }
+      this.search(from, to, true, true);
     }
-    this.search(from, to, true, position + 1);
   }
 
-  public search(from: string, to: string, append: boolean = false, position: number = -1) {
+  public search(from: string, to: string, append: boolean = false, fromData: boolean = false) {
     this.emptyTableText = "Searching...";
     this.generateCopyUrl(from, to);
     if (!append) {
@@ -411,39 +412,6 @@ export class ElastestLogManagerComponent implements OnInit {
     }
     this.showError = false;
     this.showClearData = true;
-    // All variables (boolean) have a default value as true
-    // The search will be on  hosts + message + componentType
-
-    let types: Array<string> = [];
-
-    if (this.sutlogsType) {
-      types.push('sutlogs');
-    }
-
-    if (this.testlogsType) {
-      types.push('testlogs');
-    }
-
-    // //Filter only testlogs type
-    // types.push('testlogs');
-
-    let levels: Array<string> = [];
-
-    if (this.debugLevel) {
-      levels.push('debug');
-    }
-
-    if (this.infoLevel) {
-      levels.push('info');
-    }
-
-    if (this.warnLevel) {
-      levels.push('warn');
-    }
-
-    if (this.errorLevel) {
-      levels.push('error');
-    }
 
     let queryfrom: any;
     let queryto: any;
@@ -489,20 +457,9 @@ export class ElastestLogManagerComponent implements OnInit {
 
     console.log('URL:', url);
 
-    this.addTermFilter(queries, 'level', levels);
-    this.addTermFilter(queries, '_type', types);
-
-    let hosts = this.processCommaSeparatedValue(this.hosts);
-    this.addTermFilter(queries, 'host', hosts);
-
-    let message = this.processCommaSeparatedValue(this.message);
-    this.addTermFilter(queries, 'message', message);
-
-    let componentType = this.processCommaSeparatedValue(this.componentType);
-    this.addTermFilter(queries, 'component_type', componentType);
+    this.applyFilters(queries);
 
     console.log('Query: ', JSON.stringify(queries));
-    console.log('-----------------------------------------------------------------');
 
     let theQuery = {
       sort: [
@@ -510,15 +467,6 @@ export class ElastestLogManagerComponent implements OnInit {
       ],
       query: queries,
       size: this.maxResults,
-      highlight: {
-        fields: {
-          message: { number_of_fragments: 0 },
-          host: { number_of_fragments: 0 },
-          componentType: { number_of_fragments: 0 },
-          level: { number_of_fragments: 0 },
-          logmessage: { number_of_fragments: 0 }
-        }
-      },
       _source: ['host', 'component_type', 'message', 'level', 'logmessage', '@timestamp', 'tjobexec']
     };
 
@@ -526,25 +474,27 @@ export class ElastestLogManagerComponent implements OnInit {
       this.rowData = [];
     }
 
-    if (append && position === -1) {
-      if (!this.noMore) {
-        if (this.rowData.length > 0 && this.searchAfter !== undefined) {
-          theQuery['search_after'] = [this.searchAfter];
+    if (append) { //Not new search
+      if (!fromData) { //Load more
+        if (!this.noMore) {
+          if (this.rowData.length > 0 && this.searchAfter !== undefined) {
+            theQuery['search_after'] = [this.searchAfter];
+          }
+        } else {
+          theQuery.query.indices.query.bool.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
         }
-      } else {
-        theQuery.query.indices.query.bool.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
+      }
+      else { //Add more from row
+        theQuery['search_after'] = [this.dataForAdding.searchAfter];
       }
     }
 
     this._elasticSearchService.internalSearch(url, theQuery, this.maxResults, append)
       .finally(
-      () => {
-        this.emptyTableText = this.emptyTableTextDefault;
-      }
+      () => { this.emptyTableText = this.emptyTableTextDefault; }
       )
       .subscribe(
-      data => {
-
+      (data: any) => {
         console.log('Data:', data);
 
         let dataReceived: number = data.hits.hits.length;
@@ -568,7 +518,7 @@ export class ElastestLogManagerComponent implements OnInit {
           console.log('Data hits size:', data.hits.hits.length);
 
           this.noMore = data.hits.hits.length === 0;
-          this.parseSearchedData(data);
+          this.parseSearchedData(data, fromData); //Set data into table rows
 
           //Update table
           this.initSearchTable(1, 1, this.rowData.length);
@@ -589,8 +539,110 @@ export class ElastestLogManagerComponent implements OnInit {
       );
   }
 
+  applyFilters(queries: any) {
+    let types: Array<string> = [];
+    if (this.sutlogsType) {
+      types.push('sutlogs');
+    }
 
-  // Table Search functions TODO refactor
+    if (this.testlogsType) {
+      types.push('testlogs');
+    }
+
+    let levels: Array<string> = [];
+    if (this.debugLevel) {
+      levels.push('debug');
+    }
+
+    if (this.infoLevel) {
+      levels.push('info');
+    }
+
+    if (this.warnLevel) {
+      levels.push('warn');
+    }
+
+    if (this.errorLevel) {
+      levels.push('error');
+    }
+
+    this.addTermFilter(queries, 'level', levels);
+    this.addTermFilter(queries, '_type', types);
+
+    let hosts = this.processCommaSeparatedValue(this.hosts);
+    this.addTermFilter(queries, 'host', hosts);
+
+    let message = this.processCommaSeparatedValue(this.message);
+    this.addTermFilter(queries, 'message', message);
+
+    let componentType = this.processCommaSeparatedValue(this.componentType);
+    this.addTermFilter(queries, 'component_type', componentType);
+  }
+
+  /**
+   * Parse elasticsearch data and save rows into table array
+   * @param data
+   */
+  parseSearchedData(data: any, fromData: boolean = false) {
+    let tjobexec: string = '';
+    let type: string = '';
+    let time: string = '';
+    let message: string = '';
+    let level: string = '';
+    let componentType: string = '';
+    let host: string = '';
+    let sortId: number = undefined;
+
+    let logRow: any;
+    let position: number;
+    let newPosition: number = fromData ? this.dataForAdding.position + 1 : undefined;
+
+    for (let logEntry of data.hits.hits) {
+      tjobexec = logEntry._source.tjobexec;
+      type = logEntry._type;
+      time = logEntry._source['@timestamp'];
+      message = '';
+      if (logEntry._source['message'] !== undefined) {
+        message = logEntry._source['message'];
+      } else {
+        message = 'undefined';
+      }
+      level = logEntry._source.level;
+      componentType = logEntry._source['component_type'];
+
+      host = logEntry._source.host;
+      if (logEntry.host !== undefined) {
+        host = logEntry.host[0];
+      }
+
+      sortId = logEntry.sort[0];
+
+      if (!fromData) { // New search or Load More
+        position = this.rowData.length;
+        logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+        this.rowData.push(logRow);
+      }
+      else { // Add from row selected
+        position = newPosition;
+        logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+        this.rowData.splice(position, 0, logRow);
+        newPosition++;
+      }
+    }
+
+    if (fromData && data.hits !== undefined && data.hits.hits.length > 0) {
+      this.updateRowsPositions(newPosition);
+    }
+  }
+
+  updateRowsPositions(fromPosition: number) {
+    for (let i = fromPosition; i < this.rowData.length; i++) {
+      this.rowData[i].position = i;
+    }
+  }
+
+
+  // Table Search functions
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
     // this.sortBy = sortEvent.name;
@@ -626,18 +678,23 @@ export class ElastestLogManagerComponent implements OnInit {
     this.filteredData = newData;
   }
 
-
-
-
-
   onRowClicked($event) {
-    if ($event.node !== undefined && $event.node.selected) {
-      this.currentRowSelected = $event.node.id;
-      let initDate: String = this.rowData[$event.node.id].time;
+    if ($event.row !== undefined) {
+      console.log($event.row)
+      let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+      if (rows !== undefined && rows !== null) {
+        if (this.currentRowSelected >= 0) { // Clear previous selected row color
+          rows[this.currentRowSelected].bgColor = '';
+        }
+        rows[$event.row.position].bgColor = '#ffac2f';
+      }
+      this.currentRowSelected = $event.row.position;
+      console.log('selected', this.currentRowSelected)
+      let initDate: String = this.rowData[$event.row.position].time;
       let endDate: String;
       let i: number = 1;
       do {
-        let endRow = this.rowData[$event.node.id + i];
+        let endRow = this.rowData[$event.row.position + i];
         if (endRow !== undefined) {
           endDate = endRow.time;
         }
@@ -648,7 +705,8 @@ export class ElastestLogManagerComponent implements OnInit {
       } while (i < this.rowData.length && endDate === undefined);
 
       let event = {
-        position: $event.node.id,
+        position: $event.row.position,
+        searchAfter: $event.row.sortId,
         initDate: initDate,
         endDate: endDate
       };
@@ -697,6 +755,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   searchByPatterns() {
     this.currentPos = -1;
+    this.cleanRowsColor();
     let i: number = 0;
     this.filteredData.map(e => {
       for (let pattern of this.patterns) {
@@ -730,7 +789,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
 
   next(index: number) {
-    let pattern = this.patterns[index];
+    let pattern: SearchPatternModel = this.patterns[index];
     if (pattern.results.length > 0) {
       pattern.results.sort(this.sorted);
 
@@ -742,36 +801,39 @@ export class ElastestLogManagerComponent implements OnInit {
           pattern.position = 0;
         }
       }
-
-      this.currentPos = pattern.results[pattern.position];
-      let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
-      if (rows !== undefined && rows !== null) {
-        rows[this.currentPos].focus();
-      }
+      this.focusRow(pattern.results[pattern.position]);
     }
   }
 
 
   prev(index: number) {
-    let pattern = this.patterns[index];
+    let pattern: SearchPatternModel = this.patterns[index];
     if (pattern.results.length > 0) {
-
       pattern.results.sort(this.sorted);
 
       if (this.currentPos === -1) {
-        this.patterns[index].position = pattern.results.length - 1;
+        pattern.position = pattern.results.length - 1;
       } else {
-        this.patterns[index].position = this.getPrevPosition(this.currentPos, pattern.results);
-        if (this.patterns[index].position === -1) {
-          this.patterns[index].position = pattern.results.length - 1;
+        pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
+        if (pattern.position === -1) {
+          console.log('resu', pattern.results, 'pos', pattern.results.length - 1)
+          pattern.position = pattern.results.length - 1;
         }
       }
+      this.focusRow(pattern.results[pattern.position]);
+    }
+  }
 
-      this.currentPos = pattern.results[this.patterns[index].position];
-      let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
-      if (rows !== undefined && rows !== null) {
-        rows[this.currentPos].focus();
+  focusRow(newPos: number) {
+    let previousPos: number = this.currentPos;
+    this.currentPos = newPos;
+    let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+    if (rows !== undefined && rows !== null) {
+      if (previousPos >= 0) {
+        rows[previousPos].style.removeProperty('background-color');
       }
+      rows[this.currentPos].style.backgroundColor = '#e0e0e0';
+      rows[this.currentPos].focus();
     }
   }
 
@@ -805,45 +867,6 @@ export class ElastestLogManagerComponent implements OnInit {
     }
     else {
       return undefined;
-    }
-  }
-  
-  /**
-   * Parse elasticsearch data and save rows into table array
-   * @param data 
-   */
-  parseSearchedData(data: any) {
-    let tjobexec: string = '';
-    let type: string = '';
-    let time: string = '';
-
-    let message: string = '';
-    let level: string = '';
-    let componentType: string = '';
-    let host: string = '';
-
-    let logRow: any;
-
-    for (let logEntry of data.hits.hits) {
-      tjobexec = logEntry._source.tjobexec;
-      type = logEntry._type;
-      time = logEntry._source['@timestamp'];
-      message = '';
-      if (logEntry._source['message'] !== undefined) {
-        message = logEntry._source['message'];
-      } else {
-        message = 'undefined';
-      }
-      level = logEntry._source.level;
-      componentType = logEntry._source['component_type'];
-
-      host = logEntry._source.host;
-      if (logEntry.host !== undefined) {
-        host = logEntry.host[0];
-      }
-
-      logRow = { tjobexec, type, time, message, level, componentType, host };
-      this.rowData.push(logRow);
     }
   }
 }
