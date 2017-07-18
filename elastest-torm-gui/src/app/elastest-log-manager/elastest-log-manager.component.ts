@@ -22,7 +22,6 @@ export class ElastestLogManagerComponent implements OnInit {
   public goToLogManager: string;
 
   public indices = [];
-  public clusterSelected: string;
   public defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
   public defaultTo = new Date(new Date().valueOf() + (2 * 60 * 60 * 1000));
 
@@ -45,7 +44,6 @@ export class ElastestLogManagerComponent implements OnInit {
   public useTail: boolean = false;
 
   public urlElastic: string = 'http://localhost:9200/';
-  public clusterName: string;
   public indexName: string;
   public hosts: string;
   public message: string;
@@ -66,8 +64,8 @@ export class ElastestLogManagerComponent implements OnInit {
   filteredTotal: number = this.rowData.length;
 
   searchTerm: string = '';
-  sortByDefault: string = 'time';
-  sortBy: string = this.sortByDefault;
+  // sortByDefault: string = 'time';
+  // sortBy: string = this.sortByDefault;
 
   //Search table Pagination params. (DISABLED)
   fromRow: number = 1;
@@ -75,8 +73,8 @@ export class ElastestLogManagerComponent implements OnInit {
   pageSizeDefault: number = 200;
   pageSize: number = this.pageSizeDefault;
   selectedRows: any[] = [];
-  sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
-  sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
+  // sortOrderDefault: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+  // sortOrder: TdDataTableSortingOrder = this.sortOrderDefault;
   pageSizesListDefault: number[] = [5, 10, 15, 20, 40, 100, 200];
   pageSizesList: number[] = this.pageSizesListDefault;
 
@@ -119,11 +117,6 @@ export class ElastestLogManagerComponent implements OnInit {
 
     if (params.urlElastic !== undefined && params.urlElastic !== null) {
       this.urlElastic = decodeURIComponent(params.urlElastic);
-      autoSearch = true;
-    }
-
-    if (params.clusterName !== undefined && params.clusterName !== null) {
-      this.clusterName = decodeURIComponent(params.clusterName);
       autoSearch = true;
     }
 
@@ -216,57 +209,10 @@ export class ElastestLogManagerComponent implements OnInit {
     }
 
     let url = this.urlElastic + '_mapping';
-    this.updateIndices(url);
   }
 
 
   ngOnInit() {
-  }
-
-  public updateIndices(url: string) {
-    this.indices = [];
-    this._elasticSearchService.getIndices(url).subscribe(
-      data => {
-        Object.keys(data).sort().map(e => {
-
-          if (e.split('-').length === 3) {
-            let cluster: string = e.split('-')[1];
-            let date: string = e.split('-')[2];
-            let elementExist = this.indices.filter(function (e) {
-              return e.cluster.name === cluster;
-            });
-
-            if (elementExist.length === 0) {
-
-              let element = {
-                'cluster': {
-                  'name': cluster,
-                  'dates': {
-                    'init': date,
-                    'end': date
-                  }
-                }
-              };
-              this.indices.push(element);
-            } else {
-              elementExist[0].cluster.dates.end = date;
-            }
-          }
-        }
-        );
-        let elementEmpty = {
-          'cluster': {
-            'name': '----',
-            'dates': {
-              'init': '',
-              'end': ''
-            }
-          }
-        };
-        this.indices.push(elementEmpty);
-        this.indices.sort();
-      }
-    );
   }
 
   public processCommaSeparatedValue(value: string) {
@@ -285,19 +231,19 @@ export class ElastestLogManagerComponent implements OnInit {
     let filter: any = {};
     if (values.length > 1) {
       filter[field] = values;
-      queryes.indices.query.bool.filter.bool.must.push({
+      queryes.bool.must.push({
         'terms': filter
       });
     } else if (values.length === 1) {
       if (field === 'message') {
         let filterValue = '{\"multi_match\": {\"query\" : \"' + values.join(' ') +
           '\",\"type\": \"phrase\", \"fields\": [\"message\", \"logmessage\"] }}';
-        queryes.indices.query.bool.filter.bool.must.push(JSON.parse(filterValue));
+        queryes.bool.must.push(JSON.parse(filterValue));
       } else {
         filter[field] = values[0];
         let filterValue = '{\"match\":{\"' + field + '\" : {\"query\" : \"' + values.join(' ') +
           '\",\"type\": \"phrase\" }}}';
-        queryes.indices.query.bool.filter.bool.must.push(JSON.parse(filterValue));
+        queryes.bool.must.push(JSON.parse(filterValue));
       }
     }
   }
@@ -312,10 +258,6 @@ export class ElastestLogManagerComponent implements OnInit {
 
     if (this.urlElastic !== undefined) {
       this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
-    }
-
-    if (this.clusterName !== undefined) {
-      this.urlCopied += 'clusterName=' + encodeURIComponent(this.clusterName) + '&';
     }
 
     if (this.indexName !== undefined) {
@@ -372,26 +314,6 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   // Used in html file
-  public updateClusterSelected(event: Event): void {
-    const value: string = (<HTMLSelectElement>event.srcElement).value;
-    if (value !== '----') {
-      let cluster = this.indices.filter(function (e) {
-        return e.cluster.name === value;
-      });
-
-      this.defaultFrom = new Date(Date.UTC(cluster[0].cluster.dates.init.split('.')[0],
-        (cluster[0].cluster.dates.init.split('.')[1] - 1), cluster[0].cluster.dates.init.split('.')[2], 0, 0, 0));
-      this.defaultTo = new Date(Date.parse(cluster[0].cluster.dates.end) + (23 * 60 * 60 * 1000) +
-        (59 * 60 * 1000) + 59 * 1000);
-
-      this.clusterSelected = value;
-      this.clusterName = value;
-    } else {
-      this.clusterName = '';
-    }
-  }
-
-  // Used in html file
   public updateUrlElastic(event: Event): void {
     var value: string;
     if (event === undefined) {
@@ -399,8 +321,6 @@ export class ElastestLogManagerComponent implements OnInit {
     } else {
       value = (<HTMLSelectElement>event.srcElement).value;
     }
-    this.clusterName = '';
-    this.updateIndices(value + '_mapping');
   }
 
   // Used in html file
@@ -465,8 +385,8 @@ export class ElastestLogManagerComponent implements OnInit {
     this.showLoadMore = false;
     this.showPauseTail = false;
     this.showClearData = false;
-    this.sortBy = this.sortByDefault;
-    this.sortOrder = this.sortOrderDefault;
+    // this.sortBy = this.sortByDefault;
+    // this.sortOrder = this.sortOrderDefault;
     this.removeAllPatterns();
     this.addPattern();
   }
@@ -525,11 +445,6 @@ export class ElastestLogManagerComponent implements OnInit {
       levels.push('error');
     }
 
-    // Use clusterName
-    if (this.clusterName === undefined || this.clusterName === '') {
-      this.clusterName = '*';
-    }
-
     let queryfrom: any;
     let queryto: any;
     let sort: 'asc' | 'desc';
@@ -556,55 +471,21 @@ export class ElastestLogManagerComponent implements OnInit {
     }
 
     let queries: any = {
-      'indices': {
-        'indices': [],
-        'query': {
-          'bool': {
-            'filter': {
-              'bool': {
-                'must': [
-                  {
-                    'range': {
-                      '@timestamp': {
-                        'gte': queryfrom,
-                        'lte': queryto
-                      }
-                    }
-                  }
-                ]
+      'bool': {
+        'must': [
+          {
+            'range': {
+              '@timestamp': {
+                'gte': queryfrom,
+                'lte': queryto
               }
             }
           }
-        },
-        'no_match_query': 'none'
+        ]
       }
     };
 
-    let index_: string = '';
-
-    if (this.indexName === undefined || this.indexName === '') {
-      if (!this.useTail) {
-        let today = dateToInputLiteral(new Date(new Date().valueOf()));
-        let differenceFromAndToday = this.getDifferenceDates(from, today);
-        let differenceTodayAndTo = this.getDifferenceDates(today, to);
-
-        for (var i = differenceFromAndToday; i >= differenceTodayAndTo; i--) {
-          let date = new Date();
-          date.setDate(date.getDate() - i);
-          index_ = 'kurento-' + this.clusterName + '-' + dateToInputLiteral(date).split('T')[0].replace(/-/g, '.');
-          queries.indices.indices.push(index_);
-        }
-      } else {
-        let today = dateToInputLiteral(new Date(new Date().valueOf()));
-        index_ = 'kurento-' + this.clusterName + '-' + today.split('T')[0].replace(/-/g, '.');
-        queries.indices.indices.push(index_);
-      }
-    } else {
-      index_ = this.indexName;
-      queries.indices.indices.push(index_);
-    }
-
-    let url = this.urlElastic + '_search?&filter_path=hits.hits._source,hits.hits._type,hits';
+    let url = this.urlElastic + this.indexName + '/_search?&filter_path=hits.hits._source,hits.hits._type,hits';
 
     console.log('URL:', url);
 
@@ -685,119 +566,12 @@ export class ElastestLogManagerComponent implements OnInit {
 
         if (data.hits) {
           console.log('Data hits size:', data.hits.hits.length);
-          let prevSize: number = position;
-          if (position === -1) {
-            prevSize = this.rowData.length;
-          }
+
           this.noMore = data.hits.hits.length === 0;
-
-          var random = Math.floor((Math.random() * 10000) + 1);
-          if (position !== -1) {
-            initPosition = position;
-            while (this.rowData[initPosition].message.indexOf('End Sub-Search') > -1) {
-              initPosition++;
-              position--;
-            }
-
-            let tjobexec = '';
-            let type = '';
-            let time = '';
-
-            let message = '';
-            let level = '';
-            let componentType = '';
-            let host = '';
-
-            let logValue = { tjobexec, type, time, message, level, componentType, host };
-            this.rowData.splice(initPosition, 0, logValue);
-            this.rowData = this.rowData.slice();
-            position++;
-          }
-
-          for (let logEntry of data.hits.hits) {
-            let tjobexec = logEntry._source.tjobexec;
-            let type = logEntry._type;
-            let time = logEntry._source['@timestamp'];
-            let message = '';
-            if (logEntry._source['message'] !== undefined) {
-              message = logEntry._source['message'];
-            } else {
-              message = 'undefined';
-            }
-            let level = logEntry._source.level;
-            componentType = logEntry._source['component_type'];
-
-            let host = logEntry._source.host;
-            if (logEntry.host !== undefined) {
-              host = logEntry.host[0];
-            }
-
-            let logValue = { tjobexec, type, time, message, level, componentType, host };
-
-            if (append) {
-              if (position !== -1) {
-                while (this.rowData[position].message.indexOf('Sub-Search') > -1) {
-                  position++;
-                }
-                let positionMessage = this.rowData[position].message;
-                let initPositionMessage =
-                  this.rowData[initPosition - 1].message;
-                if ((this.rowData[position] !== undefined && ((this.rowData[position].time === logValue.time
-                  && positionMessage === message)))) {
-                  position++;
-                  continue;
-                }
-                if (this.rowData[initPosition - 1] !== undefined && ((this.rowData[initPosition - 1].time === logValue.time
-                  && initPositionMessage === message))) {
-                  continue;
-                }
-                this.rowData.splice(position, 0, logValue);
-                position++;
-              } else { //Load more
-                if (prevSize === 0) {
-                  this.rowData.push(logValue);
-                } else {
-                  let prevMessage = this.rowData[prevSize - 1].message;
-                  if (this.rowData[prevSize - 1].time === logValue.time && prevMessage === message) {
-                    continue;
-                  }
-                  this.rowData.push(logValue);
-                }
-              }
-            } else {
-              this.rowData.push(logValue);
-            }
-          }
-          if (position !== -1) {
-            if (position - initPosition === 0) {
-              endPosition = initPosition + 1;
-            } else if (position - initPosition === 2) {
-              endPosition = position - 1;
-            } else {
-              endPosition = position;
-              while (this.rowData[endPosition].message.indexOf('Sub-Search') > -1) {
-                endPosition++;
-              }
-            }
-            let tjobexec = '';
-            let type = '';
-            let time = '';
-            let message = 'End Sub-Search: ' + random;
-            let level = '';
-            let componentType = '';
-            let host = '';
-
-            let logValue = { tjobexec, type, time, message, level, componentType, host };
-            this.rowData.splice(endPosition, 0, logValue);
-          }
-          if (data.hits.hits.length > 0) {
-            this.rowData = this.rowData.slice();
-          }
+          this.parseSearchedData(data);
 
           //Update table
           this.initSearchTable(1, 1, this.rowData.length);
-          // this.initSearchTable(1, 1, this.pageSizeDefault); code for pagination
-
         }
         this.emptyTableText = this.emptyTableTextDefault;
 
@@ -819,8 +593,8 @@ export class ElastestLogManagerComponent implements OnInit {
   // Table Search functions TODO refactor
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
+    // this.sortBy = sortEvent.name;
+    // this.sortOrder = sortEvent.order;
     this.filter();
   }
 
@@ -847,7 +621,7 @@ export class ElastestLogManagerComponent implements OnInit {
     let newData: any[] = this.rowData;
     newData = this._dataTableService.filterData(newData, this.searchTerm, true);
     this.filteredTotal = newData.length;
-    newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
+    // newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
     newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
     this.filteredData = newData;
   }
@@ -1031,6 +805,45 @@ export class ElastestLogManagerComponent implements OnInit {
     }
     else {
       return undefined;
+    }
+  }
+  
+  /**
+   * Parse elasticsearch data and save rows into table array
+   * @param data 
+   */
+  parseSearchedData(data: any) {
+    let tjobexec: string = '';
+    let type: string = '';
+    let time: string = '';
+
+    let message: string = '';
+    let level: string = '';
+    let componentType: string = '';
+    let host: string = '';
+
+    let logRow: any;
+
+    for (let logEntry of data.hits.hits) {
+      tjobexec = logEntry._source.tjobexec;
+      type = logEntry._type;
+      time = logEntry._source['@timestamp'];
+      message = '';
+      if (logEntry._source['message'] !== undefined) {
+        message = logEntry._source['message'];
+      } else {
+        message = 'undefined';
+      }
+      level = logEntry._source.level;
+      componentType = logEntry._source['component_type'];
+
+      host = logEntry._source.host;
+      if (logEntry.host !== undefined) {
+        host = logEntry.host[0];
+      }
+
+      logRow = { tjobexec, type, time, message, level, componentType, host };
+      this.rowData.push(logRow);
     }
   }
 }
