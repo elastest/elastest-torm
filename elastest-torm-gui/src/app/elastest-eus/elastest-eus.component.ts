@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
 import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 import {ElastestEusDialog} from './elastest-eus.dialog';
 import {ElastestEusDialogService} from './elastest-eus.dialog.service';
@@ -11,13 +11,14 @@ import {EusTestModel} from './elastest-eus-test-model';
   templateUrl: './elastest-eus.component.html',
   styleUrls: ['./elastest-eus.component.scss'],
 })
-export class ElastestEusComponent implements OnInit {
+export class ElastestEusComponent implements OnInit, OnDestroy {
   componentTitle: string = "ElasTest User Emulator Service (EUS)";
   sessionId: string = "";
 
   browser: string = "";
   vncUrl: string = "";
   creationTime: string = "";
+  websocket: WebSocket;
 
   selectedBrowser: string;
   browsers = [
@@ -28,24 +29,24 @@ export class ElastestEusComponent implements OnInit {
   selectedVersion: string;
   browserVersions = {
     'chrome': [
-      {value: '59', viewValue: '59'},
-      {value: '58', viewValue: '58'},
-      {value: '57', viewValue: '57'}
+      { value: '59', viewValue: '59' },
+      { value: '58', viewValue: '58' },
+      { value: '57', viewValue: '57' }
     ],
     'firefox': [
-      {value: '54', viewValue: '54'},
-      {value: '53', viewValue: '53'},
-      {value: '52', viewValue: '52'}
+      { value: '54', viewValue: '54' },
+      { value: '53', viewValue: '53' },
+      { value: '52', viewValue: '52' }
     ]
   };
 
 
   testColumns: any[] = [
-    {name: 'id', label: 'Session id'},
-    {name: 'browser', label: 'Browser'},
-    {name: 'version', label: 'Version'},
-    {name: 'creationTime', label: 'Creation Time'},
-    {name: 'url', label: 'Actions'}
+    { name: 'id', label: 'Session id' },
+    { name: 'browser', label: 'Browser' },
+    { name: 'version', label: 'Version' },
+    { name: 'creationTime', label: 'Creation Time' },
+    { name: 'url', label: 'Actions' }
   ];
 
   testData: EusTestModel[] = [];
@@ -53,38 +54,45 @@ export class ElastestEusComponent implements OnInit {
   @Output()
   onInitComponent = new EventEmitter<string>();
 
-  constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService) {}
+  constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService) { }
 
   ngOnInit() {
-    let websocket = new WebSocket("ws://localhost:8080/eus/v1/eus-ws");
+    if (!this.websocket) {
+      this.websocket = new WebSocket("ws://localhost:8080/eus/v1/eus-ws");
 
-    websocket.onopen = () => websocket.send("getSessions");
+      this.websocket.onopen = () => this.websocket.send("getSessions");
 
-    websocket.onmessage = (message) => {
-      let json = JSON.parse(message.data);
+      this.websocket.onmessage = (message) => {
+        let json = JSON.parse(message.data);
 
-      if (json.newSession) {
-        let testModel: EusTestModel = new EusTestModel();
-        testModel.id = json.newSession.id;
-        testModel.browser = json.newSession.browser;
-        testModel.version = json.newSession.version;
-        testModel.creationTime = json.newSession.creationTime;
-        testModel.url = json.newSession.url;
-        this.testData.push(testModel);
-        this.testData = Array.from(this.testData);
-      }
-      else if (json.removeSession) {
-        let entry: EusTestModel;
-        let newTestData: EusTestModel[] = [];
-        for (entry of this.testData) {
-          if (entry.id !== json.removeSession.id) {
-            newTestData.push(entry);
-          }
+        if (json.newSession) {
+          let testModel: EusTestModel = new EusTestModel();
+          testModel.id = json.newSession.id;
+          testModel.browser = json.newSession.browser;
+          testModel.version = json.newSession.version;
+          testModel.creationTime = json.newSession.creationTime;
+          testModel.url = json.newSession.url;
+          this.testData.push(testModel);
+          this.testData = Array.from(this.testData);
         }
-        this.testData = Array.from(newTestData);
-      }
-    };
+        else if (json.removeSession) {
+          let entry: EusTestModel;
+          let newTestData: EusTestModel[] = [];
+          for (entry of this.testData) {
+            if (entry.id !== json.removeSession.id) {
+              newTestData.push(entry);
+            }
+          }
+          this.testData = Array.from(newTestData);
+        }
+      };
+    }
+  }
 
+  ngOnDestroy() {
+    if (this.websocket) {
+      this.websocket.close();
+    }
   }
 
   viewSession(url: string, testModel: EusTestModel) {
