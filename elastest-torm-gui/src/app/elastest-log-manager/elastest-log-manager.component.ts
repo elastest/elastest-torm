@@ -597,6 +597,7 @@ export class ElastestLogManagerComponent implements OnInit {
     let position: number;
     let newPosition: number = fromData ? this.dataForAdding.position + 1 : undefined;
 
+    let counter: number = data.hits.hits.length;
     for (let logEntry of data.hits.hits) {
       tjobexec = logEntry._source.tjobexec;
       type = logEntry._type;
@@ -625,8 +626,14 @@ export class ElastestLogManagerComponent implements OnInit {
       else { // Add from row selected
         position = newPosition;
         logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
-        this.rowData.splice(position, 0, logRow);
-        newPosition++;
+        if (counter > 0
+          && (time !== this.rowData[position].time
+            || message !== this.rowData[position].message)
+        ) { //If not is Last trace and not repeated
+          this.rowData.splice(position, 0, logRow);
+          newPosition++;
+        }
+        counter--;
       }
     }
 
@@ -680,7 +687,6 @@ export class ElastestLogManagerComponent implements OnInit {
 
   onRowClicked($event) {
     if ($event.row !== undefined) {
-      console.log($event.row)
       let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
       if (rows !== undefined && rows !== null) {
         if (this.currentRowSelected >= 0) { // Clear previous selected row color
@@ -689,7 +695,6 @@ export class ElastestLogManagerComponent implements OnInit {
         rows[$event.row.position].bgColor = '#ffac2f';
       }
       this.currentRowSelected = $event.row.position;
-      console.log('selected', this.currentRowSelected)
       let initDate: String = this.rowData[$event.row.position].time;
       let endDate: String;
       let i: number = 1;
