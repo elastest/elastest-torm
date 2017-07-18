@@ -11,8 +11,7 @@
         <form #logManagerForm="ngForm">
           <div layout="row">
             <md-input-container flex-gt-xs="25">
-              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" (change)="updateUrlElastic($event)"
-                placeholder="ElasticSearch Url" name="urlElastic" required>
+              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" placeholder="ElasticSearch Url" name="urlElastic" required>
             </md-input-container>
 
             <md-input-container flex-gt-xs="25" flex-offset-gt-sm="5">
@@ -96,10 +95,6 @@
           </div>
         </form>
       </md-card-content>
-      <md-divider></md-divider>
-      <md-card-actions>
-        <!--<button md-button [disabled]="!tJobForm.valid" color="primary" (click)="runTJob()">EXECUTE</button>-->
-      </md-card-actions>
     </md-card>
   </div>
 </div>

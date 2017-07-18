@@ -1,3 +1,10 @@
+:host /deep/ #dataTable  > div{
+    max-height: 66vh !important;
+}
+:host /deep/ #dataTable table{
+    overflow-y: auto !important;
+}
+
 .radio-button-title{
     margin-bottom: 0.8em;
 }

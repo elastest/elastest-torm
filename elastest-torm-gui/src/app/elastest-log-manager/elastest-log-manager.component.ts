@@ -218,23 +218,9 @@ export class ElastestLogManagerComponent implements OnInit {
     let url = this.urlElastic + '_mapping';
   }
 
-
-  ngOnInit() {
-  }
-
-  public processCommaSeparatedValue(value: string) {
-    if (value === undefined) {
-      return [];
-    }
-    let array: string[] = value.split(',').map(s => s.trim());
-    if (array.length === 1 && array[0] === '') {
-      array = [];
-    }
-    return array;
-  }
+  ngOnInit() { }
 
   public addTermFilter(queryes: any, field: string, values: string[]) {
-
     let filter: any = {};
     if (values.length > 1) {
       filter[field] = values;
@@ -255,81 +241,6 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
-  public copyToClipboard() {
-    this.copyTextArea.nativeElement.select();
-    document.execCommand('copy');
-  }
-
-  public generateCopyUrl(from: string, to: string) {
-    this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
-
-    if (this.urlElastic !== undefined) {
-      this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
-    }
-
-    if (this.indexName !== undefined) {
-      this.urlCopied += 'indexName=' + encodeURIComponent(this.indexName) + '&';
-    }
-
-    if (this.message !== undefined) {
-      this.urlCopied += 'message=' + encodeURIComponent(this.message) + '&';
-    }
-
-    if (this.hosts !== undefined) {
-      this.urlCopied += 'hosts=' + encodeURIComponent(this.hosts) + '&';
-    }
-
-    if (this.componentType !== undefined) {
-      this.urlCopied += 'componentType=' + encodeURIComponent(this.componentType) + '&';
-    }
-
-    if (this.maxResults !== undefined) {
-      this.urlCopied += 'maxResults=' + encodeURIComponent(String(this.maxResults)) + '&';
-    }
-
-    if (this.sutlogsType !== undefined) {
-      this.urlCopied += 'sutlogsType=' + encodeURIComponent(String(this.sutlogsType)) + '&';
-    }
-
-    if (this.testlogsType !== undefined) {
-      this.urlCopied += 'testlogsType=' + encodeURIComponent(String(this.testlogsType)) + '&';
-    }
-
-    if (this.debugLevel !== undefined) {
-      this.urlCopied += 'debugLevel=' + encodeURIComponent(String(this.debugLevel)) + '&';
-    }
-
-    if (this.infoLevel !== undefined) {
-      this.urlCopied += 'infoLevel=' + encodeURIComponent(String(this.infoLevel)) + '&';
-    }
-
-    if (this.warnLevel !== undefined) {
-      this.urlCopied += 'warnLevel=' + encodeURIComponent(String(this.warnLevel)) + '&';
-    }
-
-    if (this.errorLevel !== undefined) {
-      this.urlCopied += 'errorLevel=' + encodeURIComponent(String(this.errorLevel)) + '&';
-    }
-
-    if (from !== undefined) {
-      this.urlCopied += 'from=' + encodeURIComponent(from) + '&';
-    }
-
-    if (to !== null) {
-      this.urlCopied += 'to=' + encodeURIComponent(to) + '&';
-    }
-  }
-
-  // Used in html file
-  public updateUrlElastic(event: Event): void {
-    var value: string;
-    if (event === undefined) {
-      value = this.urlElastic;
-    } else {
-      value = (<HTMLSelectElement>event.srcElement).value;
-    }
-  }
-
   // Used in html file
   public getDefaultFromValue() {
     return dateToInputLiteral(this.defaultFrom);
@@ -338,21 +249,6 @@ export class ElastestLogManagerComponent implements OnInit {
   // Used in html file
   public getDefaultToValue() {
     return dateToInputLiteral(this.defaultTo);
-  }
-
-  public getDifferenceDates(from: string, to: string): number {
-    let date1: string[] = to.split('T')[0].split('-');
-    let date2: string[] = from.split('T')[0].split('-');
-
-    let date1_: Date = new Date(to);
-    let date2_: Date = new Date(from);
-
-    var date1Unixtime: number = (date1_.getTime() / 1000);
-    var date2Unixtime: number = (date2_.getTime() / 1000);
-
-    var timeDifference = date2Unixtime - date1Unixtime;
-
-    return Math.abs(timeDifference / 60 / 60 / 24);
   }
 
   public tailSearch(tail: boolean) {
@@ -525,9 +421,6 @@ export class ElastestLogManagerComponent implements OnInit {
 
           this.noMore = data.hits.hits.length === 0;
           this.parseSearchedData(data, fromData); //Set data into table rows
-
-          //Update table
-          this.initSearchTable(1, 1, this.rowData.length);
         }
         this.emptyTableText = this.emptyTableTextDefault;
 
@@ -583,6 +476,17 @@ export class ElastestLogManagerComponent implements OnInit {
 
     let componentType = this.processCommaSeparatedValue(this.componentType);
     this.addTermFilter(queries, 'component_type', componentType);
+  }
+
+  public processCommaSeparatedValue(value: string) {
+    if (value === undefined) {
+      return [];
+    }
+    let array: string[] = value.split(',').map(s => s.trim());
+    if (array.length === 1 && array[0] === '') {
+      array = [];
+    }
+    return array;
   }
 
   /**
@@ -656,6 +560,8 @@ export class ElastestLogManagerComponent implements OnInit {
         // If last clicked and load more, do click to set new toDate for add more button in case of not new click
         this.doClickRow(this.dataForAdding.position);
       }
+
+      //Update table
       this.initSearchTable(1, 1, this.rowData.length);
 
       this.popupService.openSnackBar('Logs has been loaded', 'OK').afterOpened()
@@ -915,6 +821,73 @@ export class ElastestLogManagerComponent implements OnInit {
     }
     else {
       return undefined;
+    }
+  }
+
+
+  // Copy url
+  public copyToClipboard() {
+    this.copyTextArea.nativeElement.select();
+    document.execCommand('copy');
+  }
+
+  public generateCopyUrl(from: string, to: string) {
+    this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
+
+    if (this.urlElastic !== undefined) {
+      this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
+    }
+
+    if (this.indexName !== undefined) {
+      this.urlCopied += 'indexName=' + encodeURIComponent(this.indexName) + '&';
+    }
+
+    if (this.message !== undefined) {
+      this.urlCopied += 'message=' + encodeURIComponent(this.message) + '&';
+    }
+
+    if (this.hosts !== undefined) {
+      this.urlCopied += 'hosts=' + encodeURIComponent(this.hosts) + '&';
+    }
+
+    if (this.componentType !== undefined) {
+      this.urlCopied += 'componentType=' + encodeURIComponent(this.componentType) + '&';
+    }
+
+    if (this.maxResults !== undefined) {
+      this.urlCopied += 'maxResults=' + encodeURIComponent(String(this.maxResults)) + '&';
+    }
+
+    if (this.sutlogsType !== undefined) {
+      this.urlCopied += 'sutlogsType=' + encodeURIComponent(String(this.sutlogsType)) + '&';
+    }
+
+    if (this.testlogsType !== undefined) {
+      this.urlCopied += 'testlogsType=' + encodeURIComponent(String(this.testlogsType)) + '&';
+    }
+
+    if (this.debugLevel !== undefined) {
+      this.urlCopied += 'debugLevel=' + encodeURIComponent(String(this.debugLevel)) + '&';
+    }
+
+    if (this.infoLevel !== undefined) {
+      this.urlCopied += 'infoLevel=' + encodeURIComponent(String(this.infoLevel)) + '&';
+    }
+
+    if (this.warnLevel !== undefined) {
+      this.urlCopied += 'warnLevel=' + encodeURIComponent(String(this.warnLevel)) + '&';
+    }
+
+    if (this.errorLevel !== undefined) {
+      this.urlCopied += 'errorLevel=' + encodeURIComponent(String(this.errorLevel)) + '&';
+    }
+
+    if (from !== undefined) {
+      this.urlCopied += 'from=' + encodeURIComponent(from) + '&';
+    }
+
+    if (to !== null) {
+      this.urlCopied += 'to=' + encodeURIComponent(to) + '&';
     }
   }
 }
