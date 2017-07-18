@@ -5,14 +5,14 @@ import { ElasticSearchService } from './elasticsearch.service';
 
 import { componentFactoryName } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
+import { PopupService } from './popup.service';
 import { Observable, Subject } from 'rxjs/Rx';
 
 @Injectable()
 export class ElastestESService {
     constructor(
         private elasticsearchService: ElasticSearchService,
-        private snackBar: MdSnackBar,
+        private popupService: PopupService,
     ) { }
 
     getTermsByTypeAndComponentType(type: string, componentType: string) {
@@ -45,10 +45,10 @@ export class ElastestESService {
             (data) => {
                 _logs.next(this.convertToLogTraces(data));
                 if (data.length > 0) {
-                    this.openSnackBar('Previous traces has been loaded', 'OK');
+                    this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
                 }
                 else {
-                    this.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
                 }
             }
         );
@@ -97,10 +97,10 @@ export class ElastestESService {
             (data) => {
                 _metrics.next(this.convertToMetricTraces(data, type));
                 if (data.length > 0) {
-                    this.openSnackBar('Previous traces has been loaded', 'OK');
+                    this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
                 }
                 else {
-                    this.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
                 }
             }
         );
@@ -200,11 +200,5 @@ export class ElastestESService {
         log.name = 'SuT Logs';
         log.type = 'sutlogs';
         log.componentType = 'sut';
-    }
-
-    openSnackBar(message: string, action: string) {
-        this.snackBar.open(message, action, {
-            duration: 3500,
-        });
     }
 }

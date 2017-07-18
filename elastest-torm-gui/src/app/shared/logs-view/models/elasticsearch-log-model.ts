@@ -1,3 +1,4 @@
+import { PopupService } from '../../services/popup.service';
 import { ElastestESService } from '../../services/elastest-es.service';
 import { LogViewModel } from '../log-view-model';
 
@@ -13,7 +14,9 @@ export class ESLogModel implements LogViewModel {
     componentType: string;
     logIndex: string;
 
-    constructor(elastestESService: ElastestESService) {
+    constructor(elastestESService: ElastestESService,
+        private popupService: PopupService,
+    ) {
         this.name = '';
         this.prevTraces = [];
         this.traces = [];
@@ -46,7 +49,7 @@ export class ESLogModel implements LogViewModel {
             );
         }
         else {
-            this.elastestESService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+            this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
         }
     }
 }

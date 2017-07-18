@@ -1,3 +1,4 @@
+import { PopupService } from '../../../shared/services/popup.service';
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
@@ -20,16 +21,18 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExec: TJobExecModel;
 
   // Logs
-  sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
-  testLogView: ESLogModel = new ESLogModel(this.elastestESService);
+  sutLogView: ESLogModel = new ESLogModel(this.elastestESService, this.popupService);
+  testLogView: ESLogModel = new ESLogModel(this.elastestESService, this.popupService);
 
   // Metrics Chart
-  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu');
-  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory');
+  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu', this.popupService);
+  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory', this.popupService);
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
-    private route: ActivatedRoute, private router: Router, ) {
+    private route: ActivatedRoute, private router: Router,
+    private popupService: PopupService,
+  ) {
     this.initLogsView();
     this.initMetricsView();
     if (this.route.params !== null || this.route.params !== undefined) {

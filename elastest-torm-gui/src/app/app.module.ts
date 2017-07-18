@@ -30,6 +30,7 @@ import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-man
 import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manager/sut-exec-manager.component';
 import { ElastestRabbitmqService } from './shared/services/elastest-rabbitmq.service';
 import { ElastestESService } from './shared/services/elastest-es.service';
+import { PopupService } from './shared/services/popup.service';
 
 import { EusService } from './elastest-eus/elastest-eus.service';
 import { SafePipe } from './elastest-eus/safe-pipe';
@@ -83,6 +84,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ElasticSearchService,
     ElastestRabbitmqService,
     ElastestESService,
+    PopupService,
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true

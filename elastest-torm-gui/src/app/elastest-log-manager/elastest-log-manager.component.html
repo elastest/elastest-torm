@@ -164,7 +164,7 @@
         </td-search-box>
         <md-divider></md-divider>
         <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="false" [clickable]="true" [columns]="columns"
-          [sortable]="false" (rowClick)="onRowClicked($event)">
+          [sortable]="false" (rowClick)="onRowClicked($event)" (change)="searchByPatterns()">
         </td-data-table>
         <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
           <h3>{{emptyTableText}}</h3>

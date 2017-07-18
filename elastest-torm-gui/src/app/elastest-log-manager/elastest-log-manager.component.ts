@@ -1,10 +1,17 @@
+import { PopupService } from '../shared/services/popup.service';
 import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild } from '@angular/core';
 
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { ElasticSearchService } from '../shared/services/elasticsearch.service';
 import { dateToInputLiteral } from './utils/Utils';
 import { Router } from '@angular/router';
-import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
+import {
+  ITdDataTableColumn,
+  ITdDataTableSortChangeEvent,
+  TdDataTableComponent,
+  TdDataTableService,
+  TdDataTableSortingOrder,
+} from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
 
 
@@ -15,6 +22,8 @@ import { IPageChangeEvent } from '@covalent/core';
 })
 export class ElastestLogManagerComponent implements OnInit {
   @ViewChild('copyTextArea') copyTextArea: ElementRef;
+  @ViewChild('dataTable') dataTable: TdDataTableComponent;
+
 
   public noMore: boolean = false;
   public dataForAdding: any = undefined;
@@ -81,8 +90,6 @@ export class ElastestLogManagerComponent implements OnInit {
   currentRowSelected: number = -1;
   currentPos: number = -1;
 
-  searchAfter: number = undefined;
-
   //Filter Results
   patternDefault: SearchPatternModel = new SearchPatternModel();
   patterns: SearchPatternModel[] = [this.patternDefault];
@@ -97,7 +104,7 @@ export class ElastestLogManagerComponent implements OnInit {
   ];
 
   constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
-    private _dataTableService: TdDataTableService,
+    private _dataTableService: TdDataTableService, private popupService: PopupService,
   ) {
     let params: any = router.parseUrl(router.url).queryParams;
 
@@ -371,11 +378,6 @@ export class ElastestLogManagerComponent implements OnInit {
     this.dataForAdding = event;
   }
 
-  // Used in html file
-  public updateRows(event) {
-    this.rowData = event;
-  }
-
   public clearData() {
     this.rowData = [];
     this.filteredData = [];
@@ -389,6 +391,7 @@ export class ElastestLogManagerComponent implements OnInit {
     // this.sortOrder = this.sortOrderDefault;
     this.removeAllPatterns();
     this.addPattern();
+    this.dataForAdding = undefined;
   }
 
   // Used in html file
@@ -399,7 +402,15 @@ export class ElastestLogManagerComponent implements OnInit {
       if (to === undefined) {
         to = new Date(new Date().valueOf() - (60 * 60 * 1000));
       }
-      this.search(from, to, true, true);
+      if (this.currentRowSelected < this.rowData.length - 1) {
+        this.search(from, to, true, true);
+      }
+      else { //If is last element, call search like load more
+        this.search(from, to, true, false);
+      }
+    }
+    else {
+      this.popupService.openSnackBar('There isn\'t row selected. Please, do click on a row', 'OK');
     }
   }
 
@@ -477,15 +488,15 @@ export class ElastestLogManagerComponent implements OnInit {
     if (append) { //Not new search
       if (!fromData) { //Load more
         if (!this.noMore) {
-          if (this.rowData.length > 0 && this.searchAfter !== undefined) {
-            theQuery['search_after'] = [this.searchAfter];
+          if (this.rowData.length > 0) {
+            theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
           }
         } else {
           theQuery.query.indices.query.bool.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
         }
       }
       else { //Add more from row
-        theQuery['search_after'] = [this.dataForAdding.searchAfter];
+        theQuery['search_after'] = [this.dataForAdding.sortId];
       }
     }
 
@@ -497,11 +508,6 @@ export class ElastestLogManagerComponent implements OnInit {
       (data: any) => {
         console.log('Data:', data);
 
-        let dataReceived: number = data.hits.hits.length;
-        if (dataReceived > 0) {
-          let lastReceivedPos: number = dataReceived - 1;
-          this.searchAfter = data.hits.hits[lastReceivedPos].sort[0];
-        }
         if (data.hits !== undefined && data.hits.hits.length === 0 && this.rowData.length === 0) {
           console.log('Returned response without results. Aborting');
           this.rowData = [];
@@ -596,49 +602,74 @@ export class ElastestLogManagerComponent implements OnInit {
     let logRow: any;
     let position: number;
     let newPosition: number = fromData ? this.dataForAdding.position + 1 : undefined;
+    let loaded: boolean = false;
 
-    let counter: number = data.hits.hits.length;
-    for (let logEntry of data.hits.hits) {
-      tjobexec = logEntry._source.tjobexec;
-      type = logEntry._type;
-      time = logEntry._source['@timestamp'];
-      message = '';
-      if (logEntry._source['message'] !== undefined) {
-        message = logEntry._source['message'];
-      } else {
-        message = 'undefined';
-      }
-      level = logEntry._source.level;
-      componentType = logEntry._source['component_type'];
+    if (data.hits !== undefined && data.hits.hits !== undefined) {
+      let total: number = data.hits.hits.length;
+      let counter: number = total;
 
-      host = logEntry._source.host;
-      if (logEntry.host !== undefined) {
-        host = logEntry.host[0];
-      }
-
-      sortId = logEntry.sort[0];
-
-      if (!fromData) { // New search or Load More
-        position = this.rowData.length;
-        logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
-        this.rowData.push(logRow);
-      }
-      else { // Add from row selected
-        position = newPosition;
-        logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
-        if (counter > 0
-          && (time !== this.rowData[position].time
-            || message !== this.rowData[position].message)
-        ) { //If not is Last trace and not repeated
-          this.rowData.splice(position, 0, logRow);
-          newPosition++;
+      for (let logEntry of data.hits.hits) {
+        tjobexec = logEntry._source.tjobexec;
+        type = logEntry._type;
+        time = logEntry._source['@timestamp'];
+        message = '';
+        if (logEntry._source['message'] !== undefined) {
+          message = logEntry._source['message'];
+        } else {
+          message = 'undefined';
         }
-        counter--;
+        level = logEntry._source.level;
+        componentType = logEntry._source['component_type'];
+
+        host = logEntry._source.host;
+        if (logEntry.host !== undefined) {
+          host = logEntry.host[0];
+        }
+
+        sortId = logEntry.sort[0];
+
+        if (!fromData) { // New search or Load More
+          position = this.rowData.length;
+          logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+          this.rowData.push(logRow);
+          loaded = true;
+        }
+        else { // Add from row selected
+          position = newPosition;
+          logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+          if (counter > 0
+            && (time !== this.rowData[position].time || message !== this.rowData[position].message)
+          ) { //If not is Last trace and not repeated
+            this.rowData.splice(position, 0, logRow);
+            newPosition++;
+            loaded = true;
+          }
+          counter--;
+        }
       }
     }
+    if (loaded) {
+      if (fromData) { //Add more from row selected
+        this.updateRowsPositions(newPosition);
+      }
+      if (this.dataForAdding !== undefined && this.dataForAdding.position > 0) {
+        // If last clicked and load more, do click to set new toDate for add more button in case of not new click
+        this.doClickRow(this.dataForAdding.position);
+      }
+      this.initSearchTable(1, 1, this.rowData.length);
 
-    if (fromData && data.hits !== undefined && data.hits.hits.length > 0) {
-      this.updateRowsPositions(newPosition);
+      this.popupService.openSnackBar('Logs has been loaded', 'OK').afterOpened()
+        .subscribe(
+        (data) => this.searchByPatterns()
+        );
+    }
+    else {
+      if (fromData) { //Add more from row selected
+        this.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK');
+      }
+      else { //New search or load more
+        this.popupService.openSnackBar('There aren\'t logs to load', 'OK');
+      }
     }
   }
 
@@ -711,11 +742,18 @@ export class ElastestLogManagerComponent implements OnInit {
 
       let event = {
         position: $event.row.position,
-        searchAfter: $event.row.sortId,
+        sortId: $event.row.sortId,
         initDate: initDate,
         endDate: endDate
       };
       this.updateDatesForMoreDate(event);
+    }
+  }
+
+  doClickRow(position: number) {
+    let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
+    if (rows !== undefined && rows !== null) {
+      rows[position].click();
     }
   }
 
@@ -762,16 +800,21 @@ export class ElastestLogManagerComponent implements OnInit {
     this.currentPos = -1;
     this.cleanRowsColor();
     let i: number = 0;
-    this.filteredData.map(e => {
-      for (let pattern of this.patterns) {
-        if ((pattern.searchValue !== '') && (e.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
-          if (pattern.results.indexOf(i) === -1) {
-            pattern.results.push(i);
+    this.filteredData
+      .map(
+      (e) => {
+        for (let pattern of this.patterns) {
+          if (i === 0) { //First iteration of map
+            pattern.results = []; //Initialize results to empty
+          }
+          if ((pattern.searchValue !== '') && (e.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
+            if (pattern.results.indexOf(i) === -1) {
+              pattern.results.push(i);
+            }
           }
         }
-      }
-      i++;
-    });
+        i++;
+      });
 
     let j: number = 0;
     for (let pattern of this.patterns) {

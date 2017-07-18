@@ -1,3 +1,4 @@
+import { PopupService } from '../../services/popup.service';
 import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { single } from 'rxjs/operator/single';
 import { ColorSchemeModel } from './color-scheme-model';
@@ -45,7 +46,9 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
     hidePrevBtn: boolean;
 
 
-    constructor(elastestESService: ElastestESService, type: MetricsType) {
+    constructor(elastestESService: ElastestESService, type: MetricsType,
+        private popupService: PopupService,
+    ) {
         super();
         this.elastestESService = elastestESService;
 
@@ -128,7 +131,7 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
             );
         }
         else {
-            this.elastestESService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+            this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
         }
     }
 
