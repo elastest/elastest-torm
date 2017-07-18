@@ -46,7 +46,14 @@ public class DockerService {
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
 
 	private String testImage = "";
-	private String volumeDirectory = "/test-results";
+	
+	//On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"	
+	@Value("${elastest.test-results.directory}")
+	private String volumeDirectoryToWriteTestResutls; 
+	
+	//On Windows: "c:/Users/docker/test-results"
+	@Value("${elastest.test-results.directory.windows}")
+	private String volumeDirectoryToReadTestResults;
 
 	@Autowired
 	private SutService sutService;
@@ -187,7 +194,8 @@ public class DockerService {
 			envList.add(envVar3);
 
 			Volume volume = new Volume("/results");
-			String localTestDir = volumeDirectory + "/" + dockerExec.getExecutionId();
+			String localDirToWriteTestResults = volumeDirectoryToWriteTestResutls + "/" + dockerExec.getExecutionId();
+			String localDirToTeadTestResults = volumeDirectoryToReadTestResults + "/" + dockerExec.getExecutionId();
 
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
@@ -202,7 +210,7 @@ public class DockerService {
 			dockerExec.setTestcontainer(
 					dockerExec.getDockerClient().createContainerCmd(testImage).withEnv(envList).withLogConfig(logConfig)
 							.withNetworkMode(dockerExec.getNetwork()).withName("test_" + dockerExec.getExecutionId())
-							.withVolumes(volume).withBinds(new Bind(localTestDir, volume)).exec());
+							.withVolumes(volume).withBinds(new Bind(localDirToWriteTestResults, volume)).exec());
 
 			String testContainerId = dockerExec.getTestcontainer().getId();
 			dockerExec.setTestContainerId(testContainerId);
@@ -211,7 +219,7 @@ public class DockerService {
 			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
 					.exec(new WaitContainerResultCallback()).awaitStatusCode();
 			System.out.println("Test container ends with code " + code);
-			return this.getTestResults(localTestDir, dockerExec);
+			return this.getTestResults(localDirToTeadTestResults, dockerExec);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -307,14 +315,19 @@ public class DockerService {
 	}
 
 	public List<ReportTestSuite> getTestResults(String localTestDir, DockerExecution dockerExec) {
+		logger.info("TestResult file path:" + localTestDir);
+		
 		File surefireXML = new File(localTestDir);
 		List<File> reportsDir = new ArrayList<>();
 		reportsDir.add(surefireXML);
+		
+		logger.info("file content:" + surefireXML.toString());
 
 		SurefireReportParser surefireReport = new SurefireReportParser(reportsDir, new Locale("en", "US"), null);
 		List<ReportTestSuite> testSuites = new ArrayList<ReportTestSuite>();
 		try {
 			testSuites = surefireReport.parseXMLReportFiles();
+			logger.info("Testsuit size: "+ testSuites.size());
 		} catch (MavenReportException e) {
 			e.printStackTrace();
 		}
