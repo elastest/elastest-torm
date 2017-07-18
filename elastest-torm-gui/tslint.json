@@ -98,7 +98,7 @@
     ],
     "no-internal-module": true,
     "no-invalid-this": true,
-    "no-magic-numbers": false, //TODO_LINT (we should lint for this)
+    "no-magic-numbers": false,
     "no-namespace": true,
     "no-null-keyword": true,
     "no-reference": true,
@@ -183,7 +183,6 @@
       "check-separator",
       "check-type"
     ],
-    // ANGULAR 2 Rules
     "directive-selector": [true, "attribute", "etm", "camelCase"],
     "component-selector": [true, "element", "etm", "kebab-case"],
     "component-class-suffix": true,
@@ -192,8 +191,8 @@
     "use-output-property-decorator": true,
     "use-host-property-decorator": true,
     "no-attribute-parameter-decorator": true,
-    "no-input-rename": false, // so we can rename @Input so we can change API easier -> @Input('rename') name
-    "no-output-rename": false, // same but for @Output
+    "no-input-rename": false,
+    "no-output-rename": false,
     "no-forward-ref" : false,
     "use-life-cycle-interface": true,
     "use-pipe-transform-interface": true,
