@@ -18,7 +18,6 @@ import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.docker.DockerExecution;
 import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.docker.utils.DatabaseSessionManager;
-import io.elastest.etm.rabbitmq.service.RabbitmqService;
 
 @Service
 public class EpmIntegrationService {
@@ -32,19 +31,17 @@ public class EpmIntegrationService {
 	private final TJobExecRepository tJobExecRepositoryImpl;
 
 	private DatabaseSessionManager dbmanager;
-
-	private RabbitmqService rabbitmqService;
+	
 
 	public EpmIntegrationService(DockerService dockerService, TestSuiteRepository testSuiteRepo,
 			TestCaseRepository testCaseRepo, TJobExecRepository tJobExecRepositoryImpl,
-			DatabaseSessionManager dbmanager, RabbitmqService rabbitmqService) {
+			DatabaseSessionManager dbmanager) {
 		super();
 		this.dockerService = dockerService;
 		this.testSuiteRepo = testSuiteRepo;
 		this.testCaseRepo = testCaseRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
-		this.dbmanager = dbmanager;
-		this.rabbitmqService = rabbitmqService;
+		this.dbmanager = dbmanager;		
 	}
 
 	@Async
