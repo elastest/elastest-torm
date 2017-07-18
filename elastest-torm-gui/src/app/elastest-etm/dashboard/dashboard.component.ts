@@ -1,3 +1,4 @@
+import { PopupService } from '../../shared/services/popup.service';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -44,6 +45,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private elastestRabbitmqService: ElastestRabbitmqService,
     private route: ActivatedRoute, private router: Router,
     private elastestESService: ElastestESService,
+    private popupService: PopupService,
   ) {
     this.initLogsView();
     this.initMetricsView();
@@ -115,8 +117,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initMetricsView() {
-    this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu');
-    this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory');
+    this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu', this.popupService);
+    this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory', this.popupService);
   }
 
   updateData(data: any) {
