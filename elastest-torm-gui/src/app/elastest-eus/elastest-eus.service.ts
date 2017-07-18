@@ -6,7 +6,7 @@ export class EusService {
 
   private eusUrl: string = 'http://localhost:8080/eus/v1/';
 
-  constructor(private http: Http) {}
+  constructor(private http: Http) { }
 
   public startSession(browser: string, version: string) {
     let url = this.eusUrl + "session";
@@ -15,7 +15,7 @@ export class EusService {
       versionValue = "";
     }
 
-    let data = {'desiredCapabilities': {'browserName': browser, 'version': versionValue, 'platform': 'ANY', 'live': true}};
+    let data = { 'desiredCapabilities': { 'browserName': browser, 'version': versionValue, 'platform': 'ANY', 'live': true } };
     return this.http.post(url, data).map(response => response.json().sessionId);
   }
 

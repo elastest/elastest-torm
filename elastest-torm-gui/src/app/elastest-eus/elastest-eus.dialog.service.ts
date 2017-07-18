@@ -6,7 +6,7 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class ElastestEusDialogService {
 
-  constructor(private dialog: MdDialog) {}
+  constructor(private dialog: MdDialog) { }
 
   public getDialog(close: boolean): MdDialogRef<ElastestEusDialog> {
     let dialogRef: MdDialogRef<ElastestEusDialog> = this.dialog.open(ElastestEusDialog, {
@@ -17,7 +17,7 @@ export class ElastestEusDialogService {
   }
 
   public popUpMessage(title: string, message: string): Observable<boolean> {
-    let dialogRef: MdDialogRef<ElastestEusDialog> =  this.dialog.open(ElastestEusDialog);
+    let dialogRef: MdDialogRef<ElastestEusDialog> = this.dialog.open(ElastestEusDialog);
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
 
