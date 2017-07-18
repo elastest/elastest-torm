@@ -1,4 +1,3 @@
-import { PopupService } from '../../services/popup.service';
 import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { single } from 'rxjs/operator/single';
 import { ColorSchemeModel } from './color-scheme-model';
@@ -47,7 +46,6 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
 
 
     constructor(elastestESService: ElastestESService, type: MetricsType,
-        private popupService: PopupService,
     ) {
         super();
         this.elastestESService = elastestESService;
@@ -108,10 +106,10 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
 
     loadPrevious() {
         let compareTrace: any = this.getOldTrace();
-        if (compareTrace !== undefined) {
-            this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, this.type)
-                .subscribe(
-                (data) => {
+        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, this.type)
+            .subscribe(
+            (data) => {
+                if (data.length > 0) {
                     if (data[MetricsDataType.Test].series.length > 0) {
                         this.data[MetricsDataType.Test].series.unshift.apply(
                             this.data[MetricsDataType.Test].series,
@@ -127,12 +125,9 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
                         this.prevLoaded = true;
                     }
                     this.data = [...this.data];
-                },
-            );
-        }
-        else {
-            this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
-        }
+                }
+            },
+        );
     }
 
     getOldTrace() {

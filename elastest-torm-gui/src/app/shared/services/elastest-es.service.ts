@@ -36,22 +36,29 @@ export class ElastestESService {
         return logs;
     }
 
-    getPrevLogsFromTrace(index: string, trace: any, type: string, componentType: string) {
+    getPrevLogsFromTrace(index: string, traces: any[], type: string, componentType: string) {
         let _logs = new Subject<string[]>();
         let logs = _logs.asObservable();
 
-        let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
-        this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
-            (data) => {
-                _logs.next(this.convertToLogTraces(data));
-                if (data.length > 0) {
-                    this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+        if (traces.length > 0) {
+            let trace: any = traces[0];
+            let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
+            this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
+                (data) => {
+                    _logs.next(this.convertToLogTraces(data));
+                    if (data.length > 0) {
+                        this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                    }
+                    else {
+                        this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    }
                 }
-                else {
-                    this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
-                }
-            }
-        );
+            );
+        }
+        else {
+            _logs.next([]);
+            this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+        }
         return logs;
     }
 
@@ -92,18 +99,24 @@ export class ElastestESService {
         let _metrics = new Subject<SingleMetricModel[]>();
         let metrics = _metrics.asObservable();
 
-        let terms: any[] = [{ 'term': { _type: type } }];
-        this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
-            (data) => {
-                _metrics.next(this.convertToMetricTraces(data, type));
-                if (data.length > 0) {
-                    this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+        if (trace !== undefined) {
+            let terms: any[] = [{ 'term': { _type: type } }];
+            this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
+                (data) => {
+                    _metrics.next(this.convertToMetricTraces(data, type));
+                    if (data.length > 0) {
+                        this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                    }
+                    else {
+                        this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    }
                 }
-                else {
-                    this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
-                }
-            }
-        );
+            );
+        }
+        else {
+            _metrics.next([]);
+            this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
+        }
 
         return metrics;
     }
