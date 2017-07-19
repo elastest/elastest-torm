@@ -29,3 +29,84 @@ td-layout-manage-list .mat-toolbar {
 #dataTable table, .scroll_table table{
     overflow-y: auto !important;
 }
+
+
+
+
+
+
+    /* lg */
+    @media only screen and (max-width : 1920px) {
+        .margin-lg{
+            margin: 1.5em;
+        }
+        .margin-top-lg{
+            margin-top: 1.5em;
+        }
+        .margin-bottom-lg{
+            margin-bottom: 1.5em;
+        }
+        .margin-right-lg{
+            margin-right: 1.5em;
+        }
+        .margin-left-lg{
+            margin-left: 1.5em;
+        }
+    }
+
+    /* md */
+    @media only screen and (max-width : 1280px) {
+        .margin-md{
+            margin: 1.5em;
+        }
+        .margin-top-md{
+            margin-top: 1.5em;
+        }
+        .margin-bottom-md{
+            margin-bottom: 1.5em;
+        }
+        .margin-right-md{
+            margin-right: 1.5em;
+        }
+        .margin-left-md{
+            margin-left: 1.5em;
+        }
+    }
+
+    /* sm */ 
+    @media only screen and (max-width : 960px) {
+        .margin-sm{
+            margin: 1.5em;
+        }
+        .margin-top-sm{
+            margin-top: 1.5em;
+        }
+        .margin-bottom-sm{
+            margin-bottom: 1.5em;
+        }
+        .margin-right-sm{
+            margin-right: 1.5em;
+        }
+        .margin-left-sm{
+            margin-left: 1.5em;
+        }
+    }
+
+    /* xs */ 
+    @media only screen and (max-width : 600px) {
+        .margin-xs{
+            margin: 1.5em;
+        }
+        .margin-top-xs{
+            margin-top: 1.5em;
+        }
+        .margin-bottom-xs{
+            margin-bottom: 1.5em;
+        }
+        .margin-right-xs{
+            margin-right: 1.5em;
+        }
+        .margin-left-xs{
+            margin-left: 1.5em;
+        }
+    }

@@ -4,82 +4,88 @@
   <div flex-gt-xs="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        Search Configuration
+        Search Menu
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content class="push-bottom-none">
-        <form #logManagerForm="ngForm">
-          <div layout="row">
-            <md-input-container flex-gt-xs="25">
-              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" placeholder="ElasticSearch Url"
-                name="urlElastic" required>
-            </md-input-container>
-
-            <md-input-container flex-gt-xs="25" flex-offset-gt-sm="5">
-              <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" placeholder="Index"
-                name="indexName" required>
-            </md-input-container>
-
-            <md-input-container flex-gt-xs="20" flex-offset-gt-sm="5">
-              <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="maxResults" placeholder="Max log entries"
-                name="max_results">
-            </md-input-container>
-          </div>
-
-          <div layout="row" class="push-top">
-            <md-radio-group flex-gt-xs="30">
-              <md-card-subtitle>Range</md-card-subtitle>
-              <div layout="row">
-                <md-radio-button value="false" name="typeSearch" (click)="setUseTail(false)" checked="checked">
-                  <div layout="row">
-                    <div class="radio-button-title" flex-gt-xs="5">By Date</div>
-                    <md-input-container flex-gt-xs="35" flex-offset-gt-xs="10">
-                      <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
-                        step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
-                    </md-input-container>
-
-                    <md-input-container flex-gt-xs="35" flex-offset-gt-xs="15">
-                      <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
-                        step=1 required>
-                      <button mdSuffix [mdDatepickerToggle]="picker"></button>
-                    </md-input-container>
-                  </div>
-                </md-radio-button>
+      <form #logManagerForm="ngForm">
+        <td-expansion-panel label="Search Configuration" expand="true">
+          <div class="md-padding">
+            <div layout="row" layout-xs="column">
+              <div flex-gt-xs="25" flex-gt-lg="10">
+                <md-card-subtitle>ElasticSearch Url</md-card-subtitle>
+                <md-input-container class="noMarginInput allWidth">
+                  <input mdInput type="string" id="urlElastic" [(ngModel)]="urlElastic" value="" name="urlElastic" required>
+                </md-input-container>
               </div>
 
-              <div layout="row">
-                <md-radio-button value="true" (click)="setUseTail(true)" name="typeSearch">By Tail</md-radio-button>
+              <div flex-gt-xs="15" flex-gt-lg="5" flex-offset-gt-sm="5" class="margin-top-xs">
+                <md-card-subtitle>Index</md-card-subtitle>
+                <md-input-container class="noMarginInput">
+                  <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" name="indexName"
+                    required>
+                </md-input-container>
               </div>
-            </md-radio-group>
 
-            <div flex-gt-xs="30">
-              <md-card-subtitle>Fields</md-card-subtitle>
-              <md-input-container>
-                <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Search on message">
-              </md-input-container>
-              <md-input-container flex-offset-gt-sm="5">
-                <input mdInput #hostsCmp class="form-control input-sm" id="hosts" name="hosts" value="" [(ngModel)]="hosts" placeholder="Search on hosts">
-              </md-input-container>
-              <md-input-container flex-offset-gt-sm="5">
-                <input mdInput class="form-control input-sm" id="componentType" name="componentType" value="" [(ngModel)]="componentType"
-                  placeholder="Search on Component Type">
-              </md-input-container>
+              <div flex-gt-xs="15" flex-gt-lg="5" flex-offset-gt-sm="5" class="margin-top-xs">
+                <md-card-subtitle>Max</md-card-subtitle>
+                <md-input-container class="noMarginInput">
+                  <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="maxResults" name="max_results">
+                </md-input-container>
+              </div>
+              <div flex-gt-xs="10" flex-gt-md="15" flex-offset-gt-sm="5" class="margin-top-xs">
+                <md-card-subtitle>Log type</md-card-subtitle>
+                <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
+                <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
+              </div>
+              <div flex-gt-xs="15" flex-gt-lg="25" flex-offset-gt-sm="5" class="margin-top-xs">
+                <md-card-subtitle>Log Level</md-card-subtitle>
+                <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>
+                <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked">INFO</md-checkbox>
+                <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked">WARN</md-checkbox>
+                <md-checkbox #error name="errorLevel" [(ngModel)]="errorLevel" (change)="errorLevel = error.checked">ERROR</md-checkbox>
+              </div>
             </div>
 
-            <div flex-gt-xs="20">
-              <md-card-subtitle>Log Level</md-card-subtitle>
-              <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>
-              <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked">INFO</md-checkbox>
-              <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked">WARN</md-checkbox>
-              <md-checkbox #error name="errorLevel" [(ngModel)]="errorLevel" (change)="errorLevel = error.checked">ERROR</md-checkbox>
-            </div>
-            <div flex-gt-xs="20">
-              <md-card-subtitle>Log type</md-card-subtitle>
-              <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
-              <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
+            <div layout="row" layout-xs="column" class="push-top">
+              <div flex-gt-xs="35" class="margin-top-xs">
+                <md-card-subtitle>Fields</md-card-subtitle>
+                <md-input-container>
+                  <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Search on message">
+                </md-input-container>
+                <md-input-container flex-offset-gt-xl="5">
+                  <input mdInput #hostsCmp class="form-control input-sm" id="hosts" name="hosts" value="" [(ngModel)]="hosts" placeholder="Search on hosts">
+                </md-input-container>
+                <md-input-container flex-offset-gt-xl="5">
+                  <input mdInput class="form-control input-sm" id="componentType" name="componentType" value="" [(ngModel)]="componentType"
+                    placeholder="Search on Component Type">
+                </md-input-container>
+              </div>
+
+              <md-radio-group flex-gt-xs="60" class="margin-top-xs">
+                <md-card-subtitle>Range</md-card-subtitle>
+                <div layout="row" layout-xs="column">
+                  <md-radio-button value="true" (click)="setUseTail(true)" name="typeSearch">By Tail</md-radio-button>
+                  <md-radio-button value="false" name="typeSearch" class="margin-top-xs" (click)="setUseTail(false)" checked="checked" flex-offset-gt-sm="5">
+                    <div layout-gt-lg="row" layout-gt-xs="column" layout-xs="column">
+                      <div class="radio-button-title" flex-gt-xs="5">By Date</div>
+                      <md-input-container flex-gt-lg="35" flex-offset-gt-lg="10">
+                        <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
+                          step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                      </md-input-container>
+
+                      <md-input-container flex-gt-lg="35" flex-offset-gt-lg="15">
+                        <input #to mdInput type="datetime-local" class="form-control input-sm" id="to" placeholder="To" novalidate="true" [value]="getDefaultToValue()"
+                          step=1 required>
+                        <button mdSuffix [mdDatepickerToggle]="picker"></button>
+                      </md-input-container>
+                    </div>
+                  </md-radio-button>
+                </div>
+              </md-radio-group>
             </div>
           </div>
-
+        </td-expansion-panel>
+        <md-card-content class="push-bottom-none">
           <div layout="row" class="push-top">
             <button md-raised-button color="accent" (click)="search(from.value, to.value, false)"><md-icon>search</md-icon> Get Data
             </button>
@@ -94,13 +100,13 @@
             </button>
             <md-checkbox #tail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="tailSearch(!tail.checked)">Pause Tail</md-checkbox>
           </div>
-        </form>
-      </md-card-content>
+        </md-card-content>
+      </form>
     </md-card>
   </div>
 </div>
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-xs="20">
+  <div flex-gt-xs="20" flex-gt-lg="15">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         Filter Results
@@ -147,7 +153,7 @@
       </md-card-content>
     </md-card>
   </div>
-  <div flex-gt-xs="80">
+  <div flex-gt-xs="80" flex-gt-lg="85">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         Search Results

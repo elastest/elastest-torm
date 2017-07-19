@@ -689,6 +689,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   removePattern(position: number) {
     this.patterns.splice(position, 1);
+    this.searchByPatterns();
   }
 
   clearPatterns() {

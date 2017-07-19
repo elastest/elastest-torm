@@ -16,3 +16,11 @@
 #pauseTail{
     padding-top: 0.38em;
 }
+
+:host /deep/ .noMarginInput > .mat-input-wrapper{
+    margin: 0 !important;
+}
+
+.allWidth{
+    width: 100%;
+}
