@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { ConfigModel } from './config-model';
 import { ETM_API } from '../../config/api.config';
 
@@ -13,9 +14,9 @@ export class ConfigurationService {
   load(){
     let host: string = window.location.host;
     this.configModel = { 
-      'host': "http://" + window.location.host, 
-      'hostApi': "http://"+ window.location.host + "/api",
-      'hostElasticsearch': 'http://localhost:9200/',
+      'host': "http://" + host, 
+      'hostApi': "http://"+ host + "/api",
+      'hostElasticsearch': "http://" + environment.hostElasticSearch + "/",
       'hostWsServer': "ws://" + host
     };
   }
