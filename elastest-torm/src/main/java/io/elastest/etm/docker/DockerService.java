@@ -41,10 +41,11 @@ public class DockerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
 
+	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX ="tcp://"; 
 	private static Boolean isRunningInContainer;
 	private static String hostIp;
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
-
+	
 	private String testImage = "";
 	
 	//On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"	
@@ -54,6 +55,9 @@ public class DockerService {
 	//On Windows: "c:/Users/docker/test-results"
 	@Value("${elastest.test-results.directory.windows}")
 	private String volumeDirectoryToReadTestResults;
+	
+	@Value("${docker.host.port}")
+	private String dockerHostPort;
 
 	@Autowired
 	private SutService sutService;
@@ -82,19 +86,15 @@ public class DockerService {
 	public void configureDocker(DockerExecution dockerExec) {
 
 		if (windowsSO.toLowerCase().contains("win")) {
-
 			logger.info("Execute on Windows.");
-
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(utilTools.getDockerHostUrlOnWin()).build();
+					.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort).build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 
 		} else {
-			logger.info("Execute on Linux.");
-			String linuxHostIP = "tcp://" + utilTools.getHostIp() + ":2376";
-			// dockerExec.setDockerClient(DockerClientBuilder.getInstance().build());
+			logger.info("Execute on Linux.");			
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://" + utilTools.getHostIp() + ":2376").build();
+					.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getHostIp() + ":" + dockerHostPort).build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
