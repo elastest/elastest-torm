@@ -73,6 +73,8 @@ services:
             - 8091
         ports:
             - 8091:8091
+        volumes:
+            - /test-results:/test-results
               
 #networks:
 #    build-image-network:
