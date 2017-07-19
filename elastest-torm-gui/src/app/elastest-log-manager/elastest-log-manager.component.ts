@@ -230,7 +230,7 @@ export class ElastestLogManagerComponent implements OnInit {
     try {
       if (!this.lockScroll && this.useTail) {
         let scrollDiv = document.getElementById('dataTable').children.item(0);
-        scrollDiv.scrollTop = 0;
+        scrollDiv.scrollTop = scrollDiv.scrollHeight;
       }
     } catch (err) {
       console.log('[Error]:' + err.toString());
@@ -402,15 +402,10 @@ export class ElastestLogManagerComponent implements OnInit {
       if (!fromData) { // Load more
         if (!this.noMore) {
           if (this.rowData.length > 0) {
-            if (!this.useTail) {
-              theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
-            }
-            else {
-              theQuery['search_after'] = [this.rowData[0].sortId];
-            }
+            theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
           }
         } else {
-          theQuery['search_after'] = [this.rowData[0].sortId];
+          theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
         }
       }
       else { //Add more from row
@@ -557,12 +552,7 @@ export class ElastestLogManagerComponent implements OnInit {
         if (!fromData) { // New search or Load More
           position = this.rowData.length;
           logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
-          if (this.useTail) { // If tail, insert in first position
-            this.rowData.unshift(logRow);
-          }
-          else { // If by date, insert in last position
-            this.rowData.push(logRow);
-          }
+          this.rowData.push(logRow);
           loaded = true;
         }
         else { // Add from row selected
@@ -613,7 +603,6 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
-
   // Table Search functions
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
@@ -651,7 +640,6 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   onRowClicked($event) {
-    console.log('row clicked:', $event);
     if ($event.row !== undefined) {
       let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
       if (rows !== undefined && rows !== null) {
