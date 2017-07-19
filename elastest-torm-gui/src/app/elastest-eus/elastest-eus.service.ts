@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {Http, Response} from '@angular/http';
+import {ConfigurationService} from '../config/configuration-service.service';
 
 @Injectable()
 export class EusService {
 
-  private eusUrl: string = 'http://localhost:8080/eus/v1/';
+  private eusUrl: string = this.configurationService.configModel.eusServiceUrl;
 
-  constructor(private http: Http) { }
+  constructor(private http: Http, private configurationService: ConfigurationService) { }
 
   public startSession(browser: string, version: string) {
     let url = this.eusUrl + "session";

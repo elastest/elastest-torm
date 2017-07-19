@@ -4,6 +4,7 @@ import {ElastestEusDialog} from './elastest-eus.dialog';
 import {ElastestEusDialogService} from './elastest-eus.dialog.service';
 import {EusService} from './elastest-eus.service';
 import {EusTestModel} from './elastest-eus-test-model';
+import {ConfigurationService} from '../config/configuration-service.service';
 
 
 @Component({
@@ -54,11 +55,11 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   @Output()
   onInitComponent = new EventEmitter<string>();
 
-  constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService) { }
+  constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
     if (!this.websocket) {
-      this.websocket = new WebSocket("ws://localhost:8080/eus/v1/eus-ws");
+      this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
 
       this.websocket.onopen = () => this.websocket.send("getSessions");
 

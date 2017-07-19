@@ -7,17 +7,19 @@ import { ETM_API } from '../../config/api.config';
 export class ConfigurationService {
 
   public configModel: ConfigModel;
-  
-  constructor( ) {    
-   }
 
-  load(){
+  constructor() {
+  }
+
+  load() {
     let host: string = window.location.host;
-    this.configModel = { 
-      'host': "http://" + host, 
-      'hostApi': "http://"+ host + "/api",
+    this.configModel = {
+      'host': "http://" + host,
+      'hostApi': "http://" + host + "/api",
       'hostElasticsearch': "http://" + environment.hostElasticSearch + "/",
-      'hostWsServer': "ws://" + host
+      'hostWsServer': "ws://" + host,
+      'eusServiceUrl': "http://" + environment.eus + "/eus/v1/",
+      'eusWebSocketUrl': "ws://" + environment.eus + "/eus/v1/eus-ws"
     };
   }
 
