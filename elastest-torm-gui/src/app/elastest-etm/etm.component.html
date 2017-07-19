@@ -10,7 +10,10 @@
     </a>
   </div>
   <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-    [sidenavWidth]="(media.registerQuery('gt-md') | async) ? '200px' : (media.registerQuery('gt-xs') | async) ? '180px' : '100%'">
+    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '200px' :
+                    (media.registerQuery('gt-sm') | async) ? '180px' : 
+                    (media.registerQuery('gt-xs') | async) ? '40%' : 
+                    '60%'">
     <md-toolbar td-sidenav-content>
       <span>ETM</span>
     </md-toolbar>
