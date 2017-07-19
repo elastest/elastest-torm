@@ -1,3 +1,4 @@
+import { Element } from '@angular/compiler';
 import { PopupService } from '../shared/services/popup.service';
 import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild } from '@angular/core';
 
@@ -23,7 +24,6 @@ import { IPageChangeEvent } from '@covalent/core';
 export class ElastestLogManagerComponent implements OnInit {
   @ViewChild('copyTextArea') copyTextArea: ElementRef;
   @ViewChild('dataTable') dataTable: TdDataTableComponent;
-
 
   public noMore: boolean = false;
   public dataForAdding: any = undefined;
@@ -102,6 +102,8 @@ export class ElastestLogManagerComponent implements OnInit {
     { name: 'componentType', label: 'Component Type' },
     { name: 'host', label: 'Host' },
   ];
+
+  lockScroll: boolean = false;
 
   constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
     private _dataTableService: TdDataTableService, private popupService: PopupService,
@@ -220,6 +222,21 @@ export class ElastestLogManagerComponent implements OnInit {
 
   ngOnInit() { }
 
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      if (!this.lockScroll && this.useTail) {
+        let scrollDiv = document.getElementById('dataTable').children.item(0);
+        scrollDiv.scrollTop = 0;
+      }
+    } catch (err) {
+      console.log('[Error]:' + err.toString());
+    }
+  }
+
   public addTermFilter(queryes: any, field: string, values: string[]) {
     let filter: any = {};
     if (values.length > 1) {
@@ -257,7 +274,7 @@ export class ElastestLogManagerComponent implements OnInit {
       this.tailInterval = setInterval(() => {
         // In this case, to will be 'now'
         this.search(dateToInputLiteral(this.defaultFrom), undefined, true);
-      }, 1000);
+      }, 3000);
     } else {
       clearInterval(this.tailInterval);
       this.tailInterval = undefined;
@@ -368,7 +385,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
     console.log('Query: ', JSON.stringify(queries));
 
-    let theQuery = {
+    let theQuery: any = {
       sort: [
         { '@timestamp': sort }
       ],
@@ -381,14 +398,19 @@ export class ElastestLogManagerComponent implements OnInit {
       this.rowData = [];
     }
 
-    if (append) { //Not new search
-      if (!fromData) { //Load more
+    if (append) { // Not new search
+      if (!fromData) { // Load more
         if (!this.noMore) {
           if (this.rowData.length > 0) {
-            theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
+            if (!this.useTail) {
+              theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
+            }
+            else {
+              theQuery['search_after'] = [this.rowData[0].sortId];
+            }
           }
         } else {
-          theQuery.query.indices.query.bool.filter.bool.must[0].range['@timestamp'].gte = this.rowData[this.rowData.length - 1].time;
+          theQuery['search_after'] = [this.rowData[0].sortId];
         }
       }
       else { //Add more from row
@@ -535,7 +557,12 @@ export class ElastestLogManagerComponent implements OnInit {
         if (!fromData) { // New search or Load More
           position = this.rowData.length;
           logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
-          this.rowData.push(logRow);
+          if (this.useTail) { // If tail, insert in first position
+            this.rowData.unshift(logRow);
+          }
+          else { // If by date, insert in last position
+            this.rowData.push(logRow);
+          }
           loaded = true;
         }
         else { // Add from row selected
@@ -568,6 +595,7 @@ export class ElastestLogManagerComponent implements OnInit {
         .subscribe(
         (data) => this.searchByPatterns()
         );
+
     }
     else {
       if (fromData) { //Add more from row selected
@@ -623,6 +651,7 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   onRowClicked($event) {
+    console.log('row clicked:', $event);
     if ($event.row !== undefined) {
       let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
       if (rows !== undefined && rows !== null) {

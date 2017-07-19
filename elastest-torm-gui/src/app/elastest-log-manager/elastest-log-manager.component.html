@@ -11,7 +11,8 @@
         <form #logManagerForm="ngForm">
           <div layout="row">
             <md-input-container flex-gt-xs="25">
-              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" placeholder="ElasticSearch Url" name="urlElastic" required>
+              <input mdInput type="string" class="form-control input-sm" id="urlElastic" [(ngModel)]="urlElastic" value="" placeholder="ElasticSearch Url"
+                name="urlElastic" required>
             </md-input-container>
 
             <md-input-container flex-gt-xs="25" flex-offset-gt-sm="5">
@@ -86,12 +87,12 @@
             </button>
             <button md-button *ngIf="showClearData" (click)="addMore()"><md-icon>subdirectory_arrow_right</md-icon> Add more from row selected
             </button>
-            <input *ngIf="showPauseTail" #tail type="checkbox" class="form-control input-sm" (change)="tailSearch(!tail.checked)">            <label *ngIf="showPauseTail">Pause Tail</label>
             <button md-button *ngIf="showClearData" (click)="clearData()"><md-icon>clear</md-icon> Clear Data
             </button>
             <button md-button *ngIf="showGrid && !showPauseTail" (click)="copyToClipboard()">
               <md-icon>content_copy</md-icon> Copy to Clipboard
             </button>
+            <md-checkbox #tail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="tailSearch(!tail.checked)">Pause Tail</md-checkbox>
           </div>
         </form>
       </md-card-content>
@@ -158,6 +159,11 @@
           flex>
         </td-search-box>
         <md-divider></md-divider>
+        <div layout="row" *ngIf="useTail">
+          <md-slide-toggle title="Lock Scroll" [(ngModel)]="lockScroll" style="float: right; margin-left: auto;">
+            <md-icon>lock_outline</md-icon>
+          </md-slide-toggle>
+        </div>
         <td-data-table id="dataTable" #dataTable [data]="filteredData" [selectable]="false" [clickable]="true" [columns]="columns"
           [sortable]="false" (rowClick)="onRowClicked($event)" (change)="searchByPatterns()">
         </td-data-table>
