@@ -1,4 +1,4 @@
 export const environment: {production: boolean, hostElasticSearch: string} = {
   production: true,
-  hostElasticSearch: 'elasticsearch:9200'
+  hostElasticSearch:  window.location.hostname + ':9200'
 };
