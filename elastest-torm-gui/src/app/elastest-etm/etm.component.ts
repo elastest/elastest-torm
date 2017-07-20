@@ -13,11 +13,12 @@ import { TdMediaService } from '@covalent/core';
 export class EtmComponent implements AfterViewInit, OnInit {
 
   title: string;
+  openedMenu: boolean = true;
 
   constructor(private _titleService: Title,
-              public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService) { }
+    public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.elastestRabbitmqService.configWSConnection();
     this.elastestRabbitmqService.startWsConnection();
   }
@@ -26,7 +27,11 @@ export class EtmComponent implements AfterViewInit, OnInit {
     // broadcast to all listener observables when loading the page
     this.media.broadcast();
 
-    this._titleService.setTitle( 'Test Management' );
+    this._titleService.setTitle('Test Management');
     this.title = this._titleService.getTitle();
+  }
+
+  collapseMenu() {
+    this.openedMenu = !this.openedMenu;
   }
 }

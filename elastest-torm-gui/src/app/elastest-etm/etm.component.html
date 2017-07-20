@@ -1,4 +1,5 @@
 <td-layout-nav logo="assets:elastestlogo">
+  <!-- <button md-icon-button td-menu-button><md-icon>menu</md-icon></button> -->
   <div td-toolbar-content layout="row" layout-align="center center" flex>
     <span></span>
     <span flex></span>
@@ -9,14 +10,14 @@
       <md-icon svgIcon="assets:github"></md-icon>
     </a>
   </div>
-  <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '200px' :
+  <td-layout-manage-list #manageList [opened]="openedMenu" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '214px' :
                     (media.registerQuery('gt-sm') | async) ? '180px' : 
                     (media.registerQuery('gt-xs') | async) ? '40%' : 
                     '60%'">
-    <md-toolbar td-sidenav-content>
+    <!-- <md-toolbar td-sidenav-content>
       <span>ETM</span>
-    </md-toolbar>
+    </md-toolbar> -->
     <md-nav-list td-sidenav-content>
       <!--<a md-list-item
         md-ripple class="block relative"
@@ -74,11 +75,8 @@
     </md-nav-list>
     <div td-toolbar-content layout="row" layout-align="start center" flex>
       <span>{{title}}</span>
-      <span flex></span>
-      <button md-icon-button><md-icon class="md-24">view_module</md-icon></button>
-      <button md-icon-button><md-icon class="md-24">sort</md-icon></button>
-      <button md-icon-button><md-icon class="md-24">settings</md-icon></button>
-      <button md-icon-button><md-icon class="md-24">more_vert</md-icon></button>
+      <!-- <span flex></span> -->
+      <!-- <button md-icon-button><md-icon class="md-24">more_vert</md-icon></button>    -->
     </div>
     <router-outlet></router-outlet>
   </td-layout-manage-list>
