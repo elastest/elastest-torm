@@ -1,3 +1,4 @@
+import { ConfigurationService } from '../config/configuration-service.service';
 import { Element } from '@angular/compiler';
 import { PopupService } from '../shared/services/popup.service';
 import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild } from '@angular/core';
@@ -52,7 +53,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   public useTail: boolean = false;
 
-  public urlElastic: string = 'http://localhost:9200/';
+  public urlElastic: string;
   public indexName: string;
   public hosts: string;
   public message: string;
@@ -107,7 +108,10 @@ export class ElastestLogManagerComponent implements OnInit {
 
   constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
     private _dataTableService: TdDataTableService, private popupService: PopupService,
+    private configurationService: ConfigurationService
   ) {
+    this.urlElastic = this.configurationService.configModel.hostElasticsearch;
+
     let params: any = router.parseUrl(router.url).queryParams;
 
     this.showGrid = false;
@@ -122,11 +126,6 @@ export class ElastestLogManagerComponent implements OnInit {
     } else if (params.onlyTable === 'true') {
       autoSearch = true;
       this.onlyTable = true;
-    }
-
-    if (params.urlElastic !== undefined && params.urlElastic !== null) {
-      this.urlElastic = decodeURIComponent(params.urlElastic);
-      autoSearch = true;
     }
 
     if (params.indexName !== undefined && params.indexName !== null) {
@@ -303,7 +302,6 @@ export class ElastestLogManagerComponent implements OnInit {
     // this.sortBy = this.sortByDefault;
     // this.sortOrder = this.sortOrderDefault;
     this.removeAllPatterns();
-    this.addPattern();
     this.dataForAdding = undefined;
   }
 
@@ -688,14 +686,27 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   removePattern(position: number) {
-    this.patterns.splice(position, 1);
-    this.searchByPatterns();
+    if (position < this.patterns.length - 1) { //Not last pattern
+      this.patterns.splice(position, 1);
+      if (this.patterns.length === 0) {
+        this.addPattern();
+      }
+      else {
+        this.searchByPatterns();
+      }
+    }
+    else if (position === this.patterns.length - 1 
+      && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { //Last pattern with search message and not searched
+      this.patterns.splice(position, 1);
+      this.addPattern();
+    }
   }
 
   clearPatterns() {
     for (let pattern of this.patterns) {
       pattern.searchValue = '';
       pattern.results = [];
+      pattern.found = -1;
     }
     this.currentPos = -1;
     this.currentRowSelected = -1;
@@ -707,6 +718,7 @@ export class ElastestLogManagerComponent implements OnInit {
     this.currentPos = -1;
     this.currentRowSelected = -1;
     this.cleanRowsColor();
+    this.addPattern();
   }
 
   cleanRowsColor() {
@@ -742,11 +754,57 @@ export class ElastestLogManagerComponent implements OnInit {
 
     let j: number = 0;
     for (let pattern of this.patterns) {
+      if (pattern.searchValue !== '') {
+        pattern.found = pattern.results.length;
+      }
       if (pattern.results.length > 0) {
         this.next(j);
         this.paintResults(j);
       }
       j++;
+    }
+  }
+
+  searchByPattern(position: number) {
+    if (this.patterns[position].searchValue !== '') {
+      this.searchByPatterns();
+      this.currentPos = -1;
+      this.next(position);
+      this.paintResults(position);
+      if (position === this.patterns.length - 1) {
+        this.addPattern();
+      }
+    }
+    else {
+      this.popupService.openSnackBar('Search value can not be empty', 'OK');
+    }
+  }
+
+  searchUniquePattern(position: number) {
+    this.currentPos = -1;
+    let i: number = 0;
+    let pattern: SearchPatternModel = this.patterns[position];
+
+    this.filteredData
+      .map(
+      (e) => {
+        if (i === 0) { //First iteration of map
+          pattern.results = []; //Initialize results to empty
+        }
+        if ((pattern.searchValue !== '') && (e.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
+          if (pattern.results.indexOf(i) === -1) {
+            pattern.results.push(i);
+          }
+        }
+        i++;
+      });
+
+    if (pattern.searchValue !== '') {
+      pattern.found = pattern.results.length;
+    }
+    if (pattern.results.length > 0) {
+      this.next(position);
+      this.paintResults(position);
     }
   }
 
@@ -847,14 +905,11 @@ export class ElastestLogManagerComponent implements OnInit {
   public copyToClipboard() {
     this.copyTextArea.nativeElement.select();
     document.execCommand('copy');
+    this.popupService.openSnackBar('URL has been created and copied to clipboard', 'OK');
   }
 
   public generateCopyUrl(from: string, to: string) {
     this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
-
-    if (this.urlElastic !== undefined) {
-      this.urlCopied += 'urlElastic=' + encodeURIComponent(this.urlElastic) + '&';
-    }
 
     if (this.indexName !== undefined) {
       this.urlCopied += 'indexName=' + encodeURIComponent(this.indexName) + '&';
