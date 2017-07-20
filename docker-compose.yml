@@ -97,9 +97,7 @@ services:
             - 8040:8040
         networks:
             - elastest
-#networks:
-#    build-image-network:
-#        driver: bridge
+            
 volumes:
     elasticsearch-data:
       driver: local

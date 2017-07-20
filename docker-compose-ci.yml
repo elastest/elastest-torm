@@ -9,7 +9,9 @@ services:
             - MYSQL_DATABASE=elastest-etm
             - MYSQL_ROOT_PASSWORD=admin 
         volumes:
-            - mysql:/var/lib/mysql        
+            - mysql:/var/lib/mysql
+        networks:
+            - elastest        
     beats:
         container_name: beats
         image: edujgurjc/dockbeat
@@ -18,7 +20,9 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
-            - logstash        
+            - logstash
+        networks:
+            - elastest        
         
     logstash:        
         container_name: logstash
@@ -34,7 +38,9 @@ services:
             - ELASTICHOST=elasticsearch
             - RABBITHOST=rabbit-MQ
             - RABBITUSER=elastest-etm
-            - RABBITPASS=elastest-etm        
+            - RABBITPASS=elastest-etm
+        networks:
+            - elastest
                
     elasticsearch:
         container_name: elasticsearch
@@ -43,6 +49,8 @@ services:
             - 9200
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
+        networks:
+            - elastest
                    
     rabbit-MQ:
         container_name: rabbit-MQ
@@ -54,6 +62,8 @@ services:
             - 15671
             - 25672
             - 61613
+        networks:
+            - elastest
                       
     elastest-torm:
         depends_on:
@@ -75,10 +85,9 @@ services:
             - 8091:8091
         volumes:
             - /test-results:/test-results
-              
-#networks:
-#    build-image-network:
-#        driver: bridge
+        networks:
+            - elastest
+
 volumes:
     elasticsearch-data:
       driver: local
@@ -86,3 +95,6 @@ volumes:
       driver: local
     mysql:
       driver: local
+networks:
+    elastest:
+      driver: bridge
