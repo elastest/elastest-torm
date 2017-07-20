@@ -1,16 +1,17 @@
-import {APP_INITIALIZER, NgModule, Type} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {BrowserModule, Title} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { CovalentExpansionPanelModule } from '@covalent/core';
+import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { BrowserModule, Title } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import {CovalentHttpModule, IHttpInterceptor} from '@covalent/http';
-import {CovalentHighlightModule} from '@covalent/highlight';
-import {CovalentMarkdownModule} from '@covalent/markdown';
+import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
+import { CovalentHighlightModule } from '@covalent/highlight';
+import { CovalentMarkdownModule } from '@covalent/markdown';
 
-import {AppComponent} from './app.component';
-import {RequestInterceptor} from '../config/interceptors/request.interceptor';
+import { AppComponent } from './app.component';
+import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
-import {routedComponents, AppRoutingModule} from './app-routing.module';
+import { routedComponents, AppRoutingModule } from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
@@ -63,6 +64,7 @@ const httpInterceptorProviders: Type<any>[] = [
     BrowserModule,
     FormsModule,
     MdButtonToggleModule,
+    CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
       interceptors: [{
         interceptor: RequestInterceptor, paths: ['**'],
@@ -97,4 +99,4 @@ const httpInterceptorProviders: Type<any>[] = [
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }
