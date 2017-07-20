@@ -1,3 +1,4 @@
+import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
 import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -76,6 +77,7 @@ const httpInterceptorProviders: Type<any>[] = [
   providers: [
     httpInterceptorProviders,
     Title,
+    TdLayoutManageListComponent,
     StompService,
     StompWSManager,
     SutService,
