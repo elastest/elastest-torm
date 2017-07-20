@@ -89,7 +89,7 @@ services:
             - elastest
     elastest-eus:
       container_name: elastest-eus
-      image: elastest/elastest-eus
+      image: elastest/elastest-user-emulator-service
       environment:
           - USE_TORM=true
       expose:
