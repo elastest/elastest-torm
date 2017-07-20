@@ -94,37 +94,35 @@
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout-gt-md="row" layout-gt-xs="column">
-          <span flex-gt-xs="65">Mark in Log</span>
-          <span flex-gt-xs="25" flex-offset-gt-sm="5">
-          <button md-button (click)="removeAllPatterns()" title="Delete all patterns"><md-icon>delete</md-icon></button>
+          <span flex-gt-xs="70">Mark in Log</span>
+          <span flex-gt-xs="20" flex-offset-gt-sm="5">
+          <button md-button (click)="removeAllPatterns()" title="Delete all patterns" class="iconBtn"><md-icon>delete</md-icon></button>
           </span>
         </div>
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
-        <!-- <div *ngIf="!dataTable.hasData">
-          There is not logs
-        </div>
-        <div *ngIf="dataTable.hasData"> -->
         <div>
           <div class="push-top push-bottom">
-            <div *ngFor="let pattern of patterns; let i = index" layout-gt-lg="row" layout-lg="row" layout-gt-xs="column" class="push-top push-bottom pad-top pad-bottom">
+            <div *ngFor="let pattern of patterns; let i = index" layout-gt-lg="row" layout-lg="row" layout-gt-xs="column" class="push-top push-bottom pad-bottom">
               <md-list-item flex-gt-xs="100">
                 <div md-line>
                   <md-input-container>
                     <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message" (keydown.enter)="searchByPattern(i)">
                   </md-input-container>
-                  <label *ngIf="pattern.found >= 0" flex-offset-gt-xs="5">Found {{pattern.results.length}}</label>
                 </div>
-                <div md-line>
-                  <div>
-                    <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
-                      required>
-                  </div>
+                <div layout-gt-lg="row" layout="column">
+                  <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
+                    required class="push-right">
+                  <button md-raised-button color="accent" (click)="searchByPattern(i)">Mark</button>
+                </div>
+                <div layout-gt-lg="row" layout="column">
                   <button md-button (click)="prev(i)" title="Previous" class="iconBtn"><md-icon>navigate_before</md-icon></button>
                   <button md-button (click)="next(i)" title="Next" class="iconBtn"><md-icon>navigate_next</md-icon></button>
-                  <button md-raised-button color="accent" (click)="searchByPattern(i)">Mark</button>
                   <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn"><md-icon>delete</md-icon></button>
+                </div>
+                <div layout-gt-lg="row" layout="column">
+                  <span *ngIf="pattern.found >= 0" flex-offset-gt-xs="5" class="push-top">Found {{pattern.results.length}}</span>
                 </div>
               </md-list-item>
             </div>

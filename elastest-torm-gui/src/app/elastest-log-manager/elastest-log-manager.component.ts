@@ -780,34 +780,6 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
-  searchUniquePattern(position: number) {
-    this.currentPos = -1;
-    let i: number = 0;
-    let pattern: SearchPatternModel = this.patterns[position];
-
-    this.filteredData
-      .map(
-      (e) => {
-        if (i === 0) { //First iteration of map
-          pattern.results = []; //Initialize results to empty
-        }
-        if ((pattern.searchValue !== '') && (e.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
-          if (pattern.results.indexOf(i) === -1) {
-            pattern.results.push(i);
-          }
-        }
-        i++;
-      });
-
-    if (pattern.searchValue !== '') {
-      pattern.found = pattern.results.length;
-    }
-    if (pattern.results.length > 0) {
-      this.next(position);
-      this.paintResults(position);
-    }
-  }
-
   paintResults(index: number) {
     let rows: NodeListOf<HTMLTableRowElement> = this.getSearchTableRows();
     if (rows !== undefined && rows !== null) {
