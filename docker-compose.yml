@@ -90,7 +90,7 @@ services:
             
     elastest-eus:
         container_name: elastest-eus
-        image: elastest-eus
+        image: elastest/elastest-eus
         environment:
             - USE_TORM=true
         expose:
