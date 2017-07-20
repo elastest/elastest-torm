@@ -39,20 +39,21 @@
     "@angular/animations": "^4.0.0",
     "@angular/common": "^4.0.0",
     "@angular/compiler": "^4.0.0",
+    "@angular/cdk": "2.0.0-beta.8",
     "@angular/core": "^4.0.0",
     "@angular/flex-layout": "2.0.0-beta.8",
     "@angular/forms": "^4.0.0",
     "@angular/http": "^4.0.0",
-    "@angular/material": "2.0.0-beta.6",
+    "@angular/material": "2.0.0-beta.8",
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/platform-server": "^4.0.0",
     "@angular/router": "^4.0.0",
-    "@covalent/core": "1.0.0-beta.4",
-    "@covalent/dynamic-forms": "1.0.0-beta.4",
-    "@covalent/highlight": "1.0.0-beta.4",
-    "@covalent/http": "1.0.0-beta.4",
-    "@covalent/markdown": "1.0.0-beta.4",
+    "@covalent/core": "1.0.0-beta.6",
+    "@covalent/dynamic-forms": "1.0.0-beta.6",
+    "@covalent/highlight": "1.0.0-beta.6",
+    "@covalent/http": "1.0.0-beta.6",
+    "@covalent/markdown": "1.0.0-beta.6",
     "@swimlane/ngx-charts": "^6.0.0",
     "core-js": "^2.4.1",
     "d3": "^4.9.0",
@@ -89,6 +90,6 @@
     "typescript": "~2.2.0"
   },
   "optionalDependencies": {
-    "@covalent/data": "0.4.0"
+    "@covalent/data": "0.7.0"
   }
 }

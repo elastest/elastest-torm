@@ -1,5 +1,5 @@
 <td-layout-nav logo="assets:elastestlogo">
-  <!-- <button md-icon-button td-menu-button><md-icon>menu</md-icon></button> -->
+  <button md-icon-button td-menu-button (click)="openMainSidenav()"><md-icon>menu</md-icon></button>
   <div td-toolbar-content layout="row" layout-align="center center" flex>
     <span></span>
     <span flex></span>
@@ -10,56 +10,20 @@
       <md-icon svgIcon="assets:github"></md-icon>
     </a>
   </div>
-  <td-layout-manage-list #manageList [opened]="openedMenu" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '214px' :
-                    (media.registerQuery('gt-sm') | async) ? '180px' : 
-                    (media.registerQuery('gt-xs') | async) ? '40%' : 
+  <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '244px' :
+                    (media.registerQuery('gt-sm') | async) ? '210px' : 
+                    (media.registerQuery('gt-xs') | async) ? '35%' : 
                     '60%'">
     <!-- <md-toolbar td-sidenav-content>
       <span>ETM</span>
     </md-toolbar> -->
     <md-nav-list td-sidenav-content>
-      <!--<a md-list-item
-        md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/']">
-        <md-icon md-list-icon>dashboard</md-icon>
-        Dashboard
-      </a>-->
       <a md-list-item md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
         [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']">
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
-      <!--<a md-list-item
-        md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/tjobs']">
-        <md-icon md-list-icon>queue_play_next</md-icon>
-        TJobs
-      </a>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
-         md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/tojobs']">        
-        <md-icon md-list-icon>playlist_play</md-icon>
-        TOJobs
-      </a>     -->
-      <!--<a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative"
-         md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/suts']">        
-        <md-icon md-list-icon>web</md-icon>
-        Suts
-      </a>-->
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
         [routerLink]="['/eus']">
@@ -73,11 +37,9 @@
         Log Manager
       </a>
     </md-nav-list>
-    <div td-toolbar-content layout="row" layout-align="start center" flex>
+    <md-toolbar>
       <span>{{title}}</span>
-      <!-- <span flex></span> -->
-      <!-- <button md-icon-button><md-icon class="md-24">more_vert</md-icon></button>    -->
-    </div>
+    </md-toolbar>
     <router-outlet></router-outlet>
   </td-layout-manage-list>
   <td-layout-footer>
