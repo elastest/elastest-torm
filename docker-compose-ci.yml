@@ -91,7 +91,7 @@ services:
       container_name: elastest-eus
       image: elastest-eus
       environment:
-          - USE_TORM: true
+          - USE_TORM=true
       expose:
           - 8040
       ports:
