@@ -1,7 +1,7 @@
 node('docker'){
     stage "Container Prep"
         echo("the node is up")
-        def mycontainer = docker.image('franciscordiaz/docker-in-docker-etm5')
+        def mycontainer = docker.image('elastest/docker-compose-siblings')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
             git 'https://github.com/elastest/elastest-torm.git'
