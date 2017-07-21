@@ -1,4 +1,5 @@
 export interface ConfigModel {
+  hostName: string;
   host: string;
   hostApi: string;
   hostElasticsearch: string;

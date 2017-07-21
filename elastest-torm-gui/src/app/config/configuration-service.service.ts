@@ -14,6 +14,7 @@ export class ConfigurationService {
   load() {
     let host: string = window.location.host;
     this.configModel = {
+      'hostName': window.location.hostname,
       'host': "http://" + host,
       'hostApi': "http://" + host + "/api",
       'hostElasticsearch': "http://" + environment.hostElasticSearch + "/",
