@@ -335,5 +335,18 @@ td-layout-manage-list .mat-toolbar {
             max-width: 100% !important;
             max-height: 100% !important;
             box-sizing: border-box !important;
-        }                                                                                            
+        }             
+        
+        [custom-flex-offset-xl="5"] {
+            margin-left: 5% !important;
+        }       
+        [custom-flex-offset-xl="10"] {
+            margin-left: 10% !important;
+        }       
+        [custom-flex-offset-xl="15"] {
+            margin-left: 15% !important;
+        }       
+        [custom-flex-offset-xl="20"] {
+            margin-left: 20% !important;
+        }                                     
     }
