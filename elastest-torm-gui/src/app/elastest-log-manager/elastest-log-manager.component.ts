@@ -370,7 +370,8 @@ export class ElastestLogManagerComponent implements OnInit {
                 'lte': queryto
               }
             }
-          }
+          },
+          { 'term': { trace_type: 'log' } }
         ]
       }
     };
@@ -695,7 +696,7 @@ export class ElastestLogManagerComponent implements OnInit {
         this.searchByPatterns();
       }
     }
-    else if (position === this.patterns.length - 1 
+    else if (position === this.patterns.length - 1
       && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { //Last pattern with search message and not searched
       this.patterns.splice(position, 1);
       this.addPattern();
@@ -729,6 +730,22 @@ export class ElastestLogManagerComponent implements OnInit {
         rows[i].removeAttribute('style');
         i++;
       }
+    }
+  }
+
+  markOrClean(index: number){
+    let pattern: SearchPatternModel = this.patterns[index];
+    if(pattern.found<1){
+      this.searchByPattern(index);
+    }
+    else{
+      pattern.found = -1;
+      pattern.position = -1;
+      pattern.results = [];
+      let searchValue: string = pattern.searchValue;
+      pattern.searchValue = '';
+      this.searchByPatterns();
+      pattern.searchValue = searchValue;
     }
   }
 
@@ -934,5 +951,10 @@ export class ElastestLogManagerComponent implements OnInit {
     if (to !== null) {
       this.urlCopied += 'to=' + encodeURIComponent(to) + '&';
     }
+  }
+
+
+  openColorPicker(i: number) {
+    document.getElementById('pattern' + i + 'Color').click();
   }
 }

@@ -25,3 +25,20 @@
 .allWidth{
     width: 100%;
 }
+
+.patternColor input[type="color"] {
+	-webkit-appearance: none;
+	border: none;
+	width: 32px;
+}
+.patternColor input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+.patternColor input[type="color"]::-webkit-color-swatch {
+	border: none;
+}
+
+.hiddenElement{
+    position: absolute;
+    margin-left:-50000px
+}

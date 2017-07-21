@@ -1,5 +1,5 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <textarea #copyTextArea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" id="copytextarea" class="js-copytextarea" style="position: absolute; margin-left:-50000px"
+  <textarea #copyTextArea *ngIf="showGrid && !showPauseTail" rows="1" cols="1" id="copytextarea" class="js-copytextarea hiddenElement"
     [(ngModel)]="urlCopied"></textarea>
   <div flex-gt-xs="100">
     <md-card tdMediaToggle="gt-xs">
@@ -105,23 +105,24 @@
       <md-card-content class="push-bottom-none">
         <div>
           <div class="push-top push-bottom">
-            <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="push-top push-bottom pad-bottom">
+            <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom">
               <md-list-item flex-gt-xs="100">
                 <div layout="row" layout-align="center center">
                   <md-input-container>
-                    <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message" (keydown.enter)="searchByPattern(i)">
+                    <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}" (keydown.enter)="searchByPattern(i)">
                   </md-input-container>
                 </div>
                 <div layout-gt-md="row" layout="column" layout-align="center center">
                   <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
-                    required class="push-top margin-right-gt-md">
-                  <button md-raised-button color="accent" (click)="searchByPattern(i)" class="push-top margin-right-gt-md iconBtn">Mark</button>
-                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top"><md-icon>delete</md-icon></button>
-                </div>
-                <div layout-gt-md="row" layout="column" layout-align="center center" *ngIf="pattern.found >= 0">
-                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top"><md-icon>navigate_before</md-icon></button>
-                  <span flex-offset-gt-xs="5" class="push-top">Found {{pattern.results.length}}</span>
-                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top"><md-icon>navigate_next</md-icon></button>
+                  class="hiddenElement" required>
+                  <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm"><md-icon [style.color]="pattern.color">color_lens</md-icon></button> 
+                  <button md-button (click)="markOrClean(i)" class="push-top-sm iconBtn">
+                    <md-icon *ngIf="pattern.found < 0" color="accent" title="Mark rows">invert_colors</md-icon>
+                    <md-icon *ngIf="pattern.found >= 0" title="Clean rows">invert_colors_off</md-icon> 
+                  </button>
+                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm"><md-icon>delete</md-icon></button>
+                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top-sm"><md-icon>navigate_before</md-icon></button>
+                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top-sm"><md-icon>navigate_next</md-icon></button>
                 </div>
               </md-list-item>
             </div>

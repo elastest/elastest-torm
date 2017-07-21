@@ -46,28 +46,37 @@ td-layout-manage-list .mat-toolbar {
 
 
 
-     /* xs */ 
     @media (max-width : 600px) {
-        .margin-gt-xs{
-            margin: 1.5em !important;
-        }
-        .margin-top-gt-xs{
-            margin-top: 1.5em !important;
-        }
-        .margin-bottom-gt-xs{
-            margin-bottom: 1.5em !important;
-        }
-        .margin-right-gt-xs{
-            margin-right: 1.5em !important;
-        }
-        .margin-left-gt-xs{
-            margin-left: 1.5em !important;
-        }
-
         .mat-icon.md-icon-logo{
             width: 154px !important;
         }        
     }
+
+    /* xs */ 
+    
+    .margin-gt-xs{
+        margin: 1.5em !important;
+    }
+    .margin-top-gt-xs{
+        margin-top: 1.5em !important;
+    }
+    .margin-bottom-gt-xs{
+        margin-bottom: 1.5em !important;
+    }
+    .margin-right-gt-xs{
+        margin-right: 1.5em !important;
+    }
+    .margin-left-gt-xs{
+        margin-left: 1.5em !important;
+    }
+
+    .margin-none-gt-xs{
+        margin: 0 !important;
+    }
+    
+    .margin-left-none-gt-xs{
+        margin-left: 0 !important;
+    }    
 
      /* sm */ 
     @media (min-width : 601px) {
@@ -85,6 +94,14 @@ td-layout-manage-list .mat-toolbar {
         }
         .margin-left-gt-sm{
             margin-left: 1.5em !important;
+        }
+        
+        .margin-none-gt-sm{
+            margin: 0 !important;
+        }
+        
+        .margin-left-none-gt-sm{
+            margin-left: 0 !important;
         }
 
         .mat-icon.md-icon-logo{
