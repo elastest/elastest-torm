@@ -11,7 +11,7 @@
         <td-expansion-panel label="Configuration and filters" expand="true">
           <div class="md-padding">
             <div layout="row" layout-xs="column">
-              <div flex-gt-xs="15" flex-gt-lg="5" class="margin-top-xs">
+              <div flex-gt-xs="15" flex-gt-lg="5" class="margin-top-gt-xs">
                 <md-card-subtitle>TJob Exec</md-card-subtitle>
                 <md-input-container class="noMarginInput">
                   <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" name="indexName"
@@ -19,14 +19,15 @@
                 </md-input-container>
               </div>
 
-              <div flex-gt-xs="10" flex-gt-lg="5" flex-offset-gt-sm="5" class="margin-top-xs">
+              <div flex-gt-xs="10" flex-gt-lg="5" flex-offset-gt-sm="5" class="margin-top-gt-xs">
                 <md-card-subtitle>Max</md-card-subtitle>
                 <md-input-container class="noMarginInput">
                   <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="maxResults" name="max_results">
                 </md-input-container>
               </div>
 
-              <div layout-gt-lg="row" layout-gt-xs="column" layout-xs="column" flex-gt-xs="50" flex-offset-gt-sm="5" class="margin-top-xs">
+              <div layout-gt-lg="row" layout-gt-xs="column" layout-xs="column" flex-gt-xs="65" custom-flex-xl="50" flex-offset-gt-sm="5"
+                class="margin-top-gt-xs">
                 <md-input-container flex-gt-lg="35">
                   <input #from mdInput type="datetime-local" class="form-control input-sm" id="from" placeholder="From" novalidate="true" [value]="getDefaultFromValue()"
                     step=1 required> <button mdSuffix [mdDatepickerToggle]="picker"></button>
@@ -42,7 +43,7 @@
             </div>
 
             <div layout="row" layout-xs="column" class="push-top">
-              <div flex-gt-xs="30" flex-gt-lg="25" class="margin-top-xs">
+              <div flex-gt-xs="30" flex-gt-lg="25" class="margin-top-gt-xs">
                 <md-card-subtitle>Fields</md-card-subtitle>
                 <md-input-container>
                   <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Search on message">
@@ -56,12 +57,12 @@
                 </md-input-container>
               </div>
 
-              <div flex-gt-xs="10" flex-gt-md="15" flex-gt-lg="10" flex-offset-gt-sm="5" class="margin-top-xs">
+              <div flex-gt-xs="10" flex-gt-md="15" flex-gt-lg="10" flex-offset-gt-sm="5" class="margin-top-gt-xs">
                 <md-card-subtitle>Log type</md-card-subtitle>
                 <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
                 <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
               </div>
-              <div flex-gt-xs="10" flex-gt-lg="25" flex-offset-gt-sm="5" class="margin-top-xs">
+              <div flex-gt-xs="10" flex-gt-lg="25" flex-offset-gt-sm="5" class="margin-top-gt-xs">
                 <md-card-subtitle>Log Level</md-card-subtitle>
                 <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>
                 <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked">INFO</md-checkbox>
@@ -90,7 +91,7 @@
   </div>
 </div>
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-xs="20" flex-gt-lg="15">
+  <div flex-gt-xs="20" flex-gt-md="25" flex-gt-lg="20" custom-flex-xl="10">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout-gt-md="row" layout-gt-xs="column">
@@ -104,25 +105,23 @@
       <md-card-content class="push-bottom-none">
         <div>
           <div class="push-top push-bottom">
-            <div *ngFor="let pattern of patterns; let i = index" layout-gt-lg="row" layout-lg="row" layout-gt-xs="column" class="push-top push-bottom pad-bottom">
+            <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="push-top push-bottom pad-bottom">
               <md-list-item flex-gt-xs="100">
-                <div md-line>
+                <div layout="row" layout-align="center center">
                   <md-input-container>
                     <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message" (keydown.enter)="searchByPattern(i)">
                   </md-input-container>
                 </div>
-                <div layout-gt-lg="row" layout="column">
+                <div layout-gt-md="row" layout="column" layout-align="center center">
                   <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
-                    required class="push-right">
-                  <button md-raised-button color="accent" (click)="searchByPattern(i)">Mark</button>
+                    required class="push-top margin-right-gt-md">
+                  <button md-raised-button color="accent" (click)="searchByPattern(i)" class="push-top margin-right-gt-md iconBtn">Mark</button>
+                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top"><md-icon>delete</md-icon></button>
                 </div>
-                <div layout-gt-lg="row" layout="column">
-                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn"><md-icon>navigate_before</md-icon></button>
-                  <button md-button (click)="next(i)" title="Next" class="iconBtn"><md-icon>navigate_next</md-icon></button>
-                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn"><md-icon>delete</md-icon></button>
-                </div>
-                <div layout-gt-lg="row" layout="column">
-                  <span *ngIf="pattern.found >= 0" flex-offset-gt-xs="5" class="push-top">Found {{pattern.results.length}}</span>
+                <div layout-gt-md="row" layout="column" layout-align="center center" *ngIf="pattern.found >= 0">
+                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top"><md-icon>navigate_before</md-icon></button>
+                  <span flex-offset-gt-xs="5" class="push-top">Found {{pattern.results.length}}</span>
+                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top"><md-icon>navigate_next</md-icon></button>
                 </div>
               </md-list-item>
             </div>
@@ -131,7 +130,7 @@
       </md-card-content>
     </md-card>
   </div>
-  <div flex-gt-xs="80" flex-gt-lg="85">
+  <div flex-gt-xs="80" flex-gt-md="75" flex-gt-lg="80" custom-flex-xl="90">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout-gt-sm="row" layout-gt-xs="column" layout-xs="column">
