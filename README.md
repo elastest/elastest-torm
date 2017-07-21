@@ -1,11 +1,12 @@
 [![][ElasTest Logo]][ElasTest]
 
-Copyright © 2017-2019 [ElasTest]. Licensed under [Apache 2.0 License].
+Copyright © 2017-2019 [Universidad Rey Juan Carlos]. Licensed under
+[Apache 2.0 License].
 
 elastest-torm
 ==============================
 
-The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM will provide a web interface to be used by testers and administrators. It will also provide a remote API. That API will be used by ElasTest-CLI (a command line interface tool), by ElasTest Jenkins Plugin and by ElasTest Eclipse Plugin.
+The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM will provide a web interface to be used by testers, developers and administrators, to managing tests, test executions, systems under test, orchestrate tests and analyze logs. It will also provide a remote API that will used by ElasTest-CLI (a command line interface tool), by ElasTest Jenkins Plugin and by ElasTest Eclipse Plugin.
 
 The ElasTest TORM component is currently in development. If you want to contribute to the ElasTest TORM project you need to read the [Development documentation](https://github.com/elastest/elastest-torm/blob/master/docs/index.md) 
 
@@ -77,8 +78,27 @@ following guidelines
   before it being incorporated into the ElasTest code-base. You must be ready
   to addressing all these kind of concerns before having your code approved.
 
+Support
+-------
+
+The ElasTest project provides community support through the [ElasTest Public
+Mailing List] and through [StackOverflow] using the tag *elastest*.
+
+
+<p align="center">
+  <img src="http://elastest.io/images/logos_elastest/ue_logo-small.png"><br>
+  Funded by the European Union
+</p>
+
 [Apache 2.0 License]: http://www.apache.org/licenses/LICENSE-2.0
 [ElasTest]: http://elastest.io/
+[ElasTest Blog]: http://elastest.io/blog/
+[ElasTest Doc]: http://elastest.io/docs/
 [ElasTest Logo]: http://elastest.io/images/logos_elastest/elastest-logo-gray-small.png
+[ElasTest Public Mailing List]: https://groups.google.com/forum/#!forum/elastest-users
 [ElasTest Twitter]: https://twitter.com/elastestio
 [GitHub ElasTest Group]: https://github.com/elastest
+[GitHub ElasTest Bugtracker]: https://github.com/elastest/bugtracker
+[Repository Doc]: docs/index.md
+[StackOverflow]: http://stackoverflow.com/questions/tagged/elastest
+[Universidad Rey Juan Carlos]: https://www.urjc.es/
