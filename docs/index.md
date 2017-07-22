@@ -111,18 +111,18 @@ In the next diagram, you can to see The ElasTest TORM Components Architecture.
 ![ElasTest TORM Arquitecture](imgs/ElasTest_Torm_Development_Architecture.png)
 
 #### ElasTest TORM Web Client Application
-This appication provides a frendly GUI to ElasTest TORM Platform, allowing to the users managment theirs test in a simple way. 
+This appication provides a friendly GUI to ElasTest TORM Platform, allowing to the users managment theirs test in a simple way. 
 
 #### ElasTest TORM Server Application 
-This application is the ElasTest TORM backend that provides the API to the Web Client Application to access the resources and implements integration with the rest of the platform services. It is a J2EE Application developed with SpringBoot, the Spring solution for creating stand-alone applications as quickly as possible.
+This application is the ElasTest TORM backend that provides the API to the Web Client Application to access the resources and implements integration with the rest of the platform services. It is a Java Application developed with SpringBoot, the Spring solution for creating stand-alone applications as quickly as possible.
 
 #### ElasTest TORM platform services
 ElasTest TORM uses severals external services to implementing the features it offers. These services are shown in the diagram and described below.
 
 - **[MySql DB:](https://www.mysql.com/)** The DDBB System that uses the ElasTest TORM to store the persistent data, necessary to manage the Projects, TJobs, Suts and TJobs Executions.
 - **[Logstash:](https://www.elastic.co/products/logstash)** As indicated on its website *"It is a server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite *stash**". ElasTest TORM uses it, to retrive all log information that is produce by the applications run inside the docker containers created from a TJob execution. These records will be sent to the Elasticsearch and RabbitMq servers.
-- **[RabbitMQ:](https://www.rabbitmq.com/)** It is a open source message broker, wich uses ElasTest TORM to read the messages received from the Logstash service.
 - **[Beats:](https://www.elastic.co/products/beats)** As indicated on its website "*Beats is the platform for single-purpose data shippers. They install as lightweight agents and send data from hundreds or thousands of machines to Logstash or Elasticsearch*". ElasTest TORM uses it, to retrive the all system metrics generated from the docker containers started from a TJob execution, to send its to Logstash service.
+- **[RabbitMQ:](https://www.rabbitmq.com/)** It is a open source message broker, wich uses ElasTest TORM to read the messages received from the Logstash service.
 	
 ### Prerequisites
 Before you start to configure the ElasTest TORM development environment, it is necessary to have installed the following tools:
@@ -203,7 +203,7 @@ From Eclipse IDE:
 
 #### ElasTest TORM Client Application
 From Visual Studio Code:
-- Open the project folder. From the *File* menu, click the * Open folder * item and select the *elastest-torm-gui* folder, within the local *elastest-torm* repositoy.    
+- Open the project folder. From the *File* menu, click the *Open folder* item and select the *elastest-torm-gui* folder, within the local *elastest-torm* repositoy.    
 - Open the integrated terminal
 - Type `npm install`
 - Type `npm start`
