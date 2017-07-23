@@ -26,20 +26,23 @@ export class EusService {
     return this.http.get(url).map(response => {
       let responseUrl = response.text();
 
-      const token1 = "//";
-      const token2 = ":";
-      const token3 = "host=";
-      const token4 = "&port";
-      let index1 = responseUrl.indexOf(token1) + token1.length;
-      let index2 = responseUrl.indexOf(token2, responseUrl.indexOf(token2) + 1);
-      let index3 = responseUrl.indexOf(token3) + token3.length;
-      let index4 = responseUrl.indexOf(token4);
+      if (this.hostName !== 'localhost' && this.hostName !== '127.0.0.1'){
+        const token1 = "//";
+        const token2 = ":";
+        const token3 = "host=";
+        const token4 = "&port";
+        let index1 = responseUrl.indexOf(token1) + token1.length;
+        let index2 = responseUrl.indexOf(token2, responseUrl.indexOf(token2) + 1);
+        let index3 = responseUrl.indexOf(token3) + token3.length;
+        let index4 = responseUrl.indexOf(token4);
 
-      let changedUrl = responseUrl.substring(0, index1) +
-        this.hostName + responseUrl.substring(index2, index3) +
-        this.hostName + responseUrl.substring(index4);
+        let changedUrl = responseUrl.substring(0, index1) +
+          this.hostName + responseUrl.substring(index2, index3) +
+          this.hostName + responseUrl.substring(index4);
 
-      return changedUrl;
+        responseUrl = changedUrl;
+      }      
+      return responseUrl;     
     });
   }
 
