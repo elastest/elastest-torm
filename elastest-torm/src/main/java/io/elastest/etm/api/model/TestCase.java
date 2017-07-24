@@ -38,7 +38,7 @@ public class TestCase {
 	private double time;
 
 	@JsonView({ BasicTestCase.class, BasicTestSuite.class, BasicAttTJobExec.class })
-	@Column(name = "failureMessage", length = 400)
+	@Column(name = "failureMessage", length = 800)
 	@JsonProperty("failureMessage")
 	private String failureMessage;
 
@@ -53,7 +53,7 @@ public class TestCase {
 	private String failureErrorLine;
 
 	@JsonView({ BasicTestCase.class, BasicTestSuite.class, BasicAttTJobExec.class })
-	@Column(name = "failureDetail", length = 400)
+	@Column(name = "failureDetail", length = 800)
 	@JsonProperty("failureDetail")
 	private String failureDetail;
 

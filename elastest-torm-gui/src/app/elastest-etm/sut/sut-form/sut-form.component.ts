@@ -40,6 +40,14 @@ export class SutFormComponent implements OnInit {
       }
     }
   }
+  sutBy(selected: string) {
+    if (selected === 'imageName') {
+      this.sut.specification = '';
+    }
+    else {
+      this.sut.imageName = '';
+    }
+  }
 
   goBack(): void {
     window.history.back();
@@ -49,8 +57,8 @@ export class SutFormComponent implements OnInit {
     console.log(this.sut);
     this.sutService.createSut(this.sut)
       .subscribe(
-      sut => this.postSave(sut),
-      error => console.log(error)
+      (sut) => this.postSave(sut),
+      (error) => console.log(error)
       );
 
   }

@@ -31,6 +31,7 @@ export class SutService {
     sutsDataToTable.id = sut.id;
     sutsDataToTable.name = sut.name;
     sutsDataToTable.specification = sut.specification;
+    sutsDataToTable.imageName = sut.imageName;
     sutsDataToTable.description = sut.description;
     sutsDataToTable.project = sut.project;
 

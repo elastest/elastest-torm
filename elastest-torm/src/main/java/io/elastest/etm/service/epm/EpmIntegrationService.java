@@ -58,7 +58,7 @@ public class EpmIntegrationService {
 
 			List<ReportTestSuite> testSuites;
 			// Start Test
-			testSuites = dockerService.startTest(tJobExec.getTjob().getImageName(), dockerExec);
+			testSuites = dockerService.startTest(dockerExec);
 			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
 			saveTestResults(testSuites, tJobExec);
 

@@ -7,20 +7,32 @@
     <form #sutForm="ngForm">
       <div layout="row" class="push-top push-bottom">
         <md-input-container flex>
-          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut Name" [(ngModel)]="sut.name" name="sutName" required>
+          <input mdInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName" required>
         </md-input-container>
       </div>
       <div layout="row" class="push-top push-bottom">
         <md-input-container flex>
-          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut Description" [(ngModel)]="sut.description"
-            name="sutDesc" required>
+          <input mdInput type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc" required>
         </md-input-container>
       </div>
-      <div layout="row" class="push-top push-bottom">
-        <md-input-container flex>
-          <input mdInput #sutFormElement #sutFormControl="ngModel" type="text" placeholder="Sut GitHub App Repository" [(ngModel)]="sut.specification"
-            name="sutRepo" required>
-        </md-input-container>
+      <div layout="column" class="push-top push-bottom">
+        <md-radio-group #radioGroup (change)="sutBy(imageName.checked ? 'imageName' : 'repository')">
+          <md-radio-button #imageName name="imageName" value="true" checked="checked" class="push-right">
+            By Image Name
+          </md-radio-button>
+
+          <md-radio-button #repository name="repository" value="false">
+            By GitHub App Repository
+          </md-radio-button>
+        </md-radio-group>
+        <div layout="row" class="push-top">
+          <md-input-container flex="100" *ngIf="imageName.checked">
+            <input mdInput type="text" placeholder="SuT Image Name" [(ngModel)]="sut.imageName" name="sutImageName" required>
+          </md-input-container>
+          <md-input-container flex="100" *ngIf="repository.checked">
+            <input mdInput type="text" placeholder="SuT GitHub App Repository" [(ngModel)]="sut.specification" name="sutRepo" required>
+          </md-input-container>
+        </div>
       </div>
     </form>
   </md-card-content>

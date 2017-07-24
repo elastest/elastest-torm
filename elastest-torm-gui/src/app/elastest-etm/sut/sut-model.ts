@@ -4,6 +4,7 @@ export class SutModel {
     id: number;
     name: string;
     specification: string;
+    imageName: string;
     description: string;
     project: ProjectModel;
 
@@ -11,6 +12,7 @@ export class SutModel {
         this.id = 0;
         this.name = '';
         this.specification = '';
+        this.imageName = '';
         this.description = '';
         this.project = undefined;
     }

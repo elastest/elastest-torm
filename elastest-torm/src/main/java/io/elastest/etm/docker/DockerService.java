@@ -41,21 +41,19 @@ public class DockerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
 
-	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX ="tcp://"; 
+	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
 	private static Boolean isRunningInContainer;
 	private static String hostIp;
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
-	
-	private String testImage = "";
-	
-	//On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"	
+
+	// On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"
 	@Value("${elastest.test-results.directory}")
-	private String volumeDirectoryToWriteTestResutls; 
-	
-	//On Windows: "c:/Users/docker/test-results"
+	private String volumeDirectoryToWriteTestResutls;
+
+	// On Windows: "c:/Users/docker/test-results"
 	@Value("${elastest.test-results.directory.windows}")
 	private String volumeDirectoryToReadTestResults;
-	
+
 	@Value("${docker.host.port}")
 	private String dockerHostPort;
 
@@ -88,13 +86,16 @@ public class DockerService {
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort).build();
+					.withDockerHost(
+							DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort)
+					.build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 
 		} else {
-			logger.info("Execute on Linux.");			
+			logger.info("Execute on Linux.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getHostIp() + ":" + dockerHostPort).build();
+					.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getHostIp() + ":" + dockerHostPort)
+					.build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
@@ -110,8 +111,16 @@ public class DockerService {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
 			System.out.println("Starting sut " + dockerExec.getExecutionId());
-			String envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
-
+			String sutImage = appImage;
+			String envVar = "";
+			if (sutExec.getSutSpecification().sutBy() == "imageName") {
+				sutImage = sutExec.getSutSpecification().getImageName();
+				envVar = "REPO_URL=none";
+			} else {
+				envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
+			}
+			System.out.println("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
+			
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
 			Map<String, String> configMap = new HashMap<String, String>();
@@ -120,9 +129,9 @@ public class DockerService {
 
 			logConfig.setConfig(configMap);
 
-			dockerExec.getDockerClient().pullImageCmd(appImage).exec(new PullImageResultCallback()).awaitSuccess();
+			dockerExec.getDockerClient().pullImageCmd(sutImage).exec(new PullImageResultCallback()).awaitSuccess();
 
-			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(appImage).withEnv(envVar)
+			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(sutImage).withEnv(envVar)
 					.withLogConfig(logConfig).withNetworkMode(dockerExec.getNetwork())
 					.withName("sut_" + dockerExec.getExecutionId()).exec());
 
@@ -150,7 +159,6 @@ public class DockerService {
 	}
 
 	public void checkSut(DockerExecution dockerExec, String ip, String port) {
-
 		String envVar = "IP=" + ip;
 		String envVar2 = "PORT=" + port;
 		ArrayList<String> envList = new ArrayList<>();
@@ -178,10 +186,10 @@ public class DockerService {
 		}
 	}
 
-	public List<ReportTestSuite> startTest(String testImage, DockerExecution dockerExec) {
+	public List<ReportTestSuite> startTest(DockerExecution dockerExec) {
 		try {
 			System.out.println("Starting test " + dockerExec.getExecutionId());
-			this.testImage = testImage;
+			String testImage = dockerExec.gettJobexec().getTjob().getImageName();
 
 			System.out.println("host: " + getHostIpByNetwork(dockerExec, "bridge"));
 
@@ -253,11 +261,6 @@ public class DockerService {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getTestContainerId()).exec();
-			try {
-				dockerExec.getDockerClient().removeImageCmd(testImage).withForce(true).exec();
-			} catch (Exception e) {
-				System.out.println("Remove image " + testImage + " failed. In use. " + dockerExec.getExecutionId());
-			}
 		} catch (Exception e) {
 			System.out.println("Error on ending test execution  " + dockerExec.getExecutionId());
 
@@ -274,11 +277,6 @@ public class DockerService {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getAppContainerId()).exec();
-			try {
-				dockerExec.getDockerClient().removeImageCmd(appImage).withForce(true).exec();
-			} catch (Exception e) {
-				System.out.println("Remove image " + appImage + " failed. In use. " + dockerExec.getExecutionId());
-			}
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
@@ -316,18 +314,18 @@ public class DockerService {
 
 	public List<ReportTestSuite> getTestResults(String localTestDir, DockerExecution dockerExec) {
 		logger.info("TestResult file path:" + localTestDir);
-		
+
 		File surefireXML = new File(localTestDir);
 		List<File> reportsDir = new ArrayList<>();
 		reportsDir.add(surefireXML);
-		
+
 		logger.info("file content:" + surefireXML.toString());
 
 		SurefireReportParser surefireReport = new SurefireReportParser(reportsDir, new Locale("en", "US"), null);
 		List<ReportTestSuite> testSuites = new ArrayList<ReportTestSuite>();
 		try {
 			testSuites = surefireReport.parseXMLReportFiles();
-			logger.info("Testsuit size: "+ testSuites.size());
+			logger.info("Testsuit size: " + testSuites.size());
 		} catch (MavenReportException e) {
 			e.printStackTrace();
 		}
