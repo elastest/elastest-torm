@@ -524,6 +524,9 @@ export class ElastestLogManagerComponent implements OnInit {
     let newPosition: number = fromData ? this.dataForAdding.position + 1 : undefined;
     let loaded: boolean = false;
 
+    let popupDuration: number = this.useTail ? 1 : undefined;
+    let popupCss: any[] = this.useTail ? ['snackBarHidden'] : [];
+
     if (data.hits !== undefined && data.hits.hits !== undefined) {
       let total: number = data.hits.hits.length;
       let counter: number = total;
@@ -559,7 +562,7 @@ export class ElastestLogManagerComponent implements OnInit {
           logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
           if (counter > 0
             && (time !== this.rowData[position].time || message !== this.rowData[position].message)
-          ) { //If not is Last trace and not repeated
+          ) { // If not is Last trace and not repeated
             this.rowData.splice(position, 0, logRow);
             newPosition++;
             loaded = true;
@@ -569,7 +572,7 @@ export class ElastestLogManagerComponent implements OnInit {
       }
     }
     if (loaded) {
-      if (fromData) { //Add more from row selected
+      if (fromData) { // Add more from row selected
         this.updateRowsPositions(newPosition);
       }
       if (this.dataForAdding !== undefined && this.dataForAdding.position > 0) {
@@ -577,21 +580,21 @@ export class ElastestLogManagerComponent implements OnInit {
         this.doClickRow(this.dataForAdding.position);
       }
 
-      //Update table
+      // Update table
       this.initSearchTable(1, 1, this.rowData.length);
 
-      this.popupService.openSnackBar('Logs has been loaded', 'OK').afterOpened()
+      this.popupService.openSnackBar('Logs has been loaded', 'OK', popupDuration, popupCss).afterOpened()
         .subscribe(
         (data) => this.searchByPatterns()
         );
 
     }
     else {
-      if (fromData) { //Add more from row selected
-        this.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK');
+      if (fromData) { // Add more from row selected
+        this.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK', popupDuration, popupCss);
       }
-      else { //New search or load more
-        this.popupService.openSnackBar('There aren\'t logs to load', 'OK');
+      else { // New search or load more
+        this.popupService.openSnackBar('There aren\'t logs to load', 'OK', popupDuration, popupCss);
       }
     }
   }
@@ -733,12 +736,12 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
-  markOrClean(index: number){
+  markOrClean(index: number) {
     let pattern: SearchPatternModel = this.patterns[index];
-    if(pattern.found<1){
+    if (pattern.found < 1) {
       this.searchByPattern(index);
     }
-    else{
+    else {
       pattern.found = -1;
       pattern.position = -1;
       pattern.results = [];

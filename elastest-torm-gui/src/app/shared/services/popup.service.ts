@@ -6,9 +6,10 @@ export class PopupService {
     constructor(private snackBar: MdSnackBar,
     ) { }
 
-    openSnackBar(message: string, action: string) {
+    openSnackBar(message: string, action: string, duration?: number, extraClasses?: any[]) {
         return this.snackBar.open(message, action, {
-            duration: 3500,
+            duration: duration ? duration : 3500,
+            extraClasses: extraClasses ? extraClasses : []
         });
     }
 }

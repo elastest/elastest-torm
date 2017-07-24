@@ -55,12 +55,12 @@
               </div>
 
               <div flex-gt-xs="10" flex-gt-md="10" flex-gt-lg="10" flex-offset-gt-xs="20" flex-offset-gt-lg="15" custom-flex-offset-xl="5" class="margin-top-gt-xs">
-                <md-card-subtitle>Log type</md-card-subtitle>
+                <md-card-subtitle>Type</md-card-subtitle>
                 <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
                 <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
               </div>
               <div flex-gt-xs="10" flex-gt-lg="25" flex-offset-gt-sm="5" class="margin-top-gt-xs">
-                <md-card-subtitle>Log Level</md-card-subtitle>
+                <md-card-subtitle>Level</md-card-subtitle>
                 <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>
                 <md-checkbox #info name="infoLevel" [(ngModel)]="infoLevel" (change)="infoLevel = info.checked">INFO</md-checkbox>
                 <md-checkbox #warn name="warnLevel" [(ngModel)]="warnLevel" (change)="warnLevel = warn.checked">WARN</md-checkbox>
