@@ -44,8 +44,17 @@ td-layout-manage-list .mat-toolbar {
     padding: 0 6px !important;
 }
 
+.iconBtn-lg{
+    min-width: initial !important;
+    padding: 0 15px !important;
+}
+
 .snackBarHidden{
    visibility: hidden; 
+}
+
+.boxShadowNone{
+    box-shadow: none !important;
 }
 
 

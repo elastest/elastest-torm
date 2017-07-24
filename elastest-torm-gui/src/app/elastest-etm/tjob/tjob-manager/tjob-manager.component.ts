@@ -89,4 +89,13 @@ export class TjobManagerComponent implements OnInit {
     this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tJobExec.id]);
   }
 
+  runTJob() {
+    this.tJobExecService.runTJob(this.tJob.id)
+      .subscribe(
+      (tjobExecution: TJobExecModel) => {
+        this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
+      },
+      (error) => console.error('Error:' + error),
+    );
+  }
 }

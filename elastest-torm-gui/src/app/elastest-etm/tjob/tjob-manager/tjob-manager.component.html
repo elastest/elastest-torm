@@ -15,6 +15,10 @@
           <span flex-gt-xs="25" *ngIf="tJob.hasSut()">
             <md-card-subtitle>Sut</md-card-subtitle><h4>{{tJob.sut.id}}</h4>
           </span>
+          <span flex-gt-xs="25">
+            <md-card-subtitle>Run TJob</md-card-subtitle>
+            <button md-button (click)="runTJob()" class="iconBtn-lg" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
+          </span>
         </div>
       </md-card-content>
     </md-card>

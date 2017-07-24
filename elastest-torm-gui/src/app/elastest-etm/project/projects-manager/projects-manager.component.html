@@ -19,8 +19,8 @@
                     [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="showProjectChilds($event)">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
-                            <button md-button (click)="editProject(row)" title="Edit Project"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteProject(row)" title="Delete Project"><md-icon>delete</md-icon></button>
+                            <button md-button (click)="editProject(row)" class="iconBtn-lg" title="Edit Project"><md-icon>mode_edit</md-icon></button>
+                            <button md-button (click)="deleteProject(row)" class="iconBtn-lg" title="Delete Project"><md-icon>delete</md-icon></button>
                         </div>
                     </ng-template>
                 </td-data-table>
@@ -29,8 +29,8 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" flex-gt-sm="100" *ngIf="projectChildsActived">
-    <div flex-gt-sm="50" layout-gt-sm="column">
+<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="projectChildsActived">
+    <div flex-gt-lg="50" layout-gt-sm="column">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
                 Project {{projectSelected.id}} TJobs
@@ -49,10 +49,10 @@
                     </ng-template>
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
-                            <button md-button (click)="runTJob(row)" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
-                            <button md-button (click)="viewTJob(row)" title="View TJob"><md-icon>remove_red_eye</md-icon></button>
-                            <button md-button (click)="editTJob(row)" title="Edit TJob"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteTJob(row)" title="Delete TJob"><md-icon>delete</md-icon></button>
+                            <button md-button (click)="runTJob(row)" class="iconBtn-lg" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
+                            <button md-button (click)="viewTJob(row)" class="iconBtn-lg" title="View TJob"><md-icon>remove_red_eye</md-icon></button>
+                            <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob"><md-icon>mode_edit</md-icon></button>
+                            <button md-button (click)="deleteTJob(row)" class="iconBtn-lg" title="Delete TJob"><md-icon>delete</md-icon></button>
                         </div>
                     </ng-template>
                 </td-data-table>
@@ -60,7 +60,7 @@
         </md-card>
     </div>
 
-    <div flex-gt-sm="50" layout-gt-sm="column">
+    <div flex-gt-lg="50" layout-gt-sm="column">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
                 Project {{projectSelected.id}} SuTs
@@ -75,9 +75,9 @@
                     [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
-                            <button md-button (click)="viewSut(row)" title="View Sut"><md-icon>remove_red_eye</md-icon></button>
-                            <button md-button (click)="editSut(row)" title="Edit SuT"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteSut(row)" title="Delete SuT"><md-icon>delete</md-icon></button>
+                            <button md-button (click)="viewSut(row)" class="iconBtn-lg" title="View Sut"><md-icon>remove_red_eye</md-icon></button>
+                            <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT"><md-icon>mode_edit</md-icon></button>
+                            <button md-button (click)="deleteSut(row)" class="iconBtn-lg" title="Delete SuT"><md-icon>delete</md-icon></button>
                         </div>
                     </ng-template>
                 </td-data-table>
