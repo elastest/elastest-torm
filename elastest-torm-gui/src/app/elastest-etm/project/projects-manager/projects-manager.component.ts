@@ -151,7 +151,6 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   editProject(project: ProjectModel) {
-    console.log(project);
     this.router.navigate(['/projects/edit', project.id]);
   }
 
@@ -179,11 +178,13 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   showProjectChildsByProject(project: ProjectModel) {
-    this.projectChildsActived = true;
-    this.projectSelected = project;
-    this.sutData = project.suts;
-    this.tjobData = project.tjobs;
-    this.clearTJobForm();
+    if (project !== undefined) {
+      this.projectChildsActived = true;
+      this.projectSelected = project;
+      this.sutData = project.suts;
+      this.tjobData = project.tjobs;
+      this.clearTJobForm();
+    }
   }
 
   // TJobs functions

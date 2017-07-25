@@ -86,7 +86,6 @@ public class EpmIntegrationService {
 		TestSuite tSuite;
 		TestCase tCase;
 		ReportTestSuite reportTestSuite = testSuites.get(0);
-		// for (ReportTestSuite reportTestSuite : testSuites) {
 		tSuite = new TestSuite();
 		tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
 		tSuite.setErrors(reportTestSuite.getNumberOfErrors());
@@ -95,8 +94,6 @@ public class EpmIntegrationService {
 		tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
 		tSuite.setName(reportTestSuite.getName());
 		tSuite.setnumTests(reportTestSuite.getNumberOfTests());
-
-//		tSuite.settJobExec(tJobExec);
 
 		tSuite = testSuiteRepo.save(tSuite);
 

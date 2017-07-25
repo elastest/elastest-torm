@@ -1,14 +1,12 @@
 package io.elastest.etm.docker;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.apache.maven.plugins.surefire.report.SurefireReportParser;
 import org.apache.maven.reporting.MavenReportException;
@@ -18,9 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.Volume;
@@ -32,7 +27,6 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.api.model.TestSuite;
 import io.elastest.etm.service.sut.SutService;
 import io.elastest.etm.utils.UtilTools;
 
@@ -42,8 +36,6 @@ public class DockerService {
 	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
 
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
-	private static Boolean isRunningInContainer;
-	private static String hostIp;
 	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "edujgurjc/check-service-up";
 
 	// On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"
@@ -79,10 +71,9 @@ public class DockerService {
 		}
 	}
 
-	/* Config Methods */
+	/* Config Methods */ 
 
 	public void configureDocker(DockerExecution dockerExec) {
-
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()

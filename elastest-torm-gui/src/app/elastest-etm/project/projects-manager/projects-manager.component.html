@@ -12,7 +12,7 @@
                 </div>
                 <md-divider></md-divider>
                 <div class="push" layout="row">
-                    <button md-raised-button color="accent" [routerLink]="['add']">New Project</button>
+                    <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
                 </div>
                 <md-divider></md-divider>
                 <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
