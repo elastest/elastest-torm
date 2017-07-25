@@ -28,8 +28,8 @@ import javax.validation.constraints.*;
 @Entity
 public class TJob {
 	
-	public interface BasicAttTJob {
-	}
+	public interface BasicAttTJob {}	
+	
 	@JsonView({ BasicAttTJob.class,  BasicAttProject.class, BasicAttTJobExec.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -69,16 +69,22 @@ public class TJob {
 	@JoinColumn(name="project")
 	private Project project;
 	
+//	@JsonView(BasicAttTJob.class)
+//	@Column(name = "external")
+//	@JsonProperty("external")
+//	private boolean external = false;
+	
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, SutSpecification sut, Project project) {
+	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, SutSpecification sut, Project project/*, boolean external*/) {
 		this.id = id==null? 0: id;
 		this.name = name;
 //		this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
 		this.project = project;
+//		this.external = external;
 	}
 
 	/**
@@ -238,6 +244,14 @@ public class TJob {
 		return tjobExec;
 	}
 	
+
+//	public boolean isExternal() {
+//		return external;
+//	}
+//
+//	public void setExternal(boolean external) {
+//		this.external = external;
+//	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {

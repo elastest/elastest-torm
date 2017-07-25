@@ -1,3 +1,4 @@
+import { RouterModule } from '@angular/router';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
 import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
@@ -12,7 +13,7 @@ import { CovalentMarkdownModule } from '@covalent/markdown';
 import { AppComponent } from './app.component';
 import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
-import { routedComponents, AppRoutingModule } from './app-routing.module';
+import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
@@ -55,6 +56,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialog
   ], // directives, components, and pipes owned by this NgModule
   imports: [
+    appRoutes,
     AppRoutingModule,
     BrowserModule,
     BrowserAnimationsModule,
