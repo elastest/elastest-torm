@@ -193,3 +193,5 @@ export const routedComponents: any[] = [
     SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
     TjobManagerComponent, TJobFormComponent, TjobExecManagerComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
 ];
+
+export const appRoutes: any = RouterModule.forRoot(routes, { useHash: true });

@@ -12,7 +12,7 @@ import { CovalentMarkdownModule } from '@covalent/markdown';
 import { AppComponent } from './app.component';
 import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
-import { routedComponents, AppRoutingModule } from './app-routing.module';
+import { appRoutes, AppRoutingModule, routedComponents } from './app-routing.module';
 
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
@@ -56,6 +56,7 @@ const httpInterceptorProviders: Type<any>[] = [
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
+    appRoutes,
     BrowserModule,
     BrowserAnimationsModule,
     SharedModule,
