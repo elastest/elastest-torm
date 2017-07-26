@@ -1,10 +1,13 @@
 package io.elastest.etm.api.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -86,8 +89,12 @@ public class TJobExecution {
 	// bi-directional many-to-one association to TestSuite
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "testSuite")
+	@JoinColumn(name = "testSuite")
 	private TestSuite testSuite;
+
+	@ElementCollection
+	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
+	private List<Parameter> parameters;
 
 	// Constructors
 	public TJobExecution() {
@@ -238,35 +245,6 @@ public class TJobExecution {
 		return this;
 	}
 
-	// /**
-	// * URLs of logs
-	// *
-	// * @return logs
-	// **/
-	// @ApiModelProperty(value = "URLs of logs")
-	//
-	// @Valid
-	// public List<Log> getLogs() {
-	// return logs;
-	// }
-	//
-	// public void setLogs(List<Log> logs) {
-	// this.logs = logs;
-	// }
-	//
-	//
-	// public TJobExecution logs(List<Log> logs) {
-	// this.logs = logs;
-	// return this;
-	// }
-	//
-	// public TJobExecution addLogsItem(Log logsItem) {
-	// if (this.logs == null) {
-	// this.logs = new ArrayList<Log>();
-	// }
-	// this.logs.add(logsItem);
-	// return this;
-	// }
 
 	/**
 	 * Log table Index
@@ -328,7 +306,7 @@ public class TJobExecution {
 		return testSuite;
 	}
 
-	public void settestSuite(TestSuite testSuite) {
+	public void setTestSuite(TestSuite testSuite) {
 		this.testSuite = testSuite;
 	}
 
@@ -336,6 +314,32 @@ public class TJobExecution {
 		this.testSuite = testSuite;
 		return this;
 	}
+
+	/**
+	 * parameters
+	 */
+	
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(List<Parameter> parameters) {
+		this.parameters = parameters;
+	}
+	
+	 public TJobExecution logs(List<Parameter> parameters) {
+	 this.parameters = parameters;
+	 return this;
+	 }
+	
+	 public TJobExecution addLogsItem(Parameter parameter) {
+	 if (this.parameters == null) {
+	 this.parameters = new ArrayList<Parameter>();
+	 }
+	 this.parameters.add(parameter);
+	 return this;
+	 }
+
 
 	// Others
 
@@ -354,12 +358,13 @@ public class TJobExecution {
 				&& Objects.equals(this.error, tjobExecution.error)
 				&& Objects.equals(this.logIndex, tjobExecution.logIndex)
 				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
-				&& Objects.equals(this.testSuite, tjobExecution.testSuite);
+				&& Objects.equals(this.testSuite, tjobExecution.testSuite)
+				&& Objects.equals(this.parameters, tjobExecution.parameters);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution, testSuite);
+		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution, testSuite, parameters);
 	}
 
 	@Override
@@ -374,7 +379,8 @@ public class TJobExecution {
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
 		sb.append("    logIndex: ").append(toIndentedString(logIndex)).append("\n");
 		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
-		sb.append("    testSuite: ").append(toIndentedString(testSuite)).append("\n");;
+		sb.append("    testSuite: ").append(toIndentedString(testSuite)).append("\n");
+		sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

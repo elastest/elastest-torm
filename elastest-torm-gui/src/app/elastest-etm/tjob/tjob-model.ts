@@ -1,3 +1,4 @@
+import { ParameterModel } from '../parameter/parameter-model';
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
@@ -9,6 +10,7 @@ export class TJobModel {
     sut: SutModel;
     project: ProjectModel;
     tjobExecs: TJobExecModel[];
+    parameters: any[];
 
     constructor() {
         this.id = 0;
@@ -17,6 +19,7 @@ export class TJobModel {
         this.sut = undefined;
         this.project = undefined;
         this.tjobExecs = [];
+        this.parameters = [];
     }
 
     public hasSut(): boolean {

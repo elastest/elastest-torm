@@ -111,7 +111,7 @@ public class EpmIntegrationService {
 		}
 
 		testSuiteRepo.save(tSuite);
-		tJobExec.settestSuite(tSuite);
+		tJobExec.setTestSuite(tSuite);
 		// }
 
 	}

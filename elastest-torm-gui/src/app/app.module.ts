@@ -52,7 +52,7 @@ const httpInterceptorProviders: Type<any>[] = [
     TjobExecManagerComponent,
     SutExecManagerComponent,
     SafePipe,
-    ElastestEusDialog
+    ElastestEusDialog,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,

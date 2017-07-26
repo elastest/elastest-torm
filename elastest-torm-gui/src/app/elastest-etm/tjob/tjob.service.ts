@@ -1,3 +1,4 @@
+import { ParameterModel } from '../parameter/parameter-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { SutModel } from '../sut/sut-model';
 import { SutService } from '../sut/sut.service';
@@ -43,6 +44,7 @@ export class TJobService {
     }
     tjobsDataToTable.project = tjob.project;
     tjobsDataToTable.tjobExecs = tjob.tjobExecs;
+    tjobsDataToTable.parameters = tjob.parameters;
 
     return tjobsDataToTable;
   }

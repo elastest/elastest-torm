@@ -26,6 +26,9 @@
         </md-select>
         <span>Current SuT: {{currentSut}}</span>
       </div>
+      <div layout="row" class="push-top push-bottom">
+        <parameters-view [model]="tJob.parameters"></parameters-view>
+      </div>
     </form>
   </md-card-content>
   <md-divider></md-divider>
