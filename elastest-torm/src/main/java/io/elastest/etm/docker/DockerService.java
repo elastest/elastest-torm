@@ -26,6 +26,7 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
+import io.elastest.etm.api.model.Parameter;
 import io.elastest.etm.api.model.SutExecution;
 import io.elastest.etm.service.sut.SutService;
 import io.elastest.etm.utils.UtilTools;
@@ -61,7 +62,6 @@ public class DockerService {
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		try {
 			configureDocker(dockerExec);
-			// createNetwork(dockerExec);
 			dockerExec.setNetwork("bridge");
 			if (dockerExec.isWithSut()) {
 				startSut(dockerExec);
@@ -90,11 +90,6 @@ public class DockerService {
 					.build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
-	}
-
-	public void createNetwork(DockerExecution dockerExec) {
-		dockerExec.generateNetwork();
-		dockerExec.getDockerClient().createNetworkCmd().withName(dockerExec.getNetwork()).exec();
 	}
 
 	/* Starting Methods */
@@ -138,14 +133,13 @@ public class DockerService {
 			int sutPort = 8080;
 			String sutUrl = "http://" + sutIP + ":" + sutPort;
 			sutExec.setUrl(sutUrl);
-			
+
 			// Wait for Sut started
 			checkSut(dockerExec, sutIP, sutPort + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
 			endSutExec(dockerExec);
-			// removeNetwork(dockerExec);
 		}
 		dockerExec.setSutExec(sutExec);
 	}
@@ -184,13 +178,16 @@ public class DockerService {
 
 			System.out.println("host: " + getHostIp(dockerExec));
 
-			String envVar = "DOCKER_HOST=tcp://" + getHostIp(dockerExec) + ":2375";
-			String envVar2 = "APP_IP=" + (dockerExec.isWithSut() ? dockerExec.getSutExec().getUrl() : "0");
-			String envVar3 = "NETWORK=" + dockerExec.getNetwork();
 			ArrayList<String> envList = new ArrayList<>();
-			envList.add(envVar);
-			envList.add(envVar2);
-			envList.add(envVar3);
+			String envVar;
+			for (Parameter parameter : dockerExec.gettJobexec().getTjob().getParameters()) {
+				envVar = parameter.getName() + "=" + parameter.getValue();
+				envList.add(envVar);
+			}
+			if (dockerExec.isWithSut()) {
+				envVar = "APP_IP=" + dockerExec.getSutExec().getUrl();
+				envList.add(envVar);
+			}
 
 			Volume volume = new Volume("/results");
 			String localDirToWriteTestResults = volumeDirectoryToWriteTestResutls + "/" + dockerExec.getExecutionId();
@@ -199,7 +196,7 @@ public class DockerService {
 			LogConfig logConfig = new LogConfig();
 			logConfig.setType(LoggingType.SYSLOG);
 			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://" + getHostIpByNetwork(dockerExec, "bridge") + ":5000");
+			configMap.put("syslog-address", "tcp://" + getHostIpByNetwork(dockerExec, dockerExec.getNetwork()) + ":5000");
 			configMap.put("tag", "test_" + dockerExec.getExecutionId() + "_tjobexec");
 
 			logConfig.setConfig(configMap);
@@ -237,7 +234,6 @@ public class DockerService {
 			if (dockerExec.isWithSut()) {
 				endSutExec(dockerExec);
 			}
-			// removeNetwork(dockerExec);
 		} catch (Exception e) {
 			throw new Exception("end error"); // TODO Customize Exception
 		}
@@ -274,11 +270,6 @@ public class DockerService {
 		}
 		dockerExec.setSutExec(sutExec);
 		sutService.modifySutExec(dockerExec.getSutExec());
-	}
-
-	public void removeNetwork(DockerExecution dockerExec) {
-		System.out.println("Removing docker network... " + dockerExec.getExecutionId());
-		dockerExec.getDockerClient().removeNetworkCmd(dockerExec.getNetwork()).exec();
 	}
 
 	/* Utils */

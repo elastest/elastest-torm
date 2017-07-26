@@ -30,10 +30,6 @@ public class DockerExecution {
 		return "localhost:9200/" + executionId;
 	}
 
-	public void generateNetwork() {
-		setNetwork("TORM-" + tJobexec.getId().toString());
-	}
-
 	/* Getters and Setters */
 
 	public CreateContainerResponse getTestcontainer() {

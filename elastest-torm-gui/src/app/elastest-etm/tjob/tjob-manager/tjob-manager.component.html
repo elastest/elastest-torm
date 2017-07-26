@@ -16,10 +16,16 @@
             <md-card-subtitle>Sut</md-card-subtitle><h4>{{tJob.sut.id}}</h4>
           </span>
           <span flex-gt-xs="25">
-            <md-card-subtitle>Run TJob</md-card-subtitle>
+            <md-card-subtitle>Options</md-card-subtitle>
             <button md-button (click)="runTJob()" class="iconBtn-lg" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
+            <button md-button (click)="editTJob()" class="iconBtn-lg" title="Edit TJob"><md-icon>mode_edit</md-icon></button>
+            <button md-button (click)="deleteTJob()" class="iconBtn-lg" title="Delete TJob"><md-icon>delete</md-icon></button>
           </span>
         </div>
+
+        <td-expansion-panel label="Parameters" expand="false" *ngIf="tJob.parameters.length > 0">
+          <td-data-table [data]="tJob.parameters"></td-data-table>
+        </td-expansion-panel>
       </md-card-content>
     </md-card>
   </div>

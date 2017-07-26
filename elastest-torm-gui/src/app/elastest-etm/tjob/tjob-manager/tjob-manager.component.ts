@@ -98,4 +98,27 @@ export class TjobManagerComponent implements OnInit {
       (error) => console.error('Error:' + error),
     );
   }
+
+  editTJob() {
+    this.router.navigate(['/projects', this.tJob.project.id, 'tjob', 'edit', this.tJob.id]);
+  }
+  deleteTJob() {
+    let iConfirmConfig: IConfirmConfig = {
+      message: 'TJob ' + this.tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
+      disableClose: false,
+      viewContainerRef: this._viewContainerRef,
+      title: 'Confirm',
+      cancelButton: 'Cancel',
+      acceptButton: 'Yes, delete',
+    };
+    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
+      if (accept) {
+        this.tJobService.deleteTJob(this.tJob).subscribe(
+          (tJob) => this.router.navigate(['/projects']),
+          (error) => console.log(error)
+        );
+      }
+    });
+  }
+
 }

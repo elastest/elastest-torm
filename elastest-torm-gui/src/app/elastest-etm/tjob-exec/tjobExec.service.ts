@@ -60,6 +60,7 @@ export class TJobExecService {
       tjobExecsDataToTable.tJob = new TJobModel();
     }
     tjobExecsDataToTable.testSuite = tjobExec.testSuite;
+    tjobExecsDataToTable.parameters = tjobExec.parameters;
 
     return tjobExecsDataToTable;
   }
