@@ -69,22 +69,21 @@ public class TJob {
 	@JoinColumn(name="project")
 	private Project project;
 	
-//	@JsonView(BasicAttTJob.class)
-//	@Column(name = "external")
-//	@JsonProperty("external")
-//	private boolean external = false;
+	@Column(name = "external")
+	@JsonProperty("external")
+	private boolean external = false;
 	
 
 	public TJob() {	}
 	
-	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, SutSpecification sut, Project project/*, boolean external*/) {
+	public TJob(Long id, String name, /*List<TestService> testServices,*/ String imageName, SutSpecification sut, Project project, boolean external) {
 		this.id = id==null? 0: id;
 		this.name = name;
 //		this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
 		this.project = project;
-//		this.external = external;
+		this.external = external;
 	}
 
 	/**
@@ -245,13 +244,14 @@ public class TJob {
 	}
 	
 
-//	public boolean isExternal() {
-//		return external;
-//	}
-//
-//	public void setExternal(boolean external) {
-//		this.external = external;
-//	}
+	@ApiModelProperty(required = true, value = "", example = "false")
+	public boolean isExternal() {
+		return external;
+	}
+
+	public void setExternal(boolean external) {
+		this.external = external;
+	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -265,7 +265,8 @@ public class TJob {
 		return Objects.equals(this.id, tjob.id) && Objects.equals(this.name, tjob.name)
 //				&& Objects.equals(this.testServices, tjob.testServices)
 				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut)
-				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs);
+				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs)
+				&& Objects.equals(this.external, tjob.external);
 	}
 
 	@Override

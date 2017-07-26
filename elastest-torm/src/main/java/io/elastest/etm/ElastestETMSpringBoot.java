@@ -39,7 +39,6 @@ public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements Co
 		public int getExitCode() {
 			return 10;
 		}
-
 	}
 	
 	@Bean

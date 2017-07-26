@@ -49,7 +49,10 @@ public class TJobService {
 		tJobExec.setLogIndex(tJobExec.getId().toString());
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
-		epmIntegrationService.executeTJob(tJobExec);
+		if (!tjob.isExternal()){
+			epmIntegrationService.executeTJob(tJobExec);
+		}
+		
 		return tJobExec;
 	}
 	
