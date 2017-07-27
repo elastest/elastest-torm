@@ -1,3 +1,4 @@
+import { RunTJobModalComponent } from '../../tjob/run-tjob-modal/run-tjob-modal.component';
 import { Router } from '@angular/router';
 import { SutModel } from '../../sut/sut-model';
 import { SutService } from '../../sut/sut.service';
@@ -18,6 +19,7 @@ import {
   IConfirmConfig,
 } from '@covalent/core';
 import { AfterViewInit, Component, OnInit, ViewContainerRef } from '@angular/core';
+import { MdDialog } from '@angular/material';
 
 @Component({
   selector: 'etm-projects-manager',
@@ -87,7 +89,8 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   constructor(private _titleService: Title,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    private tJobService: TJobService, private tJobExecService: TJobExecService, private sutService: SutService) { }
+    private tJobService: TJobService, private tJobExecService: TJobExecService, private sutService: SutService,
+    public dialog: MdDialog) { }
 
   ngOnInit() {
     this.loadProjects();
@@ -216,14 +219,22 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.selectedSut = this.sutEmpty;
   }
 
-  runTJob(tJob: TJobModel) {
-    this.tJobExecService.runTJob(tJob.id)
-      .subscribe(
-      (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects', this.projectSelected.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
-      },
-      (error) => console.error('Error:' + error),
-    );
+  runTJob(tJob: TJobModel, project: ProjectModel) {
+    if (tJob.parameters.length > 0) {
+      tJob.project = project;
+      let dialogRef = this.dialog.open(RunTJobModalComponent, {
+        data: tJob.cloneTJob(),
+      });
+    }
+    else {
+      this.tJobExecService.runTJob(tJob.id, tJob.parameters)
+        .subscribe(
+        (tjobExecution: TJobExecModel) => {
+          this.router.navigate(['/projects', this.projectSelected.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
+        },
+        (error) => console.error('Error:' + error),
+      );
+    }
   }
   editTJob(tJob: TJobModel) {
     this.router.navigate(['/projects', this.projectSelected.id, 'tjob', 'edit', tJob.id]);

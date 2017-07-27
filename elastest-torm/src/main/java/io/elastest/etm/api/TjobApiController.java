@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import io.elastest.etm.api.model.Parameter;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJob.BasicAttTJob;
 import io.elastest.etm.api.model.TJobExecution;
@@ -72,9 +73,10 @@ public class TjobApiController implements TjobApi {
 	@CrossOrigin(origins = { "http://localhost:4200" })
 	@JsonView(BasicAttTJobExec.class)
 	public ResponseEntity<TJobExecution> execTJob(
-			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+			@ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters) {
 		try {
-			TJobExecution tJobExec = tJobService.executeTJob(tJobId);
+			TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters);
 			return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<TJobExecution>(HttpStatus.valueOf(utilTools.getHttpExceptionCode(e)));

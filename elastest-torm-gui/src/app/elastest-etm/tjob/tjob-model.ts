@@ -25,4 +25,13 @@ export class TJobModel {
     public hasSut(): boolean {
         return (this.sut !== undefined && this.sut !== null && this.sut.id !== 0);
     }
+
+    public cloneTJob() {
+        let tJob: TJobModel = Object.assign({}, this, {
+            parameters: [...this.parameters],
+            tjobExecs: [...this.tjobExecs],
+        }
+        );
+        return tJob;
+    }
 }

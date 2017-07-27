@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import io.elastest.etm.api.model.Parameter;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.swagger.annotations.*;
@@ -59,9 +60,10 @@ public interface TjobApi extends EtmApiRoot{
     	@ApiResponse(code = 500, message = "Server Error") })
     
     @RequestMapping(value = "/tjob/{tJobId}/exec",
+    	consumes = { "application/json" },
         produces = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId);
+    ResponseEntity<TJobExecution> execTJob(@ApiParam(value = "TJob Id.",required=true ) @PathVariable("tJobId") Long tJobId, @ApiParam(value = "Parameters", required = true)  @Valid @RequestBody List<Parameter> parameters);
 
 
     

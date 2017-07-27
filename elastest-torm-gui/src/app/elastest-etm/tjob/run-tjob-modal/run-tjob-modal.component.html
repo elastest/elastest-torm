@@ -1,0 +1,8 @@
+<h2 md-dialog-title>Run TJob Parameters</h2>
+<md-dialog-content>
+  <parameters-view [model]="tJob.parameters"></parameters-view>
+</md-dialog-content>
+<md-dialog-actions>
+  <button md-button md-dialog-close>Cancel</button>
+  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()">Run TJob</button>
+</md-dialog-actions>

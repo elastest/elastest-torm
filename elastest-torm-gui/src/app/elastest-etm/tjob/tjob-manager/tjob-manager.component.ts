@@ -1,3 +1,4 @@
+import { RunTJobModalComponent } from '../run-tjob-modal/run-tjob-modal.component';
 import { SutModel } from '../../sut/sut-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
@@ -8,6 +9,7 @@ import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { IConfirmConfig } from '@covalent/core';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { MdDialog } from '@angular/material';
 
 @Component({
   selector: 'app-tjob-manager',
@@ -41,7 +43,9 @@ export class TjobManagerComponent implements OnInit {
 
   constructor(private tJobService: TJobService, private tJobExecService: TJobExecService,
     private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef, ) { }
+    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    public dialog: MdDialog) { }
+
 
   ngOnInit() {
     this.tJob = new TJobModel();
@@ -90,13 +94,20 @@ export class TjobManagerComponent implements OnInit {
   }
 
   runTJob() {
-    this.tJobExecService.runTJob(this.tJob.id)
-      .subscribe(
-      (tjobExecution: TJobExecModel) => {
-        this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
-      },
-      (error) => console.error('Error:' + error),
-    );
+    if (this.tJob.parameters.length > 0) {
+      let dialogRef = this.dialog.open(RunTJobModalComponent, {
+        data: this.tJob.cloneTJob(),
+      });
+    }
+    else {
+      this.tJobExecService.runTJob(this.tJob.id, this.tJob.parameters)
+        .subscribe(
+        (tjobExecution: TJobExecModel) => {
+          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
+        },
+        (error) => console.error('Error:' + error),
+      );
+    }
   }
 
   editTJob() {

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.xml.ws.http.HTTPException;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.api.model.Parameter;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 import io.elastest.etm.dao.TJobExecRepository;
@@ -39,10 +40,11 @@ public class TJobService {
 	}
 
 	
-	public TJobExecution executeTJob(Long tJobId) {
+	public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters) {
 		TJob tjob = tJobRepo.findOne(tJobId);
 		TJobExecution tJobExec = new TJobExecution();
 		tJobExec.setTjob(tjob);
+		tJobExec.setParameters(parameters);
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
 		//After first save, get real Id

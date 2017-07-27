@@ -180,7 +180,7 @@ public class DockerService {
 
 			ArrayList<String> envList = new ArrayList<>();
 			String envVar;
-			for (Parameter parameter : dockerExec.gettJobexec().getTjob().getParameters()) {
+			for (Parameter parameter : dockerExec.gettJobexec().getParameters()) {
 				envVar = parameter.getName() + "=" + parameter.getValue();
 				envList.add(envVar);
 			}

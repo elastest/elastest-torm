@@ -23,7 +23,7 @@ import { SutService } from './elastest-etm/sut/sut.service';
 import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { ElasticSearchService } from './shared/services/elasticsearch.service';
-import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule } from '@angular/material';
+import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule } from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
@@ -38,6 +38,7 @@ import { EusService } from './elastest-eus/elastest-eus.service';
 import { SafePipe } from './elastest-eus/safe-pipe';
 import { ElastestEusDialog } from './elastest-eus/elastest-eus.dialog';
 import { ElastestEusDialogService } from './elastest-eus/elastest-eus.dialog.service';
+import { RunTJobModalComponent } from './elastest-etm/tjob/run-tjob-modal/run-tjob-modal.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -53,6 +54,7 @@ const httpInterceptorProviders: Type<any>[] = [
     SutExecManagerComponent,
     SafePipe,
     ElastestEusDialog,
+    RunTJobModalComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     AppRoutingModule,
@@ -66,6 +68,7 @@ const httpInterceptorProviders: Type<any>[] = [
     BrowserModule,
     FormsModule,
     MdButtonToggleModule,
+    MdDialogModule,
     CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
       interceptors: [{
@@ -98,7 +101,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialogService
   ],
   entryComponents: [
-    ElastestEusDialog
+    ElastestEusDialog,
+    RunTJobModalComponent
   ],
   bootstrap: [AppComponent],
 })

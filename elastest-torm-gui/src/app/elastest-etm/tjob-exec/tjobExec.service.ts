@@ -16,9 +16,9 @@ export class TJobExecService {
     private sutExecService: SutExecService, private sutService: SutService) { }
 
   //  TJobExecution functions
-  public runTJob(tJobId: number) {
+  public runTJob(tJobId: number, parameters: any[]) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
-    return this.http.post(url, {})
+    return this.http.post(url, parameters)
       .map((response) => response.json());
   }
 
