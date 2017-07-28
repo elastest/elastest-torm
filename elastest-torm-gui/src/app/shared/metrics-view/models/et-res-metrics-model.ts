@@ -55,12 +55,12 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
         this.showXAxis = true;
         this.showYAxis = true;
         this.gradient = false;
-        this.showLegend = false;
+        this.showLegend = true;
         this.showXAxisLabel = true;
         this.xAxisLabel = '';
         this.showYAxisLabel = true;
         this.yAxisLabel = '';
-        this.timeline = false;
+        this.timeline = true;
         this.autoScale = true;
 
         this.colorScheme = new ColorSchemeModel();

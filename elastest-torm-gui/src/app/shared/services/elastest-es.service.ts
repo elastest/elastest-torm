@@ -153,7 +153,7 @@ export class ElastestESService {
         let parsedData: any = undefined;
         if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
             parsedData = {
-                'value': trace.cpu.totalUsage,
+                'value': trace.cpu.totalUsage * 100,
                 'name': new Date('' + trace['@timestamp']),
                 'timestamp': trace['@timestamp'],
             };
