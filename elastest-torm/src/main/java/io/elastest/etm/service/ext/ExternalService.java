@@ -76,6 +76,7 @@ public class ExternalService {
 	
 		externalJob.settJobExecId(tJobExecution.getId());
 		externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + serverPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+		externalJob.setLogAnalyzerUrl("http://localhost:4200#/logmanager?indexName=" + tJobExecution.getId());
 		externalJob.setElasticsearchUrl(elasticsearchUrl);
 		externalJob.setRabbitMqconfig(new ExternalRabbitConfig());
 		

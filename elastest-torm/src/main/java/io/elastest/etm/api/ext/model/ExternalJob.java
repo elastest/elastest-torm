@@ -16,6 +16,9 @@ public class ExternalJob {
 	@JsonProperty("executionUrl")
 	private String executionUrl;
 	
+	@JsonProperty("analyzerUrl")
+	private String logAnalyzerUrl;
+	
 	@JsonProperty("tJobExecId")
 	private Long tJobExecId;
 	
@@ -27,12 +30,13 @@ public class ExternalJob {
 	
 	public ExternalJob(){}
 	
-	public ExternalJob(String jobName, String executionUrl, Long tJobExecId, String elasticsearchUrl, ExternalRabbitConfig rabbitMqconfig){
+	public ExternalJob(String jobName, String executionUrl, String logAnalyzerUrl,  Long tJobExecId, String elasticsearchUrl, ExternalRabbitConfig rabbitMqconfig){
 		this.jobName = jobName;
 		this.executionUrl = executionUrl;
+		this.logAnalyzerUrl = logAnalyzerUrl;
 		this.tJobExecId = tJobExecId;
 		this.elasticsearchUrl = elasticsearchUrl;		
-		this.rabbitMqconfig = rabbitMqconfig;
+		this.rabbitMqconfig = rabbitMqconfig;		
 	}
 		
 	@ApiModelProperty(example = "job1", required = true, value = "")
@@ -53,6 +57,15 @@ public class ExternalJob {
 		this.executionUrl = executionUrl;
 	}
 	
+	@ApiModelProperty(example = "http://localhost:4200#/logmanager?indexName=8", value = "")	
+	public String getLogAnalyzerUrl() {
+		return logAnalyzerUrl;
+	}
+
+	public void setLogAnalyzerUrl(String logAnalyzerUrl) {
+		this.logAnalyzerUrl = logAnalyzerUrl;
+	}
+
 	@ApiModelProperty(example = "0", value = "")
 	public Long gettJobExecId() {
 		return tJobExecId;
