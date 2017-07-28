@@ -20,7 +20,7 @@ public class ExternalApiController implements ExternalApi {
 	private ProjectService projectService;
 	private TJobService tJobService;
 	private ExternalService externalService;
-	
+		
 	public ExternalApiController(ProjectService projectService, TJobService tJobService, ExternalService externalService){
 		this.projectService = projectService;
 		this.tJobService = tJobService;
@@ -37,4 +37,10 @@ public class ExternalApiController implements ExternalApi {
 			return new ResponseEntity<ExternalJob>(body, HttpStatus.CONFLICT);			
 		}		
 	}
+	
+	@Override	
+	@CrossOrigin(origins = {"*"})
+	public void finishExternalJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body){
+		tJobService.finishTJobExecution(body.gettJobExecId());		 
+	 }
 }

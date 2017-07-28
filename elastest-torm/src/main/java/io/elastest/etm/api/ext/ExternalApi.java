@@ -28,5 +28,17 @@ public interface ExternalApi extends EtmApiExternalRoot {
         consumes = { "application/json" },
         method = RequestMethod.POST)
     ResponseEntity<ExternalJob> createExternalTJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body);
+	
+	
+	@ApiOperation(value = "Finish external Job", notes = "", tags={ "external", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 405, message = "Invalid input") })
+    
+    @RequestMapping(value = "/tjob",
+    	produces = { "application/json" },
+        consumes = { "application/json" },
+        method = RequestMethod.PUT)
+    void finishExternalJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body);
 
 }

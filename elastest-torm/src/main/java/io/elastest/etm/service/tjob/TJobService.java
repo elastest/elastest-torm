@@ -3,11 +3,13 @@ package io.elastest.etm.service.tjob;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
+
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.Parameter;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.api.model.TJobExecution.ResultEnum;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.service.epm.EpmIntegrationService;
@@ -56,6 +58,13 @@ public class TJobService {
 		}
 		
 		return tJobExec;
+	}
+	
+	public void finishTJobExecution(Long tJobExecId){
+		TJobExecution tJobExecution = tJobExecRepositoryImpl.findOne(tJobExecId);
+		tJobExecution.setResult(ResultEnum.FINISHED);
+		
+		tJobExecRepositoryImpl.save(tJobExecution);
 	}
 	
 

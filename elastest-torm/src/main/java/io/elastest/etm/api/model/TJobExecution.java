@@ -114,7 +114,7 @@ public class TJobExecution {
 	 * Gets or Sets result
 	 */
 	public enum ResultEnum {
-		SUCCESS("SUCCESS"),
+		FINISHED("FINISHED"),
 
 		FAILURE("FAILURE"),
 

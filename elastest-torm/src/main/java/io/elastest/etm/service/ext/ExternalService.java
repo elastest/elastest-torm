@@ -75,20 +75,20 @@ public class ExternalService {
 		logger.info("Creating TJobExecution.");
 		TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId(), new ArrayList<>() );
 		
-		String elasTestHostIP = null;
-		String elasticsearchUrl = null;		
+		String elasTestHostIP = null;		
 				
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
 			elasTestHostIP = utilTools.getElasTestHostOnWin();
+			externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + tormGuiPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+			externalJob.setLogAnalyzerUrl("http://"+ elasTestHostIP + ":" + tormGuiPort + "#/logmanager?indexName=" + tJobExecution.getId());
 		}else{
-			logger.info("Execute on Linux.");
-			elasTestHostIP = utilTools.getHostIp();
+			externalJob.setExecutionUrl(":" + tormGuiPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+			externalJob.setLogAnalyzerUrl(":" + tormGuiPort + "#/logmanager?indexName=" + tJobExecution.getId());
 		}
 	
 		externalJob.settJobExecId(tJobExecution.getId());
-		externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + tormGuiPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
-		externalJob.setLogAnalyzerUrl("http://"+ elasTestHostIP + ":" + tormGuiPort + "#/logmanager?indexName=" + tJobExecution.getId());
+		
 		externalJob.setElasticsearchUrl(elasticsearchUrl);
 		externalJob.setRabbitMqconfig(new ExternalRabbitConfig());
 		
