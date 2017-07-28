@@ -92,6 +92,7 @@ public class TJobExecution {
 	@JoinColumn(name = "testSuite")
 	private TestSuite testSuite;
 
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@ElementCollection
 	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
 	private List<Parameter> parameters;

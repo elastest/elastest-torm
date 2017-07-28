@@ -11,7 +11,7 @@ export class TJobExecModel {
     sutExec: SutExecModel;
     logIndex: string;
     tJob: TJobModel;
-    testSuite: any[];
+    testSuite: any;
     parameters: any[];
     // toJobExec: TOJobExecModel:
 
@@ -23,7 +23,7 @@ export class TJobExecModel {
         this.sutExec = undefined;
         this.logIndex = '';
         this.tJob = undefined;
-        this.testSuite = [];
+        this.testSuite = undefined;
         this.parameters = [];
     }
 

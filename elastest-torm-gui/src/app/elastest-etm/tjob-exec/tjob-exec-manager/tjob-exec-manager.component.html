@@ -18,12 +18,15 @@
                     <span flex-gt-xs="25"><md-card-subtitle>Error</md-card-subtitle><h4>{{tJobExec.error}}</h4></span>
                     <span flex-gt-xs="25"><md-card-subtitle>Log Index</md-card-subtitle><h4>{{tJobExec.logIndex}}</h4></span>
                 </div>
+                <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
+                    <td-data-table [data]="tJobExec.parameters"></td-data-table>
+                </td-expansion-panel>
             </md-card-content>
         </md-card>
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="tJobExec.testSuite !== undefined">
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
@@ -43,8 +46,8 @@
                 <div layout="row" class="push-top">
                     <md-card-subtitle>Test Cases</md-card-subtitle>
                 </div>
-                <td-data-table #testCasesTable class="scroll_table" [data]="tJobExec.testSuite.testCases" [selectable]="false"
-                    [clickable]="false" [sortable]="false">
+                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases" [selectable]="false" [clickable]="false"
+                    [sortable]="false">
                 </td-data-table>
             </md-card-content>
         </md-card>
