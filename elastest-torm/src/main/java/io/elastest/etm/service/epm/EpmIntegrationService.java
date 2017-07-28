@@ -58,7 +58,7 @@ public class EpmIntegrationService {
 			List<ReportTestSuite> testSuites;
 			// Start Test
 			testSuites = dockerService.startTest(dockerExec);
-			tJobExec.setResult(TJobExecution.ResultEnum.SUCCESS);
+			tJobExec.setResult(TJobExecution.ResultEnum.FINISHED);
 			saveTestResults(testSuites, tJobExec);
 
 			// End and purge services
