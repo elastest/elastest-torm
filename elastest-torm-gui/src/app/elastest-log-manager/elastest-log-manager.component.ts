@@ -901,7 +901,7 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   public generateCopyUrl(from: string, to: string) {
-    this.urlCopied = location.protocol + '//' + location.host + location.pathname + '?';
+    this.urlCopied = location.protocol + '//' + location.host + location.hash + '?';
 
     if (this.indexName !== undefined) {
       this.urlCopied += 'indexName=' + encodeURIComponent(this.indexName) + '&';

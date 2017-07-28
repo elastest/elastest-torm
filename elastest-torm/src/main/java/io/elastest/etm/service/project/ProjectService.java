@@ -23,6 +23,10 @@ public class ProjectService {
 		return projectRepository.findOne(id);
 	}
 	
+	public Project getProjectByName(String name){
+		return projectRepository.findByName(name);
+	}
+	
 	public List<Project> getAllProjects(){
 		return projectRepository.findAll();
 	}

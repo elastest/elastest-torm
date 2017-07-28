@@ -51,7 +51,10 @@ public class TJobService {
 		tJobExec.setLogIndex(tJobExec.getId().toString());
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
-		epmIntegrationService.executeTJob(tJobExec);
+		if (!tjob.isExternal()){
+			epmIntegrationService.executeTJob(tJobExec);
+		}
+		
 		return tJobExec;
 	}
 	
@@ -63,6 +66,10 @@ public class TJobService {
 
 	public TJob getTJobById(Long tJobId) {
 		return tJobRepo.findOne(tJobId);
+	}
+	
+	public TJob getTJobByName(String name){
+		return tJobRepo.findByName(name);
 	}
 
 	public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {

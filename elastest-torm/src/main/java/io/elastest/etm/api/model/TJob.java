@@ -45,12 +45,7 @@ public class TJob {
 	@Column(name = "name")
 	@JsonProperty("name")
 	private String name = null;
-
-	// @JsonView(BasicAttTJob.class)
-	// @Column(name="ELAS_ETM_TJOB_TSERV")
-	// @JsonProperty("testServices")
-	// private List<TestService> testServices = new ArrayList<TestService>();
-
+	
 	@JsonView({ BasicAttTJob.class, BasicAttProject.class })
 	@Column(name = "image_name")
 	@JsonProperty("imageName")
@@ -88,6 +83,10 @@ public class TJob {
 	@JsonProperty("resultsPath")
 	private String resultsPath = null;
 
+	@Column(name = "external")
+	@JsonProperty("external")
+	private boolean external = false;
+
 	public TJob() {
 	}
 
@@ -98,6 +97,7 @@ public class TJob {
 		this.imageName = imageName;
 		this.sut = sut;
 		this.project = project;
+		this.external = external;
 	}
 
 	/**
@@ -289,6 +289,22 @@ public class TJob {
 		return this;
 	}
 
+	/**
+	 * isExternal
+	 */
+
+	@ApiModelProperty(required = true, value = "", example = "false")
+	public boolean isExternal() {
+		return external;
+	}
+
+	/**
+	 * setExternal
+	 */
+	public void setExternal(boolean external) {
+		this.external = external;
+	}
+
 	/* Others */
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -303,7 +319,8 @@ public class TJob {
 				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut)
 				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs)
 				&& Objects.equals(this.parameters, tjob.parameters) && Objects.equals(this.commands, tjob.commands)
-				&& Objects.equals(this.resultsPath, tjob.resultsPath);
+				&& Objects.equals(this.resultsPath, tjob.resultsPath)
+				&& Objects.equals(this.external, tjob.external);
 	}
 
 	@Override
@@ -325,6 +342,7 @@ public class TJob {
 		sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
 		sb.append("    commands: ").append(toIndentedString(commands)).append("\n");
 		sb.append("    resultsPath: ").append(toIndentedString(resultsPath)).append("\n");
+		sb.append("    external: ").append(toIndentedString(external)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
