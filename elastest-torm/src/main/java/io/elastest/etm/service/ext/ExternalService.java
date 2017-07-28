@@ -1,5 +1,7 @@
 package io.elastest.etm.service.ext;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +73,7 @@ public class ExternalService {
 		
 		//Run ElasTest TJob
 		logger.info("Creating TJobExecution.");
-		TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId());
+		TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId(), new ArrayList<>() );
 		
 		String elasTestHostIP = null;
 		String elasticsearchUrl = null;		
