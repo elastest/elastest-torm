@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.ext.model.ExternalJob;
+import io.elastest.etm.api.ext.model.ExternalRabbitConfig;
 import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.docker.DockerService;
 import io.elastest.etm.service.project.ProjectService;
 import io.elastest.etm.service.tjob.TJobService;
 import io.elastest.etm.utils.UtilTools;
@@ -26,8 +26,11 @@ public class ExternalService {
 	@Value("${os.name}")
 	private String windowsSO;
 	
-	@Value("${docker.host.port}")
-	private String dockerHostPort;
+	@Value("${server.port}")
+	private String serverPort;
+	
+	@Value("${elastest.elasticsearch.host}")
+	private String elasticsearchUrl;
 	
 	public ExternalService(ProjectService projectService, TJobService tJobService, UtilTools utilTools){
 		super();
@@ -36,7 +39,7 @@ public class ExternalService {
 		this.utilTools = utilTools;
 	}
 	
-	public ExternalJob createElasTestEntitiesForExtJob(ExternalJob externalJob){
+	public ExternalJob createElasTestEntitiesForExtJob(ExternalJob externalJob) throws Exception{
 		
 		logger.info("Creating external job entities.");
 
@@ -59,21 +62,28 @@ public class ExternalService {
 		logger.info("Creating TJobExecution.");
 		TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId());
 		
-		String eslasTestHostIP = null;
+		String elasTestHostIP = null;
+		String elasticsearchUrl = null;
+		String rabbitMqUrl = null; 
+				
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
-			eslasTestHostIP = utilTools.getDockerHostIpOnWin();
+			elasTestHostIP = utilTools.getElasTestHostOnWin();
 		}else{
 			logger.info("Execute on Linux.");
-			eslasTestHostIP = utilTools.getHostIp();
+			elasTestHostIP = utilTools.getHostIp();
 		}
-		//http://localhost:4200/#/projects/2/tjob/8/tjob-exec/18/dashboard
+	
 		externalJob.settJobExecId(tJobExecution.getId());
-		externalJob.setExecutionUrl("http://" + eslasTestHostIP + ":" + dockerHostPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+		externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + serverPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+		externalJob.setElasticsearchUrl(elasticsearchUrl);
+		externalJob.setRabbitMqconfig(new ExternalRabbitConfig());
+		
 		logger.info("TJobExecutino URL:" + externalJob.getExecutionUrl());
 		}catch (Exception e){
 			e.printStackTrace();
-			logger.info("Error message: "+ e.getMessage());
+			logger.error("Error message: "+ e.getMessage());
+			throw e;		
 		}
 		return externalJob;
 		

@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -71,6 +72,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 	}
 	
 	
+	@Disabled
 	@Test
 	public void testCreateSutSpecification(){
 		log.info("Start the test testCreateSutSpecification" );		
@@ -101,6 +103,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 				);
 	}
 	
+	@Disabled
 	@Test
 	public void testModifySut(){
 		log.info("Start the test testModifySut" );
@@ -138,6 +141,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 				);
 	}
 	
+	@Disabled
 	@Test
 	public void testGetSuts(){
 		log.info("Start the test testGetSuts" );
@@ -160,6 +164,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
         assertTrue(suts.length > 0);
 	}
 	
+	@Disabled
 	@Test
 	public void testDeleteSut(){
 		log.info("Start the test testDeleteSut" );

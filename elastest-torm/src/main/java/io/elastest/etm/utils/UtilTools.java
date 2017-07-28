@@ -47,6 +47,10 @@ public class UtilTools {
 	    }
 	}
 	
+	public String getElasTestHostOnWin(){
+		return "localhost";
+	}
+	
 	/**
 	 * Returns the docker-host's url on Windowns
 	 * @return

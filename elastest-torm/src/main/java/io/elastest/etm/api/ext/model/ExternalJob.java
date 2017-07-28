@@ -18,13 +18,21 @@ public class ExternalJob {
 	
 	@JsonProperty("tJobExecId")
 	private Long tJobExecId;
-		
+	
+	@JsonProperty("elasticsearchUrl")
+	private String elasticsearchUrl;
+	
+	@JsonProperty("rabbitMqConfig")
+	private ExternalRabbitConfig rabbitMqconfig;
+	
 	public ExternalJob(){}
 	
-	public ExternalJob(String jobName, String executionUrl, Long tJobExecId){
+	public ExternalJob(String jobName, String executionUrl, Long tJobExecId, String elasticsearchUrl, ExternalRabbitConfig rabbitMqconfig){
 		this.jobName = jobName;
 		this.executionUrl = executionUrl;
 		this.tJobExecId = tJobExecId;
+		this.elasticsearchUrl = elasticsearchUrl;		
+		this.rabbitMqconfig = rabbitMqconfig;
 	}
 		
 	@ApiModelProperty(example = "job1", required = true, value = "")
@@ -54,6 +62,23 @@ public class ExternalJob {
 		this.tJobExecId = tJobExecId;
 	}
 	
+	@ApiModelProperty(example = "http://192.168.99.100:9200", value = "")
+	public String getElasticsearchUrl() {
+		return elasticsearchUrl;
+	}
+
+	public void setElasticsearchUrl(String elasticsearchUrl) {
+		this.elasticsearchUrl = elasticsearchUrl;
+	}
+	
+	public ExternalRabbitConfig getRabbitMqconfig() {
+		return rabbitMqconfig;
+	}
+
+	public void setRabbitMqconfig(ExternalRabbitConfig rabbitMqconfig) {
+		this.rabbitMqconfig = rabbitMqconfig;
+	}
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
