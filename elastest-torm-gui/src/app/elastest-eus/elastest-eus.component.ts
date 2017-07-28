@@ -52,6 +52,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   testData: EusTestModel[] = [];
 
+  recordings: EusTestModel[] = [];
+
   @Output()
   onInitComponent = new EventEmitter<string>();
 
@@ -62,6 +64,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
 
       this.websocket.onopen = () => this.websocket.send("getSessions");
+      this.websocket.onopen = () => this.websocket.send("getRecordings");
 
       this.websocket.onmessage = (message) => {
         let json = JSON.parse(message.data);
@@ -75,6 +78,16 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.url = json.newSession.url;
           this.testData.push(testModel);
           this.testData = Array.from(this.testData);
+        }
+        else if (json.path) {
+          let testModel: EusTestModel = new EusTestModel();
+          testModel.id = json.id;
+          testModel.browser = json.browser;
+          testModel.version = json.version;
+          testModel.creationTime = json.creationTime;
+          testModel.url = this.configurationService.configModel.eusServiceUrlNoPath + json.path;
+          this.recordings.push(testModel);
+          this.recordings = Array.from(this.recordings);
         }
         else if (json.removeSession) {
           let entry: EusTestModel;

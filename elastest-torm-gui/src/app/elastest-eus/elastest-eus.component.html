@@ -44,3 +44,19 @@
         </md-card>
     </div>
 </div>
+
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+    <div flex-gt-xs="100">
+        <md-card tdMediaToggle="gt-xs">
+            <md-card-title>Recordings</md-card-title>
+            <md-divider></md-divider>
+            <md-card-content class="push-bottom-none">
+                <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
+                    <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
+                        <button md-raised-button color="accent" (click)="viewSession(value, row)">View</button>
+                    </ng-template>
+                </td-data-table>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>

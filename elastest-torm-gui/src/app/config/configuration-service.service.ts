@@ -19,6 +19,7 @@ export class ConfigurationService {
       'hostApi': "http://" + host + "/api",
       'hostElasticsearch': "http://" + environment.hostElasticSearch + "/",
       'hostWsServer': "ws://" + host,
+      'eusServiceUrlNoPath': "http://" + environment.eus,
       'eusServiceUrl': "http://" + environment.eus + "/eus/v1/",
       'eusWebSocketUrl': "ws://" + environment.eus + "/eus/v1/eus-ws"
     };
