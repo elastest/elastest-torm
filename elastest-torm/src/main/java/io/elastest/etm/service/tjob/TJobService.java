@@ -65,6 +65,10 @@ public class TJobService {
 	public TJob getTJobById(Long tJobId) {
 		return tJobRepo.findOne(tJobId);
 	}
+	
+	public TJob getTJobByName(String name){
+		return tJobRepo.findByName(name);
+	}
 
 	public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
 		TJob tJob = tJobRepo.findOne(tJobId);

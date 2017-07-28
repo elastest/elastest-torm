@@ -32,6 +32,9 @@ public class ExternalService {
 	@Value("${elastest.elasticsearch.host}")
 	private String elasticsearchUrl;
 	
+	@Value("${elastest.torm-gui.port}")
+	private String tormGuiPort;
+	
 	public ExternalService(ProjectService projectService, TJobService tJobService, UtilTools utilTools){
 		super();
 		this.projectService = projectService;
@@ -46,25 +49,32 @@ public class ExternalService {
 		try{
 		//Create ElasTest Project
 		logger.info("Creating Project.");
-		Project project = new Project();
-		project.setId(0L);
-		project.setName(externalJob.getJobName());
-		project = projectService.createProject(project);
+		
+		Project project = projectService.getProjectByName(externalJob.getJobName());
+		if (project == null){
+			project = new Project();
+			project.setId(0L);
+			project.setName(externalJob.getJobName());
+			project = projectService.createProject(project);
+		}
 		
 		//Create ElasTest TJob
 		logger.info("Creating TJob.");
-		TJob tJob = new TJob();
-		tJob.setName(externalJob.getJobName());
-		tJob = tJobService.createTJob(tJob);
-		tJob.setExternal(true);
+		TJob tJob = tJobService.getTJobByName(externalJob.getJobName());
+		if (tJob == null){
+			tJob = new TJob();
+			tJob.setName(externalJob.getJobName());
+			tJob = tJobService.createTJob(tJob);
+			tJob.setProject(project);
+			tJob.setExternal(true);			
+		}		
 		
 		//Run ElasTest TJob
 		logger.info("Creating TJobExecution.");
 		TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId());
 		
 		String elasTestHostIP = null;
-		String elasticsearchUrl = null;
-		String rabbitMqUrl = null; 
+		String elasticsearchUrl = null;		
 				
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
@@ -75,8 +85,8 @@ public class ExternalService {
 		}
 	
 		externalJob.settJobExecId(tJobExecution.getId());
-		externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + serverPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
-		externalJob.setLogAnalyzerUrl("http://localhost:4200#/logmanager?indexName=" + tJobExecution.getId());
+		externalJob.setExecutionUrl("http://" + elasTestHostIP + ":" + tormGuiPort + "/#projects/" + project.getId() + "/tjob/" + tJob.getId() + "/tjob-exec/" + tJobExecution.getId() + "/dashboard");
+		externalJob.setLogAnalyzerUrl("http://"+ elasTestHostIP + ":" + tormGuiPort + "#/logmanager?indexName=" + tJobExecution.getId());
 		externalJob.setElasticsearchUrl(elasticsearchUrl);
 		externalJob.setRabbitMqconfig(new ExternalRabbitConfig());
 		

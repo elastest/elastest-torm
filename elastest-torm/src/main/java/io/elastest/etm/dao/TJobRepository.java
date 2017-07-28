@@ -4,5 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import io.elastest.etm.api.model.TJob;
 
 public interface TJobRepository extends JpaRepository<TJob, Long> {
+	
+	public TJob findByName(String name);
 
 }
