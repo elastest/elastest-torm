@@ -78,6 +78,16 @@ public class TJob {
 	@CollectionTable(name = "TJobParameter", joinColumns = @JoinColumn(name = "TJob"))
 	private List<Parameter> parameters;
 
+	@JsonView({ BasicAttTJob.class, BasicAttProject.class })
+	@Column(name = "commands", columnDefinition = "TEXT", length = 65535)
+	@JsonProperty("commands")
+	private String commands;
+
+	@JsonView({ BasicAttTJob.class, BasicAttProject.class })
+	@Column(name = "resultsPath")
+	@JsonProperty("resultsPath")
+	private String resultsPath = null;
+
 	public TJob() {
 	}
 
@@ -85,7 +95,6 @@ public class TJob {
 			Project project) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
-		// this.testServices = testServices;
 		this.imageName = imageName;
 		this.sut = sut;
 		this.project = project;
@@ -131,34 +140,6 @@ public class TJob {
 		this.name = name;
 		return this;
 	}
-
-	// /**
-	// * Get testServices
-	// *
-	// * @return testServices
-	// **/
-	// @ApiModelProperty(required = true, value = "")
-	// @NotNull
-	//
-	// @Valid
-	//
-	// public List<TestService> getTestServices() {
-	// return testServices;
-	// }
-	//
-	// public void setTestServices(List<TestService> testServices) {
-	// this.testServices = testServices;
-	// }
-	//
-	// public TJob testServices(List<TestService> testServices) {
-	// this.testServices = testServices;
-	// return this;
-	// }
-
-	// public TJob addTestServicesItem(TestService testServicesItem) {
-	// this.testServices.add(testServicesItem);
-	// return this;
-	// }
 
 	/**
 	 * Get imageName
@@ -215,6 +196,11 @@ public class TJob {
 		this.project = project;
 	}
 
+	public TJob project(Project project) {
+		this.project = project;
+		return this;
+	}
+
 	/**
 	 * Get TJobExecutions
 	 * 
@@ -269,6 +255,41 @@ public class TJob {
 		return this;
 	}
 
+	/**
+	 * commands
+	 */
+
+	public String getCommands() {
+		return commands;
+	}
+
+	public void setCommands(String commands) {
+		this.commands = commands;
+	}
+
+	public TJob commands(String commands) {
+		this.commands = commands;
+		return this;
+	}
+
+	/**
+	 * resultsPath
+	 */
+
+	public String getResultsPath() {
+		return resultsPath;
+	}
+
+	public void setResultsPath(String resultsPath) {
+		this.resultsPath = resultsPath;
+	}
+
+	public TJob resultsPath(String resultsPath) {
+		this.resultsPath = resultsPath;
+		return this;
+	}
+
+	/* Others */
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -281,7 +302,8 @@ public class TJob {
 		return Objects.equals(this.id, tjob.id) && Objects.equals(this.name, tjob.name)
 				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut)
 				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs)
-				&& Objects.equals(this.parameters, tjob.parameters);
+				&& Objects.equals(this.parameters, tjob.parameters) && Objects.equals(this.commands, tjob.commands)
+				&& Objects.equals(this.resultsPath, tjob.resultsPath);
 	}
 
 	@Override
@@ -301,6 +323,8 @@ public class TJob {
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("    tjobExecs: ").append(toIndentedString(tjobExecs)).append("\n");
 		sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
+		sb.append("    commands: ").append(toIndentedString(commands)).append("\n");
+		sb.append("    resultsPath: ").append(toIndentedString(resultsPath)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

@@ -11,6 +11,8 @@ export class TJobModel {
     project: ProjectModel;
     tjobExecs: TJobExecModel[];
     parameters: any[];
+    commands: string;
+    resultsPath: string;
 
     constructor() {
         this.id = 0;
@@ -20,6 +22,8 @@ export class TJobModel {
         this.project = undefined;
         this.tjobExecs = [];
         this.parameters = [];
+        this.commands = '';
+        this.resultsPath = '';
     }
 
     public hasSut(): boolean {
@@ -30,8 +34,17 @@ export class TJobModel {
         let tJob: TJobModel = Object.assign({}, this, {
             parameters: [...this.parameters],
             tjobExecs: [...this.tjobExecs],
-        }
+        },
         );
         return tJob;
+    }
+
+    public withCommands() {
+        return this.commands !== undefined && this.commands !== null && this.commands !== '';
+    }
+
+    public arrayCommands() {
+        let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
+        return commandsArray;
     }
 }

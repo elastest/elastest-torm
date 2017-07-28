@@ -26,6 +26,15 @@
         <td-expansion-panel label="Parameters" expand="false" *ngIf="tJob.parameters.length > 0">
           <td-data-table [data]="tJob.parameters"></td-data-table>
         </td-expansion-panel>
+        <td-expansion-panel label="Commands" expand="false" *ngIf="tJob.withCommands()">
+          <div class="pad">
+            <ul>
+              <li *ngFor="let command of tJob.arrayCommands()">
+                {{command}}
+              </li>
+            </ul>
+          </div>
+        </td-expansion-panel>
       </md-card-content>
     </md-card>
   </div>

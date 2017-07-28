@@ -45,6 +45,8 @@ export class TJobService {
     tjobsDataToTable.project = tjob.project;
     tjobsDataToTable.tjobExecs = tjob.tjobExecs;
     tjobsDataToTable.parameters = tjob.parameters;
+    tjobsDataToTable.commands = tjob.commands;
+    tjobsDataToTable.resultsPath = tjob.resultsPath;
 
     return tjobsDataToTable;
   }

@@ -31,7 +31,6 @@ public class EpmIntegrationService {
 	private final TJobExecRepository tJobExecRepositoryImpl;
 
 	private DatabaseSessionManager dbmanager;
-	
 
 	public EpmIntegrationService(DockerService dockerService, TestSuiteRepository testSuiteRepo,
 			TestCaseRepository testCaseRepo, TJobExecRepository tJobExecRepositoryImpl,
@@ -41,7 +40,7 @@ public class EpmIntegrationService {
 		this.testSuiteRepo = testSuiteRepo;
 		this.testCaseRepo = testCaseRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
-		this.dbmanager = dbmanager;		
+		this.dbmanager = dbmanager;
 	}
 
 	@Async
@@ -85,34 +84,35 @@ public class EpmIntegrationService {
 
 		TestSuite tSuite;
 		TestCase tCase;
-		ReportTestSuite reportTestSuite = testSuites.get(0);
-		tSuite = new TestSuite();
-		tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
-		tSuite.setErrors(reportTestSuite.getNumberOfErrors());
-		tSuite.setFailures(reportTestSuite.getNumberOfFailures());
-		tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
-		tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
-		tSuite.setName(reportTestSuite.getName());
-		tSuite.setnumTests(reportTestSuite.getNumberOfTests());
+		if (testSuites.size() > 0) {
+			ReportTestSuite reportTestSuite = testSuites.get(0);
+			tSuite = new TestSuite();
+			tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
+			tSuite.setErrors(reportTestSuite.getNumberOfErrors());
+			tSuite.setFailures(reportTestSuite.getNumberOfFailures());
+			tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
+			tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
+			tSuite.setName(reportTestSuite.getName());
+			tSuite.setnumTests(reportTestSuite.getNumberOfTests());
 
-		tSuite = testSuiteRepo.save(tSuite);
+			tSuite = testSuiteRepo.save(tSuite);
 
-		for (ReportTestCase reportTestCase : reportTestSuite.getTestCases()) {
-			tCase = new TestCase();
-			tCase.setName(reportTestCase.getName());
-			tCase.setTime(reportTestCase.getTime());
-			tCase.setFailureDetail(reportTestCase.getFailureDetail());
-			tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
-			tCase.setFailureMessage(reportTestCase.getFailureMessage());
-			tCase.setFailureType(reportTestCase.getFailureType());
-			tCase.setTestSuite(tSuite);
+			for (ReportTestCase reportTestCase : reportTestSuite.getTestCases()) {
+				tCase = new TestCase();
+				tCase.setName(reportTestCase.getName());
+				tCase.setTime(reportTestCase.getTime());
+				tCase.setFailureDetail(reportTestCase.getFailureDetail());
+				tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
+				tCase.setFailureMessage(reportTestCase.getFailureMessage());
+				tCase.setFailureType(reportTestCase.getFailureType());
+				tCase.setTestSuite(tSuite);
 
-			testCaseRepo.save(tCase);
+				testCaseRepo.save(tCase);
+			}
+
+			testSuiteRepo.save(tSuite);
+			tJobExec.setTestSuite(tSuite);
 		}
-
-		testSuiteRepo.save(tSuite);
-		tJobExec.setTestSuite(tSuite);
-		// }
 
 	}
 

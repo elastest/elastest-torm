@@ -109,13 +109,7 @@ public class DockerService {
 			System.out.println("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
 			String sutName = "sut_" + dockerExec.getExecutionId();
 
-			LogConfig logConfig = new LogConfig();
-			logConfig.setType(LoggingType.SYSLOG);
-			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://" + getHostIp(dockerExec) + ":5001");
-			configMap.put("tag", "sut_" + dockerExec.getExecutionId() + "_tjobexec");
-
-			logConfig.setConfig(configMap);
+			LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
 
 			dockerExec.getDockerClient().pullImageCmd(sutImage).exec(new PullImageResultCallback()).awaitSuccess();
 
@@ -178,6 +172,7 @@ public class DockerService {
 
 			System.out.println("host: " + getHostIp(dockerExec));
 
+			// Environment variables (optional)
 			ArrayList<String> envList = new ArrayList<>();
 			String envVar;
 			for (Parameter parameter : dockerExec.gettJobexec().getParameters()) {
@@ -189,23 +184,29 @@ public class DockerService {
 				envList.add(envVar);
 			}
 
+			// Commands (optional)
+			ArrayList<String> cmdList = new ArrayList<>();
+			String commands = dockerExec.gettJobexec().getTjob().getCommands();
+			if (commands != null && !commands.isEmpty()) {
+				cmdList.add("sh");
+				cmdList.add("-c");
+
+				commands += "cp -a " + dockerExec.gettJobexec().getTjob().getResultsPath() + "/. /results";
+				cmdList.add(commands);
+
+			}
+			// Volumes
 			Volume volume = new Volume("/results");
 			String localDirToWriteTestResults = volumeDirectoryToWriteTestResutls + "/" + dockerExec.getExecutionId();
 			String localDirToTeadTestResults = volumeDirectoryToReadTestResults + "/" + dockerExec.getExecutionId();
 
-			LogConfig logConfig = new LogConfig();
-			logConfig.setType(LoggingType.SYSLOG);
-			Map<String, String> configMap = new HashMap<String, String>();
-			configMap.put("syslog-address", "tcp://" + getHostIpByNetwork(dockerExec, dockerExec.getNetwork()) + ":5000");
-			configMap.put("tag", "test_" + dockerExec.getExecutionId() + "_tjobexec");
-
-			logConfig.setConfig(configMap);
+			LogConfig logConfig = getLogConfig(5000, "test_", dockerExec);
 
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage).withEnv(envList)
 					.withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId()).withVolumes(volume)
-					.withBinds(new Bind(localDirToWriteTestResults, volume)).exec());
+					.withBinds(new Bind(localDirToWriteTestResults, volume)).withCmd(cmdList).exec());
 
 			String testContainerId = dockerExec.getTestcontainer().getId();
 			dockerExec.setTestContainerId(testContainerId);
@@ -224,6 +225,18 @@ public class DockerService {
 			}
 			return new ArrayList<ReportTestSuite>();
 		}
+	}
+
+	public LogConfig getLogConfig(int port, String tagPrefix, DockerExecution dockerExec) {
+		LogConfig logConfig = new LogConfig();
+		logConfig.setType(LoggingType.SYSLOG);
+		Map<String, String> configMap = new HashMap<String, String>();
+		configMap.put("syslog-address",
+				"tcp://" + getHostIpByNetwork(dockerExec, dockerExec.getNetwork()) + ":" + port);
+		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_tjobexec");
+		logConfig.setConfig(configMap);
+
+		return logConfig;
 	}
 
 	/* End execution methods */

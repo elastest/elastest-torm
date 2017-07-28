@@ -17,6 +17,7 @@
             name="tJobImageName" required>
         </md-input-container>
       </div>
+
       <div layout="row" *ngIf="tJob.project !== undefined" class="push-top push-bottom">
         <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
           <md-option [value]="sutEmpty">None</md-option>
@@ -24,8 +25,23 @@
             {{sut.id}}
           </md-option>
         </md-select>
-        <span>Current SuT: {{currentSut}}</span>
+        <span class="push-left">Current SuT: {{currentSut}}</span>
       </div>
+
+      <div layout="column" class="push-top push-bottom pad-top">
+        <md-slide-toggle [(ngModel)]="withCommands" name="toggleCommands">Commands</md-slide-toggle>
+        <div layout="column" *ngIf="withCommands" class="push-top">
+          <md-input-container>
+            <textarea mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands" [(ngModel)]="tJob.commands" name="commands"
+              required></textarea>
+          </md-input-container>
+          <md-input-container flex>
+            <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
+              name="resultsPath" maxlength="100" required>
+          </md-input-container>
+        </div>
+      </div>
+
       <div layout="row" class="push-top push-bottom">
         <parameters-view [model]="tJob.parameters"></parameters-view>
       </div>

@@ -19,6 +19,8 @@ export class TJobFormComponent implements OnInit {
 
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
+  withCommands: boolean = false;
+
 
   constructor(private tJobService: TJobService, private route: ActivatedRoute,
     private projectService: ProjectService) { }
@@ -33,6 +35,7 @@ export class TJobFormComponent implements OnInit {
           .subscribe((tJob: TJobModel) => {
             this.tJob = tJob;
             this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
+            this.withCommands = this.tJob.withCommands();
           });
       }
       else if (currentPath === 'new') {
@@ -52,6 +55,11 @@ export class TJobFormComponent implements OnInit {
   }
 
   save() {
+    if (!this.withCommands) {
+      this.tJob.commands = '';
+      this.tJob.resultsPath = '';
+    }
+
     this.tJobService.createTJob(this.tJob)
       .subscribe(
       tJob => this.postSave(tJob),
