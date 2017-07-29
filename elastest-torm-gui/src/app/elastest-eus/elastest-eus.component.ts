@@ -79,13 +79,13 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           this.testData.push(testModel);
           this.testData = Array.from(this.testData);
         }
-        else if (json.path) {
+        else if (json.recordedSession) {
           let testModel: EusTestModel = new EusTestModel();
-          testModel.id = json.id;
-          testModel.browser = json.browser;
-          testModel.version = json.version;
-          testModel.creationTime = json.creationTime;
-          testModel.url = this.configurationService.configModel.eusServiceUrlNoPath + json.path;
+          testModel.id = json.recordedSession.id;
+          testModel.browser = json.recordedSession.browser;
+          testModel.version = json.recordedSession.version;
+          testModel.creationTime = json.recordedSession.creationTime;
+          testModel.url = this.configurationService.configModel.eusServiceUrlNoPath + json.recordedSession.path;
           this.recordings.push(testModel);
           this.recordings = Array.from(this.recordings);
         }
