@@ -118,6 +118,22 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     dialog.componentInstance.closeButton = true;
   }
 
+  deleteSession(testModel: EusTestModel) {
+    this.eusService.deleteVnc(testModel.id).subscribe(
+      ok => {
+        let entry: EusTestModel;
+        let newTestData: EusTestModel[] = [];
+        for (entry of this.recordings) {
+          if (entry.id !== testModel.id) {
+            newTestData.push(entry);
+          }
+        }
+        this.recordings = Array.from(newTestData);
+      },
+      error => console.error(error)
+    );
+  }
+
   startSession() {
     if (this.selectedBrowser) {
       let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);

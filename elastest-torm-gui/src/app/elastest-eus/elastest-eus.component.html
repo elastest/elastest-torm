@@ -54,6 +54,7 @@
                 <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
                         <button md-raised-button color="accent" (click)="viewSession(value, row)">View</button>
+                        <button md-raised-button color="accent" (click)="deleteSession(row)">Delete</button>
                     </ng-template>
                 </td-data-table>
             </md-card-content>

@@ -26,7 +26,7 @@ export class EusService {
     return this.http.get(url).map(response => {
       let responseUrl = response.text();
 
-      if (this.hostName !== 'localhost' && this.hostName !== '127.0.0.1'){
+      if (this.hostName !== 'localhost' && this.hostName !== '127.0.0.1') {
         const token1 = "//";
         const token2 = ":";
         const token3 = "host=";
@@ -41,9 +41,14 @@ export class EusService {
           this.hostName + responseUrl.substring(index4);
 
         responseUrl = changedUrl;
-      }      
-      return responseUrl;     
+      }
+      return responseUrl;
     });
+  }
+
+  public deleteVnc(sessionId: string) {
+    let url = this.eusUrl + "session/" + sessionId + "/vnc";
+    return this.http.delete(url);
   }
 
   public stopSession(sessionId: string) {
