@@ -14,7 +14,7 @@ export enum MetricsDataType {
     Sut,
 }
 
-export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq ElasticSearch Metrics Model
+export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq ElasticSearch Metrics Model
     elastestESService: ElastestESService;
 
     name: string;
@@ -73,7 +73,7 @@ export class ETRESMetricsModel extends MetricsModel { //ElasTest RabbitMq Elasti
         this.prevLoaded = false;
         this.hidePrevBtn = false;
 
-        //Data
+        // Data
         this.data = this.elastestESService.getInitMetricsData();
 
         this.initMetricsTypeData();
