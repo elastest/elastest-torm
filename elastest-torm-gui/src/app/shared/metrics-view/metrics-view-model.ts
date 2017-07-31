@@ -1,6 +1,6 @@
 import { TdDigitsPipe, TdLoadingService } from '@covalent/core';
 import { ColorSchemeModel } from './models/color-scheme-model';
-import { SingleMetricModel } from './models/single-metric-model';
+import { LineChartMetricModel } from './models/linechart-metric-model';
 import { LoadPreviousModel } from '../load-previous-view/load-previous-model';
 
 export interface MetricsViewModel extends LoadPreviousModel {
@@ -21,7 +21,7 @@ export interface MetricsViewModel extends LoadPreviousModel {
   autoScale: boolean;
 
   timeline: boolean;
-  data: SingleMetricModel[];
+  data: LineChartMetricModel[];
   type: string;
 
   prevTraces: any[];

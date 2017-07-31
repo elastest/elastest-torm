@@ -2,7 +2,7 @@ import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { single } from 'rxjs/operator/single';
 import { ColorSchemeModel } from './color-scheme-model';
 import { MetricsModel } from './metrics-model';
-import { SingleMetricModel } from './single-metric-model';
+import { LineChartMetricModel } from './linechart-metric-model';
 import { ElastestESService } from '../../services/elastest-es.service';
 
 export type MetricsType =
@@ -34,7 +34,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     autoScale: boolean;
 
     timeline: boolean;
-    data: SingleMetricModel[];
+    data: LineChartMetricModel[];
     type: string;
 
     metricsIndex: string;

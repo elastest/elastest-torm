@@ -1,6 +1,7 @@
+import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ESLogModel } from '../logs-view/models/elasticsearch-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
-import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
+import { LineChartMetricModel } from '../metrics-view/models/linechart-metric-model';
 import { ElasticSearchService } from './elasticsearch.service';
 
 import { componentFactoryName } from '@angular/compiler';
@@ -82,7 +83,7 @@ export class ElastestESService {
     //Metrics
 
     searchAllMetrics(index: string, type: string, theQuery?: any) {
-        let _metrics = new Subject<SingleMetricModel[]>();
+        let _metrics = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
 
         let terms: any[] = [{ 'term': { _type: type } }];
@@ -96,7 +97,7 @@ export class ElastestESService {
     }
 
     getPrevMetricsFromTrace(index: string, trace: any, type: string) {
-        let _metrics = new Subject<SingleMetricModel[]>();
+        let _metrics = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
 
         if (trace !== undefined) {
@@ -123,7 +124,7 @@ export class ElastestESService {
 
 
     convertToMetricTraces(data: any[], type: string) {
-        let tracesList: SingleMetricModel[] = this.getInitMetricsData();
+        let tracesList: LineChartMetricModel[] = this.getInitMetricsData();
 
         let position: number = undefined;
         let parsedMetric: any;
@@ -150,13 +151,11 @@ export class ElastestESService {
     }
 
     convertToCpuData(trace: any) {
-        let parsedData: any = undefined;
+        let parsedData: SingleMetricModel = undefined;
         if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
-            parsedData = {
-                'value': trace.cpu.totalUsage * 100,
-                'name': new Date('' + trace['@timestamp']),
-                'timestamp': trace['@timestamp'],
-            };
+            parsedData.value = trace.cpu.totalUsage * 100;
+            parsedData.name = new Date('' + trace['@timestamp']);
+            parsedData.timestamp = trace['@timestamp'];
         }
         return parsedData;
     }
@@ -164,11 +163,10 @@ export class ElastestESService {
 
     convertToMemoryData(trace: any) {
         let perMemoryUsage = trace.memory.usage * 100 / trace.memory.limit;
-        let parsedData: any = {
-            'value': perMemoryUsage,
-            'name': new Date('' + trace['@timestamp']),
-            'timestamp': trace['@timestamp'],
-        };
+        let parsedData: SingleMetricModel = undefined;
+        parsedData.value = perMemoryUsage;
+        parsedData.name = new Date('' + trace['@timestamp']);
+        parsedData.timestamp = trace['@timestamp'];
         return parsedData;
     }
 
@@ -185,11 +183,11 @@ export class ElastestESService {
     }
 
     getInitMetricsData() {
-        let tracesList: SingleMetricModel[] = [];
+        let tracesList: LineChartMetricModel[] = [];
 
         for (let type in MetricsDataType) {
             if (isNaN(parseInt(type))) {
-                tracesList[MetricsDataType[type]] = new SingleMetricModel();
+                tracesList[MetricsDataType[type]] = new LineChartMetricModel();
                 tracesList[MetricsDataType[type]].name = type;
             }
         }

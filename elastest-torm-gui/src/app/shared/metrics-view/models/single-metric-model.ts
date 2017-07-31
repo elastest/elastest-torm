@@ -1,9 +1,11 @@
 export class SingleMetricModel {
-  name: string;
-  series: any[];
+  name: any;
+  value: any;
+  timestamp: any;
 
   constructor() {
-    this.name = '';
-    this.series = [];
+    this.name = undefined;
+    this.value = undefined;
+    this.timestamp = undefined;
   }
 }
