@@ -151,8 +151,10 @@ export class ElastestESService {
     }
 
     convertToCpuData(trace: any) {
+
         let parsedData: SingleMetricModel = undefined;
         if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            parsedData = new SingleMetricModel();
             parsedData.value = trace.cpu.totalUsage * 100;
             parsedData.name = new Date('' + trace['@timestamp']);
             parsedData.timestamp = trace['@timestamp'];
@@ -160,10 +162,10 @@ export class ElastestESService {
         return parsedData;
     }
 
-
     convertToMemoryData(trace: any) {
-        let perMemoryUsage = trace.memory.usage * 100 / trace.memory.limit;
-        let parsedData: SingleMetricModel = undefined;
+        let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
+
+        let parsedData: SingleMetricModel = new SingleMetricModel();
         parsedData.value = perMemoryUsage;
         parsedData.name = new Date('' + trace['@timestamp']);
         parsedData.timestamp = trace['@timestamp'];

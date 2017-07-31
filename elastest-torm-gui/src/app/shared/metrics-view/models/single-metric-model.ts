@@ -4,8 +4,8 @@ export class SingleMetricModel {
   timestamp: any;
 
   constructor() {
-    this.name = undefined;
-    this.value = undefined;
-    this.timestamp = undefined;
+    this.name = '';
+    this.value = '';
+    this.timestamp = '';
   }
 }
