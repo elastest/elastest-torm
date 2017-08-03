@@ -20,6 +20,8 @@ import { LogsViewComponent } from './logs-view/logs-view.component';
 import { MetricsViewComponent } from './metrics-view/metrics-view.component';
 import { LoadPreviousViewComponent } from './load-previous-view/load-previous-view.component';
 import { ParametersViewComponent } from './parameters-view/parameters-view.component';
+import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view/complex-metrics-view.component';
+import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -62,6 +64,8 @@ const CHART_MODULES: any[] = [
     MetricsViewComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
+    ComplexMetricsViewComponent,
+    ComboChartComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -71,8 +75,10 @@ const CHART_MODULES: any[] = [
     FLEX_LAYOUT_MODULES,
     LogsViewComponent,
     MetricsViewComponent,
+    ComplexMetricsViewComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
+    ComboChartComponent,
   ]
 })
 export class SharedModule { }

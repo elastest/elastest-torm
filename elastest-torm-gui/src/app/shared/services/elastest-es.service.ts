@@ -1,3 +1,4 @@
+import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ESLogModel } from '../logs-view/models/elasticsearch-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
@@ -17,10 +18,23 @@ export class ElastestESService {
     ) { }
 
     getTermsByTypeAndComponentType(type: string, componentType: string) {
-        return [
+        let terms: any[];
+        terms = [
             { 'term': { _type: type } },
             { 'term': { component_type: componentType } },
         ];
+        return terms;
+    }
+
+
+    getTermsByMetricsField(metricsField: MetricsFieldModel) {
+        let terms: any[] = [{ 'term': { _type: metricsField.type } }];
+        if (metricsField.componentType !== undefined) {
+            terms.push(
+                { 'term': { component_type: metricsField.componentType } },
+            );
+        }
+        return terms;
     }
 
     searchAllLogs(index: string, type: string, componentType: string, theQuery?: any) {
@@ -80,35 +94,34 @@ export class ElastestESService {
 
 
 
-    //Metrics
+    // Metrics
 
-    searchAllMetrics(index: string, type: string, theQuery?: any) {
+    searchAllMetrics(index: string, metricsField: MetricsFieldModel, theQuery?: any) {
         let _metrics = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
-
-        let terms: any[] = [{ 'term': { _type: type } }];
+        let terms: any[] = this.getTermsByMetricsField(metricsField);
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
             (data) => {
-                _metrics.next(this.convertToMetricTraces(data, type));
+                _metrics.next(this.convertToMetricTraces(data, metricsField));
             }
         );
 
         return metrics;
     }
 
-    getPrevMetricsFromTrace(index: string, trace: any, type: string) {
+    getPrevMetricsFromTrace(index: string, trace: any, metricsField: MetricsFieldModel) {
         let _metrics = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
 
         if (trace !== undefined) {
-            let terms: any[] = [{ 'term': { _type: type } }];
+
+            let terms: any[] = this.getTermsByMetricsField(metricsField);
             this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
                 (data) => {
-                    _metrics.next(this.convertToMetricTraces(data, type));
+                    _metrics.next(this.convertToMetricTraces(data, metricsField));
                     if (data.length > 0) {
                         this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-                    }
-                    else {
+                    } else {
                         this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
                     }
                 }
@@ -123,50 +136,152 @@ export class ElastestESService {
     }
 
 
-    convertToMetricTraces(data: any[], type: string) {
-        let tracesList: LineChartMetricModel[] = this.getInitMetricsData();
+    convertToMetricTraces(data: any[], metricsField: MetricsFieldModel) {
+        let tracesList: LineChartMetricModel[];
+        if (metricsField.componentType === undefined) {
+            tracesList = this.getInitMetricsData();
 
-        let position: number = undefined;
-        let parsedMetric: any;
-        for (let logEntry of data) {
-            parsedMetric = this.convertToMetricTrace(logEntry._source, type);
-            position = this.getMetricPosition(logEntry._source.component_type);
-            if (position !== undefined && parsedMetric !== undefined) {
-                tracesList[position].series.push(parsedMetric);
+            let position: number = undefined;
+            let parsedMetric: any;
+            for (let logEntry of data) {
+                parsedMetric = this.convertToMetricTrace(logEntry._source, metricsField);
+                position = this.getMetricPosition(logEntry._source.component_type);
+                if (position !== undefined && parsedMetric !== undefined) {
+                    tracesList[position].series.push(parsedMetric);
+                }
+            }
+        } else {
+            tracesList = this.getInitMetricsDataComplex(metricsField);
+            let parsedMetric: any;
+            let position: number = undefined;
+            for (let logEntry of data) {
+                parsedMetric = this.convertToMetricTrace(logEntry._source, metricsField);
+                position = 0;
+                if (position !== undefined && parsedMetric !== undefined) {
+                    tracesList[position].series.push(parsedMetric);
+                }
             }
         }
 
         return tracesList;
     }
 
-    convertToMetricTrace(trace: any, type: string) {
+    convertToMetricTrace(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: any = undefined;
-        if (trace.type === 'cpu' && type === 'cpu') {
-            parsedData = this.convertToCpuData(trace);
-
-        } else if (trace.type === 'memory' && type === 'memory') {
-            parsedData = this.convertToMemoryData(trace);
+        if (trace.type === 'cpu' && metricsField.type === 'cpu') {
+            parsedData = this.convertToCpuData(trace, metricsField);
+        } else if (trace.type === 'memory' && metricsField.type === 'memory') {
+            parsedData = this.convertToMemoryData(trace, metricsField);
+        } else if (trace.type === 'blkio' && metricsField.type === 'blkio') {
+            parsedData = this.convertToDiskData(trace, metricsField);
+        } else if (trace.type === 'net' && metricsField.type === 'net') {
+            parsedData = this.convertToNetData(trace, metricsField);
         }
         return parsedData;
     }
 
-    convertToCpuData(trace: any) {
-
+    convertToCpuData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
-            parsedData = new SingleMetricModel();
-            parsedData.value = trace.cpu.totalUsage * 100;
-            parsedData.name = new Date('' + trace['@timestamp']);
-            parsedData.timestamp = trace['@timestamp'];
+        switch (metricsField.subtype) {
+            case ('totalUsage'):
+                if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.cpu.totalUsage * 100;
+                }
+                break;
+            default:
+                break;
         }
         return parsedData;
     }
 
-    convertToMemoryData(trace: any) {
-        let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
+    convertToMemoryData(trace: any, metricsField: MetricsFieldModel) {
+        let parsedData: SingleMetricModel = undefined;
+        switch (metricsField.subtype) {
+            case ('usage'):
+                let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = perMemoryUsage;
+                break;
+            case ('limit'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.memory.limit;
+                break;
+            case ('maxUsage'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.memory.maxUsage;
+                break;
+            default:
+                break;
+        }
+        return parsedData;
+    }
 
+
+    // export let netSubtypes: SubtypesObjectModel[] = [ // rx -> received; tx -> transmited
+    //     new SubtypesObjectModel('rxBytes_ps', 'amount/sec'),
+    //     new SubtypesObjectModel('rxErrors_ps', 'amount/sec'),
+    //     new SubtypesObjectModel('rxPackets_ps', 'amount/sec'),
+    //     new SubtypesObjectModel('txBytes_ps', 'amount/sec'),
+    //     new SubtypesObjectModel('txErrors_ps', 'amount/sec'),
+    //     new SubtypesObjectModel('txPackets_ps', 'amount/sec'),
+    // ];
+
+    convertToDiskData(trace: any, metricsField: MetricsFieldModel) {
+        let parsedData: SingleMetricModel = undefined;
+        // switch (metricsField.subtype) {
+        //     case ('read_ps'):
+        //         parsedData = this.getBasicSingleMetric(trace);
+        //         parsedData.value = trace.blkio.read_ps;
+        //         break;
+        //     case ('write_ps'):
+        //         parsedData = this.getBasicSingleMetric(trace);
+        //         parsedData.value = trace.blkio.write_ps;
+        //         break;
+        //     case ('total_ps'):
+        //         parsedData = this.getBasicSingleMetric(trace);
+        //         parsedData.value = trace.blkio.total_ps;
+        //         break;
+        //     default:
+        //         break;
+        // }
+        return parsedData;
+    }
+    convertToNetData(trace: any, metricsField: MetricsFieldModel) {
+        let parsedData: SingleMetricModel = undefined;
+        switch (metricsField.subtype) {
+            case ('rxBytes_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.rxBytes_ps;
+                break;
+            case ('rxErrors_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.rxErrors_ps;
+                break;
+            case ('rxPackets_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.rxPackets_ps;
+                break;
+            case ('txBytes_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.txBytes_ps;
+                break;
+            case ('txErrors_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.txErrors_ps;
+                break;
+            case ('txPackets_ps'):
+                parsedData = this.getBasicSingleMetric(trace);
+                parsedData.value = trace.net.txPackets_ps;
+                break;
+            default:
+                break;
+        }
+        return parsedData;
+    }
+
+    getBasicSingleMetric(trace: any) {
         let parsedData: SingleMetricModel = new SingleMetricModel();
-        parsedData.value = perMemoryUsage;
         parsedData.name = new Date('' + trace['@timestamp']);
         parsedData.timestamp = trace['@timestamp'];
         return parsedData;
@@ -196,12 +311,13 @@ export class ElastestESService {
         return tracesList;
     }
 
-
-
-
-
-
-
+    getInitMetricsDataComplex(metricsField: MetricsFieldModel) {
+        let tracesList: LineChartMetricModel[] = [];
+        let trace: LineChartMetricModel = new LineChartMetricModel();
+        trace.name = metricsField.name;
+        tracesList.push(trace);
+        return tracesList;
+    }
 
     initTestLog(log: ESLogModel) {
         log.name = 'Test Logs';

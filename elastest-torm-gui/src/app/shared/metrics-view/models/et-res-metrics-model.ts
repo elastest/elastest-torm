@@ -1,3 +1,4 @@
+import { MetricsFieldModel } from '../complex-metrics-view/models/metrics-field-model';
 import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { single } from 'rxjs/operator/single';
 import { ColorSchemeModel } from './color-scheme-model';
@@ -94,8 +95,21 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
         }
     }
 
+    getSubtype() {
+        let subtype: string;
+        if (this.type === 'cpu') {
+            subtype = 'totalUsage';
+        }
+        else if (this.type === 'memory') {
+            subtype = 'usage';
+        }
+        return subtype;
+    }
+
     getAllMetrics() {
-        this.elastestESService.searchAllMetrics(this.metricsIndex, this.type)
+        let subtype: string = this.getSubtype();
+        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
+        this.elastestESService.searchAllMetrics(this.metricsIndex, metricsField)
             .subscribe(
             (data) => {
                 this.data = data;
@@ -105,8 +119,10 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     loadPrevious() {
+        let subtype: string = this.getSubtype();
+        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
         let compareTrace: any = this.getOldTrace();
-        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, this.type)
+        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metricsField)
             .subscribe(
             (data) => {
                 if (data.length > 0) {
@@ -146,10 +162,12 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     updateData(trace: any) {
+        let subtype: string = this.getSubtype();
+        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
         let position: number = this.elastestESService.getMetricPosition(trace.component_type);
 
         if (position !== undefined) {
-            let parsedData: any = this.elastestESService.convertToMetricTrace(trace, this.type);
+            let parsedData: any = this.elastestESService.convertToMetricTrace(trace, metricsField);
             if (parsedData !== undefined) {
                 this.data[position].series.push(parsedData);
                 this.data = [...this.data];

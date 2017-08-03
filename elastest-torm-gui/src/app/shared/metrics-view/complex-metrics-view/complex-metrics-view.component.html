@@ -1,0 +1,42 @@
+<md-card>
+  <md-card-title>{{model.name}}</md-card-title>
+  <md-divider></md-divider>
+  <md-card-content>
+    <div layout="row">
+      <load-previous-view [model]="model"></load-previous-view>
+    </div>
+    <div class="chart-height push-top">
+       <combo-chart-component
+        class="chart-container"
+        [view]="view"
+        [scheme]="model.scheme"
+        [timeline]="model.timeline"
+        [leftChart]="model.leftChart"
+        [rightChartOne]="model.rightChartOne"
+        [rightChartTwo]="model.rightChartTwo"
+        [tooltipDisabled]="model.tooltipDisabled"
+        [yLeftAxisTickFormatting]="model.yLeftAxisTickFormatting"
+        [yLeftAxisScaleFactor]="model.yLeftAxisScaleFactor"
+        [yRightAxisScaleFactor]="model.yRightAxisScaleFactor"
+        [yRightOneAxisTickFormatting]="model.yRightOneAxisTickFormatting"
+        [yRightTwoAxisTickFormatting]="model.yRightTwoAxisTickFormatting"
+        [gradient]="model.gradient"
+        [xAxis]="model.showXAxis"
+        [yAxis]="model.showYAxis"
+        [legend]="model.showLegend"
+        [legendTitle]="model.legendTitle"
+        [showGridLines]="model.showGridLines"
+        [showXAxisLabel]="model.showXAxisLabel"
+        [showYAxisLabel]="model.showLeftYAxisLabel"
+        [showRightOneYAxisLabel]="model.showRightOneYAxisLabel"
+        [showRightTwoYAxisLabel]="model.showRightTwoYAxisLabel"
+        [xAxisLabel]="model.xAxisLabel"
+        [yAxisLabel]="model.yAxisLabelLeft"
+        [yAxisLabelRightOne]="model.yAxisLabelRightOne"
+        [yAxisLabelRightTwo]="model.yAxisLabelRightTwo"
+        (select)="model.onSelect($event)">
+      </combo-chart-component>
+    </div>
+  </md-card-content>
+
+</md-card>
