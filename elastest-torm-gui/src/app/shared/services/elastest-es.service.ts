@@ -14,7 +14,7 @@ import { Observable, Subject } from 'rxjs/Rx';
 export class ElastestESService {
     constructor(
         private elasticsearchService: ElasticSearchService,
-        private popupService: PopupService,
+        public popupService: PopupService,
     ) { }
 
     getTermsByTypeAndComponentType(type: string, componentType: string) {
@@ -119,11 +119,6 @@ export class ElastestESService {
             this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
                 (data) => {
                     _metrics.next(this.convertToMetricTraces(data, metricsField));
-                    if (data.length > 0) {
-                        this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-                    } else {
-                        this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
-                    }
                 }
             );
         }
@@ -182,100 +177,97 @@ export class ElastestESService {
 
     convertToCpuData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        switch (metricsField.subtype) {
-            case ('totalUsage'):
-                if (trace.cpu.totalUsage !== 0 && trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            switch (metricsField.subtype) {
+                case ('totalUsage'):
+
                     parsedData = this.getBasicSingleMetric(trace);
                     parsedData.value = trace.cpu.totalUsage * 100;
-                }
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
+            }
         }
         return parsedData;
     }
 
     convertToMemoryData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        switch (metricsField.subtype) {
-            case ('usage'):
-                let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = perMemoryUsage;
-                break;
-            case ('limit'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.memory.limit;
-                break;
-            case ('maxUsage'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.memory.maxUsage;
-                break;
-            default:
-                break;
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            switch (metricsField.subtype) {
+                case ('usage'):
+                    let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = perMemoryUsage;
+                    break;
+                case ('limit'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.memory.limit;
+                    break;
+                case ('maxUsage'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.memory.maxUsage;
+                    break;
+                default:
+                    break;
+            }
         }
         return parsedData;
     }
 
-
-    // export let netSubtypes: SubtypesObjectModel[] = [ // rx -> received; tx -> transmited
-    //     new SubtypesObjectModel('rxBytes_ps', 'amount/sec'),
-    //     new SubtypesObjectModel('rxErrors_ps', 'amount/sec'),
-    //     new SubtypesObjectModel('rxPackets_ps', 'amount/sec'),
-    //     new SubtypesObjectModel('txBytes_ps', 'amount/sec'),
-    //     new SubtypesObjectModel('txErrors_ps', 'amount/sec'),
-    //     new SubtypesObjectModel('txPackets_ps', 'amount/sec'),
-    // ];
-
     convertToDiskData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        // switch (metricsField.subtype) {
-        //     case ('read_ps'):
-        //         parsedData = this.getBasicSingleMetric(trace);
-        //         parsedData.value = trace.blkio.read_ps;
-        //         break;
-        //     case ('write_ps'):
-        //         parsedData = this.getBasicSingleMetric(trace);
-        //         parsedData.value = trace.blkio.write_ps;
-        //         break;
-        //     case ('total_ps'):
-        //         parsedData = this.getBasicSingleMetric(trace);
-        //         parsedData.value = trace.blkio.total_ps;
-        //         break;
-        //     default:
-        //         break;
-        // }
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            switch (metricsField.subtype) {
+                case ('read_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.blkio.read_ps;
+                    break;
+                case ('write_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.blkio.write_ps;
+                    break;
+                case ('total_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.blkio.total_ps;
+                    break;
+                default:
+                    break;
+            }
+        }
         return parsedData;
     }
     convertToNetData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        switch (metricsField.subtype) {
-            case ('rxBytes_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.rxBytes_ps;
-                break;
-            case ('rxErrors_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.rxErrors_ps;
-                break;
-            case ('rxPackets_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.rxPackets_ps;
-                break;
-            case ('txBytes_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.txBytes_ps;
-                break;
-            case ('txErrors_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.txErrors_ps;
-                break;
-            case ('txPackets_ps'):
-                parsedData = this.getBasicSingleMetric(trace);
-                parsedData.value = trace.net.txPackets_ps;
-                break;
-            default:
-                break;
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            switch (metricsField.subtype) {
+                case ('rxBytes_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.rxBytes_ps;
+                    break;
+                case ('rxErrors_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.rxErrors_ps;
+                    break;
+                case ('rxPackets_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.rxPackets_ps;
+                    break;
+                case ('txBytes_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.txBytes_ps;
+                    break;
+                case ('txErrors_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.txErrors_ps;
+                    break;
+                case ('txPackets_ps'):
+                    parsedData = this.getBasicSingleMetric(trace);
+                    parsedData.value = trace.net.txPackets_ps;
+                    break;
+                default:
+                    break;
+            }
         }
         return parsedData;
     }

@@ -123,6 +123,7 @@ export class ComboChartComponent extends BaseChartComponent {
   yOrientLeft = 'left';
   yOrientRight = 'right';
   legendSpacing = 0;
+  rightTwoSpacing = 80;
   bandwidth;
   barPadding = 8;
 
@@ -139,7 +140,7 @@ export class ComboChartComponent extends BaseChartComponent {
 
   initDimensions() {
     this.dims = calculateViewDimensions({
-      width: this.width,
+      width: this.width - this.legendSpacing,
       height: this.height,
       margins: this.margin,
       showXAxis: this.xAxis,
@@ -198,7 +199,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.legendOptions = this.getLegendOptions();
 
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
-    this.transformRightTwo = `translate(${this.dims.xOffset + 80} , ${this.margin[0]})`;
+    this.transformRightTwo = `translate(${this.dims.xOffset + this.rightTwoSpacing} , ${this.margin[0]})`;
 
     const pageUrl = this.location instanceof PathLocationStrategy
       ? this.location.path()

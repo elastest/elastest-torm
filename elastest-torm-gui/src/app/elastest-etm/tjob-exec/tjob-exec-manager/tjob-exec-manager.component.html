@@ -55,7 +55,7 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+<!-- <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-sm="50">
         <metrics-view [model]="cpuData"></metrics-view>
     </div>
@@ -63,8 +63,12 @@
     <div flex-gt-sm="50">
         <metrics-view [model]="memoryData"></metrics-view>
     </div>
+</div> -->
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+    <div flex-gt-sm="100">
+        <complex-metrics-view [model]="metrics"></complex-metrics-view>
+    </div>
 </div>
-
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-sm="50" layout-gt-sm="column">
         <logs-view [model]="testLogView"></logs-view>

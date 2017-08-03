@@ -11,6 +11,9 @@ import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
+import {
+  ESRabComplexMetricsModel,
+} from '../../shared/metrics-view/complex-metrics-view/models/es-rab-complex-metrics-model';
 
 @Component({
   selector: 'etm-dashboard',
@@ -30,8 +33,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   testLogView: RabESLogModel;
 
   // Metrics Chart
-  cpuData: ETRESMetricsModel;
-  memoryData: ETRESMetricsModel;
+  // cpuData: ETRESMetricsModel;
+  // memoryData: ETRESMetricsModel;
+  metrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+
 
   testLogsSubscription: Subscription;
   sutLogsSubscription: Subscription;
@@ -90,8 +95,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
 
-        this.cpuData.metricsIndex = this.tJobExec.logIndex;
-        this.memoryData.metricsIndex = this.tJobExec.logIndex;
+        // this.cpuData.metricsIndex = this.tJobExec.logIndex;
+        // this.memoryData.metricsIndex = this.tJobExec.logIndex;
+        this.metrics.metricsIndex = this.tJobExec.logIndex;
 
         if (!this.withSut) {
           this.sutLogView.traces = [
@@ -115,13 +121,15 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   initMetricsView() {
-    this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu');
-    this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory');
+    // this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu');
+    // this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory');
+    this.metrics.name = 'Metrics';
   }
 
   updateData(data: any) {
-    this.cpuData.updateData(data);
-    this.memoryData.updateData(data);
+    // this.cpuData.updateData(data);
+    // this.memoryData.updateData(data);
+    this.metrics.updateData(data);
   }
 
   ngOnDestroy() {

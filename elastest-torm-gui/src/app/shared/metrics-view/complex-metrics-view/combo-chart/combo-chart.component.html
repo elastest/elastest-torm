@@ -1,4 +1,4 @@
-<ngx-charts-chart [view]="[width + legendSpacing, height]" [showLegend]="legend" [legendOptions]="legendOptions" [activeEntries]="activeEntries"
+<ngx-charts-chart [view]="[width, height]" [showLegend]="legend" [legendOptions]="legendOptions" [activeEntries]="activeEntries"
     (legendLabelClick)="onClick($event)" (legendLabelActivate)="onActivate($event)" (legendLabelDeactivate)="onDeactivate($event)">
     <svg:defs>
         <svg:clipPath [attr.id]="clipPathId">

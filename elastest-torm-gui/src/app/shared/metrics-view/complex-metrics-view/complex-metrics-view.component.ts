@@ -9,9 +9,6 @@ import { Component, Input, OnInit } from '@angular/core';
 export class ComplexMetricsViewComponent implements OnInit {
   @Input()
   public model: ComplexMetricsModel;
-
-  view: any[] = ['800', '400'];
-
   constructor() { }
 
   ngOnInit() {

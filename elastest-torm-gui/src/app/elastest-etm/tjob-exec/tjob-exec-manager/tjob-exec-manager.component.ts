@@ -1,3 +1,6 @@
+import {
+  ESRabComplexMetricsModel,
+} from '../../../shared/metrics-view/complex-metrics-view/models/es-rab-complex-metrics-model';
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
@@ -24,8 +27,9 @@ export class TjobExecManagerComponent implements OnInit {
   testLogView: ESLogModel = new ESLogModel(this.elastestESService);
 
   // Metrics Chart
-  cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu');
-  memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory');
+  // cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu');
+  // memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory');
+  metrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService)
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
@@ -57,8 +61,9 @@ export class TjobExecManagerComponent implements OnInit {
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
 
-        this.cpuData.metricsIndex = this.tJobExec.logIndex;
-        this.memoryData.metricsIndex = this.tJobExec.logIndex;
+        // this.cpuData.metricsIndex = this.tJobExec.logIndex;
+        // this.memoryData.metricsIndex = this.tJobExec.logIndex;
+        this.metrics.metricsIndex = this.tJobExec.logIndex;
 
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
@@ -84,8 +89,9 @@ export class TjobExecManagerComponent implements OnInit {
               }
 
               //Load metrics
-              this.cpuData.getAllMetrics();
-              this.memoryData.getAllMetrics();
+              this.metrics.getAllMetrics();
+              // this.cpuData.getAllMetrics();
+              // this.memoryData.getAllMetrics();
             }
           },
           (error) => console.log(error),
@@ -105,8 +111,10 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   initMetricsView() {
-    this.cpuData.hidePrevBtn = true;
-    this.memoryData.hidePrevBtn = true;
+    this.metrics.name = 'Metrics';
+    this.metrics.hidePrevBtn = true;
+    // this.cpuData.hidePrevBtn = true;
+    // this.memoryData.hidePrevBtn = true;
   }
 
 }

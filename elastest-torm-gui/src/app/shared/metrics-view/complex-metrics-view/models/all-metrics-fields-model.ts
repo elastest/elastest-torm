@@ -85,4 +85,18 @@ export class AllMetricsFields {
         }
         return list;
     }
+
+    getPositionsList(type: string, componentType: string) {
+        let namePrefix: string = componentType + '_' + type;
+        let positionsList: number[] = [];
+        let counter: number = 0;
+        for (let metric of this.fieldsList) {
+            if (metric.name.startsWith(namePrefix)) {
+                positionsList.push(counter);
+            }
+            counter++;
+        }
+        return positionsList;
+    }
+
 }

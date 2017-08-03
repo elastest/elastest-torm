@@ -141,6 +141,9 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
                         this.prevLoaded = true;
                     }
                     this.data = [...this.data];
+                    this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                } else {
+                    this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
                 }
             },
         );
@@ -148,13 +151,13 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
 
     getOldTrace() {
         let oldTrace: any = undefined;
-        for (let singleMetric of this.data) {
-            if (singleMetric.series.length > 0) {
+        for (let singleLineChart of this.data) {
+            if (singleLineChart.series.length > 0) {
                 if (oldTrace === undefined) {
-                    oldTrace = singleMetric.series[0];
+                    oldTrace = singleLineChart.series[0];
                 }
-                if (singleMetric.series[0].name < oldTrace.name) {
-                    oldTrace = singleMetric.series[0];
+                if (singleLineChart.series[0].name < oldTrace.name) {
+                    oldTrace = singleLineChart.series[0];
                 }
             }
         }
