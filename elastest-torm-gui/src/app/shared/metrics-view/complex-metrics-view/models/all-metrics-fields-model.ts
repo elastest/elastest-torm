@@ -99,4 +99,17 @@ export class AllMetricsFields {
         return positionsList;
     }
 
+    getPositionByName(name: string) {
+        let position: number;
+        let counter: number = 0;
+        for (let metric of this.fieldsList) {
+            if (metric.name === name) {
+                position = counter;
+                break;
+            }
+            counter++;
+        }
+        return position;
+    }
+
 }

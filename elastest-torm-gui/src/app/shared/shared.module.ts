@@ -22,6 +22,7 @@ import { LoadPreviousViewComponent } from './load-previous-view/load-previous-vi
 import { ParametersViewComponent } from './parameters-view/parameters-view.component';
 import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view/complex-metrics-view.component';
 import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
+import { CovalentExpansionPanelModule } from '@covalent/core';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -58,6 +59,7 @@ const CHART_MODULES: any[] = [
     COVALENT_MODULES,
     CHART_MODULES,
     FLEX_LAYOUT_MODULES,
+    CovalentExpansionPanelModule,
   ],
   declarations: [
     LogsViewComponent,

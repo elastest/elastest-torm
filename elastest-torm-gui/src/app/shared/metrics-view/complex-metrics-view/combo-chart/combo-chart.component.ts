@@ -15,7 +15,7 @@ import {
   OnInit,
   OnChanges,
   ContentChild,
-  TemplateRef
+  TemplateRef,
 } from '@angular/core';
 import { PathLocationStrategy } from '@angular/common';
 import {
@@ -127,6 +127,10 @@ export class ComboChartComponent extends BaseChartComponent {
   bandwidth;
   barPadding = 8;
 
+  showYAxisLabelDefault: boolean;
+  showRightOneYAxisLabelDefault: boolean;
+  showRightTwoYAxisLabelDefault: boolean;
+
   hasRange: boolean; // whether the line has a min-max range around it
   timelineWidth: any;
   timelineHeight: number = 50;
@@ -154,27 +158,47 @@ export class ComboChartComponent extends BaseChartComponent {
     });
   }
 
+  initLegendSpace() {
+    if (this.yAxis) {
+      if (this.leftChart.length > 0) {
+        if (this.rightChartTwo.length > 0) {
+          if (this.rightChartOne.length > 0) {
+            this.legendSpacing = 195;
+          } else {
+            this.legendSpacing = 195;
+          }
+        } else {
+          if (this.rightChartOne.length > 0) {
+            this.legendSpacing = 70;
+
+          } else {
+            this.legendSpacing = 40;
+          }
+        }
+
+      } else {
+        if (this.rightChartTwo.length > 0) {
+          this.legendSpacing = 200;
+        } else {
+          this.legendSpacing = 90;
+        }
+      }
+    } else {
+      this.legendSpacing = 0;
+    }
+  }
+
   update(): void {
     super.update();
+    this.showLabelsDefault();
+
+    this.initLegendSpace();
     this.initDimensions();
 
     if (this.timeline) {
       this.dims.height -= (this.timelineHeight + this.margin[2] + this.timelinePadding);
     }
 
-    if (!this.yAxis) {
-      this.legendSpacing = 0;
-    } else if (this.showYAxisLabel && this.yAxis) {
-      if (this.rightChartTwo.length) {
-        this.legendSpacing = 195;
-      }
-      else {
-        this.legendSpacing = 100;
-      }
-
-    } else {
-      this.legendSpacing = 40;
-    }
     this.seriesDomain = this.getSeriesDomain();
 
     // X axis
@@ -207,6 +231,26 @@ export class ComboChartComponent extends BaseChartComponent {
 
     this.clipPathId = 'clip' + id().toString();
     this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
+
+    this.hideLabels();
+  }
+
+  showLabelsDefault() {
+    if (this.showYAxisLabelDefault === undefined) {
+      this.showYAxisLabelDefault = this.showYAxisLabel;
+    }
+    if (this.showRightOneYAxisLabelDefault === undefined) {
+      this.showRightOneYAxisLabelDefault = this.showRightOneYAxisLabel;
+    }
+    if (this.showRightTwoYAxisLabelDefault === undefined) {
+      this.showRightTwoYAxisLabelDefault = this.showRightTwoYAxisLabel;
+    }
+  }
+
+  hideLabels() {
+    this.showYAxisLabel = this.showYAxisLabelDefault && this.leftChart.length > 0;
+    this.showRightOneYAxisLabel = this.showRightOneYAxisLabelDefault && this.rightChartOne.length > 0;
+    this.showRightTwoYAxisLabel = this.showRightTwoYAxisLabelDefault && this.rightChartTwo.length > 0;
   }
 
   // line scale

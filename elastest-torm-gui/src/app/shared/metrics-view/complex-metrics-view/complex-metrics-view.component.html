@@ -2,37 +2,28 @@
   <md-card-title>{{model.name}}</md-card-title>
   <md-divider></md-divider>
   <md-card-content>
+    <td-expansion-panel label="Chart configuration" expand="false" class="push-bottom">
+      <div class="pad">
+        <span class="push-right" *ngFor="let metric of model.allMetricsFields.fieldsList; let i = index">
+          <md-checkbox #metric{{i}} [checked]="metric.activated" (change)="metric.changeActive($event)">{{metric.name}}</md-checkbox>
+        </span>
+      </div>
+      <div layout="row" class="pad">
+        <button md-raised-button color="accent" (click)="model.filterData()">Apply</button>
+      </div>
+    </td-expansion-panel>
     <div layout="row">
       <load-previous-view [model]="model"></load-previous-view>
     </div>
     <div class="chart-height push-top">
-       <combo-chart-component
-        class="chart-container"
-        [scheme]="model.scheme"
-        [timeline]="model.timeline"
-        [leftChart]="model.leftChart"
-        [rightChartOne]="model.rightChartOne"
-        [rightChartTwo]="model.rightChartTwo"
-        [tooltipDisabled]="model.tooltipDisabled"
-        [yLeftAxisTickFormatting]="model.yLeftAxisTickFormatting"
-        [yLeftAxisScaleFactor]="model.yLeftAxisScaleFactor"
-        [yRightAxisScaleFactor]="model.yRightAxisScaleFactor"
-        [yRightOneAxisTickFormatting]="model.yRightOneAxisTickFormatting"
-        [yRightTwoAxisTickFormatting]="model.yRightTwoAxisTickFormatting"
-        [gradient]="model.gradient"
-        [xAxis]="model.showXAxis"
-        [yAxis]="model.showYAxis"
-        [legend]="model.showLegend"
-        [legendTitle]="model.legendTitle"
-        [showGridLines]="model.showGridLines"
-        [showXAxisLabel]="model.showXAxisLabel"
-        [showYAxisLabel]="model.showLeftYAxisLabel"
-        [showRightOneYAxisLabel]="model.showRightOneYAxisLabel"
-        [showRightTwoYAxisLabel]="model.showRightTwoYAxisLabel"
-        [xAxisLabel]="model.xAxisLabel"
-        [yAxisLabel]="model.yAxisLabelLeft"
-        [yAxisLabelRightOne]="model.yAxisLabelRightOne"
-        [yAxisLabelRightTwo]="model.yAxisLabelRightTwo"
+      <combo-chart-component class="chart-container" [scheme]="model.scheme" [timeline]="model.timeline" [leftChart]="model.leftChart"
+        [rightChartOne]="model.rightChartOne" [rightChartTwo]="model.rightChartTwo" [tooltipDisabled]="model.tooltipDisabled"
+        [yLeftAxisTickFormatting]="model.yLeftAxisTickFormatting" [yLeftAxisScaleFactor]="model.yLeftAxisScaleFactor" [yRightAxisScaleFactor]="model.yRightAxisScaleFactor"
+        [yRightOneAxisTickFormatting]="model.yRightOneAxisTickFormatting" [yRightTwoAxisTickFormatting]="model.yRightTwoAxisTickFormatting"
+        [gradient]="model.gradient" [xAxis]="model.showXAxis" [yAxis]="model.showYAxis" [legend]="model.showLegend" [legendTitle]="model.legendTitle"
+        [showGridLines]="model.showGridLines" [showXAxisLabel]="model.showXAxisLabel" [showYAxisLabel]="model.showLeftYAxisLabel"
+        [showRightOneYAxisLabel]="model.showRightOneYAxisLabel" [showRightTwoYAxisLabel]="model.showRightTwoYAxisLabel" [xAxisLabel]="model.xAxisLabel"
+        [yAxisLabel]="model.yAxisLabelLeft" [yAxisLabelRightOne]="model.yAxisLabelRightOne" [yAxisLabelRightTwo]="model.yAxisLabelRightTwo"
         (select)="model.onSelect($event)">
       </combo-chart-component>
     </div>

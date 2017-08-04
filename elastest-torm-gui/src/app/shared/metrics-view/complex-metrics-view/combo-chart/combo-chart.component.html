@@ -7,7 +7,7 @@
     </svg:defs>
     <svg:g [attr.transform]="transformRightTwo" class="line-chart chart">
         <!-- Y Axis right Two -->
-        <svg:g ngx-charts-y-axis *ngIf="yAxis" [yScale]="yScaleRightTwo" [dims]="dims" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
+        <svg:g ngx-charts-y-axis *ngIf="yAxis && showRightTwoYAxisLabel" [yScale]="yScaleRightTwo" [dims]="dims" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
             [showLabel]="showRightTwoYAxisLabel" [labelText]="yAxisLabelRightTwo" [tickFormatting]="yRightTwoAxisTickFormatting" (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
 
@@ -17,11 +17,11 @@
             [tickFormatting]="xAxisTickFormatting" (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <!-- Y Axis left -->
-        <svg:g ngx-charts-y-axis *ngIf="yAxis" [yScale]="yScale" [dims]="dims" [yOrient]="yOrientLeft" [showGridLines]="showGridLines"
+        <svg:g ngx-charts-y-axis *ngIf="yAxis && showYAxisLabel" [yScale]="yScale" [dims]="dims" [yOrient]="yOrientLeft" [showGridLines]="showGridLines"
             [showLabel]="showYAxisLabel" [labelText]="yAxisLabel" [tickFormatting]="yLeftAxisTickFormatting" (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <!--Y Axis right One -->
-        <svg:g ngx-charts-y-axis *ngIf="yAxis" [yScale]="yScaleRightOne" [dims]="dims" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
+        <svg:g ngx-charts-y-axis *ngIf="yAxis && showRightOneYAxisLabel" [yScale]="yScaleRightOne" [dims]="dims" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
             [showLabel]="showRightOneYAxisLabel" [labelText]="yAxisLabelRightOne" [tickFormatting]="yRightOneAxisTickFormatting" (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
 

@@ -11,6 +11,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     allMetricsFields: AllMetricsFields;
     metricsIndex: string;
 
+    leftChartAllData: LineChartMetricModel[];
+    rightChartOneAllData: LineChartMetricModel[];
+    rightChartTwoAllData: LineChartMetricModel[];
+
     constructor(elastestESService: ElastestESService) {
         super();
         this.elastestESService = elastestESService;
@@ -28,6 +32,9 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.yRightOneAxisTickFormatting = this.percentFormat;
         this.yRightTwoAxisTickFormatting = this.normalFormat;
 
+        this.leftChartAllData = []
+        this.rightChartOneAllData = []
+        this.rightChartTwoAllData = []
 
         this.scheme = this.getDefaultChartScheme();
     }
@@ -48,26 +55,33 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
     getAllMetrics() {
         for (let metric of this.allMetricsFields.fieldsList) {
-            if (metric.activated) {
-                this.elastestESService.searchAllMetrics(this.metricsIndex, metric)
-                    .subscribe(
-                    (data) => {
-                        switch (metric.unit) {
-                            case 'percent':
+            this.elastestESService.searchAllMetrics(this.metricsIndex, metric)
+                .subscribe(
+                (data) => {
+                    switch (metric.unit) {
+                        case 'percent':
+                            this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
+                            if (metric.activated) {
                                 this.rightChartOne = this.rightChartOne.concat(data);
-                                break;
-                            case 'bytes':
+                            }
+                            break;
+                        case 'bytes':
+                            this.leftChartAllData = this.leftChartAllData.concat(data);
+                            if (metric.activated) {
                                 this.leftChart = this.leftChart.concat(data);
-                                break;
-                            case 'amount/sec':
+                            }
+                            break;
+                        case 'amount/sec':
+                            this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
+                            if (metric.activated) {
                                 this.rightChartTwo = this.rightChartTwo.concat(data);
-                                break;
-                            default:
-                                break;
-                        }
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    );
-            }
+                }
+                );
         }
     }
 
@@ -75,54 +89,42 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         let positionsList: number[] = this.allMetricsFields.getPositionsList(trace.type, trace.component_type);
         for (let position of positionsList) {
             let metric: MetricsFieldModel = this.allMetricsFields.fieldsList[position];
-            if (metric.activated) {
-                let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(trace, metric);
-                if (parsedData !== undefined) {
-                    this.addData(metric, [parsedData]);
-                }
+            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(trace, metric);
+            if (parsedData !== undefined) {
+                this.addData(metric, [parsedData]);
             }
         }
     }
 
     addData(metric: MetricsFieldModel, newData: SingleMetricModel[]) {
-        let lineChartPosition: number;
         switch (metric.unit) {
             case 'percent':
-                lineChartPosition = this.getPosition(this.rightChartOne, metric.name);
-                if (lineChartPosition === undefined) {
-                    let newLineChart: LineChartMetricModel = new LineChartMetricModel();
-                    newLineChart.name = metric.name;
-                    this.rightChartOne.push(newLineChart);
-                    lineChartPosition = this.rightChartOne.length - 1;
-                }
-                this.rightChartOne[lineChartPosition].series = this.rightChartOne[lineChartPosition].series.concat(newData);
-                this.rightChartOne = [...this.rightChartOne];
+                this.rightChartOneAllData = this.addDataToGivenList(this.rightChartOne, metric, newData);
+                this.rightChartOne = this.filterDataByGivenList(this.rightChartOneAllData);
                 break;
             case 'bytes':
-                lineChartPosition = this.getPosition(this.leftChart, metric.name);
-                if (lineChartPosition === undefined) {
-                    let newLineChart: LineChartMetricModel = new LineChartMetricModel();
-                    newLineChart.name = metric.name;
-                    this.leftChart.push(newLineChart);
-                    lineChartPosition = this.leftChart.length - 1;
-                }
-                this.leftChart[lineChartPosition].series = this.leftChart[lineChartPosition].series.concat(newData);
-                this.leftChart = [...this.leftChart];
+                this.leftChartAllData = this.addDataToGivenList(this.leftChart, metric, newData);
+                this.leftChart = this.filterDataByGivenList(this.leftChartAllData);
                 break;
             case 'amount/sec':
-                lineChartPosition = this.getPosition(this.rightChartTwo, metric.name);
-                if (lineChartPosition === undefined) {
-                    let newLineChart: LineChartMetricModel = new LineChartMetricModel();
-                    newLineChart.name = metric.name;
-                    this.rightChartTwo.push(newLineChart);
-                    lineChartPosition = this.rightChartTwo.length - 1;
-                }
-                this.rightChartTwo[lineChartPosition].series = this.rightChartTwo[lineChartPosition].series.concat(newData);
-                this.rightChartTwo = [...this.rightChartTwo];
+                this.rightChartTwoAllData = this.addDataToGivenList(this.rightChartTwo, metric, newData);
+                this.rightChartTwo = this.filterDataByGivenList(this.rightChartTwoAllData);
                 break;
             default:
                 break;
         }
+    }
+
+    addDataToGivenList(list: LineChartMetricModel[], metric: MetricsFieldModel, newData: SingleMetricModel[]) {
+        let lineChartPosition: number = this.getPosition(list, metric.name);
+        if (lineChartPosition === undefined) {
+            let newLineChart: LineChartMetricModel = new LineChartMetricModel();
+            newLineChart.name = metric.name;
+            list.push(newLineChart);
+            lineChartPosition = list.length - 1;
+        }
+        list[lineChartPosition].series = list[lineChartPosition].series.concat(newData);
+        return [...list];
     }
 
     getPosition(list: LineChartMetricModel[], name: string) {
@@ -142,22 +144,19 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     loadPrevious() {
         let compareTrace: any = this.getOldTrace();
         let position: number = 0;
-
         for (let metric of this.allMetricsFields.fieldsList) {
-            if (metric.activated) {
-                this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metric)
-                    .subscribe(
-                    (data) => {
-                        if (data.length > 0) {
-                            this.addData(metric, data[0].series);
-                            this.prevLoaded = true;
-                            this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-                        } else {
-                            this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
-                        }
-                    },
-                );
-            }
+            this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metric)
+                .subscribe(
+                (data) => {
+                    if (data.length > 0) {
+                        this.addData(metric, data[0].series);
+                        this.prevLoaded = true;
+                        this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                    } else {
+                        this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
+                    }
+                },
+            );
             position++;
         }
     }
@@ -176,5 +175,29 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
             }
         }
         return oldTrace;
+    }
+
+    clearData() {
+        this.rightChartOne = [...[]];
+        this.leftChart = [...[]];
+        this.rightChartTwo = [...[]];
+    }
+
+    filterData() {
+        this.rightChartOne = [...this.filterDataByGivenList(this.rightChartOneAllData)];
+        this.leftChart = [...this.filterDataByGivenList(this.leftChartAllData)];
+        this.rightChartTwo = [...this.filterDataByGivenList(this.rightChartTwoAllData)];
+    }
+
+    filterDataByGivenList(allList: LineChartMetricModel[]) {
+        let list: LineChartMetricModel[] = [];
+        let position: number;
+        for (let metric of allList) {
+            position = this.allMetricsFields.getPositionByName(metric.name);
+            if (this.allMetricsFields.fieldsList[position].activated) {
+                list.push(metric);
+            }
+        }
+        return [...list];
     }
 }

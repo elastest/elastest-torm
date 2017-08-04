@@ -1,3 +1,4 @@
+import { ESRabComplexMetricsModel } from './models/es-rab-complex-metrics-model';
 import { ComplexMetricsModel } from './models/complex-metrics-model';
 import { Component, Input, OnInit } from '@angular/core';
 
@@ -8,7 +9,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ComplexMetricsViewComponent implements OnInit {
   @Input()
-  public model: ComplexMetricsModel;
+  public model: ESRabComplexMetricsModel;
   constructor() { }
 
   ngOnInit() {

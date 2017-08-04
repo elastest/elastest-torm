@@ -18,4 +18,8 @@ export class MetricsFieldModel {
         this.name = componentType + '_' + type + '_' + subtype;
         this.activated = true;
     }
+
+    changeActive($event) {
+        this.activated = $event.checked;
+    }
 }
