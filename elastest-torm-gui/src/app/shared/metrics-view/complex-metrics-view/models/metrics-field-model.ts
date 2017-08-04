@@ -16,7 +16,7 @@ export class MetricsFieldModel {
         this.componentType = componentType;
 
         this.name = componentType + '_' + type + '_' + subtype;
-        this.activated = true;
+        this.activated = false;
     }
 
     changeActive($event) {

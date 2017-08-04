@@ -10,6 +10,8 @@
       </div>
       <div layout="row" class="pad">
         <button md-raised-button color="accent" (click)="model.filterData()">Apply</button>
+        <button md-button (click)="model.activateAll()">Select All</button>
+        <button md-button (click)="model.deactivateAll()">Unselect All</button>
       </div>
     </td-expansion-panel>
     <div layout="row">

@@ -9,6 +9,7 @@ import { ComplexMetricsModel } from './complex-metrics-model';
 export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     elastestESService: ElastestESService;
     allMetricsFields: AllMetricsFields;
+    activatedFieldsList: boolean[]
     metricsIndex: string;
 
     leftChartAllData: LineChartMetricModel[];
@@ -19,6 +20,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         super();
         this.elastestESService = elastestESService;
         this.allMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
+        this.initActivatedFieldsList();
         this.metricsIndex = '';
 
         this.showXAxisLabel = false;
@@ -26,7 +28,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
         this.yAxisLabelLeft = 'Bytes';
         this.yAxisLabelRightOne = 'Usage %';
-        this.yAxisLabelRightTwo = 'Amount/sec';
+        this.yAxisLabelRightTwo = 'Amount / sec';
 
         this.yLeftAxisTickFormatting = this.normalFormat;
         this.yRightOneAxisTickFormatting = this.percentFormat;
@@ -99,15 +101,15 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     addData(metric: MetricsFieldModel, newData: SingleMetricModel[]) {
         switch (metric.unit) {
             case 'percent':
-                this.rightChartOneAllData = this.addDataToGivenList(this.rightChartOne, metric, newData);
+                this.rightChartOneAllData = this.addDataToGivenList(this.rightChartOneAllData, metric, newData);
                 this.rightChartOne = this.filterDataByGivenList(this.rightChartOneAllData);
                 break;
             case 'bytes':
-                this.leftChartAllData = this.addDataToGivenList(this.leftChart, metric, newData);
+                this.leftChartAllData = this.addDataToGivenList(this.leftChartAllData, metric, newData);
                 this.leftChart = this.filterDataByGivenList(this.leftChartAllData);
                 break;
             case 'amount/sec':
-                this.rightChartTwoAllData = this.addDataToGivenList(this.rightChartTwo, metric, newData);
+                this.rightChartTwoAllData = this.addDataToGivenList(this.rightChartTwoAllData, metric, newData);
                 this.rightChartTwo = this.filterDataByGivenList(this.rightChartTwoAllData);
                 break;
             default:
@@ -139,7 +141,6 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         }
         return position;
     }
-
 
     loadPrevious() {
         let compareTrace: any = this.getOldTrace();
@@ -184,6 +185,8 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
 
     filterData() {
+        this.initActivatedFieldsList();
+
         this.rightChartOne = [...this.filterDataByGivenList(this.rightChartOneAllData)];
         this.leftChart = [...this.filterDataByGivenList(this.leftChartAllData)];
         this.rightChartTwo = [...this.filterDataByGivenList(this.rightChartTwoAllData)];
@@ -194,10 +197,29 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         let position: number;
         for (let metric of allList) {
             position = this.allMetricsFields.getPositionByName(metric.name);
-            if (this.allMetricsFields.fieldsList[position].activated) {
+            if (this.activatedFieldsList[position]) {
                 list.push(metric);
             }
         }
         return [...list];
+    }
+
+    activateAll() {
+        for (let metric of this.allMetricsFields.fieldsList) {
+            metric.activated = true;
+        }
+    }
+
+    deactivateAll() {
+        for (let metric of this.allMetricsFields.fieldsList) {
+            metric.activated = false;
+        }
+    }
+
+    initActivatedFieldsList() {
+        this.activatedFieldsList = [];
+        this.allMetricsFields.fieldsList.map(
+            (data) => this.activatedFieldsList.push(data.activated)
+        );
     }
 }

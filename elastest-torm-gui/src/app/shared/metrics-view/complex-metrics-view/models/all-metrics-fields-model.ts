@@ -81,7 +81,11 @@ export class AllMetricsFields {
         let list: MetricsFieldModel[] = [];
 
         for (let subtype of metricFieldGroup.subtypes) { // Foreach subtype of this type and this componentType
-            list.push(new MetricsFieldModel(metricFieldGroup.type, subtype.subtype, subtype.unit, componentType));
+            let newField: MetricsFieldModel = new MetricsFieldModel(metricFieldGroup.type, subtype.subtype, subtype.unit, componentType);
+            if (newField.type === 'cpu' && newField.subtype === 'totalUsage') { // Hardcoded
+                newField.activated = true;
+            }
+            list.push(newField);
         }
         return list;
     }
