@@ -82,7 +82,7 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
 ## Basic usage
 To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project. For this, start a Web Browser and enter the following URL:
 - Linux: http://localhost:8091/ 
-- Windows: http://\<docker-host>:8091/ (where \<docker-host> is obtained executing the command `docker-machine ip`)
+- Windows: http://192.168.99.100:8091/ (replace 192.168.99.100 with result of command `docker-machine ip`)
 
 ![ElasTest TORM. Logs and metrics of a TJob Execution](imgs/project_management.png)</p>
 
@@ -159,41 +159,7 @@ To stop ElasTest services, press `Ctrl+C` in the shell.
 
 #### ElasTest TORM Server Application
 
-First, be sure that the values of the following properties defined within the `git/elastest-torm/elastest-torm/src/main/resources/application-dev.properties` file, are defined according your operating system.
-
-* Windows
-
-    ``` 
-    #Configuration for the dababase connection
-    spring.datasource.url=jdbc:mysql://192.168.99.100:3306/elastest-etm?useSSL=false
-    
-    #RabbitMQ
-    spring.rabbitmq.host= 192.168.99.100
-
-    #Elasticsearch properties
-    elastest.elasticsearch.host=http://192.168.99.100:9200/
-
-    #Volume Path for Test Results 
-    elastest.test-results.directory=/c/Users/docker/testresults
-    elastest.test-results.directory.windows=C:\\Users\\docker\\testresults
-    ```
-
-* Linux
-
-    ```       
-    #Configuration for the dababase connection
-    spring.datasource.url=jdbc:mysql://localhost:3306/elastest-etm?useSSL=false    
-
-    #RabbitMQ
-    spring.rabbitmq.host= localhost
-
-    #Elasticsearch properties
-    elastest.elasticsearch.host=http://localhost:9200/
-
-    #Volume Path for Test Results 
-    elastest.test-results.directory=/test-results
-    elastest.test-results.directory.windows=/test-results
-    ```
+First, if you are on windows, you have to update the file `git/elastest-torm/elastest-torm/src/main/resources/application.properties` to make the property `services.ip` pointing to the docker VM IP. For example, if command `docker-machine ip` returns `192.168.99.100`, then you have to replace `services.ip=localhost` by `services.ip=192.168.99.100`.
 
 You can develop ElasTest TORM Server Application using an editor and the command line or using Eclipse IDE:
 * Using *Eclipse IDE*: 
