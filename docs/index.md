@@ -125,45 +125,43 @@ ElasTest TORM uses several external components to implement the features it offe
 - **[Dockbeat:](https://www.elastic.co/products/beats)** As indicated on its website "*Beats is the platform for single-purpose data shippers. They install as lightweight agents and send data from hundreds or thousands of machines to Logstash or Elasticsearch*". ElasTest TORM uses it to retrive container metrics generated from the docker containers executing TJobs and SuTs and send them to Logstash service.
 - **[RabbitMQ:](https://www.rabbitmq.com/)** It is a message broker used as communication bus in ElasTest. It is used by ElasTest TORM to show in the web GUI metrics and logs.
 	
-### Prerequisites
-To develop ElasTest it is necessary to have installed the following tools:
+### Prepare development environment
 
+First, be sure you can execute ElasTest TORM in production as specified in section [How to run].
+
+Then, install the following development tools:
 - [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [Maven 3.3.9](https://maven.apache.org/download.cgi)
-- [Eclipse IDE](https://eclipse.org/ide/) or similar
-- [Visual Studio Code](https://code.visualstudio.com/) or similar
+- [Eclipse IDE](https://eclipse.org/ide/) or similar for Javan development.
+- [Visual Studio Code](https://code.visualstudio.com/) or similar for Angular development.
 - [Angular CLI](https://cli.angular.io/) 
 
-### Prepare the environment
-Following describes the necessary steps to configure the elastest-torm component development environment. Some of the actions to be performed will depend on the SO. 
+Last, clone the repositorie in a local folder (for example, `/git`):
 
-1. Download the repository code from GitHub.
+```
+cd /git
+git clone https://github.com/elastest/elastest-torm
+```
 
-    - If you plan to contribute to the code, first create a fork of the GitHub repository in your account.
-    - Then clone the repository in your development machine.
+> **Note:** In windows, only folders within `C:\Users\` can be used inside Docker VM. If you clone the git repository outside of `C:\Users\`, then you need to share git folder with the VM in VirtualBox interface following [these instructions](http://support.divio.com/local-development/docker/how-to-use-a-directory-outside-cusers-with-docker-toolbox-on-windows).
 
-2. Make sure that you can execute TORM following the instructions specified in section [How to run].
+### Development procedure
 
-3. If you are in Windows and you have cloned elastest-torm respository in a folder outside `C:\Users\` you need to share repository folder with the VirtualBox VM machine. For example, if the repository is cloned in `D:\git` you must have a VirtualBox configuration in boot2docker VM similar to: <p align="center">
-![Share folder using VB](imgs/share_folder_vb_en.png)</p>
+#### Start and stop ElasTest TORM platform services
+First, you need to start platform services before you can execute TORM Server and Client applications. Execute the following commands from console:
 
-### Running ElasTest TORM in development mode
+- `cd /git/elastest-torm`
+- `docker-compose -f docker-compose-dev.yml up`
 
-#### Start ElasTest TORM platform services
-First, you need to start platform services before you can execute TORM Server and Client applications. Follow this instructions to do it:
+To stop ElasTest services, press `Ctrl+C` in the shell.
 
-- Change the working directory to the project folder.
-- Execute `docker-compose -f docker-compose-dev.yml up` from command prompt, to start the services.
+ > **Note:** On Windows you must execute this commands inside the VM (`docker-machine ssh`). 
 
- > **Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
- 
- > **Note:** To stop the ElasTest TORM press `Ctrl+C` in the shell
+#### ElasTest TORM Server Application
 
-#### Start ElasTest Server Application
+First, be sure that the values of the following properties defined within the `git/elastest-torm/elastest-torm/src/main/resources/application-dev.properties` file, are defined according your operating system.
 
-First, be sure that the values of the following properties defined within the `elastest-torm/src/main/resources/application-dev.properties` file, are defined according your operating system.
-
-* Windows `application-dev.properties`
+* Windows
 
     ``` 
     #Configuration for the dababase connection
@@ -180,7 +178,7 @@ First, be sure that the values of the following properties defined within the `e
     elastest.test-results.directory.windows=C:\\Users\\docker\\testresults
     ```
 
-* Linux `application-dev.properties`
+* Linux
 
     ```       
     #Configuration for the dababase connection
@@ -197,28 +195,41 @@ First, be sure that the values of the following properties defined within the `e
     elastest.test-results.directory.windows=/test-results
     ```
 
-Then, you can execute Server Application from command line or from Eclipse IDE:
-* From *Eclipse IDE*: 
-  * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `elastest-torm` folder, within the git repositoy folder.    
-  * Right click over the project and select `Run as Java Application`
+You can develop ElasTest TORM Server Application using an editor and the command line or using Eclipse IDE:
+* Using *Eclipse IDE*: 
+  * Load project in the IDE: 
+    * Import *elastest-eus* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `/git/elastest-eus/elastest-eus` folder.
+  * Compile and execute the project:
+    * Right click over the project and select `Run as Java Application`
 
-* From console:
-    * Go to the root directory of the project with `cd <git-repository>\elastest-torm`
-    * Execute command `mvn spring-boot:run`
+* Using editor and console:
+    * Compile and execute the project: 
+      * Go to the root directory of the project with `cd /git/elastest-eus/elastest-eus`
+      * Execute command `mvn spring-boot:run`
+
+The server application can be used from the web interface (see next section). The remote webdriver endpoint is located in URL http://localhost:8080/eus/v1.
+
+If you change any source file, you need to stop the service and start it again.
 
 #### ElasTest TORM Client Application
-* From *Visual Studio Code*:
-  * Open the preddddoject folder using `File > Open folder` option and select the `elastest-torm-gui` folder, within the git repositoy folder.
-  * Open the integrated terminal with `View > Integrated Terminal`
-  * Execute in integrated terminal:
-    * `npm install`
-    * `npm start`
 
-* From console:
-  * Go to the root directory of the project with `cd <git-repository>\elastest-torm-gui`
-  * Execute:
-    * `npm install`
-    * `npm start`
+You can develop ElasTest TORM Web Client Application using and editor and the command line or using Visual Studio Code:
 
-The client application will be accessible at http://localhost:4200.
- 
+* Using *Visual Studio Code*:
+  * Load project in the IDE:
+    * Open the project folder using `File > Open folder` option and select the `/git/elastest-torm/elastest-torm-gui`.
+    * Open the integrated terminal with `View > Integrated Terminal`
+    * Execute `npm install` to download the libraries
+  * Compile and execute the project:    
+    * Execute `npm start`
+
+* Using editor and console:
+  * Prepare the project:
+    * Go to the project folder with `cd /git/elastest-torm/elastest-torm-gui`
+    * Execute `npm install` to download the libraries
+  * Compile and execute the project:    
+    * Execute `npm start`
+
+The client application can be used loading the URL http://localhost:4200 in a browser.
+
+If you change any source file, the client will be restarted automatically on save.
