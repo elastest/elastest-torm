@@ -105,7 +105,7 @@ To use ElasTest and run your first test, you need to create at least one project
 The ElasTest TORM Platform is divide in three parts:
 - ElasTest TORM Web Client Application.
 - ElasTest TORM Server Application.
-- ElasTest TORM platform services.
+- ElasTest TORM Platform Services.
 
 In the next diagram, you can to see The ElasTest TORM Components Architecture.
 
@@ -117,16 +117,16 @@ This appication provides a friendly GUI to ElasTest TORM Platform, allowing to t
 #### ElasTest TORM Server Application 
 This application is the ElasTest TORM backend that provides the API to the Web Client Application to access the resources and implements integration with the rest of the platform services. It is a Java Application developed with SpringBoot, the Spring solution for creating stand-alone applications as quickly as possible.
 
-#### ElasTest TORM platform services
-ElasTest TORM uses severals external services to implementing the features it offers. These services are shown in the diagram and described below.
+#### ElasTest TORM Platform Services
+ElasTest TORM uses several external components to implement the features it offers. These services are shown in the diagram and described below.
 
-- **[MySql DB:](https://www.mysql.com/)** The DDBB System that uses the ElasTest TORM to store the persistent data, necessary to manage the Projects, TJobs, Suts and TJobs Executions.
-- **[Logstash:](https://www.elastic.co/products/logstash)** As indicated on its website *"It is a server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite *stash**". ElasTest TORM uses it, to retrive all log information that is produce by the applications run inside the docker containers created from a TJob execution. These records will be sent to the Elasticsearch and RabbitMq servers.
-- **[Beats:](https://www.elastic.co/products/beats)** As indicated on its website "*Beats is the platform for single-purpose data shippers. They install as lightweight agents and send data from hundreds or thousands of machines to Logstash or Elasticsearch*". ElasTest TORM uses it, to retrive the all system metrics generated from the docker containers started from a TJob execution, to send its to Logstash service.
-- **[RabbitMQ:](https://www.rabbitmq.com/)** It is a open source message broker, wich uses ElasTest TORM to read the messages received from the Logstash service.
+- **[MySql DB:](https://www.mysql.com/)** The DDBB System that uses the ElasTest TORM to store the persistent data, necessary to manage the Projects, TJobs, Suts and Executions.
+- **[Logstash:](https://www.elastic.co/products/logstash)** As indicated on its website *"It is a server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite *stash*"*. ElasTest TORM uses it to gather and parse logs and metrics produced by the execution of TJobs and SuTs. The logs and metrics are sent to Elasticsearch and RabbitMq servers.
+- **[Dockbeat:](https://www.elastic.co/products/beats)** As indicated on its website "*Beats is the platform for single-purpose data shippers. They install as lightweight agents and send data from hundreds or thousands of machines to Logstash or Elasticsearch*". ElasTest TORM uses it to retrive container metrics generated from the docker containers executing TJobs and SuTs and send them to Logstash service.
+- **[RabbitMQ:](https://www.rabbitmq.com/)** It is a message broker used as communication bus in ElasTest. It is used by ElasTest TORM to show in the web GUI metrics and logs.
 	
 ### Prerequisites
-Before you start to configure the ElasTest TORM development environment, it is necessary to have installed the following tools:
+To develop ElasTest it is necessary to have installed the following tools:
 
 - [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [Maven 3.3.9](https://maven.apache.org/download.cgi)
@@ -147,20 +147,21 @@ Following describes the necessary steps to configure the elastest-torm component
 3. If you are in Windows and you have cloned elastest-torm respository in a folder outside `C:\Users\` you need to share repository folder with the VirtualBox VM machine. For example, if the repository is cloned in `D:\git` you must have a VirtualBox configuration in boot2docker VM similar to: <p align="center">
 ![Share folder using VB](imgs/share_folder_vb_en.png)</p>
 
-### How to run in development mode
-#### Start ElasTest TORM platform services
-- Change the working directory to the project folder.
-- Execute `docker-compose -f docker-compose-dev.yml up -d` from command prompt, to start the services.
-
- >**Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
-
- >**Note:** If you want to stop the ElasTest TORM platform services you need to execute  `docker-compose -f docker-compose-dev.yml down` from command prompt.
-
 ### Running ElasTest TORM in development mode
-#### ElasTest Server Application
-From Eclipse IDE:
-- Import *elastest-torm* project from local Git Repository.
-- Modify the value of the following properties, defined within the *application-dev.properties* file, depending on whether you are on windows or linux.
+
+#### Start ElasTest TORM platform services
+First, you need to start platform services before you can execute TORM Server and Client applications. Follow this instructions to do it:
+
+- Change the working directory to the project folder.
+- Execute `docker-compose -f docker-compose-dev.yml up` from command prompt, to start the services.
+
+ > **Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
+ 
+ > **Note:** To stop the ElasTest TORM press `Ctrl+C` in the shell
+
+#### Start ElasTest Server Application
+
+First, be sure that the values of the following properties defined within the `elastest-torm/src/main/resources/application-dev.properties` file, are defined according your operating system.
 
 * Windows `application-dev.properties`
 
@@ -195,19 +196,29 @@ From Eclipse IDE:
     elastest.test-results.directory=/test-results
     elastest.test-results.directory.windows=/test-results
     ```
- 
-- ElasTest server application:
-  - From *Eclipse IDE*: Right click over the project and select `Run as Java Application`
-  - From console:
-    - Locate in the root directory of the project 
-    - Execute project with `mvn spring-boot:run` 
+
+Then, you can execute Server Application from command line or from Eclipse IDE:
+* From *Eclipse IDE*: 
+  * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `elastest-torm` folder, within the git repositoy folder.    
+  * Right click over the project and select `Run as Java Application`
+
+* From console:
+    * Go to the root directory of the project with `cd <git-repository>\elastest-torm`
+    * Execute command `mvn spring-boot:run`
 
 #### ElasTest TORM Client Application
-From Visual Studio Code:
-- Open the project folder. From the *File* menu, click the *Open folder* item and select the *elastest-torm-gui* folder, within the local *elastest-torm* repositoy.    
-- Open the integrated terminal
-- Type `npm install`
-- Type `npm start`
+* From *Visual Studio Code*:
+  * Open the preddddoject folder using `File > Open folder` option and select the `elastest-torm-gui` folder, within the git repositoy folder.
+  * Open the integrated terminal with `View > Integrated Terminal`
+  * Execute in integrated terminal:
+    * `npm install`
+    * `npm start`
 
-The graphical client for *elastest-torm* will be accessible at http://localhost:4200. 
+* From console:
+  * Go to the root directory of the project with `cd <git-repository>\elastest-torm-gui`
+  * Execute:
+    * `npm install`
+    * `npm start`
+
+The client application will be accessible at http://localhost:4200.
  
