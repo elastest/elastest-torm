@@ -200,7 +200,7 @@ You can develop ElasTest TORM Server Application using an editor and the command
   * Load project in the IDE: 
     * Import *elastest-eus* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `/git/elastest-eus/elastest-eus` folder.
   * Compile and execute the project:
-    * Right click over the project and select `Run as...> Java Application` and select class `EusSpringBootApp`.
+    * Right click over the project and select `Run as...> Java Application` and select class `ElastestETMSpringBoot`.
 
 * Using editor and console:
     * Compile and execute the project: 
