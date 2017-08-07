@@ -39,17 +39,17 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
 
 ### Linux 
 1. Install [Docker](https://docs.docker.com/engine/installation/).  
-Install [Docker Compose](https://docs.docker.com/compose/install/).
+2. Install [Docker Compose](https://docs.docker.com/compose/install/).
     - `sudo -i` (get access as superuser)  
     - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
     - `chmod +x /usr/local/bin/docker-compose` 
 
     > **Note:** For use Docker Compose file Version 2.1 you need Docker Engine version 1.12.0+ and Compose 1.9.0+.
     
-2. Elasticsearch requires an increase of the max virtual memory to at least 262144. 
+3. Elasticsearch requires an increase of the max virtual memory to at least 262144. 
     - `sudo sysctl -w vm.max_map_count=262144`
 
-3. Enable the tcp Socket.
+4. Enable the tcp Socket.
     - Create the docker.conf file at the path `/etc/systemd/system/docker.service.d/docker.conf`
     - Edit file and add the following three lines:
     ```
@@ -59,9 +59,9 @@ Install [Docker Compose](https://docs.docker.com/compose/install/).
     ```
     > **Note:** If the directory *docker.service.d* does not exist, then you need create it.
 
-4. Reload configuration.
+5. Reload configuration.
     - `systemctl daemon-reload`
-5. Restart docker service.
+6. Restart docker service.
     - `systemctl restart docker.service`
 
 ### Download ElasTest TORM 
