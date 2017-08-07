@@ -72,9 +72,10 @@ Install [Docker Compose](https://docs.docker.com/compose/install/).
 
     >**Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
 
-### Start ElasTest TORM
-- `cd elastest-torm`.
-- `docker-compose up -p elastest -d` (if you want to see the logs information, delete the parameter '-d').
+### Start and stop ElasTest TORM
+- `cd elastest-torm`
+- `docker-compose -p elastest up `
+- To stop ElasTest TORM press `Ctrl+C` in the shell
 
 >**Note:** To run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/elastest-torm`, before running the docker-compose command.
 
