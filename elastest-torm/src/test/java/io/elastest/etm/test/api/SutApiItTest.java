@@ -41,36 +41,27 @@ import io.elastest.etm.api.model.TJob;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElastestETMSpringBoot.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SutApiItTest {
-static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
+
+	static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 	
 	@LocalServerPort
     int serverPort;
 	
 	@Autowired
-	TestRestTemplate restTemplate;
+	TestRestTemplate httpClient;
 	
-	long projectId;
-	
-	String baseSutName = "sut";
-	
-	static CountDownLatch latch;
-		
-	@BeforeAll
-	static void staticSetup(){
-		latch = new CountDownLatch(1);
-	}
+	long projectId;	
 	
 	@BeforeEach
     void setup() {
         log.info("App started on port {}", serverPort);
-        projectId = createProjectToTesting("P00000000").getId();
+        projectId = createProject("Project").getId();
     }
 	
 	@AfterEach
 	void reset(){
 		deleteProject(projectId);
-	}
-	
+	}	
 	
 	@Disabled
 	@Test
@@ -85,13 +76,15 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\""  
 				+"}";
 		
+		
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 		
 		log.info("POST /api/sut");
-		ResponseEntity<SutSpecification> response = restTemplate.postForEntity("/api/sut", entity, SutSpecification.class);
+		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
 		log.info("Sut created:" + response.getBody());
 
 		deleteSutSpecification(response.getBody().getId());
@@ -108,7 +101,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 	public void testModifySut(){
 		log.info("Start the test testModifySut" );
 		
-		SutSpecification sutSpec = createSutToTesting(projectId);
+		SutSpecification sutSpec = createSut(projectId);
 		sutSpec.setName("sut_definition_2");
 						
 		HttpHeaders headers = new HttpHeaders();
@@ -127,7 +120,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 	
 		log.info("PUT /api/sut");
-		restTemplate.put("/api/sut", entity, SutSpecification.class);
+		httpClient.put("/api/sut", entity, SutSpecification.class);
 		
 		SutSpecification sutSpecModified = getSutById(sutSpec.getId());
 		
@@ -149,11 +142,11 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		List<SutSpecification> tSutsToGet = new ArrayList<>();
 		
 		for (int i = 0; i < 3; i++){
-			tSutsToGet.add(createSutToTesting(projectId));
+			tSutsToGet.add(createSut(projectId));
 		}
         
         log.debug("GET /api/sut");
-        ResponseEntity<SutSpecification[]> response = restTemplate.getForEntity("/api/sut", SutSpecification[].class);
+        ResponseEntity<SutSpecification[]> response = httpClient.getForEntity("/api/sut", SutSpecification[].class);
         SutSpecification[] suts = response.getBody();
         
         for (SutSpecification sut: suts){
@@ -170,10 +163,10 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		log.info("Start the test testDeleteSut" );
 		
 		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("sutId", createSutToTesting(projectId).getId());
+		urlParams.put("sutId", createSut(projectId).getId());
 
         log.info("DELETE /api/sut/{sutId}");
-        ResponseEntity<Long> response = restTemplate.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
+        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
         log.info("Deleted sut:" + response.getBody().longValue());
         
         assertTrue(response.getBody().longValue() == urlParams.get("sutId"));
@@ -187,13 +180,13 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		urlParams.put("sutId", sutId);
 	
 		log.info("GET /api/sut/{sutId}");
-		ResponseEntity<SutSpecification> response = restTemplate.getForEntity("/api/sut/{sutId}", SutSpecification.class, urlParams);
+		ResponseEntity<SutSpecification> response = httpClient.getForEntity("/api/sut/{sutId}", SutSpecification.class, urlParams);
 		
 		return response.getBody();
 		
 	}
 	
-	private SutSpecification createSutToTesting(long projectId){		
+	private SutSpecification createSut(long projectId){		
 
 		String requestJson ="{"
 				  + "\"description\": \"This is a SuT description example\","
@@ -209,7 +202,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 		
 		log.info("POST /api/sut");
-		ResponseEntity<SutSpecification> response = restTemplate.postForEntity("/api/sut", entity, SutSpecification.class);
+		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
 		log.info("Sut created:" + response.getBody());
 
 		return response.getBody();
@@ -221,12 +214,12 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		urlParams.put("sutId", sutId);
 
         log.info("DELETE /api/sut/{sutId}");
-        ResponseEntity<Long> response = restTemplate.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted sutSpecification:" + response.getBody().longValue());                
+        ResponseEntity<SutSpecification> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, SutSpecification.class, urlParams);
+        log.info("Deleted sutSpecification:" + response.getBody().getId());                
         
 	}
 	
-	private Project createProjectToTesting(String projectName){		
+	private Project createProject(String projectName){		
 
 		String requestJson = "{ \"id\": 0,\"name\": \"" + projectName + "\"}";
 
@@ -236,7 +229,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 
 		log.info("POST /project");
-		ResponseEntity<Project> response = restTemplate.postForEntity("/api/project", entity, Project.class);
+		ResponseEntity<Project> response = httpClient.postForEntity("/api/project", entity, Project.class);
 
 		return response.getBody();
 
@@ -247,7 +240,7 @@ static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 		urlParams.put("projectId", projectToDeleteId);
 
         log.info("DELETE /project");
-        ResponseEntity<Long> response = restTemplate.exchange("/api/project/{projectId}", HttpMethod.DELETE, null, Long.class, urlParams);
+        ResponseEntity<Long> response = httpClient.exchange("/api/project/{projectId}", HttpMethod.DELETE, null, Long.class, urlParams);
         log.info("Deleted project:" + response.getBody());                
         
 	}

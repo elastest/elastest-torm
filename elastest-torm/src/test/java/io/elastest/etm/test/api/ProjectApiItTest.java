@@ -1,17 +1,12 @@
 package io.elastest.etm.test.api;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.elastest.etm.ElastestETMSpringBoot;
 import io.elastest.etm.api.model.Project;
@@ -41,114 +35,131 @@ import io.elastest.etm.api.model.Project;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElastestETMSpringBoot.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ProjectApiItTest {
-	
-	static final Logger log = LoggerFactory.getLogger(ProjectApiItTest.class);
-	
-	static ObjectMapper mapper;
-	
+
+	private static final Logger log = LoggerFactory.getLogger(ProjectApiItTest.class);
+
+	private static final String PROJECT_NAME = "Project";
+
 	@Autowired
-	TestRestTemplate restTemplate;
-	
-    @LocalServerPort
-    int serverPort;
-           
-    @BeforeAll
-	static void start() {
-		mapper = new ObjectMapper();		
+	TestRestTemplate httpClient;
+
+	@LocalServerPort
+	int serverPort;
+
+	@BeforeEach
+	void setup() {
+		log.debug("App started on port {}", serverPort);
 	}
-    
-    @BeforeEach
-    void setup() {
-        log.debug("App started on port {}", serverPort);
-    }
-    
-    @AfterAll
-    static void reset(){
-    	
-    }
-    
-    String baseProjectName = "P00000000";
-        
+
 	@Test
-	public void testCreateProject() throws JsonProcessingException, IOException{
-		
+	public void testCreateProject() throws JsonProcessingException, IOException {
+
 		// Test data (input)
-        String requestJson = "{ \"id\": 0,\"name\": \"P00000000\"}";
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+		String requestJson = "{ \"id\": 0,\"name\": \"" + PROJECT_NAME + "\"}";
 
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Exercise #1 (create project)
-        log.debug("POST /project");
-        ResponseEntity<Project> response = restTemplate.postForEntity("/api/project",
-        		entity, Project.class);
-        log.info("Project created:" + response.getBody());
-        
-        deleteProject(response.getBody().getId());
-                
-        assertAll("Validating Project Properties",
-        		() -> assertTrue(response.getBody().getName().equals("P00000000")),
-                () -> assertNotNull(response.getBody().getId())
-        );
-		
-	}
-	
-	@Test
-	public void testGetProjects(){
-		
-		List<Project> projectsToGet = new ArrayList<>();
-		
-		for (int i = 0; i < 3; i++){
-			projectsToGet.add(createProjectToTesting(baseProjectName + i));
+		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+
+		// Exercise #1 (create project)
+		log.debug("POST /project");
+		ResponseEntity<Project> response = httpClient.postForEntity("/api/project", entity, Project.class);
+
+		log.info("Project created:" + response.getBody());
+
+		try {
+
+			assertTrue(response.getBody().getName().equals(PROJECT_NAME));
+			assertNotNull(response.getBody().getId());
+
+		} finally {
+			deleteProject(response.getBody().getId());
 		}
-        
-        log.debug("GET /project");
-        ResponseEntity<Project[]> response = restTemplate.getForEntity("/api/project", Project[].class);
-        Project[] projects = response.getBody();
-        
-        for (Project project: projectsToGet){
-			deleteProject(project.getId());
-		}
-                        
-        log.info("Projects Array size:" + projects.length);
-        assertTrue(projects.length > 0);
 	}
-	
+
 	@Test
-	public void testGetProjectById(){
-		log.info("testGetProjectById:");
+	public void testGetProjects() {
+
+		Map<Long,Project> createdProjects = new HashMap<>();
+
+		try {
+
+			int numProjects = 5;
+
+			for (int i = 0; i < numProjects; i++) {
+				Project project = createProject(PROJECT_NAME + i);
+				createdProjects.put(project.getId(), project);
+			}
+
+			log.debug("GET /project");
+
+			ResponseEntity<Project[]> response = httpClient.getForEntity("/api/project", Project[].class);
+			Project[] projects = response.getBody();
+
+			log.info("Projects Array size:" + projects.length);
+			
+			Map<Long,Project> retrievedProjects = new HashMap<>();
+			for (Project project : projects) {
+				retrievedProjects.put(project.getId(), project);
+			}
+
+			assertTrue(retrievedProjects.keySet().containsAll(createdProjects.keySet()));
+			
+		} finally {
+
+			for (Long projectId : createdProjects.keySet()) {
+				deleteProject(projectId);
+			}
+		}
+	}
+
+	@Test
+	public void testGetProjectById() {
+
+		long projectId = -1;
+		
+		try {
+
+			Project project = createProject(PROJECT_NAME);
+			projectId = project.getId();
+			
+			Map<String, Long> urlParams = new HashMap<>();
+			urlParams.put("id", projectId);
+
+			log.info("GET /project/{id}");
+			ResponseEntity<Project> response = httpClient.getForEntity("/api/project/{id}", Project.class, urlParams);
+
+			assertNotNull(response.getBody());
+			assertTrue(response.getBody().getName().equals(PROJECT_NAME));
+
+		} finally {
+
+			if(projectId != -1){
+				deleteProject(projectId);
+			}
+		}
+	}
+
+	@Test
+	public void testDeleteProject() {
+
+		Project project = createProject(PROJECT_NAME);
 
 		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("id", createProjectToTesting("P00000000").getId());
-		
-		
-		log.info("GET /project/{id}");
-		ResponseEntity<Project> response = restTemplate.getForEntity("/api/project/{id}", Project.class, urlParams);
-		
-		deleteProject(response.getBody().getId());
-		
-		assertAll("Validating Project Properties",
-				() -> assertNotNull(response.getBody()),
-	    		() -> assertTrue(response.getBody().getName().equals("P00000000"))
-	    );		
+		urlParams.put("id", project.getId());
+
+		log.info("DELETE /project");
+		ResponseEntity<Long> response = httpClient.exchange("/api/project/{id}", HttpMethod.DELETE, null,
+				Long.class, urlParams);
+
+		log.info("Deleted project:" + response.getBody());
+
+		assertTrue(response.getBody().longValue() == project.getId());
+
 	}
-	
-	@Test
-	public void testDeleteProject(){
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("projectId", createProjectToTesting("P000000001").getId());
-                
-        log.info("DELETE /project"); 
-        ResponseEntity<Long> response = restTemplate.exchange("/api/project/{projectId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted project:" + response.getBody());
-                
-        assertTrue(response.getBody().longValue() == urlParams.get("projectId"));
-		
-	}
-	
-	private Project createProjectToTesting(String projectName){		
+
+	private Project createProject(String projectName) {
 
 		String requestJson = "{ \"id\": 0,\"name\": \"" + projectName + "\"}";
 
@@ -158,19 +169,20 @@ public class ProjectApiItTest {
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 
 		log.info("POST /project");
-		ResponseEntity<Project> response = restTemplate.postForEntity("/api/project", entity, Project.class);
+		ResponseEntity<Project> response = httpClient.postForEntity("/api/project", entity, Project.class);
 
 		return response.getBody();
 
 	}
-	
-	private void deleteProject(Long projectToDeleteId){
+
+	private void deleteProject(Long projectToDeleteId) {
 		Map<String, Long> urlParams = new HashMap<>();
 		urlParams.put("projectId", projectToDeleteId);
 
-        log.info("DELETE /project");
-        ResponseEntity<Long> response = restTemplate.exchange("/api/project/{projectId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted project:" + response.getBody());                
-        
+		log.info("DELETE /project");
+		ResponseEntity<Long> response = httpClient.exchange("/api/project/{projectId}", HttpMethod.DELETE, null,
+				Long.class, urlParams);
+		log.info("Deleted project:" + response.getBody());
+
 	}
 }
