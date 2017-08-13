@@ -3,8 +3,8 @@ package io.elastest.etm.test.tjob;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.elastest.etm.api.model.Project;
-import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.model.Project;
+import io.elastest.etm.model.TJob;
 
 @Configuration
 public class ElastestConfigTest {

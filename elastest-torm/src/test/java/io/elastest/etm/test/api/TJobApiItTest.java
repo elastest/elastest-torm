@@ -27,8 +27,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.api.model.Project;
-import io.elastest.etm.api.model.TJob;
+import io.elastest.etm.model.Project;
+import io.elastest.etm.model.TJob;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)

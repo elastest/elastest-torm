@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
-import io.elastest.etm.service.epm.EpmIntegrationService;
-import io.elastest.etm.service.tjob.TJobService;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.service.EpmIntegrationService;
+import io.elastest.etm.service.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 	
 

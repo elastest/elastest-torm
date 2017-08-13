@@ -29,7 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.api.model.Project;
+import io.elastest.etm.model.Project;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)

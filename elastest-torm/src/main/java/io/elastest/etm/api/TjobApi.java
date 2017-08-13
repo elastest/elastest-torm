@@ -1,8 +1,8 @@
 package io.elastest.etm.api;
 
-import io.elastest.etm.api.model.Parameter;
-import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

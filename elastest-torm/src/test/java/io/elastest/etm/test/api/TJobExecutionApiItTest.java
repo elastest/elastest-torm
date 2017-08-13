@@ -44,9 +44,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.api.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)

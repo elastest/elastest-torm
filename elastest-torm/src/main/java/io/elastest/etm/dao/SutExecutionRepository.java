@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.api.model.SutSpecification;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
 
 public interface SutExecutionRepository extends JpaRepository<SutExecution, Long> {
 	

@@ -33,7 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.api.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)

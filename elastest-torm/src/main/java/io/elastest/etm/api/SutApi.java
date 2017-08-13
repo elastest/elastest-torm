@@ -1,10 +1,10 @@
 package io.elastest.etm.api;
 
-import io.elastest.etm.api.model.DeployConfig;
-import io.elastest.etm.api.model.Log;
-import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.api.model.SuTMonitoring;
-import io.elastest.etm.api.model.SutSpecification;
+import io.elastest.etm.model.DeployConfig;
+import io.elastest.etm.model.Log;
+import io.elastest.etm.model.SuTMonitoring;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

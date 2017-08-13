@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import io.elastest.etm.api.model.Project;
-import io.elastest.etm.api.model.Project.BasicAttProject;
-import io.elastest.etm.service.project.ProjectService;
+
+import io.elastest.etm.model.Project;
+import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.service.ProjectService;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 

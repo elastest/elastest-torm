@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.api.model.DeployConfig;
-import io.elastest.etm.api.model.Log;
-import io.elastest.etm.api.model.SuTMonitoring;
-import io.elastest.etm.api.model.SutExecution;
-import io.elastest.etm.api.model.SutExecution.SutExecView;
-import io.elastest.etm.api.model.SutSpecification;
-import io.elastest.etm.api.model.SutSpecification.SutView;
-import io.elastest.etm.service.sut.SutService;
+import io.elastest.etm.model.DeployConfig;
+import io.elastest.etm.model.Log;
+import io.elastest.etm.model.SuTMonitoring;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutExecution.SutExecView;
+import io.elastest.etm.model.SutSpecification.SutView;
+import io.elastest.etm.service.SutService;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 

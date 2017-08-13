@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.api.model.Parameter;
-import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.api.model.TJob.BasicAttTJob;
-import io.elastest.etm.api.model.TJobExecution;
-import io.elastest.etm.api.model.TJobExecution.BasicAttTJobExec;
-import io.elastest.etm.service.tjob.TJobService;
+import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")

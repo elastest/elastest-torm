@@ -14,10 +14,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import io.elastest.etm.api.model.Project;
-import io.elastest.etm.api.model.SutSpecification;
-import io.elastest.etm.api.model.TJob;
-import io.elastest.etm.api.model.TJobExecution;
+import io.elastest.etm.model.Project;
+import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
 
 public class EtmApiItTest {
 
