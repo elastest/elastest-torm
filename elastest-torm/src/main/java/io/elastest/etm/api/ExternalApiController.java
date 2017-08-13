@@ -10,19 +10,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.elastest.etm.model.ExternalJob;
 import io.elastest.etm.service.ExternalService;
-import io.elastest.etm.service.ProjectService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
 @RestController
 public class ExternalApiController implements ExternalApi {
 	
-	private ProjectService projectService;
 	private TJobService tJobService;
 	private ExternalService externalService;
 		
-	public ExternalApiController(ProjectService projectService, TJobService tJobService, ExternalService externalService){
-		this.projectService = projectService;
+	public ExternalApiController(TJobService tJobService, ExternalService externalService){
 		this.tJobService = tJobService;
 		this.externalService = externalService;
 	}

@@ -1,19 +1,25 @@
 package io.elastest.etm.api;
 
-import io.elastest.etm.model.DeployConfig;
-import io.elastest.etm.model.Log;
-import io.elastest.etm.model.SuTMonitoring;
-import io.elastest.etm.model.SutExecution;
-import io.elastest.etm.model.SutSpecification;
-import io.swagger.annotations.*;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.List;
-import javax.validation.Valid;
+import io.elastest.etm.model.DeployConfig;
+import io.elastest.etm.model.Log;
+import io.elastest.etm.model.SuTMonitoring;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Api(value = "sut", description = "the sut API")

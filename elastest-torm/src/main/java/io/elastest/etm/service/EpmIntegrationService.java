@@ -45,8 +45,7 @@ public class EpmIntegrationService {
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
-		String testLogUrl = dockerExec.initializeLog();
-
+		
 		try {
 			// Create queues and load basic services
 			dockerService.loadBasicServices(dockerExec);

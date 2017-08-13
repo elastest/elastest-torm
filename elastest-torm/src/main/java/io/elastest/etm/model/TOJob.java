@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModelProperty;
 
 /**

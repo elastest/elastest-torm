@@ -3,12 +3,6 @@ package io.elastest.etm.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -22,7 +16,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * TJob
@@ -91,7 +92,7 @@ public class TJob {
 	}
 
 	public TJob(Long id, String name, /* List<TestService> testServices, */ String imageName, SutSpecification sut,
-			Project project) {
+			Project project, boolean external) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.imageName = imageName;

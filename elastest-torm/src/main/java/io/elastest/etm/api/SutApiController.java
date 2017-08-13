@@ -18,11 +18,10 @@ import io.elastest.etm.model.DeployConfig;
 import io.elastest.etm.model.Log;
 import io.elastest.etm.model.SuTMonitoring;
 import io.elastest.etm.model.SutExecution;
-import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutExecution.SutExecView;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.service.SutService;
-import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
@@ -32,8 +31,6 @@ public class SutApiController implements SutApi {
 
 	@Autowired
 	SutService sutService;
-
-	private UtilTools utilTools = new UtilTools();
 
 	@JsonView(SutView.class)
 	public ResponseEntity<SutSpecification> createSuT(

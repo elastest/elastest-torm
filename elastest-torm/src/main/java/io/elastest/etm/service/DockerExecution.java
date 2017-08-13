@@ -12,7 +12,6 @@ public class DockerExecution {
 	private String testContainerId, appContainerId;
 
 	private String network;
-	private String executionId;
 	private TJobExecution tJobexec;
 	private boolean withSut;
 	private SutExecution sutExec;
@@ -23,11 +22,6 @@ public class DockerExecution {
 	public DockerExecution(TJobExecution tJobExec) {
 		this.tJobexec = tJobExec;
 		this.withSut = tJobExec.getTjob().getSut() != null;
-	}
-
-	public String initializeLog() {
-		setExecutionId(tJobexec.getId().toString());
-		return "localhost:9200/" + executionId;
 	}
 
 	/* Getters and Setters */
@@ -80,14 +74,9 @@ public class DockerExecution {
 		this.network = network;
 	}
 
-	public String getExecutionId() {
-		return executionId;
+	public Long getExecutionId() {
+		return tJobexec.getId();
 	}
-
-	public void setExecutionId(String executionId) {
-		this.executionId = executionId;
-	}
-
 
 	public TJobExecution gettJobexec() {
 		return tJobexec;

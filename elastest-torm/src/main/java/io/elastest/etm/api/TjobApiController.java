@@ -15,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.TJob;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;

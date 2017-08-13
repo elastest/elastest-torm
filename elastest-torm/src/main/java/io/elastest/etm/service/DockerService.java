@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
