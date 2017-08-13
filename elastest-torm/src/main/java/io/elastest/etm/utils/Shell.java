@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CharStreams;
 
-import io.elastest.etm.commons.ElasTestException;
-
 public class Shell {
 
   public static Logger log = LoggerFactory.getLogger(Shell.class);
@@ -62,7 +60,7 @@ public class Shell {
       return output;
 
     } catch (IOException e) {
-      throw new ElasTestException(
+      throw new RuntimeException(
           "Exception executing command on the shell: " + Arrays.toString(command), e);
     }
   }
