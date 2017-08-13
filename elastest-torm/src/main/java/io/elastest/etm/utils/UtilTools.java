@@ -30,13 +30,6 @@ public class UtilTools {
 	
 	@Value ("${elastest.incontainer}")
 	private String inContainer;
-
-	public int getHttpExceptionCode(Exception e){
-		if(e instanceof HTTPException){
-			return ((HTTPException) e).getStatusCode();
-		}
-		return 500;
-	}
 	
 	public boolean pingHost(String host, int port, int timeout) {
 	    try (Socket socket = new Socket()) {

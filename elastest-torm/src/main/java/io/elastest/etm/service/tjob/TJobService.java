@@ -95,7 +95,7 @@ public class TJobService {
 		return tJobExecRepositoryImpl.findByIdAndTJob(tJobExecId, tJob);
 	}
 
-	public TJob modifyTJob(TJob tJob) throws Exception {
+	public TJob modifyTJob(TJob tJob) throws RuntimeException {
 		if (tJobRepo.findOne(tJob.getId()) != null) {
 			return tJobRepo.save(tJob);
 		} else {
