@@ -97,7 +97,7 @@ public class DockerService {
 	public void startSut(DockerExecution dockerExec) {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
-			System.out.println("Starting sut " + dockerExec.getExecutionId());
+			logger.info("Starting sut " + dockerExec.getExecutionId());
 			String sutImage = appImage;
 			String envVar = "";
 			if (sutExec.getSutSpecification().sutBy() == "imageName") {
@@ -106,7 +106,7 @@ public class DockerService {
 			} else {
 				envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
 			}
-			System.out.println("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
+			logger.info("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
 			String sutName = "sut_" + dockerExec.getExecutionId();
 
 			LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
@@ -153,7 +153,7 @@ public class DockerService {
 
 		dockerExec.getDockerClient().waitContainerCmd(checkContainerId).exec(new WaitContainerResultCallback())
 				.awaitStatusCode();
-		System.out.println("Sut is ready " + dockerExec.getExecutionId());
+		logger.info("Sut is ready " + dockerExec.getExecutionId());
 
 		try {
 			try {
@@ -165,12 +165,12 @@ public class DockerService {
 		}
 	}
 
-	public List<ReportTestSuite> startTest(DockerExecution dockerExec) {
+	public List<ReportTestSuite> executeTest(DockerExecution dockerExec) {
 		try {
-			System.out.println("Starting test " + dockerExec.getExecutionId());
+			logger.info("Starting test " + dockerExec.getExecutionId());
 			String testImage = dockerExec.gettJobexec().getTjob().getImageName();
 
-			System.out.println("host: " + getHostIp(dockerExec));
+			logger.info("host: " + getHostIp(dockerExec));
 
 			// Environment variables (optional)
 			ArrayList<String> envList = new ArrayList<>();
@@ -214,7 +214,7 @@ public class DockerService {
 			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
 			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
 					.exec(new WaitContainerResultCallback()).awaitStatusCode();
-			System.out.println("Test container ends with code " + code);
+			logger.info("Test container ends with code " + code);
 			return this.getTestResults(localDirToTeadTestResults, dockerExec);
 
 		} catch (Exception e) {
@@ -254,14 +254,14 @@ public class DockerService {
 
 	public void endTestExec(DockerExecution dockerExec) {
 		try {
-			System.out.println("Ending test execution " + dockerExec.getExecutionId());
+			logger.info("Ending test execution " + dockerExec.getExecutionId());
 			try {
 				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getTestContainerId()).exec();
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getTestContainerId()).exec();
 		} catch (Exception e) {
-			System.out.println("Error on ending test execution  " + dockerExec.getExecutionId());
+			logger.info("Error on ending test execution  " + dockerExec.getExecutionId());
 
 		}
 	}
@@ -270,7 +270,7 @@ public class DockerService {
 		SutExecution sutExec = dockerExec.getSutExec();
 		sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
 		try {
-			System.out.println("Ending sut execution " + dockerExec.getExecutionId());
+			logger.info("Ending sut execution " + dockerExec.getExecutionId());
 			try {
 				dockerExec.getDockerClient().stopContainerCmd(dockerExec.getAppContainerId()).exec();
 			} catch (Exception e) {
@@ -279,7 +279,7 @@ public class DockerService {
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
 			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
-			System.out.println("Error on ending Sut execution " + dockerExec.getExecutionId());
+			logger.info("Error on ending Sut execution " + dockerExec.getExecutionId());
 		}
 		dockerExec.setSutExec(sutExec);
 		sutService.modifySutExec(dockerExec.getSutExec());
