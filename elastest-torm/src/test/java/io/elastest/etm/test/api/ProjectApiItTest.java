@@ -28,12 +28,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import io.elastest.etm.ElastestETMSpringBoot;
+import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.api.model.Project;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElastestETMSpringBoot.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ProjectApiItTest {
 
 	private static final Logger log = LoggerFactory.getLogger(ProjectApiItTest.class);

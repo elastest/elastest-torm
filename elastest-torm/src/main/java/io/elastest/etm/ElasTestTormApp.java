@@ -19,7 +19,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @EnableAsync
-public class ElastestETMSpringBoot extends AsyncConfigurerSupport {
+public class ElasTestTormApp extends AsyncConfigurerSupport {
 
 	@Bean
 	UtilTools utils() {
@@ -57,6 +57,6 @@ public class ElastestETMSpringBoot extends AsyncConfigurerSupport {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		new SpringApplication(ElastestETMSpringBoot.class).run(args);
+		new SpringApplication(ElasTestTormApp.class).run(args);
 	}
 }

@@ -26,13 +26,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.etm.ElastestETMSpringBoot;
+import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.TJob;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElastestETMSpringBoot.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TJobApiItTest extends EtmApiItTest {
 
 	static final Logger log = LoggerFactory.getLogger(TJobApiItTest.class);
