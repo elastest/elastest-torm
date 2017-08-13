@@ -1,7 +1,6 @@
 package io.elastest.etm.service.epm;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
@@ -57,7 +56,7 @@ public class EpmIntegrationService {
 
 			List<ReportTestSuite> testSuites;
 			// Start Test
-			testSuites = dockerService.startTest(dockerExec);
+			testSuites = dockerService.executeTest(dockerExec);
 			tJobExec.setResult(TJobExecution.ResultEnum.FINISHED);
 			saveTestResults(testSuites, tJobExec);
 
