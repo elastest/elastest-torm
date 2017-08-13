@@ -67,7 +67,10 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		}
 
 		public void waitForCompletion() throws InterruptedException {
-			latch.await(30, TimeUnit.SECONDS);
+			int timeSeconds = 60;
+			if(!latch.await(timeSeconds, TimeUnit.SECONDS)){
+				throw new RuntimeException("Timeout of "+timeSeconds+" waiting for 'BUILD SUCESS' message");
+			}
 		}
 	}
 
@@ -141,7 +144,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		log.info("TJobExecution: "+getTJobExecutionById(exec.getId(), tJob.getId()));
 		
 		deleteTJobExecution(exec.getId(), tJob.getId());
-		deleteTJob(response.getBody().getId());
+		deleteTJob(tJob.getId());
 		log.info("Finished.");
 	}
 
