@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import io.elastest.etm.api.model.Project;
+import io.elastest.etm.api.model.SutSpecification;
 import io.elastest.etm.api.model.TJob;
 import io.elastest.etm.api.model.TJobExecution;
 
@@ -122,6 +123,43 @@ public class EtmApiItTest {
         ResponseEntity<TJobExecution> response = httpClient.getForEntity("/api/tjob/{tJobId}/exec/{tJobExecId}", TJobExecution.class, urlParams);
         
         return response;        
+	}
+	
+	protected SutSpecification createSut(long projectId){		
+
+		String requestJson ="{"
+				  + "\"description\": \"This is a SuT description example\","
+				  + "\"id\": 0,"
+				  + "\"name\": \"sut_definition_1\","
+				  + "\"project\": { \"id\":"+ projectId + "},"
+				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
+				  + "\"imageName\": \"https://github.com/EduJGURJC/springbootdemo\""
+				+"}";
+	
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+	
+		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+		
+		log.info("POST /api/sut");
+		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
+		log.info("Sut created:" + response.getBody());
+
+		return response.getBody();
+
+	}
+	
+	protected Long deleteSut(Long sutId){
+		
+		Map<String, Long> urlParams = new HashMap<>();
+		urlParams.put("sutId", sutId);
+
+        log.info("DELETE /api/sut/{sutId}");
+        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
+        log.info("Deleted sutSpecification:" + response.getBody());  
+        
+        return response.getBody();
+        
 	}
 
 }

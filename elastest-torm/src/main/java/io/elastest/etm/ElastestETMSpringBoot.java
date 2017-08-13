@@ -11,6 +11,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import io.elastest.etm.utils.UtilTools;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -46,6 +49,16 @@ public class ElastestETMSpringBoot extends AsyncConfigurerSupport  implements Co
 		UtilTools utils = new UtilTools();
 		return utils;
 	}
+	
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**").allowedMethods("*").allowedOrigins("*");
+            }
+        };
+    }
 	
 	@Override
     public Executor getAsyncExecutor() {

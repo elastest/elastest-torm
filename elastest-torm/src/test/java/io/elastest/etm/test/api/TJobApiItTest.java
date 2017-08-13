@@ -124,6 +124,7 @@ public class TJobApiItTest extends EtmApiItTest {
 
 	}
 
+	@Test
 	public void testGetTJobById() {
 
 		log.info("Start the test testGetTJobById");
@@ -141,6 +142,7 @@ public class TJobApiItTest extends EtmApiItTest {
 
 	}
 
+	@Test
 	public void testDeleteTJob() {
 		log.info("Start the test testDeleteTJob");
 

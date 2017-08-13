@@ -1,5 +1,6 @@
 package io.elastest.etm.test.api;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,10 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,19 +27,18 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElastestETMSpringBoot;
-import io.elastest.etm.api.model.Project;
 import io.elastest.etm.api.model.SutSpecification;
-import io.elastest.etm.api.model.TJob;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElastestETMSpringBoot.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class SutApiItTest {
+public class SutApiItTest extends EtmApiItTest {
 
 	static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
 	
@@ -63,9 +61,9 @@ public class SutApiItTest {
 		deleteProject(projectId);
 	}	
 	
-	@Disabled
 	@Test
-	public void testCreateSutSpecification(){
+	public void testCreateSut(){
+		
 		log.info("Start the test testCreateSutSpecification" );		
 		
 		String requestJson ="{"
@@ -73,10 +71,9 @@ public class SutApiItTest {
 				  + "\"id\": 0,"
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
-				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\""  
+				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
+				  + "\"imageName\": \"https://github.com/EduJGURJC/springbootdemo\""  
 				+"}";
-		
-		
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -85,9 +82,12 @@ public class SutApiItTest {
 		
 		log.info("POST /api/sut");
 		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
-		log.info("Sut created:" + response.getBody());
-
-		deleteSutSpecification(response.getBody().getId());
+		
+		log.info("Sut creation response: " + response);
+		
+		assertEquals(HttpStatus.OK,response.getStatusCode());
+		
+		deleteSut(response.getBody().getId());
 
 		assertAll("Validating sutSpecification Properties", 
 				() -> assertTrue(response.getBody().getName().equals("sut_definition_1")),
@@ -96,7 +96,6 @@ public class SutApiItTest {
 				);
 	}
 	
-	@Disabled
 	@Test
 	public void testModifySut(){
 		log.info("Start the test testModifySut" );
@@ -114,7 +113,8 @@ public class SutApiItTest {
 				  + "\"id\": " +sutSpec.getId() + ","
 				  + "\"name\": \"" + sutSpec.getName() + "\","
 				  + "\"project\": { \"id\":"+ sutSpec.getProject().getId() + "},"
-				  + "\"specification\": \"" + sutSpec.getSpecification() + "\""  
+				  + "\"specification\": \"" + sutSpec.getSpecification() + "\","  
+				  + "\"imageName\": \"" + sutSpec.getImageName() + "\""
 				+"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
@@ -125,7 +125,7 @@ public class SutApiItTest {
 		SutSpecification sutSpecModified = getSutById(sutSpec.getId());
 		
 
-		deleteSutSpecification(sutSpec.getId());
+		deleteSut(sutSpec.getId());
 
 		assertAll("Validating sutSpecification Properties", 
 				() -> assertTrue(sutSpecModified.getName().equals("sut_definition_2")),
@@ -134,7 +134,6 @@ public class SutApiItTest {
 				);
 	}
 	
-	@Disabled
 	@Test
 	public void testGetSuts(){
 		log.info("Start the test testGetSuts" );
@@ -150,14 +149,14 @@ public class SutApiItTest {
         SutSpecification[] suts = response.getBody();
         
         for (SutSpecification sut: suts){
-        	deleteSutSpecification(sut.getId());
+        	deleteSut(sut.getId());
 		}
                         
         log.info("Suts Array size:" + suts.length);
         assertTrue(suts.length > 0);
 	}
 	
-	@Disabled
+
 	@Test
 	public void testDeleteSut(){
 		log.info("Start the test testDeleteSut" );
@@ -186,63 +185,6 @@ public class SutApiItTest {
 		
 	}
 	
-	private SutSpecification createSut(long projectId){		
-
-		String requestJson ="{"
-				  + "\"description\": \"This is a SuT description example\","
-				  + "\"id\": 0,"
-				  + "\"name\": \"sut_definition_1\","
-				  + "\"project\": { \"id\":"+ projectId + "},"
-				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\""  
-				+"}";
 	
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-	
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-		
-		log.info("POST /api/sut");
-		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
-		log.info("Sut created:" + response.getBody());
-
-		return response.getBody();
-
-	}
-	
-	private void deleteSutSpecification(Long sutId){
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("sutId", sutId);
-
-        log.info("DELETE /api/sut/{sutId}");
-        ResponseEntity<SutSpecification> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, SutSpecification.class, urlParams);
-        log.info("Deleted sutSpecification:" + response.getBody().getId());                
-        
-	}
-	
-	private Project createProject(String projectName){		
-
-		String requestJson = "{ \"id\": 0,\"name\": \"" + projectName + "\"}";
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-
-		log.info("POST /project");
-		ResponseEntity<Project> response = httpClient.postForEntity("/api/project", entity, Project.class);
-
-		return response.getBody();
-
-	}
-	
-	private void deleteProject(Long projectToDeleteId){
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("projectId", projectToDeleteId);
-
-        log.info("DELETE /project");
-        ResponseEntity<Long> response = httpClient.exchange("/api/project/{projectId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted project:" + response.getBody());                
-        
-	}
 
 }
