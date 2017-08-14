@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.DeployConfig;
-import io.elastest.etm.model.Log;
-import io.elastest.etm.model.SuTMonitoring;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification;
@@ -64,15 +60,6 @@ public class SutApiController implements SutApi {
 
 	}
 
-	@JsonView(SutExecView.class)
-	public ResponseEntity<SutExecution> deploySuT(
-			@ApiParam(value = "SuT id to deploy", required = true) @PathVariable("sutId") Long sutId,
-			@ApiParam(value = "Configuration for deploy", required = true) @Valid @RequestBody DeployConfig deployConfig) {
-		SutExecution sutExec = sutService.createSutExecutionById(sutId);
-		return new ResponseEntity<SutExecution>(sutExec, HttpStatus.OK);
-
-	}
-
 	@JsonView(SutView.class)
 	public ResponseEntity<SutSpecification> getSutById(
 			@ApiParam(value = "SuT id to return.", required = true) @PathVariable("sutId") Long sutId) {
@@ -112,26 +99,5 @@ public class SutApiController implements SutApi {
 		sutService.deleteSutExec(sutExecId);
 		return new ResponseEntity<Long>(sutExecId, HttpStatus.OK);
 
-	}
-
-	public ResponseEntity<List<Log>> suTLogs(
-			@ApiParam(value = "SuT id to return logs", required = true) @PathVariable("sutId") Long sutId,
-			@ApiParam(value = "SuT Execution id to deploy", required = true) @PathVariable("sutExecId") Long sutExecId) {
-		
-		throw new NotImplementedException();
-	}
-
-	public ResponseEntity<SuTMonitoring> suTMonitoring(
-			@ApiParam(value = "SuT id to return monitoring information", required = true) @PathVariable("sutId") Long sutId,
-			@ApiParam(value = "SuT Execution id to deploy", required = true) @PathVariable("sutExecId") Long sutExecId) {
-		
-		throw new NotImplementedException();
-	}
-
-	public ResponseEntity<String> suTStatus(
-			@ApiParam(value = "SuT id to return status", required = true) @PathVariable("sutId") Long sutId,
-			@ApiParam(value = "SuT Execution id to deploy", required = true) @PathVariable("sutExecId") Long sutExecId) {
-		
-		throw new NotImplementedException();
 	}
 }

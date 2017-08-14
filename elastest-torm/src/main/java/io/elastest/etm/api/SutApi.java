@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.DeployConfig;
-import io.elastest.etm.model.Log;
-import io.elastest.etm.model.SuTMonitoring;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.swagger.annotations.Api;
@@ -46,20 +43,7 @@ public interface SutApi extends EtmApiRoot {
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
     ResponseEntity<Long> deleteSuT(@ApiParam(value = "SuT id to delete",required=true ) @PathVariable("sutId") Long sutId);
-
-    //Create SutExecution
-    @ApiOperation(value = "Deploys a SuT", notes = "", response = SutExecution.class, tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "SuT has been deployed successfully", response = SutExecution.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SutExecution.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = SutExecution.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec",
-        produces = { "application/json" }, 
-        method = RequestMethod.POST)
-    ResponseEntity<SutExecution> deploySuT(@ApiParam(value = "SuT id to deploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "Configuration for deploy" ,required=true )  @Valid @RequestBody DeployConfig deployConfig);
-
-    
+   
     @ApiOperation(value = "Deletes a SuT execution", notes = "", response = Long.class, tags={ "sut execution", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "SuT Execution deleteted successfully", response = Long.class),
@@ -82,43 +66,6 @@ public interface SutApi extends EtmApiRoot {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
     ResponseEntity<SutExecution> getSutExec(@ApiParam(value = "SuT id to return logs",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
-
-
-    @ApiOperation(value = "Returns a SuT logs", notes = "", response = Log.class, responseContainer = "List", tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = Log.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = Log.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = Log.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}/logs",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    ResponseEntity<List<Log>> suTLogs(@ApiParam(value = "SuT id to return logs",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
-
-
-    @ApiOperation(value = "Returns a SuT monitoring info", notes = "", response = SuTMonitoring.class, tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = SuTMonitoring.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = SuTMonitoring.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = SuTMonitoring.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}/monitoring",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    ResponseEntity<SuTMonitoring> suTMonitoring(@ApiParam(value = "SuT id to return monitoring information",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
-
-
-    @ApiOperation(value = "Returns a SuT status", notes = "", response = String.class, tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = String.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = String.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = String.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}/status",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    ResponseEntity<String> suTStatus(@ApiParam(value = "SuT id to return status",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
-
 
     @ApiOperation(value = "List all SuT definitions", notes = "", response = SutSpecification.class, responseContainer = "List", tags={ "sut", })
     @ApiResponses(value = { 
@@ -162,17 +109,5 @@ public interface SutApi extends EtmApiRoot {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
     ResponseEntity<SutSpecification> getSutById(@ApiParam(value = "SuT id to return.",required=true ) @PathVariable("sutId") Long sutId);
-
-
-    @ApiOperation(value = "Undeploys a SuT", notes = "", response = Void.class, tags={ "sut execution", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "SuT undeployed successfully", response = Void.class),
-        @ApiResponse(code = 400, message = "Invalid SuT ID supplied", response = Void.class),
-        @ApiResponse(code = 404, message = "SuT not found", response = Void.class) })
-    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}/undeploy",
-        produces = { "application/json" }, 
-        method = RequestMethod.POST)
-    ResponseEntity<Void> undeploySuT(@ApiParam(value = "SuT id to undeploy",required=true ) @PathVariable("sutId") Long sutId,@ApiParam(value = "SuT Execution id to deploy",required=true ) @PathVariable("sutExecId") Long sutExecId);
 
 }

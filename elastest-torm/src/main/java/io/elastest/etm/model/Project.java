@@ -46,12 +46,6 @@ public class Project implements Serializable {
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<TJob> tJobs;
 	
-	@JsonView(BasicAttProject.class)
-	@JsonProperty("tojobs")
-	//bi-directional many-to-one association to ElasEtmTjobexec
-	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
-	private List<TOJob> tOJobs;
-	
 	@JsonView({ BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
@@ -60,11 +54,10 @@ public class Project implements Serializable {
 	
 	public Project() {}
 	
-	public Project(Long id, String name, List<TJob> tJobs, List<TOJob> tOJobs, List<SutSpecification> suts){
+	public Project(Long id, String name, List<TJob> tJobs, List<SutSpecification> suts){
 		this.id = id==null? 0: id;
 		this.name = name;
 		this.tJobs = tJobs;
-		this.tOJobs = tOJobs;
 		this.suts = suts;
 		
 	}
@@ -136,25 +129,6 @@ public class Project implements Serializable {
 		return this;
 	}
 	
-	/**
-	 * Get tojobs
-	 * 
-	 * @return tojobs
-	 **/
-//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
-	public List<TOJob> getTOJobs() {
-		return this.tOJobs;
-	}
-
-	public void setTOJobs(List<TOJob> tOJobs) {
-		this.tOJobs = tOJobs;
-	}
-	
-	public Project tOJobs(List<TOJob> tOJobs) {
-		this.tOJobs = tOJobs;
-		return this;
-	}
-	
 	
 	/**
 	 * Get suts
@@ -185,7 +159,7 @@ public class Project implements Serializable {
 		}
 		Project project = (Project) o;
 		return Objects.equals(this.name, project.name)  && Objects.equals(this.id, project.id) && Objects.equals(this.tJobs, project.tJobs)
-				&& Objects.equals(this.suts, project.suts) && Objects.equals(this.tOJobs, project.tOJobs);
+				&& Objects.equals(this.suts, project.suts);
 	}
 
 	@Override
@@ -202,7 +176,6 @@ public class Project implements Serializable {
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    tJobs: ").append(toIndentedString(tJobs)).append("\n");
 		sb.append("    suts: ").append(toIndentedString(suts)).append("\n");
-		sb.append("    tOJobs: ").append(toIndentedString(tOJobs)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

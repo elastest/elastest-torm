@@ -80,10 +80,6 @@ public class TJobExecution {
 	@JoinColumn(name = "tjob")
 	private TJob tJob;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "to_job_execution")
-	private TOJobExecution tOJobExecution = null;
-
 	// bi-directional many-to-one association to TestSuite
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
@@ -278,26 +274,6 @@ public class TJobExecution {
 	}
 
 	/**
-	 * 
-	 * TOJobExecution
-	 * 
-	 * @return tOJobExecution
-	 */
-
-	public TOJobExecution getTOJobExecutionb() {
-		return tOJobExecution;
-	}
-
-	public void setTOJobExecution(TOJobExecution tOJobExecution) {
-		this.tOJobExecution = tOJobExecution;
-	}
-
-	public TJobExecution tOJobExecution(TOJobExecution tOJobExecution) {
-		this.tOJobExecution = tOJobExecution;
-		return this;
-	}
-
-	/**
 	 * testSuite
 	 */
 
@@ -356,14 +332,13 @@ public class TJobExecution {
 				&& Objects.equals(this.sutExecution, tjobExecution.sutExecution)
 				&& Objects.equals(this.error, tjobExecution.error)
 				&& Objects.equals(this.logIndex, tjobExecution.logIndex)
-				&& Objects.equals(this.tOJobExecution, tjobExecution.tOJobExecution)
 				&& Objects.equals(this.testSuite, tjobExecution.testSuite)
 				&& Objects.equals(this.parameters, tjobExecution.parameters);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, duration, result, sutExecution, error /* , logs */, tOJobExecution, testSuite, parameters);
+		return Objects.hash(id, duration, result, sutExecution, error, testSuite, parameters);
 	}
 
 	@Override
@@ -377,7 +352,6 @@ public class TJobExecution {
 		sb.append("    sutExecution: ").append(toIndentedString(sutExecution)).append("\n");
 		sb.append("    error: ").append(toIndentedString(error)).append("\n");
 		sb.append("    logIndex: ").append(toIndentedString(logIndex)).append("\n");
-		sb.append("    tOJobExecution: ").append(toIndentedString(tOJobExecution)).append("\n");
 		sb.append("    testSuite: ").append(toIndentedString(testSuite)).append("\n");
 		sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
 		sb.append("}");

@@ -3,11 +3,6 @@ package io.elastest.etm.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +13,9 @@ import com.github.dockerjava.api.exception.DockerClientException;
 
 @Component
 public class UtilTools {
+	
 	private static final Logger logger = LoggerFactory.getLogger(UtilTools.class);
 	
-	private static Boolean isRunningInContainer;	
 	private static String hostIp;
 	
 	@Value ("${os.name}")
@@ -29,14 +24,14 @@ public class UtilTools {
 	@Value ("${elastest.incontainer}")
 	private String inContainer;
 	
-	public boolean pingHost(String host, int port, int timeout) {
+	/*public boolean pingHost(String host, int port, int timeout) {
 	    try (Socket socket = new Socket()) {
 	        socket.connect(new InetSocketAddress(host, port), timeout);
 	        return true;
 	    } catch (IOException e) {
 	        return false; // Either timeout or unreachable or failed DNS lookup.
 	    }
-	}
+	}*/
 	
 	public String getElasTestHostOnWin(){
 		return "localhost";
@@ -95,34 +90,6 @@ public class UtilTools {
 		
 		return dockerHostIp;
 	}
-	
-	
-	public boolean isRunningInContainer() {
-	    return isRunningInContainerInternal();
-	  }
-
-	  private boolean isRunningInContainerInternal() {
-
-	    if (isRunningInContainer == null) {
-
-	      try (BufferedReader br =
-	          Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
-
-	        String line = null;
-	        while ((line = br.readLine()) != null) {
-	          if (!line.endsWith("/")) {
-	            return true;
-	          }
-	        }
-	        isRunningInContainer = false;
-
-	      } catch (IOException e) {
-	        isRunningInContainer = false;
-	      }
-	    }
-
-	    return isRunningInContainer;
-	  }
 
 	  public String getHostIp() {
 
