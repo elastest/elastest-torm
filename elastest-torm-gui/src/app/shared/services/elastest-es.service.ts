@@ -29,7 +29,7 @@ export class ElastestESService {
 
     getTermsByMetricsField(metricsField: MetricsFieldModel) {
         let terms: any[] = [{ 'term': { _type: metricsField.type } }];
-        if (metricsField.componentType !== undefined) {
+        if (metricsField.componentType !== undefined && metricsField.componentType !== '') {
             terms.push(
                 { 'term': { component_type: metricsField.componentType } },
             );
@@ -133,7 +133,7 @@ export class ElastestESService {
 
     convertToMetricTraces(data: any[], metricsField: MetricsFieldModel) {
         let tracesList: LineChartMetricModel[];
-        if (metricsField.componentType === undefined) {
+        if (metricsField.componentType === undefined || metricsField.componentType === '') {
             tracesList = this.getInitMetricsData();
 
             let position: number = undefined;

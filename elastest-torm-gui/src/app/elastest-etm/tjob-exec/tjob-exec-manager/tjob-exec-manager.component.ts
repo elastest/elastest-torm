@@ -21,22 +21,22 @@ export class TjobExecManagerComponent implements OnInit {
   tJobId: number;
   tJobExecId: number;
   tJobExec: TJobExecModel;
+  tJob: TJobModel;
 
   // Logs
   sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
   testLogView: ESLogModel = new ESLogModel(this.elastestESService);
 
   // Metrics Chart
-  // cpuData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'cpu');
-  // memoryData: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, 'memory');
-  metrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService)
+  allInOneMetrics: ESRabComplexMetricsModel;
+  metricsList: ETRESMetricsModel[] = [];
+  groupedMetricsList: ETRESMetricsModel[][] = [];
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router,
   ) {
     this.initLogsView();
-    this.initMetricsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -57,17 +57,14 @@ export class TjobExecManagerComponent implements OnInit {
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
 
-        // Init logs and metrics index
+        // Init logs index
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
-
-        // this.cpuData.metricsIndex = this.tJobExec.logIndex;
-        // this.memoryData.metricsIndex = this.tJobExec.logIndex;
-        this.metrics.metricsIndex = this.tJobExec.logIndex;
 
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {
+            this.tJob = tJob;
             if (this.tJobExec.result === 'IN PROGRESS') {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
@@ -89,9 +86,8 @@ export class TjobExecManagerComponent implements OnInit {
               }
 
               //Load metrics
-              this.metrics.getAllMetrics();
-              // this.cpuData.getAllMetrics();
-              // this.memoryData.getAllMetrics();
+              this.initMetricsView(tJob);
+
             }
           },
           (error) => console.log(error),
@@ -110,11 +106,32 @@ export class TjobExecManagerComponent implements OnInit {
     this.sutLogView.traces = ['Loading Logs...'];
   }
 
-  initMetricsView() {
-    this.metrics.name = 'Metrics';
-    this.metrics.hidePrevBtn = true;
-    // this.cpuData.hidePrevBtn = true;
-    // this.memoryData.hidePrevBtn = true;
+  initMetricsView(tJob: TJobModel) {
+    if (tJob.execDashboardConfigModel.showComplexMetrics) {
+      this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
+      this.allInOneMetrics.name = 'Metrics';
+      this.allInOneMetrics.hidePrevBtn = true;
+      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
+      this.allInOneMetrics.getAllMetrics();
+    }
+    for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
+      if (metric.activated) {
+        let etRESMetrics: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, metric);
+        etRESMetrics.hidePrevBtn = true;
+        etRESMetrics.metricsIndex = this.tJobExec.logIndex;
+        etRESMetrics.getAllMetrics();
+
+        this.metricsList.push(etRESMetrics);
+      }
+    }
+    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
   }
 
+  createGroupedArray(arr, chunkSize) {
+    let groups = [], i;
+    for (i = 0; i < arr.length; i += chunkSize) {
+      groups.push(arr.slice(i, i + chunkSize));
+    }
+    return groups;
+  }
 }

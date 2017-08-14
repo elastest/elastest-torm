@@ -1,3 +1,5 @@
+import { DashboardConfigModel } from './dashboard-config-model';
+import { AllMetricsFields } from '../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { ParameterModel } from '../parameter/parameter-model';
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
@@ -13,6 +15,8 @@ export class TJobModel {
     parameters: any[];
     commands: string;
     resultsPath: string;
+    execDashboardConfig: string;
+    execDashboardConfigModel: DashboardConfigModel;
 
     constructor() {
         this.id = 0;
@@ -24,6 +28,13 @@ export class TJobModel {
         this.parameters = [];
         this.commands = '';
         this.resultsPath = '';
+        this.execDashboardConfig = '';
+        this.execDashboardConfigModel = new DashboardConfigModel();
+    }
+
+    public generateExecDashboardConfig() {
+        this.execDashboardConfig = JSON.stringify(this.execDashboardConfigModel);
+        console.log(this.execDashboardConfig)
     }
 
     public hasSut(): boolean {

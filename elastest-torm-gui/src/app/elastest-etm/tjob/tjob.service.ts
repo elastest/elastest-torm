@@ -1,3 +1,4 @@
+import { DashboardConfigModel } from './dashboard-config-model';
 import { ParameterModel } from '../parameter/parameter-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { SutModel } from '../sut/sut-model';
@@ -38,8 +39,7 @@ export class TJobService {
     tjobsDataToTable.imageName = tjob.imageName;
     if (tjob.sut !== undefined && tjob.sut !== null) {
       tjobsDataToTable.sut = this.sutService.transformToSutmodel(tjob.sut);
-    }
-    else {
+    } else {
       tjobsDataToTable.sut = new SutModel();
     }
     tjobsDataToTable.project = tjob.project;
@@ -47,6 +47,8 @@ export class TJobService {
     tjobsDataToTable.parameters = tjob.parameters;
     tjobsDataToTable.commands = tjob.commands;
     tjobsDataToTable.resultsPath = tjob.resultsPath;
+    tjobsDataToTable.execDashboardConfig = tjob.execDashboardConfig;
+    tjobsDataToTable.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
 
     return tjobsDataToTable;
   }
@@ -59,8 +61,7 @@ export class TJobService {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
           return this.transformToTjobmodel(data);
-        }
-        else {
+        } else {
           throw new Error('Empty response. TJob not exist or you don\'t have permissions to access it');
         }
       });
@@ -70,15 +71,13 @@ export class TJobService {
     if (!tjob.hasSut()) {
       tjob.sut = undefined;
     }
-
+    tjob.generateExecDashboardConfig();
     let url = this.configurationService.configModel.hostApi + '/tjob';
     return this.http.post(url, tjob)
       .map((response) => response.json());
   }
 
-  public modifyTJob() {
-
-  }
+  public modifyTJob() { }
 
   public deleteTJob(tJob: TJobModel) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id;

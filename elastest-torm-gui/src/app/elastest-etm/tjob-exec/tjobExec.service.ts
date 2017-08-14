@@ -1,3 +1,4 @@
+import { DashboardConfigModel } from '../tjob/dashboard-config-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { SutExecService } from '../sut-exec/sutExec.service';
@@ -105,6 +106,11 @@ export class TJobExecService {
     }
     tjobsDataToTable.project = tjob.project;
     tjobsDataToTable.tjobExecs = tjob.tjobExecs;
+    tjobsDataToTable.parameters = tjob.parameters;
+    tjobsDataToTable.commands = tjob.commands;
+    tjobsDataToTable.resultsPath = tjob.resultsPath;
+    tjobsDataToTable.execDashboardConfig = tjob.execDashboardConfig;
+    tjobsDataToTable.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
 
     return tjobsDataToTable;
   }

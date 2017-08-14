@@ -15,7 +15,13 @@ export class MetricsFieldModel {
         this.unit = unit;
         this.componentType = componentType;
 
-        this.name = componentType + '_' + type + '_' + subtype;
+        let componentTypePrefix: string = '';
+        if (componentType !== undefined && componentType !== '') {
+            componentTypePrefix = componentType + '_';
+        }
+
+        this.name = componentTypePrefix + type + '_' + subtype;
+
         this.activated = false;
     }
 

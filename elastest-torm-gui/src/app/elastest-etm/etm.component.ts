@@ -37,4 +37,11 @@ export class EtmComponent implements AfterViewInit, OnInit {
     this.manageList.toggle();
     // this.openedMenu = !this.openedMenu;
   }
+
+  capitalize(value: any) {
+    if (value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    return value;
+  }
 }

@@ -29,6 +29,7 @@ export let componentTypes: string[] = [
     'sut',
 ];
 
+// Subtypes
 export let cpuSubtypes: SubtypesObjectModel[] = [
     new SubtypesObjectModel('totalUsage', 'percent'),
 ];
@@ -58,14 +59,18 @@ export let metricFieldGroupList: MetricFieldGroupModel[] = [
     new MetricFieldGroupModel('net', netSubtypes),
 ];
 
-// Main class
+// Main classes
 export class AllMetricsFields {
     fieldsList: MetricsFieldModel[];
 
-    constructor() {
+    constructor(withComponent: boolean = true) {
         this.fieldsList = [];
-        for (let componentType of componentTypes) {
-            this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(componentType));
+        if (withComponent) {
+            for (let componentType of componentTypes) {
+                this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(componentType));
+            }
+        } else {
+            this.fieldsList = this.getFieldListWithoutComponent();
         }
     }
 
@@ -88,6 +93,10 @@ export class AllMetricsFields {
             list.push(newField);
         }
         return list;
+    }
+
+    getFieldListWithoutComponent() {
+        return this.createFieldsListByComponent('');
     }
 
     getPositionsList(type: string, componentType: string) {

@@ -6,10 +6,6 @@ import { MetricsModel } from './metrics-model';
 import { LineChartMetricModel } from './linechart-metric-model';
 import { ElastestESService } from '../../services/elastest-es.service';
 
-export type MetricsType =
-    'cpu'
-    | 'memory';
-
 export enum MetricsDataType {
     Test,
     Sut,
@@ -36,7 +32,8 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
 
     timeline: boolean;
     data: LineChartMetricModel[];
-    type: string;
+
+    metricsField: MetricsFieldModel;
 
     metricsIndex: string;
     componentType: string;
@@ -45,13 +42,13 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     prevLoaded: boolean;
     hidePrevBtn: boolean;
 
-
-    constructor(elastestESService: ElastestESService, type: MetricsType,
+    constructor(elastestESService: ElastestESService, metricsField: MetricsFieldModel,
     ) {
         super();
         this.elastestESService = elastestESService;
 
-        this.type = type;
+        this.metricsField = metricsField;
+        this.type = this.metricsField.type;
 
         this.showXAxis = true;
         this.showYAxis = true;
@@ -81,35 +78,24 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     initMetricsTypeData() {
-        switch (this.type) {
-            case 'cpu':
-                this.name = 'CPU Usage';
-                this.yAxisLabel = 'Usage %';
+        this.name = this.metricsField.type + ' ' + this.metricsField.subtype;
+        switch (this.metricsField.unit) {
+            case 'percent':
+                this.yAxisLabel = this.metricsField.subtype + ' %';
                 break;
-            case 'memory':
-                this.name = 'Memory Usage';
-                this.yAxisLabel = 'Usage %';
+            case 'bytes':
+                this.yAxisLabel = 'Bytes';
+                break;
+            case 'amount/sec':
+                this.yAxisLabel = 'Amount / sec';
                 break;
             default:
                 this.name = '';
         }
     }
 
-    getSubtype() {
-        let subtype: string;
-        if (this.type === 'cpu') {
-            subtype = 'totalUsage';
-        }
-        else if (this.type === 'memory') {
-            subtype = 'usage';
-        }
-        return subtype;
-    }
-
     getAllMetrics() {
-        let subtype: string = this.getSubtype();
-        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
-        this.elastestESService.searchAllMetrics(this.metricsIndex, metricsField)
+        this.elastestESService.searchAllMetrics(this.metricsIndex, this.metricsField)
             .subscribe(
             (data) => {
                 this.data = data;
@@ -119,10 +105,8 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     loadPrevious() {
-        let subtype: string = this.getSubtype();
-        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
         let compareTrace: any = this.getOldTrace();
-        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metricsField)
+        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, this.metricsField)
             .subscribe(
             (data) => {
                 if (data.length > 0) {
@@ -165,12 +149,10 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     updateData(trace: any) {
-        let subtype: string = this.getSubtype();
-        let metricsField: MetricsFieldModel = new MetricsFieldModel(this.type, subtype, undefined, undefined);
         let position: number = this.elastestESService.getMetricPosition(trace.component_type);
 
         if (position !== undefined) {
-            let parsedData: any = this.elastestESService.convertToMetricTrace(trace, metricsField);
+            let parsedData: any = this.elastestESService.convertToMetricTrace(trace, this.metricsField);
             if (parsedData !== undefined) {
                 this.data[position].series.push(parsedData);
                 this.data = [...this.data];

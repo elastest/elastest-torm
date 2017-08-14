@@ -1,3 +1,4 @@
+import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -33,9 +34,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   testLogView: RabESLogModel;
 
   // Metrics Chart
-  // cpuData: ETRESMetricsModel;
-  // memoryData: ETRESMetricsModel;
-  metrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+  allInOneMetrics: ESRabComplexMetricsModel;
+  metricsList: ETRESMetricsModel[] = [];
+  groupedMetricsList: ETRESMetricsModel[][] = [];
 
 
   testLogsSubscription: Subscription;
@@ -51,7 +52,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private elastestESService: ElastestESService,
   ) {
     this.initLogsView();
-    this.initMetricsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -91,13 +91,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
 
-        // Init logs and metrics index
+        // Init logs index
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
 
-        // this.cpuData.metricsIndex = this.tJobExec.logIndex;
-        // this.memoryData.metricsIndex = this.tJobExec.logIndex;
-        this.metrics.metricsIndex = this.tJobExec.logIndex;
+        this.initMetricsView(this.tJobExec.tJob);
 
         if (!this.withSut) {
           this.sutLogView.traces = [
@@ -120,19 +118,45 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.elastestESService.initSutLog(this.sutLogView);
   }
 
-  initMetricsView() {
-    // this.cpuData = new ETRESMetricsModel(this.elastestESService, 'cpu');
-    // this.memoryData = new ETRESMetricsModel(this.elastestESService, 'memory');
-    this.metrics.name = 'Metrics';
+  initMetricsView(tJob: TJobModel) {
+    console.log('aglia',tJob)
+    if (tJob.execDashboardConfigModel.showComplexMetrics) {
+      this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
+      this.allInOneMetrics.name = 'Metrics';
+      this.allInOneMetrics.hidePrevBtn = false;
+      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
+    }
+    for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
+      if (metric.activated) {
+        let etRESMetrics: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, metric);
+        etRESMetrics.hidePrevBtn = false;
+        etRESMetrics.metricsIndex = this.tJobExec.logIndex;
+
+        this.metricsList.push(etRESMetrics);
+      }
+    }
+    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
   }
 
   updateData(data: any) {
-    // this.cpuData.updateData(data);
-    // this.memoryData.updateData(data);
-    this.metrics.updateData(data);
+    for (let group of this.groupedMetricsList) {
+      for (let metric of group) {
+        metric.updateData(data);
+      }
+    }
+
+    this.allInOneMetrics.updateData(data);
   }
 
   ngOnDestroy() {
     this.elastestRabbitmqService.unsubscribeWSDestination();
+  }
+
+  createGroupedArray(arr, chunkSize) {
+    let groups = [], i;
+    for (i = 0; i < arr.length; i += chunkSize) {
+      groups.push(arr.slice(i, i + chunkSize));
+    }
+    return groups;
   }
 }
