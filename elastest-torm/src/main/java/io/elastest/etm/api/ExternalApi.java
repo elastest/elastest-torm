@@ -2,7 +2,6 @@ package io.elastest.etm.api;
 
 import javax.validation.Valid;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,7 +25,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     	produces = { "application/json" },
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    ResponseEntity<ExternalJob> createExternalTJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body);
+    ExternalJob createExternalTJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body);
 	
 	
 	@ApiOperation(value = "Finish external Job", notes = "", tags={ "external", })

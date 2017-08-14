@@ -42,7 +42,7 @@ public class ExternalService {
 		this.utilTools = utilTools;
 	}
 	
-	public ExternalJob createElasTestEntitiesForExtJob(ExternalJob externalJob) throws Exception{
+	public ExternalJob createElasTestEntitiesForExtJob(ExternalJob externalJob) {
 		
 		logger.info("Creating external job entities.");
 
