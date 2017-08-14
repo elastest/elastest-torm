@@ -3,6 +3,12 @@ package io.elastest.etm.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -16,14 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.*;
 
 /**
  * TJob
@@ -46,7 +45,7 @@ public class TJob {
 	@Column(name = "name")
 	@JsonProperty("name")
 	private String name = null;
-	
+
 	@JsonView({ BasicAttTJob.class, BasicAttProject.class })
 	@Column(name = "image_name")
 	@JsonProperty("imageName")
@@ -88,17 +87,23 @@ public class TJob {
 	@JsonProperty("external")
 	private boolean external = false;
 
+	@JsonView({ BasicAttTJob.class, BasicAttProject.class, BasicAttTJobExec.class })
+	@Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
+	@JsonProperty("execDashboardConfig")
+	private String execDashboardConfig = null;
+
 	public TJob() {
 	}
 
-	public TJob(Long id, String name, /* List<TestService> testServices, */ String imageName, SutSpecification sut,
-			Project project, boolean external) {
+	public TJob(Long id, String name, String imageName, SutSpecification sut, Project project, boolean external,
+			String execDashboardConfig) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.imageName = imageName;
 		this.sut = sut;
 		this.project = project;
 		this.external = external;
+		this.execDashboardConfig = execDashboardConfig;
 	}
 
 	/**
@@ -274,19 +279,19 @@ public class TJob {
 	}
 
 	/**
-	 * resultsPath
+	 * execDashboardConfig
 	 */
 
-	public String getResultsPath() {
-		return resultsPath;
+	public String getExecDashboardConfigPath() {
+		return execDashboardConfig;
 	}
 
-	public void setResultsPath(String resultsPath) {
-		this.resultsPath = resultsPath;
+	public void setExecDashboardConfigPath(String execDashboardConfig) {
+		this.execDashboardConfig = execDashboardConfig;
 	}
 
-	public TJob resultsPath(String resultsPath) {
-		this.resultsPath = resultsPath;
+	public TJob execDashboardConfig(String execDashboardConfig) {
+		this.execDashboardConfig = execDashboardConfig;
 		return this;
 	}
 
@@ -306,6 +311,23 @@ public class TJob {
 		this.external = external;
 	}
 
+	/**
+	 * resultsPath
+	 */
+
+	public String getResultsPath() {
+		return resultsPath;
+	}
+
+	public void setResultsPath(String resultsPath) {
+		this.resultsPath = resultsPath;
+	}
+
+	public TJob resultsPath(String resultsPath) {
+		this.resultsPath = resultsPath;
+		return this;
+	}
+
 	/* Others */
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -320,13 +342,13 @@ public class TJob {
 				&& Objects.equals(this.imageName, tjob.imageName) && Objects.equals(this.sut, tjob.sut)
 				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs)
 				&& Objects.equals(this.parameters, tjob.parameters) && Objects.equals(this.commands, tjob.commands)
-				&& Objects.equals(this.resultsPath, tjob.resultsPath)
-				&& Objects.equals(this.external, tjob.external);
+				&& Objects.equals(this.resultsPath, tjob.resultsPath) && Objects.equals(this.external, tjob.external)
+				&& Objects.equals(this.execDashboardConfig, tjob.execDashboardConfig);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, /* testServices, */ imageName, sut, project, tjobExecs, parameters);
+		return Objects.hash(id, name, imageName, sut, project, tjobExecs, parameters, execDashboardConfig);
 	}
 
 	@Override
@@ -344,6 +366,7 @@ public class TJob {
 		sb.append("    commands: ").append(toIndentedString(commands)).append("\n");
 		sb.append("    resultsPath: ").append(toIndentedString(resultsPath)).append("\n");
 		sb.append("    external: ").append(toIndentedString(external)).append("\n");
+		sb.append("    execDashboardConfig: ").append(toIndentedString(execDashboardConfig)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
