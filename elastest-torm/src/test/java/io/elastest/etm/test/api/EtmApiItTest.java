@@ -11,6 +11,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -30,9 +31,20 @@ public class EtmApiItTest {
 	int serverPort;
 
 	protected TJob createTJob(long projectId) {
+		return createTJob(projectId, -1);
+	}
+	
+	protected TJob createTJob(long projectId, long sutId) {
 
-		String requestJson = "{" + "\"id\": 0," + "\"imageName\": \"edujgurjc/torm-test-01\","
-				+ "\"name\": \"testApp1\"," + "\"project\": { \"id\":" + projectId + "}" + "}";
+		String requestJson = "{" + 
+				"\"id\": 0," + 
+				"\"imageName\": \"edujgurjc/torm-test-01\"," +
+				"\"name\": \"testApp1\"," + 
+				"\"project\": { \"id\":" + projectId + "}" +
+				
+				(sutId == -1? "": ", \"sut\":{ \"id\":" +sutId+"}")
+				
+				+ "}";
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -41,6 +53,11 @@ public class EtmApiItTest {
 
 		log.info("POST /api/tjob");
 		ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob", entity, TJob.class);
+		
+		if(response.getStatusCode() != HttpStatus.OK){
+			log.warn("Error creating TJob: "+response);
+		}
+		
 		log.info("TJob created:" + response.getBody());
 
 		return response.getBody();
