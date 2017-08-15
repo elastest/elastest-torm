@@ -44,6 +44,7 @@ public class EtmApiItTest {
 				"\"id\": 0," + 
 				"\"imageName\": \"edujgurjc/torm-test-01\"," +
 				"\"name\": \"testApp1\"," + 
+				"\"parameters\": [{\"Param1\":\"Value1\"}]," +
 				"\"project\": { \"id\":" + projectId + "}" +
 				
 				(sutId == -1? "": ", \"sut\":{ \"id\":" +sutId+"}")

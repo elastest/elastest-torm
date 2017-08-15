@@ -38,6 +38,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.socket.client.WebSocketClient;
@@ -93,20 +94,10 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		}
 	}
 
-	private class LogConnectedSessionHandler implements StompSessionHandler {
+	private class LogConnectedSessionHandler extends StompSessionHandlerAdapter {
+		
 		public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
 			log.info("STOMP Client connected");
-		}
-
-		@Override
-		public Type getPayloadType(StompHeaders headers) {
-			log.info("getPayloadType");
-			return null;
-		}
-
-		@Override
-		public void handleFrame(StompHeaders headers, Object payload) {
-			log.info("handleFrame: " + payload);
 		}
 
 		@Override
@@ -170,7 +161,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		String body = "[]";
+		String body = "[{\"Param1\":\"NewValue1\"}]";
 		HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
 		Map<String, Object> urlParams = new HashMap<>();
@@ -213,6 +204,9 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 			exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
 			log.info("TJobExecution: " + exec);
 			if (exec.getResult() != ResultEnum.IN_PROGRESS) {
+				
+				log.info("Test results:"+exec.getTestSuite());
+				
 				break;
 			}
 			sleep(500);
