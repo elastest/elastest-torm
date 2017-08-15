@@ -41,7 +41,7 @@
 		<spring-test-junit5.version>1.0.0.M5</spring-test-junit5.version>
 		<springfox-version>2.6.1</springfox-version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-		<rest-assured.version>2.9.0</rest-assured.version>
+		<rest-assured.version>3.0.3</rest-assured.version>
 		
 
 		<!-- Cross plugins settings -->
@@ -88,8 +88,8 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.jayway.restassured</groupId>
-			<artifactId>rest-assured</artifactId>
+			<groupId>io.rest-assured</groupId>
+      		<artifactId>rest-assured</artifactId>
 			<version>${rest-assured.version}</version>
 			<scope>test</scope>
 			<exclusions>

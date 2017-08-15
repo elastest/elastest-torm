@@ -30,6 +30,10 @@ public class EtmApiItTest {
 	@LocalServerPort
 	int serverPort;
 
+	protected String baseUrl() {
+		return "http://localhost:"+serverPort;
+	}
+	
 	protected TJob createTJob(long projectId) {
 		return createTJob(projectId, -1);
 	}
