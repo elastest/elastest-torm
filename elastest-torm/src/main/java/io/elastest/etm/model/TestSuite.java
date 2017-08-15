@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -108,11 +110,6 @@ public class TestSuite {
 		this.id = id == null ? 0 : id;
 	}
 
-	public TestSuite id(Long id) {
-		this.id = id == null ? 0 : id;
-		return this;
-	}
-
 	/**
 	 * Get/Set name
 	 * 
@@ -124,11 +121,6 @@ public class TestSuite {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public TestSuite name(String name) {
-		this.name = name;
-		return this;
 	}
 
 	/**
@@ -145,11 +137,6 @@ public class TestSuite {
 		this.timeElapsed = timeElapsed;
 	}
 
-	public TestSuite timeElapsed(double timeElapsed) {
-		this.timeElapsed = timeElapsed;
-		return this;
-	}
-
 	/**
 	 * Get/Set errors
 	 * 
@@ -161,11 +148,6 @@ public class TestSuite {
 
 	public void setErrors(int errors) {
 		this.errors = errors;
-	}
-
-	public TestSuite errors(int errors) {
-		this.errors = errors;
-		return this;
 	}
 
 	/**
@@ -181,11 +163,6 @@ public class TestSuite {
 		this.failures = failures;
 	}
 
-	public TestSuite failures(int failures) {
-		this.failures = failures;
-		return this;
-	}
-
 	/**
 	 * Get/Set skipped
 	 * 
@@ -197,11 +174,6 @@ public class TestSuite {
 
 	public void setSkipped(int skipped) {
 		this.skipped = skipped;
-	}
-
-	public TestSuite skipped(int skipped) {
-		this.skipped = skipped;
-		return this;
 	}
 
 	/**
@@ -217,11 +189,6 @@ public class TestSuite {
 		this.flakes = flakes;
 	}
 
-	public TestSuite flakes(int flakes) {
-		this.flakes = flakes;
-		return this;
-	}
-
 	/**
 	 * Get/Set numTests
 	 * 
@@ -233,11 +200,6 @@ public class TestSuite {
 
 	public void setnumTests(int numTests) {
 		this.numTests = numTests;
-	}
-
-	public TestSuite numTests(int numTests) {
-		this.numTests = numTests;
-		return this;
 	}
 
 	/**
@@ -283,11 +245,6 @@ public class TestSuite {
 
 	public void settJobExec(TJobExecution tJobExec) {
 		this.tJobExec = tJobExec;
-	}
-
-	public TestSuite tJobExec(TJobExecution tJobExec) {
-		this.tJobExec = tJobExec;
-		return this;
 	}
 
 	// Others
@@ -374,14 +331,4 @@ public class TestSuite {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
 }

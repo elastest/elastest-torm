@@ -115,7 +115,7 @@ public class DockerService {
 			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(sutImage).withEnv(envVar)
 					.withLogConfig(logConfig).withName(sutName).exec());
 
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
 			String appContainerId = dockerExec.getAppContainer().getId();
 			dockerExec.setAppContainerId(appContainerId);
@@ -131,7 +131,7 @@ public class DockerService {
 			checkSut(dockerExec, sutIP, sutPort + "");
 		} catch (Exception e) {
 			e.printStackTrace();
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
+			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
 			endSutExec(dockerExec);
 		}
 		dockerExec.setSutExec(sutExec);
@@ -267,7 +267,7 @@ public class DockerService {
 
 	public void endSutExec(DockerExecution dockerExec) {
 		SutExecution sutExec = dockerExec.getSutExec();
-		sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
+		sutExec.setDeployStatus(SutExecution.DeployStatusEnum.UNDEPLOYING);
 		try {
 			logger.info("Ending sut execution " + dockerExec.getExecutionId());
 			try {
@@ -275,9 +275,9 @@ public class DockerService {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getAppContainerId()).exec();
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
+			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
-			sutExec.deployStatus(SutExecution.DeployStatusEnum.ERROR);
+			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
 			logger.info("Error on ending Sut execution " + dockerExec.getExecutionId());
 		}
 		dockerExec.setSutExec(sutExec);

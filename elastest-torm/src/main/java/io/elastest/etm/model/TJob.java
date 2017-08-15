@@ -1,14 +1,10 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -22,7 +18,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * TJob
@@ -121,11 +124,6 @@ public class TJob {
 		this.id = id == null ? 0 : id;
 	}
 
-	public TJob id(Long id) {
-		this.id = id;
-		return this;
-	}
-
 	/**
 	 * Get name
 	 * 
@@ -140,11 +138,6 @@ public class TJob {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public TJob name(String name) {
-		this.name = name;
-		return this;
 	}
 
 	/**
@@ -162,11 +155,6 @@ public class TJob {
 		this.imageName = imageName;
 	}
 
-	public TJob imageName(String imageName) {
-		this.imageName = imageName;
-		return this;
-	}
-
 	/**
 	 * Get sut
 	 * 
@@ -182,11 +170,6 @@ public class TJob {
 		this.sut = sut;
 	}
 
-	public TJob sut(SutSpecification sut) {
-		this.sut = sut;
-		return this;
-	}
-
 	/**
 	 * Get project
 	 * 
@@ -200,11 +183,6 @@ public class TJob {
 
 	public void setProject(Project project) {
 		this.project = project;
-	}
-
-	public TJob project(Project project) {
-		this.project = project;
-		return this;
 	}
 
 	/**
@@ -273,11 +251,6 @@ public class TJob {
 		this.commands = commands;
 	}
 
-	public TJob commands(String commands) {
-		this.commands = commands;
-		return this;
-	}
-
 	/**
 	 * execDashboardConfig
 	 */
@@ -288,11 +261,6 @@ public class TJob {
 
 	public void setExecDashboardConfigPath(String execDashboardConfig) {
 		this.execDashboardConfig = execDashboardConfig;
-	}
-
-	public TJob execDashboardConfig(String execDashboardConfig) {
-		this.execDashboardConfig = execDashboardConfig;
-		return this;
 	}
 
 	/**
@@ -321,11 +289,6 @@ public class TJob {
 
 	public void setResultsPath(String resultsPath) {
 		this.resultsPath = resultsPath;
-	}
-
-	public TJob resultsPath(String resultsPath) {
-		this.resultsPath = resultsPath;
-		return this;
 	}
 
 	/* Others */
@@ -371,14 +334,4 @@ public class TJob {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
 }

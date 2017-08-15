@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -83,11 +85,6 @@ public class Project implements Serializable {
 		this.id = id==null? 0: id;
 	}	
 
-	public Project id(String name) {
-		this.name = name;
-		return this;
-	}
-
 	/**
 	 * Get name
 	 * 
@@ -104,11 +101,6 @@ public class Project implements Serializable {
 		this.name = name;
 	}
 	
-	public Project name(String name) {
-		this.name = name;
-		return this;
-	}	
-	
 	
 	/**
 	 * Get tjobs
@@ -124,12 +116,6 @@ public class Project implements Serializable {
 		this.tJobs = tJobs;
 	}
 	
-	public Project tJobs(List<TJob> tJobs) {
-		this.tJobs = tJobs;
-		return this;
-	}
-	
-	
 	/**
 	 * Get suts
 	 * 
@@ -142,11 +128,6 @@ public class Project implements Serializable {
 
 	public void setSuts(List<SutSpecification> suts) {
 		this.suts = suts;
-	}
-	
-	public Project suts(List<SutSpecification> suts) {
-		this.suts = suts;
-		return this;
 	}
 
 	@Override
@@ -180,14 +161,4 @@ public class Project implements Serializable {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
 }

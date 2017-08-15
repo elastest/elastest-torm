@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExternalRabbitConfig {
+
+//TODO Test if this values are stored as this class is not a bean
 //	#RabbitMQ
 //	spring.rabbitmq.host= 192.168.99.100
 //	spring.rabbitmq.port= 5672

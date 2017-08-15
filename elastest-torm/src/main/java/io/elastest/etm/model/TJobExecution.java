@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -153,11 +155,6 @@ public class TJobExecution {
 		this.id = id == null ? 0 : id;
 	}
 
-	public TJobExecution id(Long id) {
-		this.id = id;
-		return this;
-	}
-
 	/**
 	 * Get duration
 	 * 
@@ -172,11 +169,6 @@ public class TJobExecution {
 
 	public void setDuration(Long duration) {
 		this.duration = duration == null ? 0 : duration;
-	}
-
-	public TJobExecution duration(Long duration) {
-		this.duration = duration;
-		return this;
 	}
 
 	/**
@@ -195,11 +187,6 @@ public class TJobExecution {
 		this.result = result;
 	}
 
-	public TJobExecution result(ResultEnum result) {
-		this.result = result;
-		return this;
-	}
-
 	/**
 	 * Get sutExecution
 	 * 
@@ -213,11 +200,6 @@ public class TJobExecution {
 
 	public void setSutExecution(SutExecution sutExecution) {
 		this.sutExecution = sutExecution;
-	}
-
-	public TJobExecution sutExecution(SutExecution sutExecution) {
-		this.sutExecution = sutExecution;
-		return this;
 	}
 
 	/**
@@ -235,12 +217,6 @@ public class TJobExecution {
 		this.error = error;
 	}
 
-	public TJobExecution error(String error) {
-		this.error = error;
-		return this;
-	}
-
-
 	/**
 	 * Log table Index
 	 * 
@@ -253,11 +229,6 @@ public class TJobExecution {
 
 	public void setLogIndex(String logIndex) {
 		this.logIndex = logIndex;
-	}
-
-	public TJobExecution logs(String logIndex) {
-		this.logIndex = logIndex;
-		return this;
 	}
 
 	/**
@@ -285,15 +256,10 @@ public class TJobExecution {
 		this.testSuite = testSuite;
 	}
 
-	public TJobExecution testSuite(TestSuite testSuite) {
-		this.testSuite = testSuite;
-		return this;
-	}
-
 	/**
 	 * parameters
 	 */
-	
+
 	public List<Parameter> getParameters() {
 		return parameters;
 	}
@@ -301,20 +267,14 @@ public class TJobExecution {
 	public void setParameters(List<Parameter> parameters) {
 		this.parameters = parameters;
 	}
-	
-	 public TJobExecution logs(List<Parameter> parameters) {
-	 this.parameters = parameters;
-	 return this;
-	 }
-	
-	 public TJobExecution addLogsItem(Parameter parameter) {
-	 if (this.parameters == null) {
-	 this.parameters = new ArrayList<Parameter>();
-	 }
-	 this.parameters.add(parameter);
-	 return this;
-	 }
 
+	public TJobExecution addLogsItem(Parameter parameter) {
+		if (this.parameters == null) {
+			this.parameters = new ArrayList<Parameter>();
+		}
+		this.parameters.add(parameter);
+		return this;
+	}
 
 	// Others
 
@@ -358,14 +318,4 @@ public class TJobExecution {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
 }

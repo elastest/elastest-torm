@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -95,11 +97,6 @@ public class TestCase {
 		this.id = id == null ? 0 : id;
 	}
 
-	public TestCase id(Long id) {
-		this.id = id == null ? 0 : id;
-		return this;
-	}
-
 	/**
 	 * Get/Set name
 	 * 
@@ -111,11 +108,6 @@ public class TestCase {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public TestCase name(String name) {
-		this.name = name;
-		return this;
 	}
 
 	/**
@@ -131,11 +123,6 @@ public class TestCase {
 		this.time = time;
 	}
 
-	public TestCase time(double time) {
-		this.time = time;
-		return this;
-	}
-
 	/**
 	 * Get/Set failureMessage
 	 * 
@@ -147,11 +134,6 @@ public class TestCase {
 
 	public void setFailureMessage(String failureMessage) {
 		this.failureMessage = failureMessage;
-	}
-
-	public TestCase failureMessage(String failureMessage) {
-		this.failureMessage = failureMessage;
-		return this;
 	}
 
 	/**
@@ -167,11 +149,6 @@ public class TestCase {
 		this.failureType = failureType;
 	}
 
-	public TestCase failureType(String failureType) {
-		this.failureType = failureType;
-		return this;
-	}
-
 	/**
 	 * Get/Set failureErrorLine
 	 * 
@@ -183,11 +160,6 @@ public class TestCase {
 
 	public void setFailureErrorLine(String failureErrorLine) {
 		this.failureErrorLine = failureErrorLine;
-	}
-
-	public TestCase failureErrorLine(String failureErrorLine) {
-		this.failureErrorLine = failureErrorLine;
-		return this;
 	}
 
 	/**
@@ -203,11 +175,6 @@ public class TestCase {
 		this.failureDetail = failureDetail;
 	}
 
-	public TestCase failureDetail(String failureDetail) {
-		this.failureDetail = failureDetail;
-		return this;
-	}
-
 	/**
 	 * Get/Set testSuite
 	 * 
@@ -219,11 +186,6 @@ public class TestCase {
 
 	public void setTestSuite(TestSuite testSuite) {
 		this.testSuite = testSuite;
-	}
-
-	public TestCase testSuite(TestSuite testSuite) {
-		this.testSuite = testSuite;
-		return this;
 	}
 
 	// Others
@@ -309,17 +271,6 @@ public class TestCase {
 		sb.append("    testSuite: ").append(toIndentedString(testSuite)).append("\n");
 		sb.append("}");
 		return sb.toString();
-	}
-
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
 	}
 
 }

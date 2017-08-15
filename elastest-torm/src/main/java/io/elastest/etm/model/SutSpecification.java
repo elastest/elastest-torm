@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -99,11 +101,6 @@ public class SutSpecification {
 		this.id = id == null ? 0 : id;
 	}
 
-	public SutSpecification id(Long id) {
-		this.id = id == null ? 0 : id;
-		return this;
-	}
-
 	/**
 	 * Get name
 	 * 
@@ -118,11 +115,6 @@ public class SutSpecification {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public SutSpecification name(String name) {
-		this.name = name;
-		return this;
 	}
 
 	/**
@@ -141,11 +133,6 @@ public class SutSpecification {
 		this.specification = specification;
 	}
 
-	public SutSpecification specification(String specification) {
-		this.specification = specification;
-		return this;
-	}
-
 	/**
 	 * imageName
 	 * 
@@ -159,11 +146,6 @@ public class SutSpecification {
 
 	public void setImageName(String imageName) {
 		this.imageName = imageName;
-	}
-
-	public SutSpecification imageName(String imageName) {
-		this.imageName = imageName;
-		return this;
 	}
 
 	/**
@@ -181,10 +163,6 @@ public class SutSpecification {
 		this.description = desc;
 	}
 
-	public SutSpecification description(String description) {
-		this.description = description;
-		return this;
-	}
 
 	/**
 	 * Get sutExecution
@@ -229,11 +207,6 @@ public class SutSpecification {
 		this.project = project;
 	}
 
-	public SutSpecification project(Project project) {
-		this.project = project;
-		return this;
-	}
-
 	/**
 	 * Get tJobs
 	 * 
@@ -262,6 +235,16 @@ public class SutSpecification {
 		tJob.setSut(null);
 
 		return tJob;
+	}
+	
+	public String sutBy() {
+		if (this.specification.isEmpty() || this.specification == null) {
+			return "imageName";
+		} else if (this.imageName.isEmpty() || this.imageName == null) {
+			return "specification";
+		}
+		
+		return "";
 	}
 
 	@Override
@@ -299,24 +282,4 @@ public class SutSpecification {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
-
-	public String sutBy() {
-		if (this.specification.isEmpty() || this.specification == null) {
-			return "imageName";
-		} else if (this.imageName.isEmpty() || this.imageName == null) {
-			return "specification";
-		}
-		
-		return "";
-	}
 }

@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -36,19 +38,6 @@ public class SutExecution {
 	@JsonView({ SutExecView.class, BasicAttTJob.class, BasicAttTJobExec.class })
 	@JsonProperty("id")
 	private Long id = null;
-
-	// @JsonView(SutExecView.class)
-	// @JsonProperty("logs")
-	// private List<String> logs = null;
-
-	// @JsonView(SutExecView.class)
-	// @JsonProperty("monitoringCurrent")
-	// private SuTMonitoring monitoringCurrent = null;
-	//
-	// @JsonView(SutExecView.class)
-	// @JsonProperty("monitoringSummary")
-	// private SuTMonitoringSummary monitoringSummary = null;
-	//
 	
 	@JsonView(SutExecView.class)
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -125,91 +114,6 @@ public class SutExecution {
 		this.id = id==null? 0: id;
 	}
 
-
-	public SutExecution id(Long id) {
-		this.id = id==null? 0: id;
-		return this;
-	}
-	
-	// public SuTExecution logs(List<String> logs) {
-	// this.logs = logs;
-	// return this;
-	// }
-	//
-	// public SuTExecution addLogsItem(String logsItem) {
-	// if (this.logs == null) {
-	// this.logs = new ArrayList<String>();
-	// }
-	// this.logs.add(logsItem);
-	// return this;
-	// }
-
-	/**
-	 * Get logs
-	 * 
-	 * @return logs
-	 **/
-	// @ApiModelProperty(value = "")
-	//
-	// public List<String> getLogs() {
-	// return logs;
-	// }
-	//
-	// public void setLogs(List<String> logs) {
-	// this.logs = logs;
-	// }
-	//
-	// public SuTExecution monitoringCurrent(SuTMonitoring monitoringCurrent) {
-	// this.monitoringCurrent = monitoringCurrent;
-	// return this;
-	// }
-
-	// /**
-	// * Get monitoringCurrent
-	// *
-	// * @return monitoringCurrent
-	// **/
-	// @ApiModelProperty(value = "")
-	//
-	// @Valid
-	//
-	// public SuTMonitoring getMonitoringCurrent() {
-	// return monitoringCurrent;
-	// }
-	//
-	// public void setMonitoringCurrent(SuTMonitoring monitoringCurrent) {
-	// this.monitoringCurrent = monitoringCurrent;
-	// }
-
-	// public SuTExecution monitoringSummary(SuTMonitoringSummary
-	// monitoringSummary) {
-	// this.monitoringSummary = monitoringSummary;
-	// return this;
-	// }
-	//
-	// /**
-	// * Get monitoringSummary
-	// *
-	// * @return monitoringSummary
-	// **/
-	// @ApiModelProperty(value = "")
-	//
-	// @Valid
-	//
-	// public SuTMonitoringSummary getMonitoringSummary() {
-	// return monitoringSummary;
-	// }
-	//
-	// public void setMonitoringSummary(SuTMonitoringSummary monitoringSummary)
-	// {
-	// this.monitoringSummary = monitoringSummary;
-	// }
-
-	public SutExecution deployStatus(DeployStatusEnum deployStatus) {
-		this.deployStatus = deployStatus;
-		return this;
-	}
-
 	/**
 	 * Get url
 	 * 
@@ -224,12 +128,6 @@ public class SutExecution {
 
 	public void setUrl(String url) {
 		this.url = url==null? "": url;
-	}
-	
-	
-	public SutExecution url(String url) {
-		this.url = url==null? "": url;
-		return this;
 	}
 	
 	/**
@@ -262,11 +160,6 @@ public class SutExecution {
 		this.sutSpecification = sutSpecification;
 	}
 
-	public SutExecution sutSpecification(SutSpecification sutSpecification) {
-		this.sutSpecification = sutSpecification;
-		return this;
-	}
-
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -277,9 +170,6 @@ public class SutExecution {
 		}
 		SutExecution suTExecution = (SutExecution) o;
 		return Objects.equals(this.id, suTExecution.id) 
-				// && Objects.equals(this.logs,suTExecution.logs)
-				// && Objects.equals(this.monitoringCurrent, suTExecution.monitoringCurrent)
-				// && Objects.equals(this.monitoringSummary, suTExecution.monitoringSummary)
 				&& Objects.equals(this.url, suTExecution.url)
 				&& Objects.equals(this.deployStatus, suTExecution.deployStatus)
 				&& Objects.equals(this.sutSpecification, suTExecution.sutSpecification);
@@ -287,19 +177,14 @@ public class SutExecution {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, url, deployStatus, sutSpecification 
-				/* logs, monitoringCurrent, monitoringSummary, */ );
+		return Objects.hash(id, url, deployStatus, sutSpecification);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class SuTExecution {\n");
-
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		// sb.append(" logs: ").append(toIndentedString(logs)).append("\n");
-		// sb.append(" monitoringCurrent: ").append(toIndentedString(monitoringCurrent)).append("\n");
-		// sb.append(" monitoringSummary: ").append(toIndentedString(monitoringSummary)).append("\n");
 		sb.append("    url: ").append(toIndentedString(url)).append("\n");
 		sb.append("    deployStatus: ").append(toIndentedString(deployStatus)).append("\n");
 		sb.append("    sutSpecification: ").append(toIndentedString(sutSpecification)).append("\n");
@@ -307,14 +192,4 @@ public class SutExecution {
 		return sb.toString();
 	}
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
 }
