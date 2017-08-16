@@ -1,7 +1,6 @@
 version: '2.1'
 services:
     mysql:
-        container_name: mysql-db
         image: mysql
         expose:
             - 3306
@@ -16,7 +15,6 @@ services:
             - elastest
             
     beats:
-        container_name: beats
         image: edujgurjc/dockbeat
         environment:
             - LOGSTASHHOST=logstash
@@ -28,7 +26,6 @@ services:
             - elastest
         
     logstash:        
-        container_name: logstash
         image: edujgurjc/logstash
         ports:
             - 5000:5000
@@ -46,7 +43,6 @@ services:
             - elastest       
                
     elasticsearch:
-        container_name: elasticsearch
         image: edujgurjc/elasticsearch
         ports:
             - 9200:9200
@@ -56,7 +52,6 @@ services:
             - elastest
                    
     rabbit-MQ:
-        container_name: rabbit-MQ
         image: edujgurjc/rabbitmq
         hostname: my-rabbit
         ports:

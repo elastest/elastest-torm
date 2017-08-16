@@ -1,9 +1,15 @@
 node('docker'){
+    
     stage "Container Prep"
         echo("the node is up")
         def mycontainer = docker.image('elastest/docker-compose-siblings')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
+            
+            environment {
+                COMPOSE_PROJECT_NAME = 'etm-'+${env.BUILD_NUMBER}
+            }
+            
             git 'https://github.com/elastest/elastest-torm.git'
             
             stage "Build elastest-torm-gui"
@@ -18,13 +24,22 @@ node('docker'){
                 echo ("Starting maven unit tests")
                sh 'cd ./elastest-torm; mvn clean -Pci-no-it-test package;'
                 
-            stage "Run docker-compose to IT"
-                echo ("docker compose..")                
-                sh 'docker-compose -f docker-compose-dev.yml up -d'
-           
-			stage "Integration Test"
-				 echo ("Starting maven integration tests")
-                sh 'cd ./elastest-torm; mvn clean verify;'
+            stage "Run docker-compose to IT" {
+
+                try {
+
+                    echo ("docker compose..")                
+                    echo 'COMPOSE_PROJECT_NAME=' + ${COMPOSE_PROJECT_NAME}
+                    sh 'docker-compose -f docker-compose-dev.yml up -d'
+
+				    echo ("Starting maven integration tests")
+                    sh 'cd ./elastest-torm; mvn clean verify;'
+
+                } finally {
+                    echo ("docker-compose down")
+                    sh 'docker-compose -f docker-compose-dev.yml down'
+                }
+            }    
                 
             stage "Creating etm image"
                 echo ("Creating elastest/etm image..")                
