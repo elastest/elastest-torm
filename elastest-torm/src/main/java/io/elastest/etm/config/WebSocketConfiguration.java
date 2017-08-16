@@ -1,6 +1,7 @@
 package io.elastest.etm.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
@@ -17,6 +18,9 @@ public class WebSocketConfiguration {
 	
 	@Autowired
 	public UtilTools utilTools;
+	
+	@Value("${spring.rabbitmq.host}")
+	public String rabbitMqHost;
 
 	@Configuration
 	public class WebSocketMessageBrokerConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
@@ -30,7 +34,7 @@ public class WebSocketConfiguration {
 					.setClientPasscode("elastest-etm")
 					.setSystemLogin("elastest-etm")
 					.setSystemPasscode("elastest-etm")
-					.setRelayHost(utilTools.getDockerHostIp())
+					.setRelayHost(rabbitMqHost)
 					.setSystemHeartbeatReceiveInterval(5000)
 					.setSystemHeartbeatSendInterval(5000)
 					.setRelayPort(61613)
