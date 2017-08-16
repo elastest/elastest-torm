@@ -15,23 +15,20 @@ node('docker'){
 				sh 'cd ./elastest-torm; mvn clean -Pci package;'
 			
 			stage "Unit Test"
-                echo ("Starting maven tests")
+                echo ("Starting maven unit tests")
                sh 'cd ./elastest-torm; mvn clean -Pci-no-it-test package;'
                 
-            stage "Prepare docker-compose"
-                echo ("Preparing..")                
-				sh 'cd ./elastest-torm; cp ./target/elastest*SNAPSHOT.jar ../docker/elastest-torm'
-                
-            stage "Run docker-compose"
+            stage "Run docker-compose to IT"
                 echo ("docker compose..")                
                 sh 'docker-compose -f docker-compose-ci.yml up -d --build'
            
 			stage "Integration Test"
-				echo ("No Tests yet")
+				 echo ("Starting maven integration tests")
+                sh 'cd ./elastest-torm; mvn clean verify;'
                 
             stage "Publish"
-				echo ("Publish......")
-				def myimage = docker.image('elastest/elastest-torm')
+				echo ("Publish elastest/etm image")
+				def myimage = docker.image('elastest/etm')
 				//this is work arround as withDockerRegistry is not working properly 
 				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
 					usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
