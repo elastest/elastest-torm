@@ -1,3 +1,6 @@
+import {
+  EtmComplexMetricsGroupComponent,
+} from '../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -22,6 +25,7 @@ import {
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
 
   tJobId: number;
   withSut: boolean = false;
@@ -32,12 +36,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   // Logs
   sutLogView: RabESLogModel;
   testLogView: RabESLogModel;
-
-  // Metrics Chart
-  allInOneMetrics: ESRabComplexMetricsModel;
-  metricsList: ETRESMetricsModel[] = [];
-  groupedMetricsList: ETRESMetricsModel[][] = [];
-
 
   testLogsSubscription: Subscription;
   sutLogsSubscription: Subscription;
@@ -95,7 +93,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.testLogView.logIndex = this.tJobExec.logIndex;
         this.sutLogView.logIndex = this.tJobExec.logIndex;
 
-        this.initMetricsView(this.tJobExec.tJob);
+        this.metricsGroup.initMetricsView(this.tJobExec.tJob, this.tJobExec);
 
         if (!this.withSut) {
           this.sutLogView.traces = [
@@ -118,45 +116,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.elastestESService.initSutLog(this.sutLogView);
   }
 
-  initMetricsView(tJob: TJobModel) {
-    console.log('aglia',tJob)
-    if (tJob.execDashboardConfigModel.showComplexMetrics) {
-      this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
-      this.allInOneMetrics.name = 'Metrics';
-      this.allInOneMetrics.hidePrevBtn = false;
-      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
-    }
-    for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
-      if (metric.activated) {
-        let etRESMetrics: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, metric);
-        etRESMetrics.hidePrevBtn = false;
-        etRESMetrics.metricsIndex = this.tJobExec.logIndex;
-
-        this.metricsList.push(etRESMetrics);
-      }
-    }
-    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
-  }
-
   updateData(data: any) {
-    for (let group of this.groupedMetricsList) {
-      for (let metric of group) {
-        metric.updateData(data);
-      }
-    }
-
-    this.allInOneMetrics.updateData(data);
+    this.metricsGroup.updateData(data);
   }
 
   ngOnDestroy() {
     this.elastestRabbitmqService.unsubscribeWSDestination();
-  }
-
-  createGroupedArray(arr, chunkSize) {
-    let groups = [], i;
-    for (i = 0; i < arr.length; i += chunkSize) {
-      groups.push(arr.slice(i, i + chunkSize));
-    }
-    return groups;
   }
 }
