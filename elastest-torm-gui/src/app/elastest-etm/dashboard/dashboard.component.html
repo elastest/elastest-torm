@@ -8,18 +8,7 @@
 
 
 <!-- Metrics -->
-<div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-sm="100">
-    <complex-metrics-view [model]="allInOneMetrics"></complex-metrics-view>
-  </div>
-</div>
-<ng-container *ngIf="metricsList.length > 0">
-  <div *ngFor="let group of groupedMetricsList" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-    <div *ngFor="let metric of group; let i = index; let f=first; let l=last;" flex-gt-sm="f && l ? 100 : 50">
-      <metrics-view [model]="metric"></metrics-view>
-    </div>
-  </div>
-</ng-container>
+<etm-complex-metrics-group #metricsGroup [live]="true"></etm-complex-metrics-group>
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="50" layout-gt-sm="column">

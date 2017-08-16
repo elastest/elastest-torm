@@ -1,4 +1,7 @@
 import {
+  EtmComplexMetricsGroupComponent,
+} from '../../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import {
   ESRabComplexMetricsModel,
 } from '../../../shared/metrics-view/complex-metrics-view/models/es-rab-complex-metrics-model';
 import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
@@ -9,7 +12,7 @@ import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
@@ -18,6 +21,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./tjob-exec-manager.component.scss']
 })
 export class TjobExecManagerComponent implements OnInit {
+  @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
+
   tJobId: number;
   tJobExecId: number;
   tJobExec: TJobExecModel;
@@ -26,11 +31,6 @@ export class TjobExecManagerComponent implements OnInit {
   // Logs
   sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
   testLogView: ESLogModel = new ESLogModel(this.elastestESService);
-
-  // Metrics Chart
-  allInOneMetrics: ESRabComplexMetricsModel;
-  metricsList: ETRESMetricsModel[] = [];
-  groupedMetricsList: ETRESMetricsModel[][] = [];
 
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
@@ -86,7 +86,7 @@ export class TjobExecManagerComponent implements OnInit {
               }
 
               //Load metrics
-              this.initMetricsView(tJob);
+              this.metricsGroup.initMetricsView(tJob, tJobExec);
 
             }
           },
@@ -104,34 +104,5 @@ export class TjobExecManagerComponent implements OnInit {
 
     this.testLogView.traces = ['Loading Logs...'];
     this.sutLogView.traces = ['Loading Logs...'];
-  }
-
-  initMetricsView(tJob: TJobModel) {
-    if (tJob.execDashboardConfigModel.showComplexMetrics) {
-      this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
-      this.allInOneMetrics.name = 'Metrics';
-      this.allInOneMetrics.hidePrevBtn = true;
-      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
-      this.allInOneMetrics.getAllMetrics();
-    }
-    for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
-      if (metric.activated) {
-        let etRESMetrics: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, metric);
-        etRESMetrics.hidePrevBtn = true;
-        etRESMetrics.metricsIndex = this.tJobExec.logIndex;
-        etRESMetrics.getAllMetrics();
-
-        this.metricsList.push(etRESMetrics);
-      }
-    }
-    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
-  }
-
-  createGroupedArray(arr, chunkSize) {
-    let groups = [], i;
-    for (i = 0; i < arr.length; i += chunkSize) {
-      groups.push(arr.slice(i, i + chunkSize));
-    }
-    return groups;
   }
 }
