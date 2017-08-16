@@ -20,12 +20,16 @@ node('docker'){
                 
             stage "Run docker-compose to IT"
                 echo ("docker compose..")                
-                sh 'docker-compose -f docker-compose-ci.yml up -d --build'
+                sh 'docker-compose -f docker-compose-dev.yml up -d'
            
 			stage "Integration Test"
 				 echo ("Starting maven integration tests")
                 sh 'cd ./elastest-torm; mvn clean verify;'
                 
+            stage "Creating etm image"
+                echo ("Creating elastest/etm image..")                
+ -				sh 'cd ./docker/elastest-torm; ./run.sh'
+
             stage "Publish"
 				echo ("Publish elastest/etm image")
 				def myimage = docker.image('elastest/etm')
