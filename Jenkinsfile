@@ -24,7 +24,7 @@ node('docker'){
                 echo ("Starting maven unit tests")
                sh 'cd ./elastest-torm; mvn clean -Pci-no-it-test package;'
                 
-            stage "Run docker-compose to IT" {
+            stage "Run docker-compose to IT" 
 
                 try {
 
@@ -39,7 +39,7 @@ node('docker'){
                     echo ("docker-compose down")
                     sh 'docker-compose -f docker-compose-dev.yml down'
                 }
-            }    
+                
                 
             stage "Creating etm image"
                 echo ("Creating elastest/etm image..")                
