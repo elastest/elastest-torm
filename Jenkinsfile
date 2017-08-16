@@ -28,7 +28,7 @@ node('docker'){
                 
             stage "Creating etm image"
                 echo ("Creating elastest/etm image..")                
- 				sh 'cd ./docker/elastest-torm; ./run.sh;'
+ 				sh 'cd ./docker/elastest-torm; ./build-image.sh;'
 
             stage "Publish"
 				echo ("Publish elastest/etm image")
