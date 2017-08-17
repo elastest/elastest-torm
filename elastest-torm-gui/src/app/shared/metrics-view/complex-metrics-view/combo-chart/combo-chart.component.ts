@@ -1,7 +1,14 @@
+import { TooltipAreaComponent } from './tooltip-area.component';
 import { Subject } from 'rxjs/Rx';
 import {
-  NgxChartsModule, BaseChartComponent, LineComponent,
-  LineSeriesComponent, calculateViewDimensions, ViewDimensions, ColorHelper,
+  BaseChartComponent,
+  calculateViewDimensions,
+  ColorHelper,
+  LineComponent,
+  LineSeriesComponent,
+  NgxChartsModule,
+  Timeline,
+  ViewDimensions,
 } from '@swimlane/ngx-charts/release';
 
 import {
@@ -53,6 +60,9 @@ import { id } from '@swimlane/ngx-charts/release/utils/id';
 export class ComboChartComponent extends BaseChartComponent {
 
   @ViewChild(LineSeriesComponent) lineSeriesComponent: LineSeriesComponent;
+  @ViewChild('timeline') timelineObj: Timeline;
+  @ViewChild('tooltip') tooltipObj: TooltipAreaComponent;
+
 
   @Input() curve: any = curveLinear;
   @Input() legend = false;
@@ -147,6 +157,13 @@ export class ComboChartComponent extends BaseChartComponent {
   // TimeLine Observable
   _timelineObs = new Subject<any>();
   timelineObs = this._timelineObs.asObservable();
+
+  // Hover and leave Observable for tooltip
+  _hoverObs = new Subject<any>();
+  hoverObs = this._hoverObs.asObservable();
+
+  _leaveObs = new Subject<any>();
+  leaveObs = this._leaveObs.asObservable();
 
   // Functions
 
@@ -278,11 +295,25 @@ export class ComboChartComponent extends BaseChartComponent {
 
   @HostListener('mouseleave')
   hideCircles(): void {
-    this.hoveredVertical = null;
-    this.deactivateAll();
+    this.hideCirclesAux();
+    this._leaveObs.next('');
   }
 
+  hideCirclesAux(): void {
+    this.hoveredVertical = null;
+    this.deactivateAll();
+    this.tooltipObj.hideTooltip();
+  }
+
+
   updateHoveredVertical(item): void {
+    this.updateHoveredVerticalAux(item);
+    if (item.disableObservable !== undefined && !item.disableObservable) {
+      this._hoverObs.next(item);
+    }
+  }
+
+  updateHoveredVerticalAux(item): void {
     this.hoveredVertical = item.value;
     this.deactivateAll();
   }

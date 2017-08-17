@@ -24,6 +24,7 @@ import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view
 import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
 import { EtmComplexMetricsGroupComponent } from './metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/tooltip-area.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -70,6 +71,7 @@ const CHART_MODULES: any[] = [
     ComplexMetricsViewComponent,
     ComboChartComponent,
     EtmComplexMetricsGroupComponent,
+    TooltipAreaComponent,    
   ],
   exports: [
     ANGULAR_MODULES,
@@ -84,6 +86,7 @@ const CHART_MODULES: any[] = [
     ParametersViewComponent,
     ComboChartComponent,
     EtmComplexMetricsGroupComponent,
+    TooltipAreaComponent,
   ]
 })
 export class SharedModule { }

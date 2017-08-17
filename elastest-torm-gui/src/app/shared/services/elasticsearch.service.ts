@@ -16,13 +16,12 @@ export class ElasticSearchService {
   esUrl: string;
 
   constructor(public http: Http, private configurationService: ConfigurationService) {
-    console.log('Task Service created.');
     this.rowData = [];
     this.esUrl = this.configurationService.configModel.hostElasticsearch;
   }
 
   internalSearch(url: string, query: any, maxResults: number, append: boolean = false) {
-    console.log('URL:', url, 'Query:', query);
+    // console.log('URL:', url, 'Query:', query);
 
     let requestOptions = new RequestOptions({
       method: RequestMethod.Post,

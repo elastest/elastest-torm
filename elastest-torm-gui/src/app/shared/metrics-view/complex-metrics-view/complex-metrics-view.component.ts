@@ -28,7 +28,23 @@ export class ComplexMetricsViewComponent implements OnInit {
         return this.comboChart.timelineObs;
     }
 
-    updateDomain(domain){
+    getHoverSubscription(): Observable<any> {
+        return this.comboChart.hoverObs;
+    }
+
+    getLeaveSubscription(): Observable<any> {
+        return this.comboChart.leaveObs;
+    }
+
+    updateDomain(domain) {
         this.comboChart.updateDomainAux(domain);
+    }
+
+    hoverCharts(item) {
+        this.comboChart.tooltipObj.mouseMove('', true, item.value);
+    }
+
+    leaveCharts() {
+        this.comboChart.hideCirclesAux();
     }
 }
