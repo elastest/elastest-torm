@@ -2,8 +2,8 @@ version: '2.1'
 services:
     mysql:
         image: mysql
-        ports:
-            - 3306:3306
+        expose:
+            - 3306
         environment:
             - MYSQL_DATABASE=elastest-etm
             - MYSQL_ROOT_PASSWORD=admin 
@@ -25,11 +25,11 @@ services:
         
     logstash:        
         image: edujgurjc/logstash
-        ports:
-            - 5002:5002
-            - 5000:5000
-            - 5001:5001
-            - 5044:5044
+        expose:
+            - 5002
+            - 5000
+            - 5001
+            - 5044
         depends_on:
             - rabbit-MQ
             - elasticsearch
@@ -43,8 +43,8 @@ services:
                
     elasticsearch:
         image: edujgurjc/elasticsearch
-        ports:
-            - 9200:9200
+        expose:
+            - 9200
         environment:
             - xpack.security.enabled=false
         volumes:
@@ -55,12 +55,12 @@ services:
     rabbit-MQ:
         image: edujgurjc/rabbitmq
         hostname: my-rabbit
-        ports:
-            - 15672:15672
-            - 5672:5672
-            - 15671:15671
-            - 25672:25672
-            - 61613:61613
+        expose:
+            - 15672
+            - 5672
+            - 15671
+            - 25672
+            - 61613
         networks:
             - elastest
 
