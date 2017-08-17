@@ -48,6 +48,9 @@ public class DockerService {
 
 	@Value("${docker.host.port}")
 	private String dockerHostPort;
+	
+	@Value("${logstash.host}")
+	private String logstashHost;
 
 	@Autowired
 	private SutService sutService;
@@ -231,8 +234,12 @@ public class DockerService {
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
 		Map<String, String> configMap = new HashMap<String, String>();
+		if(logstashHost == null){
+			logstashHost = getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
+		}
+		logger.info("Logstash IP to send logs from containers: {}",logstashHost);
 		configMap.put("syslog-address",
-				"tcp://" + getHostIpByNetwork(dockerExec, dockerExec.getNetwork()) + ":" + port);
+				"tcp://" + logstashHost + ":" + port);
 		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_tjobexec");
 		logConfig.setConfig(configMap);
 
