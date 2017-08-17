@@ -54,8 +54,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       }
     }
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
-
-    this.subscribeToTimeline();
   }
 
   createGroupedArray(arr, chunkSize) {
@@ -78,11 +76,11 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   ngAfterViewChecked() {
     if (!this.loaded) {
-      this.subscribeToTimeline();
+      this.subscribeToEvents();
     }
   }
 
-  subscribeToTimeline() {
+  subscribeToEvents() {
     this.loaded = this.complexMetricsViewComponents.toArray() && this.complexMetricsViewComponents.toArray().length > 0;
     if (this.loaded) {
       this.complexMetricsViewComponents.forEach(
@@ -90,6 +88,14 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
           element.getTimelineSubscription().subscribe(
             (data) => this.updateTimeline(data)
           );
+
+          element.getHoverSubscription().subscribe(
+            (data) => this.hoverCharts(data)
+          )
+
+          element.getLeaveSubscription().subscribe(
+            (data) => this.leaveCharts()
+          )
         }
       );
     }
@@ -102,4 +108,21 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       }
     );
   }
+
+  hoverCharts(item) {
+    this.complexMetricsViewComponents.forEach(
+      (element) => {
+        element.hoverCharts(item);
+      }
+    );
+  }
+
+  leaveCharts() {
+    this.complexMetricsViewComponents.forEach(
+      (element) => {
+        element.leaveCharts();
+      }
+    );
+  }
+
 }
