@@ -7,7 +7,7 @@
     </svg:defs>
     <svg:g [attr.transform]="transformRightTwo" class="line-chart chart">
         <!-- Y Axis right Two -->
-        <svg:g ngx-charts-y-axis *ngIf="yAxis && showRightTwoYAxisLabel" [yScale]="yScaleRightTwo" [dims]="dims" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
+        <svg:g ngx-charts-y-axis *ngIf="yAxis && showRightTwoYAxisLabel" [yScale]="yScaleRightTwo" [dims]="dimsRightTwo" [yOrient]="yOrientRight" [showGridLines]="showGridLines"
             [showLabel]="showRightTwoYAxisLabel" [labelText]="yAxisLabelRightTwo" [tickFormatting]="yRightTwoAxisTickFormatting" (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
 

@@ -193,6 +193,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
 
     filterDataByGivenList(allList: LineChartMetricModel[]) {
+
         let list: LineChartMetricModel[] = [];
         let position: number;
         for (let metric of allList) {
@@ -213,6 +214,34 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     deactivateAll() {
         for (let metric of this.allMetricsFields.fieldsList) {
             metric.activated = false;
+        }
+    }
+
+
+    activateAllMatchesByNameList(nameList: string[]) {
+        this.deactivateAll();
+        for (let name of nameList) {
+            this.activateByName(name);
+        }
+        this.initActivatedFieldsList();
+    }
+
+    activateByName(name: string) {
+        for (let metric of this.allMetricsFields.fieldsList) {
+            if (metric.name === name) {
+                metric.activated = true;
+                break;
+            }
+        }
+    }
+
+    activateAllMatchesByNameSuffix(suffix: string) {
+        let position: number = 0;
+        for (let metric of this.allMetricsFields.fieldsList) {
+            metric.activated = metric.name.endsWith(suffix);
+            // To avoid this.initActivatedFieldsList() for
+            this.activatedFieldsList[position] = metric.name.endsWith(suffix);
+            position++;
         }
     }
 

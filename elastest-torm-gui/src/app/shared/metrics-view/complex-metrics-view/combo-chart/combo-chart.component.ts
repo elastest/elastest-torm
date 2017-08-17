@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs/Rx';
 import {
   NgxChartsModule, BaseChartComponent, LineComponent,
   LineSeriesComponent, calculateViewDimensions, ViewDimensions, ColorHelper,
@@ -79,7 +80,7 @@ export class ComboChartComponent extends BaseChartComponent {
   @Input() roundDomains: boolean = false;
   @Input() colorSchemeLine: any[];
   @Input() scheme: any[];
-  @Input() autoScale;
+  @Input() autoScale: boolean;
 
   @Input() leftChart: any;
   @Input() rightChartOne: any;
@@ -96,6 +97,7 @@ export class ComboChartComponent extends BaseChartComponent {
   @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
+  dimsRightTwo: ViewDimensions;
   yScale: any;
   xDomain: any;
   yDomain: any;
@@ -123,7 +125,7 @@ export class ComboChartComponent extends BaseChartComponent {
   yOrientLeft = 'left';
   yOrientRight = 'right';
   legendSpacing = 0;
-  rightTwoSpacing = 80;
+  rightTwoSpacing = 95;
   bandwidth;
   barPadding = 8;
 
@@ -142,9 +144,20 @@ export class ComboChartComponent extends BaseChartComponent {
   timelineTransform: any;
   timelinePadding: number = 10;
 
+  // TimeLine Observable
+  _timelineObs = new Subject<any>();
+  timelineObs = this._timelineObs.asObservable();
+
+  // Functions
+
   initDimensions() {
-    this.dims = calculateViewDimensions({
-      width: this.width - this.legendSpacing,
+    this.dims = this.initSingleDimensions(0)
+    this.dimsRightTwo = this.initSingleDimensions(this.rightTwoSpacing);
+  }
+
+  initSingleDimensions(spacing: number) {
+    return calculateViewDimensions({
+      width: this.width - this.legendSpacing + spacing,
       height: this.height,
       margins: this.margin,
       showXAxis: this.xAxis,
@@ -223,7 +236,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.legendOptions = this.getLegendOptions();
 
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
-    this.transformRightTwo = `translate(${this.dims.xOffset + this.rightTwoSpacing} , ${this.margin[0]})`;
+    this.transformRightTwo = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
 
     const pageUrl = this.location instanceof PathLocationStrategy
       ? this.location.path()
@@ -275,10 +288,14 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   updateDomain(domain): void {
+    this._timelineObs.next(domain);
+    this.updateDomainAux(domain);
+  }
+
+  updateDomainAux(domain): void {
     this.filteredDomain = domain;
     this.xDomain = this.filteredDomain;
     this.xScale = this.getXScale(this.xDomain, this.dims.width);
-
   }
 
   // Legend
