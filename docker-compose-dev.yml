@@ -29,7 +29,7 @@ services:
         
     logstash:        
         container_name: logstash
-        image: frdiaz/logstash
+        image: edujgurjc/logstash
         ports:
             - 5002:5002
             - 5000:5000
