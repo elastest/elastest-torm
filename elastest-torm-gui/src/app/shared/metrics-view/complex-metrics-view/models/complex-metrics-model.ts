@@ -34,6 +34,8 @@ export class ComplexMetricsModel implements LoadPreviousModel {
     yAxisLabelRightOne: string;
     yAxisLabelRightTwo: string;
 
+    autoScale: boolean;
+
     prevTraces: string[];
     prevLoaded: boolean;
     hidePrevBtn: boolean;
@@ -72,6 +74,8 @@ export class ComplexMetricsModel implements LoadPreviousModel {
         this.yAxisLabelRightOne = '';
         this.yAxisLabelRightTwo = '';
 
+        this.autoScale = true;
+        
         this.prevTraces = [];
         this.prevLoaded = false;
         this.hidePrevBtn = false;

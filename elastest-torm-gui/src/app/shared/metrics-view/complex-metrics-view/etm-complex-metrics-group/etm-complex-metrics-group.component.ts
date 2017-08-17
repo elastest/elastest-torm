@@ -1,9 +1,9 @@
+import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
 import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
-import { ETRESMetricsModel } from '../../models/et-res-metrics-model';
 import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -11,13 +11,17 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./etm-complex-metrics-group.component.scss']
 })
 export class EtmComplexMetricsGroupComponent implements OnInit {
+  @ViewChildren(ComplexMetricsViewComponent) complexMetricsViewComponents: QueryList<ComplexMetricsViewComponent>;
+
   @Input()
   public live: boolean;
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
-  metricsList: ETRESMetricsModel[] = [];
-  groupedMetricsList: ETRESMetricsModel[][] = [];
+  metricsList: ESRabComplexMetricsModel[] = [];
+  groupedMetricsList: ESRabComplexMetricsModel[][] = [];
+
+  loaded: boolean = false;
 
   constructor(private elastestESService: ElastestESService) { }
 
@@ -27,7 +31,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel) {
     if (tJob.execDashboardConfigModel.showComplexMetrics) {
       this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
-      this.allInOneMetrics.name = 'Metrics';
+      this.allInOneMetrics.name = 'All Metrics';
       this.allInOneMetrics.hidePrevBtn = !this.live;
       this.allInOneMetrics.metricsIndex = tJobExec.logIndex;
       if (!this.live) {
@@ -36,16 +40,22 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
     for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
-        let etRESMetrics: ETRESMetricsModel = new ETRESMetricsModel(this.elastestESService, metric);
-        etRESMetrics.hidePrevBtn = !this.live;
-        etRESMetrics.metricsIndex = tJobExec.logIndex;
+        let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+        individualMetrics.name = metric.type + ' ' + metric.subtype;
+
+        individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+        individualMetrics.hidePrevBtn = !this.live;
+        individualMetrics.metricsIndex = tJobExec.logIndex;
         if (!this.live) {
-          etRESMetrics.getAllMetrics();
+          individualMetrics.getAllMetrics();
         }
-        this.metricsList.push(etRESMetrics);
+
+        this.metricsList.push(individualMetrics);
       }
     }
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
+
+    this.subscribeToTimeline();
   }
 
   createGroupedArray(arr, chunkSize) {
@@ -64,5 +74,32 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
 
     this.allInOneMetrics.updateData(data);
+  }
+
+  ngAfterViewChecked() {
+    if (!this.loaded) {
+      this.subscribeToTimeline();
+    }
+  }
+
+  subscribeToTimeline() {
+    this.loaded = this.complexMetricsViewComponents.toArray() && this.complexMetricsViewComponents.toArray().length > 0;
+    if (this.loaded) {
+      this.complexMetricsViewComponents.forEach(
+        (element) => {
+          element.getTimelineSubscription().subscribe(
+            (data) => this.updateTimeline(data)
+          );
+        }
+      );
+    }
+  }
+
+  updateTimeline(domain) {
+    this.complexMetricsViewComponents.forEach(
+      (element) => {
+        element.updateDomain(domain);
+      }
+    );
   }
 }
