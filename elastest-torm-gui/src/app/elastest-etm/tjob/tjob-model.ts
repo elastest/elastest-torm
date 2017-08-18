@@ -34,7 +34,6 @@ export class TJobModel {
 
     public generateExecDashboardConfig() {
         this.execDashboardConfig = JSON.stringify(this.execDashboardConfigModel);
-        console.log(this.execDashboardConfig)
     }
 
     public hasSut(): boolean {

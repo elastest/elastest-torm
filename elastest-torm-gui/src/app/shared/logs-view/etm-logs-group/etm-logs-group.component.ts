@@ -1,0 +1,77 @@
+import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
+import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
+import { ElastestESService } from '../../services/elastest-es.service';
+import { ESRabLogModel } from '../models/es-rab-log-model';
+import { LogsViewComponent } from '../logs-view.component';
+import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+
+@Component({
+  selector: 'etm-logs-group',
+  templateUrl: './etm-logs-group.component.html',
+  styleUrls: ['./etm-logs-group.component.scss']
+})
+export class EtmLogsGroupComponent implements OnInit {
+  @ViewChildren(LogsViewComponent) logsViewComponents: QueryList<LogsViewComponent>;
+
+  @Input()
+  public live: boolean;
+
+  logsList: ESRabLogModel[] = [];
+  groupedLogsList: ESRabLogModel[][] = [];
+
+  loaded: boolean = false;
+
+  constructor(private elastestESService: ElastestESService) { }
+
+  ngOnInit() {
+  }
+
+
+  initLogsView(tJob: TJobModel, tJobExec: TJobExecModel) {
+    for (let log of tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+      if (log.activated) {
+        let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
+        individualLogs.name = this.capitalize(log.componentType) + ' Logs';
+        individualLogs.type = log.componentType + 'logs';
+        individualLogs.componentType = log.componentType;
+
+        individualLogs.hidePrevBtn = !this.live;
+        individualLogs.logIndex = tJobExec.logIndex;
+        if (!this.live) {
+          individualLogs.getAllLogs();
+        }
+        this.logsList.push(individualLogs);
+      }
+    }
+    this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
+  }
+
+  createGroupedArray(arr, chunkSize) {
+    let groups = [], i;
+    for (i = 0; i < arr.length; i += chunkSize) {
+      groups.push(arr.slice(i, i + chunkSize));
+    }
+    return groups;
+  }
+
+  capitalize(value: any) {
+    if (value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    return value;
+  }
+
+  updateLogsData(data: any, componentType: string) {
+    let found: boolean = false;
+    for (let group of this.groupedLogsList) {
+      for (let log of group) {
+        if (log.componentType === componentType) {
+          log.traces.push(data);
+          found = true;
+          break;
+        }
+      }
+      if (found) { break; }
+    }
+  }
+}

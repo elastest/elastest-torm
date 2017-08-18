@@ -10,12 +10,5 @@
 <!-- Metrics -->
 <etm-complex-metrics-group #metricsGroup [live]="true"></etm-complex-metrics-group>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <div flex-gt-sm="50" layout-gt-sm="column">
-    <logs-view [model]="testLogView"></logs-view>
-  </div>
-
-  <div flex-gt-sm="50" layout-gt-sm="column">
-    <logs-view [model]="sutLogView"></logs-view>
-  </div>
-</div>
+<!-- Logs -->
+<etm-logs-group #logsGroup [live]="true"></etm-logs-group>

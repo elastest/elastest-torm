@@ -1,3 +1,4 @@
+import { EtmLogsGroupComponent } from '../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import {
   EtmComplexMetricsGroupComponent,
 } from '../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
@@ -8,16 +9,13 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
 import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
-import { RabESLogModel } from '../../shared/logs-view/models/rab-es-log-model';
+import { ESRabLogModel } from '../../shared/logs-view/models/es-rab-log-model';
 import { ETRESMetricsModel } from '../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob/tjob.service';
-import {
-  ESRabComplexMetricsModel,
-} from '../../shared/metrics-view/complex-metrics-view/models/es-rab-complex-metrics-model';
 
 @Component({
   selector: 'etm-dashboard',
@@ -26,16 +24,13 @@ import {
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
+  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
 
   tJobId: number;
   withSut: boolean = false;
 
   tJobExecId: number;
   tJobExec: TJobExecModel;
-
-  // Logs
-  sutLogView: RabESLogModel;
-  testLogView: RabESLogModel;
 
   testLogsSubscription: Subscription;
   sutLogsSubscription: Subscription;
@@ -49,7 +44,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private route: ActivatedRoute, private router: Router,
     private elastestESService: ElastestESService,
   ) {
-    this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -66,16 +60,15 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
-      .subscribe((data) => this.testLogView.traces.push(data));
-
+      .subscribe((data) => this.updateLogsData(data, 'test'));
     this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
-      .subscribe((data) => this.sutLogView.traces.push(data));
+      .subscribe((data) => this.updateLogsData(data, 'sut'));
 
     this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
-      .subscribe((data) => this.updateData(data));
+      .subscribe((data) => this.updateMetricsData(data));
 
     this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
-      .subscribe((data) => this.updateData(data));
+      .subscribe((data) => this.updateMetricsData(data));
 
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
@@ -89,35 +82,21 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
 
-        // Init logs index
-        this.testLogView.logIndex = this.tJobExec.logIndex;
-        this.sutLogView.logIndex = this.tJobExec.logIndex;
-
         this.metricsGroup.initMetricsView(this.tJobExec.tJob, this.tJobExec);
-
-        if (!this.withSut) {
-          this.sutLogView.traces = [
-            {
-              'message': 'TJob Without Sut. There aren\'t logs'
-            }
-          ];
-        }
+        this.logsGroup.initLogsView(this.tJobExec.tJob, this.tJobExec);
 
         console.log('Suscribe to TJob execution.');
         this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
       });
   }
 
-  initLogsView() {
-    this.sutLogView = new RabESLogModel(this.elastestESService);
-    this.testLogView = new RabESLogModel(this.elastestESService);
 
-    this.elastestESService.initTestLog(this.testLogView);
-    this.elastestESService.initSutLog(this.sutLogView);
+  updateMetricsData(data: any) {
+    this.metricsGroup.updateMetricsData(data);
   }
 
-  updateData(data: any) {
-    this.metricsGroup.updateData(data);
+  updateLogsData(data: any, componentType: string) {
+    this.logsGroup.updateLogsData(data, componentType);
   }
 
   ngOnDestroy() {

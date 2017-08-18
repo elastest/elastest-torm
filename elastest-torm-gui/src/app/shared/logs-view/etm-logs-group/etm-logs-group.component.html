@@ -1,0 +1,7 @@
+<ng-container *ngIf="logsList.length > 0">
+    <div *ngFor="let group of groupedLogsList" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+      <div *ngFor="let log of group; let i = index; let f=first; let l=last;" flex-gt-sm="f && l ? 100 : 50">
+        <logs-view #individual{{i}} [model]="log"></logs-view>
+      </div>
+    </div>
+  </ng-container>

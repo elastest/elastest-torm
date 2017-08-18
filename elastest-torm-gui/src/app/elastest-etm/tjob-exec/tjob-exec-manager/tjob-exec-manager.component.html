@@ -59,12 +59,4 @@
 <etm-complex-metrics-group #metricsGroup [live]="false"></etm-complex-metrics-group>
 
 <!-- Logs -->
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-    <div flex-gt-sm="50" layout-gt-sm="column">
-        <logs-view [model]="testLogView"></logs-view>
-    </div>
-
-    <div flex-gt-sm="50" layout-gt-sm="column">
-        <logs-view [model]="sutLogView"></logs-view>
-    </div>
-</div>
+<etm-logs-group #logsGroup [live]="false"></etm-logs-group>

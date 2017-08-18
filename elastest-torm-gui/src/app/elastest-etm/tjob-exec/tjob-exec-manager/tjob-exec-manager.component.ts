@@ -1,10 +1,9 @@
+import { EtmLogsGroupComponent } from '../../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import {
   EtmComplexMetricsGroupComponent,
 } from '../../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
-import {
-  ESRabComplexMetricsModel,
-} from '../../../shared/metrics-view/complex-metrics-view/models/es-rab-complex-metrics-model';
-import { ESLogModel } from '../../../shared/logs-view/models/elasticsearch-log-model';
+
+import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
@@ -22,21 +21,17 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 })
 export class TjobExecManagerComponent implements OnInit {
   @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
+  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
 
   tJobId: number;
   tJobExecId: number;
   tJobExec: TJobExecModel;
   tJob: TJobModel;
 
-  // Logs
-  sutLogView: ESLogModel = new ESLogModel(this.elastestESService);
-  testLogView: ESLogModel = new ESLogModel(this.elastestESService);
-
   constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router,
   ) {
-    this.initLogsView();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
         (params: Params) => {
@@ -57,10 +52,6 @@ export class TjobExecManagerComponent implements OnInit {
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
 
-        // Init logs index
-        this.testLogView.logIndex = this.tJobExec.logIndex;
-        this.sutLogView.logIndex = this.tJobExec.logIndex;
-
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {
@@ -72,37 +63,14 @@ export class TjobExecManagerComponent implements OnInit {
             }
             else {
               //Load logs
-              this.testLogView.getAllLogs();
-
-              if (tJob.hasSut()) {
-                this.sutLogView.getAllLogs();
-              }
-              else {
-                this.sutLogView.traces = [
-                  {
-                    'message': 'TJob Without Sut. There aren\'t logs'
-                  }
-                ];
-              }
-
+              this.logsGroup.initLogsView(tJob, tJobExec);
+              
               //Load metrics
               this.metricsGroup.initMetricsView(tJob, tJobExec);
-
             }
           },
           (error) => console.log(error),
         );
       });
-  }
-
-  initLogsView() {
-    this.elastestESService.initTestLog(this.testLogView);
-    this.elastestESService.initSutLog(this.sutLogView);
-
-    this.testLogView.hidePrevBtn = true;
-    this.sutLogView.hidePrevBtn = true;
-
-    this.testLogView.traces = ['Loading Logs...'];
-    this.sutLogView.traces = ['Loading Logs...'];
   }
 }

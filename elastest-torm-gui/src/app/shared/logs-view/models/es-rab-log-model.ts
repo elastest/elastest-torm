@@ -1,11 +1,12 @@
 import { ElastestESService } from '../../services/elastest-es.service';
 import { LogViewModel } from '../log-view-model';
 
-export class ESLogModel implements LogViewModel {
+export class ESRabLogModel implements LogViewModel {
     elastestESService: ElastestESService;
 
     name: string;
     traces: any[];
+    filteredTraces: any[];
     prevTraces: any[];
     prevLoaded: boolean;
     hidePrevBtn: boolean;
@@ -17,6 +18,7 @@ export class ESLogModel implements LogViewModel {
         this.name = '';
         this.prevTraces = [];
         this.traces = [];
+        this.filteredTraces = [];
         this.prevLoaded = false;
         this.hidePrevBtn = false;
         this.type = '';
@@ -45,5 +47,23 @@ export class ESLogModel implements LogViewModel {
                 }
             },
         );
+    }
+
+    selectTimeRange(domain) {
+        let counter: number = 0;
+        for (let trace of this.traces) {
+            if (trace.timestamp >= domain[0] && trace.timestamp <= domain[1]) {
+                this.filteredTraces.push(trace);
+                counter++;
+            }
+        }
+
+        if (counter = 0) {
+            this.filteredTraces.push({ 'message': '' })
+        }
+    }
+
+    clearFilter() {
+        this.filteredTraces = [];
     }
 }

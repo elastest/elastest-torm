@@ -12,13 +12,20 @@
     </div>
     <div layout="row">
       <ul #scrollMe class="logsViewContent">
-        <li *ngFor="let trace of model.prevTraces">
-          {{trace.message}}
-        </li>
-        <md-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
-        <li *ngFor="let trace of model.traces">
-          {{trace.message}}
-        </li>
+        <ng-container *ngIf="model.filteredTraces.length === 0">
+          <li *ngFor="let trace of model.prevTraces">
+            {{trace.message}}
+          </li>
+          <md-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></md-divider>
+          <li *ngFor="let trace of model.traces">
+            {{trace.message}}
+          </li>
+        </ng-container>
+        <ng-container *ngIf="model.filteredTraces.length > 0">
+          <li *ngFor="let trace of model.filteredTraces">
+            {{trace.message}}
+          </li>
+        </ng-container>
       </ul>
     </div>
   </md-card-content>

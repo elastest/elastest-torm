@@ -1,6 +1,6 @@
 import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
-import { ESLogModel } from '../logs-view/models/elasticsearch-log-model';
+import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { LineChartMetricModel } from '../metrics-view/models/linechart-metric-model';
 import { ElasticSearchService } from './elasticsearch.service';
@@ -311,13 +311,13 @@ export class ElastestESService {
         return tracesList;
     }
 
-    initTestLog(log: ESLogModel) {
+    initTestLog(log: ESRabLogModel) {
         log.name = 'Test Logs';
         log.type = 'testlogs';
         log.componentType = 'test';
     }
 
-    initSutLog(log: ESLogModel) {
+    initSutLog(log: ESRabLogModel) {
         log.name = 'SuT Logs';
         log.type = 'sutlogs';
         log.componentType = 'sut';

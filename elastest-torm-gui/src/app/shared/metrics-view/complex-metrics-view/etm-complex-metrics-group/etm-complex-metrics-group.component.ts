@@ -1,9 +1,10 @@
+import { Subject } from 'rxjs/Rx';
 import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
 import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
 import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
-import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -22,6 +23,11 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   groupedMetricsList: ESRabComplexMetricsModel[][] = [];
 
   loaded: boolean = false;
+
+  // TimeLine Observable
+  _timelineObs = new Subject<any>();
+  @Output()
+  timelineObs = this._timelineObs.asObservable();
 
   constructor(private elastestESService: ElastestESService) { }
 
@@ -64,7 +70,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return groups;
   }
 
-  updateData(data: any) {
+  updateMetricsData(data: any) {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
         metric.updateData(data);

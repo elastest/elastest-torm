@@ -47,6 +47,7 @@
       </div>
       <td-expansion-panel label="Configuration of View" expand="false" class="push-bottom" *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null">
         <div class="pad">
+          <md-card-subtitle>Metrics</md-card-subtitle>
           <ng-container *ngIf="tJob.execDashboardConfigModel.showComplexMetrics !== undefined && tJob.execDashboardConfigModel.showComplexMetrics !== null">
             <span class="push-right">
               <md-checkbox #metric{{i}} [checked]="tJob.execDashboardConfigModel.showComplexMetrics" (change)="tJob.execDashboardConfigModel.changeShowComplexMetricsActive($event)">All-in-one chart</md-checkbox>
@@ -55,6 +56,15 @@
           <ng-container *ngIf="tJob.execDashboardConfigModel.allMetricsFields !== undefined && tJob.execDashboardConfigModel.allMetricsFields !== null">
             <span class="push-right" *ngFor="let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList; let i = index">
               <md-checkbox #metric{{i}} [checked]="metric.activated" (change)="metric.changeActive($event)">{{metric.name}}</md-checkbox>
+            </span>
+          </ng-container>
+        </div>
+
+        <div class="pad">
+          <md-card-subtitle>Logs</md-card-subtitle>
+          <ng-container *ngIf="tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null">
+            <span class="push-right" *ngFor="let log of tJob.execDashboardConfigModel.allLogsTypes.logsList; let i = index">
+              <md-checkbox #log{{i}} [checked]="log.activated" (change)="log.changeActive($event)">{{log.name}}</md-checkbox>
             </span>
           </ng-container>
         </div>
