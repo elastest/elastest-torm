@@ -5,7 +5,7 @@ import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
 import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
-import { Component, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
 
 @Component({
@@ -28,10 +28,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   testMetricsSubscription: Subscription;
   sutMetricsSubscription: Subscription;
+
   // TimeLine Observable
-  _timelineObs = new Subject<any>();
   @Output()
-  timelineObs = this._timelineObs.asObservable();
+  timelineObs = new EventEmitter<any>();;
 
   constructor(
     private elastestESService: ElastestESService,
@@ -110,7 +110,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       this.complexMetricsViewComponents.forEach(
         (element) => {
           element.getTimelineSubscription().subscribe(
-            (data) => this.updateTimeline(data)
+            (data) => {
+              this.updateTimeline(data);
+              this.timelineObs.next(data);
+            }
           );
 
           element.getHoverSubscription().subscribe(

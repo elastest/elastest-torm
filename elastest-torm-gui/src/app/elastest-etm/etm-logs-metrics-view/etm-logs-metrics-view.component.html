@@ -1,5 +1,5 @@
 <!-- Metrics -->
-<etm-complex-metrics-group #metricsGroup [live]="live"></etm-complex-metrics-group>
+<etm-complex-metrics-group #metricsGroup [live]="live" (timelineObs)="timelineEvent($event)"></etm-complex-metrics-group>
 
 <!-- Logs -->
 <etm-logs-group #logsGroup [live]="live"></etm-logs-group>

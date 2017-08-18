@@ -91,4 +91,12 @@ export class EtmLogsGroupComponent implements OnInit {
       if (found) { break; }
     }
   }
+
+  selectTimeRange(domain) {
+    for (let group of this.groupedLogsList) {
+      for (let log of group) {
+        log.selectTimeRange(domain);
+      }
+    }
+  }
 }
