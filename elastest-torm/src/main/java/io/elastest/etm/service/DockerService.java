@@ -49,7 +49,7 @@ public class DockerService {
 	@Value("${docker.host.port}")
 	private String dockerHostPort;
 	
-	@Value("${logstash.host}")
+	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
 
 	@Autowired
