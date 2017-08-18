@@ -1,7 +1,4 @@
-import { EtmLogsGroupComponent } from '../../../shared/logs-view/etm-logs-group/etm-logs-group.component';
-import {
-  EtmComplexMetricsGroupComponent,
-} from '../../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { EtmLogsMetricsViewComponent } from '../../etm-logs-metrics-view/etm-logs-metrics-view.component';
 
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
@@ -20,8 +17,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./tjob-exec-manager.component.scss']
 })
 export class TjobExecManagerComponent implements OnInit {
-  @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
-  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmLogsMetricsViewComponent;
+
 
   tJobId: number;
   tJobExecId: number;
@@ -60,13 +57,8 @@ export class TjobExecManagerComponent implements OnInit {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
                 { queryParams: { fromTJobManager: true } });
-            }
-            else {
-              //Load logs
-              this.logsGroup.initLogsView(tJob, tJobExec);
-              
-              //Load metrics
-              this.metricsGroup.initMetricsView(tJob, tJobExec);
+            } else {
+              this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec);
             }
           },
           (error) => console.log(error),

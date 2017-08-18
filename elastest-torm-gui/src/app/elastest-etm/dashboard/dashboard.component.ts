@@ -1,7 +1,4 @@
-import { EtmLogsGroupComponent } from '../../shared/logs-view/etm-logs-group/etm-logs-group.component';
-import {
-  EtmComplexMetricsGroupComponent,
-} from '../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { EtmLogsMetricsViewComponent } from '../etm-logs-metrics-view/etm-logs-metrics-view.component';
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -23,19 +20,13 @@ import { TJobService } from '../tjob/tjob.service';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
-  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmLogsMetricsViewComponent;
 
   tJobId: number;
   withSut: boolean = false;
 
   tJobExecId: number;
   tJobExec: TJobExecModel;
-
-  testLogsSubscription: Subscription;
-  sutLogsSubscription: Subscription;
-  testMetricsSubscription: Subscription;
-  sutMetricsSubscription: Subscription;
 
   constructor(private _titleService: Title,
     private tJobService: TJobService,
@@ -59,17 +50,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
-      .subscribe((data) => this.updateLogsData(data, 'test'));
-    this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
-      .subscribe((data) => this.updateLogsData(data, 'sut'));
-
-    this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
-      .subscribe((data) => this.updateMetricsData(data));
-
-    this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
-      .subscribe((data) => this.updateMetricsData(data));
-
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
 
@@ -82,21 +62,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec = tJobExec;
         this.withSut = this.tJobExec.tJob.hasSut();
 
-        this.metricsGroup.initMetricsView(this.tJobExec.tJob, this.tJobExec);
-        this.logsGroup.initLogsView(this.tJobExec.tJob, this.tJobExec);
+        this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec);
 
         console.log('Suscribe to TJob execution.');
         this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
       });
-  }
-
-
-  updateMetricsData(data: any) {
-    this.metricsGroup.updateMetricsData(data);
-  }
-
-  updateLogsData(data: any, componentType: string) {
-    this.logsGroup.updateLogsData(data, componentType);
   }
 
   ngOnDestroy() {

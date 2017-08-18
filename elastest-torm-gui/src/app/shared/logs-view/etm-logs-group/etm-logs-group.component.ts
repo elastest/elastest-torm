@@ -1,9 +1,11 @@
+import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../services/elastest-es.service';
 import { ESRabLogModel } from '../models/es-rab-log-model';
 import { LogsViewComponent } from '../logs-view.component';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Subscription } from 'rxjs/Rx';
 
 @Component({
   selector: 'etm-logs-group',
@@ -21,9 +23,24 @@ export class EtmLogsGroupComponent implements OnInit {
 
   loaded: boolean = false;
 
-  constructor(private elastestESService: ElastestESService) { }
+  testLogsSubscription: Subscription;
+  sutLogsSubscription: Subscription;
+
+  constructor(
+    private elastestESService: ElastestESService,
+    private elastestRabbitmqService: ElastestRabbitmqService,
+  ) { }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit(): void {
+    if (this.live) {
+      this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
+        .subscribe((data) => this.updateLogsData(data, 'test'));
+      this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
+        .subscribe((data) => this.updateLogsData(data, 'sut'));
+    }
   }
 
 

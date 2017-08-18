@@ -1,3 +1,4 @@
+import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
 import { Subject } from 'rxjs/Rx';
 import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
 import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
@@ -5,6 +6,7 @@ import { ElastestESService } from '../../../services/elastest-es.service';
 import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { Subscription } from 'rxjs/Rx';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -24,15 +26,31 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   loaded: boolean = false;
 
+  testMetricsSubscription: Subscription;
+  sutMetricsSubscription: Subscription;
   // TimeLine Observable
   _timelineObs = new Subject<any>();
   @Output()
   timelineObs = this._timelineObs.asObservable();
 
-  constructor(private elastestESService: ElastestESService) { }
+  constructor(
+    private elastestESService: ElastestESService,
+    private elastestRabbitmqService: ElastestRabbitmqService,
+  ) { }
 
   ngOnInit() {
   }
+
+  ngAfterViewInit(): void {
+    if (this.live) {
+      this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
+        .subscribe((data) => this.updateMetricsData(data));
+
+      this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
+        .subscribe((data) => this.updateMetricsData(data));
+    }
+  }
+
 
   initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel) {
     if (tJob.execDashboardConfigModel.showComplexMetrics) {
