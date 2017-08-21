@@ -66,6 +66,26 @@ export class ESRabLogModel implements LogViewModel {
         }
     }
 
+    getTracePositionByTime(timeSelected) {
+        let position: number = 0;
+        let found: boolean = false;
+
+        let tracesList = this.filteredTraces.length > 0 ? this.filteredTraces : this.prevTraces.concat(this.traces);
+        for (let trace of tracesList) {
+            let time: Date = new Date(trace.timestamp);
+            if (time === timeSelected) {
+                found = true;
+                break;
+            }
+            position++;
+        }
+        if (found) {
+            return position;
+        } else {
+            return -1;
+        }
+    }
+
     clearFilter() {
         this.filteredTraces = [];
     }

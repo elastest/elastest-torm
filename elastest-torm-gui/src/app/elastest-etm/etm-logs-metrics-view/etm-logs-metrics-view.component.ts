@@ -35,4 +35,11 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     this.logsGroup.selectTimeRange(domain);
   }
 
+  hoverEvent(time) {
+    this.logsGroup.selectTracesByTime(time);
+  }
+
+  leaveEvent() {
+    this.logsGroup.unselectTraces();
+  }
 }

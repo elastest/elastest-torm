@@ -26,6 +26,8 @@ export class EtmLogsGroupComponent implements OnInit {
   testLogsSubscription: Subscription;
   sutLogsSubscription: Subscription;
 
+  selectedTraces: number[][] = [];
+
   constructor(
     private elastestESService: ElastestESService,
     private elastestRabbitmqService: ElastestRabbitmqService,
@@ -99,4 +101,35 @@ export class EtmLogsGroupComponent implements OnInit {
       }
     }
   }
+
+  selectTracesByTime(time) {
+    let logPos: number = 0;
+    for (let group of this.groupedLogsList) {
+      for (let log of group) {
+        this.selectTrace(logPos, log.getTracePositionByTime(time));
+        logPos++;
+      }
+    }
+  }
+
+  selectTrace(logPos: number, tracePos: number) {
+    if (tracePos >= 0) {
+      let logsView: Element = document.getElementsByTagName('logs-view')[logPos];
+      let tracesList: NodeListOf<HTMLLIElement> = logsView.getElementsByTagName('li');
+      tracesList[tracePos].style.backgroundColor = '#e0e0e0';
+      this.selectedTraces.push([logPos, tracePos]);
+    }
+  }
+
+  unselectTraces() {
+    let logsViewList: NodeListOf<Element> = document.getElementsByTagName('logs-view');
+
+    for (let selected of this.selectedTraces) {
+      let tracesList: NodeListOf<HTMLLIElement> = logsViewList[selected[0]].getElementsByTagName('li');
+      tracesList[selected[1]].style.removeProperty('background-color');
+    }
+    this.selectedTraces = [];
+  }
+
+
 }

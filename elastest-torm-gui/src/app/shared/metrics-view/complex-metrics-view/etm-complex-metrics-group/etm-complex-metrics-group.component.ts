@@ -31,7 +31,13 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   // TimeLine Observable
   @Output()
-  timelineObs = new EventEmitter<any>();;
+  timelineObs = new EventEmitter<any>();
+
+  @Output()
+  hoverObs = new EventEmitter<any>();
+
+  @Output()
+  leaveObs = new EventEmitter<any>();
 
   constructor(
     private elastestESService: ElastestESService,
@@ -117,11 +123,17 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
           );
 
           element.getHoverSubscription().subscribe(
-            (data) => this.hoverCharts(data)
+            (data) => {
+              this.hoverCharts(data);
+              // this.hoverObs.next(data.value);
+            }
           )
 
           element.getLeaveSubscription().subscribe(
-            (data) => this.leaveCharts()
+            (data) => {
+              this.leaveCharts();
+              // this.leaveObs.next();
+            }
           )
         }
       );
