@@ -33,4 +33,19 @@ export class LogsViewComponent implements OnInit {
       console.log('[Error]:' + err.toString());
     }
   }
+
+  scrollToElement(position: number) {
+    let tracesList: NodeListOf<HTMLLIElement> = this.getElementsList();
+    let offset: number = this.getElementOffsetTop(tracesList[position]);
+    this.lockScroll = true;
+    this.myScrollContainer.nativeElement.scrollTop = offset;
+  }
+
+  getElementsList(){
+    return this.myScrollContainer.nativeElement.getElementsByTagName('li');
+  }
+  getElementOffsetTop(element: HTMLLIElement) {
+    let offset: number = element.offsetTop - element.parentElement.offsetTop;
+    return offset;
+  }
 }

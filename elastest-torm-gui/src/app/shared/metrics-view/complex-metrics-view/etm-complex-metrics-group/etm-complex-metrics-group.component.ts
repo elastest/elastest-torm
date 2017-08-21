@@ -125,14 +125,14 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
           element.getHoverSubscription().subscribe(
             (data) => {
               this.hoverCharts(data);
-              // this.hoverObs.next(data.value);
+              this.hoverObs.next(data.value);
             }
           )
 
           element.getLeaveSubscription().subscribe(
             (data) => {
               this.leaveCharts();
-              // this.leaveObs.next();
+              this.leaveObs.next();
             }
           )
         }

@@ -32,7 +32,6 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   }
 
   timelineEvent($event) {
-    console.log($event)
     if (!$event.unselect) {
       this.logsGroup.selectTimeRange($event.domain);
     } else {

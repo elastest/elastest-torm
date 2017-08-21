@@ -111,6 +111,7 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   selectTracesByTime(time) {
+    this.unselectTraces();
     let logPos: number = 0;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
@@ -122,19 +123,26 @@ export class EtmLogsGroupComponent implements OnInit {
 
   selectTrace(logPos: number, tracePos: number) {
     if (tracePos >= 0) {
-      let logsView: Element = document.getElementsByTagName('logs-view')[logPos];
-      let tracesList: NodeListOf<HTMLLIElement> = logsView.getElementsByTagName('li');
-      tracesList[tracePos].style.backgroundColor = '#e0e0e0';
-      this.selectedTraces.push([logPos, tracePos]);
+      if (this.logsViewComponents.toArray() && this.logsViewComponents.toArray().length > 0) {
+        let logsView: LogsViewComponent = this.logsViewComponents.toArray()[logPos];
+        logsView.scrollToElement(tracePos);
+        let tracesList: NodeListOf<HTMLLIElement> = logsView.getElementsList();
+        tracesList[tracePos].style.backgroundColor = '#ffac2f';
+        this.selectedTraces.push([logPos, tracePos]);
+      }
     }
   }
 
   unselectTraces() {
-    let logsViewList: NodeListOf<Element> = document.getElementsByTagName('logs-view');
+    if (this.selectedTraces.length > 0 && this.logsViewComponents.toArray() && this.logsViewComponents.toArray().length > 0) {
+      let logsViewList: LogsViewComponent[] = this.logsViewComponents.toArray();
 
-    for (let selected of this.selectedTraces) {
-      let tracesList: NodeListOf<HTMLLIElement> = logsViewList[selected[0]].getElementsByTagName('li');
-      tracesList[selected[1]].style.removeProperty('background-color');
+      for (let selected of this.selectedTraces) {
+        let tracesList: NodeListOf<HTMLLIElement> = logsViewList[selected[0]].getElementsList();
+        if (tracesList[selected[1]] !== undefined) {
+          tracesList[selected[1]].style.removeProperty('background-color');
+        }
+      }
     }
     this.selectedTraces = [];
   }
