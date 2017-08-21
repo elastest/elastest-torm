@@ -31,8 +31,13 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     this.metricsGroup.initMetricsView(tJob, tJobExec);
   }
 
-  timelineEvent(domain) {
-    this.logsGroup.selectTimeRange(domain);
+  timelineEvent($event) {
+    console.log($event)
+    if (!$event.unselect) {
+      this.logsGroup.selectTimeRange($event.domain);
+    } else {
+      this.logsGroup.unselectTimeRange();
+    }
   }
 
   hoverEvent(time) {

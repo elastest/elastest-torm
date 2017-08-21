@@ -10,6 +10,12 @@
         <md-icon>lock_outline</md-icon>
       </md-slide-toggle>
     </div>
+    <ng-container *ngIf="model.filteredTraces.length === 0">
+      Showing: All
+    </ng-container>
+    <ng-container *ngIf="model.filteredTraces.length > 0">
+      Showing: Filtered
+    </ng-container>
     <div layout="row">
       <ul #scrollMe class="logsViewContent">
         <ng-container *ngIf="model.filteredTraces.length === 0">

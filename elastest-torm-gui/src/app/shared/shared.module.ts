@@ -24,7 +24,8 @@ import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view
 import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
 import { EtmComplexMetricsGroupComponent } from './metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
-import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/tooltip-area.component';
+import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/components/tooltip-area.component';
+import { TimelineComponent } from './metrics-view/complex-metrics-view/combo-chart/components/timeline.component';
 import { EtmLogsGroupComponent } from './logs-view/etm-logs-group/etm-logs-group.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [
@@ -73,7 +74,8 @@ const CHART_MODULES: any[] = [
     ComboChartComponent,
     EtmComplexMetricsGroupComponent,
     TooltipAreaComponent,
-    EtmLogsGroupComponent,    
+    TimelineComponent,
+    EtmLogsGroupComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -90,6 +92,7 @@ const CHART_MODULES: any[] = [
     EtmComplexMetricsGroupComponent,
     EtmLogsGroupComponent,
     TooltipAreaComponent,
+    TimelineComponent,
   ]
 })
 export class SharedModule { }

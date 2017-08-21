@@ -102,6 +102,14 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
+  unselectTimeRange() {
+    for (let group of this.groupedLogsList) {
+      for (let log of group) {
+        log.unselectTimeRange();
+      }
+    }
+  }
+
   selectTracesByTime(time) {
     let logPos: number = 0;
     for (let group of this.groupedLogsList) {

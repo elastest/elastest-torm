@@ -52,7 +52,7 @@ export class ESRabLogModel implements LogViewModel {
     selectTimeRange(domain) {
         this.filteredTraces = [];
         let counter: number = 0;
-        for (let trace of this.traces) {
+        for (let trace of [...this.traces]) {
             let time: Date = new Date(trace.timestamp);
             if (time >= domain[0] && time <= domain[1]) {
                 this.filteredTraces.push(trace);
@@ -64,6 +64,10 @@ export class ESRabLogModel implements LogViewModel {
             this.filteredTraces = [];
             this.filteredTraces.push({ 'message': 'Nothing to show' })
         }
+    }
+
+    unselectTimeRange(){
+        this.filteredTraces = [];
     }
 
     getTracePositionByTime(timeSelected) {

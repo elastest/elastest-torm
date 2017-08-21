@@ -1,4 +1,4 @@
-import { TooltipAreaComponent } from './tooltip-area.component';
+import { TooltipAreaComponent } from './components/tooltip-area.component';
 import { Subject } from 'rxjs/Rx';
 import {
   BaseChartComponent,
@@ -7,7 +7,6 @@ import {
   LineComponent,
   LineSeriesComponent,
   NgxChartsModule,
-  Timeline,
   ViewDimensions,
 } from '@swimlane/ngx-charts/release';
 
@@ -37,6 +36,7 @@ import {
 import { area, line, curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { id } from '@swimlane/ngx-charts/release/utils/id';
+import { TimelineComponent } from './components/timeline.component';
 
 
 @Component({
@@ -60,7 +60,7 @@ import { id } from '@swimlane/ngx-charts/release/utils/id';
 export class ComboChartComponent extends BaseChartComponent {
 
   @ViewChild(LineSeriesComponent) lineSeriesComponent: LineSeriesComponent;
-  @ViewChild('timeline') timelineObj: Timeline;
+  @ViewChild('timeline') timelineObj: TimelineComponent;
   @ViewChild('tooltip') tooltipObj: TooltipAreaComponent;
 
 
@@ -318,13 +318,13 @@ export class ComboChartComponent extends BaseChartComponent {
     this.deactivateAll();
   }
 
-  updateDomain(domain): void {
-    this._timelineObs.next(domain);
-    this.updateDomainAux(domain);
+  updateDomain($event): void {
+    this._timelineObs.next($event);
+    this.updateDomainAux($event);
   }
 
-  updateDomainAux(domain): void {
-    this.filteredDomain = domain;
+  updateDomainAux($event): void {
+    this.filteredDomain = $event.domain;
     this.xDomain = this.filteredDomain;
     this.xScale = this.getXScale(this.xDomain, this.dims.width);
   }

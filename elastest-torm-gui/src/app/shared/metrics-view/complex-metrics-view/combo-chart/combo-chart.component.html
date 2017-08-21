@@ -78,7 +78,7 @@
     </svg:g>
 
     <!-- Timeline -->
-    <svg:g ngx-charts-timeline #timeline *ngIf="timeline && scaleType === 'time'" [attr.transform]="timelineTransform" [results]="combinedSeries"
+    <svg:g ngx-charts-timeline-complex #timeline *ngIf="timeline && scaleType === 'time'" [attr.transform]="timelineTransform" [results]="combinedSeries"
         [view]="[timelineWidth, height]" [height]="timelineHeight" [scheme]="scheme" [customColors]="colors" [legend]="legend"
         (onDomainChange)="updateDomain($event)" [scaleType]="scaleType">
         <svg:g *ngFor="let series of rightChartOne; trackBy:trackBy">
