@@ -33,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.simp.stomp.ConnectionLostException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -129,6 +130,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 	}
 
 	@Test
+	@Disabled
 	public void testExecuteTJobWithSut() throws InterruptedException, ExecutionException, TimeoutException {
 
 		testExecuteTJob(true);
