@@ -22,60 +22,9 @@ node('docker'){
             sh 'cd ./elastest-torm; mvn -B clean -Pci-no-it-test package;'                
             
         stage ("IT Test elastest-torm") { 
-        
-            sh 'docker ps -a'
 
-            echo ("Remove epm* containers")
+            sh 'cd ./scripts; ./it.sh'
 
-            sh 'docker rm -f $(docker inspect --format="{{.Name}}" $(docker ps -aq --no-trunc) | grep "epm" ) || echo "No images"'
-
-            sh 'docker ps -a'
-    
-            projectName = 'etm'+ env.BUILD_NUMBER
-            
-            withEnv(['COMPOSE_PROJECT_NAME='+projectName]) {
-                        
-                try {
-        
-                    echo ('COMPOSE_PROJECT_NAME=' + env.COMPOSE_PROJECT_NAME)
-                    sh 'docker-compose -f docker-compose-ci2.yml up -d'
-                
-                    containerId = sh (
-                        script: 'cat /proc/self/cgroup | grep "docker" | sed s/\\\\//\\\\n/g | tail -1',
-                        returnStdout: true
-                    ).trim()
-
-                    echo("containerId = ${containerId}")
-
-                    sh "docker network connect ${projectName}_elastest ${containerId}"
-                
-                    script {
-                        
-                        MYSQL_IP = containerIp("mysql")
-                        RABBIT_IP = containerIp("rabbit-MQ")
-                        ELASTICSEARCH_IP = containerIp("elasticsearch")
-                        LOGSTASH_IP = containerIp("logstash")
-                        
-                        echo ("Starting maven integration tests")
-                        sh "cd ./elastest-torm; mvn -B "+
-                            "-Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false "+
-                            "-Dspring.rabbitmq.host=${RABBIT_IP} "+
-                            "-Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ "+
-                            "-Dlogstash.host=${LOGSTASH_IP} "+
-                            "-Delastest.incontainer=true "+
-                            "clean verify;"
-                        
-                    }
-
-                } finally {
-        
-                    sh "docker network disconnect ${projectName}_elastest ${containerId}"
-        
-                    echo ("docker-compose down")
-                    sh 'docker-compose -f docker-compose-ci2.yml down'
-        
-                }
-            }
         }
 
         stage "Create etm docker image"
