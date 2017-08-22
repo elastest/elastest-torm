@@ -60,6 +60,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
 		private CountDownLatch latch = new CountDownLatch(1);
 		private Predicate<String> messagePattern;
+		private boolean receivedMsg = false;
 
 		public WaitForMessagesHandler(Predicate<String> messagePattern) {
 			this.messagePattern = messagePattern;
@@ -76,12 +77,14 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		@Override
 		public void handleFrame(StompHeaders stompHeaders, Object msg) {
 
-			log.info("Stomp message: " + msg);
+			if(!receivedMsg){
+				receivedMsg = true;
+				log.info("Stomp message: " + msg);
+			}			
 
 			String strMsg = (String) msg;
 
 			if (messagePattern == null || messagePattern.test(strMsg)) {
-				log.info("Match message");
 				latch.countDown();
 			}
 		}
@@ -251,8 +254,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 				
 				if(retry < MAX_RETRIES){
 					retry++;
-					log.warn("Exception trying to connect to RabbitMQ", e);
-					log.info("Retrying {}/{} in 1 second",retry,MAX_RETRIES);
+					log.warn("Exception trying to connect to RabbitMQ: {}:{}", e.getClass().getName(), e.getMessage());
+					log.info("Retrying {}/{} in 5 second",retry,MAX_RETRIES);
 					Thread.sleep(5000);	
 				} else {
 					throw e;

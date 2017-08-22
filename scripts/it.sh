@@ -57,7 +57,7 @@ mvnExit=$?
 
 cd ..
 
-docker-compose -f docker-compose-ci2.yml logs
+docker-compose -f docker-compose-ci2.yml logs | grep 'logstash'
 
 docker network disconnect "${projectName}"_elastest ${containerId}
 
