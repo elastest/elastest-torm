@@ -96,7 +96,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 	}
 
 	private class LogConnectedSessionHandler extends StompSessionHandlerAdapter {
-		
+
 		public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
 			log.info("STOMP Client connected");
 		}
@@ -185,16 +185,16 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 			stompSession.subscribe(queueToSuscribe, handler);
 
 			handler.waitForCompletion();
-			
-			log.info("Sut log queue received a message");			
+
+			log.info("Sut log queue received a message");
 		}
 
 		String queueToSuscribe = "/topic/" + "test." + exec.getId() + ".log";
 		log.info("TJob log queue '" + queueToSuscribe + "'");
-		
-		WaitForMessagesHandler handler = new WaitForMessagesHandler(msg -> 			
-			msg.contains("BUILD SUCCESS") || msg.contains("BUILD FAILURE"));		
-		
+
+		WaitForMessagesHandler handler = new WaitForMessagesHandler(
+				msg -> msg.contains("BUILD SUCCESS") || msg.contains("BUILD FAILURE"));
+
 		stompSession.subscribe(queueToSuscribe, handler);
 		handler.waitForCompletion();
 
@@ -206,9 +206,9 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 			exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
 			log.info("TJobExecution: " + exec);
 			if (exec.getResult() != ResultEnum.IN_PROGRESS) {
-				
-				log.info("Test results:"+exec.getTestSuite());
-				
+
+				log.info("Test results:" + exec.getTestSuite());
+
 				break;
 			}
 			sleep(500);
@@ -220,6 +220,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 	}
 
 	private StompSession connectToRabbitMQ() throws InterruptedException, ExecutionException, TimeoutException {
+
 		WebSocketContainer cont = ContainerProvider.getWebSocketContainer();
 		cont.setDefaultMaxTextMessageBufferSize(65500);
 		WebSocketClient webSocketClient = new StandardWebSocketClient(cont);
@@ -233,8 +234,33 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
 		String url = "ws://localhost:" + serverPort + "/rabbitMq";
 		StompSessionHandler sessionHandler = new LogConnectedSessionHandler();
-		StompSession stompSession = stompClient.connect(url, sessionHandler).get(10, TimeUnit.SECONDS);
-		return stompSession;
+
+		final int MAX_RETRIES = 5;
+
+		int retry = 0;
+		while(true) {
+
+			try {
+
+				StompSession stompSession = stompClient.connect(url, sessionHandler).get(10, TimeUnit.SECONDS);
+				
+				log.info("Test connected to RabbitMQ in URL '{}'", url);
+				return stompSession;
+				
+			} catch (Exception e) {
+				
+				if(retry < MAX_RETRIES){
+					retry++;
+					log.warn("Exception trying to connect to RabbitMQ", e);
+					log.info("Retrying {}/{} in 1 second",retry,MAX_RETRIES);
+					Thread.sleep(5000);	
+				} else {
+					throw e;
+				}				
+			}
+		}
+		
+		
 	}
 
 	private void sleep(int waitTime) {
