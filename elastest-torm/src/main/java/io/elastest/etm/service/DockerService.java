@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -207,17 +208,34 @@ public class DockerService {
 
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
-			dockerExec.setTestcontainer(dockerExec.getDockerClient().createContainerCmd(testImage).withEnv(envList)
-					.withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId()).withVolumes(volume)
-					.withBinds(new Bind(localDirToWriteTestResults, volume)).withCmd(cmdList).exec());
-
-			String testContainerId = dockerExec.getTestcontainer().getId();
+			CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
+					.withEnv(envList)
+					.withLogConfig(logConfig)
+					.withName("test_" + dockerExec.getExecutionId())
+					.withVolumes(volume)
+					.withBinds(new Bind(localDirToWriteTestResults, volume))
+					.withCmd(cmdList).exec();
+			
+			String testContainerId = testContainer.getId();
+			
+			dockerExec.setTestcontainer(testContainer);			
 			dockerExec.setTestContainerId(testContainerId);
 
 			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
+			
+			// this essentially test the since=0 case
+//	        dockerClient.logContainerCmd(container.getId())
+//	            .withStdErr(true)
+//	            .withStdOut(true)
+//	            .withFollowStream(true)
+//	            .withTailAll()
+//	            .exec(loggingCallback);
+			
 			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
 					.exec(new WaitContainerResultCallback()).awaitStatusCode();
+			
 			logger.info("Test container ends with code " + code);
+			
 			return this.getTestResults(localDirToTeadTestResults, dockerExec);
 
 		} catch (Exception e) {
@@ -231,16 +249,19 @@ public class DockerService {
 	}
 
 	public LogConfig getLogConfig(int port, String tagPrefix, DockerExecution dockerExec) {
-		LogConfig logConfig = new LogConfig();
-		logConfig.setType(LoggingType.SYSLOG);
-		Map<String, String> configMap = new HashMap<String, String>();
+		
 		if(logstashHost == null){
 			logstashHost = getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
 		}
 		logger.info("Logstash IP to send logs from containers: {}",logstashHost);
+		
+		Map<String, String> configMap = new HashMap<String, String>();
 		configMap.put("syslog-address",
 				"tcp://" + logstashHost + ":" + port);
 		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_tjobexec");
+		
+		LogConfig logConfig = new LogConfig();
+		logConfig.setType(LoggingType.SYSLOG);
 		logConfig.setConfig(configMap);
 
 		return logConfig;

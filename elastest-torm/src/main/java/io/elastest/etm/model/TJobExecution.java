@@ -91,7 +91,7 @@ public class TJobExecution {
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@ElementCollection
 	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
-	private List<Parameter> parameters;
+	private List<Parameter> parameters = new ArrayList<>();
 
 	// Constructors
 	public TJobExecution() {

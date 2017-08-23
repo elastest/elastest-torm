@@ -101,4 +101,5 @@ public class DockerExecution {
 	public void setSutExec(SutExecution sutExec) {
 		this.sutExec = sutExec;
 	}
+
 }
