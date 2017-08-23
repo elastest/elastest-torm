@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.AfterEach;
@@ -110,7 +111,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 			WaitForMessagesHandler handler = new WaitForMessagesHandler();
 			stompSession.subscribe(queueToSuscribe, handler);
 
-			handler.waitForCompletion();
+			handler.waitForCompletion(5, TimeUnit.SECONDS);
 
 			log.info("Sut log queue received a message");
 		}
@@ -122,7 +123,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 				msg -> msg.contains("BUILD SUCCESS") || msg.contains("BUILD FAILURE"));
 
 		stompSession.subscribe(queueToSuscribe, handler);
-		handler.waitForCompletion();
+		handler.waitForCompletion(60, TimeUnit.SECONDS);
 
 		assertAll("Validating TJobExecution Properties", () -> assertNotNull(response.getBody()),
 				() -> assertNotNull(response.getBody().getId()),

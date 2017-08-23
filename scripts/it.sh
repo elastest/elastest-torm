@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Execute inside a container created with command:
+# cd elastest-torm
 # sudo docker run -it --rm -v $PWD:/data -v /var/run/docker.sock:/var/run/docker.sock:rw elastest/ci-docker-compose-siblings
 # cd /data/scripts
 # ./it.sh
@@ -49,7 +50,7 @@ echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -Dtest=DockerServiceItTest -Dit.test=DockerServiceItTest -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
+mvn -Dtest=DockerServiceItTest -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
             
 mvnExit=$?
 

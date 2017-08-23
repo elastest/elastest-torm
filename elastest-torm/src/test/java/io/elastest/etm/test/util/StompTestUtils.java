@@ -61,10 +61,9 @@ public class StompTestUtils {
 			}
 		}
 
-		public void waitForCompletion() throws InterruptedException {
-			int timeSeconds = 25;
-			if (!latch.await(timeSeconds, TimeUnit.SECONDS)) {
-				throw new RuntimeException("Timeout of " + timeSeconds + " waiting for message"
+		public void waitForCompletion(int time, TimeUnit unit) throws InterruptedException {
+			if (!latch.await(time, unit)) {
+				throw new RuntimeException("Timeout of " + time+" " + unit + " waiting for message"
 						+ (messagePattern == null ? "" : " with pattern"));
 			}
 		}
