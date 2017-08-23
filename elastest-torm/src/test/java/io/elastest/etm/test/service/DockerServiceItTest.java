@@ -3,16 +3,9 @@ package io.elastest.etm.test.service;
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.apache.maven.plugins.surefire.report.ReportTestSuite;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -28,14 +21,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.command.PullImageResultCallback;
-import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.service.DockerExecution;
@@ -61,70 +50,76 @@ public class DockerServiceItTest {
 	}
 
 	@Test
-	@Disabled
+	// @Disabled
 	public void readLogInRabbit() throws Exception {
 
-		log.info("Executing readLogInRabbit test");
+		log.info("Executing readLogInRabbit1 test");
 
 		long execId = 1l;
 
 		DockerExecution dockerExec = new DockerExecution();
 		dockerExec.settJobexec(new TJobExecution(execId, null, null));
 
-		dockerService.loadBasicServices(dockerExec);
+		try {
 
-		DockerClient dockerClient = dockerExec.getDockerClient();
+			dockerService.loadBasicServices(dockerExec);
 
-		// dockerExec.getDockerClient().pullImageCmd("busybox").exec(new
-		// PullImageResultCallback()).awaitSuccess();
+			DockerClient dockerClient = dockerExec.getDockerClient();
 
-		LogConfig logConfig = dockerService.getLogConfig(5000, "test", dockerExec);
+			// dockerExec.getDockerClient().pullImageCmd("busybox").exec(new
+			// PullImageResultCallback()).awaitSuccess();
+			
+			String queueId = "test." + execId + ".log";
 
-		CreateContainerResponse container = dockerClient.createContainerCmd("alpine")
-				.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").withTty(false)
-				.withLogConfig(logConfig).withNetworkMode("etm_elastest").exec();
+			StompSession stompSession = connectToRabbitMQ(serverPort);
 
-		log.info("Created container: {}", container.toString());
+			String queueToSuscribe = "/topic/" + queueId;
 
-		assertNotEquals(container.getId(), null);
+			log.info("Container log queue '" + queueToSuscribe + "'");
 
-		String queueId = "test." + execId + ".log";
+			WaitForMessagesHandler handler = new WaitForMessagesHandler("1");
 
-		StompSession stompSession = connectToRabbitMQ(serverPort);
+			stompSession.subscribe(queueToSuscribe, handler);
 
-		String queueToSuscribe = "/topic/" + queueId;
+			LogConfig logConfig = dockerService.getLogConfig(5000, "test", dockerExec);
 
-		log.info("Container log queue '" + queueToSuscribe + "'");
+			CreateContainerResponse container = dockerClient.createContainerCmd("alpine")
+					.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").withTty(false)
+					.withLogConfig(logConfig).withNetworkMode("etm_elastest").exec();
 
-		WaitForMessagesHandler handler = new WaitForMessagesHandler();
+			log.info("Created container: {}", container.toString());
 
-		stompSession.subscribe(queueToSuscribe, handler);
+			assertNotEquals(container.getId(), null);
 
-		long start = System.currentTimeMillis();
+			
 
-		dockerClient.startContainerCmd(container.getId()).exec();
+			long start = System.currentTimeMillis();
 
-		log.info("Waiting for logs messages in Rabbit");
+			dockerClient.startContainerCmd(container.getId()).exec();
 
-		handler.waitForCompletion(5, TimeUnit.SECONDS);
+			log.info("Waiting for logs messages in Rabbit");
 
-		long duration = System.currentTimeMillis() - start;
+			handler.waitForCompletion(5, TimeUnit.SECONDS);
 
-		log.info("Log received in Rabbit in {} millis", duration);
+			long duration = System.currentTimeMillis() - start;
 
-		log.info("Cleaning up resources");
+			log.info("Log received in Rabbit in {} millis", duration);
 
-		dockerService.endTestExec(dockerExec);
+			log.info("Cleaning up resources");
 
+		} finally {
+
+			dockerService.endTestExec(dockerExec);
+		}
 	}
 
 	@Test
-	@Disabled
+	// @Disabled
 	public void readLogInRabbit2() throws Exception {
 
-		log.info("Executing readLogInRabbit test");
+		log.info("Executing readLogInRabbit2 test");
 
-		long execId = 2l;
+		long execId = 1l;
 
 		TJobExecution tJobExec = new TJobExecution(execId, null, null);
 		tJobExec.setTjob(new TJob(1l, "xx", "edujgurjc/torm-test-01", null, null, false, null));
@@ -141,7 +136,7 @@ public class DockerServiceItTest {
 
 		log.info("Container log queue '" + queueToSuscribe + "'");
 
-		WaitForMessagesHandler handler = new WaitForMessagesHandler();
+		WaitForMessagesHandler handler = new WaitForMessagesHandler("2");
 
 		stompSession.subscribe(queueToSuscribe, handler);
 
@@ -170,12 +165,12 @@ public class DockerServiceItTest {
 	}
 
 	@Test
-	@Disabled
+	// @Disabled
 	public void readLogInRabbit3() throws Exception {
 
 		log.info("Executing readLogInRabbit3 test");
 
-		long execId = 2l;
+		long execId = 1l;
 
 		TJobExecution tJobExec = new TJobExecution(execId, null, null);
 		tJobExec.setTjob(new TJob(1l, "xx", "edujgurjc/torm-test-01", null, null, false, null));
@@ -192,40 +187,39 @@ public class DockerServiceItTest {
 
 		log.info("Container log queue '" + queueToSuscribe + "'");
 
-		WaitForMessagesHandler handler = new WaitForMessagesHandler();
+		WaitForMessagesHandler handler = new WaitForMessagesHandler("3");
 
 		stompSession.subscribe(queueToSuscribe, handler);
 
-		
-
 		log.info("Starting test " + dockerExec.getExecutionId());
 		String testImage = dockerExec.gettJobexec().getTjob().getImageName();
-		
+
 		LogConfig logConfig = dockerService.getLogConfig(5000, "test_", dockerExec);
-		
+
 		dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
-		
+
 		CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
 				.withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId()).exec();
-		
+
 		String testContainerId = testContainer.getId();
-		
+
 		dockerExec.setTestcontainer(testContainer);
 		dockerExec.setTestContainerId(testContainerId);
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		log.info("Starting test container");
-		
+
 		dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
-		
-//		int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
-//				.exec(new WaitContainerResultCallback()).awaitStatusCode();
-//		
-//		log.info("Test container ends with code " + code);
+
+		// int code =
+		// dockerExec.getDockerClient().waitContainerCmd(testContainerId)
+		// .exec(new WaitContainerResultCallback()).awaitStatusCode();
+		//
+		// log.info("Test container ends with code " + code);
 
 		try {
-			
+
 			log.info("Waiting for logs messages in Rabbit");
 
 			handler.waitForCompletion(5, TimeUnit.SECONDS);
@@ -243,13 +237,13 @@ public class DockerServiceItTest {
 		}
 
 	}
-	
+
 	@Test
 	public void readLogInRabbit4() throws Exception {
 
 		log.info("Executing readLogInRabbit4 test");
 
-		long execId = 4l;
+		long execId = 1l;
 
 		TJobExecution tJobExec = new TJobExecution(execId, null, null);
 		DockerExecution dockerExec = new DockerExecution();
@@ -265,41 +259,40 @@ public class DockerServiceItTest {
 
 		log.info("Container log queue '" + queueToSuscribe + "'");
 
-		WaitForMessagesHandler handler = new WaitForMessagesHandler();
+		WaitForMessagesHandler handler = new WaitForMessagesHandler("4");
 		stompSession.subscribe(queueToSuscribe, handler);
-		
+
 		String imageName = "alpine";
-		
+
 		LogConfig logConfig = dockerService.getLogConfig(5000, "test_", dockerExec);
-		
+
 		log.info("Pulling image {}", imageName);
 		dockerExec.getDockerClient().pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();
-		
+
 		CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(imageName)
-				.withLogConfig(logConfig)
-				.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done")
-				.exec();
-		
+				.withLogConfig(logConfig).withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").exec();
+
 		String testContainerId = testContainer.getId();
-		
+
 		dockerExec.setTestcontainer(testContainer);
 		dockerExec.setTestContainerId(testContainerId);
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		log.info("Starting container");
-		
+
 		dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
-		
+
 		log.info("Started");
-		
-//		int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
-//				.exec(new WaitContainerResultCallback()).awaitStatusCode();
-//		
-//		log.info("Test container ends with code " + code);
+
+		// int code =
+		// dockerExec.getDockerClient().waitContainerCmd(testContainerId)
+		// .exec(new WaitContainerResultCallback()).awaitStatusCode();
+		//
+		// log.info("Test container ends with code " + code);
 
 		try {
-			
+
 			log.info("Waiting for logs messages in Rabbit");
 
 			handler.waitForCompletion(5, TimeUnit.SECONDS);

@@ -33,12 +33,17 @@ public class StompTestUtils {
 		private CountDownLatch latch = new CountDownLatch(1);
 		private Predicate<String> messagePattern;
 		private boolean receivedMsg = false;
+		private String name;
 
 		public WaitForMessagesHandler(Predicate<String> messagePattern) {
 			this.messagePattern = messagePattern;
 		}
 
 		public WaitForMessagesHandler() {
+		}
+		
+		public WaitForMessagesHandler(String name) {
+			this.name = name;
 		}
 
 		@Override
@@ -51,7 +56,7 @@ public class StompTestUtils {
 
 			if(!receivedMsg){
 				receivedMsg = true;
-				log.info("Stomp message: " + msg);
+				log.info("Stomp message ({}): {}", name, msg);
 			}			
 
 			String strMsg = (String) msg;
