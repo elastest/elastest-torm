@@ -50,7 +50,7 @@ echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -Dtest=DockerServiceItTest -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
+mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
             
 mvnExit=$?
 
@@ -58,7 +58,8 @@ mvnExit=$?
 
 cd ..
 
-docker-compose -f docker-compose-ci2.yml logs | grep 'logstash'
+echo "Docker compose logs"
+docker-compose -f docker-compose-ci2.yml logs
 
 docker network disconnect "${projectName}"_elastest ${containerId}
 
