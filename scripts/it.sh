@@ -50,7 +50,7 @@ echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -B -Dtest=DockerServiceItTest -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
+mvn -B -Dtest=DockerServiceItTest2 -Dit.test=DockerServiceItTest2 -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest-etm?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
             
 mvnExit=$?
 
