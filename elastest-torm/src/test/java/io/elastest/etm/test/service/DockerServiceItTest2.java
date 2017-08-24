@@ -94,7 +94,7 @@ public class DockerServiceItTest2 {
 
 			CreateContainerResponse container = dockerClient.createContainerCmd(imageId)
 					.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").withTty(false)
-					.withLogConfig(logConfig).withNetworkMode("etm_elastest").exec();
+					.withLogConfig(logConfig)/*.withNetworkMode("etm_elastest")*/.exec();
 
 			String containerId = container.getId();
 
