@@ -2,7 +2,6 @@ package io.elastest.etm.api;
 
 import javax.validation.Valid;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,16 +21,14 @@ public class ExternalApiController implements ExternalApi {
 		this.externalService = externalService;
 	}
 
-	@Override
-	@CrossOrigin(origins = { "*" })
+	@Override	
 	public ExternalJob createExternalTJob(
 			@ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
 		
 		return externalService.createElasTestEntitiesForExtJob(body);
 	}
 
-	@Override
-	@CrossOrigin(origins = { "*" })
+	@Override	
 	public void finishExternalJob(
 			@ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
 		

@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -22,23 +24,24 @@ public class ExternalJob {
 	private String logAnalyzerUrl;
 	
 	@JsonProperty("tJobExecId")
-	private Long tJobExecId;
+	private Long tJobExecId;	
 	
-	@JsonProperty("elasticsearchUrl")
-	private String elasticsearchUrl;
+	@JsonProperty("logstashPort")	
+	private String logstashPort;
 	
-	@JsonProperty("rabbitMqConfig")
-	private ExternalRabbitConfig rabbitMqconfig;
+	@JsonProperty("servicesIp")	
+	private String servicesIp;
 	
 	public ExternalJob(){}
 	
-	public ExternalJob(String jobName, String executionUrl, String logAnalyzerUrl,  Long tJobExecId, String elasticsearchUrl, ExternalRabbitConfig rabbitMqconfig){
+	public ExternalJob(String jobName, String executionUrl, String logAnalyzerUrl,  Long tJobExecId,
+			String logstashPort, String servicesIp){
 		this.jobName = jobName;
 		this.executionUrl = executionUrl;
 		this.logAnalyzerUrl = logAnalyzerUrl;
-		this.tJobExecId = tJobExecId;
-		this.elasticsearchUrl = elasticsearchUrl;		
-		this.rabbitMqconfig = rabbitMqconfig;		
+		this.tJobExecId = tJobExecId;		
+		this.logstashPort = logstashPort;
+		this.servicesIp = servicesIp;
 	}
 		
 	@ApiModelProperty(example = "job1", required = true, value = "")
@@ -75,23 +78,24 @@ public class ExternalJob {
 
 	public void settJobExecId(Long tJobExecId) {
 		this.tJobExecId = tJobExecId;
-	}
-	
-	@ApiModelProperty(example = "http://192.168.99.100:9200", value = "")
-	public String getElasticsearchUrl() {
-		return elasticsearchUrl;
+	}	
+
+	@ApiModelProperty(example = "9200", value = "")
+	public String getLogstashPort() {
+		return logstashPort;
 	}
 
-	public void setElasticsearchUrl(String elasticsearchUrl) {
-		this.elasticsearchUrl = elasticsearchUrl;
-	}
-	
-	public ExternalRabbitConfig getRabbitMqconfig() {
-		return rabbitMqconfig;
+	public void setLogstashPort(String logstashPort) {
+		this.logstashPort = logstashPort;
 	}
 
-	public void setRabbitMqconfig(ExternalRabbitConfig rabbitMqconfig) {
-		this.rabbitMqconfig = rabbitMqconfig;
+	@ApiModelProperty(example = "192.168.99.100", value = "")
+	public String getServicesIp() {
+		return servicesIp;
+	}
+
+	public void setServicesIp(String servicesIp) {
+		this.servicesIp = servicesIp;
 	}
 
 	@Override
@@ -104,7 +108,10 @@ public class ExternalJob {
 		}
 		ExternalJob externalJob = (ExternalJob) o;
 		return Objects.equals(this.jobName, externalJob.jobName) && Objects.equals(this.executionUrl, externalJob.executionUrl)
-				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId);
+				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
+				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
+				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
+				&& Objects.equals(this.servicesIp, externalJob.servicesIp);
 	}
 
 	@Override
@@ -118,7 +125,10 @@ public class ExternalJob {
 		sb.append("class DeployConfig {\n");
 		sb.append("    jobName: ").append(toIndentedString(jobName)).append("\n");
 		sb.append("    executionUrl: ").append(toIndentedString(executionUrl)).append("\n");
+		sb.append("    logAnalyzerUrl: ").append(toIndentedString(logAnalyzerUrl)).append("\n");
 		sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId)).append("\n");
+		sb.append("    logstashPort: ").append(toIndentedString(logstashPort)).append("\n");
+		sb.append("    servicesIp: ").append(toIndentedString(servicesIp)).append("\n");
 		sb.append("}");
 		
 		return sb.toString();
