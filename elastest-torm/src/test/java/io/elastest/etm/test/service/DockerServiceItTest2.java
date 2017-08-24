@@ -2,6 +2,11 @@ package io.elastest.etm.test.service;
 
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -92,11 +97,21 @@ public class DockerServiceItTest2 {
 			
 			log.info("Creating container " + i);
 
+			
+			
 			CreateContainerResponse container = dockerClient.createContainerCmd(imageId)
 					.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").withTty(false)
-					.withLogConfig(logConfig)/*.withNetworkMode("etm_elastest")*/.exec();
-
+					.withLogConfig(logConfig).withNetworkMode("bridge").exec();
+			
 			String containerId = container.getId();
+			
+			if(isRunningInContainer()){
+				String composeProjectName = System.getenv("COMPOSE_PROJECT_NAME");
+				if(composeProjectName == null){ composeProjectName = ""; }
+				String networkId = composeProjectName+"_elastest";
+				dockerClient.connectToNetworkCmd().withContainerId(containerId).withNetworkId(networkId).exec();
+				log.info("Container connected to network {}",networkId);
+			}			
 
 			try {
 
@@ -143,19 +158,19 @@ public class DockerServiceItTest2 {
 			throw e;
 		}
 	}
-	
-	public boolean existsImage(String imageId) {
-        boolean exists = true;
-        try {
-            dockerClient.inspectImageCmd(imageId).exec();
-            log.debug("Docker image {} already exists", imageId);
 
-        } catch (NotFoundException e) {
-            log.trace("Image {} does not exist", imageId);
-            exists = false;
-        }
-        return exists;
-    }
+	public boolean existsImage(String imageId) {
+		boolean exists = true;
+		try {
+			dockerClient.inspectImageCmd(imageId).exec();
+			log.debug("Docker image {} already exists", imageId);
+
+		} catch (NotFoundException e) {
+			log.trace("Image {} does not exist", imageId);
+			exists = false;
+		}
+		return exists;
+	}
 
 	private LogConfig getLogConfig(String tag) {
 
@@ -163,7 +178,7 @@ public class DockerServiceItTest2 {
 			logstashHost = dockerClient.inspectNetworkCmd().withNetworkId("bridge").exec().getIpam().getConfig().get(0)
 					.getGateway();
 		}
-		
+
 		log.info("Logstash IP to send logs from containers: {}", logstashHost);
 
 		Map<String, String> configMap = new HashMap<String, String>();
@@ -189,6 +204,23 @@ public class DockerServiceItTest2 {
 
 		stompSession.subscribe(queueToSuscribe, handler);
 		return handler;
+	}
+
+	private boolean isRunningInContainer() {
+
+		try (BufferedReader br = Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
+
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				if (line.contains("/docker")) {
+					return true;
+				}
+			}
+			return false;
+
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 }
