@@ -11,7 +11,7 @@
 	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>This artifact contains the Elastest Torm project, part of the Elastest platform.</description>
@@ -53,6 +53,7 @@
 		<maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
 		<maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
+		<jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
 
 	</properties>
 
@@ -319,6 +320,25 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 		</plugins>
 	</build>
