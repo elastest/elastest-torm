@@ -1,3 +1,8 @@
+[![License badge](https://img.shields.io/badge/license-Apache2-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://elastest.io/docs/)
+[![Build Status](https://ci.elastest.io/jenkins/buildStatus/icon?job=elastest-torm/etm)](https://ci.elastest.io/jenkins/job/elastest-torm/etm)
+[![codecov](https://codecov.io/gh/elastest/elastest-torm/branch/master/graph/badge.svg)](https://codecov.io/gh/elastest/elastest-torm)
+
 [![][ElasTest Logo]][ElasTest]
 
 Copyright © 2017-2019 [Universidad Rey Juan Carlos]. Licensed under
