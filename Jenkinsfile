@@ -25,6 +25,8 @@ node('docker'){
 
             sh 'cd ./scripts; ./it.sh'
 
+            sh 'bash <(curl -s https://codecov.io/bash) -t fa48b15c-ceb8-409d-996f-8f34d53addd2'
+
         }
 
         stage "Create etm docker image"
