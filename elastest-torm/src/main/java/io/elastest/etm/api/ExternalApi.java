@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "external", description = "the external API to use for non ElasTest applications")
 public interface ExternalApi extends EtmApiExternalRoot {
 	
-	@ApiOperation(value = "Create new external TJob", notes = "", response = ExternalJob.class, tags={ "external", })
+	@ApiOperation(value = "Create new external TJob", notes = "", response = ExternalJob.class, tags={ "External", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
         @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })
@@ -28,7 +28,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     ExternalJob createExternalTJob(@ApiParam(value = "ExternalJob configuration" ,required=true )  @Valid @RequestBody ExternalJob body);
 	
 	
-	@ApiOperation(value = "Finish external Job", notes = "", tags={ "external", })
+	@ApiOperation(value = "Finish external Job", notes = "", tags={ "External", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 405, message = "Invalid input") })

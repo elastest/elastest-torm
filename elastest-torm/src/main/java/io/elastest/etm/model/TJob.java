@@ -114,7 +114,7 @@ public class TJob {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(example = "", value = "")
+	@ApiModelProperty(example = "1", value = "Id of the TJob.")
 
 	public Long getId() {
 		return id;
@@ -129,7 +129,7 @@ public class TJob {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(example = "testApp1", required = true, value = "")
+	@ApiModelProperty(example = "myFirstTJob", required = true, value = "The name of the TJob.")
 	@NotNull
 
 	public String getName() {
@@ -145,7 +145,7 @@ public class TJob {
 	 * 
 	 * @return imageName
 	 **/
-	@ApiModelProperty(example = "edujgurjc/torm-test-01", value = "")
+	@ApiModelProperty(required=true,  example = "edujgurjc/torm-test-01", value = "Docker Image of the TJob.")
 
 	public String getImageName() {
 		return imageName;
@@ -160,7 +160,7 @@ public class TJob {
 	 * 
 	 * @return sut
 	 **/
-	@ApiModelProperty(example = "{ id:\"1\" }", value = "")
+	@ApiModelProperty(example = "{ id:\"1\" }", value = "The SUT associated with the TJob.")
 
 	public SutSpecification getSut() {
 		return sut;

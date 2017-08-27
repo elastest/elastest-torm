@@ -6,8 +6,6 @@ import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -44,7 +42,7 @@ public class ExternalJob {
 		this.servicesIp = servicesIp;
 	}
 		
-	@ApiModelProperty(example = "job1", required = true, value = "")
+	@ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
 	@NotNull
 	public String getJobName() {
 		return jobName;
@@ -54,7 +52,7 @@ public class ExternalJob {
 		this.jobName = jobName;
 	}
 
-	@ApiModelProperty(example = "http://192.168.99.100:8091/#/projects/2/tjob/8", value = "")	
+	@ApiModelProperty(example = "http://192.168.99.100:8091/#/projects/2/tjob/8", value = "URL to acces to TJob execution in ElasTest.")	
 	public String getExecutionUrl() {
 		return executionUrl;
 	}
@@ -62,7 +60,7 @@ public class ExternalJob {
 		this.executionUrl = executionUrl;
 	}
 	
-	@ApiModelProperty(example = "http://localhost:4200#/logmanager?indexName=8", value = "")	
+	@ApiModelProperty(example = "http://localhost:4200#/logmanager?indexName=8", value = "URL to acces to Log Analyzer in ElasTest.")	
 	public String getLogAnalyzerUrl() {
 		return logAnalyzerUrl;
 	}
@@ -71,7 +69,7 @@ public class ExternalJob {
 		this.logAnalyzerUrl = logAnalyzerUrl;
 	}
 
-	@ApiModelProperty(example = "0", value = "")
+	@ApiModelProperty(example = "0", value = "Id of the TJobExecution created.")
 	public Long gettJobExecId() {
 		return tJobExecId;
 	}
@@ -80,7 +78,7 @@ public class ExternalJob {
 		this.tJobExecId = tJobExecId;
 	}	
 
-	@ApiModelProperty(example = "9200", value = "")
+	@ApiModelProperty(example = "9200", value = "Port where the Logstash service is listening.")
 	public String getLogstashPort() {
 		return logstashPort;
 	}
@@ -89,7 +87,7 @@ public class ExternalJob {
 		this.logstashPort = logstashPort;
 	}
 
-	@ApiModelProperty(example = "192.168.99.100", value = "")
+	@ApiModelProperty(example = "192.168.99.100", value = "IP where ElasTest services are located.")
 	public String getServicesIp() {
 		return servicesIp;
 	}

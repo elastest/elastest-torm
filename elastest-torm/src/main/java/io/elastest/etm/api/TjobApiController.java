@@ -31,15 +31,14 @@ public class TjobApiController implements TjobApi {
 
 	@JsonView(BasicAttTJob.class)
 	public ResponseEntity<TJob> createTJob(
-			@ApiParam(value = "Tjob object that needs to create", required = true) @Valid @RequestBody TJob body) {
+			@ApiParam(value = "TJob object that needs to create", required = true) @Valid @RequestBody TJob body) {
 		TJob tJob = tJobService.createTJob(body);
 		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
-
 	}
 
 	@JsonView(BasicAttTJob.class)
 	public ResponseEntity<Long> deleteTJob(
-			@ApiParam(value = "ID of tJob to delete.", required = true) @PathVariable("tJobId") Long tJobId) {
+			@ApiParam(value = "ID of TJob to delete.", required = true) @PathVariable("tJobId") Long tJobId) {
 
 		tJobService.deleteTJob(tJobId);
 		return new ResponseEntity<Long>(tJobId, HttpStatus.OK);

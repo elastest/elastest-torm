@@ -29,7 +29,6 @@ public class Project implements Serializable {
 	
 	public interface BasicAttProject{
 	}
-
 	
 	@JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class })
 	@Id
@@ -57,32 +56,25 @@ public class Project implements Serializable {
 	public Project() {}
 	
 	public Project(Long id, String name, List<TJob> tJobs, List<SutSpecification> suts){
-		this.id = id==null? 0: id;
+		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.tJobs = tJobs;
 		this.suts = suts;
 		
-	}
-
-	public Project id(Long id) {
-		this.id = id;
-		return this;
-	}
+	}	
 
 	/**
 	 * Get id
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(required = true, value = "")
-	@NotNull
-
+	@ApiModelProperty(example = "", value = "Id of the Project.")	
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
-		this.id = id==null? 0: id;
+		this.id = id == null? 0: id;
 	}	
 
 	/**
@@ -90,7 +82,7 @@ public class Project implements Serializable {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(required = true, value = "")
+	@ApiModelProperty(required = true, value = "The project name.")
 	@NotNull
 
 	public String getName() {
@@ -107,7 +99,7 @@ public class Project implements Serializable {
 	 * 
 	 * @return tjobs
 	 **/
-//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
+	@ApiModelProperty(value = "The TJobs list associated with the project.", example = "")
 	public List<TJob> getTJobs() {
 		return this.tJobs;
 	}
@@ -121,7 +113,7 @@ public class Project implements Serializable {
 	 * 
 	 * @return suts
 	 **/
-//	@ApiModelProperty(required = true, value = "", example = "", hidden = true)
+	@ApiModelProperty(value = "The TSuts list associated with the project.", example = "")
 	public List<SutSpecification> getSuts() {
 		return this.suts;
 	}
@@ -139,13 +131,15 @@ public class Project implements Serializable {
 			return false;
 		}
 		Project project = (Project) o;
-		return Objects.equals(this.name, project.name)  && Objects.equals(this.id, project.id) && Objects.equals(this.tJobs, project.tJobs)
+		return Objects.equals(this.name, project.name)  
+				&& Objects.equals(this.id, project.id) 
+				&& Objects.equals(this.tJobs, project.tJobs)
 				&& Objects.equals(this.suts, project.suts);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name);
+		return Objects.hash(id, name, tJobs, suts);
 	}
 
 	@Override
@@ -160,5 +154,4 @@ public class Project implements Serializable {
 		sb.append("}");
 		return sb.toString();
 	}
-
 }

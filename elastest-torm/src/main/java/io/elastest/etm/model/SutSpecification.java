@@ -256,7 +256,8 @@ public class SutSpecification {
 			return false;
 		}
 		SutSpecification sutSpecification = (SutSpecification) o;
-		return Objects.equals(this.id, sutSpecification.id) && Objects.equals(this.name, sutSpecification.name)
+		return Objects.equals(this.id, sutSpecification.id) 
+				&& Objects.equals(this.name, sutSpecification.name)
 				&& Objects.equals(this.specification, sutSpecification.specification)
 				&& Objects.equals(this.imageName, sutSpecification.imageName)
 				&& Objects.equals(this.description, sutSpecification.description)
@@ -265,7 +266,7 @@ public class SutSpecification {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, description, project);
+		return Objects.hash(id, name, specification, imageName, description, project);
 	}
 
 	@Override
@@ -276,7 +277,7 @@ public class SutSpecification {
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    specification: ").append(toIndentedString(specification)).append("\n");
 		sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
-		sb.append("    desc: ").append(toIndentedString(description)).append("\n");
+		sb.append("    description: ").append(toIndentedString(description)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("}");
 		return sb.toString();
