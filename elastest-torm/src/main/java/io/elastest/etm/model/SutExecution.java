@@ -104,7 +104,7 @@ public class SutExecution {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(example = "12345678", value = "")
+	@ApiModelProperty(example = "12345678", value = "Value that identifies a SUT Execution.")
 
 	public Long getId() {
 		return id;
@@ -119,7 +119,7 @@ public class SutExecution {
 	 * 
 	 * @return url
 	 **/
-	@ApiModelProperty(required = true, value = "")
+	@ApiModelProperty(required = true, value = "URL to access the SUT.")
 	@NotNull
 
 	public String getUrl() {
@@ -135,7 +135,7 @@ public class SutExecution {
 	 * 
 	 * @return deployStatus
 	 **/
-	@ApiModelProperty(value = "")
+	@ApiModelProperty(value = "Status of the SUT (deploying, deployed, undeploying, undeployed and error)")
 
 	public DeployStatusEnum getDeployStatus() {
 		return deployStatus;
@@ -150,8 +150,7 @@ public class SutExecution {
 	 * 
 	 * @return sutSpecification
 	 **/
-	@ApiModelProperty(value = "")
-
+	@ApiModelProperty(value = "SUT deployed")
 	public SutSpecification getSutSpecification() {
 		return sutSpecification;
 	}

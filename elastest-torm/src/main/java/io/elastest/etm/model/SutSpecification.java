@@ -91,7 +91,7 @@ public class SutSpecification {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(value = "")
+	@ApiModelProperty(value = "Value that identifies the SUT Specification.")
 
 	public Long getId() {
 		return id;
@@ -106,7 +106,7 @@ public class SutSpecification {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(example = "sut definition 1", required = true, value = "")
+	@ApiModelProperty(example = "sut definition 1", required = true, value = "Name of the SUT Specification.")
 	@NotNull
 
 	public String getName() {
@@ -122,7 +122,7 @@ public class SutSpecification {
 	 * 
 	 * @return specification
 	 **/
-	@ApiModelProperty(example = "", required = true, value = "")
+	@ApiModelProperty(example = "", required = true, value = "URL of the GitHub repository where the SUT code is stored.")
 	@NotNull
 
 	public String getSpecification() {
@@ -137,7 +137,7 @@ public class SutSpecification {
 	 * imageName
 	 * 
 	 **/
-	@ApiModelProperty(example = "", required = true, value = "")
+	@ApiModelProperty(example = "", required = true, value = "Name of the Docker Image that conteins the SUT.")
 	@NotNull
 
 	public String getImageName() {
@@ -153,7 +153,7 @@ public class SutSpecification {
 	 * 
 	 * @return desc
 	 **/
-	@ApiModelProperty(example = "This is a SuT description example", value = "")
+	@ApiModelProperty(example = "This is a SuT description example", value = "Brief description of a SUT")
 
 	public String getDescription() {
 		return description;
@@ -169,7 +169,7 @@ public class SutSpecification {
 	 * 
 	 * @return sutExecution
 	 **/
-	// @ApiModelProperty(required = true, value = "", hidden = true)
+	@ApiModelProperty(value = "List of the SUT Executions of a SUT")
 	public List<SutExecution> getSutExecution() {
 		return sutExecution;
 	}
@@ -197,7 +197,7 @@ public class SutSpecification {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(required = true, value = "", example = "{ id:\"1\" }")
+	@ApiModelProperty(required = true, value = "Project to which the SUT is associated", example = "{ id:\"1\" }")
 	@NotNull
 	public Project getProject() {
 		return project;
@@ -214,7 +214,7 @@ public class SutSpecification {
 	 **/
 
 	@Valid
-	// @ApiModelProperty(required = true, value = "", hidden = true)
+	@ApiModelProperty( value = "List of TJobs associated to a SUT Specification")
 	public List<TJob> getTJobs() {
 		return tJobs;
 	}

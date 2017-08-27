@@ -175,7 +175,7 @@ public class TJob {
 	 * 
 	 * @return project
 	 **/
-	@ApiModelProperty(required = true, value = "", example = "{ id:\"1\" }")
+	@ApiModelProperty(required = true, value = "Project to which the TJob is associated.", example = "{ id:\"1\" }")
 
 	public Project getProject() {
 		return project;
@@ -191,8 +191,8 @@ public class TJob {
 	 * @return tjobexecs
 	 **/
 
-	// @ApiModelProperty(required = true, value = "", example = "", hidden =
-	// true)
+	 @ApiModelProperty(value = "List of TJob Executions of a TJob")
+	
 	public List<TJobExecution> getTjobExecs() {
 		return this.tjobExecs;
 	}
@@ -217,7 +217,7 @@ public class TJob {
 	/**
 	 * parameters
 	 */
-
+	@ApiModelProperty(value = "List of parameters to pass to a docker container as an environment variables")
 	public List<Parameter> getParameters() {
 		return parameters;
 	}
@@ -242,7 +242,7 @@ public class TJob {
 	/**
 	 * commands
 	 */
-
+	@ApiModelProperty(value = "Commands to execute inside a Docker Container")
 	public String getCommands() {
 		return commands;
 	}
@@ -267,7 +267,7 @@ public class TJob {
 	 * isExternal
 	 */
 
-	@ApiModelProperty(required = true, value = "", example = "false")
+	@ApiModelProperty(required = true, value = "Boolean variable that indicates whether a TJob is really an external Job", example = "false")
 	public boolean isExternal() {
 		return external;
 	}
