@@ -100,20 +100,24 @@ export class TooltipAreaComponent {
         } else {
             var closestPoint = point;
         }
-        this.anchorPos = this.xScale(closestPoint);
-        this.anchorPos = Math.max(0, this.anchorPos);
-        this.anchorPos = Math.min(this.dims.width, this.anchorPos);
-        this.anchorValues = this.getValues(closestPoint);
-        if (this.anchorPos !== this.lastAnchorPos) {
-            var ev = new MouseEvent('mouseleave', { bubbles: false });
-            this.renderer.invokeElementMethod(this.tooltipAnchor.nativeElement, 'dispatchEvent', [ev]);
-            this.anchorOpacity = 0.7;
-            this.hover.emit({
-                value: closestPoint,
-                disableObservable: disable,
-            });
-            this.showTooltip();
-            this.lastAnchorPos = this.anchorPos;
+        this.anchorPos = 0;
+        if (closestPoint !== undefined) {
+            this.anchorPos = this.xScale(closestPoint);
+            this.anchorPos = Math.max(0, this.anchorPos);
+            this.anchorPos = Math.min(this.dims.width, this.anchorPos);
+            this.anchorValues = this.getValues(closestPoint);
+            if (this.anchorPos !== this.lastAnchorPos) {
+                var ev = new MouseEvent('mouseleave', { bubbles: false });
+                this.renderer.invokeElementMethod(this.tooltipAnchor.nativeElement, 'dispatchEvent', [ev]);
+                this.anchorOpacity = 0.7;
+                this.hover.emit({
+                    value: closestPoint,
+                    disableObservable: disable,
+                });
+
+                this.showTooltip();
+                this.lastAnchorPos = this.anchorPos;
+            }
         }
     };
     findClosestPointIndex = function (xPos) {
