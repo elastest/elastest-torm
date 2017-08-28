@@ -1,6 +1,6 @@
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 
 import { Title } from '@angular/platform-browser';
 
@@ -17,8 +17,11 @@ export class EtmComponent implements AfterViewInit, OnInit {
   title: string;
   openedMenu: boolean = true;
 
-  constructor(private _titleService: Title,
-    public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService) { }
+  constructor(
+    private _titleService: Title,
+    public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService,
+    private cdr: ChangeDetectorRef,
+  ) { }
 
   ngOnInit() {
     this.elastestRabbitmqService.configWSConnection();
@@ -31,6 +34,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
 
     this._titleService.setTitle('Test Management');
     this.title = this._titleService.getTitle();
+    this.cdr.detectChanges();    
   }
 
   openMainSidenav() {
