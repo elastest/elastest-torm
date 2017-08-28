@@ -19,8 +19,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModel;
 
 @Entity
+@ApiModel(description = "Object that contains the information of a test suit results.")
 public class TestSuite {
 	public interface BasicTestSuite {
 	}

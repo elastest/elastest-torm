@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -31,6 +32,7 @@ import io.swagger.annotations.ApiModelProperty;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-05-19T13:25:11.074+02:00")
 
 @Entity
+@ApiModel(description = "SUT definition.")
 public class SutSpecification {
 
 	public interface SutView {
@@ -76,11 +78,12 @@ public class SutSpecification {
 	public SutSpecification() {
 	}
 
-	public SutSpecification(Long id, String name, String specification, String description, Project project,
+	public SutSpecification(Long id, String name, String specification, String imageName, String description, Project project,
 			List<TJob> tJobs) {
 		this.id = id == null ? 0 : id;
-		this.name = name;
+		this.name = name;		
 		this.specification = specification;
+		this.imageName = imageName;
 		this.description = description;
 		this.project = project;
 		this.tJobs = tJobs;
@@ -106,7 +109,7 @@ public class SutSpecification {
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(example = "sut definition 1", required = true, value = "Name of the SUT Specification.")
+	@ApiModelProperty(example = "sut definition 1", required = true, value = "Name of the SUT.")
 	@NotNull
 
 	public String getName() {
@@ -122,9 +125,8 @@ public class SutSpecification {
 	 * 
 	 * @return specification
 	 **/
-	@ApiModelProperty(example = "", required = true, value = "URL of the GitHub repository where the SUT code is stored.")
+	@ApiModelProperty(example = "https://github.com/elastest/elastest-torm.git", required = true, value = "URL of the GitHub repository where the SUT code is stored (not necessary if the ImageName field is filled)")
 	@NotNull
-
 	public String getSpecification() {
 		return specification;
 	}
@@ -137,9 +139,8 @@ public class SutSpecification {
 	 * imageName
 	 * 
 	 **/
-	@ApiModelProperty(example = "", required = true, value = "Name of the Docker Image that conteins the SUT.")
+	@ApiModelProperty(example = "elastest/elastest-torm", required = true, value = "Name of the Docker Image that conteins the SUT (not necessary if the Specification field is filled).")
 	@NotNull
-
 	public String getImageName() {
 		return imageName;
 	}
@@ -153,8 +154,7 @@ public class SutSpecification {
 	 * 
 	 * @return desc
 	 **/
-	@ApiModelProperty(example = "This is a SuT description example", value = "Brief description of a SUT")
-
+	@ApiModelProperty(example = "My Web Application", value = "Brief description of a SUT")
 	public String getDescription() {
 		return description;
 	}

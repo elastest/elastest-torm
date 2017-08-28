@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -32,6 +33,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 
 @Entity
+@ApiModel(description = "Entity that represents the test to run against a SUT.")
 public class TJob {
 
 	public interface BasicAttTJob {
@@ -114,7 +116,7 @@ public class TJob {
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(example = "1", value = "Id of the TJob.")
+	@ApiModelProperty(example = "1", value = "Identifies a TJob.")
 
 	public Long getId() {
 		return id;
@@ -145,7 +147,7 @@ public class TJob {
 	 * 
 	 * @return imageName
 	 **/
-	@ApiModelProperty(required=true,  example = "edujgurjc/torm-test-01", value = "Docker Image of the TJob.")
+	@ApiModelProperty(required=true,  example = "edujgurjc/torm-test-01", value = "Name of the docker image that contains the test.")
 
 	public String getImageName() {
 		return imageName;

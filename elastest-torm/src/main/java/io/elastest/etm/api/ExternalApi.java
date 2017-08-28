@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(value = "external", description = "the external API to use for non ElasTest applications")
+@Api(value = "external")
 public interface ExternalApi extends EtmApiExternalRoot {
 	
 	@ApiOperation(value = "Create new TJob associated with an external Job", notes = "The association is based on the "

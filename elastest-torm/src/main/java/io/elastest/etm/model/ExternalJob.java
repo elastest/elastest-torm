@@ -8,8 +8,10 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+@ApiModel(description = "Object that contains the exchange information between Jenkins and ElasTest.")
 public class ExternalJob {
 	
 	@JsonProperty("jobName")

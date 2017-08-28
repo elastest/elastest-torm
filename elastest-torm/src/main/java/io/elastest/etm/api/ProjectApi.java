@@ -54,7 +54,7 @@ public interface ProjectApi extends EtmApiRoot {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Deleteted successful", response = Long.class),
         @ApiResponse(code = 404, message = "Project not found", response = Long.class) })    
-    @RequestMapping(value = "/project/{projectId}",
+    @RequestMapping(value = "/project/{id}",
         method = RequestMethod.DELETE)
-    ResponseEntity<Long> deleteProject(@ApiParam(value = "ID of the project to delete.",required=true ) @PathVariable("projectId") Long projectId);
+    ResponseEntity<Long> deleteProject(@ApiParam(value = "ID of the project to delete.",required=true ) @PathVariable("id") Long id);
 }

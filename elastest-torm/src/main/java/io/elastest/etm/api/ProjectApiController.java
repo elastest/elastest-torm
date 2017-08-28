@@ -48,10 +48,9 @@ public class ProjectApiController implements ProjectApi {
 
 	@JsonView(BasicAttProject.class)
 	public ResponseEntity<Long> deleteProject(
-			@ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("projectId") Long projectId) {
-
-		projectService.deleteProject(projectId);
-		return new ResponseEntity<Long>(projectId, HttpStatus.OK);
+			@ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("id") Long id) {
+		projectService.deleteProject(id);
+		return new ResponseEntity<Long>(id, HttpStatus.OK);
 	}
 
 }

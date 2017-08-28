@@ -21,9 +21,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
+@ApiModel(description = "ElasTest organizes your work in projects, each of which will contain the different tests and SUTs that you want to create.")
 public class Project implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -113,7 +115,7 @@ public class Project implements Serializable {
 	 * 
 	 * @return suts
 	 **/
-	@ApiModelProperty(value = "The TSuts list associated with the project.", example = "")
+	@ApiModelProperty(value = "The Suts list associated with the project.", example = "")
 	public List<SutSpecification> getSuts() {
 		return this.suts;
 	}

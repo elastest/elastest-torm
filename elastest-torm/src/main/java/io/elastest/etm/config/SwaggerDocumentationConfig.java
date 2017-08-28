@@ -21,6 +21,7 @@ public class SwaggerDocumentationConfig {
             .description("REST API description of the ElasTest TORM Module.")
             .license("Apache 2.0")
             .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+            .version("0.1.1")
             .termsOfServiceUrl("")            
             .contact(new Contact("","", ""))
             .build();

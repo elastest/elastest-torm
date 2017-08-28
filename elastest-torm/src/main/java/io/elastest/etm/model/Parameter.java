@@ -11,9 +11,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @Embeddable
+@ApiModel(description = "Environment Variable to pass to a docker container.")
 public class Parameter {
 
 	public interface BasicAttParameter {
@@ -41,7 +43,7 @@ public class Parameter {
 
 	}
 
-	@ApiModelProperty(example = "", value = "Name of an Evironment Variable to pass to a docker container.")
+	@ApiModelProperty(example = "ELASTEST_HOME", value = "Name of the Environment Variable.")
 	public String getName() {
 		return name;
 	}
@@ -50,7 +52,7 @@ public class Parameter {
 		this.name = name;
 	}
 
-	@ApiModelProperty(example = "", value = "Value of an Evironment Variable to pass to a docker container.")
+	@ApiModelProperty(example = "/bin/elastest", value = "Value of the Environment Variable.")
 	public String getValue() {
 		return value;
 	}

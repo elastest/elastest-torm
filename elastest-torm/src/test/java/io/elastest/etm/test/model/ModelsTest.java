@@ -27,8 +27,8 @@ public class ModelsTest {
 		Project project = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
 		Project project2 = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
 				
-		SutSpecification sut = new SutSpecification(34l,"name","specification","description",project, new ArrayList<>());
-		SutSpecification sut2 = new SutSpecification(34l,"name","specification","description",project2, new ArrayList<>());
+		SutSpecification sut = new SutSpecification(34l,"name","specification", null,"description",project, new ArrayList<>());
+		SutSpecification sut2 = new SutSpecification(34l,"name","specification", null, "description",project2, new ArrayList<>());
 		
 		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig");
 		TJob tjob2 = new TJob(34l, "name", "imageName", sut2, project2, false, "execDashboardConfig");
@@ -41,7 +41,7 @@ public class ModelsTest {
 	public void executionTest(){
 		
 		Project project = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
-		SutSpecification sut = new SutSpecification(34l,"name","specification","description",project, new ArrayList<>());
+		SutSpecification sut = new SutSpecification(34l,"name","specification", null, "description",project, new ArrayList<>());
 		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig");
 		
 		List<Parameter> params = new ArrayList<>();

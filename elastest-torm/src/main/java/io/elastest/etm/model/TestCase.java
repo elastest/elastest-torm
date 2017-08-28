@@ -16,8 +16,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.model.TestSuite.BasicTestSuite;
+import io.swagger.annotations.ApiModel;
 
 @Entity
+@ApiModel(description = "Object that contains the information of the test results.")
 public class TestCase {
 	public interface BasicTestCase {
 	}
