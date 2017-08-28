@@ -5,27 +5,26 @@
   <md-divider></md-divider>
   <md-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
-      <div layout="row" class="push-top push-bottom">
-        <md-input-container flex>
+      <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
+        <md-input-container flex-gt-md="30" flex-md="30">
           <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name" name="tJobName"
             maxlength="20" required>
         </md-input-container>
-      </div>
-      <div layout="row" class="push-top push-bottom">
-        <md-input-container flex>
+
+        <md-input-container flex-gt-md="30" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
           <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Image Name" [(ngModel)]="tJob.imageName"
             name="tJobImageName" required>
         </md-input-container>
-      </div>
 
-      <div layout="row" *ngIf="tJob.project !== undefined" class="push-top push-bottom">
-        <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
-          <md-option [value]="sutEmpty">None</md-option>
-          <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
-            {{sut.id}}
-          </md-option>
-        </md-select>
-        <span class="push-left">Current SuT: {{currentSut}}</span>
+        <div *ngIf="tJob.project !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+          <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
+            <md-option [value]="sutEmpty">None</md-option>
+            <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
+              {{sut.id}}
+            </md-option>
+          </md-select>
+          <span class="push-left">Current SuT: {{currentSut}}</span>
+        </div>
       </div>
 
       <div layout="column" class="push-top push-bottom pad-top">
@@ -45,7 +44,11 @@
       <div layout="row" class="push-top push-bottom">
         <parameters-view [model]="tJob.parameters"></parameters-view>
       </div>
-      <td-expansion-panel label="Configuration of View" expand="false" class="push-bottom" *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null">
+      <td-expansion-panel expand="false" class="push-bottom" *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null">
+        <ng-template td-expansion-panel-label>
+          <md-icon md-list-icon>web</md-icon>
+          <span>Configuration of View</span>
+        </ng-template>
         <div class="pad">
           <md-card-subtitle>Metrics</md-card-subtitle>
           <ng-container *ngIf="tJob.execDashboardConfigModel.showComplexMetrics !== undefined && tJob.execDashboardConfigModel.showComplexMetrics !== null">
