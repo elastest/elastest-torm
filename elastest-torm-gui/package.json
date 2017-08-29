@@ -1,8 +1,8 @@
 {
-  "name": "covalent-quickstart",
-  "version": "1.0.0-beta.3",
+  "name": "elastest-torm-gui",
+  "version": "0.1",
   "private": true,
-  "description": "Quickstart App with @covalent packages",
+  "description": "ElasTest TORM GUI",
   "keywords": [
     "angular",
     "components",
@@ -24,17 +24,8 @@
     "node": ">4.4 < 7",
     "npm": ">3"
   },
-  "repository": "https://github.com/teradata/covalent-quickstart.git",
-  "license": "MIT",
-  "author": "Teradata UX",
-  "contributors": [
-    "Kyle Ledbetter <kyle.ledbetter@teradata.com>",
-    "Richa Vyas <richa.vyas@teradata.com>",
-    "Ed Morales <eduardo.morales@teradata.com>",
-    "Jason Weaver <jason.weaver@teradata.com>",
-    "Jeremy Smartt <jeremy.smartt@teradata.com>",
-    "Ilsun Park <ilsun.park@teradata.com>"
-  ],
+  "repository": "https://github.com/elastest/elastest-torm",
+  "license": "Apache v2",
   "dependencies": {
     "@angular/animations": "^4.0.0",
     "@angular/common": "^4.0.0",
