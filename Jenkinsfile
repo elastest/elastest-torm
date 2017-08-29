@@ -38,7 +38,7 @@ node('docker'){
         stage "Publish etm docker image"
 
             echo ("Publish elastest/etm image")
-            def myimage = docker.image('elastest/etm:0.1')
+            def myimage = docker.image('elastest/etm')
             //this is work arround as withDockerRegistry is not working properly 
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
