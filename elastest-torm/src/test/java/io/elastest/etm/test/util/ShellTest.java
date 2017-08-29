@@ -12,21 +12,11 @@ import io.elastest.etm.utils.Shell;
 public class ShellTest {
 	Process p;
 	
-	@Test
-	public void testRun(){
-		p = Shell.run(new String[]{"java.exe", "-version"});
-		assertTrue(p.exitValue() == 0);
-	}
-	
-	@Test
-	public void testRunNoRedirect(){
-		p = Shell.run(false,new String[]{"java.exe", "-version"});
-		assertTrue(p.exitValue() == 0);
-	}
+
 	
 	@Test
 	public void testRunAndWait(){
-		String result = Shell.runAndWaitString("java.exe -version");
+		String result = Shell.runAndWaitString("java -version");
 		assertTrue(result.length() > 0);
 	}
 }
