@@ -7,7 +7,9 @@ RUN cd /tmp/PyYAML-3.11 && python setup.py install
 # install glide
 RUN go get github.com/Masterminds/glide
 
-COPY . $GOPATH/src/github.com/ingensi/dockbeat
+RUN mkdir -p $GOPATH/src/github.com/ingensi/ \
+		&& cd $GOPATH/src/github.com/ingensi \
+		&& git clone https://github.com/ingensi/dockbeat
 
 RUN cd $GOPATH/src/github.com/ingensi/dockbeat && make && make
 
