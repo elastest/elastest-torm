@@ -42,7 +42,7 @@ public class EtmApiItTest {
 
 		String requestJson = "{" + 
 				"\"id\": 0," + 
-				"\"imageName\": \"edujgurjc/torm-test-01\"," +
+				"\"imageName\": \"elastest/test-etm-test1\"," +
 				"\"name\": \"testApp1\"," + 
 				"\"parameters\": [{\"Param1\":\"Value1\"}]," +
 				"\"project\": { \"id\":" + projectId + "}" +
@@ -155,7 +155,7 @@ public class EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"imageName\": \"https://github.com/EduJGURJC/springbootdemo\""
+				  + "\"imageName\": \"\""
 				+"}";
 	
 		HttpHeaders headers = new HttpHeaders();

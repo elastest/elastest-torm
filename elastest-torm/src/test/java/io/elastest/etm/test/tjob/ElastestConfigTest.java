@@ -13,7 +13,7 @@ public class ElastestConfigTest {
 	TJob tJob(){
 		TJob tJob = new TJob();
 		tJob.setId(0L);
-		tJob.setImageName("edujgurjc/torm-test-01");
+		tJob.setImageName("elastest/test-etm-test1");
 		tJob.setName("SimpleTest");
 		Project project = new Project();
 		project.setId(1L);

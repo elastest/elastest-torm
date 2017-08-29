@@ -54,7 +54,7 @@ public class TJobApiItTest extends EtmApiItTest {
 	public void testCreateTJob() {
 		log.info("Start the test testCreateTJob");
 
-		String requestJson = "{" + "\"id\": 0," + "\"imageName\": \"edujgurjc/torm-test-01\","
+		String requestJson = "{" + "\"id\": 0," + "\"imageName\": \"elastest/test-etm-test1\","
 				+ "\"name\": \"testApp1\"," + "\"project\": { \"id\":" + projectId + "}" + "}";
 
 		HttpHeaders headers = new HttpHeaders();

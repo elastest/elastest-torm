@@ -71,7 +71,7 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"imageName\": \"https://github.com/EduJGURJC/springbootdemo\""  
+				  + "\"imageName\": \"\""  
 				+"}";
 		
 		HttpHeaders headers = new HttpHeaders();
