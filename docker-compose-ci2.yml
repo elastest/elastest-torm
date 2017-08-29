@@ -13,7 +13,7 @@ services:
             - elastest
             
     beats:
-        image: edujgurjc/dockbeat
+        image: elastest/etm-dockbeat
         environment:
             - LOGSTASHHOST=logstash
         volumes:
@@ -24,7 +24,7 @@ services:
             - elastest
         
     logstash:        
-        image: edujgurjc/logstash
+        image: elastest/etm-logstash
         expose:
             - 5002
             - 5000
@@ -42,7 +42,7 @@ services:
             - elastest       
                
     elasticsearch:
-        image: edujgurjc/elasticsearch
+        image: elastest/etm-elasticsearch
         expose:
             - 9200
         environment:
@@ -55,7 +55,7 @@ services:
             - elastest
                    
     rabbit-MQ:
-        image: edujgurjc/rabbitmq
+        image: elastest/etm-rabbitmq
         hostname: my-rabbit
         expose:
             - 15672
