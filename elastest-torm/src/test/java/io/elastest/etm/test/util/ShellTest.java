@@ -12,7 +12,17 @@ import io.elastest.etm.utils.Shell;
 public class ShellTest {
 	Process p;
 	
-
+	@Test
+	public void testRun(){
+		p = Shell.run(new String[]{"java", "-version"});
+		assertTrue(p != null);
+	}
+	
+	@Test
+	public void testRunNoRedirect(){
+		p = Shell.run(false,new String[]{"java", "-version"});
+		assertTrue(p != null);
+	}
 	
 	@Test
 	public void testRunAndWait(){
