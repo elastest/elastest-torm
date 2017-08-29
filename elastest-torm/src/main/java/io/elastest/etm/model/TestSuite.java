@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -252,66 +253,36 @@ public class TestSuite {
 	// Others
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + errors;
-		result = prime * result + failures;
-		result = prime * result + flakes;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + numTests;
-		result = prime * result + skipped;
-		result = prime * result + ((tJobExec == null) ? 0 : tJobExec.hashCode());
-		result = prime * result + ((testCases == null) ? 0 : testCases.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(timeElapsed);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+	public int hashCode() {	
+		return Objects.hash(id, name, timeElapsed, errors, failures, skipped, flakes, numTests, testCases);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object o) {
+		this.id = id == null ? 0 : id;
+		this.name = name;
+		this.timeElapsed = timeElapsed;
+		this.errors = errors;
+		this.failures = failures;
+		this.skipped = skipped;
+		this.flakes = flakes;
+		this.numTests = numTests;
+		this.testCases = testCases;
+		
+		if (this == o) {
 			return true;
-		if (obj == null)
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TestSuite other = (TestSuite) obj;
-		if (errors != other.errors)
-			return false;
-		if (failures != other.failures)
-			return false;
-		if (flakes != other.flakes)
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (numTests != other.numTests)
-			return false;
-		if (skipped != other.skipped)
-			return false;
-		if (tJobExec == null) {
-			if (other.tJobExec != null)
-				return false;
-		} else if (!tJobExec.equals(other.tJobExec))
-			return false;
-		if (testCases == null) {
-			if (other.testCases != null)
-				return false;
-		} else if (!testCases.equals(other.testCases))
-			return false;
-		if (Double.doubleToLongBits(timeElapsed) != Double.doubleToLongBits(other.timeElapsed))
-			return false;
-		return true;
+		}
+		TestSuite testSuite = (TestSuite) o;
+		
+		return Objects.equals(this.id, testSuite.id) && Objects.equals(this.name, testSuite.name)
+				&& Objects.equals(this.timeElapsed, testSuite.timeElapsed) && Objects.equals(this.errors, testSuite.errors)
+				&& Objects.equals(this.failures, testSuite.failures) && Objects.equals(this.skipped, testSuite.skipped)
+				&& Objects.equals(this.flakes, testSuite.flakes) && Objects.equals(this.numTests, testSuite.numTests)
+				&& Objects.equals(this.testCases, testSuite.testCases);
+
 	}
 
 	@Override

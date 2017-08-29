@@ -2,6 +2,8 @@ package io.elastest.etm.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -193,70 +195,25 @@ public class TestCase {
 	// Others
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((failureDetail == null) ? 0 : failureDetail.hashCode());
-		result = prime * result + ((failureErrorLine == null) ? 0 : failureErrorLine.hashCode());
-		result = prime * result + ((failureMessage == null) ? 0 : failureMessage.hashCode());
-		result = prime * result + ((failureType == null) ? 0 : failureType.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((testSuite == null) ? 0 : testSuite.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(time);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+	public int hashCode() {	
+		return Objects.hash(id, name, time, failureMessage, failureType, failureErrorLine, failureDetail, testSuite);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object o) {
+		if (this == o) {
 			return true;
-		if (obj == null)
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TestCase other = (TestCase) obj;
-		if (failureDetail == null) {
-			if (other.failureDetail != null)
-				return false;
-		} else if (!failureDetail.equals(other.failureDetail))
-			return false;
-		if (failureErrorLine == null) {
-			if (other.failureErrorLine != null)
-				return false;
-		} else if (!failureErrorLine.equals(other.failureErrorLine))
-			return false;
-		if (failureMessage == null) {
-			if (other.failureMessage != null)
-				return false;
-		} else if (!failureMessage.equals(other.failureMessage))
-			return false;
-		if (failureType == null) {
-			if (other.failureType != null)
-				return false;
-		} else if (!failureType.equals(other.failureType))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (testSuite == null) {
-			if (other.testSuite != null)
-				return false;
-		} else if (!testSuite.equals(other.testSuite))
-			return false;
-		if (Double.doubleToLongBits(time) != Double.doubleToLongBits(other.time))
-			return false;
-		return true;
-	}
+		}
+		TestCase testCase = (TestCase) o;
+		
+		return Objects.equals(this.id, testCase.id) && Objects.equals(this.name, testCase.name)
+				&& Objects.equals(this.time, testCase.time) && Objects.equals(this.failureMessage, testCase.failureMessage)
+				&& Objects.equals(this.failureType, testCase.failureType) && Objects.equals(this.failureErrorLine, testCase.failureErrorLine)
+				&& Objects.equals(this.failureDetail, testCase.failureDetail) && Objects.equals(this.testSuite, testCase.testSuite);
+		}
 
 	@Override
 	public String toString() {

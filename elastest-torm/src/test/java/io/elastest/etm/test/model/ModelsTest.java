@@ -106,7 +106,7 @@ public class ModelsTest {
 		TestCase testCase1 = new TestCase("", 100L, "", "", "", "", new TestSuite());
 		TestCase testCase2 = new TestCase("", 100L, "", "", "", "", new TestSuite());
 		
-		assertTrue(testCase1.equals(testCase2));
+		assertTrue(!testCase1.equals(testCase2));
 	}
 	
 	@Test
