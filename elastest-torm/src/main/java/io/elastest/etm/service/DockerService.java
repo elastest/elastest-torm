@@ -37,7 +37,7 @@ public class DockerService {
 	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
 
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
-	private static String appImage = "edujgurjc/torm-loadapp", checkImage = "elastest/etm-check-service-up";
+	private static String appImage = "elastest/test-etm-javasutrepo", checkImage = "elastest/etm-check-service-up";
 
 	// On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"
 	@Value("${elastest.test-results.directory}")

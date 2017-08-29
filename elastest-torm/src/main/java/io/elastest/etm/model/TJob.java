@@ -147,7 +147,7 @@ public class TJob {
 	 * 
 	 * @return imageName
 	 **/
-	@ApiModelProperty(required=true,  example = "edujgurjc/torm-test-01", value = "Name of the docker image that contains the test.")
+	@ApiModelProperty(required=true,  example = "elastest/test-etm-test1", value = "Name of the docker image that contains the test.")
 
 	public String getImageName() {
 		return imageName;
