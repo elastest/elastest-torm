@@ -1,6 +1,7 @@
 package io.elastest.etm.test.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
+import io.elastest.etm.model.ExternalJob;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
@@ -17,6 +19,8 @@ import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TestCase;
+import io.elastest.etm.model.TestSuite;
 
 @RunWith(JUnitPlatform.class)
 public class ModelsTest {
@@ -71,4 +75,51 @@ public class ModelsTest {
 		assertEquals(exec.hashCode(), exec2.hashCode());
 	}
 	
+	@Test
+	public void testCreateExternalJob(){
+		ExternalJob extJob = new ExternalJob("Job1", "htt://localhost:8090", "http://localhost:8090", 1L, "9200", "192.168.1.1");
+		assertTrue(extJob.getJobName().equals("Job1"));
+	}
+	
+	@Test
+	public void testEqualsExternalJobs(){
+		ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090", "http://localhost:8090", 1L, "9200", "192.168.1.1");
+		ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090", "http://localhost:8090", 1L, "9200", "192.168.1.1");
+		assertTrue(extJob1.equals(extJob2));
+	}
+	
+	@Test
+	public void testCreateSutExecution(){
+		SutExecution sutExec = new SutExecution(1L, new SutSpecification(), "http://localhost:8090", DeployStatusEnum.DEPLOYING);
+		assertTrue(sutExec.getId() == 1L);
+	}
+	
+	@Test
+	public void testEqualsSutExecution(){
+		SutExecution sutExec1 = new SutExecution(1L, new SutSpecification(), "http://localhost:8090", DeployStatusEnum.DEPLOYING);
+		SutExecution sutExec2 = new SutExecution(1L, new SutSpecification(), "http://localhost:8090", DeployStatusEnum.DEPLOYING);
+		assertTrue(sutExec1.equals(sutExec2));
+	}
+	
+	@Test
+	public void testEqualsTestCases(){
+		TestCase testCase1 = new TestCase("", 100L, "", "", "", "", new TestSuite());
+		TestCase testCase2 = new TestCase("", 100L, "", "", "", "", new TestSuite());
+		
+		assertTrue(testCase1.equals(testCase2));
+	}
+	
+	@Test
+	public void testCreateTestSuit(){
+		TestSuite testSuite = new TestSuite(1L, "", 100L, 0, 0, 0, 0, 0, new ArrayList<TestCase>());
+		assertTrue(testSuite.getId() == 1L);
+	}
+	
+	@Test
+	public void testEqualsTestSuites(){
+		TestSuite testSuite1 = new TestSuite(1L, "", 100L, 0, 0, 0, 0, 0, new ArrayList<TestCase>());
+		TestSuite testSuite2 = new TestSuite(1L, "", 100L, 0, 0, 0, 0, 0, new ArrayList<TestCase>());
+		
+		assertTrue(testSuite1.equals(testSuite2));
+	}	
 }
