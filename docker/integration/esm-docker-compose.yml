@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  esm:
+    image: elastest/esm:latest
+    hostname: elastest-service-manager
+    container_name: elastest-service-manager
+    environment:
+      - ESM_PORT=8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    ports:
+      - "8080:8080"
+    networks:
+      - elastest
+
+networks:
+  elastest:
+    driver: bridge
