@@ -155,7 +155,7 @@ public class EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"imageName\": \"\""
+				  + "\"sutType\": \"REPOSITORY\""
 				+"}";
 	
 		HttpHeaders headers = new HttpHeaders();
