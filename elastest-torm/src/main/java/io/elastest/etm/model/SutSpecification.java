@@ -17,7 +17,9 @@ import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project.BasicAttProject;
@@ -54,11 +56,6 @@ public class SutSpecification {
 	private String specification = null;
 
 	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
-	@Column(name = "image_name")
-	@JsonProperty("imageName")
-	private String imageName = null;
-
-	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
 	@JsonProperty("description")
 	private String description = null;
 
@@ -74,21 +71,59 @@ public class SutSpecification {
 	@JsonProperty("tjobs")
 	@OneToMany(mappedBy = "sut")
 	private List<TJob> tJobs;
+	
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+	@Column(name = "sutType")
+	@JsonProperty("sutType")
+	private SutTypeEnum sutType = null;
+
 
 	public SutSpecification() {
 	}
 
-	public SutSpecification(Long id, String name, String specification, String imageName, String description, Project project,
-			List<TJob> tJobs) {
+	public SutSpecification(Long id, String name, String specification, String description, Project project,
+			List<TJob> tJobs, SutTypeEnum sutType) {
 		this.id = id == null ? 0 : id;
 		this.name = name;		
 		this.specification = specification;
-		this.imageName = imageName;
 		this.description = description;
 		this.project = project;
 		this.tJobs = tJobs;
+		this.sutType = sutType;
 	}
 
+	
+	
+	public enum SutTypeEnum {
+		IMAGENAME("IMAGENAME"),
+
+		REPOSITORY("REPOSITORY"),
+
+		EXTERNAL("EXTERNAL");
+
+		private String value;
+
+		SutTypeEnum(String value) {
+			this.value = value;
+		}
+
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
+
+		@JsonCreator
+		public static SutTypeEnum fromValue(String text) {
+			for (SutTypeEnum b : SutTypeEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
+	
 	/**
 	 * Get id
 	 * 
@@ -133,20 +168,6 @@ public class SutSpecification {
 
 	public void setSpecification(String specification) {
 		this.specification = specification;
-	}
-
-	/**
-	 * imageName
-	 * 
-	 **/
-	@ApiModelProperty(example = "elastest/elastest-torm", required = true, value = "Name of the Docker Image that conteins the SUT (not necessary if the Specification field is filled).")
-	@NotNull
-	public String getImageName() {
-		return imageName;
-	}
-
-	public void setImageName(String imageName) {
-		this.imageName = imageName;
 	}
 
 	/**
@@ -237,11 +258,35 @@ public class SutSpecification {
 		return tJob;
 	}
 	
+	
+	/**
+	 * Get sutType
+	 * 
+	 * @return sutType
+	 **/
+	
+	public SutTypeEnum getSutType() {
+		return sutType;
+	}
+
+	public void setSutType(SutTypeEnum sutType) {
+		this.sutType = sutType;
+	}
+	
+	
+	// Other methods
+	
 	public String sutBy() {
-		if (this.specification.isEmpty() || this.specification == null) {
+		if(this.sutType == SutTypeEnum.REPOSITORY){
+			return "repository";
+		}
+
+		if(this.sutType == SutTypeEnum.IMAGENAME){
 			return "imageName";
-		} else if (this.imageName.isEmpty() || this.imageName == null) {
-			return "specification";
+		}
+		
+		if(this.sutType == SutTypeEnum.EXTERNAL){
+			return "external";
 		}
 		
 		return "";
@@ -259,14 +304,14 @@ public class SutSpecification {
 		return Objects.equals(this.id, sutSpecification.id) 
 				&& Objects.equals(this.name, sutSpecification.name)
 				&& Objects.equals(this.specification, sutSpecification.specification)
-				&& Objects.equals(this.imageName, sutSpecification.imageName)
 				&& Objects.equals(this.description, sutSpecification.description)
-				&& Objects.equals(this.project, sutSpecification.project);
+				&& Objects.equals(this.project, sutSpecification.project)
+				&& Objects.equals(this.sutType, sutSpecification.sutType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, imageName, description, project);
+		return Objects.hash(id, name, specification, description, project, sutType);
 	}
 
 	@Override
@@ -276,9 +321,9 @@ public class SutSpecification {
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
 		sb.append("    specification: ").append(toIndentedString(specification)).append("\n");
-		sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
 		sb.append("    description: ").append(toIndentedString(description)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
+		sb.append("    sutType: ").append(toIndentedString(sutType)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

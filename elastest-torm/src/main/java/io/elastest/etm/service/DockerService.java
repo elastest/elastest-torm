@@ -105,7 +105,7 @@ public class DockerService {
 			String sutImage = appImage;
 			String envVar = "";
 			if (sutExec.getSutSpecification().sutBy() == "imageName") {
-				sutImage = sutExec.getSutSpecification().getImageName();
+				sutImage = sutExec.getSutSpecification().getSpecification();
 				envVar = "REPO_URL=none";
 			} else {
 				envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();

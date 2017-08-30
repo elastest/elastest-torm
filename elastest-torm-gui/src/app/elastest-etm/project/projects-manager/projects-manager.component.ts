@@ -54,7 +54,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
     { name: 'specification', label: 'GitHub App Repo' },
-    { name: 'imageName', label: 'Image Name' },
+    { name: 'sutType', label: 'SuT Type' },
     { name: 'description', label: 'Description' },
     { name: 'options', label: 'Options' },
   ];
@@ -81,7 +81,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   // Create SuT
   newSutName: string = '';
   newSutRepo: string = '';
-  newSutImageName: string = '';
+  newSutType: string = '';
   newSutDesc: string = '';
 
 
@@ -272,7 +272,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     let sut: SutModel = new SutModel();
     sut.name = this.newSutName;
     sut.specification = this.newSutRepo;
-    sut.imageName = this.newSutImageName;
+    sut.sutType = this.newSutType;
     sut.description = this.newSutDesc;
 
     sut.project = this.projectSelected;
@@ -289,7 +289,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   clearSutForm() {
     this.newSutName = '';
     this.newSutRepo = '';
-    this.newSutImageName = '';
+    this.newSutType = 'REPOSITORY';
     this.newSutDesc = '';
   }
 

@@ -19,6 +19,7 @@ export class SutFormComponent implements OnInit {
 
   imageNameChecked: boolean = true;
   repoNameChecked: boolean = false;
+  externalChecked: boolean = false;
 
   constructor(private sutService: SutService, private route: ActivatedRoute,
     private projectService: ProjectService) { }
@@ -31,8 +32,9 @@ export class SutFormComponent implements OnInit {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
           .subscribe((sut: SutModel) => {
             this.sut = sut;
-            this.imageNameChecked = sut.imageName !== '' && sut.specification === '';
-            this.repoNameChecked = sut.imageName === '' && sut.specification !== '';
+            this.imageNameChecked = sut.sutType === 'IMAGENAME';
+            this.repoNameChecked = sut.sutType === 'REPOSITORY';
+            this.externalChecked = sut.sutType === 'EXTERNAL';
           });
       }
       else if (this.currentPath === 'new') {
@@ -47,15 +49,22 @@ export class SutFormComponent implements OnInit {
     }
   }
   sutBy(selected: string) {
+    // Reset
+    this.imageNameChecked = false;
+    this.repoNameChecked = false;
+    this.externalChecked = false;
+
     if (selected === 'imageName') {
-      this.sut.specification = '';
+      this.sut.sutType = 'IMAGENAME';
       this.imageNameChecked = true;
-      this.repoNameChecked = false;
-    }
-    else {
-      this.sut.imageName = '';
-      this.imageNameChecked = false;
-      this.repoNameChecked = true;
+    } else {
+      if (selected === 'repository') {
+        this.sut.sutType = 'REPOSITORY';
+        this.repoNameChecked = true;
+      } else {
+        this.sut.sutType = 'EXTERNAL';
+        this.externalChecked = true;
+      }
     }
   }
 
@@ -64,7 +73,6 @@ export class SutFormComponent implements OnInit {
   }
 
   save() {
-    console.log(this.sut);
     this.sutService.createSut(this.sut)
       .subscribe(
       (sut) => this.postSave(sut),

@@ -16,7 +16,7 @@
       </div>
 
       <div layout="column" class="push-top push-bottom">
-        <md-radio-group #radioGroup (change)="sutBy(imageName.checked ? 'imageName' : 'repository')">
+        <md-radio-group #radioGroup (change)="sutBy(imageName.checked ? 'imageName' : (repository.checked ? 'repository' : 'external'))">
           <md-radio-button #imageName name="imageName" value="imageNameChecked" [checked]="imageNameChecked" class="push-right">
             By Image Name
           </md-radio-button>
@@ -24,13 +24,14 @@
           <md-radio-button #repository name="repository" value="repoNameChecked" [checked]="repoNameChecked">
             By GitHub App Repository
           </md-radio-button>
+
+          <md-radio-button #external name="external" value="externalChecked" [checked]="externalChecked">
+            By External IP
+          </md-radio-button>
         </md-radio-group>
         <div layout="row" class="push-top">
-          <md-input-container flex="100" *ngIf="imageName.checked">
-            <input mdInput type="text" placeholder="SuT Image Name" [(ngModel)]="sut.imageName" name="sutImageName" required>
-          </md-input-container>
-          <md-input-container flex="100" *ngIf="repository.checked">
-            <input mdInput type="text" placeholder="SuT GitHub App Repository" [(ngModel)]="sut.specification" name="sutRepo" required>
+          <md-input-container flex="100">
+            <input mdInput type="text" placeholder="SuT Specification" [(ngModel)]="sut.specification" name="specification" required>
           </md-input-container>
         </div>
       </div>

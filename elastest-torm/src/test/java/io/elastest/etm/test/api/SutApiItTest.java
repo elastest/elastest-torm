@@ -71,7 +71,7 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"imageName\": \"\""  
+				  + "\"sutType\": \"REPOSITORY\""  
 				+"}";
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -113,7 +113,7 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"" + sutSpec.getName() + "\","
 				  + "\"project\": { \"id\":"+ sutSpec.getProject().getId() + "},"
 				  + "\"specification\": \"" + sutSpec.getSpecification() + "\","  
-				  + "\"imageName\": \"" + sutSpec.getImageName() + "\""
+				  + "\"sutType\": \"" + sutSpec.getSutType() + "\""
 				+"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
