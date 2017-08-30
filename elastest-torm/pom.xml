@@ -225,6 +225,12 @@
 			<version>${spring-test-junit5.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>pl.pojo</groupId>
+			<artifactId>pojo-tester</artifactId>
+			<version>0.7.5</version>						
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -481,9 +487,13 @@
 	</profiles>
 
 	<repositories>
-		<repository>
+		<repository>		
+  			<id>jcenter</id>
+  			<url>http://jcenter.bintray.com/</url>
+		</repository>
+		<repository>		
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
-		</repository>
+		</repository>		
 	</repositories>
 </project>

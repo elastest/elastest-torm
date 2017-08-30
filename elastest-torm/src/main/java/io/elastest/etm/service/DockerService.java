@@ -64,15 +64,10 @@ public class DockerService {
 	private String windowsSO;
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
-		try {
-			configureDocker(dockerExec);
-			dockerExec.setNetwork("bridge");
-			if (dockerExec.isWithSut()) {
-				startSut(dockerExec);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+		configureDocker(dockerExec);
+		dockerExec.setNetwork("bridge");
+		if (dockerExec.isWithSut()) {
+			startSut(dockerExec);
 		}
 	}
 

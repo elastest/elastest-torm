@@ -1,6 +1,7 @@
 package io.elastest.etm.test.model;
 
 import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -22,6 +23,12 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.service.DockerExecution;
+import pl.pojo.tester.api.assertion.Method;
+
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsForAll;
+import static pl.pojo.tester.api.FieldPredicate.exclude;
 
 @RunWith(JUnitPlatform.class)
 public class ModelsTest {
@@ -87,6 +94,7 @@ public class ModelsTest {
 		ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090", "http://localhost:8090", 1L, "9200", "192.168.1.1");
 		ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090", "http://localhost:8090", 1L, "9200", "192.168.1.1");
 		assertTrue(extJob1.equals(extJob2));
+		assertEquals(extJob1.hashCode(), extJob2.hashCode());
 	}
 	
 	@Test
@@ -100,6 +108,8 @@ public class ModelsTest {
 		SutExecution sutExec1 = new SutExecution(1L, new SutSpecification(), "http://localhost:8090", DeployStatusEnum.DEPLOYING);
 		SutExecution sutExec2 = new SutExecution(1L, new SutSpecification(), "http://localhost:8090", DeployStatusEnum.DEPLOYING);
 		assertTrue(sutExec1.equals(sutExec2));
+		assertEquals(sutExec1.hashCode(), sutExec2.hashCode());
+		
 	}
 	
 	@Test
@@ -107,7 +117,9 @@ public class ModelsTest {
 		TestCase testCase1 = new TestCase("", 100L, "", "", "", "", new TestSuite());
 		TestCase testCase2 = new TestCase("", 100L, "", "", "", "", new TestSuite());
 		
-		assertTrue(!testCase1.equals(testCase2));
+		assertTrue(testCase1.equals(testCase2));
+		assertEquals(testCase1, testCase2);
+		assertEquals(testCase1.hashCode(), testCase2.hashCode());
 	}
 	
 	@Test
@@ -122,5 +134,79 @@ public class ModelsTest {
 		TestSuite testSuite2 = new TestSuite(1L, "", 100L, 0, 0, 0, 0, 0, new ArrayList<TestCase>());
 		
 		assertTrue(testSuite1.equals(testSuite2));
-	}	
+		assertEquals(testSuite1.hashCode(), testSuite2.hashCode());		
+	}
+	
+	@Test
+	public void testPojoTestSuite(){
+		final Class<?> pojoClass = TestSuite.class;
+		//assertPojoMethodsFor(testCaseClass).areWellImplemented();
+		
+		assertPojoMethodsFor(pojoClass, exclude("numTests", "tJobExec")).testing(Method.GETTER, Method.SETTER)
+        //.testing(Method.EQUALS)
+        //.testing(Method.HASH_CODE)
+        .testing(Method.CONSTRUCTOR)
+        .areWellImplemented();		
+	}
+	
+	@Test
+	public void testPojoTestCase(){
+		final Class<?> pojoClass = TestCase.class;
+		//assertPojoMethodsFor(testCaseClass).areWellImplemented();
+		
+		assertPojoMethodsFor(pojoClass).testing(Method.GETTER, Method.SETTER)
+        .testing(Method.EQUALS)
+        .testing(Method.HASH_CODE)
+        .testing(Method.CONSTRUCTOR)
+        .areWellImplemented();		
+	}
+	
+	@Test
+	public void testPojoDockerExecution(){
+		final Class<?> pojoClass = DockerExecution.class;
+		//assertPojoMethodsFor(testCaseClass).areWellImplemented();
+		
+		assertPojoMethodsFor(pojoClass, exclude("tJobexec")).testing(Method.GETTER, Method.SETTER)
+        //.testing(Method.EQUALS)
+        //.testing(Method.HASH_CODE)
+        //.testing(Method.CONSTRUCTOR)
+        .areWellImplemented();
+		
+	}
+	
+	@Test
+	public void testPojoExternalJob(){
+		final Class<?> pojoClass = ExternalJob.class;
+		//assertPojoMethodsFor(testCaseClass).areWellImplemented();
+		
+		assertPojoMethodsFor(pojoClass, exclude("tJobExecId")).testing(Method.GETTER, Method.SETTER)       
+        //.testing(Method.HASH_CODE)
+        .testing(Method.CONSTRUCTOR)
+        .areWellImplemented();
+		
+	}
+	
+	@Test
+	public void testPojoParameter(){
+		final Class<?> pojoClass = Parameter.class;
+		//assertPojoMethodsFor(testCaseClass).areWellImplemented();
+		
+		assertPojoMethodsForAll(pojoClass).testing(Method.GETTER, Method.SETTER)
+        .testing(Method.EQUALS)
+        .testing(Method.HASH_CODE)
+        .testing(Method.CONSTRUCTOR)
+        .areWellImplemented();		
+	}
+	
+//	@Test
+//	public void testAllPojos() {
+//	    // given
+//	    final Class<Pojo> classUnderTest = Pojo.class;
+//
+//	    // when
+//
+//	    // then
+//	    assertPojoMethodsForAll(classUnderTest, classUnderTest, classUnderTest, classUnderTest).areWellImplemented();
+//	}
+	
 }

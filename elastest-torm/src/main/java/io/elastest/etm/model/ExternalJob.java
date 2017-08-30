@@ -107,7 +107,8 @@ public class ExternalJob {
 			return false;
 		}
 		ExternalJob externalJob = (ExternalJob) o;
-		return Objects.equals(this.jobName, externalJob.jobName) && Objects.equals(this.executionUrl, externalJob.executionUrl)
+		return Objects.equals(this.jobName, externalJob.jobName)
+				&& Objects.equals(this.executionUrl, externalJob.executionUrl)
 				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
 				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
 				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
@@ -116,7 +117,7 @@ public class ExternalJob {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jobName, executionUrl, tJobExecId);
+		return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp);
 	}
 
 	@Override

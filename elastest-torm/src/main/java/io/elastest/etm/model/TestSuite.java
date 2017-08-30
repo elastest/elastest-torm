@@ -254,21 +254,11 @@ public class TestSuite {
 
 	@Override
 	public int hashCode() {	
-		return Objects.hash(id, name, timeElapsed, errors, failures, skipped, flakes, numTests, testCases);
+		return Objects.hash(id, name, timeElapsed, errors, failures, skipped, flakes, numTests, testCases, tJobExec);
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		this.id = id == null ? 0 : id;
-		this.name = name;
-		this.timeElapsed = timeElapsed;
-		this.errors = errors;
-		this.failures = failures;
-		this.skipped = skipped;
-		this.flakes = flakes;
-		this.numTests = numTests;
-		this.testCases = testCases;
-		
+	public boolean equals(Object o) {		
 		if (this == o) {
 			return true;
 		}
@@ -281,7 +271,7 @@ public class TestSuite {
 				&& Objects.equals(this.timeElapsed, testSuite.timeElapsed) && Objects.equals(this.errors, testSuite.errors)
 				&& Objects.equals(this.failures, testSuite.failures) && Objects.equals(this.skipped, testSuite.skipped)
 				&& Objects.equals(this.flakes, testSuite.flakes) && Objects.equals(this.numTests, testSuite.numTests)
-				&& Objects.equals(this.testCases, testSuite.testCases);
+				&& Objects.equals(this.testCases, testSuite.testCases) && Objects.equals(this.tJobExec, testSuite.tJobExec);
 
 	}
 
@@ -301,6 +291,7 @@ public class TestSuite {
 		sb.append("    testCases: ").append(toIndentedString(testCases)).append("\n");
 		sb.append("    tJobExec: ").append(toIndentedString(tJobExec)).append("\n");
 		sb.append("}");
+		
 		return sb.toString();
 	}
 
