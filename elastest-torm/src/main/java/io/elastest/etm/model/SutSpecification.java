@@ -73,9 +73,9 @@ public class SutSpecification {
 	private List<TJob> tJobs;
 	
 	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
-	@Column(name = "sutType")
+	@Column(name = "sutType", nullable=false)
 	@JsonProperty("sutType")
-	private SutTypeEnum sutType = null;
+	private SutTypeEnum sutType;
 
 
 	public SutSpecification() {

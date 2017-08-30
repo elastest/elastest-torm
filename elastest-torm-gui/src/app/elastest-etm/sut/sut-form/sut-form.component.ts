@@ -43,6 +43,7 @@ export class SutFormComponent implements OnInit {
           (project: ProjectModel) => {
             this.sut = new SutModel();
             this.sut.project = project;
+            this.sut.sutType = 'IMAGENAME';
           },
         );
       }
