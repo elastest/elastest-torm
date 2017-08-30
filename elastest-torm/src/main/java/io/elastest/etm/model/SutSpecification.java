@@ -276,22 +276,6 @@ public class SutSpecification {
 	
 	// Other methods
 	
-	public String sutBy() {
-		if(this.sutType == SutTypeEnum.REPOSITORY){
-			return "repository";
-		}
-
-		if(this.sutType == SutTypeEnum.IMAGENAME){
-			return "imageName";
-		}
-		
-		if(this.sutType == SutTypeEnum.EXTERNAL){
-			return "external";
-		}
-		
-		return "";
-	}
-
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {

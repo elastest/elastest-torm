@@ -53,7 +53,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   sutColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
-    { name: 'specification', label: 'GitHub App Repo' },
+    { name: 'specification', label: 'Specification' },
     { name: 'sutType', label: 'SuT Type' },
     { name: 'description', label: 'Description' },
     { name: 'options', label: 'Options' },

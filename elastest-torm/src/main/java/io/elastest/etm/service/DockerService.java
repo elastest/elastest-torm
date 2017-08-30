@@ -29,6 +29,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -49,7 +50,7 @@ public class DockerService {
 
 	@Value("${docker.host.port}")
 	private String dockerHostPort;
-	
+
 	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
 
@@ -89,9 +90,9 @@ public class DockerService {
 		} else {
 			logger.info("Execute on Linux.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					//.withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getHostIp() + ":" + dockerHostPort)
-					.withDockerHost("unix:///var/run/docker.sock")
-					.build();
+					// .withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX +
+					// utilTools.getHostIp() + ":" + dockerHostPort)
+					.withDockerHost("unix:///var/run/docker.sock").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
 	}
@@ -102,38 +103,45 @@ public class DockerService {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
 			logger.info("Starting sut " + dockerExec.getExecutionId());
-			String sutImage = appImage;
-			String envVar = "";
-			if (sutExec.getSutSpecification().sutBy() == "imageName") {
-				sutImage = sutExec.getSutSpecification().getSpecification();
-				envVar = "REPO_URL=none";
-			} else {
-				envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
+			if (sutExec.getSutSpecification().getSutType() != SutTypeEnum.EXTERNAL) {
+				String sutImage = appImage;
+				String envVar = "";
+				if (sutExec.getSutSpecification().getSutType() == SutTypeEnum.IMAGENAME) {
+					sutImage = sutExec.getSutSpecification().getSpecification();
+					envVar = "REPO_URL=none";
+				} else {
+					envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
+				}
+				logger.info("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
+				String sutName = "sut_" + dockerExec.getExecutionId();
+
+				LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
+
+				dockerExec.getDockerClient().pullImageCmd(sutImage).exec(new PullImageResultCallback()).awaitSuccess();
+
+				dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(sutImage).withEnv(envVar)
+						.withLogConfig(logConfig).withName(sutName).exec());
+
+				sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+
+				String appContainerId = dockerExec.getAppContainer().getId();
+				dockerExec.setAppContainerId(appContainerId);
+
+				dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
+
+				String sutIP = getContainerIp(appContainerId, dockerExec);
+				int sutPort = 8080;
+				String sutUrl = "http://" + sutIP + ":" + sutPort;
+				sutExec.setUrl(sutUrl);
+
+				// Wait for Sut started
+				checkSut(dockerExec, sutIP, sutPort + "");
 			}
-			logger.info("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
-			String sutName = "sut_" + dockerExec.getExecutionId();
+			else{
+				String sutUrl = sutExec.getSutSpecification().getSpecification();
+				sutExec.setUrl(sutUrl);
+			}
 
-			LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
-
-			dockerExec.getDockerClient().pullImageCmd(sutImage).exec(new PullImageResultCallback()).awaitSuccess();
-
-			dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(sutImage).withEnv(envVar)
-					.withLogConfig(logConfig).withName(sutName).exec());
-
-			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
-
-			String appContainerId = dockerExec.getAppContainer().getId();
-			dockerExec.setAppContainerId(appContainerId);
-
-			dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
-
-			String sutIP = getContainerIp(appContainerId, dockerExec);
-			int sutPort = 8080;
-			String sutUrl = "http://" + sutIP + ":" + sutPort;
-			sutExec.setUrl(sutUrl);
-
-			// Wait for Sut started
-			checkSut(dockerExec, sutIP, sutPort + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
@@ -209,33 +217,30 @@ public class DockerService {
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 			CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
-					.withEnv(envList)
-					.withLogConfig(logConfig)
-					.withName("test_" + dockerExec.getExecutionId())
-					.withVolumes(volume)
-					.withBinds(new Bind(localDirToWriteTestResults, volume))
-					.withCmd(cmdList).exec();
-			
+					.withEnv(envList).withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId())
+					.withVolumes(volume).withBinds(new Bind(localDirToWriteTestResults, volume)).withCmd(cmdList)
+					.exec();
+
 			String testContainerId = testContainer.getId();
-			
-			dockerExec.setTestcontainer(testContainer);			
+
+			dockerExec.setTestcontainer(testContainer);
 			dockerExec.setTestContainerId(testContainerId);
 
 			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
-			
+
 			// this essentially test the since=0 case
-//	        dockerClient.logContainerCmd(container.getId())
-//	            .withStdErr(true)
-//	            .withStdOut(true)
-//	            .withFollowStream(true)
-//	            .withTailAll()
-//	            .exec(loggingCallback);
-			
+			// dockerClient.logContainerCmd(container.getId())
+			// .withStdErr(true)
+			// .withStdOut(true)
+			// .withFollowStream(true)
+			// .withTailAll()
+			// .exec(loggingCallback);
+
 			int code = dockerExec.getDockerClient().waitContainerCmd(testContainerId)
 					.exec(new WaitContainerResultCallback()).awaitStatusCode();
-			
+
 			logger.info("Test container ends with code " + code);
-			
+
 			return this.getTestResults(localDirToTeadTestResults, dockerExec);
 
 		} catch (Exception e) {
@@ -249,17 +254,16 @@ public class DockerService {
 	}
 
 	public LogConfig getLogConfig(int port, String tagPrefix, DockerExecution dockerExec) {
-		
-		if(logstashHost == null){
+
+		if (logstashHost == null) {
 			logstashHost = getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
 		}
-		logger.info("Logstash IP to send logs from containers: {}",logstashHost);
-		
+		logger.info("Logstash IP to send logs from containers: {}", logstashHost);
+
 		Map<String, String> configMap = new HashMap<String, String>();
-		configMap.put("syslog-address",
-				"tcp://" + logstashHost + ":" + port);
+		configMap.put("syslog-address", "tcp://" + logstashHost + ":" + port);
 		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_tjobexec");
-		
+
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
 		logConfig.setConfig(configMap);
