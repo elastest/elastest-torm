@@ -90,24 +90,6 @@ services:
     networks:
         - elastest
 
-  rest-java:
-    build: ./rest-java  # path is relative to docker-compose.yml location
-    # image: elastest/edm:0.1
-    volumes:
-      - ./rest-java/rest_api_project/deployment:/usr/local/tomcat/webapps
-      - ./rest-java/rest_api_project/edm-rest:/usr/src/edm-rest
-      - ./rest-java/alluxio_conf:/opt/alluxio/conf
-      # - ./rest-java/scripts:/scripts
-      - ./backup:/backup
-    links:
-      - alluxio-master
-      - elasticsearch
-      - mysql
-    ports:
-      - 8001:8080  # host:container
-    networks:
-        - elastest
-
   alluxio-proxy:
     # container_name: alluxio-proxy
     image: elastest/edm-alluxio:0.1
