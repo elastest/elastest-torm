@@ -57,7 +57,6 @@ export class TJobFormComponent implements OnInit {
   save() {
     if (!this.withCommands) {
       this.tJob.commands = '';
-      this.tJob.resultsPath = '';
     }
 
     this.tJobService.createTJob(this.tJob)

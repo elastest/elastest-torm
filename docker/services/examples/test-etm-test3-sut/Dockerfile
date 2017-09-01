@@ -13,5 +13,4 @@ RUN apk add --update \
   && pip install virtualenv \
   && rm -rf /var/cache/apk/*
 
-CMD git clone https://github.com/EduJGURJC/springbootdemotest.git; cd springbootdemotest; git clone https://github.com/novnc/noVNC.git; mvn clean test; cd target; cp -a surefire-reports/. /results
-
+CMD git clone https://github.com/EduJGURJC/springbootdemotest.git; cd springbootdemotest; git clone https://github.com/novnc/noVNC.git; mvn clean test;

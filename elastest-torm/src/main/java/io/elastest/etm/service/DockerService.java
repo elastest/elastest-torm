@@ -1,12 +1,18 @@
 package io.elastest.etm.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.apache.maven.plugins.surefire.report.SurefireReportParser;
 import org.apache.maven.reporting.MavenReportException;
@@ -17,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -45,7 +52,7 @@ public class DockerService {
 	private String volumeDirectoryToWriteTestResutls;
 
 	// On Windows: "c:/Users/docker/test-results"
-	@Value("${elastest.test-results.directory.windows}")
+	@Value("${elastest.test-results.directory}")
 	private String volumeDirectoryToReadTestResults;
 
 	@Value("${docker.host.port}")
@@ -131,8 +138,7 @@ public class DockerService {
 
 				// Wait for Sut started
 				checkSut(dockerExec, sutIP, sutPort + "");
-			}
-			else{
+			} else {
 				String sutUrl = sutExec.getSutSpecification().getSpecification();
 				sutExec.setUrl(sutUrl);
 			}
@@ -197,10 +203,7 @@ public class DockerService {
 			if (commands != null && !commands.isEmpty()) {
 				cmdList.add("sh");
 				cmdList.add("-c");
-
-				commands += "cp -a " + dockerExec.gettJobexec().getTjob().getResultsPath() + "/. /results";
 				cmdList.add(commands);
-
 			}
 			// Volumes
 			Volume volume = new Volume("/results");
@@ -213,8 +216,7 @@ public class DockerService {
 
 			CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
 					.withEnv(envList).withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId())
-					.withVolumes(volume).withBinds(new Bind(localDirToWriteTestResults, volume)).withCmd(cmdList)
-					.exec();
+					.withCmd(cmdList).exec();
 
 			String testContainerId = testContainer.getId();
 
@@ -235,6 +237,8 @@ public class DockerService {
 					.exec(new WaitContainerResultCallback()).awaitStatusCode();
 
 			logger.info("Test container ends with code " + code);
+
+			copyTestResults(dockerExec);
 
 			return this.getTestResults(localDirToTeadTestResults, dockerExec);
 
@@ -353,4 +357,56 @@ public class DockerService {
 		}
 		return testSuites;
 	}
+
+	public InputStream getFileFromContainer(String containerName, String fileName, DockerExecution dockerExec) {
+		InputStream inputStream = null;
+		if (existsContainer("test_" + dockerExec.getExecutionId(), dockerExec)) {
+			inputStream = dockerExec.getDockerClient().copyArchiveFromContainerCmd(containerName, fileName).exec();
+		}
+		return inputStream;
+	}
+
+	public boolean existsContainer(String containerName, DockerExecution dockerExec) {
+		boolean exists = true;
+		try {
+			dockerExec.getDockerClient().inspectContainerCmd(containerName).exec();
+
+		} catch (NotFoundException e) {
+			exists = false;
+		}
+		return exists;
+	}
+
+	private void copyTestResults(DockerExecution dockerExec) {
+		try {
+			String target = volumeDirectoryToReadTestResults + "/" + dockerExec.getExecutionId();
+
+			File dir = new File(target);
+			dir.mkdir();
+
+			InputStream inputStream = getFileFromContainer(dockerExec.getTestContainerId(),
+					dockerExec.gettJobexec().getTjob().getResultsPath(), dockerExec);
+
+			String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+			result = repairXML(result);
+
+			FileUtils.writeStringToFile(new File(target + "/testsuite-result.xml"), result, StandardCharsets.UTF_8);
+
+		} catch (IOException e) {
+		}
+	}
+
+	private String repairXML(String result) {
+		String head = "<testsuite ";
+		String foot = "</testsuite>";
+
+		String[] splitedResult = result.split(head);
+		String repaired = head + splitedResult[1];
+
+		splitedResult = repaired.split(foot);
+		repaired = splitedResult[0] + foot;
+
+		return repaired;
+	}
+
 }

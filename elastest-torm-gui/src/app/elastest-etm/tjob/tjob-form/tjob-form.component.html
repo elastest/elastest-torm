@@ -6,14 +6,19 @@
   <md-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
       <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-        <md-input-container flex-gt-md="30" flex-md="30">
+        <md-input-container flex-gt-md="20" flex-md="20">
           <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name" name="tJobName"
             maxlength="20" required>
         </md-input-container>
 
-        <md-input-container flex-gt-md="30" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+        <md-input-container flex-gt-md="15" flex-md="15" flex-offset-md="5" flex-offset-gt-md="5">
           <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Image Name" [(ngModel)]="tJob.imageName"
             name="tJobImageName" required>
+        </md-input-container>
+
+        <md-input-container flex-gt-md="20" flex-md="20" flex-offset-md="5" flex-offset-gt-md="5">
+          <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
+            name="resultsPath" maxlength="200" required>
         </md-input-container>
 
         <div *ngIf="tJob.project !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
@@ -33,10 +38,6 @@
           <md-input-container>
             <textarea mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands" [(ngModel)]="tJob.commands" name="commands"
               required></textarea>
-          </md-input-container>
-          <md-input-container flex>
-            <input mdInput #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
-              name="resultsPath" maxlength="100" required>
           </md-input-container>
         </div>
       </div>
