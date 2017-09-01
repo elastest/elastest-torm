@@ -8,8 +8,9 @@ services:
         ports:
             - 3306:3306
         environment:
-            - MYSQL_DATABASE=elastest-etm
-            - MYSQL_ROOT_PASSWORD=admin 
+            - MYSQL_DATABASE=elastest
+	    - MYSQL_USER= elastest
+	    - MYSQL_PASSWORD= elastest
         volumes:
             - mysql:/var/lib/mysql        
     beats:
