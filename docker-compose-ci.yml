@@ -79,7 +79,7 @@ services:
         image: elastest/elastest-torm
         entrypoint: /testing-mysqlstate-entrypoint.sh
         environment:
-            - MYSQL_DATABASE=elastest-etm
+            - MYSQL_DATABASE=elastest
             - MYSQL_ROOT_PASSWORD=admin
         expose:
             - 8091
