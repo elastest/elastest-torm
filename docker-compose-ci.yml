@@ -80,7 +80,8 @@ services:
         entrypoint: /testing-mysqlstate-entrypoint.sh
         environment:
             - MYSQL_DATABASE=elastest
-            - MYSQL_ROOT_PASSWORD=admin
+            - MYSQL_USER=elastest
+            - MYSQL_PASSWORD=elastest
         expose:
             - 8091
         ports:
