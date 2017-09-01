@@ -284,6 +284,8 @@ public class TJob {
 	/**
 	 * resultsPath
 	 */
+	
+	@ApiModelProperty(required=true,  example = "/app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml", value = "absolute path of results file")
 
 	public String getResultsPath() {
 		return resultsPath;
