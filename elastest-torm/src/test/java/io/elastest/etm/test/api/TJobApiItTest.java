@@ -55,7 +55,8 @@ public class TJobApiItTest extends EtmApiItTest {
 		log.info("Start the test testCreateTJob");
 
 		String requestJson = "{" + "\"id\": 0," + "\"imageName\": \"elastest/test-etm-test1\","
-				+ "\"name\": \"testApp1\"," + "\"project\": { \"id\":" + projectId + "}" + "}";
+				+ "\"name\": \"testApp1\"," + "\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml\","
+				+ "\"project\": { \"id\":" + projectId + "}" + "}";
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);

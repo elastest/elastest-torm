@@ -15,6 +15,7 @@ public class ElastestConfigTest {
 		tJob.setId(0L);
 		tJob.setImageName("elastest/test-etm-test1");
 		tJob.setName("SimpleTest");
+		tJob.setResultsPath("/app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml");
 		Project project = new Project();
 		project.setId(1L);
 		project.setName("TestProject1");		
