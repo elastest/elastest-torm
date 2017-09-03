@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.service.DockerService;
+import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
@@ -25,13 +29,19 @@ import io.swagger.annotations.ApiParam;
 
 @Controller
 public class TjobApiController implements TjobApi {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TjobApiController.class);
 
 	@Autowired
 	private TJobService tJobService;
+	
+	@Autowired EsmService esmService;
 
 	@JsonView(BasicAttTJob.class)
 	public ResponseEntity<TJob> createTJob(
 			@ApiParam(value = "TJob object that needs to create", required = true) @Valid @RequestBody TJob body) {
+		logger.info("Services:" + body.getSelectedServices());
+		logger.info("Services:" + body.getName());
 		TJob tJob = tJobService.createTJob(body);
 		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
 	}
@@ -74,6 +84,7 @@ public class TjobApiController implements TjobApi {
 			@ApiParam(value = "ID of tJob to retrieve.", required = true) @PathVariable("tJobId") Long tJobId) {
 		
 		TJob tJob = tJobService.getTJobById(tJobId);
+		logger.info("Selected services: " + tJob.getSelectedServices());
 		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
 	}
 

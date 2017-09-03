@@ -42,8 +42,8 @@ public class ModelsTest {
 		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY);
 		SutSpecification sut2 = new SutSpecification(34l,"name","specification", "description",project2, new ArrayList<>(), SutTypeEnum.REPOSITORY);
 		
-		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig");
-		TJob tjob2 = new TJob(34l, "name", "imageName", sut2, project2, false, "execDashboardConfig");
+		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig", null);
+		TJob tjob2 = new TJob(34l, "name", "imageName", sut2, project2, false, "execDashboardConfig", null);
 		
 		assertEquals(tjob, tjob2);
 		assertEquals(tjob.hashCode(), tjob2.hashCode());
@@ -54,7 +54,7 @@ public class ModelsTest {
 		
 		Project project = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
 		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY);
-		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig");
+		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig", null);
 		
 		List<Parameter> params = new ArrayList<>();
 		params.add(new Parameter(45l,"param1", "value1", tjob, null));

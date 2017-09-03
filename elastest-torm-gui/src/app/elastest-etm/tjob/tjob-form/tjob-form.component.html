@@ -73,6 +73,15 @@
           </ng-container>
         </div>
       </td-expansion-panel>
+
+      <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
+          <md-card-subtitle>Services</md-card-subtitle>
+          <ng-container>
+            <span class="push-right" *ngFor="let service of tJob.esmServicesCatalogArray; let i = index">
+              <md-checkbox #service{{i}} [checked]="service.selected" (change)="service.changeServiceSelection($event)">{{service.name}}</md-checkbox>
+            </span>
+          </ng-container>
+      </div>
     </form>
   </md-card-content>
   <md-divider></md-divider>

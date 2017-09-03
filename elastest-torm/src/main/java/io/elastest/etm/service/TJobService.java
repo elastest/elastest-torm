@@ -19,15 +19,18 @@ public class TJobService {
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepositoryImpl;
 	private final EpmIntegrationService epmIntegrationService;
+	private final EsmService esmService;
 	
-	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, EpmIntegrationService epmIntegrationService) {
+	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, EpmIntegrationService epmIntegrationService,
+			EsmService esmService) {
 		super();
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
 		this.epmIntegrationService = epmIntegrationService;
+		this.esmService = esmService;
 	}
 
-	public TJob createTJob(TJob tjob) {
+	public TJob createTJob(TJob tjob) {		
 		return tJobRepo.save(tjob);
 	}
 
@@ -39,7 +42,6 @@ public class TJobService {
 	public List<TJob> getAllTJobs() {
 		return tJobRepo.findAll();
 	}
-
 	
 	public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters) {
 		TJob tjob = tJobRepo.findOne(tJobId);
@@ -66,7 +68,6 @@ public class TJobService {
 		tJobExecRepositoryImpl.save(tJobExecution);
 	}
 	
-
 	public void deleteTJobExec(Long tJobExecId) {
 		TJobExecution tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);
 		tJobExecRepositoryImpl.delete(tJobExec);

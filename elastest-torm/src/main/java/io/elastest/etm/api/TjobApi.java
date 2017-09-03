@@ -108,5 +108,4 @@ public interface TjobApi extends EtmApiRoot{
         consumes = { "application/json" },
         method = RequestMethod.PUT)
     ResponseEntity<TJob> modifyTJob(@ApiParam(value = "TJob object that needs to modify." ,required=true )  @Valid @RequestBody TJob body);
-
 }

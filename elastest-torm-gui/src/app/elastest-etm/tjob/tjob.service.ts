@@ -1,3 +1,4 @@
+import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
 import { DashboardConfigModel } from './dashboard-config-model';
 import { ParameterModel } from '../parameter/parameter-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
@@ -49,6 +50,12 @@ export class TJobService {
     tjobsDataToTable.resultsPath = tjob.resultsPath;
     tjobsDataToTable.execDashboardConfig = tjob.execDashboardConfig;
     tjobsDataToTable.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
+    if (tjob.esmServicesCatalogString !== undefined && tjob.esmServicesCatalogString !== null){      
+      for(let service of JSON.parse(tjob.esmServicesCatalogString)){
+        tjobsDataToTable.esmServicesCatalogArray.push( new EsmServiceModel(service.id, service.name,
+          service.selected));
+      }      
+    } 
 
     return tjobsDataToTable;
   }
@@ -72,6 +79,7 @@ export class TJobService {
       tjob.sut = undefined;
     }
     tjob.generateExecDashboardConfig();
+    tjob.esmServicesCatalogString = JSON.stringify(tjob.esmServicesCatalogArray);
     let url = this.configurationService.configModel.hostApi + '/tjob';
     return this.http.post(url, tjob)
       .map((response) => response.json());

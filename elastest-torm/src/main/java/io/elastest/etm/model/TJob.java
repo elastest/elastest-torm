@@ -96,12 +96,17 @@ public class TJob {
 	@Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
 	@JsonProperty("execDashboardConfig")
 	private String execDashboardConfig = null;
+	
+	@JsonView({BasicAttTJob.class})
+	@Column(name = "selectedServices", columnDefinition ="TEXT", length = 65535)
+	@JsonProperty("esmServicesCatalogString")
+	private String selectedServices;
 
 	public TJob() {
 	}
 
 	public TJob(Long id, String name, String imageName, SutSpecification sut, Project project, boolean external,
-			String execDashboardConfig) {
+			String execDashboardConfig, String selectedServices) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.imageName = imageName;
@@ -109,6 +114,7 @@ public class TJob {
 		this.project = project;
 		this.external = external;
 		this.execDashboardConfig = execDashboardConfig;
+		this.selectedServices = selectedServices;
 	}
 
 	/**
@@ -295,6 +301,14 @@ public class TJob {
 		this.resultsPath = resultsPath;
 	}
 
+	public String getSelectedServices() {
+		return selectedServices;
+	}
+
+	public void setSelectedServices(String selectedServices) {
+		this.selectedServices = selectedServices;
+	}
+
 	/* Others */
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -310,12 +324,14 @@ public class TJob {
 				&& Objects.equals(this.project, tjob.project) && Objects.equals(this.tjobExecs, tjob.tjobExecs)
 				&& Objects.equals(this.parameters, tjob.parameters) && Objects.equals(this.commands, tjob.commands)
 				&& Objects.equals(this.resultsPath, tjob.resultsPath) && Objects.equals(this.external, tjob.external)
-				&& Objects.equals(this.execDashboardConfig, tjob.execDashboardConfig);
+				&& Objects.equals(this.execDashboardConfig, tjob.execDashboardConfig)
+				&& Objects.equals(this.selectedServices, tjob.selectedServices);
+		
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, imageName, sut, project, tjobExecs, parameters, execDashboardConfig);
+		return Objects.hash(id, name, imageName, sut, project, tjobExecs, parameters, execDashboardConfig, selectedServices);
 	}
 
 	@Override
@@ -334,6 +350,7 @@ public class TJob {
 		sb.append("    resultsPath: ").append(toIndentedString(resultsPath)).append("\n");
 		sb.append("    external: ").append(toIndentedString(external)).append("\n");
 		sb.append("    execDashboardConfig: ").append(toIndentedString(execDashboardConfig)).append("\n");
+		sb.append("    selectedServices: ").append(toIndentedString(selectedServices)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

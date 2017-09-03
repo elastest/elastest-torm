@@ -6,11 +6,13 @@ services:
     hostname: elastest-service-manager
     container_name: elastest-service-manager
     environment:
-      - ESM_PORT=8080
+      - ESM_PORT=8095
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
+    expose:
+      - 8095
     ports:
-      - "8080:8080"
+      - "8095:8095"
     networks:
       - elastest
 

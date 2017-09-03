@@ -1,3 +1,5 @@
+import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
+import { selectContext } from 'webdriver-js-extender/built/lib/command_definitions';
 import { DashboardConfigModel } from './dashboard-config-model';
 import { AllMetricsFields } from '../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { ParameterModel } from '../parameter/parameter-model';
@@ -17,7 +19,9 @@ export class TJobModel {
     resultsPath: string;
     execDashboardConfig: string;
     execDashboardConfigModel: DashboardConfigModel;
-
+    esmServicesCatalogString: string;
+    esmServicesCatalogArray: EsmServiceModel[];
+    
     constructor() {
         this.id = 0;
         this.name = '';
@@ -29,7 +33,9 @@ export class TJobModel {
         this.commands = '';
         this.resultsPath = '';
         this.execDashboardConfig = '';
-        this.execDashboardConfigModel = new DashboardConfigModel();
+        this.execDashboardConfigModel = new DashboardConfigModel(); 
+        this.esmServicesCatalogString = '';
+        this.esmServicesCatalogArray = [];       
     }
 
     public generateExecDashboardConfig() {
@@ -56,5 +62,10 @@ export class TJobModel {
     public arrayCommands() {
         let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
         return commandsArray;
+    }
+
+    public changeServiceSelection($event, i:number) {
+        console.log("Service id:"+i);
+        this.esmServicesCatalogArray[i].selected = $event.checked;
     }
 }

@@ -1,3 +1,5 @@
+import { EsmService } from '../../../elastest-esm/esm-service.service';
+import { EsmServiceModel } from '../../../elastest-esm/esm-service.model';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../../sut/sut-model';
@@ -20,10 +22,12 @@ export class TJobFormComponent implements OnInit {
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
   withCommands: boolean = false;
+  
+  elastestEsmServices: string[];
 
 
   constructor(private tJobService: TJobService, private route: ActivatedRoute,
-    private projectService: ProjectService) { }
+    private projectService: ProjectService, private esmService: EsmService) { }
 
   ngOnInit() {
     this.tJob = new TJobModel();
@@ -35,7 +39,7 @@ export class TJobFormComponent implements OnInit {
           .subscribe((tJob: TJobModel) => {
             this.tJob = tJob;
             this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
-            this.withCommands = this.tJob.withCommands();
+            this.withCommands = this.tJob.withCommands();            
           });
       }
       else if (currentPath === 'new') {
@@ -44,10 +48,23 @@ export class TJobFormComponent implements OnInit {
           (project: ProjectModel) => {
             this.tJob = new TJobModel();
             this.tJob.project = project;
+            this.loadEsmServices();
           },
         );
       }
     }
+  }
+
+  loadEsmServices() {
+    this.esmService.getElastestESMServices()
+      .subscribe((response) => {
+        this.elastestEsmServices = response;
+        let serviceId = 0;
+        for (let serviceName of this.elastestEsmServices) {
+          this.tJob.esmServicesCatalogArray.push(new EsmServiceModel( serviceId, serviceName, false ));
+          serviceId++;
+        }
+      });
   }
 
   goBack(): void {

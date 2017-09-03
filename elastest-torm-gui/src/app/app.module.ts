@@ -1,3 +1,4 @@
+import { EsmService } from './elastest-esm/esm-service.service';
 import { RouterModule } from '@angular/router';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
@@ -101,7 +102,8 @@ const httpInterceptorProviders: Type<any>[] = [
       deps: [ConfigurationService], multi: true
     },
     EusService,
-    ElastestEusDialogService
+    ElastestEusDialogService,
+    EsmService
   ],
   entryComponents: [
     ElastestEusDialog,
