@@ -51,8 +51,7 @@ public class EsmService {
 	
 	/**
 	 * Register the ElasTest Services into the ESM. 
-	 * @throws IOException 
-	 * @throws  
+	 * @throws IOException   
 	 */
 	public void registerElastestServices() throws IOException{
 		logger.info("Get and send the register information: " + EMS_SERVICES_FILES_PATH);
