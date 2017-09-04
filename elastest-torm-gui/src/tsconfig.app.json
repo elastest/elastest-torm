@@ -20,7 +20,8 @@
     "noUnusedParameters": false,
     "noUnusedLocals": false,
     "allowUnreachableCode": false,
-    "pretty": true
+    "pretty": true,
+    "allowJs": true
   },
   "exclude": [
     "test.ts",

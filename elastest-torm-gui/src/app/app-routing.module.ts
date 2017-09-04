@@ -1,3 +1,5 @@
+import { TestVncComponent } from './shared/vnc-client/test-vnc/test-vnc.component';
+import { VncClientComponent } from './shared/vnc-client/vnc-client.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
@@ -170,6 +172,10 @@ const routes: Routes = [
             {
                 path: 'logmanager',
                 component: ElastestLogManagerComponent,
+            },
+            {
+                path: 'vnc',
+                component: TestVncComponent,
             },
 
         ]

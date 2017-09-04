@@ -1,0 +1,13 @@
+<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-lg="100" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        VNC
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <vnc-client [host]="localhost" [port]="6080" [password]="secret"></vnc-client>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

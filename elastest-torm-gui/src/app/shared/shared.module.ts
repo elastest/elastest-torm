@@ -27,6 +27,9 @@ import { EtmComplexMetricsGroupComponent } from './metrics-view/complex-metrics-
 import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/components/tooltip-area.component';
 import { TimelineComponent } from './metrics-view/complex-metrics-view/combo-chart/components/timeline.component';
 import { EtmLogsGroupComponent } from './logs-view/etm-logs-group/etm-logs-group.component';
+import { VncClientComponent } from './vnc-client/vnc-client.component';
+import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
+
 
 const FLEX_LAYOUT_MODULES: any[] = [
   FlexLayoutModule,
@@ -76,6 +79,8 @@ const CHART_MODULES: any[] = [
     TooltipAreaComponent,
     TimelineComponent,
     EtmLogsGroupComponent,
+    VncClientComponent,
+    TestVncComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -93,6 +98,8 @@ const CHART_MODULES: any[] = [
     EtmLogsGroupComponent,
     TooltipAreaComponent,
     TimelineComponent,
+    VncClientComponent,
+    TestVncComponent,
   ]
 })
 export class SharedModule { }
