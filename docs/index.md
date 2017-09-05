@@ -58,6 +58,7 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
     ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
     ```
     > **Note:** If the directory *docker.service.d* does not exist, then you need create it.
+    > **Note:** In some cases it would be required to explicitly set and export the environmental variable `DOCKER_HOST=tcp://0.0.0.0:2375`. Please in case you adopt a different port, fix this variable accordingly.
 
 5. Reload configuration.
     - `systemctl daemon-reload`
@@ -75,7 +76,7 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
 ### Start and stop ElasTest TORM
 - `cd elastest-torm`
 - `docker-compose -p elastest up `
-- To stop ElasTest TORM press `Ctrl+C` in the shell
+- To stop ElasTest TORM preferably run: `docker-compose -p elastest down `, otherwise press `Ctrl+C` in the shell
 
 >**Note:** To run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/elastest-torm`, before running the docker-compose command.
 
@@ -136,7 +137,7 @@ Then, install the following development tools:
 - [Visual Studio Code](https://code.visualstudio.com/) or similar for Angular development.
 - [Angular CLI](https://cli.angular.io/) 
 
-Last, clone the repositorie in a local folder (for example, `/git`):
+Last, clone the repository in a local folder (for example, `/git`):
 
 ```
 cd /git
@@ -153,7 +154,10 @@ First, you need to start platform services before you can execute TORM Server an
 - `cd /git/elastest-torm`
 - `docker-compose -f docker-compose-dev.yml up`
 
-To stop ElasTest services, press `Ctrl+C` in the shell.
+To stop ElasTest services, you should run in a shell:
+- `docker-compose -f docker-compose-dev.yml up`
+
+Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
  > **Note:** On Windows you must execute this commands inside the VM (`docker-machine ssh`). 
 
@@ -164,16 +168,22 @@ First, if you are on windows, you have to update the file `git/elastest-torm/ela
 You can develop ElasTest TORM Server Application using an editor and the command line or using Eclipse IDE:
 * Using *Eclipse IDE*: 
   * Load project in the IDE: 
-    * Import *elastest-eus* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `/git/elastest-eus/elastest-eus` folder.
+    * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `/git/elastest-torm/elastest-torm` folder.
   * Compile and execute the project:
     * Right click over the project and select `Run as...> Java Application` and select class `ElastestETMSpringBoot`.
 
 * Using editor and console:
     * Compile and execute the project: 
-      * Go to the root directory of the project with `cd /git/elastest-eus/elastest-eus`
+      * Go to the root directory of the project with `cd /git/elastest-torm/elastest-torm`
+      * Configure the property file in `src/main/resources/application.properties`
+      * Compile the project `mvn clean package`
       * Execute command `mvn spring-boot:run`
 
-The server application can be used from the web interface (see next section). The remote webdriver endpoint is located in URL http://localhost:8080/eus/v1.
+     >**Note:** Building the project may require root privileges for running the test `DockerServiceItTest`. Either execute the TORM as root or skip such test.
+     
+      
+The server application can be used from the web interface (see next section). By default the endpoint of the ElasTest TORM Server Application should be located at URL `http://localhost:8091`, 
+the exposed API could be checked at `http://localhost:8091/swagger-ui.html#/`.
 
 If you change any source file, you need to stop the service and start it again.
 
