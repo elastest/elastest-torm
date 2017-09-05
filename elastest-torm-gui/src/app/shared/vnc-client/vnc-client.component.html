@@ -3,4 +3,7 @@
     Canvas not supported.
   </canvas>
 </div>
-<!-- <button md-raised-button color="accent">Connect</button> -->
+<div layout="row" class="push-top">
+  <button md-raised-button color="accent" (click)="connect()" [disabled]="vncUi.connected">Connect</button>
+  <button md-raised-button color="accent" (click)="disconnect()" [disabled]="!vncUi.connected">Disconnect</button>
+</div>
