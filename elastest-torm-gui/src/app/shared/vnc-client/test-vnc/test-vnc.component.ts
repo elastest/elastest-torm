@@ -7,6 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TestVncComponent implements OnInit {
 
+  host: string = 'localhost';
+  port: any = '6080';
+  password: string = undefined;
+  autoconnect: boolean = true;
+
   constructor() { }
 
   ngOnInit() {

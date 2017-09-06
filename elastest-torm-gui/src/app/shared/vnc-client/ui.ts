@@ -31,12 +31,15 @@ export class VncUI {
     reconnect_callback;
     reconnect_password;
 
-    autoconnect;
+    host: string;
+    port: any;
+    password: string;
+    autoconnect: boolean;
 
     public rfb;
     public harcodedResize: string = 'scale';
 
-    constructor() {
+    constructor(host: string, port: any, autoconnect: boolean = false, password: string = undefined) {
         this.connected = false;
         this.desktopName = '';
 
@@ -59,6 +62,11 @@ export class VncUI {
         this.inhibit_reconnect = true;
         this.reconnect_callback = undefined;
         this.reconnect_password = undefined;
+
+        this.host = host;
+        this.port = port;
+        this.password = password;
+        this.autoconnect = autoconnect;
     }
 
     prime(callback?) {
@@ -138,7 +146,7 @@ export class VncUI {
         this.autoconnect = WebUtil.getConfigVar('autoconnect', false);
         //Hardcoded
         this.autoconnect = true;
-        if (this.autoconnect === 'true' || this.autoconnect == '1') {
+        if (this.autoconnect === true) {
             this.autoconnect = true;
             this.connect();
         } else {
@@ -182,19 +190,19 @@ export class VncUI {
 
         // if port == 80 (or 443) then it won't be present and should be
         // set manually
-        let port: any = window.location.port;
-        if (!port) {
+        // let port: any = window.location.port;
+        if (!this.port) {
             if (window.location.protocol.substring(0, 5) == 'https') {
-                port = 443;
+                this.port = 443;
             }
             else if (window.location.protocol.substring(0, 4) == 'http') {
-                port = 80;
+                this.port = 80;
             }
         }
 
         /* Populate the controls if defaults are provided in the URL */
         this.initSetting('host', window.location.hostname);
-        this.initSetting('port', port);
+        this.initSetting('port', this.port);
         this.initSetting('encrypt', (window.location.protocol === 'https:'));
         this.initSetting('cursor', !isTouchDevice);
         this.initSetting('clip', false);
@@ -1180,12 +1188,10 @@ export class VncUI {
         }
     }
 
-    connect(event?, password?) {
-        let host = this.getSetting('host');
-        let port = this.getSetting('port');
+    connect(event?, password = this.password) {
         let path = this.getSetting('path');
 
-        if (typeof password === 'undefined') {
+        if (password === undefined) {
             password = WebUtil.getConfigVar('password');
         }
 
@@ -1193,7 +1199,7 @@ export class VncUI {
             password = undefined;
         }
 
-        if ((!host) || (!port)) {
+        if ((!this.host) || (!this.port)) {
             let msg = _('Must set host and port');
             Log.Error(msg);
             this.showStatus(msg, 'error');
@@ -1212,7 +1218,7 @@ export class VncUI {
         this.updateLocalCursor();
         this.updateViewOnly();
 
-        this.rfb.connect(host, port, password, path);
+        this.rfb.connect(this.host, this.port, this.password, path);
     }
 
     disconnect() {

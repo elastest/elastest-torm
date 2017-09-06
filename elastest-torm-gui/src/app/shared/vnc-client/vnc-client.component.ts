@@ -10,9 +10,11 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input()
   public host: string;
   @Input()
-  public port: string;
+  public port: any;
   @Input()
   public password: string;
+  @Input()
+  public autoconnect: boolean;
 
   public canvas: HTMLCanvasElement;
 
@@ -21,9 +23,9 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   public desktopName;
 
   public vncUi: VncUI;
+
   constructor(private elementRef: ElementRef) {
     this.canvas = <HTMLCanvasElement>document.getElementById('vnc_canvas');
-    this.vncUi = new VncUI();
   }
 
   ngOnInit() {
@@ -32,7 +34,8 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.connect();
+    this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.password);
+    this.vncUi.init();
   }
 
   ngOnDestroy() {
@@ -40,7 +43,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   connect() {
-    this.vncUi.init();
+    this.vncUi.connect();
   }
 
   disconnect() {
