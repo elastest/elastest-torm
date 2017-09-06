@@ -14,7 +14,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input()
   public password: string;
   @Input()
-  public autoconnect: boolean;
+  public autoconnect: boolean = false;
 
   public canvas: HTMLCanvasElement;
 
@@ -28,18 +28,21 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     this.canvas = <HTMLCanvasElement>document.getElementById('vnc_canvas');
   }
 
-  ngOnInit() {
-    // this.createScript('./assets/vnc-resources/vendor/promise.js');
-    // this.createScript('./assets/vnc-resources/vendor/browser-es-module-loader/dist/browser-es-module-loader.js');
-  }
+  ngOnInit() { }
 
   ngAfterViewInit(): void {
-    this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.password);
-    this.vncUi.init();
+    this.initVnc();
   }
 
   ngOnDestroy() {
     this.disconnect();
+  }
+
+  initVnc() {
+    if (this.host && this.port) {
+      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.password);
+      this.vncUi.init();
+    }
   }
 
   connect() {
@@ -48,14 +51,5 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   disconnect() {
     this.vncUi.disconnect();
-  }
-
-  createScript(path: string, type: string = 'text/javascript') {
-    // document.write('<script type="' + type + '" src="' + path + '"></script>');
-    const s = document.createElement('script');
-    s.type = 'text/javascript';
-
-    s.src = path;
-    this.elementRef.nativeElement.appendChild(s);
   }
 }

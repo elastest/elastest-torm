@@ -143,9 +143,6 @@ export class VncUI {
             document.documentElement.classList.remove('noVNC_loading');
         }
 
-        this.autoconnect = WebUtil.getConfigVar('autoconnect', false);
-        //Hardcoded
-        this.autoconnect = true;
         if (this.autoconnect === true) {
             this.autoconnect = true;
             this.connect();
@@ -1206,7 +1203,7 @@ export class VncUI {
             return;
         }
 
-        if (!this.initRFB()) return;
+        if (!this.initRFB()) { return; }
 
         this.closeAllPanels();
         this.closeConnectPanel();
