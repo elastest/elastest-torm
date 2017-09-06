@@ -11,6 +11,7 @@ export class TestVncComponent implements OnInit {
   port: any = '6080';
   password: string = undefined;
   autoconnect: boolean = true;
+  viewOnly: boolean = false;
 
   constructor() { }
 

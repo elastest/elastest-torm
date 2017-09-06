@@ -15,6 +15,8 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   public password: string;
   @Input()
   public autoconnect: boolean = false;
+  @Input()
+  public viewOnly: boolean = false;
 
   public canvas: HTMLCanvasElement;
 
@@ -40,7 +42,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   initVnc() {
     if (this.host && this.port) {
-      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.password);
+      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password);
       this.vncUi.init();
     }
   }

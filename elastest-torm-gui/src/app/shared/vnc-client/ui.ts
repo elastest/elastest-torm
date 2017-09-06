@@ -35,11 +35,12 @@ export class VncUI {
     port: any;
     password: string;
     autoconnect: boolean;
+    viewOnly: boolean;
 
     public rfb;
     public harcodedResize: string = 'scale';
 
-    constructor(host: string, port: any, autoconnect: boolean = false, password: string = undefined) {
+    constructor(host: string, port: any, autoconnect: boolean = false, viewOnly: boolean = false, password: string = undefined) {
         this.connected = false;
         this.desktopName = '';
 
@@ -67,6 +68,7 @@ export class VncUI {
         this.port = port;
         this.password = password;
         this.autoconnect = autoconnect;
+        this.viewOnly = viewOnly;
     }
 
     prime(callback?) {
@@ -205,7 +207,7 @@ export class VncUI {
         this.initSetting('clip', false);
         this.initSetting('resize', 'off');
         this.initSetting('shared', true);
-        this.initSetting('view_only', false);
+        this.initSetting('view_only', this.viewOnly);
         this.initSetting('path', 'websockify');
         this.initSetting('repeaterID', '');
         this.initSetting('reconnect', false);
@@ -1840,14 +1842,13 @@ export class VncUI {
     }
 
     updateLocalCursor() {
-        if (!this.rfb) return;
+        if (!this.rfb) { return; }
         this.rfb.set_local_cursor(this.getSetting('cursor'));
     }
 
     updateViewOnly() {
-        if (!this.rfb) return;
-        // this.rfb.set_view_only(this.getSetting('view_only'));
-        this.rfb.set_view_only(false);
+        if (!this.rfb) { return; }
+        this.rfb.set_view_only(this.viewOnly);
     }
 
     updateLogging() {
@@ -1877,7 +1878,7 @@ export class VncUI {
         // document.title = name + ' - noVNC';
     }
 
-    //Helper to add options to dropdown.
+    // Helper to add options to dropdown.
     addOption(selectbox, text, value) {
         if (selectbox !== undefined && selectbox !== null) {
             let optn = document.createElement('OPTION') as HTMLOptionElement;
