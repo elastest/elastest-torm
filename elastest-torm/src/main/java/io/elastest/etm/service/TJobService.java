@@ -1,10 +1,17 @@
 package io.elastest.etm.service;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
@@ -15,7 +22,8 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 
 @Service
 public class TJobService {
-
+	private static final Logger logger = LoggerFactory.getLogger(TJobService.class);
+	
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepositoryImpl;
 	private final EpmIntegrationService epmIntegrationService;
@@ -55,10 +63,37 @@ public class TJobService {
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
 		if (!tjob.isExternal()){
-			epmIntegrationService.executeTJob(tJobExec);
+			provideServices(tjob.getSelectedServices(), tJobExec);
+			//epmIntegrationService.executeTJob(tJobExec);
+			deprovideServices(tJobExec);			
 		}
 		
 		return tJobExec;
+	}
+	
+	/**
+	 * 
+	 * @param tJobServices
+	 * @param tJobExec
+	 */
+	private void provideServices(String tJobServices, TJobExecution tJobExec){
+		logger.info("Start the service provision.");
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			List<ObjectNode> services = Arrays.asList(mapper.readValue(tJobServices, ObjectNode[].class));
+			for(ObjectNode service: services){
+				if (service.get("selected").toString().equals(Boolean.toString(true))){
+					tJobExec.getServicesInstances().add(esmService.provideServiceInstance(service.get("name").toString()));
+				}
+			}			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void deprovideServices(TJobExecution tJobExec){
+		logger.info("Start the service deprovision.");		
 	}
 	
 	public void finishTJobExecution(Long tJobExecId){

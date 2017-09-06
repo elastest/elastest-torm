@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -94,18 +95,23 @@ public class TJobExecution {
 	@ElementCollection
 	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
 	private List<Parameter> parameters = new ArrayList<>();
+	
+	@Transient
+	private List<String> servicesInstances;
 
 	// Constructors
 	public TJobExecution() {
 		this.id = (long) 0;
 		this.duration = (long) 0;
 		this.result = ResultEnum.IN_PROGRESS;
+		this.servicesInstances = new ArrayList<>();
 	}
 
 	public TJobExecution(Long id, Long duration, ResultEnum result) {
 		this.id = id == null ? 0 : id;
 		this.duration = duration == null ? 0 : duration;
 		this.result = result;
+		this.servicesInstances = new ArrayList<>();
 	}
 
 	/**
@@ -270,6 +276,14 @@ public class TJobExecution {
 		this.parameters = parameters;
 	}
 
+	public List<String> getServicesInstances() {
+		return servicesInstances;
+	}
+
+	public void setServicesInstances(List<String> servicesInstances) {
+		this.servicesInstances = servicesInstances;
+	}
+
 	public TJobExecution addLogsItem(Parameter parameter) {
 		if (this.parameters == null) {
 			this.parameters = new ArrayList<Parameter>();
@@ -279,7 +293,6 @@ public class TJobExecution {
 	}
 
 	// Others
-
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {

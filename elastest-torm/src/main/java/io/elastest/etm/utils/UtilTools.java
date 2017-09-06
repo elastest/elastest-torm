@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.exception.DockerClientException;
 
 @Component
@@ -126,5 +127,18 @@ public class UtilTools {
 			return getDockerHostIpOnWin();					
 		}else
 			return getHostIp();
+	}
+	
+	public String convertJsonString(Object obj) {
+		String jsonString = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();             
+            jsonString = objectMapper.writeValueAsString(obj);            
+
+        } catch (IOException e) {
+            logger.error("Error during conversion: " + e.getMessage());           
+        }
+        return jsonString;		
+		
 	}
 }

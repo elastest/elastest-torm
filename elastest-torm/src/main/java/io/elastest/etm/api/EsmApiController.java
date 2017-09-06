@@ -26,7 +26,7 @@ public class EsmApiController implements EsmApi {
 	@JsonView(BasicAttTJob.class)
 	@Override
 	public ResponseEntity<List<String>> getElastestServices() {
-		List<String> servicesList = esmService.getRegisteredServices();
+		List<String> servicesList = esmService.getRegisteredServicesName();
 		return new ResponseEntity<List<String>>(servicesList, HttpStatus.OK);
 	}	
 }

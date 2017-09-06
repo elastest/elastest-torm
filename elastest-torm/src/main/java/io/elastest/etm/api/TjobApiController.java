@@ -20,7 +20,6 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.elastest.etm.service.DockerService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
@@ -83,8 +82,7 @@ public class TjobApiController implements TjobApi {
 	public ResponseEntity<TJob> getTJobById(
 			@ApiParam(value = "ID of tJob to retrieve.", required = true) @PathVariable("tJobId") Long tJobId) {
 		
-		TJob tJob = tJobService.getTJobById(tJobId);
-		logger.info("Selected services: " + tJob.getSelectedServices());
+		TJob tJob = tJobService.getTJobById(tJobId);		
 		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
 	}
 
