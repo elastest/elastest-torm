@@ -46,8 +46,13 @@ export class EusService {
     });
   }
 
-  public deleteVnc(sessionId: string) {
-    let url = this.eusUrl + "session/" + sessionId + "/vnc";
+  public getRecording(sessionId: string) {
+    let url = this.eusUrl + "session/" + sessionId + "/recording";
+    return this.http.get(url);
+  }
+
+  public deleteRecording(sessionId: string) {
+    let url = this.eusUrl + "session/" + sessionId + "/recording";
     return this.http.delete(url);
   }
 

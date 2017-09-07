@@ -37,7 +37,7 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewSession(value, row)">View</button>
+                        <button md-raised-button color="accent" (click)="viewSession(value, row, ' - automated test')">View</button>
                     </ng-template>
                 </td-data-table>
             </md-card-content>
@@ -53,8 +53,8 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewSession(value, row)">View</button>
-                        <button md-raised-button color="accent" (click)="deleteSession(row)">Delete</button>
+                        <button md-raised-button color="accent" (click)="viewRecording(row)">View</button>
+                        <button md-raised-button color="accent" (click)="deleteRecording(row)">Delete</button>
                     </ng-template>
                 </td-data-table>
             </md-card-content>

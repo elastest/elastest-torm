@@ -85,7 +85,6 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.browser = json.recordedSession.browser;
           testModel.version = json.recordedSession.version;
           testModel.creationTime = json.recordedSession.creationTime;
-          testModel.url = this.configurationService.configModel.eusServiceUrlNoPath + json.recordedSession.path;
           this.recordings.push(testModel);
           this.recordings = Array.from(this.recordings);
         }
@@ -109,17 +108,26 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewSession(url: string, testModel: EusTestModel) {
+  viewSession(url: string, testModel: EusTestModel, titleSuffix: string) {
     let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     let title: string = this.capitalize(testModel.browser) + " " + testModel.version;
-    title += "- automated test";
+    title += titleSuffix;
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.closeButton = true;
   }
 
-  deleteSession(testModel: EusTestModel) {
-    this.eusService.deleteVnc(testModel.id).subscribe(
+  viewRecording(testModel: EusTestModel) {
+    this.eusService.getRecording(testModel.id).subscribe(
+      ok => {
+        this.viewSession(this.configurationService.configModel.eusServiceUrlNoPath + ok.text(), testModel, " - recorded test");
+      },
+      error => console.error(error)
+    );
+  }
+
+  deleteRecording(testModel: EusTestModel) {
+    this.eusService.deleteRecording(testModel.id).subscribe(
       ok => {
         let entry: EusTestModel;
         let newTestData: EusTestModel[] = [];
