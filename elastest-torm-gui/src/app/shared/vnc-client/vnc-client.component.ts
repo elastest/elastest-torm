@@ -19,11 +19,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   public viewOnly: boolean = false;
 
   public canvas: HTMLCanvasElement;
-
-  public path;
-  public resizeTimeout;
-  public desktopName;
-
   public vncUi: VncUI;
 
   constructor(private elementRef: ElementRef) {

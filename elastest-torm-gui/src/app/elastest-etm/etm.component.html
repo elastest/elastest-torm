@@ -9,6 +9,9 @@
     <a md-icon-button mdTooltip="Github" href="https://github.com/elastest/elastest-torm" target="_blank">
       <md-icon svgIcon="assets:github"></md-icon>
     </a>
+    <button md-icon-button mdTooltip="Fullscreen" (click)="toggleFullscreen()">
+      <md-icon md-list-icon>fullscreen</md-icon>
+    </button>
   </div>
   <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
     [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '244px' :

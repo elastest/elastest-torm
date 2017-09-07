@@ -37,8 +37,8 @@ export class VncUI {
     autoconnect: boolean;
     viewOnly: boolean;
 
+    resizeMode: string = 'scale'; // Hardcoded
     public rfb;
-    public harcodedResize: string = 'scale';
 
     constructor(host: string, port: any, autoconnect: boolean = false, viewOnly: boolean = false, password: string = undefined) {
         this.connected = false;
@@ -193,8 +193,7 @@ export class VncUI {
         if (!this.port) {
             if (window.location.protocol.substring(0, 5) == 'https') {
                 this.port = 443;
-            }
-            else if (window.location.protocol.substring(0, 4) == 'http') {
+            } else if (window.location.protocol.substring(0, 4) == 'http') {
                 this.port = 80;
             }
         }
@@ -270,8 +269,17 @@ export class VncUI {
     * ------v------*/
 
     addResizeHandlers() {
-        window.addEventListener('resize', this.applyResizeMode);
-        window.addEventListener('resize', this.updateViewClip);
+        window.onresize = function () {
+            if (this.resizeTimeout) {
+                clearTimeout(this.resizeTimeout);
+            }
+            this.resizeTimeout = setTimeout((() => {
+                this.applyResizeMode();
+                this.updateViewClip();
+            }).bind(this), 500);
+        }.bind(this);
+        // window.addEventListener('resize', this.applyResizeMode);
+        // window.addEventListener('resize', this.updateViewClip);
     }
 
     addControlbarHandlers() {
@@ -542,8 +550,6 @@ export class VncUI {
 
     // Disable/enable controls depending on connection state
     updateVisualState() {
-        //Log.Debug('>> updateVisualState');
-
         this.enableDisableViewClip();
 
         if (cursorURIsSupported() && !isTouchDevice) {
@@ -599,8 +605,6 @@ export class VncUI {
             document.getElementById('noVNC_password_dlg')
                 .classList.remove('noVNC_open');
         }
-
-        //Log.Debug('<< updateVisualState');
     }
 
     showStatus(text, status_type?, time?) {
@@ -939,7 +943,6 @@ export class VncUI {
             val = ctrl.value;
         }
         WebUtil.writeSetting(name, val);
-        //Log.Debug('Setting saved '' + name + '=' + val + ''');
         return val;
     }
 
@@ -1144,9 +1147,7 @@ export class VncUI {
     clipboardReceive(rfb, text) {
         let clipboardText = document.getElementById('noVNC_clipboard_text') as HTMLTextAreaElement;
         if (clipboardText) {
-            Log.Debug('>> this.clipboardReceive: ' + text.substr(0, 40) + '...');
             clipboardText.value = text;
-            Log.Debug('<< this.clipboardReceive');
         }
     }
 
@@ -1161,9 +1162,7 @@ export class VncUI {
     clipboardSend() {
         let clipboardText = document.getElementById('noVNC_clipboard_text') as HTMLTextAreaElement;
         if (clipboardText) {
-            Log.Debug('>> this.clipboardSend: ' + clipboardText.value.substr(0, 40) + '...');
             this.rfb.clipboardPasteFrom(clipboardText);
-            Log.Debug('<< this.clipboardSend');
         }
     }
 
@@ -1331,7 +1330,7 @@ export class VncUI {
                 documentVar.msExitFullscreen();
             }
         } else {
-            let element = Element as any;
+            let element: any = Element as any;
             if (documentElement.requestFullscreen) {
                 documentElement.requestFullscreen();
             } else if (documentElement.mozRequestFullScreen) {
@@ -1347,7 +1346,7 @@ export class VncUI {
     }
 
     updateFullscreenButton() {
-        let documentVar = document as any;
+        let documentVar: any = document as any;
 
         if (documentVar.fullscreenElement || // alternative standard method
             documentVar.mozFullScreenElement || // currently working methods
@@ -1376,16 +1375,13 @@ export class VncUI {
         if (screen && this.connected && this.rfb.get_display()) {
 
             let display = this.rfb.get_display();
-            let resizeMode = this.getSetting('resize');
-            // Hardcoded
-            resizeMode = this.harcodedResize;
 
             display.set_scale(1);
 
             // Make sure the viewport is adjusted first
             this.updateViewClip();
 
-            if (resizeMode === 'remote') {
+            if (this.resizeMode === 'remote') {
 
                 // Request changing the resolution of the remote display to
                 // the size of the local browser viewport.
@@ -1395,15 +1391,12 @@ export class VncUI {
                 clearTimeout(this.resizeTimeout);
                 this.resizeTimeout = setTimeout(function () {
                     // Request a remote size covering the viewport
-                    if (this.rfb.requestDesktopSize(screen.w, screen.h)) {
-                        Log.Debug('Requested new desktop size: ' +
-                            screen.w + 'x' + screen.h);
-                    }
+                    this.rfb.requestDesktopSize(screen.w, screen.h)
                 }, 500);
 
-            } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
+            } else if (this.resizeMode === 'scale' || this.resizeMode === 'downscale') {
 
-                let downscaleOnly = resizeMode === 'downscale';
+                let downscaleOnly = this.resizeMode === 'downscale';
                 display.autoscale(screen.w, screen.h, downscaleOnly);
                 this.fixScrollbars();
             }
@@ -1448,9 +1441,7 @@ export class VncUI {
         let cur_clip = display.get_viewport();
         let new_clip = this.getSetting('clip');
 
-        let resizeSetting = this.getSetting('resize');
-        resizeSetting = this.harcodedResize;
-        if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
+        if (this.resizeMode === 'downscale' || this.resizeMode === 'scale') {
             // Disable clipping if we are scaling
             new_clip = false;
         } else if (isTouchDevice) {
@@ -1478,11 +1469,8 @@ export class VncUI {
 
     // Handle special cases where clipping is forced on/off or locked
     enableDisableViewClip() {
-        let resizeSetting = this.getSetting('resize');
-        resizeSetting = this.harcodedResize;
-
         // Disable clipping if we are scaling, connected or on touch
-        if (resizeSetting === 'downscale' || resizeSetting === 'scale' ||
+        if (this.resizeMode === 'downscale' || this.resizeMode === 'scale' ||
             isTouchDevice) {
             this.disableSetting('clip');
         } else {
