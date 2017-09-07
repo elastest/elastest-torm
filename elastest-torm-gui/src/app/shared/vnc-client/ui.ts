@@ -1,3 +1,4 @@
+import { Observable, Subject } from 'rxjs/Rx';
 import * as Log from '../../../assets/vnc-resources/core/util/logging.js';
 import _, { l10n } from '../../../assets/vnc-resources/core/util/localization.js';
 import { isTouchDevice, browserSupportsCursorURIs as cursorURIsSupported } from '../../../assets/vnc-resources/core/util/browsers.js';
@@ -39,6 +40,9 @@ export class VncUI {
 
     resizeMode: string = 'scale'; // Hardcoded
     public rfb;
+
+    _statusObs: Subject<string> = new Subject<string>();
+    statusObs: Observable<string> = this._statusObs.asObservable();
 
     constructor(host: string, port: any, autoconnect: boolean = false, viewOnly: boolean = false, password: string = undefined) {
         this.connected = false;
@@ -119,10 +123,6 @@ export class VncUI {
         this.addConnectionControlHandlers();
         this.addClipboardHandlers();
         this.addSettingsHandlers();
-        if (document.getElementById('noVNC_status')) {
-            document.getElementById('noVNC_status')
-                .addEventListener('click', this.hideStatus);
-        }
 
         // Bootstrap fallback input handler
         this.keyboardinputReset();
@@ -257,7 +257,7 @@ export class VncUI {
         } catch (exc) {
             let msg = 'Unable to create RFB client -- ' + exc;
             Log.Error(msg);
-            this.showStatus(msg, 'error');
+            this._statusObs.next('Error: ' + msg);
             return false;
         }
     }
@@ -503,48 +503,37 @@ export class VncUI {
      * ------v------*/
 
     updateState(rfb, state, oldstate) {
-        let msg;
-
-        document.documentElement.classList.remove('noVNC_connecting');
-        document.documentElement.classList.remove('noVNC_connected');
-        document.documentElement.classList.remove('noVNC_disconnecting');
-        document.documentElement.classList.remove('noVNC_reconnecting');
+        let msg: string;
+        let statusInfo: string = '';
 
         switch (state) {
             case 'connecting':
-                if (document.getElementById('noVNC_transition_text')) {
-                    document.getElementById('noVNC_transition_text').textContent = _('Connecting...');
-                    document.documentElement.classList.add('noVNC_connecting');
-                }
+                statusInfo = 'Connecting...';
                 break;
             case 'connected':
                 this.connected = true;
                 this.inhibit_reconnect = false;
-                document.documentElement.classList.add('noVNC_connected');
+                statusInfo = 'Connected';
                 if (rfb && rfb.get_encrypt()) {
                     msg = _('Connected (encrypted) to ') + this.desktopName;
                 } else {
                     msg = _('Connected (unencrypted) to ') + this.desktopName;
                 }
-                this.showStatus(msg);
                 break;
             case 'disconnecting':
                 this.connected = false;
-                if (document.getElementById('noVNC_transition_text')) {
-                    document.getElementById('noVNC_transition_text').textContent = _('Disconnecting...');
-                    document.documentElement.classList.add('noVNC_disconnecting');
-                }
+                statusInfo = 'Disconnecting...';
                 break;
             case 'disconnected':
-                this.showStatus(_('Disconnected'));
+                statusInfo = 'Disconnected';
                 break;
             default:
                 msg = 'Invalid UI state';
+                statusInfo = 'Error: ' + msg;
                 Log.Error(msg);
-                this.showStatus(msg, 'error');
                 break;
         }
-
+        this._statusObs.next(statusInfo);
         this.updateVisualState();
     }
 
@@ -607,59 +596,8 @@ export class VncUI {
         }
     }
 
-    showStatus(text, status_type?, time?) {
-        let statusElem = document.getElementById('noVNC_status');
-        if (statusElem) {
-
-            clearTimeout(this.statusTimeout);
-
-            if (typeof status_type === 'undefined') {
-                status_type = 'normal';
-            }
-
-            statusElem.classList.remove('noVNC_status_normal');
-            statusElem.classList.remove('noVNC_status_warn');
-            statusElem.classList.remove('noVNC_status_error');
-
-            switch (status_type) {
-                case 'warning':
-                case 'warn':
-                    statusElem.classList.add('noVNC_status_warn');
-                    break;
-                case 'error':
-                    statusElem.classList.add('noVNC_status_error');
-                    break;
-                case 'normal':
-                case 'info':
-                default:
-                    statusElem.classList.add('noVNC_status_normal');
-                    break;
-            }
-
-            statusElem.textContent = text;
-            statusElem.classList.add('noVNC_open');
-
-            // If no time was specified, show the status for 1.5 seconds
-            if (typeof time === 'undefined') {
-                time = 1500;
-            }
-
-            // Error messages do not timeout
-            if (status_type !== 'error') {
-                this.statusTimeout = window.setTimeout(this.hideStatus, time);
-            }
-        }
-    }
-
-    hideStatus() {
-        clearTimeout(this.statusTimeout);
-        if (document.getElementById('noVNC_status')) {
-            document.getElementById('noVNC_status').classList.remove('noVNC_open');
-        }
-    }
-
     notification(rfb, msg, level, options) {
-        this.showStatus(msg, level);
+        this._statusObs.next(msg + ', Level: ' + level);
     }
 
     activateControlbar(event?) {
@@ -1198,9 +1136,9 @@ export class VncUI {
         }
 
         if ((!this.host) || (!this.port)) {
-            let msg = _('Must set host and port');
+            let msg: string = _('Must set host and port');
             Log.Error(msg);
-            this.showStatus(msg, 'error');
+            this._statusObs.next('Error: ' + msg);
             return;
         }
 
@@ -1245,7 +1183,7 @@ export class VncUI {
 
     disconnectFinished(rfb, reason) {
         if (typeof reason !== 'undefined') {
-            this.showStatus(reason, 'error');
+            this._statusObs.next('Error: ' + reason);
         } else if (this.getSetting('reconnect') === true && !this.inhibit_reconnect) {
             document.getElementById('noVNC_transition_text').textContent = _('Reconnecting...');
             document.documentElement.classList.add('noVNC_reconnecting');
@@ -1289,7 +1227,7 @@ export class VncUI {
             msg = _('Password is required');
         }
         Log.Warn(msg);
-        this.showStatus(msg, 'warning');
+        this._statusObs.next('Warning: ' + msg);
     }
 
     setPassword(e) {

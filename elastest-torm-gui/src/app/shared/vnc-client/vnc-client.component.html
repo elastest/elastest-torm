@@ -1,3 +1,9 @@
+<div layout="row" *ngIf="showStatus && statusInfo">
+  <md-icon [style.color]="statusColor">{{statusIcon}}</md-icon>
+  <span class="push-bottom">
+    {{statusInfo}}
+  </span>
+</div>
 <div id="vnc_screen">
   <canvas #canvas id="vnc_canvas">
     Canvas not supported.

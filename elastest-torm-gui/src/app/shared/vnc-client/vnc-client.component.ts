@@ -17,9 +17,15 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   public autoconnect: boolean = false;
   @Input()
   public viewOnly: boolean = false;
+  @Input()
+  public showStatus: boolean = true;
 
   public canvas: HTMLCanvasElement;
   public vncUi: VncUI;
+
+  statusInfo: string;
+  statusColor: string = '#000000';
+  statusIcon: string = 'fiber_manual_record';
 
   constructor(private elementRef: ElementRef) {
     this.canvas = <HTMLCanvasElement>document.getElementById('vnc_canvas');
@@ -39,6 +45,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.host && this.port) {
       this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password);
       this.vncUi.init();
+      this.suscribeToStatus();
     }
   }
 
@@ -48,5 +55,29 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   disconnect() {
     this.vncUi.disconnect();
+  }
+
+  suscribeToStatus() {
+    this.vncUi.statusObs.subscribe(
+      (status) => {
+        this.statusInfo = status;
+        if (status.startsWith('Error')) {
+          this.statusColor = '#cc200f';
+          this.statusIcon = 'error';
+        } else {
+          this.statusIcon = 'fiber_manual_record';
+          if (status.startsWith('Connected')) {
+            this.statusColor = '#7fac16';
+          } else if (status.startsWith('Disconnected')) {
+            this.statusColor = '#cc200f';
+          } else if (status.startsWith('Connecting') || status.startsWith('Disconnecting')) {
+            this.statusColor = '#ffac2f';
+          } else if (status.startsWith('Warning')) {
+            this.statusColor = '#ffac2f';
+            this.statusIcon = 'warning';
+          }
+        }
+
+      });
   }
 }
