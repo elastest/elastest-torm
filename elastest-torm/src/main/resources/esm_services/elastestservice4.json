@@ -1,0 +1,70 @@
+{
+	"register": {
+		"description": "this is my test service",
+		"id": "EMS",
+		"name": "EMS",
+		"bindable": false,
+		"plan_updateable": false,
+		"plans": [
+			{
+				"bindable": false,
+				"description": "plan for testing",
+				"free": true,
+				"id": "testplan",
+				"metadata": {
+					"bullets": "basic plan",
+					"costs": {
+						"components": {
+							
+						},
+						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk",
+						"fix_cost": {
+							"deployment": 5
+						},
+						"name": "On Demand 5 + Charges",
+						"type": "ONDEMAND",
+						"var_rate": {
+							"cpus": 50,
+							"disk": 1,
+							"memory": 10
+						}
+					}
+				},
+				"name": "testing plan"
+			}
+		],
+		"requires": [],
+		"tags": [
+			"test",
+			"tester"
+		]
+	},
+	"manifest": {
+		"id": "test-mani_2",
+		"manifest_content": "version: '2'</br></br>services:</br>  spark-master:</br>    image: elastest/ebs-spark-base:0.5.0</br>    container_name: spark-master</br>    ports:</br>      - \"8080:8080\"</br>    volumes:</br>      - ./spark/alluxio_conf:/opt/alluxio/conf</br>      - ./spark/spark_conf:/opt/spark/conf</br>      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop</br>    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]</br>    hostname: spark-master</br>    networks:</br>      - elastest</br></br>  spark-worker:</br>    image: elastest/ebs-spark-base:0.5.0</br>    depends_on:</br>      - spark-master</br>    ports:</br>      - \"8081\"</br>    volumes:</br>      - ./spark/alluxio_conf:/opt/alluxio/conf</br>      - ./spark/spark_conf:/opt/spark/conf</br>      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop</br>    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]</br>    hostname: spark-worker</br>    networks:</br>      - elastest</br></br>networks:</br>  elastest:</br>    external: true</br>",
+		"manifest_type": "dummy",
+		"plan_id": "testplan_11",
+		"service_id": "EMS",
+		"endpoints": {
+			"sub_service_name_1": {
+				"description": "this is a sub-service that does stuff",
+				"main": true,
+				"api": {
+					"protocol": "http",
+					"port": 9000,
+					"path": "/v2",
+					"definition": {
+						"type": "openapi",
+						"path": "/v2/api.yaml",
+						"port": 9090
+					}
+				},
+				"gui": {
+					"protocol": "http",
+					"port": 9089,
+					"path": "/gui"
+				}
+			}
+		}
+	}
+}

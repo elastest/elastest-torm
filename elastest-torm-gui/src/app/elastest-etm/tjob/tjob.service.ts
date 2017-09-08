@@ -50,9 +50,9 @@ export class TJobService {
     tjobsDataToTable.resultsPath = tjob.resultsPath;
     tjobsDataToTable.execDashboardConfig = tjob.execDashboardConfig;
     tjobsDataToTable.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
-    if (tjob.esmServicesCatalogString !== undefined && tjob.esmServicesCatalogString !== null){      
-      for(let service of JSON.parse(tjob.esmServicesCatalogString)){
-        tjobsDataToTable.esmServicesCatalogArray.push( new EsmServiceModel(service.id, service.name,
+    if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null){      
+      for(let service of JSON.parse(tjob.esmServicesString)){
+        tjobsDataToTable.esmServices.push( new EsmServiceModel(service.id, service.name,
           service.selected));
       }      
     } 
@@ -79,9 +79,10 @@ export class TJobService {
       tjob.sut = undefined;
     }
     tjob.generateExecDashboardConfig();
-    tjob.esmServicesCatalogString = JSON.stringify(tjob.esmServicesCatalogArray);
+    tjob.esmServicesString = JSON.stringify(tjob.esmServices);
+    console.log("Services " + JSON.stringify(tjob.esmServicesString));
     let url = this.configurationService.configModel.hostApi + '/tjob';
-    return this.http.post(url, tjob)
+    return this.http.put(url, tjob)
       .map((response) => response.json());
   }
 

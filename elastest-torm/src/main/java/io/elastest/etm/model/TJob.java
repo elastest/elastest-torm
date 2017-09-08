@@ -99,7 +99,7 @@ public class TJob {
 	
 	@JsonView({BasicAttTJob.class})
 	@Column(name = "selectedServices", columnDefinition ="TEXT", length = 65535)
-	@JsonProperty("esmServicesCatalogString")
+	@JsonProperty("esmServicesString")
 	private String selectedServices;
 
 	public TJob() {

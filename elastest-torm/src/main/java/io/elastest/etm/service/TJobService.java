@@ -8,6 +8,7 @@ import javax.xml.ws.http.HTTPException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,15 +20,19 @@ import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.utils.ElastestConstants;
 
 @Service
 public class TJobService {
 	private static final Logger logger = LoggerFactory.getLogger(TJobService.class);
-	
+
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepositoryImpl;
 	private final EpmIntegrationService epmIntegrationService;
 	private final EsmService esmService;
+	
+	@Value("${elastest.execution.mode}")
+	public String ELASTEST_EXECUTION_MODE;	
 	
 	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, EpmIntegrationService epmIntegrationService,
 			EsmService esmService) {
@@ -63,9 +68,13 @@ public class TJobService {
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
 		if (!tjob.isExternal()){
-			provideServices(tjob.getSelectedServices(), tJobExec);
-			//epmIntegrationService.executeTJob(tJobExec);
-			deprovideServices(tJobExec);			
+			if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL)){
+				provideServices(tjob.getSelectedServices(), tJobExec);
+				//epmIntegrationService.executeTJob(tJobExec);
+				deprovideServices(tJobExec);				
+			}else{
+				epmIntegrationService.executeTJob(tJobExec);
+			}						
 		}
 		
 		return tJobExec;
@@ -83,7 +92,7 @@ public class TJobService {
 			List<ObjectNode> services = Arrays.asList(mapper.readValue(tJobServices, ObjectNode[].class));
 			for(ObjectNode service: services){
 				if (service.get("selected").toString().equals(Boolean.toString(true))){
-					tJobExec.getServicesInstances().add(esmService.provideServiceInstance(service.get("name").toString()));
+					tJobExec.getServicesInstances().add(esmService.provisionServiceInstance(service.get("name").toString()));
 				}
 			}			
 		} catch (IOException e) {
@@ -92,8 +101,15 @@ public class TJobService {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param tJobExec
+	 */
 	private void deprovideServices(TJobExecution tJobExec){
-		logger.info("Start the service deprovision.");		
+		logger.info("Start the service deprovision.");
+		for(String instance_id: tJobExec.getServicesInstances()){
+			esmService.deProvideServiceInstance(instance_id);
+		}
 	}
 	
 	public void finishTJobExecution(Long tJobExecId){

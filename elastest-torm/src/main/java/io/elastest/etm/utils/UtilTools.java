@@ -3,6 +3,7 @@ package io.elastest.etm.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,5 +141,13 @@ public class UtilTools {
         }
         return jsonString;		
 		
+	}
+	
+	/**
+	 * Generate an unique id.
+	 * @return the new unique id
+	 */
+	public String generateUniqueId() {
+		return UUID.randomUUID().toString();		
 	}
 }

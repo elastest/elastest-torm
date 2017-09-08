@@ -25,48 +25,50 @@ export class TJobFormComponent implements OnInit {
   
   elastestEsmServices: string[];
 
+  esmServicesCatalog : EsmServiceModel[];
 
   constructor(private tJobService: TJobService, private route: ActivatedRoute,
-    private projectService: ProjectService, private esmService: EsmService) { }
+    private projectService: ProjectService, private esmService: EsmService) { 
+      this.esmServicesCatalog = [];
+    }
 
   ngOnInit() {
     this.tJob = new TJobModel();
     let currentPath: string = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
-      if (currentPath === 'edit') {
-        this.editMode = true;
-        this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
-          .subscribe((tJob: TJobModel) => {
-            this.tJob = tJob;
-            this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
-            this.withCommands = this.tJob.withCommands();            
-          });
-      }
-      else if (currentPath === 'new') {
-        this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
-          .subscribe(
-          (project: ProjectModel) => {
-            this.tJob = new TJobModel();
-            this.tJob.project = project;
-            this.loadEsmServices();
-          },
-        );
-      }
-    }
-  }
-
-  loadEsmServices() {
-    this.esmService.getElastestESMServices()
+      this.esmService.getElastestESMServices()
       .subscribe((response) => {
-        this.elastestEsmServices = response;
-        let serviceId = 0;
-        for (let serviceName of this.elastestEsmServices) {
-          this.tJob.esmServicesCatalogArray.push(new EsmServiceModel( serviceId, serviceName, false ));
-          serviceId++;
+        this.esmServicesCatalog = response;       
+
+        if (currentPath === 'edit') {
+          this.editMode = true;
+          this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
+            .subscribe((tJob: TJobModel) => {
+              this.tJob = tJob;
+              this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
+              this.withCommands = this.tJob.withCommands();
+              for (let esmService of this.tJob.esmServices){
+                for (let esmServiceToSelect of this.esmServicesCatalog ){
+                  if ( esmService.selected && esmService.id === esmServiceToSelect.id){
+                    esmServiceToSelect.selected = true;
+                  }
+                }
+              }
+            });
+        }
+        else if (currentPath === 'new') {
+          this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+            .subscribe(
+            (project: ProjectModel) => {
+              this.tJob = new TJobModel();
+              this.tJob.project = project;            
+            },
+          );
         }
       });
+    }
   }
-
+  
   goBack(): void {
     window.history.back();
   }
@@ -75,6 +77,9 @@ export class TJobFormComponent implements OnInit {
     if (!this.withCommands) {
       this.tJob.commands = '';
     }
+    
+    this.tJob.esmServices = this.esmServicesCatalog;
+    console.log("Services " + JSON.stringify(this.tJob.esmServices));
 
     this.tJobService.createTJob(this.tJob)
       .subscribe(

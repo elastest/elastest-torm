@@ -1,12 +1,12 @@
 export class EsmServiceModel {
-    id: number;
+    id: string;
     name: string;
-    selected: boolean;
+    selected?: boolean;
 
-    constructor(id: number, name: string, selected: boolean){
+    constructor(id: string, name: string, selected: boolean){
         this.id = id;
         this.name = name;
-        this.selected =selected;
+        this.selected = selected;
     }
 
     changeServiceSelection($event) {        

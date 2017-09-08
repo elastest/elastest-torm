@@ -79,7 +79,7 @@ services:
         links:
             - rabbit-MQ 
         container_name: elastest-etm
-        image: elastest/elastest-etm
+        image: elastest/etm:0.1
         entrypoint: /testing-mysqlstate-entrypoint.sh
         expose:
             - 8091

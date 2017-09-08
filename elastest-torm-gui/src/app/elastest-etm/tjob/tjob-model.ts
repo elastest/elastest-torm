@@ -19,8 +19,8 @@ export class TJobModel {
     resultsPath: string;
     execDashboardConfig: string;
     execDashboardConfigModel: DashboardConfigModel;
-    esmServicesCatalogString: string;
-    esmServicesCatalogArray: EsmServiceModel[];
+    esmServicesString: string;
+    esmServices: EsmServiceModel[];
     
     constructor() {
         this.id = 0;
@@ -34,8 +34,8 @@ export class TJobModel {
         this.resultsPath = '';
         this.execDashboardConfig = '';
         this.execDashboardConfigModel = new DashboardConfigModel(); 
-        this.esmServicesCatalogString = '';
-        this.esmServicesCatalogArray = [];       
+        this.esmServicesString = '';
+        this.esmServices = [];       
     }
 
     public generateExecDashboardConfig() {
@@ -66,6 +66,6 @@ export class TJobModel {
 
     public changeServiceSelection($event, i:number) {
         console.log("Service id:"+i);
-        this.esmServicesCatalogArray[i].selected = $event.checked;
+        this.esmServices[i].selected = $event.checked;
     }
 }

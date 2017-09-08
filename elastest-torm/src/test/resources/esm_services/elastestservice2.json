@@ -2,7 +2,7 @@
    "register": {
       "description": "ElasTest service that provides user impersonation as a service",
       "id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
-      "name": "user-emulator-service",
+      "name": "service-for-test",
       "bindable": false,
       "plan_updateable": false,
       "plans": [
@@ -42,7 +42,7 @@
    },
    "manifest": {
       "id": "2bd62bc2-f768-42d0-8194-562924b494ff",
-      "manifest_content": "version: '2.1'</br>services:</br>   elastest-eus:</br>      container_name: elastest-eus</br>      image: elastest/eus</br>      environment:</br>         - USE_TORM=true</br>      expose:</br>         - 8040</br>      ports:</br>         - 8040:8040</br>      networks:</br>         - elastest</br>networks:</br>   elastest:</br>      driver: bridge</br>",
+      "manifest_content": "version: '2.1'<br>services:<br>   elastest-eus:<br>      container_name: elastest-eus<br>      image: elastest/eus<br>      environment:<br>         - USE_TORM=true<br>      expose:<br>         - 8040<br>      ports:<br>         - 8040:8040<br>      networks:<br>         - elastest<br>networks:<br>   elastest:<br>      driver: bridge<br>",
       "manifest_type": "docker-compose",
       "plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
       "service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",

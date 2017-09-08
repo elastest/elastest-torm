@@ -96,11 +96,12 @@ public class EsmServiceClient {
 		ResponseEntity<ObjectNode> result = null;
 		try{						
 			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, ObjectNode.class);
+			logger.info("Manifest registered: {}" + result.getBody().toString());
 		}catch(Exception e){
 			if (result != null && result.getBody().toString().equals("\"duplicate\"")){				
 				logger.info("The manifest already exists:" + e.getMessage());
 			}else{
-				e.printStackTrace();								
+				logger.error("Error registering service: {}", e.getMessage(), e);								
 			}			
 		}
 		logger.info("After send:" );
@@ -139,15 +140,11 @@ public class EsmServiceClient {
 	}
 	
 	public void deprovisionServiceInstance(String instance_id, ServiceInstance serviceInstance){
+		logger.info("Requesting a service instance.");
 		String serviceInstanceData = "";
-		logger.info("Requesting a service instance.");		
-		
-		Map<String, String> params = new HashMap<>();
-		params.put("instance_id", instance_id);
-//		params.put("service_id", serviceInstance.getService_id());
-//		params.put("plan_id", serviceInstance.getPlan_id());
-//		params.put("accept_incomplete", Boolean.toString(false));
 				
+		Map<String, String> params = new HashMap<>();
+		params.put("instance_id", instance_id);				
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL_ESM_DEPROVISION_INSTANCE)
 				.queryParam("service_id", serviceInstance.getService_id())
 				.queryParam("plan_id", serviceInstance.getPlan_id())
@@ -166,7 +163,7 @@ public class EsmServiceClient {
 	 * 
 	 * @return
 	 */
-	public String getCatalogedServices() {
+	public String getRegisteredServices() {
 		logger.info("Retrieving the services.");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("x-broker-api-version", "2.12");
@@ -177,7 +174,7 @@ public class EsmServiceClient {
 			logger.info("Retrieved services.");
 			return objNode.getBody().get("services").toString();
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
 			return null;
 		}		
 	}
