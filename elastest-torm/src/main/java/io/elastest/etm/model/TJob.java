@@ -222,9 +222,6 @@ public class TJob {
 		return tjobExec;
 	}
 
-	/**
-	 * parameters
-	 */
 	@ApiModelProperty(value = "List of parameters to pass to a docker container as an environment variables")
 	public List<Parameter> getParameters() {
 		return parameters;
@@ -247,9 +244,6 @@ public class TJob {
 		return this;
 	}
 
-	/**
-	 * commands
-	 */
 	@ApiModelProperty(value = "Commands to execute inside a Docker Container")
 	public String getCommands() {
 		return commands;
@@ -259,10 +253,6 @@ public class TJob {
 		this.commands = commands;
 	}
 
-	/**
-	 * execDashboardConfig
-	 */
-
 	public String getExecDashboardConfigPath() {
 		return execDashboardConfig;
 	}
@@ -271,28 +261,17 @@ public class TJob {
 		this.execDashboardConfig = execDashboardConfig;
 	}
 
-	/**
-	 * isExternal
-	 */
-
 	@ApiModelProperty(required = true, value = "Boolean variable that indicates whether a TJob is really an external Job", example = "false")
 	public boolean isExternal() {
 		return external;
 	}
 
-	/**
-	 * setExternal
-	 */
+	
 	public void setExternal(boolean external) {
 		this.external = external;
 	}
 
-	/**
-	 * resultsPath
-	 */
-	
 	@ApiModelProperty(required=true,  example = "/app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml", value = "absolute path of results file")
-
 	public String getResultsPath() {
 		return resultsPath;
 	}

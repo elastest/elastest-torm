@@ -49,6 +49,7 @@ public class EsmApiItTest extends EtmApiItTest{
 	}
 	
 	@Test
+	@Disabled
 	public void testGetElastestServices(){		
 		log.info("Start the test testGetElastestServices");
 

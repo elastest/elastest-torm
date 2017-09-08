@@ -58,8 +58,7 @@ public class EsmService {
 	}
 	
 	/**
-	 * Register the ElasTest Services into the ESM. 
-	 * @throws IOException   
+	 * Register the ElasTest Services into the ESM.   
 	 */
 	public void registerElastestServices() {
 		logger.info("Get and send the register information: " + EMS_SERVICES_FILES_PATH);
@@ -112,12 +111,7 @@ public class EsmService {
 		}
 		return registeredServices;
 	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
+	
 	public List<EsmServiceModel> getRegisteredServices(){
 		logger.info("Get registered services.");
 		ObjectMapper mapper = new ObjectMapper();

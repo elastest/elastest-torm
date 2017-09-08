@@ -239,11 +239,6 @@ public class TJobExecution {
 		this.logIndex = logIndex;
 	}
 
-	/**
-	 * tJob
-	 * 
-	 * 
-	 **/
 	public TJob getTjob() {
 		return this.tJob;
 	}
@@ -252,10 +247,6 @@ public class TJobExecution {
 		this.tJob = tjob;
 	}
 
-	/**
-	 * testSuite
-	 */
-
 	public TestSuite getTestSuite() {
 		return testSuite;
 	}
@@ -263,10 +254,6 @@ public class TJobExecution {
 	public void setTestSuite(TestSuite testSuite) {
 		this.testSuite = testSuite;
 	}
-
-	/**
-	 * parameters
-	 */
 
 	public List<Parameter> getParameters() {
 		return parameters;

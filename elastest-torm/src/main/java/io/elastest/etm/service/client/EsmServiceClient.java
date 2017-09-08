@@ -63,10 +63,6 @@ public class EsmServiceClient {
 		this.utilTools = utilTools;
 	}
 	
-	/**
-	 * 
-	 * @param serviceRegistry
-	 */
 	public void registerService(String serviceRegistry){		
 		logger.info("Registering the service in the ESM.");
 		HttpEntity<String> entity = new HttpEntity<String>(serviceRegistry, headers);
@@ -79,12 +75,6 @@ public class EsmServiceClient {
 		}		
 	}
 	
-	/**
-	 * 
-	 * @param serviceManifest
-	 * @param id
-	 * @return
-	 */
 	public String registerManifest(String serviceManifest, String id){
 		logger.info("Registering the service manifest in the ESM.");
 		HttpEntity<String> entity = new HttpEntity<String>(serviceManifest, headers);		
@@ -108,14 +98,7 @@ public class EsmServiceClient {
 		
 		return "";
 	}
-	
-	/**
-	 * 
-	 * @param reqServiceInstance
-	 * @param instance_id
-	 * @param accept_incomplete
-	 * @return
-	 */
+
 	public String provisionServiceInstance(ServiceInstance serviceInstance, String instance_id, String accept_incomplete){
 		String serviceInstanceData = "";
 		logger.info("Requesting a service instance.");
@@ -159,10 +142,6 @@ public class EsmServiceClient {
 		}				
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public String getRegisteredServices() {
 		logger.info("Retrieving the services.");
 		HttpHeaders headers = new HttpHeaders();
