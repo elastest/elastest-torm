@@ -145,13 +145,10 @@ export class VncUI {
             document.documentElement.classList.remove('noVNC_loading');
         }
 
-        if (this.autoconnect === true) {
-            this.autoconnect = true;
+        if (this.autoconnect) {
             this.connect();
-        } else {
-            this.autoconnect = false;
         }
-
+        
         if (typeof callback === 'function') {
             callback(this.rfb);
         }

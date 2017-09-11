@@ -162,20 +162,24 @@ export class TimelineComponent implements OnChanges {
         this.brush = brushX()
             .extent([[0, 0], [width, height]])
             .on('brush end', () => {
-                const selection = d3event.selection || this.xScale.range();
-                const newDomain = selection.map(this.xScale.invert);
-                const unselect: boolean = d3event.selection ? false : true;
-
-                this.onDomainChange.emit({
-                    domain: newDomain,
-                    unselect: unselect,
-                });
-                this.cd.markForCheck();
+                this.onBrushEnd();
             });
 
         select(this.element)
             .select('.brush')
             .call(this.brush);
+    }
+
+    onBrushEnd() {
+        const selection = d3event.selection || this.xScale.range();
+        const newDomain = selection.map(this.xScale.invert);
+        const unselect: boolean = d3event.selection ? false : true;
+
+        this.onDomainChange.emit({
+            domain: newDomain,
+            unselect: unselect,
+        });
+        this.cd.markForCheck();
     }
 
     updateBrush(): void {
