@@ -68,9 +68,10 @@ public class TJobService {
 		tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 		
 		if (!tjob.isExternal()){
-			if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL)){
+			if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL) 
+					&& tjob.getSelectedServices() != null){
 				provideServices(tjob.getSelectedServices(), tJobExec);
-				//epmIntegrationService.executeTJob(tJobExec);
+				epmIntegrationService.executeTJob(tJobExec);
 				deprovideServices(tJobExec);				
 			}else{
 				epmIntegrationService.executeTJob(tJobExec);
