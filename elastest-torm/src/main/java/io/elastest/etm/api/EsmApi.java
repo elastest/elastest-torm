@@ -26,7 +26,7 @@ public interface EsmApi extends EtmApiRoot{
     @RequestMapping(value = "/esm/service",
     	produces = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<String>> getElastestServices();
+    ResponseEntity<List<String>> getElastestServicesNames();
     
     @ApiOperation(value = "Returns all ElasTest Services registered in the ESM", notes = "Returns all ElasTest Services registered in the ESM.", response = EsmServiceModel.class, responseContainer = "List", tags={ "ESM", })
     @ApiResponses(value = { 
@@ -35,7 +35,7 @@ public interface EsmApi extends EtmApiRoot{
     @RequestMapping(value = "/esm/services",
     	produces = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<EsmServiceModel>> getElastestServices2();
+    ResponseEntity<List<EsmServiceModel>> getElastestServices();
     
     @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 

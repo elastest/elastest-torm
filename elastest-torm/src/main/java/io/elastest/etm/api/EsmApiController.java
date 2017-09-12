@@ -26,15 +26,15 @@ public class EsmApiController implements EsmApi {
 	public String ELASTEST_EXECUTION_MODE;	
 	
 	@Override
-	public ResponseEntity<List<String>> getElastestServices() {
+	public ResponseEntity<List<String>> getElastestServicesNames() {
 		List<String> servicesList = esmService.getRegisteredServicesName();
 		return new ResponseEntity<List<String>>(servicesList, HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<List<EsmServiceModel>> getElastestServices2() {
-		List<EsmServiceModel> servicesList = esmService.getRegisteredServices();
+	public ResponseEntity<List<EsmServiceModel>> getElastestServices() {		
 		if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL)){
+			List<EsmServiceModel> servicesList = esmService.getRegisteredServices();
 			return new ResponseEntity<List<EsmServiceModel>>(servicesList, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<List<EsmServiceModel>>(new ArrayList<>(), HttpStatus.OK);

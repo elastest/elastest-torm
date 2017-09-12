@@ -1,9 +1,6 @@
 package io.elastest.etm.model;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -11,7 +8,6 @@ public class ServiceInstance {
 	
 	private String service_id;
 	private String plan_id;
-	//private ObjectNode context;
 	private String organization_guid;
 	private ObjectNode parameters;
 	private String space_guid;
@@ -24,17 +20,15 @@ public class ServiceInstance {
 		this.service_id = service_id;
 		this.plan_id = plan_id;
 		this.bindedToTJob = bindToTJob;
-		//this.context = new ObjectNode(JsonNodeFactory.instance);
 		this.parameters =  new ObjectNode(JsonNodeFactory.instance);
 		this.organization_guid = "org";
 		this.space_guid = "space";		
 	}
-	public ServiceInstance(String service_id, String plan_id,/* ObjectNode context,*/ String organization_guid,
+	public ServiceInstance(String service_id, String plan_id, String organization_guid,
 			ObjectNode parameters, String space_guid, boolean bindToTJob) {
 		super();
 		this.service_id = service_id;
 		this.plan_id = plan_id;
-		//this.context = context;
 		this.organization_guid = organization_guid;
 		this.parameters = parameters;
 		this.space_guid = space_guid;
@@ -52,12 +46,7 @@ public class ServiceInstance {
 	public void setPlan_id(String plan_id) {
 		this.plan_id = plan_id;
 	}
-//	public ObjectNode getContext() {
-//		return context;
-//	}
-//	public void setContext(ObjectNode context) {
-//		this.context = context;
-//	}
+
 	public String getOrganization_guid() {
 		return organization_guid;
 	}

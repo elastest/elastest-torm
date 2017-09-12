@@ -55,9 +55,9 @@ public class EsmServiceClient {
 	public EsmServiceClient(UtilTools utilTools){
 		httpClient = new RestTemplate();
 		headers = new HttpHeaders();
-		List<MediaType> mediaTypes = new ArrayList<MediaType>();
-		mediaTypes.add(MediaType.APPLICATION_JSON);		
-		headers.setAccept(mediaTypes);
+//		List<MediaType> mediaTypes = new ArrayList<MediaType>();
+//		mediaTypes.add(MediaType.APPLICATION_JSON);		
+//		headers.setAccept(mediaTypes);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("x-broker-api-version", "2.12");
 		this.utilTools = utilTools;
@@ -101,12 +101,12 @@ public class EsmServiceClient {
 
 	public String provisionServiceInstance(ServiceInstance serviceInstance, String instance_id, String accept_incomplete){
 		String serviceInstanceData = "";
-		logger.info("Requesting a service instance.");
+		logger.info("Request a service instance.");		
 		HttpEntity<String> entity = new HttpEntity<String>(utilTools.convertJsonString(serviceInstance), headers);
 		
 		Map<String, String> params = new HashMap<>();
 		params.put("instance_id", instance_id);
-		//params.put("accept_incomplete", accept_incomplete);
+
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL_ESM_PROVISION_INSTANCE)
 				.queryParam("accept_incomplete", accept_incomplete);
 		
@@ -123,19 +123,18 @@ public class EsmServiceClient {
 	}
 	
 	public void deprovisionServiceInstance(String instance_id, ServiceInstance serviceInstance){
-		logger.info("Requesting a service instance.");
-		String serviceInstanceData = "";
+		logger.info("Request removal of a service instance.");		
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
 		Map<String, String> params = new HashMap<>();
 		params.put("instance_id", instance_id);				
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL_ESM_DEPROVISION_INSTANCE)
 				.queryParam("service_id", serviceInstance.getService_id())
-				.queryParam("plan_id", serviceInstance.getPlan_id())
-				.queryParam("accept_incomplete", Boolean.toString(false));
+				.queryParam("plan_id", serviceInstance.getPlan_id());				
 		
 		ResponseEntity<ObjectNode> result = null;		
 		try{
-			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, null, ObjectNode.class);
+			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, entity, ObjectNode.class);
 			logger.info("Registered service." );
 		}catch(Exception e){
 			logger.error(e.getMessage());
@@ -143,9 +142,7 @@ public class EsmServiceClient {
 	}
 	
 	public String getRegisteredServices() {
-		logger.info("Retrieving the services.");
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("x-broker-api-version", "2.12");
+		logger.info("Retrieving the services.");		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
 		try{
