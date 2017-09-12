@@ -408,7 +408,7 @@
 									<tasks>
 										<delete
 											file="${project.build.outputDirectory}/application.properties" />
-										<copy file="src/main/resources/application-ci.properties"
+										<copy file="src/main/resources/application-production.properties"
 											tofile="${project.build.outputDirectory}/application.properties" />
 									</tasks>
 								</configuration>
@@ -453,7 +453,7 @@
 									<tasks>
 										<delete
 											file="${project.build.outputDirectory}/application.properties" />
-										<copy file="src/main/resources/application-ci.properties"
+										<copy file="src/main/resources/application-production.properties"
 											tofile="${project.build.outputDirectory}/application.properties" />
 									</tasks>
 								</configuration>
