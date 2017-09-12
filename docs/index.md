@@ -78,7 +78,7 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
 - `docker-compose -p elastest up `
 - To stop ElasTest TORM preferably run: `docker-compose -p elastest down `, otherwise press `Ctrl+C` in the shell
 
->**Note:** To run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/elastest-torm`, before running the docker-compose command.
+>**Note:** To run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/etm`, before running the docker-compose command.
 
 ## Basic usage
 To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project. For this, start a Web Browser and enter the following URL:
