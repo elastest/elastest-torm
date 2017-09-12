@@ -349,72 +349,11 @@
 		</plugins>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>dev</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete
-											file="${project.build.outputDirectory}/application.properties" />
-										<copy file="src/main/resources/application-dev.properties"
-											tofile="${project.build.outputDirectory}/application.properties" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>${maven-surefire-plugin.version}</version>
-						<dependencies>
-							<dependency>
-								<groupId>org.junit.platform</groupId>
-								<artifactId>junit-platform-surefire-provider</artifactId>
-								<version>${junit.platform.version}</version>
-							</dependency>
-							<dependency>
-								<groupId>org.junit.jupiter</groupId>
-								<artifactId>junit-jupiter-engine</artifactId>
-								<version>${junit.jupiter.version}</version>
-							</dependency>
-						</dependencies>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+	<profiles>		
 		<profile>
 			<id>ci</id>
 			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete
-											file="${project.build.outputDirectory}/application.properties" />
-										<copy file="src/main/resources/application-production.properties"
-											tofile="${project.build.outputDirectory}/application.properties" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+				<plugins>					
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>${maven-surefire-plugin.version}</version>
@@ -440,26 +379,7 @@
 		<profile>
 			<id>ci-no-it-test</id>
 			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete
-											file="${project.build.outputDirectory}/application.properties" />
-										<copy file="src/main/resources/application-production.properties"
-											tofile="${project.build.outputDirectory}/application.properties" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+				<plugins>					
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>${maven-surefire-plugin.version}</version>
