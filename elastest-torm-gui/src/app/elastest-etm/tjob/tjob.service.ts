@@ -74,7 +74,7 @@ export class TJobService {
       });
   }
 
-  public createTJob(tjob: TJobModel) {
+  public createTJob(tjob: TJobModel, action: string) {
     if (!tjob.hasSut()) {
       tjob.sut = undefined;
     }
@@ -82,8 +82,14 @@ export class TJobService {
     tjob.esmServicesString = JSON.stringify(tjob.esmServices);
     console.log("Services " + JSON.stringify(tjob.esmServicesString));
     let url = this.configurationService.configModel.hostApi + '/tjob';
-    return this.http.put(url, tjob)
+    if (action === 'new'){
+      return this.http.post(url, tjob)
       .map((response) => response.json());
+    }else{
+      return this.http.put(url, tjob)
+      .map((response) => response.json());
+    }
+    
   }
 
   public modifyTJob() { }

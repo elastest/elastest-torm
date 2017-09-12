@@ -21,11 +21,10 @@ export class TJobFormComponent implements OnInit {
 
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
-  withCommands: boolean = false;
-  
+  withCommands: boolean = false;  
   elastestEsmServices: string[];
-
   esmServicesCatalog : EsmServiceModel[];
+  action: string;
 
   constructor(private tJobService: TJobService, private route: ActivatedRoute,
     private projectService: ProjectService, private esmService: EsmService) { 
@@ -34,13 +33,13 @@ export class TJobFormComponent implements OnInit {
 
   ngOnInit() {
     this.tJob = new TJobModel();
-    let currentPath: string = this.route.snapshot.url[0].path;
+    this.action = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       this.esmService.getElastestESMServices()
       .subscribe((response) => {
         this.esmServicesCatalog = response;       
 
-        if (currentPath === 'edit') {
+        if (this.action === 'edit') {
           this.editMode = true;
           this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
             .subscribe((tJob: TJobModel) => {
@@ -56,7 +55,7 @@ export class TJobFormComponent implements OnInit {
               }
             });
         }
-        else if (currentPath === 'new') {
+        else if (this.action === 'new') {
           this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
             .subscribe(
             (project: ProjectModel) => {
@@ -81,7 +80,7 @@ export class TJobFormComponent implements OnInit {
     this.tJob.esmServices = this.esmServicesCatalog;
     console.log("Services " + JSON.stringify(this.tJob.esmServices));
 
-    this.tJobService.createTJob(this.tJob)
+    this.tJobService.createTJob(this.tJob, this.action)
       .subscribe(
       tJob => this.postSave(tJob),
       error => console.log(error)

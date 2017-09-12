@@ -195,7 +195,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   newTJob() {
     this.router.navigate(['/projects', this.projectSelected.id, 'tjob', 'new']);
   }
-  createTJob() {
+ /* createTJob() {
     let tJob: TJobModel = new TJobModel();
     tJob.name = this.newTJobName;
     tJob.imageName = this.newTJobImage;
@@ -211,7 +211,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
       },
       (error) => console.log(error),
     );
-  }
+  }*/
 
   clearTJobForm() {
     this.newTJobName = ''
