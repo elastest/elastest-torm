@@ -44,6 +44,26 @@ services:
         networks:
             - elastest
 
+    elastest-torm:
+        depends_on:
+            - mysql
+            - rabbit-MQ
+            - elasticsearch
+            - logstash
+            - beats
+        links:
+            - rabbit-MQ 
+        container_name: elastest-etm
+        image: elastest/etm
+        entrypoint: /run.sh
+        expose:
+            - 8091
+        ports:
+            - 8091:8091
+        volumes:
+            - /test-results:/test-results
+        networks:
+            - elastest
 volumes:
     beats-data:
       driver: local
