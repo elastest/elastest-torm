@@ -55,6 +55,8 @@ services:
             - rabbit-MQ 
         container_name: elastest-etm
         image: elastest/etm
+        environment:
+            - EXEC_MODE=Normal
         entrypoint: /run.sh
         expose:
             - 8091

@@ -80,6 +80,8 @@ services:
             - rabbit-MQ 
         container_name: elastest-etm
         image: elastest/etm
+        environment:
+            - EXEC_MODE=Normal
         entrypoint: /run.sh
         expose:
             - 8091
@@ -90,7 +92,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - elastest
-            
+
     elastest-eus:
         container_name: elastest-eus
         image: elastest/eus
