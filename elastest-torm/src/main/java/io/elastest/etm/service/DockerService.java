@@ -92,8 +92,6 @@ public class DockerService {
 		} else {
 			logger.info("Execute on Linux.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					// .withDockerHost(DOKCER_LISTENING_ON_TCP_PORT_PREFIX +
-					// utilTools.getHostIp() + ":" + dockerHostPort)
 					.withDockerHost("unix:///var/run/docker.sock").build();
 			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 		}
