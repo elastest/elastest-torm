@@ -195,24 +195,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   newTJob() {
     this.router.navigate(['/projects', this.projectSelected.id, 'tjob', 'new']);
   }
- /* createTJob() {
-    let tJob: TJobModel = new TJobModel();
-    tJob.name = this.newTJobName;
-    tJob.imageName = this.newTJobImage;
-    if (this.selectedSut.id > 0) {
-      tJob.sut = this.selectedSut;
-    }
-    tJob.project = this.projectSelected;
-
-    this.tJobService.createTJob(tJob).subscribe(
-      (tJob) => {
-        this.reloadProjects();
-        this.clearTJobForm();
-      },
-      (error) => console.log(error),
-    );
-  }*/
-
+ 
   clearTJobForm() {
     this.newTJobName = ''
     this.newTJobImage = '';
