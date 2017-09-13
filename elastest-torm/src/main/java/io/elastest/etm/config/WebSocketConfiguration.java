@@ -19,14 +19,14 @@ public class WebSocketConfiguration {
 	@Autowired
 	public UtilTools utilTools;
 	
-	@Value("${spring.rabbitmq.host}")
+	@Value("${service.rabbit}")
 	public String rabbitMqHost;
 
 	@Configuration
 	public class WebSocketMessageBrokerConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 
 		@Override
-		public void configureMessageBroker(MessageBrokerRegistry config) {			
+		public void configureMessageBroker(MessageBrokerRegistry config) {
 			config.setApplicationDestinationPrefixes("/app");
 			config.enableStompBrokerRelay("/queue", "/topic", "/exchange")
 					.setAutoStartup(true)
