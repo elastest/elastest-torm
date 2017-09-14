@@ -37,7 +37,7 @@ export class TJobFormComponent implements OnInit {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.esmService.getElastestESMServices()
       .subscribe((response) => {
-        this.esmServicesCatalog = response;       
+        this.esmServicesCatalog = response;
 
         if (this.action === 'edit') {
           this.editMode = true;
@@ -60,7 +60,7 @@ export class TJobFormComponent implements OnInit {
             .subscribe(
             (project: ProjectModel) => {
               this.tJob = new TJobModel();
-              this.tJob.project = project;            
+              this.tJob.project = project;
             },
           );
         }

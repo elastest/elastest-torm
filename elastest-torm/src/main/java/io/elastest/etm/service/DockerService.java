@@ -1,33 +1,31 @@
 package io.elastest.etm.service;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
-import org.apache.maven.plugins.surefire.report.SurefireReportParser;
-import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.plugins.surefire.report.TestSuiteXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
-import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -46,14 +44,6 @@ public class DockerService {
 
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
 	private static String appImage = "elastest/test-etm-javasutrepo", checkImage = "elastest/etm-check-service-up";
-
-	// On Linux: "/test-results". On Windows: "c:/Users/docker/test-results"
-	@Value("${elastest.test-results.directory}")
-	private String volumeDirectoryToWriteTestResutls;
-
-	// On Windows: "c:/Users/docker/test-results"
-	@Value("${elastest.test-results.directory}")
-	private String volumeDirectoryToReadTestResults;
 
 	@Value("${docker.host.port}")
 	private String dockerHostPort;
@@ -203,10 +193,6 @@ public class DockerService {
 				cmdList.add("-c");
 				cmdList.add(commands);
 			}
-			// Volumes
-			Volume volume = new Volume("/results");
-			String localDirToWriteTestResults = volumeDirectoryToWriteTestResutls + "/" + dockerExec.getExecutionId();
-			String localDirToTeadTestResults = volumeDirectoryToReadTestResults + "/" + dockerExec.getExecutionId();
 
 			LogConfig logConfig = getLogConfig(5000, "test_", dockerExec);
 
@@ -236,9 +222,7 @@ public class DockerService {
 
 			logger.info("Test container ends with code " + code);
 
-			copyTestResults(dockerExec);
-
-			return this.getTestResults(localDirToTeadTestResults, dockerExec);
+			return getTestResults(dockerExec);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -336,25 +320,7 @@ public class DockerService {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
 	}
 
-	public List<ReportTestSuite> getTestResults(String localTestDir, DockerExecution dockerExec) {
-		logger.info("TestResult file path:" + localTestDir);
-
-		File surefireXML = new File(localTestDir);
-		List<File> reportsDir = new ArrayList<>();
-		reportsDir.add(surefireXML);
-
-		logger.info("file content:" + surefireXML.toString());
-
-		SurefireReportParser surefireReport = new SurefireReportParser(reportsDir, new Locale("en", "US"), null);
-		List<ReportTestSuite> testSuites = new ArrayList<ReportTestSuite>();
-		try {
-			testSuites = surefireReport.parseXMLReportFiles();
-			logger.info("Testsuit size: " + testSuites.size());
-		} catch (MavenReportException e) {
-			e.printStackTrace();
-		}
-		return testSuites;
-	}
+	/* Get TestResults */
 
 	public InputStream getFileFromContainer(String containerName, String fileName, DockerExecution dockerExec) {
 		InputStream inputStream = null;
@@ -375,23 +341,27 @@ public class DockerService {
 		return exists;
 	}
 
-	private void copyTestResults(DockerExecution dockerExec) {
+	private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {
+		List<ReportTestSuite> testSuites = null;
+
 		try {
-			String target = volumeDirectoryToReadTestResults + "/" + dockerExec.getExecutionId();
-
-			File dir = new File(target);
-			dir.mkdir();
-
 			InputStream inputStream = getFileFromContainer(dockerExec.getTestContainerId(),
 					dockerExec.gettJobexec().getTjob().getResultsPath(), dockerExec);
 
 			String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 			result = repairXML(result);
 
-			FileUtils.writeStringToFile(new File(target + "/testsuite-result.xml"), result, StandardCharsets.UTF_8);
+			TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
+			InputStream byteArrayIs = new ByteArrayInputStream(result.getBytes());
+			testSuites = testSuiteXmlParser.parse(new InputStreamReader(byteArrayIs, "UTF-8"));
 
 		} catch (IOException e) {
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
 		}
+		return testSuites;
 	}
 
 	private String repairXML(String result) {

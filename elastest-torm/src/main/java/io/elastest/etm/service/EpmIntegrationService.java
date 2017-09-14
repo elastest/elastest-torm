@@ -45,7 +45,7 @@ public class EpmIntegrationService {
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
-		
+
 		try {
 			// Create queues and load basic services
 			dockerService.loadBasicServices(dockerExec);
@@ -79,7 +79,7 @@ public class EpmIntegrationService {
 
 		TestSuite tSuite;
 		TestCase tCase;
-		if (testSuites.size() > 0) {
+		if (testSuites != null && testSuites.size() > 0) {
 			ReportTestSuite reportTestSuite = testSuites.get(0);
 			tSuite = new TestSuite();
 			tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
