@@ -1,6 +1,6 @@
 version: '2.1'
 services:
-    beats:
+    etm-beats:
         container_name: beats
         image: elastest/etm-dockbeat
         environment:
@@ -8,11 +8,11 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
-            - logstash
+            - etm-logstash
         networks:
             - elastest
         
-    logstash:        
+    etm-logstash:        
         container_name: logstash
         image: elastest/etm-logstash
         ports:
@@ -21,18 +21,18 @@ services:
             - 5001:5001
             - 5044:5044
         depends_on:
-            - rabbit-MQ
-            - elasticsearch
+            - etm-rabbitmq
+            - edm-elasticsearch
         environment:
-            - ELASTICHOST=elasticsearch
-            - RABBITHOST=rabbit-MQ
+            - ELASTICHOST=edm-elasticsearch
+            - RABBITHOST=etm-rabbitmq
             - RABBITUSER=elastest-etm
             - RABBITPASS=elastest-etm
         networks:
             - elastest       
                                   
-    rabbit-MQ:
-        container_name: rabbit-MQ
+    etm-rabbitmq:
+        container_name: etm-rabbitmq
         image: elastest/etm-rabbitmq
         hostname: my-rabbit
         ports:
@@ -43,7 +43,6 @@ services:
             - 61613:61613
         networks:
             - elastest
-
 volumes:
     beats-data:
       driver: local
