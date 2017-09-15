@@ -11,7 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
-import io.elastest.etm.model.EsmServiceModel;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.elastest.etm.model.SupportService;
+import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.SupportServiceInstance.FrontView;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.utils.ElastestConstants;
 
@@ -26,32 +30,40 @@ public class EsmApiController implements EsmApi {
 	public String ELASTEST_EXECUTION_MODE;	
 	
 	@Override
-	public ResponseEntity<List<String>> getElastestServicesNames() {
+	public ResponseEntity<List<String>> getSupportServicesNames() {
 		List<String> servicesList = esmService.getRegisteredServicesName();
 		return new ResponseEntity<List<String>>(servicesList, HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<List<EsmServiceModel>> getElastestServices() {		
+	public ResponseEntity<List<SupportService>> getSupportServices() {		
 		if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL)){
-			List<EsmServiceModel> servicesList = esmService.getRegisteredServices();
-			return new ResponseEntity<List<EsmServiceModel>>(servicesList, HttpStatus.OK);
+			List<SupportService> servicesList = esmService.getRegisteredServices();
+			return new ResponseEntity<List<SupportService>>(servicesList, HttpStatus.OK);
 		}else{
-			return new ResponseEntity<List<EsmServiceModel>>(new ArrayList<>(), HttpStatus.OK);
+			return new ResponseEntity<List<SupportService>>(new ArrayList<>(), HttpStatus.OK);
 		}
 	}
 
 	@Override
-	public ResponseEntity<String> provisionServiceInstance(String service_id) {
+	@JsonView(FrontView.class)
+	public ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ResponseEntity<String> deprovisionServiceInstance(String instance_id) {
-		// TODO Auto-generated method stub
-		return null;
+	@JsonView(FrontView.class)
+	public ResponseEntity<SupportServiceInstance> provisionServiceInstance(String service_id) {		
+		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(service_id), HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<String> deprovisionServiceInstance(String instance_id) {
+		return new ResponseEntity<String>(esmService.deprovisionServiceInstance(instance_id), HttpStatus.OK);
+	}
+	
+	
 	
 	
 }

@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import io.elastest.etm.model.EsmServiceModel;
+import io.elastest.etm.model.SupportService;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -26,33 +27,42 @@ public interface EsmApi extends EtmApiRoot{
     @RequestMapping(value = "/esm/service",
     	produces = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<String>> getElastestServicesNames();
+    ResponseEntity<List<String>> getSupportServicesNames();
     
-    @ApiOperation(value = "Returns all ElasTest Services registered in the ESM", notes = "Returns all ElasTest Services registered in the ESM.", response = EsmServiceModel.class, responseContainer = "List", tags={ "ESM", })
+    @ApiOperation(value = "Returns all ElasTest Services registered in the ESM", notes = "Returns all ElasTest Services registered in the ESM.", response = SupportService.class, responseContainer = "List", tags={ "ESM", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Successful operation", response = EsmServiceModel.class, responseContainer = "List"),
+        @ApiResponse(code = 200, message = "Successful operation", response = SupportService.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Resource not found") })    
     @RequestMapping(value = "/esm/services",
     	produces = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<List<EsmServiceModel>> getElastestServices();
+    ResponseEntity<List<SupportService>> getSupportServices();
     
-    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", response = String.class, tags={ "ESM", })
+    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", response = SupportServiceInstance.class, tags={ "ESM", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 201, message = "Instance created", response = String.class, responseContainer = "List"),
+        @ApiResponse(code = 201, message = "Instance created", response = SupportServiceInstance.class),
         @ApiResponse(code = 500, message = "Internal error") })    
     @RequestMapping(value = "/esm/service_instances/",
     	produces = { "application/json" },
         method = RequestMethod.POST)
-    ResponseEntity<String> provisionServiceInstance(@ApiParam(value = "Service id", required=true) @RequestParam(value="service_id", required=false) String service_id);
+    ResponseEntity<SupportServiceInstance> provisionServiceInstance(@ApiParam(value = "Service id", required=true) @RequestParam(value="service_id", required=false) String service_id);
     
     @ApiOperation(value = "Request to delete a service instance in the ESM.", notes = "Start the delete proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Instance deleted", response = String.class, responseContainer = "List"),
+        @ApiResponse(code = 200, message = "Instance deleted", response = String.class),
         @ApiResponse(code = 500, message = "Internal error") })    
     @RequestMapping(value = "/esm/service_instances/{instance_id}",
     	produces = { "application/json" },
         method = RequestMethod.DELETE)
     ResponseEntity<String> deprovisionServiceInstance(@ApiParam(value = "Service Instance id", required=true) @PathVariable("instance_id") String instance_id);
+    
+    @ApiOperation(value = "Returns all Support Services Insances provided by the ESM", notes = "Returns all Support Services Insances provided by the ESM.", response = SupportServiceInstance.class, responseContainer = "List", tags={ "ESM", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Successful operation", response = SupportServiceInstance.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Resource not found") })    
+    @RequestMapping(value = "/esm/services/instances",
+    	produces = { "application/json" },
+        method = RequestMethod.GET)
+    ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances();
 
 }

@@ -1,8 +1,6 @@
 package io.elastest.etm.service.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.elastest.etm.model.ServiceInstance;
+import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.SupportServiceInstance.ProvisionView;
 import io.elastest.etm.utils.UtilTools;
 
 
@@ -44,8 +44,12 @@ public class EsmServiceClient {
 
 	@Value("${elastest.esm.url.request.instance}")
 	private String URL_ESM_PROVISION_INSTANCE;
+	
 	@Value("${elastest.esm.url.deprovision.instance}")
 	private String URL_ESM_DEPROVISION_INSTANCE;
+	
+	@Value("${elastest.esm.url.service-instance.info}")
+	private String URL_ESM_SERVICE_INSTANCE_INFO;
 	
 	public UtilTools utilTools;
 	
@@ -55,9 +59,6 @@ public class EsmServiceClient {
 	public EsmServiceClient(UtilTools utilTools){
 		httpClient = new RestTemplate();
 		headers = new HttpHeaders();
-//		List<MediaType> mediaTypes = new ArrayList<MediaType>();
-//		mediaTypes.add(MediaType.APPLICATION_JSON);		
-//		headers.setAccept(mediaTypes);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("x-broker-api-version", "2.12");
 		this.utilTools = utilTools;
@@ -99,10 +100,10 @@ public class EsmServiceClient {
 		return "";
 	}
 
-	public String provisionServiceInstance(ServiceInstance serviceInstance, String instance_id, String accept_incomplete){
+	public String provisionServiceInstance(SupportServiceInstance serviceInstance, String instance_id, String accept_incomplete){
 		String serviceInstanceData = "";
 		logger.info("Request a service instance.");		
-		HttpEntity<String> entity = new HttpEntity<String>(utilTools.convertJsonString(serviceInstance), headers);
+		HttpEntity<String> entity = new HttpEntity<String>(utilTools.convertJsonString(serviceInstance, ProvisionView.class), headers);
 		
 		Map<String, String> params = new HashMap<>();
 		params.put("instance_id", instance_id);
@@ -122,7 +123,7 @@ public class EsmServiceClient {
 		return serviceInstanceData;		
 	}
 	
-	public void deprovisionServiceInstance(String instance_id, ServiceInstance serviceInstance){
+	public void deprovisionServiceInstance(String instance_id, SupportServiceInstance serviceInstance){
 		logger.info("Request removal of a service instance.");		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
@@ -141,12 +142,29 @@ public class EsmServiceClient {
 		}				
 	}
 	
-	public String getRegisteredServices() {
+	public JsonNode getRegisteredServices() {
 		logger.info("Retrieving the services.");		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
 		try{
 			ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_GET_CATALOG_ESM, HttpMethod.GET, entity, ObjectNode.class);
+			logger.info("Retrieved services.");
+			return objNode.getBody().get("services");//.toString();
+		}catch(Exception e){
+			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
+			return null;
+		}		
+	}
+	
+	public String getServiceInstanceInfo(String instanceId){		
+		logger.info("Retrieving service instance info.");
+		
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		Map<String, String> params = new HashMap<>();
+		params.put("instance_id", instanceId);		
+				
+		try{
+			ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_ESM_SERVICE_INSTANCE_INFO, HttpMethod.GET, entity, ObjectNode.class, params);
 			logger.info("Retrieved services.");
 			return objNode.getBody().get("services").toString();
 		}catch(Exception e){

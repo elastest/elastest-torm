@@ -41,11 +41,10 @@ public class TJobServiceTest {
 	
 	@Test
 	public void createTJobTest(@Autowired TJob tJob  
-			, @Mock TJobRepository tJobRepo, @Mock EpmIntegrationService epmIntegrationService, @Mock TJobExecRepository tJobExecRepo,
-			@Mock EsmService esmService){
+			, @Mock TJobRepository tJobRepo, @Mock EpmIntegrationService epmIntegrationService, @Mock TJobExecRepository tJobExecRepo){
 		//TJob createdTJob = 
 		when(tJobRepo.save(tJob)).thenReturn(tJob);
-		TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo, epmIntegrationService, esmService);		
+		TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo, epmIntegrationService);		
 		TJob tJob1 = tJobService.createTJob(tJob);
 		System.out.println("ImageName:"+tJob1.getImageName());
 		assertNotNull(tJob1.getId());		

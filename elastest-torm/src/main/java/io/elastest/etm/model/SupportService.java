@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 
 @ApiModel(description = "Entity that represents an ElasTest service.")
-public class EsmServiceModel {
+public class SupportService {
 	
 	@JsonProperty("id")
 	private String id;
@@ -13,11 +13,11 @@ public class EsmServiceModel {
 	@JsonProperty("name")
 	private String name;
 	
-	public EsmServiceModel(){
+	public SupportService(){
 		
 	}
 	
-	public EsmServiceModel(String id, String name) {
+	public SupportService(String id, String name) {
 		super();
 		this.id = id;
 		this.name = name;

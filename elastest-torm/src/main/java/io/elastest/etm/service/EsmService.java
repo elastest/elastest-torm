@@ -17,11 +17,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.elastest.etm.model.EsmServiceModel;
-import io.elastest.etm.model.ServiceInstance;
+import io.elastest.etm.model.SupportService;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
@@ -38,7 +39,7 @@ public class EsmService {
 
 	public EsmServiceClient esmServiceClient;	
 	public UtilTools utilTools;
-	private Map<String, ServiceInstance> servicesInstances;
+	private Map<String, SupportServiceInstance> servicesInstances;
 	
 	
 	public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools){
@@ -104,30 +105,34 @@ public class EsmService {
 		logger.info("Get registered services names.");		
 		List<String> registeredServices = new ArrayList<>();
 
-		List<EsmServiceModel> services = getRegisteredServices();
-		for (EsmServiceModel service : services) {
+		List<SupportService> services = getRegisteredServices();
+		for (SupportService service : services) {
 			registeredServices.add(service.getName());
 			logger.info("Service name: {} ", service.getName() );
 		}
 		return registeredServices;
 	}
 	
-	public List<EsmServiceModel> getRegisteredServices(){
+	public List<SupportService> getRegisteredServices(){
 		logger.info("Get registered services.");
 		ObjectMapper mapper = new ObjectMapper();
-		List<ObjectNode> objs;
-		List<EsmServiceModel> services = new ArrayList<>();
+		//List<ObjectNode> objs;
+		JsonNode objs;
+		List<SupportService> services = new ArrayList<>();
 		
-		try {
-			objs = Arrays.asList(mapper.readValue(esmServiceClient.getRegisteredServices(), ObjectNode[].class));
-			for(ObjectNode esmService: objs){
-				services.add(new EsmServiceModel(esmService.get("id").toString().replaceAll("\"", ""), esmService.get("name").toString().replaceAll("\"", "")));	
+//		try {
+			objs = esmServiceClient.getRegisteredServices();//Arrays.asList(mapper.readValue(esmServiceClient.getRegisteredServices(), ObjectNode[].class));
+			for(JsonNode esmService: objs){
+				services.add(new SupportService(esmService.get("id").toString().replaceAll("\"", ""), esmService.get("name").toString().replaceAll("\"", "")));	
 			}
+//			for(ObjectNode esmService: objs){
+//				services.add(new SupportService(esmService.get("id").toString().replaceAll("\"", ""), esmService.get("name").toString().replaceAll("\"", "")));	
+//			}
 			return services;
-		} catch (IOException e) {			
-			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
-			return services;
-		}		 
+//		} catch (IOException e) {			
+//			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
+//			return services;
+//		}		 
 	}
 	
 	/**
@@ -135,16 +140,19 @@ public class EsmService {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<ObjectNode> getRawRegisteredServices() throws IOException{
+	public JsonNode /*List<ObjectNode>*/ getRawRegisteredServices() throws IOException{
 		logger.info("Get registered all data of a service.");
-		ObjectMapper mapper = new ObjectMapper();		
+		ObjectMapper mapper = new ObjectMapper();	
 		
-		try {
-			return Arrays.asList(mapper.readValue(esmServiceClient.getRegisteredServices(), ObjectNode[].class));
-		} catch (IOException e) {
-			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
-			throw e;
-		}		 
+		return esmServiceClient.getRegisteredServices();
+		
+//		try {
+//			esmServiceClient.getRegisteredServices().
+//			return Arrays.asList(mapper.readValue(esmServiceClient.getRegisteredServices(), ObjectNode[].class));
+//		} catch (IOException e) {
+//			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
+//			throw e;
+//		}		 
 	}
 	
 	/**
@@ -152,26 +160,30 @@ public class EsmService {
 	 * @param serviceName
 	 * @return the id of the new instance.
 	 */
-	public String provisionServiceInstance(String serviceName){
+	public SupportServiceInstance provisionServiceInstance(String serviceName){
 		ObjectMapper mapper = new ObjectMapper();
-		String instance_id = "";
+		String instanceId = "";
+		SupportServiceInstance newServiceInstance = null;
 		
 		try {			
-			List<ObjectNode> services = getRawRegisteredServices();
-			for (ObjectNode service : services) {
+//			List<ObjectNode> services = getRawRegisteredServices();
+//			for (ObjectNode service : services) {
+			JsonNode services = getRawRegisteredServices();
+			for (JsonNode service : services) {
 				if (service.get("name").toString().equals(serviceName)){
-					instance_id = utilTools.generateUniqueId();
+					instanceId = utilTools.generateUniqueId();
+					logger.info("Service instance: " + instanceId);
 					List<ObjectNode> plans = Arrays.asList(mapper.readValue(service.get("plans").toString(), ObjectNode[].class));
-					ServiceInstance newServiceInstance = new ServiceInstance(service.get("id").toString()
+					newServiceInstance = new SupportServiceInstance(instanceId, service.get("id").toString()
 							.replaceAll("\"", ""), plans.get(0).get("id").toString().replaceAll("\"", ""), true);
-					servicesInstances.put(instance_id, newServiceInstance);
-					esmServiceClient.provisionServiceInstance(newServiceInstance, instance_id, Boolean.toString(false));
+					servicesInstances.put(instanceId, newServiceInstance);
+					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 				}				
 			}
 		} catch (IOException e) {					
 			logger.error("Error requesting an instance of a service: {}", e.getMessage(), e);
 		}		
-		return instance_id;
+		return newServiceInstance;
 	}
 	
 	/**
@@ -179,21 +191,37 @@ public class EsmService {
 	 * 
 	 * @param instance_id
 	 */
-	public void deProvideServiceInstance(String instance_id){
-		ServiceInstance serviceInstance = servicesInstances.get(instance_id);
+	public String deprovisionServiceInstance(String instance_id){
+		String result = "Instance deleted.";
+		SupportServiceInstance serviceInstance = servicesInstances.get(instance_id);
 		esmServiceClient.deprovisionServiceInstance(instance_id, serviceInstance);
 		servicesInstances.remove(instance_id);
+		return result;
 	}
 	
-//	public String generateUniqueId() {
-//		return UUID.randomUUID().toString();		
-//	}
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public List<ObjectNode> getServiceInstanceId(String instanceId) throws IOException{
+		logger.info("Get registered all data of a service.");
+		ObjectMapper mapper = new ObjectMapper();		
+		
+		try {
+			return Arrays.asList(mapper.readValue(esmServiceClient.getServiceInstanceInfo(instanceId), ObjectNode[].class));
+		} catch (IOException e) {
+			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
+			throw e;
+		}		 
+	}
 	
-	public Map<String, ServiceInstance> getServicesInstances() {
+	
+	public Map<String, SupportServiceInstance> getServicesInstances() {
 		return servicesInstances;
 	}
 
-	public void setServicesInstances(Map<String, ServiceInstance> servicesInstances) {
+	public void setServicesInstances(Map<String, SupportServiceInstance> servicesInstances) {
 		this.servicesInstances = servicesInstances;
 	}
 }

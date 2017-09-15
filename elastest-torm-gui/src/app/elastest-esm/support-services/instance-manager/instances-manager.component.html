@@ -1,0 +1,46 @@
+<div class="md-content" class="inset">
+  <div layout="column" layout-gt-sm="row">
+      <div flex-gt-sm="100">
+          <md-card>
+              <div layout="row" layout-align="start center" class="pad-right-sm">
+                  <span *ngIf="!searchBox.searchVisible">
+                      <md-card-title>Support Services</md-card-title>
+                  </span>
+                  <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="search($event)"
+                      flex>
+                  </td-search-box>
+              </div>
+              <md-divider></md-divider>
+              <div>
+              </div>
+              <form #ServiceForm="ngForm">
+                <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
+                    <md-select [(ngModel)]="selectedService" placeholder="Select a Service" required name="service">                        
+                        <md-option *ngFor="let service of supportServices" [value]="service.id">
+                          {{service.name}}
+                        </md-option>
+                      </md-select>
+                    <button md-raised-button color="accent" (click)="provisionServiceInstance()">Add Service</button>
+                </div>
+              </form>
+              <md-divider></md-divider>
+              <td-data-table #servicesTable class="scroll_table" 
+              [data]="serviceData" 
+              [columns]="serviceColumns" 
+              [selectable]="false" 
+              [clickable]="true"
+              [sortable]="false"
+              [sortBy]="sortBy" 
+              [sortOrder]="sortOrder"
+              (sortChange)="sort($event)">
+                  <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                      <div layout="row">
+                          <button md-button (click)="goToService(row)" class="iconBtn-lg" title="Go to Service UI"><md-icon>open_in_new</md-icon></button>
+                          <button md-button (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service"><md-icon>delete</md-icon></button>
+                      </div>
+                  </ng-template>
+              </td-data-table>
+          </md-card>
+      </div>
+  </div>
+</div>

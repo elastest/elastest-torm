@@ -15,6 +15,13 @@ export class EsmService {
     );
   }
 
+  getSupportServicesInstances(){
+    let url = this.configurationService.configModel.hostApi + '/esm/services';
+    return this.http.get(url)
+      .map((response) =>  this.transformIntoEsmServiceModel(response)
+    );
+  }
+
   transformIntoEsmServiceModel(response: Response ){
     let res =  response.json();
     let retrivedServices: EsmServiceModel[] = [];

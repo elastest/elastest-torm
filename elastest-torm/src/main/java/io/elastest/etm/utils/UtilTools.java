@@ -130,11 +130,11 @@ public class UtilTools {
 			return getHostIp();
 	}
 	
-	public String convertJsonString(Object obj) {
+	public String convertJsonString(Object obj, Class<?> serializationView) {
 		String jsonString = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();             
-            jsonString = objectMapper.writeValueAsString(obj);            
+            jsonString = objectMapper.writerWithView(serializationView).writeValueAsString(obj);            
 
         } catch (IOException e) {
             logger.error("Error during conversion: " + e.getMessage());           
