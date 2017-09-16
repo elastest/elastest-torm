@@ -79,8 +79,7 @@ export class TJobService {
       tjob.sut = undefined;
     }
     tjob.generateExecDashboardConfig();
-    tjob.esmServicesString = JSON.stringify(tjob.esmServices);
-    console.log("Services " + JSON.stringify(tjob.esmServicesString));
+    tjob.esmServicesString = JSON.stringify(tjob.esmServices);    
     let url = this.configurationService.configModel.hostApi + '/tjob';
     if (action === 'new'){
       return this.http.post(url, tjob)

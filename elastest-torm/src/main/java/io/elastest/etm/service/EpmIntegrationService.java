@@ -146,7 +146,7 @@ public class EpmIntegrationService {
 			List<ObjectNode> services = Arrays.asList(mapper.readValue(tJobServices, ObjectNode[].class));
 			for(ObjectNode service: services){
 				if (service.get("selected").toString().equals(Boolean.toString(true))){
-					tJobExec.getServicesInstances().add(esmService.provisionServiceInstance(service.get("name").toString()).getInstanceId());
+					tJobExec.getServicesInstances().add(esmService.provisionServiceInstance(service.get("id").toString(), true).getInstanceId());
 				}
 			}			
 		} catch (IOException e) {

@@ -42,16 +42,16 @@ public interface EsmApi extends EtmApiRoot{
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Instance created", response = SupportServiceInstance.class),
         @ApiResponse(code = 500, message = "Internal error") })    
-    @RequestMapping(value = "/esm/service_instances/",
+    @RequestMapping(value = "/esm/services/{serviceId}/prov",
     	produces = { "application/json" },
         method = RequestMethod.POST)
-    ResponseEntity<SupportServiceInstance> provisionServiceInstance(@ApiParam(value = "Service id", required=true) @RequestParam(value="service_id", required=false) String service_id);
+    ResponseEntity<SupportServiceInstance> provisionServiceInstance(@ApiParam(value = "serviceId", required=true) @PathVariable(value="serviceId", required=false) String serviceId);
     
     @ApiOperation(value = "Request to delete a service instance in the ESM.", notes = "Start the delete proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Instance deleted", response = String.class),
         @ApiResponse(code = 500, message = "Internal error") })    
-    @RequestMapping(value = "/esm/service_instances/{instance_id}",
+    @RequestMapping(value = "/esm/services/instances/{instance_id}",
     	produces = { "application/json" },
         method = RequestMethod.DELETE)
     ResponseEntity<String> deprovisionServiceInstance(@ApiParam(value = "Service Instance id", required=true) @PathVariable("instance_id") String instance_id);

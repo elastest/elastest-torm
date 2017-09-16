@@ -149,14 +149,14 @@ public class EsmServiceClient {
 		try{
 			ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_GET_CATALOG_ESM, HttpMethod.GET, entity, ObjectNode.class);
 			logger.info("Retrieved services.");
-			return objNode.getBody().get("services");//.toString();
+			return objNode.getBody().get("services");
 		}catch(Exception e){
 			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
 			return null;
 		}		
 	}
 	
-	public String getServiceInstanceInfo(String instanceId){		
+	public ObjectNode getServiceInstanceInfo(String instanceId){		
 		logger.info("Retrieving service instance info.");
 		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -165,8 +165,9 @@ public class EsmServiceClient {
 				
 		try{
 			ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_ESM_SERVICE_INSTANCE_INFO, HttpMethod.GET, entity, ObjectNode.class, params);
-			logger.info("Retrieved services.");
-			return objNode.getBody().get("services").toString();
+			logger.info("Retrieved services instance info.");
+			logger.info("Instance info: " + objNode.getBody().toString());
+			return objNode.getBody();
 		}catch(Exception e){
 			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
 			return null;

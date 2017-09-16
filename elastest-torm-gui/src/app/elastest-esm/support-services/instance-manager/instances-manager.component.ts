@@ -29,14 +29,14 @@ export class InstancesManagerComponent implements OnInit {
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   supportServices: EsmServiceModel[] = [];
-  selectedService: EsmServiceModel;
+  selectedService: string;
 
 
   constructor(private _dataTableService: TdDataTableService, private esmService: EsmService) { }
 
   ngOnInit() {
     this.loadServiceInstances();
-    this.esmService.getElastestESMServices()
+    this.esmService.getSupportServices()
     .subscribe(
       (esmServices) => { this.supportServices = esmServices
       }
@@ -70,9 +70,22 @@ export class InstancesManagerComponent implements OnInit {
     this.filteredData = newData;
   }
 
-  loadServiceInstances(){}
+  loadServiceInstances(){
+    this.esmService.getSupportServicesInstances()
+    .subscribe(
+      (esmServices) => { console.log(esmServices)
+      }
+    );
+  }
 
-  provisionServiceInstance(){}
+  provisionServiceInstance(){
+    console.log("Provisioning service.")
+    this.esmService.provisionServiceInstance(this.selectedService)
+    .subscribe(
+      (esmServices) => { console.log(esmServices)
+      }
+    );
+  }
 
   goToService(serviceInstance: EsmServiceInstanceModel){}
 

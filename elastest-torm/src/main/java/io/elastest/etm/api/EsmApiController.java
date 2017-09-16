@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -18,6 +19,7 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.FrontView;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.utils.ElastestConstants;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 public class EsmApiController implements EsmApi {
@@ -48,14 +50,15 @@ public class EsmApiController implements EsmApi {
 	@Override
 	@JsonView(FrontView.class)
 	public ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ResponseEntity<List<SupportServiceInstance>>(esmService.getServicesInstances(), HttpStatus.OK);
 	}
 
 	@Override
 	@JsonView(FrontView.class)
-	public ResponseEntity<SupportServiceInstance> provisionServiceInstance(String service_id) {		
-		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(service_id), HttpStatus.OK);
+	public ResponseEntity<SupportServiceInstance> provisionServiceInstance(
+			@ApiParam(value = "Service Id", required = true) @PathVariable("serviceId")String serviceId) {
+		logger.info("Service provision:" +  serviceId);
+		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(serviceId, false), HttpStatus.OK);
 	}
 
 	@Override
