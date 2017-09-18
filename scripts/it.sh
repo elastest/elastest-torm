@@ -39,10 +39,10 @@ docker network connect ${projectName}_elastest ${containerId}
 
 # Get services IPs
 
-MYSQL_IP=$(containerIp "mysql")
-RABBIT_IP=$(containerIp "rabbit-MQ")
-ELASTICSEARCH_IP=$(containerIp "elasticsearch")
-LOGSTASH_IP=$(containerIp "logstash")
+MYSQL_IP=$(containerIp "edm-mysql")
+RABBIT_IP=$(containerIp "etm-rabbitmq")
+ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
+LOGSTASH_IP=$(containerIp "etm-logstash")
 
 # Execute Integration tests
 
