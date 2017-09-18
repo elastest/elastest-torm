@@ -66,7 +66,7 @@ cd ..
 
 docker network disconnect "${projectName}"_elastest ${containerId}
 
-docker-compose -f ../docker-compose-complementary.yml down
+docker-compose -f docker-compose-complementary.yml down
 
 # Exit code of mvn command
 
