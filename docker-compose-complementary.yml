@@ -63,6 +63,10 @@ services:
             - 9200:9200
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
+        environment:
+            - xpack.security.enabled=false
+            - http.host=0.0.0.0
+            - transport.host=127.0.0.1
         networks:
             - elastest 
 
