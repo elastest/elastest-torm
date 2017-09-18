@@ -40,7 +40,7 @@ docker network connect ${projectName}_elastest ${containerId}
 # Get services IPs
 
 MYSQL_IP=$(containerIp "edm-mysql")
-RABBIT_IP=$(containerIp "etm-rabbitmq")
+ET_ETM_RABBIT_HOST=$(containerIp "etm-rabbitmq")
 ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
 LOGSTASH_IP=$(containerIp "etm-logstash")
 ET_ESM_API=''
@@ -50,7 +50,7 @@ echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=${ET_ESM_API} -Delastest.incontainer=true clean verify
+mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Det.etm.rabbit.host=${RABBIT_IP} -Det.etm.rabbit.port=5672 -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=${ET_ESM_API} -Delastest.incontainer=true clean verify
 
 mvnExit=$?
 
