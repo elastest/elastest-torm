@@ -99,10 +99,7 @@ public class EsmService {
 		}
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
+
 	public List<String> getRegisteredServicesName() {
 		logger.info("Get registered services names.");		
 		List<String> registeredServices = new ArrayList<>();
@@ -140,8 +137,9 @@ public class EsmService {
 	
 	/**
 	 * 
-	 * @param serviceName
-	 * @return the id of the new instance.
+	 * @param serviceId
+	 * @param associatedWitTJob
+	 * @return the new service instance.
 	 */
 	public SupportServiceInstance provisionServiceInstance(String serviceId, Boolean associatedWitTJob){
 		logger.info("Service id to provision: " + serviceId);
