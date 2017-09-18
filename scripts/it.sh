@@ -43,14 +43,14 @@ MYSQL_IP=$(containerIp "edm-mysql")
 RABBIT_IP=$(containerIp "etm-rabbitmq")
 ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
 LOGSTASH_IP=$(containerIp "etm-logstash")
-
+ET_ESM_API=''
 # Execute Integration tests
 
 echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Delastest.incontainer=true clean verify
+mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Dspring.rabbitmq.host=${RABBIT_IP} -Delastest.elasticsearch.host=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=${ET_ESM_API} -Delastest.incontainer=true clean verify
 
 mvnExit=$?
 
@@ -66,7 +66,7 @@ cd ..
 
 docker network disconnect "${projectName}"_elastest ${containerId}
 
-docker-compose -f docker-compose-ci2.yml down
+docker-compose -f ../docker-compose-complementary.yml down
 
 # Exit code of mvn command
 
