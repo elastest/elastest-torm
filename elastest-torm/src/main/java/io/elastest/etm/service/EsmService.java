@@ -189,13 +189,14 @@ public class EsmService {
 	/**
 	 * 
 	 * 
-	 * @param instance_id
+	 * @param instanceId
 	 */
-	public String deprovisionServiceInstance(String instance_id){
+	public String deprovisionServiceInstance(String instanceId, Boolean withTJob){
 		String result = "Instance deleted.";
-		SupportServiceInstance serviceInstance = servicesInstances.get(instance_id);
-		esmServiceClient.deprovisionServiceInstance(instance_id, serviceInstance);
-		servicesInstances.remove(instance_id);
+		Map<String, SupportServiceInstance> servicesInstances = withTJob ? tJobServicesInstances : this.servicesInstances;
+		SupportServiceInstance serviceInstance = servicesInstances.get(instanceId);
+		esmServiceClient.deprovisionServiceInstance(instanceId, serviceInstance);
+		servicesInstances.remove(instanceId);
 		return result;
 	}
 	

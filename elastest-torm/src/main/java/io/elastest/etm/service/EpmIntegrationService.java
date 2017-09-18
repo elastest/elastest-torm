@@ -162,7 +162,7 @@ public class EpmIntegrationService {
 	private void deprovideServices(TJobExecution tJobExec){
 		logger.info("Start the service deprovision.");
 		for(String instance_id: tJobExec.getServicesInstances()){
-			esmService.deprovisionServiceInstance(instance_id);
+			esmService.deprovisionServiceInstance(instance_id, true);
 		}
 	}
 

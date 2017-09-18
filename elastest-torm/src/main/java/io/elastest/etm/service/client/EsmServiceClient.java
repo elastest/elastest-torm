@@ -123,12 +123,12 @@ public class EsmServiceClient {
 		return serviceInstanceData;		
 	}
 	
-	public void deprovisionServiceInstance(String instance_id, SupportServiceInstance serviceInstance){
+	public void deprovisionServiceInstance(String instanceId, SupportServiceInstance serviceInstance){
 		logger.info("Request removal of a service instance.");		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
 		Map<String, String> params = new HashMap<>();
-		params.put("instance_id", instance_id);				
+		params.put("instance_id", instanceId);				
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL_ESM_DEPROVISION_INSTANCE)
 				.queryParam("service_id", serviceInstance.getService_id())
 				.queryParam("plan_id", serviceInstance.getPlan_id());				

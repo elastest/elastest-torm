@@ -38,7 +38,7 @@ export class InstancesManagerComponent implements OnInit {
     this.loadServiceInstances();
     this.esmService.getSupportServices()
     .subscribe(
-      (esmServices) => { this.supportServices = esmServices
+      (esmServices) => { this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
       }
     );
   }
@@ -73,24 +73,33 @@ export class InstancesManagerComponent implements OnInit {
   loadServiceInstances(){
     this.esmService.getSupportServicesInstances()
     .subscribe(
-      (esmServices) => { console.log(esmServices)
+      (esmServicesInstances) => { this.prepareDataTable(esmServicesInstances);
       }
     );
   }
 
-  provisionServiceInstance(){
-    console.log("Provisioning service.")
+  provisionServiceInstance(){    
     this.esmService.provisionServiceInstance(this.selectedService)
     .subscribe(
-      (esmServices) => { console.log(esmServices)
+      (esmServices) => { console.log(esmServices);this.loadServiceInstances();
       }
     );
+  }
+
+  deprovisionService(serviceInstance: EsmServiceInstanceModel){
+    this.esmService.deprovisionServiceInstance(serviceInstance.id)
+    .subscribe(
+      (esmServices) => { console.log(esmServices);this.loadServiceInstances();
+      }
+    );    
   }
 
   goToService(serviceInstance: EsmServiceInstanceModel){}
 
-  deprovisionService(serviceInstance: EsmServiceInstanceModel){
-
+  prepareDataTable(servicesInstances: EsmServiceInstanceModel[]) {
+    this.instancesData = servicesInstances;
+    this.filteredData = this.instancesData;
+    this.filteredTotal = this.instancesData.length;
+    this.filter();
   }
-
 }
