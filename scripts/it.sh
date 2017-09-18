@@ -27,7 +27,7 @@ export COMPOSE_PROJECT_NAME=$projectName
 
 echo $COMPOSE_PROJECT_NAME
 
-docker-compose -f ../docker-compose-ci2.yml up -d
+docker-compose -f ../docker-compose-complementary.yml up -d
     
 # Connect test container to docker-compose network
 

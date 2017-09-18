@@ -9,7 +9,6 @@ services:
             - etm-beats
         links:
             - etm-rabbitmq
-        container_name: elastest-etm
         image: elastest/etm
         environment:
             - EXEC_MODE=Normal
@@ -37,7 +36,6 @@ services:
         ports:
             - 37006:8091
         volumes:
-            - /test-results:/test-results
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - elastest

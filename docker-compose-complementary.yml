@@ -1,18 +1,6 @@
 version: '3'
 services:
-        entrypoint: /run.sh
-        expose:
-            - 8091
-        ports:
-            - 37006:8091
-        volumes:
-            - /test-results:/test-results
-            - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-            - elastest
-
     etm-beats:
-        container_name: beats
         image: elastest/etm-dockbeat
         environment:
             - LOGSTASHHOST=logstash
@@ -24,7 +12,6 @@ services:
             - elastest
         
     etm-logstash:        
-        container_name: logstash
         image: elastest/etm-logstash
         ports:
             - 5002:5002
@@ -43,7 +30,6 @@ services:
             - elastest       
                                   
     etm-rabbitmq:
-        container_name: etm-rabbitmq
         image: elastest/etm-rabbitmq
         hostname: my-rabbit
         ports:
@@ -56,7 +42,6 @@ services:
             - elastest
 
     edm-mysql:
-        container_name: mysql-db
         image: mysql
         expose:
             - 3306
@@ -68,11 +53,11 @@ services:
             - MYSQL_PASSWORD=elastest
             - MYSQL_ALLOW_EMPTY_PASSWORD="yes"
         volumes:
-            - mysql:/var/lib/mysql
+            - edm-mysql:/var/lib/mysql
         networks:
-   
+            - elastest
+
     edm-elasticsearch:
-        container_name: elasticsearch
         image: elastest/etm-elasticsearch
         ports:
             - 9200:9200
@@ -82,7 +67,6 @@ services:
             - elastest 
 
     eus:
-        container_name: elastest-eus
         image: elastest/eus
         environment:
             - USE_TORM=true
@@ -94,7 +78,11 @@ services:
             - elastest
      
 volumes:
+    elasticsearch-data:
+      driver: local
     beats-data:
+      driver: local
+    edm-mysql:
       driver: local
 networks:
     elastest:
