@@ -1,0 +1,26 @@
+version: '3'
+services:        
+    etm-logstash:        
+        ports:
+            - 5002:5002
+            - 5000:5000
+            - 5001:5001
+            - 5044:5044        
+    etm-rabbitmq:
+        ports:
+            - 15672:15672
+            - 5672:5672
+            - 15671:15671
+            - 25672:25672
+            - 61613:61613
+    edm-mysql:
+        ports:
+            - 3306:3306
+    edm-elasticsearch:
+        ports:
+            - 9200:9200
+    eus:
+        ports:
+            - 8040:8040
+
+    

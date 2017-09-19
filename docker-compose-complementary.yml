@@ -13,11 +13,11 @@ services:
         
     etm-logstash:        
         image: elastest/etm-logstash
-        ports:
-            - 5002:5002
-            - 5000:5000
-            - 5001:5001
-            - 5044:5044
+        expose:
+            - 5002
+            - 5000
+            - 5001
+            - 5044
         depends_on:
             - etm-rabbitmq
             - edm-elasticsearch
@@ -32,12 +32,12 @@ services:
     etm-rabbitmq:
         image: elastest/etm-rabbitmq
         hostname: my-rabbit
-        ports:
-            - 15672:15672
-            - 5672:5672
-            - 15671:15671
-            - 25672:25672
-            - 61613:61613
+        expose:
+            - 15672
+            - 5672
+            - 15671
+            - 25672
+            - 61613
         networks:
             - elastest
 
@@ -45,8 +45,6 @@ services:
         image: mysql
         expose:
             - 3306
-        ports:
-            - 3306:3306
         environment:
             - MYSQL_DATABASE=elastest
             - MYSQL_USER=elastest
@@ -59,8 +57,8 @@ services:
 
     edm-elasticsearch:
         image: elastest/etm-elasticsearch
-        ports:
-            - 9200:9200
+        expose:
+            - 9200
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
         environment:
@@ -76,8 +74,6 @@ services:
             - USE_TORM=true
         expose:
             - 8040
-        ports:
-            - 8040:8040
         networks:
             - elastest
      
