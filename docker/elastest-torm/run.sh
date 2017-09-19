@@ -4,10 +4,4 @@ while ! nc -z edm-mysql 3306 ; do
     sleep 2
 done
 
-if [ -z "$EXEC_MODE" ]; then
-  echo "Execution Mode: Lite"
-  exec java -jar elastest-torm.jar
-else
-  echo "Execution Mode: " $EXEC_MODE
-  exec java -jar elastest-torm.jar --elastest.execution.mode=$EXEC_MODE
-fi
+exec java -jar elastest-torm.jar
