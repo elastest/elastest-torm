@@ -64,7 +64,7 @@ bash <(curl -s https://codecov.io/bash) -t fa48b15c-ceb8-409d-996f-8f34d53addd2
 # Clean up environment
 
 cd ..
-
+docker-compose -f docker-compose-complementary.yml logs
 docker network disconnect "${projectName}"_elastest ${containerId}
 
 docker-compose -f docker-compose-complementary.yml down
