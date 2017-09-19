@@ -1,0 +1,5 @@
+version: '3'
+services:
+    etm:
+        environment:
+            - EXEC_MODE=Lite
