@@ -1,68 +1,70 @@
 {
-	"register": {
-		"description": "this is my test service",
-		"id": "EDS",
-		"name": "EDS",
+	"register" : {
+		"name": "ems",
+		"id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+		"description": "The Elastest Monitoring Service",
 		"bindable": false,
-		"plan_updateable": false,
 		"plans": [
 			{
-				"bindable": false,
-				"description": "plan for testing",
-				"free": true,
-				"id": "testplan",
-				"metadata": {
-					"bullets": "basic plan",
-					"costs": {
-						"components": {
-							
-						},
-						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk",
-						"fix_cost": {
-							"deployment": 5
-						},
-						"name": "On Demand 5 + Charges",
-						"type": "ONDEMAND",
-						"var_rate": {
-							"cpus": 50,
-							"disk": 1,
-							"memory": 10
-						}
-					}
-				},
-				"name": "testing plan"
+			"id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+			"name": "basic",
+			"description": "Basic plan for EMS usage",
+			"metadata": {
+				"costs": {
+					"name": "On Demand 5 + Charges",
+					"type": "ONDEMAND",
+					"fix_cost": {
+						"deployment": 5
+					},
+					"var_rate": {
+						"disk": 1,
+						"memory": 10,
+						"cpus": 50
+					},
+					"components": {
+					},
+					"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
+				}
 			}
-		],
-		"requires": [],
-		"tags": [
-			"test",
-			"tester"
+			}
 		]
 	},
 	"manifest": {
-		"id": "test-mani",
-		"manifest_content": "version: '2'\n\nservices:\n  spark-master:\n    image: elastest/ebs-spark-base:0.5.0\n    container_name: spark-master\n    ports:\n      - \"8080:8080\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: spark-master\n    networks:\n      - elastest\n\n  spark-worker:\n    image: elastest/ebs-spark-base:0.5.0\n    depends_on:\n      - spark-master\n    ports:\n      - \"8081\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    hostname: spark-worker\n    networks:\n      - elastest\n\nnetworks:\n  elastest:\n    external: true\n",
+		"id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
+		"manifest_content": "version: '2.1'\nservices:\n    ems:\n        depends_on:\n            - elasticsearch\n        image: elastest/ems\n\n    elasticsearch:\n        image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0\n        environment:\n            - http.host=0.0.0.0\n            - transport.host=127.0.0.1\n",
 		"manifest_type": "dummy",
-		"plan_id": "testplan_10",
-		"service_id": "EDS",
+		"plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+		"service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
 		"endpoints": {
-			"sub_service_name_1": {
-				"description": "this is a sub-service that does stuff",
-				"main": true,
+			"ems": {
+				"description": "Service for managing monitoring machines and subscribers",  
+				"main": true,  
 				"api": {
-					"protocol": "http",
-					"port": 9000,
-					"path": "/v2",
+					"protocol": "http",  
+					"port": 8888,  
+					"path": "/",  
 					"definition": {
-						"type": "openapi",
-						"path": "/v2/api.yaml",
-						"port": 9090
+					"type": "openapi",  
+					"path": "/api.yaml"
 					}
 				},
 				"gui": {
-					"protocol": "http",
-					"port": 9089,
+					"protocol": "http",  
+					"port": 8889,
 					"path": "/gui"
+				}
+			},
+			"BeatsFeed": {
+				"description": "this endpoint receives events sent by beats (elasticsearch data shippers)",  
+				"main": false,  
+				"api": {
+					"protocol": "TCP/IP",  
+					"port": 5044
+				},
+				"gui": { 
+					"protocol": "http",  
+					"port": 9090,  
+					"path": "/gui"  
 				}
 			}
 		}

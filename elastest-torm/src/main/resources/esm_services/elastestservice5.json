@@ -1,68 +1,49 @@
 {
 	"register": {
-		"description": "this is my test service",
-		"id": "ESS",
-		"name": "ESS",
+		"name": "ess",
+		"id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+		"description": "The Elastest Security Service",
 		"bindable": false,
-		"plan_updateable": false,
 		"plans": [
 			{
-				"bindable": false,
-				"description": "plan for testing",
-				"free": true,
-				"id": "testplan",
+				"id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+				"name": "basic",
+				"description": "Plan for ESS",
 				"metadata": {
-					"bullets": "basic plan",
 					"costs": {
-						"components": {
-							
-						},
-						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk",
+						"name": "On Demand 5 + Charges",
+						"type": "ONDEMAND",
 						"fix_cost": {
 							"deployment": 5
 						},
-						"name": "On Demand 5 + Charges",
-						"type": "ONDEMAND",
 						"var_rate": {
-							"cpus": 50,
 							"disk": 1,
-							"memory": 10
-						}
+							"memory": 10,
+							"cpus": 50
+						},
+						"components": {
+							
+						},
+						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
 					}
-				},
-				"name": "testing plan"
+				}
 			}
-		],
-		"requires": [],
-		"tags": [
-			"test",
-			"tester"
 		]
 	},
 	"manifest": {
-		"id": "test-mani_3",
-		"manifest_content": "version: '2'\n\nservices:\n  spark-master:\n    image: elastest/ebs-spark-base:0.5.0\n    container_name: spark-master\n    ports:\n      - \"8080:8080\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: spark-master\n    networks:\n      - elastest\n\n  spark-worker:\n    image: elastest/ebs-spark-base:0.5.0\n    depends_on:\n      - spark-master\n    ports:\n      - \"8081\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    hostname: spark-worker\n    networks:\n      - elastest\n\nnetworks:\n  elastest:\n    external: true\n",
+		"id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
+		"manifest_content": "version: '3'</br>services:</br>  ess:</br>    image: elastest/ems</br>    ports:</br>     - 80:80",
 		"manifest_type": "dummy",
-		"plan_id": "testplan_12",
-		"service_id": "ESS",
+		"plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+		"service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
 		"endpoints": {
-			"sub_service_name_1": {
-				"description": "this is a sub-service that does stuff",
+			"ESS_API": {
+				"description": "The ESS API",
 				"main": true,
 				"api": {
 					"protocol": "http",
-					"port": 9000,
-					"path": "/v2",
-					"definition": {
-						"type": "openapi",
-						"path": "/v2/api.yaml",
-						"port": 9090
-					}
-				},
-				"gui": {
-					"protocol": "http",
-					"port": 9089,
-					"path": "/gui"
+					"port": 80,
+					"path": "/"
 				}
 			}
 		}

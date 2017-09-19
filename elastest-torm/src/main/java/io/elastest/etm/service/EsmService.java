@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
@@ -77,22 +79,16 @@ public class EsmService {
 				String content = new String(Files.readAllBytes(serviceFile.toPath()));
 				
 				ObjectNode serviceDefJson = mapper.readValue(content, ObjectNode.class);				 
-				esmServiceClient.registerService(serviceDefJson.get("register").toString());
-				logger.info("{ " 
-						+ "\"id\": " + serviceDefJson.get("manifest").get("id").toString() 
-						+ ", \"manifest_content\": " + serviceDefJson.get("manifest").get("manifest_content").toString()
-						+ ", \"manifest_type\": " + serviceDefJson.get("manifest").get("manifest_type").toString()
-						+ ", \"plan_id\": " + serviceDefJson.get("manifest").get("plan_id").toString()
-						+ ", \"service_id\": " + serviceDefJson.get("manifest").get("service_id").toString()
-						+ " }");
+				esmServiceClient.registerService(serviceDefJson.get("register").toString());				
 				esmServiceClient.registerManifest("{ " 
 						+ "\"id\": " + serviceDefJson.get("manifest").get("id").toString() 
 						+ ", \"manifest_content\": " + serviceDefJson.get("manifest").get("manifest_content").toString()
 						+ ", \"manifest_type\": " + serviceDefJson.get("manifest").get("manifest_type").toString()
 						+ ", \"plan_id\": " + serviceDefJson.get("manifest").get("plan_id").toString()
 						+ ", \"service_id\": " + serviceDefJson.get("manifest").get("service_id").toString()
+						+ ", \"endpoints\": " + serviceDefJson.get("manifest").get("endpoints").toString()
 						+ " }"
-						/*serviceDefJson.get("manifest").toString()*/, serviceDefJson.get("manifest").get("id").toString().replaceAll("\"", ""));				
+						, serviceDefJson.get("manifest").get("id").toString().replaceAll("\"", ""));				
 			}
 		}catch(IOException fnfe){
 			logger.info("Service could not be registered. The file with the path " + EMS_SERVICES_FILES_PATH + " does not exist:");
@@ -160,16 +156,9 @@ public class EsmService {
 					
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));					
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-					
-					Iterator<String> it = serviceInstanceDetail.get("context").fieldNames();
-					while (it.hasNext()) {
-						String contextFieldName = it.next();
-						if (contextFieldName.contains("HostPort")){
-							newServiceInstance.setServicePort(serviceInstanceDetail.get("context").get(contextFieldName).toString().replaceAll("\"", ""));														
-						}else if (contextFieldName.contains("_Ip")){
-							newServiceInstance.setServiceIp(serviceInstanceDetail.get("context").get(contextFieldName).toString().replaceAll("\"", ""));
-						}					
-					}
+					newServiceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
+				
+					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 					
 					if (associatedWitTJob){
 						tJobServicesInstances.put(instanceId, newServiceInstance);
@@ -182,6 +171,68 @@ public class EsmService {
 			logger.error("Error requesting an instance of a service: {}", e.getMessage(), e);
 		}		
 		return newServiceInstance;
+	}
+	
+	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
+		ObjectNode manifest = esmServiceClient.getManifestById(serviceInstance.getManifestId());
+		Iterator<String> subServicesNames = manifest.get("endpoints").fieldNames();
+		boolean subService = false;
+		Iterator<String> it = serviceInstanceDetail.get("context").fieldNames();
+		
+		while (subServicesNames.hasNext()) {			
+			String serviceName = subServicesNames.next();
+			logger.info("Manifest services {}:" + serviceName);
+			String baseRegex = "[0-9a-f]{32}_" + serviceName + "_\\d_Ip";
+			Pattern pattern = Pattern.compile(baseRegex);
+			String serviceIp = null;
+			
+			while (it.hasNext()) {
+				String fieldName = it.next();
+				logger.info("Instance data fields {}:" + fieldName);
+				Matcher matcher = pattern.matcher(fieldName);
+				if (matcher.matches()) {
+					serviceIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					serviceInstance.setServiceIp(serviceIp);
+
+					logger.info("Service Ip {}:" + serviceIp);
+					
+					if (manifest.get("endpoints").get(serviceName).get("main") != null
+							&& manifest.get("endpoints").get(serviceName).get("main").booleanValue()) {
+						logger.info("Principal instance {}:" + serviceName);
+						serviceInstance.setEndpointName(serviceName);
+						createServiceInstanceData(serviceInstance, manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
+						createServiceInstanceData(serviceInstance, manifest.get("endpoints").get(serviceName).get("gui"), "gui", serviceIp);
+					}else{
+						logger.info("No Principal instance {}:" + serviceName);
+						SupportServiceInstance subServiceInstance = new SupportServiceInstance();
+						subServiceInstance.setEndpointName(serviceName);
+						createServiceInstanceData(subServiceInstance, manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
+						createServiceInstanceData(subServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"), "gui", serviceIp);
+						serviceInstance.getSubServices().add(subServiceInstance);
+					}
+					
+					break;
+				}
+			}
+		}		
+	}
+	
+		
+	private String createServiceInstanceUrl(JsonNode node, String ip) {
+		String url = null;
+		url = node.get("protocol").toString().replaceAll("\"", "") + "://" + ip + ":" + node.get("port").toString().replaceAll("\"", "") + node.get("path").toString().replaceAll("\"", "");
+		return url;
+	}
+	
+	private void createServiceInstanceData(SupportServiceInstance serviceInstance, JsonNode node, String nodeName, String serviceIp){	
+		logger.info("Create serviceData {}:" + serviceInstance.getEndpointName());
+		if (node != null) {
+			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
+				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceIp));
+			} else{// if (!node.get("protocol").toString().contains("http")) {
+				serviceInstance.getEndpointsData().put(nodeName, node);
+			}
+		}
 	}
 	
 	/**

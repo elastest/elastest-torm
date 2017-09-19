@@ -1,6 +1,12 @@
 package io.elastest.etm.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -30,11 +36,26 @@ public class SupportServiceInstance {
 	private String serviceIp;	
 	@JsonView(FrontView.class)
 	private String servicePort;
+	
+	private String manifestId;
+	
 	@JsonView(FrontView.class)
-	private String uiURL;
+	private Map<String, String> urls;
 	@JsonView(FrontView.class)
-	private String apiURL;
-		
+	private List<SupportServiceInstance> subServices;
+	
+	@JsonView(FrontView.class)
+	private String endpointName;
+	
+	@JsonView(FrontView.class)
+	private Map<String, JsonNode> endpointsData;
+	
+	public SupportServiceInstance(){
+		this.urls = new HashMap<>();
+		this.subServices = new ArrayList<>();
+		this.endpointsData = new HashMap<>();
+	}
+	
 	public SupportServiceInstance(String instanceId, String service_id, String plan_id, boolean bindToTJob) {
 		super();
 		this.instanceId = instanceId;
@@ -43,12 +64,16 @@ public class SupportServiceInstance {
 		this.bindedToTJob = bindToTJob;
 		this.parameters =  new ObjectNode(JsonNodeFactory.instance);
 		this.organization_guid = "org";
-		this.space_guid = "space";		
+		this.space_guid = "space";
+		this.manifestId = "";
+		this.urls = new HashMap<>();
+		this.subServices = new ArrayList<>();
+		this.endpointsData = new HashMap<>();
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String plan_id, String organization_guid,
 			ObjectNode parameters, String space_guid, boolean bindedToTJob, String serviceIp, String servicePort,
-			String uiURL, String apiURL) {
+			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices) {
 		super();
 		this.instanceId = instanceId;
 		this.service_id = service_id;
@@ -59,8 +84,9 @@ public class SupportServiceInstance {
 		this.bindedToTJob = bindedToTJob;
 		this.serviceIp = serviceIp;
 		this.servicePort = servicePort;
-		this.uiURL = uiURL;
-		this.apiURL = apiURL;
+		this.manifestId = manifestId;
+		this.urls = urls;
+		this.subServices = subServices;		
 	}
 
 	public String getService_id() {
@@ -133,20 +159,44 @@ public class SupportServiceInstance {
 		this.bindedToTJob = bindedToTJob;
 	}
 
-	public String getUiURL() {
-		return uiURL;
+	public String getManifestId() {
+		return manifestId;
 	}
 
-	public void setUiURL(String uiURL) {
-		this.uiURL = uiURL;
+	public void setManifestId(String manifestId) {
+		this.manifestId = manifestId;
 	}
 
-	public String getApiURL() {
-		return apiURL;
+	public List<SupportServiceInstance> getSubServices() {
+		return subServices;
 	}
 
-	public void setApiURL(String apiURL) {
-		this.apiURL = apiURL;
+	public void setSubServices(List<SupportServiceInstance> subServices) {
+		this.subServices = subServices;
+	}
+
+	public Map<String, String> getUrls() {
+		return urls;
+	}
+
+	public void setUrls(Map<String, String> urls) {
+		this.urls = urls;
+	}
+
+	public String getEndpointName() {
+		return endpointName;
+	}
+
+	public void setEndpointName(String endpointName) {
+		this.endpointName = endpointName;
+	}
+
+	public Map<String, JsonNode> getEndpointsData() {
+		return endpointsData;
+	}
+
+	public void setEndpointsData(Map<String, JsonNode> endpointsData) {
+		this.endpointsData = endpointsData;
 	}
 	
 }

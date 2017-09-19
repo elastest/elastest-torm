@@ -1,16 +1,16 @@
 {
 	"register": {
-		"description": "this is my test service",
-		"id": "EBS",
-		"name": "EBS",
+		"description": "elastest big data service",
+		"id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
+		"name": "elastest-bigdata-service",
 		"bindable": false,
 		"plan_updateable": false,
 		"plans": [
 			{
 				"bindable": false,
-				"description": "plan for testing",
+				"description": "plan for ebs",
 				"free": true,
-				"id": "testplan",
+				"id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
 				"metadata": {
 					"bullets": "basic plan",
 					"costs": {
@@ -30,39 +30,24 @@
 						}
 					}
 				},
-				"name": "testing plan"
+				"name": "ebs_plan"
 			}
-		],
-		"requires": [],
-		"tags": [
-			"test",
-			"tester"
 		]
 	},
 	"manifest": {
-		"id": "test-mani_4",
-		"manifest_content": "version: '2'\n\nservices:\n  spark-master:\n    image: elastest/ebs-spark-base:0.5.0\n    container_name: spark-master\n    ports:\n      - \"8080:8080\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: spark-master\n    networks:\n      - elastest\n\n  spark-worker:\n    image: elastest/ebs-spark-base:0.5.0\n    depends_on:\n      - spark-master\n    ports:\n      - \"8081\"\n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    hostname: spark-worker\n    networks:\n      - elastest\n\nnetworks:\n  elastest:\n    external: true\n",
+		"id": "1cc39d82-c085-4096-8018-750e7eb31cc8",
+		"manifest_content": "version: '2.1'</br></br>services:</br>  spark-master:</br>    image: elastest/ebs:0.1</br>    container_name: spark-master</br>    ports:</br>      - \"8080:8080\"</br>      - \"7077:7077\"</br>    volumes:</br>      - ./spark/alluxio_conf:/opt/alluxio/conf</br>      - ./spark/spark_conf:/opt/spark/conf</br>      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop</br>    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]</br>    hostname: spark-master</br>    networks:</br>      - elastest</br></br>  spark-worker:</br>    image: elastest/ebs:0.1</br>    depends_on:</br>      - spark-master</br>    ports:</br>      - \"8081\"</br>    volumes:</br>      - ./spark/alluxio_conf:/opt/alluxio/conf</br>      - ./spark/spark_conf:/opt/spark/conf</br>      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop</br>    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]</br>    hostname: spark-worker</br>    networks:</br>      - elastest</br></br>networks:</br>  elastest:</br>    external: true</br>",
 		"manifest_type": "dummy",
-		"plan_id": "testplan_13",
-		"service_id": "EBS",
+		"plan_id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
+		"service_id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
 		"endpoints": {
-			"sub_service_name_1": {
-				"description": "this is a sub-service that does stuff",
+			"Spark": {
+				"description": "Apache Spark",
 				"main": true,
-				"api": {
-					"protocol": "http",
-					"port": 9000,
-					"path": "/v2",
-					"definition": {
-						"type": "openapi",
-						"path": "/v2/api.yaml",
-						"port": 9090
-					}
-				},
 				"gui": {
-					"protocol": "http",
-					"port": 9089,
-					"path": "/gui"
+					"protocol": "spark",
+					"port": 7077,
+					"path": "/"
 				}
 			}
 		}

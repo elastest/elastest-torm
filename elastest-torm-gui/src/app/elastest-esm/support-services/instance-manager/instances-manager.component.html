@@ -20,7 +20,7 @@
                           {{service.name}}
                         </md-option>
                       </md-select>
-                    <button md-raised-button color="accent" (click)="provisionServiceInstance()">Add Service</button>
+                    <button md-raised-button color="accent" (click)="provisionServiceInstance()">Create Instance</button>
                 </div>
               </form>
               <md-divider></md-divider>
@@ -36,6 +36,7 @@
                   <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                       <div layout="row">
                           <button md-button (click)="goToService(row)" class="iconBtn-lg" title="Go to Service UI"><md-icon>open_in_new</md-icon></button>
+                          <button md-button (click)="goToService(row)" class="iconBtn-lg" title="View Service Detail"><md-icon>remove_red_eye</md-icon></button>
                           <button md-button (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service"><md-icon>delete</md-icon></button>
                       </div>
                   </ng-template>

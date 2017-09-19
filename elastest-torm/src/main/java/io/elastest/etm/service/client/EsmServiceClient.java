@@ -51,6 +51,9 @@ public class EsmServiceClient {
 	@Value("${elastest.esm.url.service-instance.info}")
 	private String URL_ESM_SERVICE_INSTANCE_INFO;
 	
+	@Value("${elastest.esm.url.get.manifest}")
+	private String URL_ESM_GET_MANIFEST;
+	
 	public UtilTools utilTools;
 	
 	RestTemplate httpClient;
@@ -173,5 +176,19 @@ public class EsmServiceClient {
 			return null;
 		}		
 	}
-
+	
+	public ObjectNode getManifestById(String manifestId){
+		logger.info("Manifest to retrieve " + manifestId);
+		Map<String, String> params = new HashMap<>();
+		params.put("manifest_id", manifestId);
+				
+		try{
+			ResponseEntity<ObjectNode[]> objNode = httpClient.exchange(URL_ESM_GET_MANIFEST, HttpMethod.GET, null, ObjectNode[].class, params);			
+			logger.info("Manifest info: " + objNode.getBody()[0].toString());
+			return objNode.getBody()[0];
+		}catch(Exception e){
+			logger.error("Error retrieving manifest by id: {}", e.getMessage(), e);
+			return null;
+		}		
+	}
 }

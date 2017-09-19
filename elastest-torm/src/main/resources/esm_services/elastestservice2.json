@@ -42,12 +42,12 @@
    },
    "manifest": {
       "id": "2bd62bc2-f768-42d0-8194-562924b494ff",
-      "manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      ports:\n         - 8040:8040\n      networks:\n         - elastest\nnetworks:\n   elastest:\n      driver: bridge\n",
+      "manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - elastest\n   mysql-esm:\n        image: mysql\n        expose:\n            - 3307\n        environment:\n            - MYSQL_DATABASE=elastest\n            - MYSQL_USER=elastest\n            - MYSQL_PASSWORD=elastest\n            - MYSQL_ALLOW_EMPTY_PASSWORD='yes'\n        volumes:\n            - mysql-esm:/var/lib/mysql\n        networks:\n            - elastest\nvolumes:\n    mysql-esm:\n      driver: local\nnetworks:\n   elastest:\n      driver: bridge\n",
       "manifest_type": "docker-compose",
       "plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
       "service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
       "endpoints": {
-         "w3c_webdriver": {
+         "elastest-eus": {
             "description": "W3C WebDriver standard sessions operations",
             "main": true,
             "api": {
@@ -62,6 +62,14 @@
             "gui": {
                "protocol": "angular",
                "path": "app-elastest-eus"
+            }
+         },
+          "mysql-esm": {
+            "description": "W3C WebDriver standard sessions operations",            
+            "api": {
+               "protocol": "mysql",
+               "port": 3307,
+               "path": "/elastest?useSSL=false"               
             }
          }
       }

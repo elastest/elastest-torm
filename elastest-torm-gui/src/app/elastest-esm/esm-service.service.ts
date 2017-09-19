@@ -52,7 +52,7 @@ export class EsmService {
     let retrivedServicesInstance: EsmServiceInstanceModel[] = [];
 
     for(let serviceInstance of res){
-      retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance.instanceId, serviceInstance.service_id,
+      retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance.instanceId, serviceInstance.endpointName,
         serviceInstance.uiUrl, serviceInstance.serviceIp, serviceInstance.servicePort));
       
     }
