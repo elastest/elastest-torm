@@ -1,0 +1,5 @@
+version: '3'
+services:
+    etm:
+        ports:
+            - 37006:8091

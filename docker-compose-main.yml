@@ -33,8 +33,6 @@ services:
         entrypoint: /run.sh
         expose:
             - 8091
-        ports:
-            - 37006:8091
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
