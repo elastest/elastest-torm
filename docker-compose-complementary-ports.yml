@@ -19,8 +19,8 @@ services:
     edm-elasticsearch:
         ports:
             - 9200:9200
-    eus:
-        ports:
-            - 8040:8040
+#    eus:
+#        ports:
+#            - 8040:8040
 
     
