@@ -44,13 +44,14 @@ ET_ETM_RABBIT_HOST=$(containerIp "etm-rabbitmq")
 ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
 LOGSTASH_IP=$(containerIp "etm-logstash")
 ET_ESM_API=''
+EXEC_MODE='Lite'
 # Execute Integration tests
 
 echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=5672 -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=${ET_ESM_API} -Delastest.incontainer=true clean verify
+mvn -B -Dspring.datasource.url=jdbc:mysql://${MYSQL_IP}:3306/elastest?useSSL=false -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=5672 -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=${ET_ESM_API} -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} clean verify
 
 mvnExit=$?
 
