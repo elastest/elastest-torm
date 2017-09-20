@@ -32,12 +32,12 @@
 	},
 	"manifest": {
 		"id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
-		"manifest_content": "version: '3'</br>services:</br>  ess:</br>    image: elastest/ems</br>    ports:</br>     - 80:80",
+		"manifest_content": "version: '3'\nservices:\n  ess:\n    image: elastest/ems\n",
 		"manifest_type": "dummy",
 		"plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
 		"service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
 		"endpoints": {
-			"ESS_API": {
+			"ess": {
 				"description": "The ESS API",
 				"main": true,
 				"api": {

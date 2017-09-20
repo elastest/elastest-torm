@@ -1,0 +1,70 @@
+{
+	"register": {
+		"name": "ems",
+		"id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+		"description": "The Elastest Monitoring Service",
+		"bindable": false,
+		"plans": [
+			{
+				"id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+				"name": "basic",
+				"description": "Basic plan for EMS usage",
+				"metadata": {
+					"costs": {
+						"name": "On Demand 5 + Charges",
+						"type": "ONDEMAND",
+						"fix_cost": {
+							"deployment": 5
+						},
+						"var_rate": {
+							"disk": 1,
+							"memory": 10,
+							"cpus": 50
+						},
+						"components": {
+							
+						},
+						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
+					}
+				}
+			}
+		]
+	},
+	"manifest": {
+		"id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
+		"manifest_content": "version: '2.1'\nservices:\n    ems:\n        depends_on:\n            - elasticsearch\n        image: elastest/ems\n\n    elasticsearch:\n        image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0\n        environment:\n            - http.host=0.0.0.0\n            - transport.host=127.0.0.1\n",
+		"manifest_type": "docker-compose",
+		"plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+		"service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+		"endpoints": {
+			"ems": {
+				"description": "Service for managing monitoring machines and subscribers",
+				"main": true,
+				"api": [
+					{
+						"protocol": "http",
+						"port": 8888,
+						"path": "/",
+						"definition": {
+							"type": "openapi",
+							"path": "/api.yaml"
+						}
+					},
+					{
+						"protocol": "beats",
+						"port": 5044
+					}
+				]
+			},
+			"elasticsearch": {
+				"description": "this endpoint receives events sent by beats (elasticsearch data shippers)",
+				"main": false,
+				"api": {
+					"protocol": "http",
+					"port": 9200,
+					"path": "/"
+				}
+			}
+		}
+	}
+}
