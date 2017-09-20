@@ -103,8 +103,6 @@ services:
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
       expose:
             - 37005
-      ports:
-            - "37005:37005"
       networks:
             - elastest
 
