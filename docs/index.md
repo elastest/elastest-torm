@@ -154,19 +154,19 @@ First, you need to start platform services before you can execute TORM Server an
 
 ##### Start without ports binding
 To start Elastest services without ports binding run the following command:
-- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest up`
+- `docker-compose -f docker-compose-complementary.yml -f docker-compose-main.yml -f docker-compose-lite.yml -p elastest up`
 
 To stop ElasTest services, you should run in a shell:
-- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest down`
+- `docker-compose -f docker-compose-complementary.yml -f docker-compose-main.yml -f docker-compose-lite.yml -p elastest down`
 
 Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
 ##### Start with ports binding
 To start Elastest services without ports binding run the following command:
-- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-complementary-ports.yml -f etm/docker-compose-main.yml -f etm/docker-compose-main-ports.yml -f etm/docker-compose-lite.yml -p elastest up`
+- `docker-compose -f docker-compose-complementary.yml -f docker-compose-complementary-ports.yml -f docker-compose-main.yml -f docker-compose-main-ports.yml -f docker-compose-lite.yml -p elastest up`
 
 To stop ElasTest services, you should run in a shell:
-- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest down`
+- `docker-compose -f docker-compose-complementary.yml -f docker-compose-complementary-ports.yml -f docker-compose-main.yml -f docker-compose-main-ports.yml -f docker-compose-lite.yml -p elastest down`
 
 Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
