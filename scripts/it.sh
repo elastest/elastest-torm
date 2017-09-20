@@ -27,7 +27,7 @@ export COMPOSE_PROJECT_NAME=$projectName
 
 echo $COMPOSE_PROJECT_NAME
 
-docker-compose -f ../docker-compose-complementary.yml up -d
+docker-compose -f ../docker/docker-compose-complementary.yml up -d
     
 # Connect test container to docker-compose network
 
@@ -63,7 +63,7 @@ bash <(curl -s https://codecov.io/bash) -t fa48b15c-ceb8-409d-996f-8f34d53addd2
 
 # Clean up environment
 
-cd ..
+cd ../docker
 docker-compose -f docker-compose-complementary.yml logs
 docker network disconnect "${projectName}"_elastest ${containerId}
 

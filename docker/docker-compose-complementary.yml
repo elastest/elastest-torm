@@ -48,6 +48,8 @@ services:
             MYSQL_DATABASE: "elastest"
             MYSQL_USER: elastest
             MYSQL_PASSWORD: elastest
+        expose:
+            - 3306
         volumes:
             - edm-mysql:/var/lib/mysql
             - ./resources/mysql/init:/docker-entrypoint-initdb.d
