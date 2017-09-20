@@ -68,7 +68,7 @@ Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execu
 ### Download ElasTest TORM 
 - Create a directory named *elastest-torm*, and change your current directory to this one.
 
-- Download the docker compose file from the ElasTest TORM repository  
+- Download the docker compose files from the ElasTest TORM repository  
  `wget https://raw.githubusercontent.com/elastest/elastest-torm/master/docker-compose.yml`
 
     >**Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
@@ -149,17 +149,26 @@ git clone https://github.com/elastest/elastest-torm
 ### Development procedure
 
 #### Start and stop ElasTest TORM platform services
-First, you need to start platform services before you can execute TORM Server and Client applications. Execute the following commands from console:
+First, you need to start platform services before you can execute TORM Server and Client applications. Execute `cd /git/elastest-torm/docker` on console to enter on folder that contains docker-compose files and follow the next instructions:
+ > **Note:** On Windows you must execute this commands inside the VM (`docker-machine ssh`). 
 
-- `cd /git/elastest-torm`
-- `docker-compose -f docker-compose-dev.yml up`
+##### Start without ports binding
+To start Elastest services without ports binding run the following command:
+- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest up`
 
 To stop ElasTest services, you should run in a shell:
-- `docker-compose -f docker-compose-dev.yml up`
+- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest down`
 
 Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
- > **Note:** On Windows you must execute this commands inside the VM (`docker-machine ssh`). 
+##### Start with ports binding
+To start Elastest services without ports binding run the following command:
+- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-complementary-ports.yml -f etm/docker-compose-main.yml -f etm/docker-compose-main-ports.yml -f etm/docker-compose-lite.yml -p elastest up`
+
+To stop ElasTest services, you should run in a shell:
+- `docker-compose -f etm/docker-compose-complementary.yml -f etm/docker-compose-main.yml -f etm/docker-compose-lite.yml -p elastest down`
+
+Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
 #### ElasTest TORM Server Application
 

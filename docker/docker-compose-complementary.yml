@@ -42,16 +42,16 @@ services:
             - elastest
 
     edm-mysql:
-        image: mysql
-        expose:
-            - 3306
-        environment:
-            - MYSQL_DATABASE=elastest
-            - MYSQL_USER=elastest
-            - MYSQL_PASSWORD=elastest
-            - MYSQL_ALLOW_EMPTY_PASSWORD="yes"
+        image: mysql:5.7
+	environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+            MYSQL_DATABASE: "elastest"
+            MYSQL_USER: elastest
+            MYSQL_PASSWORD: elastest
         volumes:
             - edm-mysql:/var/lib/mysql
+            - ./resources/mysql/init:/docker-entrypoint-initdb.d
+            - ./resources/mysql/config:/etc/mysql/conf.d
         networks:
             - elastest
 
@@ -67,15 +67,6 @@ services:
             - transport.host=127.0.0.1
         networks:
             - elastest 
-
-#    eus:
-#        image: elastest/eus
-#        environment:
-#            - USE_TORM=true
-#        expose:
-#            - 8040
-#        networks:
-#            - elastest
 
     esm:
       image: elastest/esm:latest
