@@ -38,7 +38,10 @@ public class EsmService {
 	public String EMS_SERVICES_FILES_PATH;
 	
 	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;	
+	public String ELASTEST_EXECUTION_MODE;
+	
+	@Value("${os.name}")
+	private String windowsSO;
 
 	public EsmServiceClient esmServiceClient;	
 	public UtilTools utilTools;
@@ -191,9 +194,7 @@ public class EsmService {
 				logger.info("Instance data fields {}:" + fieldName);
 				Matcher matcher = pattern.matcher(fieldName);
 				if (matcher.matches()) {
-					serviceIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
-					serviceInstance.setServiceIp(serviceIp);
-
+					serviceIp = windowsSO.toLowerCase().contains("win") ? utilTools.getDockerHostIp() : serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");					
 					logger.info("Service Ip {}:" + serviceIp);
 					
 					if (manifest.get("endpoints").get(serviceName).get("main") != null
@@ -221,6 +222,7 @@ public class EsmService {
 	private String createServiceInstanceUrl(JsonNode node, String ip) {
 		String url = null;
 		url = node.get("protocol").toString().replaceAll("\"", "") + "://" + ip + ":" + node.get("port").toString().replaceAll("\"", "") + node.get("path").toString().replaceAll("\"", "");
+		logger.info("New url: " + url);
 		return url;
 	}
 	
@@ -229,7 +231,8 @@ public class EsmService {
 		if (node != null) {
 			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
 				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceIp));
-			} else{// if (!node.get("protocol").toString().contains("http")) {
+				serviceInstance.setServiceIp(serviceIp);
+			} else{
 				serviceInstance.getEndpointsData().put(nodeName, node);
 			}
 		}
@@ -247,6 +250,10 @@ public class EsmService {
 		esmServiceClient.deprovisionServiceInstance(instanceId, serviceInstance);
 		servicesInstances.remove(instanceId);
 		return result;
+	}
+	
+	public SupportServiceInstance getServiceInstanceFromMem(String id){
+		return servicesInstances.get(id);
 	}
 	
 	/**

@@ -1,3 +1,5 @@
+import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
+import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
 import { TestVncComponent } from './shared/vnc-client/test-vnc/test-vnc.component';
 import { VncClientComponent } from './shared/vnc-client/vnc-client.component';
@@ -172,7 +174,25 @@ const routes: Routes = [
             },
             {
                 path: 'support-services',
-                component: InstancesManagerComponent,
+                children: [
+                    {
+                        path: '',
+                        component: InstancesManagerComponent,
+                    },
+                    {
+                        path: 'service-detail/:id',
+                        component: ServiceDetailComponent,
+
+                    },
+                    {
+                        path: 'service-gui',
+                        component: ServiceGuiComponent,
+                    }
+                ]
+            },
+            {
+                path: 'service-gui',
+                component: ServiceGuiComponent,
 
             },
             {
@@ -204,7 +224,7 @@ export const routedComponents: any[] = [
     TJobsManagerComponent, ProjectsManagerComponent,
     SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
     TjobManagerComponent, TJobFormComponent, TjobExecManagerComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
-    InstancesManagerComponent
+    InstancesManagerComponent, ServiceGuiComponent, ServiceDetailComponent,
 ];
 
 export const appRoutes: any = RouterModule.forRoot(routes, { useHash: true });

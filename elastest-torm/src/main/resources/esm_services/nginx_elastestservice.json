@@ -1,8 +1,8 @@
 {
 	"register": {
 		"description": "ElasTest service that provides user impersonation as a service",
-		"id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
-		"name": "user-emulator-service",
+		"id": "0fd06878-2ac1-418e-a140-77511339c719",
+		"name": "nginx-service",
 		"bindable": false,
 		"plan_updateable": false,
 		"plans": [
@@ -10,7 +10,7 @@
 				"bindable": false,
 				"description": "Basic plan for EUS",
 				"free": true,
-				"id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
+				"id": "f4945858-0374-4c08-abcf-beac4e36f6fd",
 				"metadata": {
 					"bullets": "basic plan",
 					"costs": {
@@ -42,27 +42,19 @@
 		]
 	},
 	"manifest": {
-		"id": "2bd62bc2-f768-42d0-8194-562924b494ff",
-		"manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - elastest\nnetworks:\n   elastest:\n      driver: bridge\n",
+		"id": "4c15e871-9b32-4062-930a-b31e067185d1",
+		"manifest_content": "version: '2.1'\nservices:\n   nginx_service:\n      image: nginx\n      environment:\n         - USE_TORM=true\n      ports:\n         - 8099:80\n      networks:\n         - elastest_elastest\nnetworks:\n   elastest_elastest:\n      driver: bridge\n",
 		"manifest_type": "docker-compose",
-		"plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
-		"service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
+		"plan_id": "f4945858-0374-4c08-abcf-beac4e36f6fd",
+		"service_id": "0fd06878-2ac1-418e-a140-77511339c719",
 		"endpoints": {
-			"elastest-eus": {
+			"nginx_service": {
 				"description": "W3C WebDriver standard sessions operations",
 				"main": true,
-				"api": {
-					"protocol": "http",
-					"port": 8040,
-					"path": "/eus/v1/",
-					"definition": {
-						"type": "openapi",
-						"path": "/eus/v1/api.yaml"
-					}
-				},
 				"gui": {
-					"protocol": "angular",
-					"path": "eus"
+					"protocol": "http",
+					"port": 8099,
+					"path": "/"
 				}
 			}
 		}

@@ -65,8 +65,9 @@ public class EsmApiController implements EsmApi {
 	public ResponseEntity<String> deprovisionServiceInstance( @PathVariable("instanceId")String instanceId) {
 		return new ResponseEntity<String>(esmService.deprovisionServiceInstance(instanceId, false), HttpStatus.OK);
 	}
-	
-	
-	
-	
+
+	@Override
+	public ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@PathVariable("id")String id) {
+		return new ResponseEntity<SupportServiceInstance>(esmService.getServiceInstanceFromMem(id), HttpStatus.OK);
+	}	
 }

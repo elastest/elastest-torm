@@ -64,5 +64,14 @@ public interface EsmApi extends EtmApiRoot{
     	produces = { "application/json" },
         method = RequestMethod.GET)
     ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances();
+    
+    @ApiOperation(value = "Returns the Support Services Insances info of a given id", notes = "Returns the Support Services Insances info of a given id.", response = SupportServiceInstance.class, tags={ "ESM", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Successful operation", response = SupportServiceInstance.class),
+        @ApiResponse(code = 404, message = "Resource not found") })    
+    @RequestMapping(value = "/esm/services/instances/{id}",
+    	produces = { "application/json" },
+        method = RequestMethod.GET)
+    ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@ApiParam(value = "id", required=true) @PathVariable(value="id", required=true) String id );
 
 }

@@ -1,3 +1,4 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { EsmService } from '../../esm-service.service';
 import { EsmServiceModel } from '../../esm-service.model';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent,IPageChangeEvent} from '@covalent/core';
@@ -32,7 +33,8 @@ export class InstancesManagerComponent implements OnInit {
   selectedService: string;
 
 
-  constructor(private _dataTableService: TdDataTableService, private esmService: EsmService) { }
+  constructor(private _dataTableService: TdDataTableService, private esmService: EsmService,
+    private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
     this.loadServiceInstances();
@@ -94,7 +96,15 @@ export class InstancesManagerComponent implements OnInit {
     );    
   }
 
-  goToService(serviceInstance: EsmServiceInstanceModel){}
+  goToServiceGui(serviceInstance: EsmServiceInstanceModel){    
+    console.log("Navigate to service gui:" + serviceInstance.uiUrl);
+    this.router.navigate(['/support-services/service-gui'], { queryParams: { page: serviceInstance.uiUrl } } );    
+    
+  }
+
+  goToServiceDetail(serviceInstance: EsmServiceInstanceModel){    
+    this.router.navigate(['/support-services/service-detail', serviceInstance.id]);    
+  }
 
   prepareDataTable(servicesInstances: EsmServiceInstanceModel[]) {
     this.instancesData = servicesInstances;

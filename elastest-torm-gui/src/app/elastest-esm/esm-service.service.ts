@@ -33,7 +33,14 @@ export class EsmService {
   getSupportServicesInstances(){
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances';
     return this.http.get(url)
-      .map((response) =>  this.transformIntoSupportServiceInstance(response)//console.log(JSON.stringify(response))
+      .map((response) =>  this.transformIntoSupportServiceInstanceList(response)
+    );
+  }
+
+  getSupportServiceInstance(id: string){
+    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
+    return this.http.get(url)
+      .map((response) => this.transformIntoSupportServiceInstance(response.json())
     );
   }
 
@@ -47,16 +54,18 @@ export class EsmService {
     return retrivedServices;    
   }
 
-  transformIntoSupportServiceInstance(response: Response ){
+  transformIntoSupportServiceInstanceList(response: Response ){    
     let res =  response.json();
     let retrivedServicesInstance: EsmServiceInstanceModel[] = [];
 
-    for(let serviceInstance of res){
-      retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance.instanceId, serviceInstance.endpointName,
-        serviceInstance.uiUrl, serviceInstance.serviceIp, serviceInstance.servicePort));
-      
+    for(let serviceInstance of res){      
+        retrivedServicesInstance.push(this.transformIntoSupportServiceInstance(serviceInstance));      
     }
     return retrivedServicesInstance;    
   }
-
+  
+  transformIntoSupportServiceInstance(serviceInstance: any ){
+    console.log("Service instance " + JSON.stringify(serviceInstance));
+    return new  EsmServiceInstanceModel(serviceInstance);
+  }
 }

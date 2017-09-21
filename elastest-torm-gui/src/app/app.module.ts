@@ -43,6 +43,8 @@ import { ElastestEusDialogService } from './elastest-eus/elastest-eus.dialog.ser
 import { RunTJobModalComponent } from './elastest-etm/tjob/run-tjob-modal/run-tjob-modal.component';
 import { EtmLogsMetricsViewComponent } from './elastest-etm/etm-logs-metrics-view/etm-logs-metrics-view.component';
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
+import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
+import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -60,7 +62,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialog,
     RunTJobModalComponent,
     EtmLogsMetricsViewComponent,    
-    InstancesManagerComponent,
+    InstancesManagerComponent, 
+    ServiceGuiComponent, ServiceDetailComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
