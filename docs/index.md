@@ -1,4 +1,4 @@
-# Elastest Test Recommendation and Orchestrator Manager
+# Elastest Test Orchestrator and Recommendation Manager
 The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTest and the main entry point for developers. TORM will provide a web interface to be used by testers, developers and administrators, to managing tests, test executions, systems under test, orchestrate tests and analyze logs. It will also provide a remote API that will used by ElasTest-CLI (a command line interface tool), by ElasTest Jenkins Plugin and by ElasTest Eclipse Plugin.
 
 Before you start using ElasTest, you need to know the following terms:
@@ -162,7 +162,7 @@ To stop ElasTest services, you should run in a shell:
 Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
 ##### Start with ports binding
-To start Elastest services without ports binding run the following command:
+To start Elastest services with ports binding run the following command:
 - `docker-compose -f docker-compose-complementary.yml -f docker-compose-complementary-ports.yml -f docker-compose-main.yml -f docker-compose-main-ports.yml -f docker-compose-lite.yml -p elastest up`
 
 To stop ElasTest services, you should run in a shell:
