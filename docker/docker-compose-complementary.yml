@@ -42,7 +42,7 @@ services:
             - elastest
 
     edm-mysql:
-        image: mysql:5.7
+        image: elastest/edm-mysql
         environment:
             MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
             MYSQL_DATABASE: "elastest"
@@ -52,7 +52,6 @@ services:
             - 3306
         volumes:
             - edm-mysql:/var/lib/mysql
-            - ./resources/mysql/init:/docker-entrypoint-initdb.d
             - ./resources/mysql/config:/etc/mysql/conf.d
         networks:
             - elastest
