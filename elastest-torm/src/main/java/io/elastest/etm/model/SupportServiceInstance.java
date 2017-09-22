@@ -50,10 +50,13 @@ public class SupportServiceInstance {
 	@JsonView(FrontView.class)
 	private Map<String, JsonNode> endpointsData;
 	
+	private List<String> portBindingContainers;
+	
 	public SupportServiceInstance(){
 		this.urls = new HashMap<>();
 		this.subServices = new ArrayList<>();
 		this.endpointsData = new HashMap<>();
+		this.portBindingContainers = new ArrayList<>();
 	}
 	
 	public SupportServiceInstance(String instanceId, String service_id, String plan_id, boolean bindToTJob) {
@@ -69,6 +72,7 @@ public class SupportServiceInstance {
 		this.urls = new HashMap<>();
 		this.subServices = new ArrayList<>();
 		this.endpointsData = new HashMap<>();
+		this.portBindingContainers = new ArrayList<>();
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String plan_id, String organization_guid,
@@ -197,6 +201,14 @@ public class SupportServiceInstance {
 
 	public void setEndpointsData(Map<String, JsonNode> endpointsData) {
 		this.endpointsData = endpointsData;
+	}
+
+	public List<String> getPortBindingContainers() {
+		return portBindingContainers;
+	}
+
+	public void setPortBindingContainers(List<String> portBindingContainers) {
+		this.portBindingContainers = portBindingContainers;
 	}
 	
 }

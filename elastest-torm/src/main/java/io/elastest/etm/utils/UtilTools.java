@@ -3,6 +3,7 @@ package io.elastest.etm.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -150,4 +151,10 @@ public class UtilTools {
 	public String generateUniqueId() {
 		return UUID.randomUUID().toString();		
 	}
+	
+	public int findRandomOpenPort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
 }

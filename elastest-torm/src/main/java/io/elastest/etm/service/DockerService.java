@@ -22,10 +22,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
+import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -67,6 +70,24 @@ public class DockerService {
 			startSut(dockerExec);
 		}
 	}
+	
+	public DockerClient getDockerClient(){
+		
+		if (windowsSO.toLowerCase().contains("win")) {
+			logger.info("Execute on Windows.");
+			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+					.withDockerHost(
+							DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort)
+					.build();
+			return DockerClientBuilder.getInstance(config).build();
+
+		} else {
+			logger.info("Execute on Linux.");
+			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+					.withDockerHost("unix:///var/run/docker.sock").build();
+			return DockerClientBuilder.getInstance(config).build();
+		}
+	}
 
 	/* Config Methods */
 
@@ -87,6 +108,35 @@ public class DockerService {
 		}
 	}
 
+	public String runDockerContainer(DockerClient dockerClient, String imageName, List<String> envs, 
+			String containerName, String targetContainerName, String networkName, Ports portBindings){
+		String dockerContainerName = null;
+		
+		dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();
+				
+		CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
+				.withName(containerName)
+				.withEnv(envs)
+				.withNetworkMode(networkName)
+				.withPortBindings(portBindings)
+				.withLinks(new Link(targetContainerName, "target_app")).exec();
+		
+		logger.info("Id del contenedor:" + container.getId());
+				
+		return container.getId();
+	}
+	
+	public void removeDockerContainer(String containerId, DockerClient dockerClient){
+		dockerClient.removeContainerCmd(containerId).exec();
+	}
+	
+	public void stopDockerContainer(String containerId, DockerClient dockerClient){
+		dockerClient.stopContainerCmd(containerId).exec();
+	}
+	
+	public void stopDockerContainer(DockerClient dockerClient, String containerId){
+		dockerClient.stopContainerCmd(containerId).exec();
+	}
 	/* Starting Methods */
 
 	public void startSut(DockerExecution dockerExec) {
@@ -304,6 +354,10 @@ public class DockerService {
 		String ip = dockerExec.getDockerClient().inspectContainerCmd(containerId).exec().getNetworkSettings()
 				.getNetworks().get(dockerExec.getNetwork()).getIpAddress();
 		return ip.split("/")[0];
+	}
+	
+	public String getNetworkName(String containerId, DockerClient dockerClient){
+		return (String)dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().keySet().toArray()[0];
 	}
 
 	public String getHostIp(DockerExecution dockerExec) {
