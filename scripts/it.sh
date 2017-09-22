@@ -45,6 +45,7 @@ ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
 LOGSTASH_IP=$(containerIp "etm-logstash")
 ET_ESM_API=''
 EXEC_MODE='Lite'
+ET_ESM_SS_DESC_FILES_PATH='esm_services/'
 # Execute Integration tests
 
 echo "Starting maven integration tests"
