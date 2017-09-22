@@ -2,6 +2,7 @@ package io.elastest.etm.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +14,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
+import org.springframework.core.io.Resource;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -42,6 +49,9 @@ public class EsmService {
 
 	@Value("${os.name}")
 	private String windowsSO;
+	
+	@Autowired
+	private ResourcePatternResolver resourcePatternResolver;
 
 	public EsmServiceClient esmServiceClient;
 	public UtilTools utilTools;
@@ -69,10 +79,10 @@ public class EsmService {
 		logger.info("Get and send the register information: " + EMS_SERVICES_FILES_PATH);
 
 		try {
-			File file = ResourceUtils.getFile("classpath:" + EMS_SERVICES_FILES_PATH);
-			List<String> files = new ArrayList<>(Arrays.asList(file.list()));
+			Resource[] resources = resourcePatternResolver.getResources("classpath:" + EMS_SERVICES_FILES_PATH + "/*.json");
 
-			for (String nameOfFile : files) {
+			for (Resource resource: resources) {
+				String nameOfFile = resource.getFilename();
 				logger.info("File name:" + nameOfFile);
 				File serviceFile = ResourceUtils.getFile("classpath:" + EMS_SERVICES_FILES_PATH + "/" + nameOfFile);
 				ObjectMapper mapper = new ObjectMapper();
