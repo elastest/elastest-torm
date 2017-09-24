@@ -103,24 +103,23 @@ public class EsmServiceClient {
 		return "";
 	}
 
-	public String provisionServiceInstance(SupportServiceInstance serviceInstance, String instance_id, String accept_incomplete){
+	public String provisionServiceInstance(SupportServiceInstance serviceInstance, String instanceId, String accept_incomplete){
 		String serviceInstanceData = "";
 		logger.info("Request a service instance.");		
 		HttpEntity<String> entity = new HttpEntity<String>(utilTools.convertJsonString(serviceInstance, ProvisionView.class), headers);
 		
 		Map<String, String> params = new HashMap<>();
-		params.put("instance_id", instance_id);
+		params.put("instance_id", instanceId);
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL_ESM_PROVISION_INSTANCE)
 				.queryParam("accept_incomplete", accept_incomplete);
 		
-		ResponseEntity<ObjectNode> result = null;
-				
 		try{
-			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, ObjectNode.class);
+			httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, ObjectNode.class);
 			logger.info("Registered service." );
 		}catch(Exception e){
-			logger.error(e.getMessage());			
+			throw new RuntimeException("Exception provisioning service \"" + serviceInstance.getService_id()
+					+ "\" with instanceId \"" + instanceId + "\"", e);			
 		}		
 		
 		return serviceInstanceData;		
@@ -136,12 +135,11 @@ public class EsmServiceClient {
 				.queryParam("service_id", serviceInstance.getService_id())
 				.queryParam("plan_id", serviceInstance.getPlan_id());				
 		
-		ResponseEntity<ObjectNode> result = null;		
 		try{
-			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, entity, ObjectNode.class);
+			httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, entity, ObjectNode.class);
 			logger.info("Registered service." );
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			throw new RuntimeException("Exception deprovisioning instance \"" + instanceId + "\"", e);
 		}				
 	}
 	
@@ -154,8 +152,7 @@ public class EsmServiceClient {
 			logger.info("Retrieved services.");
 			return objNode.getBody().get("services");
 		}catch(Exception e){
-			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
-			return null;
+			throw new RuntimeException("Exception retrieving registered services", e);
 		}		
 	}
 	
@@ -172,8 +169,7 @@ public class EsmServiceClient {
 			logger.info("Instance info: " + objNode.getBody().toString());
 			return objNode.getBody();
 		}catch(Exception e){
-			logger.error("Error retrieving registered services: {}", e.getMessage(), e);
-			return null;
+			throw new RuntimeException("Exception retrieving info of instance \""+instanceId+"\"", e);
 		}		
 	}
 	
