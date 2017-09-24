@@ -75,11 +75,11 @@ public class EsmServiceClient {
 			httpClient.put(URL_ESM_REGISTER_SERVICE, entity);
 			logger.info("Registered service." );
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			throw new RuntimeException("Exception registering service \""+serviceRegistry+"\"",e);
 		}		
 	}
 	
-	public String registerManifest(String serviceManifest, String id){
+	public void registerManifest(String serviceManifest, String id){
 		logger.info("Registering the service manifest in the ESM.");
 		HttpEntity<String> entity = new HttpEntity<String>(serviceManifest, headers);		
 		
@@ -93,14 +93,11 @@ public class EsmServiceClient {
 			logger.info("Manifest registered: {}" + result.getBody().toString());
 		}catch(Exception e){
 			if (result != null && result.getBody().toString().equals("\"duplicate\"")){				
-				logger.info("The manifest already exists:" + e.getMessage());
+				throw new RuntimeException("The manifest already exists",e);
 			}else{
-				logger.error("Error registering service: {}", e.getMessage(), e);								
+				throw new RuntimeException("Exception registering manifest of service \""+id+"\"", e);								
 			}			
 		}
-		logger.info("After send:" );
-		
-		return "";
 	}
 
 	public String provisionServiceInstance(SupportServiceInstance serviceInstance, String instanceId, String accept_incomplete){
@@ -183,8 +180,7 @@ public class EsmServiceClient {
 			logger.info("Manifest info: " + objNode.getBody()[0].toString());
 			return objNode.getBody()[0];
 		}catch(Exception e){
-			logger.error("Error retrieving manifest by id: {}", e.getMessage(), e);
-			return null;
+			throw new RuntimeException("Exception retrieving info of manifest \""+manifestId+"\"", e);
 		}		
 	}
 }
