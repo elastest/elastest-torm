@@ -96,7 +96,7 @@ public class EsmService {
 						, serviceDefJson.get("manifest").get("id").toString().replaceAll("\"", ""));				
 			}
 		}catch(IOException fnfe){
-			logger.info("Service could not be registered. The file with the path " + EMS_SERVICES_FILES_PATH + " does not exist:");
+			logger.warn("Service could not be registered. The file with the path " + EMS_SERVICES_FILES_PATH + " does not exist:", fnfe);
 		}
 	}
 	
@@ -172,8 +172,12 @@ public class EsmService {
 			}			
 			
 		} catch (IOException e) {					
-			logger.error("Error requesting an instance of a service: {}", e.getMessage(), e);
+			throw new RuntimeException("Exception requesting an instance of service \""+serviceId+"\"", e);
 		}		
+		
+		if(newServiceInstance == null){
+			throw new RuntimeException("Service with name \""+serviceId+"\" not found in ESM");
+		}
 		return newServiceInstance;
 	}
 	
