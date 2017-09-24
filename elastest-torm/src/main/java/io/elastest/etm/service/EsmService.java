@@ -17,8 +17,6 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -28,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.api.model.Ports.Binding;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
@@ -76,8 +73,7 @@ public class EsmService {
 		logger.info("Get and send the register information: " + EMS_SERVICES_FILES_PATH);
 		
 		try{
-			Resource resource = new ClassPathResource("esm_services");
-			
+						
 			File file = ResourceUtils.getFile("classpath:" + EMS_SERVICES_FILES_PATH);
 			List<String> files = new ArrayList<>(Arrays.asList(file.list()));			
 	
@@ -119,7 +115,6 @@ public class EsmService {
 	
 	public List<SupportService> getRegisteredServices(){
 		logger.info("Get registered services.");
-		ObjectMapper mapper = new ObjectMapper();		
 		List<SupportService> services = new ArrayList<>();
 		JsonNode objs = esmServiceClient.getRegisteredServices();
 		for (JsonNode esmService : objs) {
@@ -136,7 +131,6 @@ public class EsmService {
 	 */
 	public JsonNode getRawRegisteredServices() throws IOException{
 		logger.info("Get registered all data of a service.");
-		ObjectMapper mapper = new ObjectMapper();			
 		return esmServiceClient.getRegisteredServices();
 	}
 	
@@ -186,7 +180,6 @@ public class EsmService {
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
 		ObjectNode manifest = esmServiceClient.getManifestById(serviceInstance.getManifestId());
 		Iterator<String> subServicesNames = manifest.get("endpoints").fieldNames();
-		boolean subService = false;
 		Iterator<String> it = serviceInstanceDetail.get("context").fieldNames();
 		
 		while (subServicesNames.hasNext()) {			
