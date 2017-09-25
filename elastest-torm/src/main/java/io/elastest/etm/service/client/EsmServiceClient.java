@@ -112,7 +112,7 @@ public class EsmServiceClient {
 				.queryParam("accept_incomplete", accept_incomplete);
 		
 		try{
-			httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, ObjectNode.class);
+			httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, String.class);
 			logger.info("Registered service." );
 		}catch(Exception e){
 			throw new RuntimeException("Exception provisioning service \"" + serviceInstance.getService_id()
