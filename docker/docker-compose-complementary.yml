@@ -71,7 +71,6 @@ services:
 
     esm:
       image: elastest/esm:latest
-      container_name: esm
       hostname: esm
       environment:
             - ESM_PORT=37005
