@@ -27,6 +27,8 @@ export COMPOSE_PROJECT_NAME=$projectName
 
 echo $COMPOSE_PROJECT_NAME
 
+docker pull elastest/esm:latest
+
 docker-compose -f ../docker/docker-compose-complementary.yml up -d
     
 # Connect test container to docker-compose network
