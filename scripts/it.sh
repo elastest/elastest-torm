@@ -45,7 +45,7 @@ ET_ETM_RABBIT_HOST=$(containerIp "etm-rabbitmq")
 ET_ETM_RABBIT_PORT=5672
 ELASTICSEARCH_IP=$(containerIp "edm-elasticsearch")
 LOGSTASH_IP=$(containerIp "etm-logstash")
-ET_ESM_API=''
+ET_ESM_API='http://esm:37005/'
 EXEC_MODE='Lite'
 ET_ESM_SS_DESC_FILES_PATH='esm_services/'
 # Execute Integration tests
