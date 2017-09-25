@@ -5,6 +5,6 @@
 
 export const environment: { production: boolean, hostElasticSearch: string, eus: string } = {
   production: false,
-  hostElasticSearch: '192.168.99.100:9200',
+  hostElasticSearch: 'localhost:9200',
   eus: '127.0.0.1:8040'
 };
