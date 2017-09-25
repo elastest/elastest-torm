@@ -21,7 +21,8 @@ import io.elastest.etm.service.EsmService;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
-public class EsmServiceTest {
+@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+public class EsmServiceItTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 	
