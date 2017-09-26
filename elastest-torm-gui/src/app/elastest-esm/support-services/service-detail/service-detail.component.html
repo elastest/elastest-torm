@@ -1,42 +1,52 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-    <div flex-gt-sm="100">
-      <md-card tdMediaToggle="gt-xs">
-        <md-card-title>
-          {{serviceInstance.serviceName}}
-        </md-card-title>
-        <md-divider></md-divider>
-        <md-card-content class="push-bottom-none">
-          <div>Instance Id: {{serviceInstance.id}}</div>
-          <div *ngIf="serviceInstance.uiUrl">GUI URL: {{serviceInstance.uiUrl}}</div>
-          <div *ngIf="serviceInstance.apiUrl">API URL: {{serviceInstance.apiUrl}}</div>          
-          <div *ngIf="serviceInstance.endpointsOtherData && serviceInstance.endpointsOtherData.api
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        {{serviceInstance.serviceName}}
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <md-list>
+          <md-list-item>
+            <strong class="push-right-xs">Instance Id:</strong> {{serviceInstance.id}}
+          </md-list-item>
+          <md-list-item *ngIf="serviceInstance.uiUrl">
+            <strong class="push-right-xs">GUI URL: </strong><a [attr.href]="serviceInstance.uiUrl" target="_blank">{{serviceInstance.uiUrl}}</a>
+          </md-list-item>
+          <md-list-item *ngIf="serviceInstance.apiUrl">
+            <strong class="push-right-xs">API URL: </strong><a [attr.href]="serviceInstance.apiUrl" target="_blank">{{serviceInstance.apiUrl}}</a>
+          </md-list-item>
+          <md-list-item *ngIf="serviceInstance.endpointsOtherData && serviceInstance.endpointsOtherData.api
           && serviceInstance.endpointsOtherData.api.protocol && serviceInstance.endpointsOtherData.api.port">
-          API URL: <br/>Protocol: {{serviceInstance.endpointsOtherData.api.protocol}} <br/> Port:{{serviceInstance.endpointsOtherData.api.port}}</div>
-          <div *ngIf="serviceInstance.uiUrl">
-            <esm-service-gui [serviceUrl]='serviceInstance.uiUrl' ></esm-service-gui>
-          </div>
-        
-        </md-card-content>
-        <md-divider></md-divider>          
-      </md-card>
+            <strong>API URL:</strong>
+            <br/>Protocol: {{serviceInstance.endpointsOtherData.api.protocol}} <br/> Port:{{serviceInstance.endpointsOtherData.api.port}}
+          </md-list-item>
+        </md-list>
 
-      <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
-          <md-card-title>
-            {{subService.serviceName}}
-          </md-card-title>
-          <md-divider></md-divider>
-          <md-card-content class="push-bottom-none">              
-              <div *ngIf="subService.uiUrl">GUI URL: {{subService.uiUrl}}</div>
-              <div *ngIf="subService.apiUrl">API URL: {{subService.apiUrl}}</div>
-              <div *ngIf="serviceInstance.endpointsOtherData && serviceInstance.endpointsOtherData.api
+        <div *ngIf="serviceInstance.uiUrl">
+          <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
+        </div>
+      </md-card-content>
+      <md-divider></md-divider>
+    </md-card>
+
+    <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
+      <md-card-title>
+        {{subService.serviceName}}
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <div *ngIf="subService.uiUrl">GUI URL: {{subService.uiUrl}}</div>
+        <div *ngIf="subService.apiUrl">API URL: {{subService.apiUrl}}</div>
+        <div *ngIf="serviceInstance.endpointsOtherData && serviceInstance.endpointsOtherData.api
               && serviceInstance.endpointsOtherData.api.protocol && serviceInstance.endpointsOtherData.api.port">
-              API URL: <br/>Protocol: {{serviceInstance.endpointsOtherData.api.protocol}} <br/> Port:{{serviceInstance.endpointsOtherData.api.port}}</div>
-              <div *ngIf="subService.uiUrl">
-                <esm-service-gui [serviceUrl]='subService.uiUrl' ></esm-service-gui>
-              </div>          
-          </md-card-content>
-          <md-divider></md-divider>          
-        </md-card>
+          API URL: <br/>Protocol: {{serviceInstance.endpointsOtherData.api.protocol}} <br/> Port:{{serviceInstance.endpointsOtherData.api.port}}</div>
+        <div *ngIf="subService.uiUrl">
+          <esm-service-gui [serviceUrl]='subService.uiUrl'></esm-service-gui>
+        </div>
+      </md-card-content>
+      <md-divider></md-divider>
+    </md-card>
 
-    </div>
   </div>
+</div>
