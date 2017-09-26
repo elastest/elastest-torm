@@ -23,14 +23,15 @@ import io.swagger.annotations.ApiParam;
 
 @Controller
 public class EsmApiController implements EsmApi {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EsmApiController.class);
 
-	@Autowired EsmService esmService;
-	
+	@Autowired
+	EsmService esmService;
+
 	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;	
-	
+	public String ELASTEST_EXECUTION_MODE;
+
 	@Override
 	public ResponseEntity<List<String>> getSupportServicesNames() {
 		List<String> servicesList = esmService.getRegisteredServicesName();
@@ -38,13 +39,9 @@ public class EsmApiController implements EsmApi {
 	}
 
 	@Override
-	public ResponseEntity<List<SupportService>> getSupportServices() {		
-		if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL)){
-			List<SupportService> servicesList = esmService.getRegisteredServices();
-			return new ResponseEntity<List<SupportService>>(servicesList, HttpStatus.OK);
-		}else{
-			return new ResponseEntity<List<SupportService>>(new ArrayList<>(), HttpStatus.OK);
-		}
+	public ResponseEntity<List<SupportService>> getSupportServices() {
+		List<SupportService> servicesList = esmService.getRegisteredServices();
+		return new ResponseEntity<List<SupportService>>(servicesList, HttpStatus.OK);
 	}
 
 	@Override
@@ -56,18 +53,19 @@ public class EsmApiController implements EsmApi {
 	@Override
 	@JsonView(FrontView.class)
 	public ResponseEntity<SupportServiceInstance> provisionServiceInstance(
-			@ApiParam(value = "Service Id", required = true) @PathVariable("serviceId")String serviceId) {
-		logger.info("Service provision:" +  serviceId);
-		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(serviceId, false), HttpStatus.OK);
+			@ApiParam(value = "Service Id", required = true) @PathVariable("serviceId") String serviceId) {
+		logger.info("Service provision:" + serviceId);
+		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(serviceId, false),
+				HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<String> deprovisionServiceInstance( @PathVariable("instanceId")String instanceId) {
+	public ResponseEntity<String> deprovisionServiceInstance(@PathVariable("instanceId") String instanceId) {
 		return new ResponseEntity<String>(esmService.deprovisionServiceInstance(instanceId, false), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@PathVariable("id")String id) {
+	public ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@PathVariable("id") String id) {
 		return new ResponseEntity<SupportServiceInstance>(esmService.getServiceInstanceFromMem(id), HttpStatus.OK);
-	}	
+	}
 }
