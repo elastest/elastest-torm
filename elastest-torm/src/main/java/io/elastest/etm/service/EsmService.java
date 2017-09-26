@@ -211,67 +211,56 @@ public class EsmService {
 					String ssrvContainerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
-					serviceIp = utilTools.getDockerHostIp();/*windowsSO.toLowerCase().contains("win") ? utilTools.getDockerHostIp()
-							: serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");*/
+					serviceIp = utilTools.getDockerHostIp();
 					serviceInstance.setContainerIp(serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", ""));
+					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceIp);
 					int auxPort;
+					
+					SupportServiceInstance auxServiceInstance = null; 
 
 					if (manifest.get("endpoints").get(serviceName).get("main") != null
 							&& manifest.get("endpoints").get(serviceName).get("main").booleanValue()) {
+						auxServiceInstance = serviceInstance;
+					}else{
+						auxServiceInstance = new SupportServiceInstance();
+						auxServiceInstance.setEndpointName(serviceName);
+						serviceInstance.getSubServices().add(auxServiceInstance);
+					}
 						logger.info("Principal instance {}:" + serviceName);
-						serviceInstance.setEndpointName(serviceName);
+						auxServiceInstance.setEndpointName(serviceName);
 						if (manifest.get("endpoints").get(serviceName).get("api") != null 
 								&& !manifest.get("endpoints").get(serviceName).get("api").isArray()) {
-							auxPort = bindingPort(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("api"), ssrvContainerName,
-									networkName);
-							((ObjectNode) manifest.get("endpoints").get(serviceName).get("api")).put("port", auxPort);
-							createServiceInstanceData(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
-						}
-
+							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("api"),
+									ssrvContainerName, networkName, "api");							
+						}						
 						if (manifest.get("endpoints").get(serviceName).get("gui") != null
 								&& !manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
-							auxPort = bindingPort(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("gui"), ssrvContainerName,
-									networkName);
-							((ObjectNode) manifest.get("endpoints").get(serviceName).get("gui")).put("port", auxPort);
-							createServiceInstanceData(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("gui"), "gui", serviceIp);
+							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"),
+									ssrvContainerName, networkName, "gui");							
 						}
-
-					} else {
-						logger.info("No Principal instance {}:" + serviceName);
-						SupportServiceInstance subServiceInstance = new SupportServiceInstance();
-						subServiceInstance.setEndpointName(serviceName);
-						if (manifest.get("endpoints").get(serviceName).get("api") != null
-								&& !manifest.get("endpoints").get(serviceName).get("api").isArray()) {
-							auxPort = bindingPort(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("api"), ssrvContainerName,
-									networkName);
-							((ObjectNode) manifest.get("endpoints").get(serviceName).get("api")).put("port", auxPort);
-							createServiceInstanceData(subServiceInstance,
-									manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
-						}
-
-						if (manifest.get("endpoints").get(serviceName).get("gui") != null
-								&& !manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
-							auxPort = bindingPort(serviceInstance,
-									manifest.get("endpoints").get(serviceName).get("gui"), ssrvContainerName,
-									networkName);
-							((ObjectNode) manifest.get("endpoints").get(serviceName).get("gui")).put("port", auxPort);
-							createServiceInstanceData(subServiceInstance,
-									manifest.get("endpoints").get(serviceName).get("gui"), "gui", serviceIp);
-						}
-
-						serviceInstance.getSubServices().add(subServiceInstance);
-					}
-
 					break;
 				}
 			}
 		}
+	}
+	
+	private SupportServiceInstance getEndpointsInfo(SupportServiceInstance serviceInstance, JsonNode node,
+			String tSSContainerName, String networkName, String nodeName){
+		int auxPort = 37000;
+		
+		if (node != null) {
+			auxPort = bindingPort(serviceInstance, node, tSSContainerName,	networkName);
+			((ObjectNode) node).put("port", auxPort);
+			
+			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
+				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));								
+			} else {
+				serviceInstance.getEndpointsData().put(nodeName, node);
+			}		
+		}
+		
+		return serviceInstance;
 	}
 
 	private int bindingPort(SupportServiceInstance serviceInstance, JsonNode node, String containerName,
@@ -297,20 +286,6 @@ public class EsmService {
 		}
 
 		return listenPort;
-
-	}
-
-	private void createServiceInstanceData(SupportServiceInstance serviceInstance, JsonNode node, String nodeName, 
-			String serviceIp) {
-		logger.info("Create serviceData {}:" + serviceInstance.getEndpointName());
-		if (node != null) {
-			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
-				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceIp));
-				serviceInstance.setServiceIp(serviceIp);				
-			} else {
-				serviceInstance.getEndpointsData().put(nodeName, node);
-			}
-		}
 	}
 
 	private String createServiceInstanceUrl(JsonNode node, String ip) {
