@@ -29,8 +29,7 @@ public class EsmServiceItTest {
 	@Autowired
 	private EsmService esmService;
 	
-	@Test
-	@Disabled
+	@Test	
 	public void provisionServiceTest(){
 		
 		assertThat(esmService).isNotNull();
