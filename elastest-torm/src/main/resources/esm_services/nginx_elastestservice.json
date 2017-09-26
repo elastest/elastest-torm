@@ -43,7 +43,7 @@
 	},
 	"manifest": {
 		"id": "4c15e871-9b32-4062-930a-b31e067185d1",
-		"manifest_content": "version: '2.1'\nservices:\n   nginx_service:\n      image: nginx\n      environment:\n         - USE_TORM=true\n      networks:\n         - elastest_elastest\nnetworks:\n   elastest_elastest:\n      driver: bridge\n",
+		"manifest_content": "version: '2.1'\nservices:\n   nginx_service:\n      image: nginx\n      environment:\n         - USE_TORM=true\n      networks:\n         - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
 		"manifest_type": "docker-compose",
 		"plan_id": "f4945858-0374-4c08-abcf-beac4e36f6fd",
 		"service_id": "0fd06878-2ac1-418e-a140-77511339c719",

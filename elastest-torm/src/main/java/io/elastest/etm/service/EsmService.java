@@ -44,10 +44,13 @@ public class EsmService {
 	public String EMS_SERVICES_FILES_PATH;
 
 	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;
+	public String ELASTEST_EXECUTION_MODE;	
 
 	@Value("${os.name}")
 	private String windowsSO;
+	
+	@Value("${elastest.docker.network}")
+	private String etDockerNetwork;
 
 	public EsmServiceClient esmServiceClient;
 	public DockerService dockerService;
@@ -206,10 +209,10 @@ public class EsmService {
 				if (matcher.matches()) {
 
 					String ssrvContainerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
-					String networkName = fieldName.substring(0, fieldName.indexOf("_")) + "_elastest_elastest";
+					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
-					serviceIp = windowsSO.toLowerCase().contains("win") ? utilTools.getDockerHostIp()
-							: serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					serviceIp = utilTools.getDockerHostIp();/*windowsSO.toLowerCase().contains("win") ? utilTools.getDockerHostIp()
+							: serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");*/
 					serviceInstance.setContainerIp(serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", ""));
 					logger.info("Service Ip {}:" + serviceIp);
 					int auxPort;
@@ -218,7 +221,8 @@ public class EsmService {
 							&& manifest.get("endpoints").get(serviceName).get("main").booleanValue()) {
 						logger.info("Principal instance {}:" + serviceName);
 						serviceInstance.setEndpointName(serviceName);
-						if (manifest.get("endpoints").get(serviceName).get("api") != null) {
+						if (manifest.get("endpoints").get(serviceName).get("api") != null 
+								&& !manifest.get("endpoints").get(serviceName).get("api").isArray()) {
 							auxPort = bindingPort(serviceInstance,
 									manifest.get("endpoints").get(serviceName).get("api"), ssrvContainerName,
 									networkName);
@@ -227,7 +231,8 @@ public class EsmService {
 									manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
 						}
 
-						if (manifest.get("endpoints").get(serviceName).get("gui") != null) {
+						if (manifest.get("endpoints").get(serviceName).get("gui") != null
+								&& !manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
 							auxPort = bindingPort(serviceInstance,
 									manifest.get("endpoints").get(serviceName).get("gui"), ssrvContainerName,
 									networkName);
@@ -240,7 +245,8 @@ public class EsmService {
 						logger.info("No Principal instance {}:" + serviceName);
 						SupportServiceInstance subServiceInstance = new SupportServiceInstance();
 						subServiceInstance.setEndpointName(serviceName);
-						if (manifest.get("endpoints").get(serviceName).get("api") != null) {
+						if (manifest.get("endpoints").get(serviceName).get("api") != null
+								&& !manifest.get("endpoints").get(serviceName).get("api").isArray()) {
 							auxPort = bindingPort(serviceInstance,
 									manifest.get("endpoints").get(serviceName).get("api"), ssrvContainerName,
 									networkName);
@@ -249,7 +255,8 @@ public class EsmService {
 									manifest.get("endpoints").get(serviceName).get("api"), "api", serviceIp);
 						}
 
-						if (manifest.get("endpoints").get(serviceName).get("gui") != null) {
+						if (manifest.get("endpoints").get(serviceName).get("gui") != null
+								&& !manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
 							auxPort = bindingPort(serviceInstance,
 									manifest.get("endpoints").get(serviceName).get("gui"), ssrvContainerName,
 									networkName);

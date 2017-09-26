@@ -45,6 +45,7 @@ import { EtmLogsMetricsViewComponent } from './elastest-etm/etm-logs-metrics-vie
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
+import {SafeUrlPipe} from "./sanitizer.pipe";
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -63,7 +64,9 @@ const httpInterceptorProviders: Type<any>[] = [
     RunTJobModalComponent,
     EtmLogsMetricsViewComponent,    
     InstancesManagerComponent, 
-    ServiceGuiComponent, ServiceDetailComponent,
+    ServiceGuiComponent, 
+    ServiceDetailComponent,
+    SafeUrlPipe,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
