@@ -38,6 +38,8 @@ import io.elastest.etm.utils.UtilTools;
 public class EsmService {
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 
+	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat"; 
+	
 	@Value("${elastest.esm.files.path}")
 	public String EMS_SERVICES_FILES_PATH;
 
@@ -208,6 +210,7 @@ public class EsmService {
 					logger.info("Network name: " + networkName);
 					serviceIp = windowsSO.toLowerCase().contains("win") ? utilTools.getDockerHostIp()
 							: serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					serviceInstance.setContainerIp(serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", ""));
 					logger.info("Service Ip {}:" + serviceIp);
 					int auxPort;
 
@@ -273,13 +276,14 @@ public class EsmService {
 			List<String> envVariables = new ArrayList<>();
 			envVariables.add("LISTEN_PORT=" + listenPort);
 			envVariables.add("FORWARD_PORT=" + node.get("port"));
+			envVariables.add("TARGET_SERVICE_IP=" + serviceInstance.getContainerIp());
 			Ports portBindings = new Ports();
 			ExposedPort exposedListenPort = ExposedPort.tcp(listenPort);
 
 			portBindings.bind(exposedListenPort, Ports.Binding.bindPort(listenPort));
 
 			serviceInstance.getPortBindingContainers().add(dockerService.runDockerContainer(dockerClient,
-					"tynor88/socat", envVariables, "container" + listenPort, containerName, networkName, portBindings));
+					ET_SOCAT_IMAGE, envVariables, "container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -289,31 +293,13 @@ public class EsmService {
 
 	}
 
-	private void createServiceInstanceData(SupportServiceInstance serviceInstance, JsonNode node, String nodeName,
+	private void createServiceInstanceData(SupportServiceInstance serviceInstance, JsonNode node, String nodeName, 
 			String serviceIp) {
 		logger.info("Create serviceData {}:" + serviceInstance.getEndpointName());
-		// DockerClient dockerClient = dockerService.getDockerClient();
-		// List<String> envVariables = new ArrayList<>();
-
 		if (node != null) {
 			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
 				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceIp));
-				serviceInstance.setServiceIp(serviceIp);
-
-				// try {
-				// int bindingPort = utilTools.findRandomOpenPort();
-				//
-				// } catch (IOException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				//
-				//
-				//
-				// }else if (node.isArray()){
-				// node.forEach((api) -> {
-				//
-				// }) ;
+				serviceInstance.setServiceIp(serviceIp);				
 			} else {
 				serviceInstance.getEndpointsData().put(nodeName, node);
 			}

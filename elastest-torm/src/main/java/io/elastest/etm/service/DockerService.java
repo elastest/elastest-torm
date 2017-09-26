@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -109,17 +110,20 @@ public class DockerService {
 	}
 
 	public String runDockerContainer(DockerClient dockerClient, String imageName, List<String> envs, 
-			String containerName, String targetContainerName, String networkName, Ports portBindings){
+			String containerName, String targetContainerName, String networkName, Ports portBindings, int listenPort){
 		String dockerContainerName = null;
 		
-		dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();
-				
+		dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();				
 		CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
 				.withName(containerName)
 				.withEnv(envs)
 				.withNetworkMode(networkName)
+				.withExposedPorts(ExposedPort.tcp(listenPort))
 				.withPortBindings(portBindings)
-				.withLinks(new Link(targetContainerName, "target_app")).exec();
+				.withPublishAllPorts(true)
+				.exec();
+						
+		dockerClient.startContainerCmd(container.getId()).exec();
 		
 		logger.info("Id del contenedor:" + container.getId());
 				
