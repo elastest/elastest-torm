@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 import {ElastestEusDialog} from './elastest-eus.dialog';
 import {ElastestEusDialogService} from './elastest-eus.dialog.service';
@@ -54,14 +54,34 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   recordings: EusTestModel[] = [];
 
+  @Input()
+  eusUrl: string;
+
+  @Input()
+  eusHost: string;
+
+  @Input()
+  eusPort: number;
+
   @Output()
   onInitComponent = new EventEmitter<string>();
 
   constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
-    if (!this.websocket) {
-      this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
+    if (this.eusUrl){
+      this.eusService.setEusUrl(this.eusUrl);
+    }
+
+    if (this.eusHost){
+      this.eusService.setEusHost(this.eusHost);
+    }
+    if (!this.websocket) {      
+      if(this.eusHost && this.eusPort){
+        this.websocket = new WebSocket("ws://" + this.eusHost + ":50316" + "/eus/v1/eus-ws");        
+      }else{
+        this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
+      }      
 
       this.websocket.onopen = () => this.websocket.send("getSessions");
       this.websocket.onopen = () => this.websocket.send("getRecordings");

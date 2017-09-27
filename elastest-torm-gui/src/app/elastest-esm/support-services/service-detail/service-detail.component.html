@@ -16,18 +16,30 @@
           <md-list-item *ngIf="serviceInstance.apiUrl">
             <strong class="push-right-xs">API URL: </strong><a [attr.href]="serviceInstance.apiUrl" target="_blank">{{serviceInstance.apiUrl}}</a>
           </md-list-item>
-          <md-list-item *ngIf="serviceInstance.endpointsOtherData && serviceInstance.endpointsOtherData.api
-          && serviceInstance.endpointsOtherData.api.protocol && serviceInstance.endpointsOtherData.api.port">
+          <div *ngIf="serviceInstance.uris">
+              <md-list-item *ngFor="let key of urisKeys" >
+                  <strong class="push-right-xs">URL: </strong><a [attr.href]="serviceInstance.uris[key]" target="_blank">{{serviceInstance.uris[key]}}</a>
+              </md-list-item>
+          </div>
+          
+          <!--md-list-item *ngIf="serviceInstance.endpointsOtherData && (serviceInstance.endpointsOtherData.api
+          && serviceInstance.endpointsOtherData.api.protocol && serviceInstance.endpointsOtherData.api.port)
+          || (serviceInstance.endpointsOtherData.gui
+          && serviceInstance.endpointsOtherData.gui.protocol && serviceInstance.endpointsOtherData.gui.port)">
             <strong>API URL:</strong>
             <br/>Protocol: {{serviceInstance.endpointsOtherData.api.protocol}} <br/> Port:{{serviceInstance.endpointsOtherData.api.port}}
-          </md-list-item>
+          </md-list-item-->
         </md-list>
 
         <div *ngIf="serviceInstance.uiUrl">
           <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
         </div>
+        <md-divider></md-divider>
+        <app-elastest-eus *ngIf="serviceInstance.serviceName == 'elastest-eus'" [eusUrl]="serviceInstance.uris.api" [eusHost]="serviceInstance.ip" 
+        [eusPort]="serviceInstance.port"></app-elastest-eus>
+        
       </md-card-content>
-      <md-divider></md-divider>
+      
     </md-card>
 
     <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">

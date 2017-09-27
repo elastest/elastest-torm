@@ -61,5 +61,13 @@ export class EusService {
     return this.http.delete(url);
   }
 
+  public setEusUrl(eusUrl: string){
+    this.eusUrl = eusUrl;
+  }
+
+  public setEusHost(eusHost: string){
+    this.hostName = eusHost;
+  }
+
 
 }
