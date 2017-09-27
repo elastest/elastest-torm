@@ -1,6 +1,7 @@
 {
 	"register": {
-		"name": "ess",
+		"name": "ESS",
+		"short_name": "ESS",
 		"id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
 		"description": "The Elastest Security Service",
 		"bindable": false,

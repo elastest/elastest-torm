@@ -2,7 +2,8 @@
 	"register": {
 		"description": "this is a test service for ElasTest Device Emulator Service",
 		"id": "fe5e0531-b470-441f-9c69-721c2b4875f2",
-		"name": "ElasTest Device Emulator Service",
+		"name": "EDS",
+		"short_name": "EDS",
 		"bindable": false,
 		"plan_updateable": false,
 		"plans": [

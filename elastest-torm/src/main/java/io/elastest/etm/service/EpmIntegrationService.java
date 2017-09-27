@@ -166,10 +166,18 @@ public class EpmIntegrationService {
 	 */
 	private void setTssEnvVar(String instanceId, TJobExecution tJobExec) {
 		SupportServiceInstance ssi = esmService.gettJobServicesInstances().get(instanceId);
-		String envNamePrefix = ssi.getEndpointName().toUpperCase().replaceAll("-", "_");
+		// String envNamePrefix = "ET_" +
+		// ssi.getServiceShortName().toUpperCase().replaceAll("-", "_");
+		String servicePrefix = ssi.getServiceName().toUpperCase().replaceAll("-", "_");
+		String envNamePrefix = "ET_" + servicePrefix;
 
 		for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData().entrySet()) {
-			setTssEnvVarByEndpoint(ssi, tJobExec, envNamePrefix, entry);
+			String endpointName = ssi.getEndpointName().toUpperCase().replaceAll("-", "_");
+			String prefix = envNamePrefix;
+			if (!endpointName.equals(servicePrefix)) { // Example: EBS and Spark
+				prefix = "_" + endpointName;
+			}
+			setTssEnvVarByEndpoint(ssi, tJobExec, prefix, entry);
 		}
 
 		for (SupportServiceInstance subssi : ssi.getSubServices()) {
@@ -177,29 +185,36 @@ public class EpmIntegrationService {
 					+ subssi.getEndpointName().toUpperCase().replaceAll("-", "_");
 
 			for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData().entrySet()) {
-				setTssEnvVarByEndpoint(ssi, tJobExec, envNamePrefixSubSSI, entry);
+				setTssEnvVarByEndpoint(subssi, tJobExec, envNamePrefixSubSSI, entry);
 			}
 		}
 	}
 
 	private void setTssEnvVarByEndpoint(SupportServiceInstance ssi, TJobExecution tJobExec, String prefix,
 			Map.Entry<String, JsonNode> entry) {
-		try {
-			String envNamePrefixMain = prefix + "_" + entry.getKey().toUpperCase();
+		if (!entry.getKey().toLowerCase().equals("gui")) {
+			try {
+				String envNameHost = prefix + "_HOST";
+				String envValueHost = ssi.getContainerIp();
+				tJobExec.getTssEnvVars().put(envNameHost, envValueHost);
 
-			String envNameIP = envNamePrefixMain + "_IP";
-			String envValueIP = ssi.getContainerIp();
-			tJobExec.getTssEnvVars().put(envNameIP, envValueIP);
+				String envNamePort = prefix + "_PORT";
+				String envValuePort = entry.getValue().findValue("port").toString();
+				tJobExec.getTssEnvVars().put(envNamePort, envValuePort);
 
-			String envNamePort = envNamePrefixMain + "_PORT";
-			String envValuePort = entry.getValue().findValue("port").toString();
-			tJobExec.getTssEnvVars().put(envNamePort, envValuePort);
+				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
+				if (protocol.equals("http") || protocol.equals("ws")) {
+					String envNameAPI = prefix + "_" + entry.getKey().toUpperCase();
+					String path = entry.getValue().findValue("path").toString().replaceAll("\"", "");
+					if (!path.startsWith("/")) {
+						path = "/" + path;
+					}
+					String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort + path;
+					tJobExec.getTssEnvVars().put(envNameAPI, envValueAPI);
+				}
 
-			String envNameProtocol = envNamePrefixMain + "_PROTOCOL";
-			String envValueProtocol = entry.getValue().findValue("protocol").toString();
-
-			tJobExec.getTssEnvVars().put(envNameProtocol, envValueProtocol);
-		} catch (Exception e) {
+			} catch (Exception e) {
+			}
 		}
 	}
 

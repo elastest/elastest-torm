@@ -2,7 +2,8 @@
 	"register": {
 		"description": "elastest big data service",
 		"id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
-		"name": "elastest-bigdata-service",
+		"name": "EBS",
+		"short_name": "EBS",
 		"bindable": false,
 		"plan_updateable": false,
 		"plans": [

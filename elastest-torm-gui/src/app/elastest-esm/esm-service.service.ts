@@ -9,63 +9,63 @@ export class EsmService {
 
   constructor(private http: Http, private configurationService: ConfigurationService) { }
 
-  getSupportServices(){
+  getSupportServices() {
     let url = this.configurationService.configModel.hostApi + '/esm/services';
     return this.http.get(url)
-      .map((response) =>  this.transformIntoEsmServiceModel(response)
-    );
+      .map((response) => this.transformIntoEsmServiceModel(response)
+      );
   }
 
-  provisionServiceInstance(serviceId: string){
-    let url = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';    
+  provisionServiceInstance(serviceId: string) {
+    let url = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
     return this.http.post(url, null)
-      .map((response) =>  console.log(JSON.stringify(response))
-    );
+      .map((response) => console.log(JSON.stringify(response))
+      );
   }
 
-  deprovisionServiceInstance(serviceInstanceId: string){
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId;    
+  deprovisionServiceInstance(serviceInstanceId: string) {
+    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId;
     return this.http.delete(url, null)
-      .map((response) =>  console.log(JSON.stringify(response))
-    );
+      .map((response) => console.log(JSON.stringify(response))
+      );
   }
 
-  getSupportServicesInstances(){
+  getSupportServicesInstances() {
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances';
     return this.http.get(url)
-      .map((response) =>  this.transformIntoSupportServiceInstanceList(response)
-    );
+      .map((response) => this.transformIntoSupportServiceInstanceList(response)
+      );
   }
 
-  getSupportServiceInstance(id: string){
+  getSupportServiceInstance(id: string) {
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
     return this.http.get(url)
       .map((response) => this.transformIntoSupportServiceInstance(response.json())
-    );
+      );
   }
 
-  transformIntoEsmServiceModel(response: Response ){
-    let res =  response.json();
+  transformIntoEsmServiceModel(response: Response) {
+    let res = response.json();
     let retrivedServices: EsmServiceModel[] = [];
 
-    for(let service of res){
+    for (let service of res) {
       retrivedServices.push(new EsmServiceModel(service.id, service.name, false));
     }
-    return retrivedServices;    
+    return retrivedServices;
   }
 
-  transformIntoSupportServiceInstanceList(response: Response ){    
-    let res =  response.json();
+  transformIntoSupportServiceInstanceList(response: Response) {
+    let res = response.json();
     let retrivedServicesInstance: EsmServiceInstanceModel[] = [];
 
-    for(let serviceInstance of res){      
-        retrivedServicesInstance.push(this.transformIntoSupportServiceInstance(serviceInstance));      
+    for (let serviceInstance of res) {
+      retrivedServicesInstance.push(this.transformIntoSupportServiceInstance(serviceInstance));
     }
-    return retrivedServicesInstance;    
+    return retrivedServicesInstance;
   }
-  
-  transformIntoSupportServiceInstance(serviceInstance: any ){
+
+  transformIntoSupportServiceInstance(serviceInstance: any) {
     console.log("Service instance " + JSON.stringify(serviceInstance));
-    return new  EsmServiceInstanceModel(serviceInstance);
+    return new EsmServiceInstanceModel(serviceInstance);
   }
 }

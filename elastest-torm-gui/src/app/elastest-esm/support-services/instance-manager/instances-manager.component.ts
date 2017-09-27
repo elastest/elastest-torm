@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { EsmService } from '../../esm-service.service';
 import { EsmServiceModel } from '../../esm-service.model';
-import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent,IPageChangeEvent} from '@covalent/core';
+import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, IPageChangeEvent } from '@covalent/core';
 import { EsmServiceInstanceModel } from '../../esm-service-instance.model';
 import { Component, OnInit } from '@angular/core';
 
@@ -11,8 +11,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./instances-manager.component.scss']
 })
 export class InstancesManagerComponent implements OnInit {
-   
-   serviceColumns: any[] = [
+
+  serviceColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'serviceName', label: 'Service' },
     { name: 'options', label: 'Options' },
@@ -39,10 +39,11 @@ export class InstancesManagerComponent implements OnInit {
   ngOnInit() {
     this.loadServiceInstances();
     this.esmService.getSupportServices()
-    .subscribe(
-      (esmServices) => { this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
+      .subscribe(
+      (esmServices) => {
+      this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
       }
-    );
+      );
   }
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
@@ -72,38 +73,41 @@ export class InstancesManagerComponent implements OnInit {
     this.filteredData = newData;
   }
 
-  loadServiceInstances(){
+  loadServiceInstances() {
     this.esmService.getSupportServicesInstances()
-    .subscribe(
-      (esmServicesInstances) => { this.prepareDataTable(esmServicesInstances);
+      .subscribe(
+      (esmServicesInstances) => {
+        this.prepareDataTable(esmServicesInstances);
       }
-    );
+      );
   }
 
-  provisionServiceInstance(){    
+  provisionServiceInstance() {
     this.esmService.provisionServiceInstance(this.selectedService)
-    .subscribe(
-      (esmServices) => { console.log(esmServices);this.loadServiceInstances();
+      .subscribe(
+      (esmServices) => {
+        console.log(esmServices); this.loadServiceInstances();
       }
-    );
+      );
   }
 
-  deprovisionService(serviceInstance: EsmServiceInstanceModel){
+  deprovisionService(serviceInstance: EsmServiceInstanceModel) {
     this.esmService.deprovisionServiceInstance(serviceInstance.id)
-    .subscribe(
-      (esmServices) => { console.log(esmServices);this.loadServiceInstances();
+      .subscribe(
+      (esmServices) => {
+        console.log(esmServices); this.loadServiceInstances();
       }
-    );    
+      );
   }
 
-  goToServiceGui(serviceInstance: EsmServiceInstanceModel){    
+  goToServiceGui(serviceInstance: EsmServiceInstanceModel) {
     console.log("Navigate to service gui:" + serviceInstance.uiUrl);
-    this.router.navigate(['/support-services/service-gui'], { queryParams: { page: serviceInstance.uiUrl } } );    
-    
+    this.router.navigate(['/support-services/service-gui'], { queryParams: { page: serviceInstance.uiUrl } });
+
   }
 
-  goToServiceDetail(serviceInstance: EsmServiceInstanceModel){    
-    this.router.navigate(['/support-services/service-detail', serviceInstance.id]);    
+  goToServiceDetail(serviceInstance: EsmServiceInstanceModel) {
+    this.router.navigate(['/support-services/service-detail', serviceInstance.id]);
   }
 
   prepareDataTable(servicesInstances: EsmServiceInstanceModel[]) {

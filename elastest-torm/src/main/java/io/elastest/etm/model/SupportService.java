@@ -13,14 +13,18 @@ public class SupportService {
 	@JsonProperty("name")
 	private String name;
 	
+	@JsonProperty("shortName")
+	private String shortName;
+	
 	public SupportService(){
 		
 	}
 	
-	public SupportService(String id, String name) {
+	public SupportService(String id, String name, String shortName) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.shortName = shortName;
 	}
 	
 	public String getId() {
@@ -38,6 +42,12 @@ public class SupportService {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 
+	public String getShortName() {
+		return shortName;
+	}
+
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
 }

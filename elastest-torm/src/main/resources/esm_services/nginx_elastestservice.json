@@ -2,7 +2,8 @@
 	"register": {
 		"description": "ElasTest service that provides user impersonation as a service",
 		"id": "0fd06878-2ac1-418e-a140-77511339c719",
-		"name": "nginx-service",
+		"name": "NGINX",
+		"short_name": "NGX",
 		"bindable": false,
 		"plan_updateable": false,
 		"plans": [

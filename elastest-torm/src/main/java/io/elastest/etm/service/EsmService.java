@@ -38,17 +38,17 @@ import io.elastest.etm.utils.UtilTools;
 public class EsmService {
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 
-	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat"; 
-	
+	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat";
+
 	@Value("${elastest.esm.files.path}")
 	public String EMS_SERVICES_FILES_PATH;
 
 	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;	
+	public String ELASTEST_EXECUTION_MODE;
 
 	@Value("${os.name}")
 	private String windowsSO;
-	
+
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
 
@@ -126,7 +126,10 @@ public class EsmService {
 		JsonNode objs = esmServiceClient.getRegisteredServices();
 		for (JsonNode esmService : objs) {
 			services.add(new SupportService(esmService.get("id").toString().replaceAll("\"", ""),
-					esmService.get("name").toString().replaceAll("\"", "")));
+					esmService.get("name").toString().replaceAll("\"", ""),
+//					esmService.get("short_name").toString().replaceAll("\"", "")
+					""
+					));
 		}
 		return services;
 	}
@@ -163,11 +166,15 @@ public class EsmService {
 							.asList(mapper.readValue(service.get("plans").toString(), ObjectNode[].class));
 					newServiceInstance = new SupportServiceInstance(instanceId,
 							service.get("id").toString().replaceAll("\"", ""),
-							plans.get(0).get("id").toString().replaceAll("\"", ""), true);
+							service.get("name").toString().replaceAll("\"", ""),
+							// service.get("short_name").toString().replaceAll("\"",
+							// ""),
+							"", plans.get(0).get("id").toString().replaceAll("\"", ""), true);
 
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-					newServiceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
+					newServiceInstance.setManifestId(
+							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 
 					if (associatedWitTJob) {
@@ -210,74 +217,76 @@ public class EsmService {
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
 					serviceIp = utilTools.getDockerHostIp();
-					serviceInstance.setContainerIp(serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", ""));
+					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					serviceInstance.setContainerIp(containerIp);
 					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceInstance.getServiceIp());
 					int auxPort;
-					
-					SupportServiceInstance auxServiceInstance = null; 
+
+					SupportServiceInstance auxServiceInstance = null;
 
 					if (manifest.get("endpoints").get(serviceName).get("main") != null
 							&& manifest.get("endpoints").get(serviceName).get("main").booleanValue()) {
 						logger.info("Principal instance {}:" + serviceName);
 						auxServiceInstance = serviceInstance;
-					}else{
+					} else {
 						auxServiceInstance = new SupportServiceInstance();
 						auxServiceInstance.setEndpointName(serviceName);
+						auxServiceInstance.setContainerIp(containerIp);
 						auxServiceInstance.setServiceIp(serviceIp);
 						serviceInstance.getSubServices().add(auxServiceInstance);
 					}
-						
-						auxServiceInstance.setEndpointName(serviceName);
-						if (manifest.get("endpoints").get(serviceName).get("api") != null ){
-							if (!manifest.get("endpoints").get(serviceName).get("api").isArray()) {
-								getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("api"),
-								ssrvContainerName, networkName, "api");											
-							}else{
-								int apiNum = 0;
-								for(final JsonNode apiNode: manifest.get("endpoints").get(serviceName).get("api")){
-									apiNum ++;
-									getEndpointsInfo(auxServiceInstance, apiNode,
-											ssrvContainerName, networkName, "api" + apiNum);
-								}							
+
+					auxServiceInstance.setEndpointName(serviceName);
+					if (manifest.get("endpoints").get(serviceName).get("api") != null) {
+						if (!manifest.get("endpoints").get(serviceName).get("api").isArray()) {
+							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("api"),
+									ssrvContainerName, networkName, "api");
+						} else {
+							int apiNum = 0;
+							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
+								apiNum++;
+								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
+										"api" + apiNum);
 							}
 						}
-						if (manifest.get("endpoints").get(serviceName).get("gui") != null){
-							if (!manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
-								getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"),
-								ssrvContainerName, networkName, "gui");											
-							}else{
-								int guiNum = 0;
-								for(final JsonNode guiNode: manifest.get("endpoints").get(serviceName).get("gui")){
-									guiNum ++;
-									getEndpointsInfo(auxServiceInstance, guiNode,
-											ssrvContainerName, networkName, "gui" + guiNum);
-								}							
-							}						
+					}
+					if (manifest.get("endpoints").get(serviceName).get("gui") != null) {
+						if (!manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
+							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"),
+									ssrvContainerName, networkName, "gui");
+						} else {
+							int guiNum = 0;
+							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
+								guiNum++;
+								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
+										"gui" + guiNum);
+							}
 						}
+					}
 					break;
 				}
 			}
 		}
 	}
-	
+
 	private SupportServiceInstance getEndpointsInfo(SupportServiceInstance serviceInstance, JsonNode node,
-			String tSSContainerName, String networkName, String nodeName){
+			String tSSContainerName, String networkName, String nodeName) {
 		int auxPort = 37000;
-		
+
 		if (node != null) {
-			auxPort = bindingPort(serviceInstance, node, tSSContainerName,	networkName);
+			auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
 			((ObjectNode) node).put("port", auxPort);
 			serviceInstance.setServicePort(auxPort);
-			
+
 			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
-				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));								
+				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));
 			}
-			
+
 			serviceInstance.getEndpointsData().put(nodeName, node);
-					
+
 		}
-		
+
 		return serviceInstance;
 	}
 
@@ -296,10 +305,10 @@ public class EsmService {
 
 			portBindings.bind(exposedListenPort, Ports.Binding.bindPort(listenPort));
 
-			serviceInstance.getPortBindingContainers().add(dockerService.runDockerContainer(dockerClient,
-					ET_SOCAT_IMAGE, envVariables, "container" + listenPort, containerName, networkName, portBindings, listenPort));
+			serviceInstance.getPortBindingContainers()
+					.add(dockerService.runDockerContainer(dockerClient, ET_SOCAT_IMAGE, envVariables,
+							"container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -328,13 +337,13 @@ public class EsmService {
 
 		for (String containerId : serviceInstance.getPortBindingContainers()) {
 			dockerService.stopDockerContainer(containerId, dockerClient);
-			dockerService.removeDockerContainer(containerId, dockerClient);			
+			dockerService.removeDockerContainer(containerId, dockerClient);
 		}
-		
-		for (SupportServiceInstance subServiceInstance: serviceInstance.getSubServices()){
+
+		for (SupportServiceInstance subServiceInstance : serviceInstance.getSubServices()) {
 			for (String containerId : subServiceInstance.getPortBindingContainers()) {
 				dockerService.stopDockerContainer(containerId, dockerClient);
-				dockerService.removeDockerContainer(containerId, dockerClient);			
+				dockerService.removeDockerContainer(containerId, dockerClient);
 			}
 		}
 

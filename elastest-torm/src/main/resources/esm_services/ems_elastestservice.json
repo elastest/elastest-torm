@@ -1,6 +1,7 @@
 {
 	"register": {
-		"name": "ems",
+		"name": "EMS",
+		"short_name": "EMS",
 		"id": "bab3ae67-8c1d-46ec-a940-94183a443825",
 		"description": "The Elastest Monitoring Service",
 		"bindable": false,

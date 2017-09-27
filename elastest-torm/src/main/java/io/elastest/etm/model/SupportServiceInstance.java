@@ -11,17 +11,24 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SupportServiceInstance {
-	
-	public interface ProvisionView {		
+
+	public interface ProvisionView {
 	}
-	
-	public interface FrontView {		
+
+	public interface FrontView {
 	}
-	
+
 	@JsonView(FrontView.class)
 	private String instanceId;
-	@JsonView({ProvisionView.class, FrontView.class})
+	@JsonView({ ProvisionView.class, FrontView.class })
 	private String service_id;
+	
+	@JsonView(FrontView.class)
+	private String serviceName;
+	
+	@JsonView(FrontView.class)
+	private String serviceShortName;
+	
 	@JsonView(ProvisionView.class)
 	private String plan_id;
 	@JsonView(ProvisionView.class)
@@ -30,43 +37,45 @@ public class SupportServiceInstance {
 	private ObjectNode parameters;
 	@JsonView(ProvisionView.class)
 	private String space_guid;
-	
+
 	private boolean bindedToTJob;
 	@JsonView(FrontView.class)
-	private String serviceIp;	
+	private String serviceIp;
 	@JsonView(FrontView.class)
 	private int servicePort;
 	private String containerIp;
-	
+
 	private String manifestId;
-	
+
 	@JsonView(FrontView.class)
 	private Map<String, String> urls;
 	@JsonView(FrontView.class)
 	private List<SupportServiceInstance> subServices;
-	
+
 	@JsonView(FrontView.class)
 	private String endpointName;
-	
+
 	@JsonView(FrontView.class)
 	private Map<String, JsonNode> endpointsData;
-	
+
 	private List<String> portBindingContainers;
-	
-	public SupportServiceInstance(){
+
+	public SupportServiceInstance() {
 		this.urls = new HashMap<>();
 		this.subServices = new ArrayList<>();
 		this.endpointsData = new HashMap<>();
 		this.portBindingContainers = new ArrayList<>();
 	}
-	
-	public SupportServiceInstance(String instanceId, String service_id, String plan_id, boolean bindToTJob) {
+
+	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, boolean bindToTJob) {
 		super();
 		this.instanceId = instanceId;
 		this.service_id = service_id;
+		this.serviceName = serviceName;
+		this.serviceShortName = serviceShortName;
 		this.plan_id = plan_id;
 		this.bindedToTJob = bindToTJob;
-		this.parameters =  new ObjectNode(JsonNodeFactory.instance);
+		this.parameters = new ObjectNode(JsonNodeFactory.instance);
 		this.organization_guid = "org";
 		this.space_guid = "space";
 		this.manifestId = "";
@@ -76,12 +85,14 @@ public class SupportServiceInstance {
 		this.portBindingContainers = new ArrayList<>();
 	}
 
-	public SupportServiceInstance(String instanceId, String service_id, String plan_id, String organization_guid,
+	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, String organization_guid,
 			ObjectNode parameters, String space_guid, boolean bindedToTJob, String serviceIp, int servicePort,
 			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices, String containerIp) {
 		super();
 		this.instanceId = instanceId;
 		this.service_id = service_id;
+		this.serviceName = serviceName;
+		this.serviceShortName = serviceShortName;
 		this.plan_id = plan_id;
 		this.organization_guid = organization_guid;
 		this.parameters = parameters;
@@ -91,19 +102,38 @@ public class SupportServiceInstance {
 		this.servicePort = servicePort;
 		this.manifestId = manifestId;
 		this.urls = urls;
-		this.subServices = subServices;		
+		this.subServices = subServices;
 		this.containerIp = containerIp;
 	}
 
 	public String getService_id() {
 		return service_id;
 	}
+
 	public void setService_id(String service_id) {
 		this.service_id = service_id;
 	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public String getServiceShortName() {
+		return serviceShortName;
+	}
+
+	public void setServiceShortName(String serviceShortName) {
+		this.serviceShortName = serviceShortName;
+	}
+
 	public String getPlan_id() {
 		return plan_id;
 	}
+
 	public void setPlan_id(String plan_id) {
 		this.plan_id = plan_id;
 	}
@@ -111,24 +141,31 @@ public class SupportServiceInstance {
 	public String getOrganization_guid() {
 		return organization_guid;
 	}
+
 	public void setOrganization_guid(String organization_guid) {
 		this.organization_guid = organization_guid;
 	}
+
 	public ObjectNode getParameters() {
 		return parameters;
 	}
+
 	public void setParameters(ObjectNode parameters) {
 		this.parameters = parameters;
 	}
+
 	public String getSpace_guid() {
 		return space_guid;
 	}
+
 	public void setSpace_guid(String space_guid) {
 		this.space_guid = space_guid;
 	}
+
 	public boolean isBindToTJob() {
 		return bindedToTJob;
 	}
+
 	public void setBindToTJob(boolean bindToTJob) {
 		this.bindedToTJob = bindToTJob;
 	}
@@ -220,5 +257,5 @@ public class SupportServiceInstance {
 	public void setContainerIp(String containerIp) {
 		this.containerIp = containerIp;
 	}
-	
+
 }

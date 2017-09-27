@@ -98,6 +98,7 @@ public class TJobExecution {
 	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
 	private List<Parameter> parameters = new ArrayList<>();
 
+	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Transient
 	private List<String> servicesInstances;
 
