@@ -267,6 +267,7 @@ public class EsmService {
 		if (node != null) {
 			auxPort = bindingPort(serviceInstance, node, tSSContainerName,	networkName);
 			((ObjectNode) node).put("port", auxPort);
+			serviceInstance.setServicePort(auxPort);
 			
 			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
 				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));								

@@ -35,7 +35,7 @@ public class SupportServiceInstance {
 	@JsonView(FrontView.class)
 	private String serviceIp;	
 	@JsonView(FrontView.class)
-	private String servicePort;
+	private int servicePort;
 	private String containerIp;
 	
 	private String manifestId;
@@ -77,7 +77,7 @@ public class SupportServiceInstance {
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String plan_id, String organization_guid,
-			ObjectNode parameters, String space_guid, boolean bindedToTJob, String serviceIp, String servicePort,
+			ObjectNode parameters, String space_guid, boolean bindedToTJob, String serviceIp, int servicePort,
 			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices, String containerIp) {
 		super();
 		this.instanceId = instanceId;
@@ -141,11 +141,11 @@ public class SupportServiceInstance {
 		this.serviceIp = serviceIp;
 	}
 
-	public String getServicePort() {
+	public int getServicePort() {
 		return servicePort;
 	}
 
-	public void setServicePort(String servicePort) {
+	public void setServicePort(int servicePort) {
 		this.servicePort = servicePort;
 	}
 
