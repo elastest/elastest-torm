@@ -30,11 +30,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   selectedVersion: string;
   browserVersions = {
     'chrome': [
+      { value: '61', viewValue: '61' },
+      { value: '60', viewValue: '60' },
       { value: '59', viewValue: '59' },
       { value: '58', viewValue: '58' },
       { value: '57', viewValue: '57' }
     ],
     'firefox': [
+      { value: '55', viewValue: '55' },
       { value: '54', viewValue: '54' },
       { value: '53', viewValue: '53' },
       { value: '52', viewValue: '52' }
