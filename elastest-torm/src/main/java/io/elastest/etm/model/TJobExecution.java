@@ -3,7 +3,9 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
@@ -95,9 +97,12 @@ public class TJobExecution {
 	@ElementCollection
 	@CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
 	private List<Parameter> parameters = new ArrayList<>();
-	
+
 	@Transient
 	private List<String> servicesInstances;
+
+	@Transient
+	private Map<String, String> tssEnvVars;
 
 	// Constructors
 	public TJobExecution() {
@@ -105,6 +110,7 @@ public class TJobExecution {
 		this.duration = (long) 0;
 		this.result = ResultEnum.IN_PROGRESS;
 		this.servicesInstances = new ArrayList<>();
+		this.tssEnvVars = new HashMap<>();
 	}
 
 	public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -112,6 +118,8 @@ public class TJobExecution {
 		this.duration = duration == null ? 0 : duration;
 		this.result = result;
 		this.servicesInstances = new ArrayList<>();
+		this.tssEnvVars = new HashMap<>();
+
 	}
 
 	/**
@@ -263,12 +271,29 @@ public class TJobExecution {
 		this.parameters = parameters;
 	}
 
+	
+	/*
+	 * servicesInstances get/set
+	 */
+
 	public List<String> getServicesInstances() {
 		return servicesInstances;
 	}
 
 	public void setServicesInstances(List<String> servicesInstances) {
 		this.servicesInstances = servicesInstances;
+	}
+	
+	/*
+	 * getTssEnvVars get/set
+	 */
+
+	public Map<String, String> getTssEnvVars() {
+		return tssEnvVars;
+	}
+
+	public void setTssEnvVars(Map<String, String> tssEnvVars) {
+		this.tssEnvVars = tssEnvVars;
 	}
 
 	public TJobExecution addLogsItem(Parameter parameter) {

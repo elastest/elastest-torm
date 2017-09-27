@@ -71,9 +71,9 @@ public class DockerService {
 			startSut(dockerExec);
 		}
 	}
-	
-	public DockerClient getDockerClient(){
-		
+
+	public DockerClient getDockerClient() {
+
 		if (windowsSO.toLowerCase().contains("win")) {
 			logger.info("Execute on Windows.");
 			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -109,36 +109,31 @@ public class DockerService {
 		}
 	}
 
-	public String runDockerContainer(DockerClient dockerClient, String imageName, List<String> envs, 
-			String containerName, String targetContainerName, String networkName, Ports portBindings, int listenPort){
+	public String runDockerContainer(DockerClient dockerClient, String imageName, List<String> envs,
+			String containerName, String targetContainerName, String networkName, Ports portBindings, int listenPort) {
 		String dockerContainerName = null;
-		
-		dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();				
-		CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-				.withName(containerName)
-				.withEnv(envs)
-				.withNetworkMode(networkName)
-				.withExposedPorts(ExposedPort.tcp(listenPort))
-				.withPortBindings(portBindings)
-				.withPublishAllPorts(true)
-				.exec();
-						
+
+		dockerClient.pullImageCmd(imageName).exec(new PullImageResultCallback()).awaitSuccess();
+		CreateContainerResponse container = dockerClient.createContainerCmd(imageName).withName(containerName)
+				.withEnv(envs).withNetworkMode(networkName).withExposedPorts(ExposedPort.tcp(listenPort))
+				.withPortBindings(portBindings).withPublishAllPorts(true).exec();
+
 		dockerClient.startContainerCmd(container.getId()).exec();
-		
+
 		logger.info("Id del contenedor:" + container.getId());
-				
+
 		return container.getId();
 	}
-	
-	public void removeDockerContainer(String containerId, DockerClient dockerClient){
+
+	public void removeDockerContainer(String containerId, DockerClient dockerClient) {
 		dockerClient.removeContainerCmd(containerId).exec();
 	}
-	
-	public void stopDockerContainer(String containerId, DockerClient dockerClient){
+
+	public void stopDockerContainer(String containerId, DockerClient dockerClient) {
 		dockerClient.stopContainerCmd(containerId).exec();
 	}
-	
-	public void stopDockerContainer(DockerClient dockerClient, String containerId){
+
+	public void stopDockerContainer(DockerClient dockerClient, String containerId) {
 		dockerClient.stopContainerCmd(containerId).exec();
 	}
 	/* Starting Methods */
@@ -224,16 +219,24 @@ public class DockerService {
 		try {
 			logger.info("Starting test " + dockerExec.getExecutionId());
 			String testImage = dockerExec.gettJobexec().getTjob().getImageName();
-
 			logger.info("host: " + getHostIp(dockerExec));
 
 			// Environment variables (optional)
 			ArrayList<String> envList = new ArrayList<>();
 			String envVar;
+
+			// Get TestSupportService Env Vars
+			for (Map.Entry<String, String> entry : dockerExec.gettJobexec().getTssEnvVars().entrySet()) {
+				envVar = entry.getKey() + "=" + entry.getValue();
+				envList.add(envVar);
+			}
+
+			// Get Parameters and insert into Env Vars
 			for (Parameter parameter : dockerExec.gettJobexec().getParameters()) {
 				envVar = parameter.getName() + "=" + parameter.getValue();
 				envList.add(envVar);
 			}
+
 			if (dockerExec.isWithSut()) {
 				envVar = "APP_IP=" + dockerExec.getSutExec().getUrl();
 				envList.add(envVar);
@@ -359,9 +362,10 @@ public class DockerService {
 				.getNetworks().get(dockerExec.getNetwork()).getIpAddress();
 		return ip.split("/")[0];
 	}
-	
-	public String getNetworkName(String containerId, DockerClient dockerClient){
-		return (String)dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().keySet().toArray()[0];
+
+	public String getNetworkName(String containerId, DockerClient dockerClient) {
+		return (String) dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().keySet()
+				.toArray()[0];
 	}
 
 	public String getHostIp(DockerExecution dockerExec) {

@@ -63,6 +63,7 @@ public class EsmService {
 		this.esmServiceClient = esmServiceClient;
 		this.utilTools = utilTools;
 		this.servicesInstances = new HashMap<>();
+		this.tJobServicesInstances = new HashMap<>();
 		this.dockerService = dockerService;
 	}
 
