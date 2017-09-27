@@ -59,8 +59,7 @@ public class EpmIntegrationService {
 		dbmanager.bindSession();
 		tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 		
-		if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL) && tJobServices != null
-				&& tJobServices != "") {
+		if (tJobServices != null && tJobServices != "") {
 			provideServices(tJobServices, tJobExec);
 		}				
 
@@ -78,8 +77,7 @@ public class EpmIntegrationService {
 
 			// End and purge services
 			dockerService.endAllExec(dockerExec);
-			if (ELASTEST_EXECUTION_MODE.equals(ElastestConstants.MODE_NORMAL) && tJobServices != null
-					&& tJobServices != "") {
+			if (tJobServices != null && tJobServices != "") {
 				deprovideServices(tJobExec);
 			}
 		} catch (Exception e) {
