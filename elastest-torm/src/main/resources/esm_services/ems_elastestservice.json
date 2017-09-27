@@ -52,6 +52,7 @@
 						}
 					},
 					{
+						"name": "lsbeats",
 						"protocol": "beats",
 						"port": 5044
 					}

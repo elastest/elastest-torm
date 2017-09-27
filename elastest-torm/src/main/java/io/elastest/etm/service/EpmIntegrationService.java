@@ -175,7 +175,7 @@ public class EpmIntegrationService {
 			String endpointName = ssi.getEndpointName().toUpperCase().replaceAll("-", "_");
 			String prefix = envNamePrefix;
 			if (!endpointName.equals(servicePrefix)) { // Example: EBS and Spark
-				prefix = "_" + endpointName;
+				prefix += "_" + endpointName;
 			}
 			setTssEnvVarByEndpoint(ssi, tJobExec, prefix, entry);
 		}
@@ -194,13 +194,17 @@ public class EpmIntegrationService {
 			Map.Entry<String, JsonNode> entry) {
 		if (!entry.getKey().toLowerCase().equals("gui")) {
 			try {
+
+				if (entry.getValue().findValue("name") != null) {
+					prefix += "_" + entry.getValue().findValue("name").toString().toUpperCase().replaceAll("\"", "")
+							.replaceAll("-", "_");
+				}
+
 				String envNameHost = prefix + "_HOST";
 				String envValueHost = ssi.getContainerIp();
-				tJobExec.getTssEnvVars().put(envNameHost, envValueHost);
 
 				String envNamePort = prefix + "_PORT";
 				String envValuePort = entry.getValue().findValue("port").toString();
-				tJobExec.getTssEnvVars().put(envNamePort, envValuePort);
 
 				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
 				if (protocol.equals("http") || protocol.equals("ws")) {
@@ -211,6 +215,9 @@ public class EpmIntegrationService {
 					}
 					String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort + path;
 					tJobExec.getTssEnvVars().put(envNameAPI, envValueAPI);
+				} else {
+					tJobExec.getTssEnvVars().put(envNameHost, envValueHost);
+					tJobExec.getTssEnvVars().put(envNamePort, envValuePort);
 				}
 
 			} catch (Exception e) {
