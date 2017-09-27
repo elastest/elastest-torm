@@ -271,9 +271,10 @@ public class EsmService {
 			
 			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
 				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));								
-			} else {
-				serviceInstance.getEndpointsData().put(nodeName, node);
-			}		
+			}
+			
+			serviceInstance.getEndpointsData().put(nodeName, node);
+					
 		}
 		
 		return serviceInstance;
