@@ -37,12 +37,12 @@
 	},
 	"manifest": {
 		"id": "1cc39d82-c085-4096-8018-750e7eb31cc8",
-		"manifest_content": "version: '2.1'\n\nservices:\n  spark-master:\n    image: elastest/ebs-spark:latest    \n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: spark-master\n    networks:\n      - elastest_elastest\n\n  spark-worker:\n    image: elastest/ebs-spark:latest\n    depends_on:\n      - spark-master    \n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    networks:\n      - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
+		"manifest_content": "version: '2.1'\n\nservices:\n  spark:\n    image: elastest/ebs-spark:latest    \n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: spark\n    networks:\n      - elastest_elastest\n\n  spark-worker:\n    image: elastest/ebs-spark:latest\n    depends_on:\n      - spark    \n    volumes:\n      - ./spark/alluxio_conf:/opt/alluxio/conf\n      - ./spark/spark_conf:/opt/spark/conf\n      - ./spark/hadoop_conf:/usr/local/hadoop/etc/hadoop\n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    networks:\n      - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
 		"manifest_type": "docker-compose",
 		"plan_id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
 		"service_id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
 		"endpoints": {
-			"spark-master": {
+			"spark": {
 				"description": "Apache Spark",
 				"main": true,
 				"api": {
