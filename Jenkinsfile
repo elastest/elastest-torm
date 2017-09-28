@@ -32,7 +32,7 @@ node('TESTDOCKER'){
 
         stage "Test and deploy epm-client"
             echo ("Test and deploy epm-client")
-            sh 'cd ./epm-client; mvn clean deploy;'
+            sh 'cd ./epm-client; mvn clean deploy -Djenkins=true;'
 
         stage "Create etm docker image"
         
