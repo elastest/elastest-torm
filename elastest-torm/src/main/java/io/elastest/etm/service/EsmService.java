@@ -38,19 +38,54 @@ import io.elastest.etm.utils.UtilTools;
 public class EsmService {
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 
-	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat";
-
+	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat"; 
+	
 	@Value("${elastest.esm.files.path}")
 	public String EMS_SERVICES_FILES_PATH;
 
 	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;
+	public String ELASTEST_EXECUTION_MODE;	
 
 	@Value("${os.name}")
 	private String windowsSO;
-
+	
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
+	
+	@Value("${et.edm.mysql.host}")
+	public String ET_EDM_MYSQL_HOST;
+//	@Value("${et.edm.mysql.port}")
+//	public String ET_EDM_MYSQL_PORT;
+//	@Value("${et.edm.elasticsearch.api}")
+//	public String ET_EDM_ELASTICSEARCH_API;
+//	@Value("${et.edm.api}")
+//    public String ET_EDM_API;
+//	@Value("${et.epm.api}")
+//    public String ET_EPM_API;
+//	@Value("${et.etm.api}")
+//    public String ET_ETM_API;
+//	@Value("${et.esm.api}")
+//    public String ET_ESM_API;
+//	@Value("${et.eim.api}")
+//    public String ET_EIM_API;
+//	@Value("${et.etm.lsbeats.host}")
+//    public String ET_ETM_LSBEATS_HOST;
+//	@Value("${et.etm.lsbeats.port}")
+//    public String ET_ETM_LSBEATS_PORT;
+//	@Value("${et.etm.lshttp.api}")
+//    public String ET_ETM_LSHTTP_API;
+//	@Value("${et.etm.rabbit.host}")
+//    public String ET_ETM_RABBIT_HOST;
+//	@Value("${et.etm.rabbit.port}")
+//    public String ET_ETM_RABBIT_PORT;
+//	@Value("${et.emp.api}")
+//	public String ET_EMP_API;
+//	@Value("${et.emp.influxdb.api}")
+//    public String ET_EMP_INFLUXDB_API;
+//	@Value("${et.emp.influxdb.host}")
+//    public String ET_EMP_INFLUXDB_HOST;
+//	@Value("${et.emp.influxdb.graphite.port}")
+//    public String ET_EMP_INFLUXDB_GRAPHITE_PORT;
 
 	public EsmServiceClient esmServiceClient;
 	public DockerService dockerService;
@@ -170,11 +205,11 @@ public class EsmService {
 							// service.get("short_name").toString().replaceAll("\"",
 							// ""),
 							"", plans.get(0).get("id").toString().replaceAll("\"", ""), true);
-
+					
+					fillEnvVariablesToTSS(newServiceInstance);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-					newServiceInstance.setManifestId(
-							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
+					newServiceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 
 					if (associatedWitTJob) {
@@ -194,6 +229,29 @@ public class EsmService {
 		}
 		return newServiceInstance;
 	}
+	
+	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance){
+		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
+		supportServiceInstance.getContext().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
+//		ET_EDM_ALLUXIO_API
+//        ET_EDM_MYSQL_HOST
+//        ET_EDM_MYSQL_PORT
+//        ET_EDM_ELASTICSEARCH_API
+//        ET_EDM_API
+//        ET_EPM_API
+//        ET_ETM_API
+//        ET_ESM_API
+//        ET_EIM_API
+//        ET_ETM_LSBEATS_HOST
+//        ET_ETM_LSBEATS_PORT
+//        ET_ETM_LSHTTP_API
+//        ET_ETM_RABBIT_HOST
+//        ET_ETM_RABBIT_PORT
+//        ET_EMP_API
+//        ET_EMP_INFLUXDB_API
+//        ET_EMP_INFLUXDB_HOST
+//        ET_EMP_INFLUXDB_GRAPHITE_PORT
+	}
 
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
 		ObjectNode manifest = esmServiceClient.getManifestById(serviceInstance.getManifestId());
@@ -206,6 +264,7 @@ public class EsmService {
 			String baseRegex = "[0-9a-f]{32}_" + serviceName + "_\\d_Ip";
 			Pattern pattern = Pattern.compile(baseRegex);
 			String serviceIp = null;
+			Map<String, String> socatBindingsPorts = new HashMap<>();
 
 			while (it.hasNext()) {
 				String fieldName = it.next();
@@ -222,45 +281,46 @@ public class EsmService {
 					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceInstance.getServiceIp());
 					int auxPort;
-
-					SupportServiceInstance auxServiceInstance = null;
+					
+					SupportServiceInstance auxServiceInstance = null; 
 
 					if (manifest.get("endpoints").get(serviceName).get("main") != null
 							&& manifest.get("endpoints").get(serviceName).get("main").booleanValue()) {
 						logger.info("Principal instance {}:" + serviceName);
 						auxServiceInstance = serviceInstance;
-					} else {
+					}else{
 						auxServiceInstance = new SupportServiceInstance();
 						auxServiceInstance.setEndpointName(serviceName);
 						auxServiceInstance.setContainerIp(containerIp);
 						auxServiceInstance.setServiceIp(serviceIp);
 						serviceInstance.getSubServices().add(auxServiceInstance);
 					}
-
+						
 					auxServiceInstance.setEndpointName(serviceName);
+					
 					if (manifest.get("endpoints").get(serviceName).get("api") != null) {
 						if (!manifest.get("endpoints").get(serviceName).get("api").isArray()) {
 							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("api"),
-									ssrvContainerName, networkName, "api");
+									ssrvContainerName, networkName, "api", socatBindingsPorts);
 						} else {
 							int apiNum = 0;
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										"api" + apiNum);
+										apiNode.get("name") != null ? apiNode.get("name").toString().replaceAll("\"", "") : "api", socatBindingsPorts);
 							}
 						}
 					}
 					if (manifest.get("endpoints").get(serviceName).get("gui") != null) {
 						if (!manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
 							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"),
-									ssrvContainerName, networkName, "gui");
+									ssrvContainerName, networkName, "gui", socatBindingsPorts);
 						} else {
 							int guiNum = 0;
 							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
 								guiNum++;
 								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
-										"gui" + guiNum);
+										guiNode.get("name") != null ? guiNode.get("name").toString().replaceAll("\"", "") : "gui", socatBindingsPorts);
 							}
 						}
 					}
@@ -269,24 +329,28 @@ public class EsmService {
 			}
 		}
 	}
-
+	
 	private SupportServiceInstance getEndpointsInfo(SupportServiceInstance serviceInstance, JsonNode node,
-			String tSSContainerName, String networkName, String nodeName) {
+			String tSSContainerName, String networkName, String nodeName, Map<String, String> socatBindingsPorts){
 		int auxPort = 37000;
-
+		
 		if (node != null) {
-			auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
-			((ObjectNode) node).put("port", auxPort);
-			serviceInstance.setServicePort(auxPort);
-
-			if (node.get("protocol") != null && node.get("protocol").toString().contains("http")) {
-				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));
+			String nodePort = node.get("port").toString().replaceAll("\"","");
+			if(socatBindingsPorts.containsKey(nodePort)){
+				auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));				
+			}else{
+				auxPort = bindingPort(serviceInstance, node, tSSContainerName,	networkName);
+				socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
 			}
-
-			serviceInstance.getEndpointsData().put(nodeName, node);
-
-		}
-
+						
+			if (node.get("protocol") != null 
+					&& (node.get("protocol").toString().contains("http")) || node.get("protocol").toString().contains("ws")) {				
+				((ObjectNode) node).put("port", auxPort);				
+				serviceInstance.setServicePort(auxPort);
+				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));			
+			}			
+			serviceInstance.getEndpointsData().put(nodeName, node);					
+		}		
 		return serviceInstance;
 	}
 
@@ -305,10 +369,10 @@ public class EsmService {
 
 			portBindings.bind(exposedListenPort, Ports.Binding.bindPort(listenPort));
 
-			serviceInstance.getPortBindingContainers()
-					.add(dockerService.runDockerContainer(dockerClient, ET_SOCAT_IMAGE, envVariables,
-							"container" + listenPort, containerName, networkName, portBindings, listenPort));
+			serviceInstance.getPortBindingContainers().add(dockerService.runDockerContainer(dockerClient,
+					ET_SOCAT_IMAGE, envVariables, "container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -337,13 +401,13 @@ public class EsmService {
 
 		for (String containerId : serviceInstance.getPortBindingContainers()) {
 			dockerService.stopDockerContainer(containerId, dockerClient);
-			dockerService.removeDockerContainer(containerId, dockerClient);
+			dockerService.removeDockerContainer(containerId, dockerClient);			
 		}
-
-		for (SupportServiceInstance subServiceInstance : serviceInstance.getSubServices()) {
+		
+		for (SupportServiceInstance subServiceInstance: serviceInstance.getSubServices()){
 			for (String containerId : subServiceInstance.getPortBindingContainers()) {
 				dockerService.stopDockerContainer(containerId, dockerClient);
-				dockerService.removeDockerContainer(containerId, dockerClient);
+				dockerService.removeDockerContainer(containerId, dockerClient);			
 			}
 		}
 

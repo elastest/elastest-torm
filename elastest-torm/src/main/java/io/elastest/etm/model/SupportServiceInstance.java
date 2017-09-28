@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -18,6 +20,9 @@ public class SupportServiceInstance {
 	public interface FrontView {
 	}
 
+	@Value("${et.edm.alluxio.api}")
+	public String ET_EDM_ALLUXIO_API;
+    	   
 	@JsonView(FrontView.class)
 	private String instanceId;
 	@JsonView({ ProvisionView.class, FrontView.class })
@@ -34,7 +39,9 @@ public class SupportServiceInstance {
 	@JsonView(ProvisionView.class)
 	private String organization_guid;
 	@JsonView(ProvisionView.class)
-	private ObjectNode parameters;
+	private Map<String, String> parameters;
+	@JsonView(ProvisionView.class)
+	private Map<String, String> context;
 	@JsonView(ProvisionView.class)
 	private String space_guid;
 
@@ -75,7 +82,8 @@ public class SupportServiceInstance {
 		this.serviceShortName = serviceShortName;
 		this.plan_id = plan_id;
 		this.bindedToTJob = bindToTJob;
-		this.parameters = new ObjectNode(JsonNodeFactory.instance);
+		this.parameters = new HashMap<>();
+		this.context = new HashMap<>();
 		this.organization_guid = "org";
 		this.space_guid = "space";
 		this.manifestId = "";
@@ -86,7 +94,7 @@ public class SupportServiceInstance {
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, String organization_guid,
-			ObjectNode parameters, String space_guid, boolean bindedToTJob, String serviceIp, int servicePort,
+			Map<String, String> parameters, String space_guid, boolean bindedToTJob, String serviceIp, int servicePort,
 			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices, String containerIp) {
 		super();
 		this.instanceId = instanceId;
@@ -146,11 +154,11 @@ public class SupportServiceInstance {
 		this.organization_guid = organization_guid;
 	}
 
-	public ObjectNode getParameters() {
+	public Map<String, String> getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(ObjectNode parameters) {
+	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
 	}
 
@@ -256,6 +264,14 @@ public class SupportServiceInstance {
 
 	public void setContainerIp(String containerIp) {
 		this.containerIp = containerIp;
+	}
+
+	public Map<String, String> getContext() {
+		return context;
+	}
+
+	public void setContext(Map<String, String> context) {
+		this.context = context;
 	}
 
 }
