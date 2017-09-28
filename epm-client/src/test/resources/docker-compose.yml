@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+   elastest-eus:
+      image: elastest/eus
+      environment:
+         - USE_TORM=true
+      expose:
+         - 8040
+      ports:
+         - 8040:8040
+      networks:
+         - elastest
+networks:
+   elastest:
+      driver: bridge

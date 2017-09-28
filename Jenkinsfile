@@ -30,6 +30,10 @@ node('docker'){
 
         }
 
+        stage "Test and deploy epm-client"
+            echo ("Test and deploy epm-client")
+            sh 'cd ./epm-client; mvn clean deploy;'
+
         stage "Create etm docker image"
         
             echo ("Creating elastest/etm image..")                
