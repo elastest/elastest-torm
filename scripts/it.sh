@@ -58,9 +58,6 @@ cd ../elastest-torm
 
 mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} clean test
 
-# Upload coverage report to codecov.io
-curl -s https://codecov.io/bash | bash -s - -t fa48b15c-ceb8-409d-996f-8f34d53addd2
-
 # Clean up environment
 
 cd ../docker

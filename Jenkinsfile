@@ -1,4 +1,4 @@
-node('TESTDOCKER'){
+node('docker'){
     
     stage "CI Container setup"
 
@@ -22,12 +22,8 @@ node('TESTDOCKER'){
             sh 'cd ./elastest-torm; mvn -B clean -Pci-no-it-test package;'                
             
         stage ("IT Test elastest-torm") { 
-
             sh 'cd ./scripts; ./it.sh'
-
-            //Error executing this command in Jenkinsfile
-            //sh "bash <(curl -s https://codecov.io/bash) -t fa48b15c-ceb8-409d-996f-8f34d53addd2"
-
+            sh "curl -s https://codecov.io/bash | bash -s - -t fa48b15c-ceb8-409d-996f-8f34d53addd2"
         }
 
         stage "Test and deploy epm-client"
@@ -35,12 +31,10 @@ node('TESTDOCKER'){
             sh 'cd ./epm-client; mvn clean deploy -Djenkins=true;'
 
         stage "Create etm docker image"
-        
             echo ("Creating elastest/etm image..")                
             sh 'cd ./docker/elastest-torm; ./build-image.sh;'
 
         stage "Publish etm docker image"
-
             echo ("Publish elastest/etm image")
             def myimage = docker.image('elastest/etm')
             //this is work arround as withDockerRegistry is not working properly 
