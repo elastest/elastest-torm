@@ -38,8 +38,8 @@ services:
         ports:
             - 37006:8091
         volumes:
-            - /test-results:/test-results
             - /var/run/docker.sock:/var/run/docker.sock
+            - esm_services:/esm_services
         networks:
             - elastest
 networks:

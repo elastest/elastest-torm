@@ -113,11 +113,7 @@ public class EsmService {
 	 */
 	public void registerElastestServices() {
 		logger.info("Get and send the register information: " + ESM_SERVICES_FILES_PATH);
-		try {
-			logger.info("debugging ESM_SERVICES_FILES_PATH: " + ESM_SERVICES_FILES_PATH);
-			
-			
-			
+		try {	
 			Resource resource = new ClassPathResource(ESM_SERVICES_FILES_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()), 1024);
 			String line;
@@ -139,13 +135,7 @@ public class EsmService {
 						+ serviceDefJson.get("manifest").get("service_id").toString() + ", \"endpoints\": "
 						+ serviceDefJson.get("manifest").get("endpoints").toString() + " }",
 						serviceDefJson.get("manifest").get("id").toString().replaceAll("\"", ""));
-			}
-			
-			br = new BufferedReader(new InputStreamReader(resource.getInputStream()), 1024);
-			line = br.readLine();
-			logger.info("debugging line: " + line);
-			
-			
+			}			
 			br.close();
 		} catch (IOException fnfe) {
 			logger.warn("Service could not be registered. The file with the path " + ESM_SERVICES_FILES_PATH
