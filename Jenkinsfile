@@ -1,4 +1,4 @@
-node('docker'){
+node('TESTDOCKER'){
     
     stage "CI Container setup"
 
