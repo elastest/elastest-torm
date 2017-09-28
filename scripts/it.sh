@@ -60,7 +60,7 @@ mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_
 
 # Upload coverage report to codecov.io
 export CODECOV_TOKEN="fa48b15c-ceb8-409d-996f-8f34d53addd2"
-bash <(curl -s https://codecov.io/bash
+bash <(curl -s https://codecov.io/bash)
 
 # Clean up environment
 
