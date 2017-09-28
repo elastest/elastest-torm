@@ -41,7 +41,7 @@ public class EsmService {
 	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat"; 
 	
 	@Value("${elastest.esm.files.path}")
-	public String EMS_SERVICES_FILES_PATH;
+	public String ESM_SERVICES_FILES_PATH;
 
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;	
@@ -112,16 +112,20 @@ public class EsmService {
 	 * Register the ElasTest Services into the ESM.
 	 */
 	public void registerElastestServices() {
-		logger.info("Get and send the register information: " + EMS_SERVICES_FILES_PATH);
+		logger.info("Get and send the register information: " + ESM_SERVICES_FILES_PATH);
 		try {
-			Resource resource = new ClassPathResource(EMS_SERVICES_FILES_PATH);
+			logger.info("debugging ESM_SERVICES_FILES_PATH: " + ESM_SERVICES_FILES_PATH);
+			
+			
+			
+			Resource resource = new ClassPathResource(ESM_SERVICES_FILES_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()), 1024);
 			String line;
 			while ((line = br.readLine()) != null) {
 
 				String nameOfFile = line;
 				logger.info("File name:" + nameOfFile);
-				Resource serviceFile = new ClassPathResource(EMS_SERVICES_FILES_PATH + line);
+				Resource serviceFile = new ClassPathResource(ESM_SERVICES_FILES_PATH + line);
 				ObjectMapper mapper = new ObjectMapper();
 				String content = new String(Files.readAllBytes(serviceFile.getFile().toPath()));
 
@@ -136,9 +140,15 @@ public class EsmService {
 						+ serviceDefJson.get("manifest").get("endpoints").toString() + " }",
 						serviceDefJson.get("manifest").get("id").toString().replaceAll("\"", ""));
 			}
+			
+			br = new BufferedReader(new InputStreamReader(resource.getInputStream()), 1024);
+			line = br.readLine();
+			logger.info("debugging line: " + line);
+			
+			
 			br.close();
 		} catch (IOException fnfe) {
-			logger.warn("Service could not be registered. The file with the path " + EMS_SERVICES_FILES_PATH
+			logger.warn("Service could not be registered. The file with the path " + ESM_SERVICES_FILES_PATH
 					+ " does not exist:", fnfe);
 		}
 	}
