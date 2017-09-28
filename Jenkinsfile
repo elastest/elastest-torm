@@ -23,7 +23,6 @@ node('docker'){
             
         stage ("IT Test elastest-torm") { 
             sh 'cd ./scripts; ./it.sh'
-            sh "curl -s https://codecov.io/bash | bash -s - -t fa48b15c-ceb8-409d-996f-8f34d53addd2"
         }
 
         stage "Test and deploy epm-client"
