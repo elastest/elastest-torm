@@ -19,8 +19,17 @@ public class WebSocketConfiguration {
 	@Autowired
 	public UtilTools utilTools;
 	
-	@Value("${service.rabbit}")
+	@Value("${et.etm.rabbit.host}")
 	public String rabbitMqHost;
+	
+	@Value("${et.etm.rabbit.user}")
+	public String rabbitMqUser;
+	
+	@Value("${et.etm.rabbit.pass}")
+	public String rabbitMqPass;
+	
+	@Value("${et.etm.rabbit.vhost}")
+	public String rabbitMqvhost;
 
 	@Configuration
 	public class WebSocketMessageBrokerConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
@@ -30,15 +39,15 @@ public class WebSocketConfiguration {
 			config.setApplicationDestinationPrefixes("/app");
 			config.enableStompBrokerRelay("/queue", "/topic", "/exchange")
 					.setAutoStartup(true)
-					.setClientLogin("elastest-etm")
-					.setClientPasscode("elastest-etm")
-					.setSystemLogin("elastest-etm")
-					.setSystemPasscode("elastest-etm")
+					.setClientLogin(rabbitMqUser)
+					.setClientPasscode(rabbitMqPass)
+					.setSystemLogin(rabbitMqUser)
+					.setSystemPasscode(rabbitMqPass)
 					.setRelayHost(rabbitMqHost)
 					.setSystemHeartbeatReceiveInterval(5000)
 					.setSystemHeartbeatSendInterval(5000)
 					.setRelayPort(61613)
-					.setVirtualHost("/elastest-etm");
+					.setVirtualHost(rabbitMqvhost);
 		}
 
 		@Override

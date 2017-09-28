@@ -30,7 +30,7 @@ import io.elastest.etm.utils.ElastestConstants;
 public class EpmIntegrationService {
 	private static final Logger logger = LoggerFactory.getLogger(EpmIntegrationService.class);
 
-	@Value("${elastest.elasticsearch.host}")
+	@Value("${et.edm.elasticsearch.api}")
 	private String elasticsearchHost;
 
 	@Value("${elastest.execution.mode}")

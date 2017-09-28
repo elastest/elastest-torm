@@ -32,7 +32,7 @@ public class ExternalService {
 	@Value("${server.port}")
 	private String serverPort;
 	
-	@Value("${elastest.elasticsearch.host}")
+	@Value("${et.edm.elasticsearch.api}")
 	private String elasticsearchUrl;
 	
 	@Value("${elastest.torm-gui.port}")

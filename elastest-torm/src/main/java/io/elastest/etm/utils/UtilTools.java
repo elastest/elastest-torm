@@ -24,7 +24,7 @@ public class UtilTools {
 	@Value ("${os.name}")
 	private String windowsSO;
 	
-	@Value ("${elastest.incontainer}")
+	@Value ("${et.etm.incontainer}")
 	private String inContainer;
 	
 	/*public boolean pingHost(String host, int port, int timeout) {
