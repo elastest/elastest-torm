@@ -81,7 +81,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
     if (!this.websocket) {      
       if(this.eusHost && this.eusPort){
-        this.websocket = new WebSocket("ws://" + this.eusHost + ":50316" + "/eus/v1/eus-ws");        
+        this.websocket = new WebSocket("ws://" + this.eusHost + ":" + this.eusPort + "/eus/v1/eus-ws");        
       }else{
         this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
       }      

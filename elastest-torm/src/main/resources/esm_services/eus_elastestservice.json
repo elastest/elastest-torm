@@ -52,19 +52,27 @@
 			"elastest-eus": {
 				"description": "W3C WebDriver standard sessions operations",
 				"main": true,
-				"api": {
-					"protocol": "http",
-					"port": 8040,
-					"path": "/eus/v1/",
-					"definition": {
-						"type": "openapi",
-						"path": "/eus/v1/api.yaml"
+				"api": [
+					{
+						"protocol": "http",
+						"port": 8040,
+						"path": "/eus/v1/",
+						"definition": {
+							"type": "openapi",
+							"path": "/eus/v1/api.yaml"
+						}
+					},
+					{
+						"name": "eusWS",
+						"protocol": "ws",
+						"port": 8040,
+						"path": "/eus/v1/eus-ws"
 					}
-				},
-				"gui": {
-					"protocol": "angular",
-					"path": "eus"
-				}
+				]
+			},
+			"gui": {
+				"protocol": "angular",
+				"path": "eus"
 			}
 		}
 	}
