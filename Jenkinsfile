@@ -20,10 +20,12 @@ node('TESTDOCKER'){
         stage "Unit Test elastest-torm"
             echo ("Starting TORM unit tests")
             sh 'cd ./elastest-torm; mvn -Pci-no-it-test test;'
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
             
         stage ("IT Test elastest-torm")
             echo ("Starting TORM integration tests")
             sh 'cd ./scripts; ./it.sh'
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 
         stage "Test and deploy epm-client"
             echo ("Test and deploy epm-client")
