@@ -30,7 +30,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
-  serviceInstance: EsmServiceInstanceModel;
+  serviceInstances: EsmServiceInstanceModel[] = [];
 
   constructor(private _titleService: Title,
     private tJobService: TJobService,
@@ -72,9 +72,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         console.log('Suscribe to TJob execution.');
         this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
 
-        this.esmService.getSupportServiceInstanceByTJobExec(tJobExec)
-          .subscribe((serviceInstance: EsmServiceInstanceModel) => {
-            this.serviceInstance = serviceInstance;
+        this.esmService.getSupportServicesInstancesByTJobExec(tJobExec)
+          .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
+            this.serviceInstances = serviceInstances;
           });
       });
   }

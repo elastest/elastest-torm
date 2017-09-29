@@ -38,17 +38,17 @@ export class EsmService {
       );
   }
 
+  getSupportServicesInstancesByTJobExec(tJobExec: TJobExecModel) {
+    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
+    return this.http.get(url)
+      .map((response) => this.transformIntoSupportServiceInstanceList(response)
+      );
+  }
+
   getSupportServiceInstance(id: string) {
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
     return this.http.get(url)
       .map((response) => this.transformIntoSupportServiceInstance(response.json())
-      );
-  }
-
-  getSupportServiceInstanceByTJobExec(tJobExec: TJobExecModel) {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
-    return this.http.get(url)
-      .map((response) => this.transformIntoSupportServiceInstance(response.json()),
       );
   }
 
