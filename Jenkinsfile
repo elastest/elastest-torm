@@ -25,6 +25,12 @@ node('TESTDOCKER'){
             sh 'cd ./scripts; ./it.sh'
         }
 
+        stage "Test and deploy epm-client"
+            echo ("Test and deploy epm-client")
+            withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
+                sh 'cd ./epm-client; mvn clean deploy -Djenkins=true;'
+            }
+
         stage "Create etm docker image"
             echo ("Creating elastest/etm image..")                
             sh 'cd ./docker/elastest-torm; ./build-image.sh;'
