@@ -5,8 +5,10 @@ export class EsmServiceInstanceModel {
     apiUrl: string = '';
     ip: string = '';
     port: number = 0;
-    urisKeys: any[] = [];
-    uris: any;
+    urlsKeys: any[] = [];
+    endpointsDataKeys: any[] = [];
+    endpointsNodeDataKeys: any[] = [];
+    urls: any;
     subServices: EsmServiceInstanceModel[] = [];
     endpointsOtherData: any;
 
@@ -19,8 +21,14 @@ export class EsmServiceInstanceModel {
             this.ip = serviceInstance.serviceIp !== undefined ? serviceInstance.serviceIp : '';
             this.port = serviceInstance.servicePort;
             this.endpointsOtherData = serviceInstance.endpointsData;
-            this.urisKeys = Object.keys(serviceInstance.urls);
-            this.uris = serviceInstance.urls;
+            this.endpointsDataKeys = Object.keys(serviceInstance.endpointsData);
+            for(let endpointDataKey of this.endpointsDataKeys){
+                this.endpointsNodeDataKeys.push(Object.keys(serviceInstance.endpointsData[endpointDataKey]));
+            }
+            //this.endpointsDataNodeKeys = Object.keys(serviceInstance.endpointsData);
+            this.urlsKeys = Object.keys(serviceInstance.urls);
+            console.log("UrlKeys: " + this.urlsKeys);
+            this.urls = serviceInstance.urls;
 
             for (let subService of serviceInstance.subServices) {
                 this.subServices.push(new EsmServiceInstanceModel(subService));
