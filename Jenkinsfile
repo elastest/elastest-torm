@@ -11,15 +11,15 @@ node('TESTDOCKER'){
         
         stage "Build elastest-torm-gui"
             echo ("Build elastest-torm-gui")
-            sh 'cd ./elastest-torm-gui; npm install; mvn clean package;'
+            sh 'cd ./elastest-torm-gui; npm install; mvn package;'
         
         stage "Build elastest-torm"
             echo ("Build elastest-torm")
-            sh 'cd ./elastest-torm; mvn -B clean -Pci package;'
+            sh 'cd ./elastest-torm; mvn -Pci package;'
         
         stage "Unit Test elastest-torm"
             echo ("Starting TORM unit tests")
-            sh 'cd ./elastest-torm; mvn -B clean -Pci-no-it-test package;'                
+            sh 'cd ./elastest-torm; mvn -Pci-no-it-test test;'
             
         stage ("IT Test elastest-torm")
             echo ("Starting TORM integration tests")
@@ -28,13 +28,13 @@ node('TESTDOCKER'){
         stage "Test and deploy epm-client"
             echo ("Test and deploy epm-client")
             withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
-                sh 'cd ./epm-client; mvn clean deploy -Djenkins=true;'
+                sh 'cd ./epm-client; mvn deploy -Djenkins=true;'
             }
 
         stage "Upload coverage and quality reports"
             echo ("Upload reports to SonarCloud and Codecov")
             sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
-            sh 'curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN}'
+            sh "bash <(curl -s https://codecov.io/bash) -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
 
         stage "Create etm docker image"
             echo ("Creating elastest/etm image..")                
@@ -43,7 +43,6 @@ node('TESTDOCKER'){
         stage "Publish etm docker image"
             echo ("Publish elastest/etm image")
             def myimage = docker.image('elastest/etm')
-            //this is work arround as withDockerRegistry is not working properly 
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
