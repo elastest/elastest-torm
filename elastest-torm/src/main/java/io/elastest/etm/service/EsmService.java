@@ -40,7 +40,7 @@ import io.elastest.etm.utils.UtilTools;
 public class EsmService {
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 
-	public static final String ET_SOCAT_IMAGE = "franciscordiaz/docker-socat";
+	public static final String ET_SOCAT_IMAGE = "elastest/etm-socat";
 
 	@Value("${et.esm.ss.desc.files.path}")
 	public String ESM_SERVICES_FILES_PATH;
