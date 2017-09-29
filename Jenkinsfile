@@ -18,18 +18,23 @@ node('TESTDOCKER'){
             sh 'cd ./elastest-torm; mvn -B clean -Pci package;'
         
         stage "Unit Test elastest-torm"
-            echo ("Starting maven unit tests")
+            echo ("Starting TORM unit tests")
             sh 'cd ./elastest-torm; mvn -B clean -Pci-no-it-test package;'                
             
-        stage ("IT Test elastest-torm") { 
+        stage ("IT Test elastest-torm")
+            echo ("Starting TORM integration tests")
             sh 'cd ./scripts; ./it.sh'
-        }
 
         stage "Test and deploy epm-client"
             echo ("Test and deploy epm-client")
             withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
                 sh 'cd ./epm-client; mvn clean deploy -Djenkins=true;'
             }
+
+        stage "Upload coverage and quality reports"
+            echo ("Upload reports to SonarCloud and Codecov")
+            sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_CODECOV_TOKEN}'
+            sh 'bash <(curl -s https://codecov.io/bash) -t ${TORM_CODECOV_TOKEN}'
 
         stage "Create etm docker image"
             echo ("Creating elastest/etm image..")                
