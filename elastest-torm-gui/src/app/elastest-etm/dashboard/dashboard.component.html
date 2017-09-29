@@ -9,3 +9,6 @@
 
 <!-- logs & Metrics -->
 <etm-logs-metrics-view #logsAndMetrics [live]="true"></etm-logs-metrics-view>
+
+<!-- Esm Service Instances -->
+<esm-service-detail *ngIf="serviceInstance" [serviceInstance]="serviceInstance"></esm-service-detail>

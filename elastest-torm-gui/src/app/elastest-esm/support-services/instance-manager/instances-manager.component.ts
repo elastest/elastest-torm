@@ -41,7 +41,7 @@ export class InstancesManagerComponent implements OnInit {
     this.esmService.getSupportServices()
       .subscribe(
       (esmServices) => {
-      this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
+        this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
       }
       );
   }

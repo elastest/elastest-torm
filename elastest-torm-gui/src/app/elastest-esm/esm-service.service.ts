@@ -1,3 +1,4 @@
+import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { EsmServiceInstanceModel } from './esm-service-instance.model';
 import { EsmServiceModel } from './esm-service.model';
 import { ConfigurationService } from '../config/configuration-service.service';
@@ -41,6 +42,13 @@ export class EsmService {
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
     return this.http.get(url)
       .map((response) => this.transformIntoSupportServiceInstance(response.json())
+      );
+  }
+
+  getSupportServiceInstanceByTJobExec(tJobExec: TJobExecModel) {
+    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
+    return this.http.get(url)
+      .map((response) => this.transformIntoSupportServiceInstance(response.json()),
       );
   }
 

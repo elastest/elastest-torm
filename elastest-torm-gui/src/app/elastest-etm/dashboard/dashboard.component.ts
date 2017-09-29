@@ -1,3 +1,5 @@
+import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
+import { EsmService } from '../../elastest-esm/esm-service.service';
 import { EtmLogsMetricsViewComponent } from '../etm-logs-metrics-view/etm-logs-metrics-view.component';
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
@@ -28,12 +30,15 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobExecId: number;
   tJobExec: TJobExecModel;
 
+  serviceInstance: EsmServiceInstanceModel;
+
   constructor(private _titleService: Title,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private elastestRabbitmqService: ElastestRabbitmqService,
     private route: ActivatedRoute, private router: Router,
     private elastestESService: ElastestESService,
+    private esmService: EsmService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
@@ -66,6 +71,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
         console.log('Suscribe to TJob execution.');
         this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
+
+        this.esmService.getSupportServiceInstanceByTJobExec(tJobExec)
+          .subscribe((serviceInstance: EsmServiceInstanceModel) => {
+            this.serviceInstance = serviceInstance;
+          });
       });
   }
 
