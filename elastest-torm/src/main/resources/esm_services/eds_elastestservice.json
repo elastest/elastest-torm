@@ -42,38 +42,29 @@
 	},
 	"manifest": {
 		"id": "b1c59b9c-5c7d-48c3-bb40-2c4c2cdd57c7",
-		"manifest_content": "version: '2'\n\nservices:\n  eds-frontend:\n   eds-memsipe:\n  eds-zigbeeipe:\n    image: elastest/eds-frontend\n  image: elastest/eds-memsipe\n    image: elastest/eds-zigbeeipe\n",
+		"manifest_content": "version: '2'\nservices:\n  zigbeeipe:\n    image: elastest/eds-zigbeeipe\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 5001\n    networks:\n      - elastest_elastest\n\n  frontend:\n    image: elastest/eds-frontend\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 4000\n      - 6065\n      - 8000\n    networks:\n      - elastest_elastest\n\n  memsipe:\n    image: elastest/eds-memsipe\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 5050\n    networks:\n      - elastest_elastest\n\n  api:\n   image: elastest/eds-gateway\n   environment:\n     - ci_env=`bash <(curl -s https://codecov.io/env)`\n   expose:\n     - 8080\n   networks:\n     - elastest_elastest\n\nnetworks:\n  elastest_elastest:\n    external: true\n",
 		"manifest_type": "docker-compose",
-		"plan_id": "cd315c0c-8b84-43b8-97b0-2b2b90ba1bf1",
-		"service_id": "b496c232-f4a6-4966-9187-34ccb7d8760c",
+		"plan_id": "94a1a0c7-21a0-42e3-abcd-f75f337b47c5",
+		"service_id": "fe5e0531-b470-441f-9c69-721c2b4875f2",
 		"endpoints": {
-			"DeviceEmulator": {
-				"description": "Service provides RESTful API to interact with sensors provided in EDS",
-				"main": true,
-				"api": {
-					"protocol": "http",
-					"path": "/eds",
-					"definition": {
-						"type": "openapi",
-						"path": "/eds/api.yaml"
-					}
-				},
-				"gui": {
-					"protocol": "http",
-					"port": 8080,
-					"path": "/eds/ui"
-				}
-			},
-			"DashBord": {
+			"frontend": {
 				"description": "Service to show emulated sensor data in the form of plots",
-				"main": "false",
-				"gui": {
-					"protocol": "http",
-					"port": 6065,
-					"path": "/static/eds.html"
-				}
+				"main": "true",
+				"gui": [
+					{
+						"protocol": "http",
+						"port": 6065,
+						"path": "/static/eds.html"
+					},
+					{
+						"name": "swagger api",
+						"protocol": "http",
+						"port": 8080,
+						"path": "/eds/ui"
+					}
+				]
 			},
-			"Gateway": {
+			"api": {
 				"description": "Service to receive device data in JSON format with appropriate paths",
 				"main": "false",
 				"api": {
