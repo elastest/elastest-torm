@@ -5,12 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SupportServiceInstance {
 
@@ -19,52 +16,78 @@ public class SupportServiceInstance {
 
 	public interface FrontView {
 	}
-
-	@Value("${et.edm.alluxio.api}")
-	public String ET_EDM_ALLUXIO_API;
     	   
 	@JsonView(FrontView.class)
+	@JsonProperty("instanceId")
 	private String instanceId;
+	
 	@JsonView({ ProvisionView.class, FrontView.class })
+	@JsonProperty("service_id")
 	private String service_id;
 	
 	@JsonView(FrontView.class)
+	@JsonProperty("serviceName")
 	private String serviceName;
 	
 	@JsonView(FrontView.class)
+	@JsonProperty("serviceShortName")
 	private String serviceShortName;
 	
 	@JsonView(ProvisionView.class)
+	@JsonProperty("plan_id")	
 	private String plan_id;
+	
 	@JsonView(ProvisionView.class)
+	@JsonProperty("organization_guid")
 	private String organization_guid;
+	
 	@JsonView(ProvisionView.class)
+	@JsonProperty("parameters")
 	private Map<String, String> parameters;
+	
 	@JsonView(ProvisionView.class)
+	@JsonProperty("context")
 	private Map<String, String> context;
+	
 	@JsonView(ProvisionView.class)
+	@JsonProperty("space_guid")
 	private String space_guid;
 
+	@JsonView(FrontView.class)
+	@JsonProperty("tJobExecId")
 	private Long tJobExecId;
+	
 	@JsonView(FrontView.class)
+	@JsonProperty("serviceIp")
 	private String serviceIp;
+	
 	@JsonView(FrontView.class)
+	@JsonProperty("servicePort")
 	private int servicePort;
+	
+	@JsonProperty("containerIp")
 	private String containerIp;
 
+	@JsonProperty("manifestId")
 	private String manifestId;
 
 	@JsonView(FrontView.class)
+	@JsonProperty("urls")
 	private Map<String, String> urls;
+	
 	@JsonView(FrontView.class)
+	@JsonProperty("subServices")
 	private List<SupportServiceInstance> subServices;
 
 	@JsonView(FrontView.class)
+	@JsonProperty("endpointName")
 	private String endpointName;
 
 	@JsonView(FrontView.class)
+	@JsonProperty("endpointsData")
 	private Map<String, JsonNode> endpointsData;
 
+	@JsonProperty("portBindingContainers")
 	private List<String> portBindingContainers;
 
 	public SupportServiceInstance() {

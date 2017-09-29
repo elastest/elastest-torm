@@ -70,7 +70,8 @@ public class EsmApiController implements EsmApi {
 	}
 
 	@Override
-	public ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(Long id) {
+	@JsonView(FrontView.class)
+	public ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(@PathVariable("id") Long id) {
 		return new ResponseEntity<List<SupportServiceInstance>>(esmService.getTSSInstByTJobExecId(id), HttpStatus.OK);
 	}	
 }
