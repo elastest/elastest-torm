@@ -68,9 +68,9 @@
 
     <!-- Source code manager -->
     <scm>
-        <url>https://github.com/elastest/elastest-torm/epm-client</url>
-        <connection>scm:git:https://github.com/elastest/elastest-torm/epm-client</connection>
-        <developerConnection>scm:git://git@github.com:elastest/elastest-torm/epm-client</developerConnection>
+        <url>https://github.com/elastest/elastest-torm</url>
+        <connection>scm:git:https://github.com/elastest/elastest-torm</connection>
+        <developerConnection>scm:git://git@github.com:elastest/elastest-torm</developerConnection>
         <tag>develop</tag>
     </scm>
 
