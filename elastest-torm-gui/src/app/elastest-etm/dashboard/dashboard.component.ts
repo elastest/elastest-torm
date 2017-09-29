@@ -82,13 +82,12 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   getSupportServicesInstances() {
-    console.log('P1')
     this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec)
       .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
         console.log('P2:', serviceInstances.length, this.instancesNumber, serviceInstances.length === this.instancesNumber, this.tJobExec.result)
         // result is always IN PROGRESS because tJobExec is not updated in GUI
         if (serviceInstances.length === this.instancesNumber || this.tJobExec.result === 'FINISHED') {
-          this.serviceInstances = serviceInstances;
+          this.serviceInstances = [...serviceInstances];
         } else {
           setTimeout(() => {
             this.getSupportServicesInstances();

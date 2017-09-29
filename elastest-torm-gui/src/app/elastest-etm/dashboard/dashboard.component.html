@@ -11,6 +11,6 @@
 <etm-logs-metrics-view #logsAndMetrics [live]="true"></etm-logs-metrics-view>
 
 <!-- Esm Services Instances -->
-<ng-template *ngFor="let serviceInstance of servicesInstances">
+<div *ngFor="let serviceInstance of serviceInstances">
   <esm-service-detail [serviceInstance]="serviceInstance"></esm-service-detail>
-</ng-template>
+</div>
