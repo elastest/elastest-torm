@@ -97,7 +97,7 @@ public class TJob {
 	@JsonProperty("execDashboardConfig")
 	private String execDashboardConfig = null;
 	
-	@JsonView({BasicAttTJob.class})
+	@JsonView({ BasicAttTJob.class, BasicAttProject.class, BasicAttTJobExec.class })
 	@Column(name = "selectedServices", columnDefinition ="TEXT", length = 65535)
 	@JsonProperty("esmServicesString")
 	private String selectedServices;

@@ -1,3 +1,4 @@
+import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
 import { DashboardConfigModel } from '../tjob/dashboard-config-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { SutExecModel } from '../sut-exec/sutExec-model';
@@ -78,8 +79,7 @@ export class TJobExecService {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
           return this.transformToTjobExecmodel(data);
-        }
-        else {
+        } else {
           throw new Error('Empty response. TJob Execution not exist or you don\'t have permissions to access it');
         }
       });
@@ -111,6 +111,15 @@ export class TJobExecService {
     tjobsDataToTable.resultsPath = tjob.resultsPath;
     tjobsDataToTable.execDashboardConfig = tjob.execDashboardConfig;
     tjobsDataToTable.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
+    if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null) {
+      for (let service of JSON.parse(tjob.esmServicesString)) {
+        tjobsDataToTable.esmServices.push(new EsmServiceModel(service.id, service.name,
+          service.selected));
+        if (service.selected) {
+          tjobsDataToTable.esmServicesChecked++;
+        }
+      }
+    }
 
     return tjobsDataToTable;
   }

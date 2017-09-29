@@ -31,6 +31,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   tJobExec: TJobExecModel;
 
   serviceInstances: EsmServiceInstanceModel[] = [];
+  instancesNumber: number;
 
   constructor(private _titleService: Title,
     private tJobService: TJobService,
@@ -71,13 +72,31 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
         console.log('Suscribe to TJob execution.');
         this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
-
-        this.esmService.getSupportServicesInstancesByTJobExec(tJobExec)
-          .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
-            this.serviceInstances = serviceInstances;
-          });
+        this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
+        if (tJobExec) {
+          setTimeout(() => {
+            this.getSupportServicesInstances();
+          }, 0);
+        }
       });
   }
+
+  getSupportServicesInstances() {
+    console.log('P1')
+    this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec)
+      .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
+        console.log('P2:', serviceInstances.length, this.instancesNumber, serviceInstances.length === this.instancesNumber, this.tJobExec.result)
+        // result is always IN PROGRESS because tJobExec is not updated in GUI
+        if (serviceInstances.length === this.instancesNumber || this.tJobExec.result === 'FINISHED') {
+          this.serviceInstances = serviceInstances;
+        } else {
+          setTimeout(() => {
+            this.getSupportServicesInstances();
+          }, 2000);
+        }
+      });
+  }
+
 
   ngOnDestroy() {
     this.elastestRabbitmqService.unsubscribeWSDestination();
