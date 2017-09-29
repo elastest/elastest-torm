@@ -73,5 +73,14 @@ public interface EsmApi extends EtmApiRoot{
     	produces = { "application/json" },
         method = RequestMethod.GET)
     ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@ApiParam(value = "id", required=true) @PathVariable(value="id", required=true) String id );
+    
+    @ApiOperation(value = "Returns all Support Services Instances associated with a tJobExec", notes = "Returns all Support Services Instances associated with a tJobExec.", response = SupportServiceInstance.class, responseContainer = "List", tags={ "ESM", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Successful operation", response = SupportServiceInstance.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Resource not found") })    
+    @RequestMapping(value = "/esm/services/instances/tJobExec/{id}",
+    	produces = { "application/json" },
+        method = RequestMethod.GET)
+    ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(@ApiParam(value = "id", required=true) @PathVariable(value="id", required=true) Long id );
 
 }

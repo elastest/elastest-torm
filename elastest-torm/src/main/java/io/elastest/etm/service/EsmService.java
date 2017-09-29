@@ -203,10 +203,10 @@ public class EsmService {
 	/**
 	 * 
 	 * @param serviceId
-	 * @param associatedWitTJob
+	 * @param tJobExecid
 	 * @return the new service instance.
 	 */
-	public SupportServiceInstance provisionServiceInstance(String serviceId, Boolean associatedWitTJob) {
+	public SupportServiceInstance provisionServiceInstance(String serviceId, Long tJobExecid) {
 		logger.info("Service id to provision: " + serviceId);
 		ObjectMapper mapper = new ObjectMapper();
 		String instanceId = "";
@@ -225,16 +225,15 @@ public class EsmService {
 							service.get("name").toString().replaceAll("\"", ""),
 							// service.get("short_name").toString().replaceAll("\"",
 							// ""),
-							"", plans.get(0).get("id").toString().replaceAll("\"", ""), true);
-
+							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecid);
+					
 					fillEnvVariablesToTSS(newServiceInstance);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-					newServiceInstance.setManifestId(
-							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
+					newServiceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 
-					if (associatedWitTJob) {
+					if (tJobExecid != null) {
 						tJobServicesInstances.put(instanceId, newServiceInstance);
 					} else {
 						servicesInstances.put(instanceId, newServiceInstance);
@@ -330,9 +329,7 @@ public class EsmService {
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										apiNode.get("name") != null
-												? apiNode.get("name").toString().replaceAll("\"", "") : "api",
-										socatBindingsPorts);
+										apiNode.get("name") != null ? apiNode.get("name").toString().replaceAll("\"", "") : "api", socatBindingsPorts);
 							}
 						}
 					}
@@ -345,9 +342,7 @@ public class EsmService {
 							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
 								guiNum++;
 								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
-										guiNode.get("name") != null
-												? guiNode.get("name").toString().replaceAll("\"", "") : "gui",
-										socatBindingsPorts);
+										guiNode.get("name") != null ? guiNode.get("name").toString().replaceAll("\"", "") : "gui", socatBindingsPorts);
 							}
 						}
 					}
@@ -396,9 +391,8 @@ public class EsmService {
 
 			portBindings.bind(exposedListenPort, Ports.Binding.bindPort(listenPort));
 
-			serviceInstance.getPortBindingContainers()
-					.add(dockerService.runDockerContainer(dockerClient, ET_SOCAT_IMAGE, envVariables,
-							"container" + listenPort, containerName, networkName, portBindings, listenPort));
+			serviceInstance.getPortBindingContainers().add(dockerService.runDockerContainer(dockerClient,
+					ET_SOCAT_IMAGE, envVariables, "container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -472,5 +466,16 @@ public class EsmService {
 
 	public void settJobServicesInstances(Map<String, SupportServiceInstance> tJobsServicesInstances) {
 		this.tJobServicesInstances = tJobsServicesInstances;
+	}
+	
+	public List<SupportServiceInstance> getTSSInstByTJobExecId(Long tJobExecId){
+		List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
+		tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+			if(tSSInstance.gettJobExecId() == tJobExecId){
+				tSSInstanceList.add(tSSInstance);
+			}
+		});
+		
+		return tSSInstanceList;
 	}
 }

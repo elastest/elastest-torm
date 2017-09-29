@@ -55,7 +55,7 @@ public class EsmApiController implements EsmApi {
 	public ResponseEntity<SupportServiceInstance> provisionServiceInstance(
 			@ApiParam(value = "Service Id", required = true) @PathVariable("serviceId") String serviceId) {
 		logger.info("Service provision:" + serviceId);
-		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(serviceId, false),
+		return new ResponseEntity<SupportServiceInstance>(esmService.provisionServiceInstance(serviceId, null),
 				HttpStatus.OK);
 	}
 
@@ -68,4 +68,9 @@ public class EsmApiController implements EsmApi {
 	public ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(@PathVariable("id") String id) {
 		return new ResponseEntity<SupportServiceInstance>(esmService.getServiceInstanceFromMem(id), HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(Long id) {
+		return new ResponseEntity<List<SupportServiceInstance>>(esmService.getTSSInstByTJobExecId(id), HttpStatus.OK);
+	}	
 }

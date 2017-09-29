@@ -148,7 +148,7 @@ public class EpmIntegrationService {
 			for (ObjectNode service : services) {
 				if (service.get("selected").toString().equals(Boolean.toString(true))) {
 					String instanceId = esmService
-							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), true)
+							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId())
 							.getInstanceId();
 					tJobExec.getServicesInstances().add(instanceId);
 					setTssEnvVar(instanceId, tJobExec);

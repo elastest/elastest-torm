@@ -45,7 +45,7 @@ public class SupportServiceInstance {
 	@JsonView(ProvisionView.class)
 	private String space_guid;
 
-	private boolean bindedToTJob;
+	private Long tJobExecId;
 	@JsonView(FrontView.class)
 	private String serviceIp;
 	@JsonView(FrontView.class)
@@ -74,14 +74,14 @@ public class SupportServiceInstance {
 		this.portBindingContainers = new ArrayList<>();
 	}
 
-	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, boolean bindToTJob) {
+	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, Long bindToTJob) {
 		super();
 		this.instanceId = instanceId;
 		this.service_id = service_id;
 		this.serviceName = serviceName;
 		this.serviceShortName = serviceShortName;
 		this.plan_id = plan_id;
-		this.bindedToTJob = bindToTJob;
+		this.tJobExecId = bindToTJob;
 		this.parameters = new HashMap<>();
 		this.context = new HashMap<>();
 		this.organization_guid = "org";
@@ -94,7 +94,7 @@ public class SupportServiceInstance {
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, String organization_guid,
-			Map<String, String> parameters, String space_guid, boolean bindedToTJob, String serviceIp, int servicePort,
+			Map<String, String> parameters, String space_guid, Long bindedToTJob, String serviceIp, int servicePort,
 			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices, String containerIp) {
 		super();
 		this.instanceId = instanceId;
@@ -105,7 +105,7 @@ public class SupportServiceInstance {
 		this.organization_guid = organization_guid;
 		this.parameters = parameters;
 		this.space_guid = space_guid;
-		this.bindedToTJob = bindedToTJob;
+		this.tJobExecId = bindedToTJob;
 		this.serviceIp = serviceIp;
 		this.servicePort = servicePort;
 		this.manifestId = manifestId;
@@ -166,16 +166,16 @@ public class SupportServiceInstance {
 		return space_guid;
 	}
 
+	public Long gettJobExecId() {
+		return tJobExecId;
+	}
+
+	public void settJobExecId(Long tJobExecId) {
+		this.tJobExecId = tJobExecId;
+	}
+
 	public void setSpace_guid(String space_guid) {
 		this.space_guid = space_guid;
-	}
-
-	public boolean isBindToTJob() {
-		return bindedToTJob;
-	}
-
-	public void setBindToTJob(boolean bindToTJob) {
-		this.bindedToTJob = bindToTJob;
 	}
 
 	public String getServiceIp() {
@@ -200,14 +200,6 @@ public class SupportServiceInstance {
 
 	public void setInstanceId(String instanceId) {
 		this.instanceId = instanceId;
-	}
-
-	public boolean isBindedToTJob() {
-		return bindedToTJob;
-	}
-
-	public void setBindedToTJob(boolean bindedToTJob) {
-		this.bindedToTJob = bindedToTJob;
 	}
 
 	public String getManifestId() {
