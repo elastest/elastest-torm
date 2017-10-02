@@ -37,7 +37,7 @@ services:
             - 8091
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - esm_services:/esm_services
+            - platform-services:/platform-services
         networks:
             - elastest
 networks:
