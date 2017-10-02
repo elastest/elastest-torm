@@ -365,12 +365,14 @@ public class EsmService {
 		int auxPort = 37000;
 
 		if (node != null) {
-			String nodePort = node.get("port").toString().replaceAll("\"", "");
-			if (socatBindingsPorts.containsKey(nodePort)) {
-				auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));
-			} else {
-				auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
-				socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
+			if ( node.get("port") != null){
+				String nodePort = node.get("port").toString().replaceAll("\"", "");
+				if (socatBindingsPorts.containsKey(nodePort)) {
+					auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));
+				} else {
+					auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
+					socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
+				}
 			}
 
 			if (node.get("protocol") != null && (node.get("protocol").toString().contains("http"))
