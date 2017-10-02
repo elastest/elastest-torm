@@ -13,8 +13,8 @@ export class ServiceGuiComponent implements OnInit {
 
   constructor(private activatedRoute: ActivatedRoute) { }
 
-  ngOnInit() {    
-    console.log(this.serviceUrl);   
+  ngOnInit() {
+    console.log(this.serviceUrl);
   }
 
 }

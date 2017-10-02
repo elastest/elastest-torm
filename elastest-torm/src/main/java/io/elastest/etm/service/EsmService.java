@@ -3,6 +3,9 @@ package io.elastest.etm.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +47,6 @@ public class EsmService {
 
 	@Value("${et.esm.ss.desc.files.path}")
 	public String ESM_SERVICES_FILES_PATH;
-
 
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
@@ -228,11 +230,12 @@ public class EsmService {
 							// service.get("short_name").toString().replaceAll("\"",
 							// ""),
 							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecid);
-					
+
 					fillEnvVariablesToTSS(newServiceInstance);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-					newServiceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
+					newServiceInstance.setManifestId(
+							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 
 					if (tJobExecid != null) {
@@ -263,7 +266,7 @@ public class EsmService {
 		supportServiceInstance.getParameters().put("ET_ETM_API", ET_ETM_API);
 		supportServiceInstance.getParameters().put("ET_ESM_API", ET_ESM_API);
 		supportServiceInstance.getParameters().put("ET_EIM_API", ET_EIM_API);
-		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);		
+		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);
 		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT", ET_ETM_LSBEATS_PORT);
 		supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API", ET_ETM_LSHTTP_API);
 		supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST", ET_ETM_RABBIT_HOST);
@@ -272,7 +275,7 @@ public class EsmService {
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API", ET_EMP_INFLUXDB_API);
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST", ET_EMP_INFLUXDB_HOST);
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_GRAPHITE_PORT", ET_EMP_INFLUXDB_GRAPHITE_PORT);
-		
+
 	}
 
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
@@ -330,7 +333,9 @@ public class EsmService {
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										apiNode.get("name") != null ? apiNode.get("name").toString().replaceAll("\"", "") : "api", socatBindingsPorts);
+										apiNode.get("name") != null
+												? apiNode.get("name").toString().replaceAll("\"", "") : "api",
+										socatBindingsPorts);
 							}
 						}
 					}
@@ -343,7 +348,9 @@ public class EsmService {
 							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
 								guiNum++;
 								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
-										guiNode.get("name") != null ? guiNode.get("name").toString().replaceAll("\"", "") : "gui", socatBindingsPorts);
+										guiNode.get("name") != null
+												? guiNode.get("name").toString().replaceAll("\"", "") : "gui",
+										socatBindingsPorts);
 							}
 						}
 					}
@@ -392,8 +399,9 @@ public class EsmService {
 
 			portBindings.bind(exposedListenPort, Ports.Binding.bindPort(listenPort));
 
-			serviceInstance.getPortBindingContainers().add(dockerService.runDockerContainer(dockerClient,
-					ET_SOCAT_IMAGE, envVariables, "container" + listenPort, containerName, networkName, portBindings, listenPort));
+			serviceInstance.getPortBindingContainers()
+					.add(dockerService.runDockerContainer(dockerClient, ET_SOCAT_IMAGE, envVariables,
+							"container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -468,15 +476,34 @@ public class EsmService {
 	public void settJobServicesInstances(Map<String, SupportServiceInstance> tJobsServicesInstances) {
 		this.tJobServicesInstances = tJobsServicesInstances;
 	}
-	
-	public List<SupportServiceInstance> getTSSInstByTJobExecId(Long tJobExecId){
+
+	public List<SupportServiceInstance> getTSSInstByTJobExecId(Long tJobExecId) {
 		List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
 		tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-			if(tSSInstance.gettJobExecId() == tJobExecId){
+			if (tSSInstance.gettJobExecId() == tJobExecId && checkInstanceUrlIsUp(tSSInstance)) {
 				tSSInstanceList.add(tSSInstance);
 			}
 		});
-		
+
 		return tSSInstanceList;
+	}
+
+	public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
+		boolean up = true;
+		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
+
+			if (urlHash.getKey().toLowerCase().contains("gui")) {
+				URL url;
+				try {
+					url = new URL(urlHash.getValue());
+					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+					int responseCode = huc.getResponseCode();
+					up = up && (responseCode >= 200 && responseCode <= 299);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return up;
 	}
 }
