@@ -51,8 +51,8 @@ public class EsmService {
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
 
-	@Value("${os.name}")
-	private String windowsSO;
+	@Value("${services.ip}")
+	public String servicesIp;
 
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
@@ -300,7 +300,7 @@ public class EsmService {
 					String ssrvContainerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
-					serviceIp = utilTools.getDockerHostIp();
+					serviceIp = servicesIp;//utilTools.getDockerHostIp();
 					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"",
 							"");
 					serviceInstance.setContainerIp(containerIp);

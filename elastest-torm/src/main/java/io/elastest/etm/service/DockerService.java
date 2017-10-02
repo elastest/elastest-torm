@@ -49,9 +49,6 @@ public class DockerService {
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
 	private static String appImage = "elastest/test-etm-javasutrepo", checkImage = "elastest/etm-check-service-up";
 
-	@Value("${docker.host.port}")
-	private String dockerHostPort;
-
 	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
 
@@ -60,9 +57,6 @@ public class DockerService {
 
 	@Autowired
 	public UtilTools utilTools;
-
-	@Value("${os.name}")
-	private String windowsSO;
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		configureDocker(dockerExec);
@@ -73,40 +67,17 @@ public class DockerService {
 	}
 
 	public DockerClient getDockerClient() {
-
-		if (windowsSO.toLowerCase().contains("win")) {
-			logger.info("Execute on Windows.");
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(
-							DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort)
-					.build();
-			return DockerClientBuilder.getInstance(config).build();
-
-		} else {
-			logger.info("Execute on Linux.");
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("unix:///var/run/docker.sock").build();
-			return DockerClientBuilder.getInstance(config).build();
-		}
+		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()				
+				.build();		
+		return DockerClientBuilder.getInstance(config).build();
 	}
 
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		if (windowsSO.toLowerCase().contains("win")) {
-			logger.info("Execute on Windows.");
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost(
-							DOKCER_LISTENING_ON_TCP_PORT_PREFIX + utilTools.getDockerHostIp() + ":" + dockerHostPort)
-					.build();
-			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
-
-		} else {
-			logger.info("Execute on Linux.");
-			DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("unix:///var/run/docker.sock").build();
-			dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
-		}
+		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+				.build();
+		dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 	}
 
 	public String runDockerContainer(DockerClient dockerClient, String imageName, List<String> envs,
