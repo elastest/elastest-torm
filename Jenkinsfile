@@ -36,9 +36,18 @@ node('TESTDOCKER'){
         stage "Upload coverage and quality reports"
             echo ("Upload reports to SonarCloud and Codecov")
             sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
-            sh """#!/usr/bin/env bash
-                bash <(curl -s https://codecov.io/bash) -t ${TORM_CODECOV_TOKEN} || echo "Codecov did not collect coverage reports"
-            """
+            def codecovArgs = '-K '
+            if (getParam('GITHUB_PR_NUMBER') != '') {
+              // This is a PR
+              codecovArgs += "-B ${getParam('GITHUB_PR_TARGET_BRANCH')} " +
+                  "-C ${getParam('GITHUB_PR_HEAD_SHA')} " +
+                  "-P ${getParam('GITHUB_PR_NUMBER')} "
+            } else {
+              // Not a PR
+              codecovArgs += "-B ${getParam('GIT_BRANCH')} " +
+                  "-C ${getParam('GIT_COMMIT')} "
+            }
+            sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
 
         stage "Create etm docker image"
             echo ("Creating elastest/etm image..")                
