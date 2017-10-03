@@ -456,11 +456,11 @@ public class EsmService {
 
 	public List<SupportServiceInstance> getTSSInstByTJobExecId(Long tJobExecId) {
 		List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
-		/*tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+		tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
 			if (tSSInstance.gettJobExecId() == tJobExecId && checkInstanceUrlIsUp(tSSInstance)) {
 				tSSInstanceList.add(tSSInstance);
 			}
-		});*/
+		});
 
 		return tSSInstanceList;
 	}
