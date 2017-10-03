@@ -1,3 +1,4 @@
+import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 
 export class SutModel {
@@ -7,6 +8,7 @@ export class SutModel {
     sutType: string;
     description: string;
     project: ProjectModel;
+    eimConfig: EimConfigModel;
 
     constructor() {
         this.id = 0;
@@ -15,5 +17,6 @@ export class SutModel {
         this.sutType = '';
         this.description = '';
         this.project = undefined;
+        this.eimConfig = new EimConfigModel();
     }
 }

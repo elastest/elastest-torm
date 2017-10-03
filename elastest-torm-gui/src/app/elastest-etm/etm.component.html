@@ -28,10 +28,16 @@
         Projects
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
-      (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-      [routerLink]="['/support-services']">
-      <md-icon md-list-icon>settings_input_component</md-icon>
-      Support Services
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/eus']">
+        <md-icon md-list-icon>battery_charging_full</md-icon>
+        Test Engines
+      </a>
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/support-services']">
+        <md-icon md-list-icon>settings_input_component</md-icon>
+        Test Support Services
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"

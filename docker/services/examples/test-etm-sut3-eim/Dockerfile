@@ -49,4 +49,8 @@ ENV MAVEN_HOME /opt/maven
 
 EXPOSE 22
 
-CMD cd /root/.ssh; touch authorized_keys; cd /; service ssh start; git clone https://github.com/EduJGURJC/springbootdemo.git; cd springbootdemo; mvn clean package -DskipTests; cd target; exec java -jar $(ls | grep ".*\.jar$");
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod 777 entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

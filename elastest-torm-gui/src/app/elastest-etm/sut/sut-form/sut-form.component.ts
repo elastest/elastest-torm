@@ -36,8 +36,7 @@ export class SutFormComponent implements OnInit {
             this.repoNameChecked = sut.sutType === 'REPOSITORY';
             this.externalChecked = sut.sutType === 'EXTERNAL';
           });
-      }
-      else if (this.currentPath === 'new') {
+      } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
           .subscribe(
           (project: ProjectModel) => {
@@ -79,7 +78,6 @@ export class SutFormComponent implements OnInit {
       (sut) => this.postSave(sut),
       (error) => console.log(error)
       );
-
   }
 
   postSave(sut: any) {
@@ -89,5 +87,9 @@ export class SutFormComponent implements OnInit {
 
   cancel() {
     window.history.back();
+  }
+
+  changeUseEIM($event) {
+    this.sut.eimConfig.instrumentalized = $event.checked;
   }
 }

@@ -12,8 +12,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -71,12 +73,16 @@ public class SutSpecification {
 	@JsonProperty("tjobs")
 	@OneToMany(mappedBy = "sut")
 	private List<TJob> tJobs;
-	
+
 	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
-	@Column(name = "sutType", nullable=false)
+	@Column(name = "sutType", nullable = false)
 	@JsonProperty("sutType")
 	private SutTypeEnum sutType;
 
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "eimConfig")
+	private EimConfig eimConfig;
 
 	public SutSpecification() {
 	}
@@ -84,7 +90,7 @@ public class SutSpecification {
 	public SutSpecification(Long id, String name, String specification, String description, Project project,
 			List<TJob> tJobs, SutTypeEnum sutType) {
 		this.id = id == null ? 0 : id;
-		this.name = name;		
+		this.name = name;
 		this.specification = specification;
 		this.description = description;
 		this.project = project;
@@ -92,8 +98,6 @@ public class SutSpecification {
 		this.sutType = sutType;
 	}
 
-	
-	
 	public enum SutTypeEnum {
 		IMAGENAME("IMAGENAME"),
 
@@ -123,7 +127,7 @@ public class SutSpecification {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Get id
 	 * 
@@ -184,7 +188,6 @@ public class SutSpecification {
 		this.description = desc;
 	}
 
-
 	/**
 	 * Get sutExecution
 	 * 
@@ -235,7 +238,7 @@ public class SutSpecification {
 	 **/
 
 	@Valid
-	@ApiModelProperty( value = "List of TJobs associated to a SUT Specification")
+	@ApiModelProperty(value = "List of TJobs associated to a SUT Specification")
 	public List<TJob> getTJobs() {
 		return tJobs;
 	}
@@ -257,14 +260,13 @@ public class SutSpecification {
 
 		return tJob;
 	}
-	
-	
+
 	/**
 	 * Get sutType
 	 * 
 	 * @return sutType
 	 **/
-	
+
 	public SutTypeEnum getSutType() {
 		return sutType;
 	}
@@ -272,10 +274,24 @@ public class SutSpecification {
 	public void setSutType(SutTypeEnum sutType) {
 		this.sutType = sutType;
 	}
-	
-	
+
+	/**
+	 * Get eimConfig
+	 * 
+	 * @return eimConfig
+	 **/
+
+	@ApiModelProperty(value = "EIM configuration")
+	public EimConfig getEimConfig() {
+		return eimConfig;
+	}
+
+	public void setEimConfig(EimConfig eimConfig) {
+		this.eimConfig = eimConfig;
+	}
+
 	// Other methods
-	
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -285,17 +301,17 @@ public class SutSpecification {
 			return false;
 		}
 		SutSpecification sutSpecification = (SutSpecification) o;
-		return Objects.equals(this.id, sutSpecification.id) 
-				&& Objects.equals(this.name, sutSpecification.name)
+		return Objects.equals(this.id, sutSpecification.id) && Objects.equals(this.name, sutSpecification.name)
 				&& Objects.equals(this.specification, sutSpecification.specification)
 				&& Objects.equals(this.description, sutSpecification.description)
 				&& Objects.equals(this.project, sutSpecification.project)
-				&& Objects.equals(this.sutType, sutSpecification.sutType);
+				&& Objects.equals(this.sutType, sutSpecification.sutType)
+				&& Objects.equals(this.eimConfig, sutSpecification.eimConfig);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, description, project, sutType);
+		return Objects.hash(id, name, specification, description, project, sutType, eimConfig);
 	}
 
 	@Override
@@ -308,6 +324,7 @@ public class SutSpecification {
 		sb.append("    description: ").append(toIndentedString(description)).append("\n");
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("    sutType: ").append(toIndentedString(sutType)).append("\n");
+		sb.append("    eimConfig: ").append(toIndentedString(eimConfig)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

@@ -1,3 +1,4 @@
+import { EimConfigModel } from './eim-config-model';
 import { SutModel } from './sut-model';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { Http } from '@angular/http';
@@ -34,27 +35,27 @@ export class SutService {
     sutsDataToTable.sutType = sut.sutType;
     sutsDataToTable.description = sut.description;
     sutsDataToTable.project = sut.project;
+    sutsDataToTable.eimConfig = new EimConfigModel(sut.eimConfig);
 
     return sutsDataToTable;
   }
 
   public getSut(id: number) {
-    let url = this.configurationService.configModel.hostApi + '/sut/' + id;
+    let url: string = this.configurationService.configModel.hostApi + '/sut/' + id;
     return this.http.get(url)
       .map(
       (response) => {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
           return this.transformToSutmodel(data);
-        }
-        else {
+        } else {
           throw new Error('Empty response. SuT not exist or you don\'t have permissions to access it');
         }
       });
   }
 
   public createSut(sut: SutModel) {
-    let url = this.configurationService.configModel.hostApi + '/sut';
+    let url: string = this.configurationService.configModel.hostApi + '/sut';
     return this.http.post(url, sut)
       .map((response) => response.json());
   }
@@ -64,7 +65,7 @@ export class SutService {
   }
 
   public deleteSut(sut: SutModel) {
-    let url = this.configurationService.configModel.hostApi + '/sut/' + sut.id;
+    let url: string = this.configurationService.configModel.hostApi + '/sut/' + sut.id;
     return this.http.delete(url)
       .map((response) => response.json());
   }
