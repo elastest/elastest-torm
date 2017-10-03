@@ -1,7 +1,6 @@
 version: '3'
 services:
     etm-beats:
-        container_name: beats
         image: elastest/etm-dockbeat
         environment:
             - LOGSTASHHOST=etm-logstash
@@ -13,7 +12,6 @@ services:
             - elastest
         
     etm-logstash:        
-        container_name: logstash
         image: elastest/etm-logstash
         ports:
             - 5002:5002
@@ -32,7 +30,6 @@ services:
             - elastest       
                                   
     etm-rabbitmq:
-        container_name: etm-rabbitmq
         image: elastest/etm-rabbitmq
         hostname: my-rabbit
         ports:
