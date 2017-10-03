@@ -40,7 +40,7 @@ public class DockerContainerInfo {
         return "DockerContainerInfo [getContainers()=" + getContainers() + "]";
     }
 
-    static class DockerContainer {
+    public static class DockerContainer {
         @JsonProperty("is_running")
         boolean isRunning;
 
