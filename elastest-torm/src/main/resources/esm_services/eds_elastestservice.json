@@ -57,7 +57,7 @@
 						"path": "/static/eds.html"
 					},
 					{
-						"name": "swagger api",
+						"name": "swagger_api",
 						"protocol": "http",
 						"port": 8080,
 						"path": "/eds/ui"

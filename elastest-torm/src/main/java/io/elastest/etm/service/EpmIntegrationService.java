@@ -2,6 +2,7 @@ package io.elastest.etm.service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +66,8 @@ public class EpmIntegrationService {
 		if (tJobServices != null && tJobServices != "") {
 			provideServices(tJobServices, tJobExec);
 		}
+		
+		setTJobExecEnvVars(tJobExec);
 
 		DockerExecution dockerExec = new DockerExecution(tJobExec);
 
@@ -151,80 +154,20 @@ public class EpmIntegrationService {
 							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId())
 							.getInstanceId();
 					tJobExec.getServicesInstances().add(instanceId);
-					setTssEnvVar(instanceId, tJobExec);
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * 
-	 * @param String
-	 * @param tJobExec
-	 */
-	private void setTssEnvVar(String instanceId, TJobExecution tJobExec) {
-		SupportServiceInstance ssi = esmService.gettJobServicesInstances().get(instanceId);
-		// String envNamePrefix = "ET_" +
-		// ssi.getServiceShortName().toUpperCase().replaceAll("-", "_");
-		String servicePrefix = ssi.getServiceName().toUpperCase().replaceAll("-", "_");
-		String envNamePrefix = "ET_" + servicePrefix;
-
-		for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData().entrySet()) {
-			String endpointName = ssi.getEndpointName().toUpperCase().replaceAll("-", "_");
-			String prefix = envNamePrefix;
-			if (!endpointName.equals(servicePrefix)) { // Example: EBS and Spark
-				prefix += "_" + endpointName;
-			}
-			setTssEnvVarByEndpoint(ssi, tJobExec, prefix, entry);
-		}
-
-		for (SupportServiceInstance subssi : ssi.getSubServices()) {
-			String envNamePrefixSubSSI = envNamePrefix + "_"
-					+ subssi.getEndpointName().toUpperCase().replaceAll("-", "_");
-
-			for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData().entrySet()) {
-				setTssEnvVarByEndpoint(subssi, tJobExec, envNamePrefixSubSSI, entry);
-			}
+	
+	private void setTJobExecEnvVars(TJobExecution tJobExec) {
+		for (String tSSInstanceId: tJobExec.getServicesInstances()){
+			SupportServiceInstance ssi = esmService.gettJobServicesInstances().get(tSSInstanceId);
+			tJobExec.getTssEnvVars().putAll(esmService.getTSSInstanceEnvVars(ssi, false));
 		}
 	}
-
-	private void setTssEnvVarByEndpoint(SupportServiceInstance ssi, TJobExecution tJobExec, String prefix,
-			Map.Entry<String, JsonNode> entry) {
-		if (!entry.getKey().toLowerCase().equals("gui")) {
-			try {
-
-				if (entry.getValue().findValue("name") != null) {
-					prefix += "_" + entry.getValue().findValue("name").toString().toUpperCase().replaceAll("\"", "")
-							.replaceAll("-", "_");
-				}
-
-				String envNameHost = prefix + "_HOST";
-				String envValueHost = ssi.getContainerIp();
-
-				String envNamePort = prefix + "_PORT";
-				String envValuePort = entry.getValue().findValue("port").toString();
-
-				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
-				if (protocol.equals("http") || protocol.equals("ws")) {
-					String envNameAPI = prefix + "_" + entry.getKey().toUpperCase();
-					String path = entry.getValue().findValue("path").toString().replaceAll("\"", "");
-					if (!path.startsWith("/")) {
-						path = "/" + path;
-					}
-					String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort + path;
-					tJobExec.getTssEnvVars().put(envNameAPI, envValueAPI);
-				} else {
-					tJobExec.getTssEnvVars().put(envNameHost, envValueHost);
-					tJobExec.getTssEnvVars().put(envNamePort, envValuePort);
-				}
-
-			} catch (Exception e) {
-			}
-		}
-	}
-
+	
 	/**
 	 * 
 	 * @param tJobExec

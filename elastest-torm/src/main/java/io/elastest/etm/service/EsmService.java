@@ -1,10 +1,10 @@
 package io.elastest.etm.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
-import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -256,32 +255,10 @@ public class EsmService {
 		return newServiceInstance;
 	}
 
-	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance) {
-		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
-		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
-		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
-		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT", ET_EDM_MYSQL_PORT);
-		supportServiceInstance.getParameters().put("ET_EDM_ELASTICSEARCH_API", ET_EDM_ELASTICSEARCH_API);
-		supportServiceInstance.getParameters().put("ET_EDM_API", ET_EDM_API);
-		supportServiceInstance.getParameters().put("ET_EPM_API", ET_EPM_API);
-		supportServiceInstance.getParameters().put("ET_ETM_API", ET_ETM_API);
-		supportServiceInstance.getParameters().put("ET_ESM_API", ET_ESM_API);
-		supportServiceInstance.getParameters().put("ET_EIM_API", ET_EIM_API);
-		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);
-		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT", ET_ETM_LSBEATS_PORT);
-		supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API", ET_ETM_LSHTTP_API);
-		supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST", ET_ETM_RABBIT_HOST);
-		supportServiceInstance.getParameters().put("ET_ETM_RABBIT_PORT", ET_ETM_RABBIT_PORT);
-		supportServiceInstance.getParameters().put("ET_EMP_API", ET_EMP_API);
-		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API", ET_EMP_INFLUXDB_API);
-		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST", ET_EMP_INFLUXDB_HOST);
-		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_GRAPHITE_PORT", ET_EMP_INFLUXDB_GRAPHITE_PORT);
-	}
-
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
 		ObjectNode manifest = esmServiceClient.getManifestById(serviceInstance.getManifestId());
 		Iterator<String> subServicesNames = manifest.get("endpoints").fieldNames();
-		Iterator<String> it = serviceInstanceDetail.get("context").fieldNames();
+		Iterator<String> itEsmRespContextFields = serviceInstanceDetail.get("context").fieldNames();
 
 		while (subServicesNames.hasNext()) {
 			String serviceName = subServicesNames.next();
@@ -291,8 +268,8 @@ public class EsmService {
 			String serviceIp = null;
 			Map<String, String> socatBindingsPorts = new HashMap<>();
 
-			while (it.hasNext()) {
-				String fieldName = it.next();
+			while (itEsmRespContextFields.hasNext()) {
+				String fieldName = itEsmRespContextFields.next();
 				logger.info("Instance data fields {}:" + fieldName);
 				Matcher matcher = pattern.matcher(fieldName);
 				if (matcher.matches()) {
@@ -333,8 +310,7 @@ public class EsmService {
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										apiNode.get("name") != null
-												? apiNode.get("name").toString().replaceAll("\"", "") : "api",
+										apiNode.get("name") != null	? apiNode.get("name").toString().replaceAll("\"", "") : "api",
 										socatBindingsPorts);
 							}
 						}
@@ -348,8 +324,7 @@ public class EsmService {
 							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
 								guiNum++;
 								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
-										guiNode.get("name") != null
-												? guiNode.get("name").toString().replaceAll("\"", "") : "gui",
+										guiNode.get("name") != null	? guiNode.get("name").toString().replaceAll("\"", "") + "gui" : "gui",
 										socatBindingsPorts);
 							}
 						}
@@ -481,11 +456,11 @@ public class EsmService {
 
 	public List<SupportServiceInstance> getTSSInstByTJobExecId(Long tJobExecId) {
 		List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
-		tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+		/*tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
 			if (tSSInstance.gettJobExecId() == tJobExecId && checkInstanceUrlIsUp(tSSInstance)) {
 				tSSInstanceList.add(tSSInstance);
 			}
-		});
+		});*/
 
 		return tSSInstanceList;
 	}
@@ -507,5 +482,108 @@ public class EsmService {
 			}
 		}
 		return up;
+	}
+	
+	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance) {
+		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
+		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
+		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
+		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT", ET_EDM_MYSQL_PORT);
+		supportServiceInstance.getParameters().put("ET_EDM_ELASTICSEARCH_API", ET_EDM_ELASTICSEARCH_API);
+		supportServiceInstance.getParameters().put("ET_EDM_API", ET_EDM_API);
+		supportServiceInstance.getParameters().put("ET_EPM_API", ET_EPM_API);
+		supportServiceInstance.getParameters().put("ET_ETM_API", ET_ETM_API);
+		supportServiceInstance.getParameters().put("ET_ESM_API", ET_ESM_API);
+		supportServiceInstance.getParameters().put("ET_EIM_API", ET_EIM_API);
+		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);
+		supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT", ET_ETM_LSBEATS_PORT);
+		supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API", ET_ETM_LSHTTP_API);
+		supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST", ET_ETM_RABBIT_HOST);
+		supportServiceInstance.getParameters().put("ET_ETM_RABBIT_PORT", ET_ETM_RABBIT_PORT);
+		supportServiceInstance.getParameters().put("ET_EMP_API", ET_EMP_API);
+		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API", ET_EMP_INFLUXDB_API);
+		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST", ET_EMP_INFLUXDB_HOST);
+		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_GRAPHITE_PORT", ET_EMP_INFLUXDB_GRAPHITE_PORT);
+	}
+	
+	public Map<String, String> getTSSInstanceContext(String tSSInstanceId){		
+		Map<String, String> tSSInstanceContextMap = new HashMap<>();
+		SupportServiceInstance ssi = null;
+		if (servicesInstances.get(tSSInstanceId) != null){
+			ssi = servicesInstances.get(tSSInstanceId);
+		} else if (tJobServicesInstances.get(tSSInstanceId) != null){ 
+			ssi = tJobServicesInstances.get(tSSInstanceId);
+		} else {
+			return null;
+		}
+		
+		tSSInstanceContextMap.putAll(getTSSInstanceEnvVars(ssi, true));
+		tSSInstanceContextMap.putAll(ssi.getParameters());
+		
+		return tSSInstanceContextMap;
+	}
+	
+	public Map<String,String> getTSSInstanceEnvVars(SupportServiceInstance ssi, boolean publicEnvVars){		
+		Map<String, String> envVars = new HashMap<String, String>();
+		String servicePrefix = ssi.getServiceName().toUpperCase().replaceAll("-", "_");
+		String envVarNamePrefix =  publicEnvVars ? "ET_PUBLIC_" + servicePrefix : "ET_" + servicePrefix;
+		
+		for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData().entrySet()) {
+			String prefix = envVarNamePrefix;			
+			envVars.putAll(setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
+		}
+
+		for (SupportServiceInstance subssi : ssi.getSubServices()) {
+			String envNamePrefixSubSSI = envVarNamePrefix + "_"
+					+ subssi.getEndpointName().toUpperCase().replaceAll("-", "_");
+
+			for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData().entrySet()) {
+				envVars.putAll(setTssEnvVarByEndpoint(subssi, envNamePrefixSubSSI, entry, publicEnvVars));
+			}
+		}
+		
+		return envVars;
+	}
+	
+	private  Map<String,String> setTssEnvVarByEndpoint(SupportServiceInstance ssi, String prefix,
+			Map.Entry<String, JsonNode> entry, boolean publicEnvVars) {
+		 Map<String,String> envVars = new HashMap<>();
+		if (!entry.getKey().toLowerCase().contains("gui")) {
+			try {
+				if (entry.getValue().get("name") != null) {
+					prefix += "_" + entry.getValue().get("name").toString().toUpperCase().replaceAll("\"", "")
+							.replaceAll("-", "_");
+				}
+				
+				String envNameHost = prefix + "_HOST";
+				String envValueHost = publicEnvVars ? ssi.getServiceIp() : ssi.getContainerIp();
+
+				String envNamePort = prefix + "_PORT";
+				String envValuePort = entry.getValue().get("port").toString();
+
+				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
+				if (protocol.equals("http") || protocol.equals("ws")) {
+					String envNameAPI = prefix + "_" + "API";
+					String path = entry.getValue().get("path").toString().replaceAll("\"", "");
+					if (!path.startsWith("/")) {
+						path = "/" + path;
+					}
+					
+					String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort + path;
+					envVars.put(envNameAPI, envValueAPI);
+					logger.info("Envvar: " + envNameAPI + "=" + envValueAPI);
+				} else {
+					envVars.put(envNameHost, envValueHost);
+					envVars.put(envNamePort, envValuePort);
+					logger.info("Envvar: " + envNameHost + "=" + envValueHost);
+					logger.info("Envvar: " + envNamePort + "=" + envValuePort);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw e;
+			}			
+		}
+		return envVars;
 	}
 }

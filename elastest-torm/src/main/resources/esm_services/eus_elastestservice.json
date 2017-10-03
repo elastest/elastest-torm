@@ -57,8 +57,8 @@
                   "port": 8040,
                   "path": "/eus/v1/",
                   "definition": {
-                  "type": "openapi",
-                  "path": "/eus/v1/api.yaml"
+                     "type": "openapi",
+                     "path": "/eus/v1/api.yaml"
                   }
                },
                {
