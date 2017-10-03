@@ -27,7 +27,7 @@ import io.elastest.etm.utils.UtilTools;
 public class EsmServiceClient {
 	private static final Logger logger = LoggerFactory.getLogger(EsmServiceClient.class);
 	
-	@Value("${services.ip}")
+	@Value("${et.services.ip}")
 	private String esmIp;
 	
 	@Value("${elastest.esm.port}")

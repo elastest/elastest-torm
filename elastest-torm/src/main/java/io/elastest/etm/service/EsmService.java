@@ -51,8 +51,8 @@ public class EsmService {
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
 
-	@Value("${services.ip}")
-	public String servicesIp;
+	@Value("${et.services.ip}")
+	public String ET_SERVICES_IP;
 
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
@@ -257,6 +257,7 @@ public class EsmService {
 	}
 
 	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance) {
+		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
 		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
 		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT", ET_EDM_MYSQL_PORT);
@@ -275,7 +276,6 @@ public class EsmService {
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API", ET_EMP_INFLUXDB_API);
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST", ET_EMP_INFLUXDB_HOST);
 		supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_GRAPHITE_PORT", ET_EMP_INFLUXDB_GRAPHITE_PORT);
-
 	}
 
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
@@ -300,7 +300,7 @@ public class EsmService {
 					String ssrvContainerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
-					serviceIp = servicesIp;//utilTools.getDockerHostIp();
+					serviceIp = ET_SERVICES_IP;
 					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"",
 							"");
 					serviceInstance.setContainerIp(containerIp);
