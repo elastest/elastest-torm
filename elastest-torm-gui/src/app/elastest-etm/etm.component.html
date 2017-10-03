@@ -1,5 +1,5 @@
 <td-layout-nav logo="assets:elastestlogo">
-  <button md-icon-button td-menu-button (click)="openMainSidenav()"><md-icon>menu</md-icon></button>
+  <button md-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu"><md-icon>menu</md-icon></button>
   <div td-toolbar-content layout="row" layout-align="center center" flex>
     <span></span>
     <span flex></span>
@@ -23,25 +23,25 @@
     </md-toolbar> -->
     <md-nav-list td-sidenav-content>
       <a md-list-item md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']">
+        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']" id="nav_projects">
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/eus']">
+        [routerLink]="['/eus']" id="nav_test_engines">
         <md-icon md-list-icon>battery_charging_full</md-icon>
         Test Engines
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/support-services']">
+        [routerLink]="['/support-services']" id="nav_support_services">
         <md-icon md-list-icon>settings_input_component</md-icon>
         Test Support Services
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/logmanager']">
+        [routerLink]="['/logmanager']" id="nav_log_manager">
         <md-icon md-list-icon>library_books</md-icon>
         Log Manager
       </a>

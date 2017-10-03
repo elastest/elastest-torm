@@ -6,7 +6,7 @@
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                  <md-radio-button value="chrome" flex-gt-xs="50">Chrome</md-radio-button>
+                  <md-radio-button value="chrome" flex-gt-xs="50" id="chrome_radio">Chrome</md-radio-button>
                 <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('chrome')">
                     <md-option *ngFor="let version of browserVersions.chrome" [value]="version.value">
                        {{version.viewValue}}
@@ -14,7 +14,7 @@
                 </md-select>
                 <br>
                 <br>
-                  <md-radio-button value="firefox" flex-gt-xs="50">Firefox</md-radio-button>
+                  <md-radio-button value="firefox" flex-gt-xs="50" id="firefox_radio">Firefox</md-radio-button>
                 <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('firefox')">
                     <md-option *ngFor="let version of browserVersions.firefox" [value]="version.value">
                        {{version.viewValue}}
@@ -22,7 +22,7 @@
                 </md-select>
                 </md-radio-group>
                 <div layout="row" class="push-top">
-                    <button md-raised-button color="accent" (click)="startSession()">Start session</button>
+                    <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start session</button>
                 </div>
             </md-card-content>
         </md-card>
@@ -37,7 +37,7 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewSession(value, row, ' - automated test')">View</button>
+                        <button md-raised-button color="accent" (click)="viewSession(value, row, ' - automated test')" id="view_automated">View</button>
                     </ng-template>
                 </td-data-table>
             </md-card-content>
@@ -53,8 +53,8 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewRecording(row)">View</button>
-                        <button md-raised-button color="accent" (click)="deleteRecording(row)">Delete</button>
+                        <button md-raised-button color="accent" (click)="viewRecording(row)" id="view_recording">View</button>
+                        <button md-raised-button color="accent" (click)="deleteRecording(row)" id="delete_recording">Delete</button>
                     </ng-template>
                 </td-data-table>
             </md-card-content>
