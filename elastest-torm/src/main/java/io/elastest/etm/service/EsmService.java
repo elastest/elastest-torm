@@ -95,12 +95,12 @@ public class EsmService {
 	public String ET_EMP_INFLUXDB_GRAPHITE_PORT;
 
 	public EsmServiceClient esmServiceClient;
-	public DockerService dockerService;
+	public DockerService2 dockerService;
 	public UtilTools utilTools;
 	private Map<String, SupportServiceInstance> servicesInstances;
 	private Map<String, SupportServiceInstance> tJobServicesInstances;
 
-	public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools, DockerService dockerService) {
+	public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools, DockerService2 dockerService) {
 		logger.info("EsmService constructor.");
 		this.esmServiceClient = esmServiceClient;
 		this.utilTools = utilTools;

@@ -42,7 +42,7 @@
 		<springfox-version>2.6.1</springfox-version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 		<rest-assured.version>3.0.3</rest-assured.version>
-		
+
 
 		<!-- Cross plugins settings -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -90,7 +90,7 @@
 
 		<dependency>
 			<groupId>io.rest-assured</groupId>
-      		<artifactId>rest-assured</artifactId>
+			<artifactId>rest-assured</artifactId>
 			<version>${rest-assured.version}</version>
 			<scope>test</scope>
 			<exclusions>
@@ -99,6 +99,12 @@
 					<groupId>commons-logging</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>io.elastest.epm</groupId>
+			<artifactId>epm-client</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -225,11 +231,11 @@
 			<version>${spring-test-junit5.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>pl.pojo</groupId>
 			<artifactId>pojo-tester</artifactId>
-			<version>0.7.5</version>						
+			<version>0.7.5</version>
 		</dependency>
 	</dependencies>
 
@@ -281,20 +287,10 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>${maven.gpg.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-gpg-plugin</artifactId> 
+				<version>${maven.gpg.plugin.version}</version> <executions> <execution> <id>sign-artifacts</id> 
+				<phase>verify</phase> <goals> <goal>sign</goal> </goals> </execution> </executions> 
+				</plugin> -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -327,47 +323,47 @@
 				</executions>
 			</plugin>
 			<plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${junit.platform.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit.jupiter.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>${junit.platform.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>${junit.jupiter.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 		</plugins>
 	</build>
 
-	<profiles>		
+	<profiles>
 		<profile>
 			<id>ci</id>
 			<build>
-				<plugins>					
+				<plugins>
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>${maven-surefire-plugin.version}</version>
@@ -393,7 +389,7 @@
 		<profile>
 			<id>ci-no-it-test</id>
 			<build>
-				<plugins>					
+				<plugins>
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>${maven-surefire-plugin.version}</version>
@@ -421,13 +417,23 @@
 	</profiles>
 
 	<repositories>
-		<repository>		
-  			<id>jcenter</id>
-  			<url>http://jcenter.bintray.com/</url>
+		<repository>
+			<id>jcenter</id>
+			<url>http://jcenter.bintray.com/</url>
 		</repository>
-		<repository>		
+		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
-		</repository>		
+		</repository>
+		<repository>
+			<id>snapshots-repo</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 </project>

@@ -36,7 +36,7 @@ public class EpmIntegrationService {
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
 
-	private final DockerService dockerService;
+	private final DockerService2 dockerService;
 	private final TestSuiteRepository testSuiteRepo;
 	private final TestCaseRepository testCaseRepo;
 
@@ -45,7 +45,7 @@ public class EpmIntegrationService {
 	private DatabaseSessionManager dbmanager;
 	private final EsmService esmService;
 
-	public EpmIntegrationService(DockerService dockerService, TestSuiteRepository testSuiteRepo,
+	public EpmIntegrationService(DockerService2 dockerService, TestSuiteRepository testSuiteRepo,
 			TestCaseRepository testCaseRepo, TJobExecRepository tJobExecRepositoryImpl,
 			DatabaseSessionManager dbmanager, EsmService esmService) {
 		super();

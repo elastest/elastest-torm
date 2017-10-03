@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  ere:
+    image: 842800759158.dkr.ecr.eu-west-1.amazonaws.com/elastest/elastest-recommendation-engine:latest
+    ports:
+      - 37007:9080
+      - 443:9443
+
+

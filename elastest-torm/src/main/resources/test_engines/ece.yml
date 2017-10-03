@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  postgres:
+    image: elastest/ece-postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=elastest
+      - POSTGRES_PASSWORD=elastestpassword
+  ece:
+    image: elastest/ece
+    ports:
+      - 37008:8888

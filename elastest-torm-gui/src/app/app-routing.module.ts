@@ -1,3 +1,4 @@
+import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
@@ -169,8 +170,8 @@ const routes: Routes = [
                 component: EtmComponent,
             },
             {
-                path: 'eus',
-                component: ElastestEusComponent,
+                path: 'test-engines',
+                component: ElastestTestEnginesComponent,
             },
             {
                 path: 'support-services',

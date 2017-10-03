@@ -1,3 +1,4 @@
+import { TestEnginesService } from './elastest-test-engines/test-engines.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { RouterModule } from '@angular/router';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
@@ -46,6 +47,9 @@ import { InstancesManagerComponent } from './elastest-esm/support-services/insta
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
 import {SafeUrlPipe} from "./sanitizer.pipe";
+import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
+import { ElastestEreComponent } from './elastest-test-engines/elastest-ere/elastest-ere.component';
+import { ElastestEceComponent } from './elastest-test-engines/elastest-ece/elastest-ece.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -67,6 +71,9 @@ const httpInterceptorProviders: Type<any>[] = [
     ServiceGuiComponent, 
     ServiceDetailComponent,
     SafeUrlPipe,
+    ElastestTestEnginesComponent,
+    ElastestEreComponent,
+    ElastestEceComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -111,7 +118,8 @@ const httpInterceptorProviders: Type<any>[] = [
     },
     EusService,
     ElastestEusDialogService,
-    EsmService
+    EsmService,
+    TestEnginesService,
   ],
   entryComponents: [
     ElastestEusDialog,

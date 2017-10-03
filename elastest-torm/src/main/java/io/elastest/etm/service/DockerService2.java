@@ -42,9 +42,9 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
-public class DockerService {
+public class DockerService2 {
 
-	private static final Logger logger = LoggerFactory.getLogger(DockerService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DockerService2.class);
 
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
 	private static String appImage = "elastest/test-etm-javasutrepo", checkImage = "elastest/etm-check-service-up";
