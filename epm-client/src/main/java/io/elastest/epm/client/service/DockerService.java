@@ -50,6 +50,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.DockerClient;
@@ -74,6 +76,7 @@ import io.elastest.epm.client.DockerException;
  * @since 0.0.1
  */
 @Service
+@PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 public class DockerService {
 
     final Logger log = getLogger(lookup().lookupClass());

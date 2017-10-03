@@ -41,6 +41,8 @@ import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +54,8 @@ import com.github.dockerjava.api.model.Volume;
 
 import io.elastest.epm.client.DockerComposeApi;
 import io.elastest.epm.client.DockerComposeProject;
-import io.elastest.epm.client.DockerException;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
+import io.elastest.epm.client.DockerException;
 import io.elastest.epm.client.json.DockerComposeConfig;
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerComposeList;
@@ -74,6 +76,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * @since 0.0.1
  */
 @Service
+@PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 public class DockerComposeService {
 
     final Logger log = getLogger(lookup().lookupClass());
