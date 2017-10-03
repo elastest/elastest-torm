@@ -52,7 +52,7 @@ public class DockerContainerInfo {
         String name;
         Ports ports;
         String state;
-        Map<String, Object> volumes;
+        List<Map<String, Object>> volumes;
 
         public String getCommand() {
             return command;
@@ -82,7 +82,7 @@ public class DockerContainerInfo {
             return state;
         }
 
-        public Map<String, Object> getVolumes() {
+        public List<Map<String, Object>> getVolumes() {
             return volumes;
         }
 
