@@ -70,11 +70,13 @@ public class TestEnginesService {
 
 	public String createInstance(String engineName) {
 		String url = "";
-		try {
-			dockerComposeService.startProject(engineName);
-			url = getServiceUrl(engineName);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (!isStarted(engineName)) {
+			try {
+				dockerComposeService.startProject(engineName);
+				url = getServiceUrl(engineName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return url;
 	}
@@ -83,7 +85,8 @@ public class TestEnginesService {
 		String url = "";
 		try {
 			for (DockerContainer container : dockerComposeService.getContainers(serviceName).getContainers()) {
-				String containerName = serviceName + "_" + serviceName + "_1";
+				String containerName = serviceName + "_" + serviceName + "_1"; // example:
+																				// ece_ece_1
 				if (container.getName().equals(containerName)) {
 					// System.out.println(container.getPorts().toString());
 					// System.out.println(container.getPorts().getPortsMap());

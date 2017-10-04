@@ -24,6 +24,8 @@ services:
             - ET_ETM_LSBEATS_HOST=etm-beats
             - ET_ETM_LSBEATS_PORT=5044
             - ET_ETM_LSHTTP_API=http://etm-logstash:5002/
+            - ET_ETM_LSTCP_HOST=etm-logstash
+            - ET_ETM_LSTCP_PORT=5002
             - ET_ETM_RABBIT_HOST=etm-rabbitmq
             - ET_ETM_RABBIT_PORT=5672
             - ET_ETM_INCONTAINER=true
