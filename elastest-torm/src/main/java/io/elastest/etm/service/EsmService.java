@@ -52,6 +52,9 @@ public class EsmService {
 
 	@Value("${et.services.ip}")
 	public String ET_SERVICES_IP;
+	
+	@Value("${server.port}")
+	public String serverPort;
 
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
@@ -485,6 +488,7 @@ public class EsmService {
 	}
 	
 	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance) {
+		supportServiceInstance.getParameters().put("ET_CONTEXT_API", "http://" + utilTools.getHostIp() + ":" + serverPort + "/api/context/tss/" + supportServiceInstance.getInstanceId());
 		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
 		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
