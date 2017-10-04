@@ -50,6 +50,7 @@ import {SafeUrlPipe} from "./sanitizer.pipe";
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ElastestEreComponent } from './elastest-test-engines/elastest-ere/elastest-ere.component';
 import { ElastestEceComponent } from './elastest-test-engines/elastest-ece/elastest-ece.component';
+import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -74,6 +75,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestTestEnginesComponent,
     ElastestEreComponent,
     ElastestEceComponent,
+    TestEngineViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

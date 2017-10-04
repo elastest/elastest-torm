@@ -20,7 +20,7 @@ public class TestEnginesApiController implements TestEnginesApi {
 	@Autowired
 	TestEnginesService testEngineService;
 
-	public ResponseEntity<String> createTestEngine(
+	public ResponseEntity<String> startTestEngine(
 			@ApiParam(value = "Data to create the new Test Engine", required = true) @Valid @RequestBody String engineName) {
 		String url = testEngineService.createInstance(engineName);
 		return new ResponseEntity<String>(url, HttpStatus.OK);
@@ -30,6 +30,12 @@ public class TestEnginesApiController implements TestEnginesApi {
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
 		testEngineService.stopInstance(name);
 		return new ResponseEntity<String>(name, HttpStatus.OK);
+	}
+	
+	public ResponseEntity<String> getUrlIfIsRunning(
+			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+		String url= this.testEngineService.getUrlIfIsRunning(name);
+		return new ResponseEntity<String>(url, HttpStatus.OK);
 	}
 
 	public ResponseEntity<Boolean> isRunning(

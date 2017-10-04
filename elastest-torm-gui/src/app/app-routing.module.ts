@@ -1,3 +1,4 @@
+import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
@@ -171,7 +172,17 @@ const routes: Routes = [
             },
             {
                 path: 'test-engines',
-                component: ElastestTestEnginesComponent,
+                children: [
+                    {
+                        path: '',
+                        component: ElastestTestEnginesComponent,
+                    },
+                    {
+                        path: 'test-engines/:name',
+                        component: TestEngineViewComponent,
+
+                    },
+                ]
             },
             {
                 path: 'support-services',

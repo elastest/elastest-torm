@@ -6,5 +6,8 @@ services:
     ports:
       - 37007:9080
       - 443:9443
-
-
+    networks:
+      - elastest
+networks:
+    elastest:
+      driver: bridge

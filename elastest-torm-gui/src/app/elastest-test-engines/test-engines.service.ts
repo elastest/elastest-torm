@@ -6,6 +6,8 @@ import { Observable } from 'rxjs/Rx';
 
 @Injectable()
 export class TestEnginesService {
+    mainUrl: string = this.configurationService.configModel.hostApi + '/engines/';
+
     constructor(private http: Http, private configurationService: ConfigurationService,
     ) { }
 
@@ -20,14 +22,30 @@ export class TestEnginesService {
     }
 
     getTestEngines() {
-        let url: string = this.configurationService.configModel.hostApi + '/engines/';
-        return this.http.get(url)
+        return this.http.get(this.mainUrl)
             .map((response) => this.createTestEnginesList(response.json()));
     }
 
     startTestEngine(testEngineModel: TestEngineModel) {
-        let url: string = this.configurationService.configModel.hostApi + '/engines/';
-        return this.http.post(url, testEngineModel.name)
+        return this.http.post(this.mainUrl, testEngineModel.name)
+            .map((response) => response['_body']);
+    }
+
+    isStarted(testEngineModel: TestEngineModel) {
+        let url: string = this.mainUrl + testEngineModel.name + '/started';
+        return this.http.get(url)
+            .map((response) => (response.json()));
+    }
+
+    stopTestEngine(testEngineModel: TestEngineModel) {
+        let url: string = this.mainUrl + testEngineModel.name;
+        return this.http.delete(url)
             .map((response) => response);
     }
-} 
+
+    getUrl(testEngineModel: TestEngineModel) {
+        let url: string = this.mainUrl + testEngineModel.name + '/url';
+        return this.http.get(url)
+            .map((response) => (response.json()));
+    }
+}

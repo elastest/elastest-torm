@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.SupportServiceInstance;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,14 +21,14 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/engines")
 public interface TestEnginesApi extends EtmApiRoot {
 
-	@ApiOperation(value = "Create and return a new instance of a passed Test Engine", notes = "Create and return a new instance of a passed Test Engine"
+	@ApiOperation(value = "Starts a new instance of a passed Test Engine", notes = "Starts a new instance of a passed Test Engine"
 			+ " at least must receive as input a JSON with the following fields: String engineName", response = String.class, tags = {
 					"Engines", })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Creation successful", response = String.class),
 			@ApiResponse(code = 405, message = "Invalid input") })
 	@RequestMapping(value = "/engines", produces = { "application/json" }, consumes = {
-			"application/json" }, method = RequestMethod.POST)
-	ResponseEntity<String> createTestEngine(
+			"text/plain" }, method = RequestMethod.POST)
+	ResponseEntity<String> startTestEngine(
 			@ApiParam(value = "Data to create the new Test Engine", required = true) @Valid @RequestBody String engineName);
 
 	@ApiOperation(value = "Stops an instance of a passed Test Engine", notes = "Stops an instance of a passed Test Engine"
@@ -41,11 +40,20 @@ public interface TestEnginesApi extends EtmApiRoot {
 	ResponseEntity<String> stopTestEngine(
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 
+	@ApiOperation(value = "Returns engine url if service is running", notes = "Returns engine url if service is running", response = String.class, tags = {
+			"Engines", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+			@ApiResponse(code = 400, message = "Not found.", response = String.class) })
+	@RequestMapping(value = "/engines/{name}/url", produces = { "application/json" }, method = RequestMethod.GET)
+	ResponseEntity<String> getUrlIfIsRunning(
+			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
+
+	
 	@ApiOperation(value = "Returns if service is running", notes = "Returns if service is running", response = Boolean.class, tags = {
 			"Engines", })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
 			@ApiResponse(code = 400, message = "Not found.", response = Boolean.class) })
-	@RequestMapping(value = "/engines/{name}", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/engines/{name}/started", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<Boolean> isRunning(
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 

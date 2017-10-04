@@ -82,10 +82,17 @@ public class TestEnginesService {
 	public String getServiceUrl(String serviceName) {
 		String url = "";
 		try {
-			DockerContainer container = dockerComposeService.getContainers(serviceName).getContainers().get(0);
-			PortInfo portInfo = container.getPorts().getPortsMap().get(serviceName);
-			url = portInfo.getHostIp() + ":" + portInfo.getHostPort();
-			log.debug("Url: " + url);
+			for (DockerContainer container : dockerComposeService.getContainers(serviceName).getContainers()) {
+				String containerName = serviceName + "_" + serviceName + "_1";
+				if (container.getName().equals(containerName)) {
+					// System.out.println(container.getPorts().toString());
+					// System.out.println(container.getPorts().getPortsMap());
+					PortInfo portInfo = container.getPorts().getPortsMap().get(serviceName);
+					url = portInfo.getHostIp() + ":" + portInfo.getHostPort();
+					log.debug("Url: " + url);
+				}
+			}
+
 		} catch (Exception e) {
 			log.error("Service url not exist {}", serviceName, e);
 		}
@@ -100,9 +107,20 @@ public class TestEnginesService {
 		}
 	}
 
+	public String getUrlIfIsRunning(String engineName) {
+		return getServiceUrl(engineName);
+	}
+
 	public Boolean isStarted(String engineName) {
 		try {
-			return dockerComposeService.getContainers(engineName).getContainers().get(0).isRunning();
+			for (DockerContainer container : dockerComposeService.getContainers(engineName).getContainers()) {
+				String containerName = engineName + "_" + engineName + "_1";
+				if (container.getName().equals(containerName)) {
+					return container.isRunning();
+				}
+			}
+			return false;
+
 		} catch (Exception e) {
 			log.error("Engine not started or not exist {}", engineName, e);
 			return false;

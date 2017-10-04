@@ -10,8 +10,8 @@
         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
           <div layout="row">
             <button *ngIf="!row.started" md-button (click)="startTestEngine(row)" class="iconBtn-lg" title="Start Engine"><md-icon>play_circle_outline</md-icon></button>
-            <button *ngIf="row.started" md-button (click)="stopTestEngine(row)" class="iconBtn-lg" title="Stop Engine"><md-icon>delete</md-icon></button>
             <button *ngIf="row.started" md-button (click)="viewTestEngine(row)" class="iconBtn-lg" title="View Engine"><md-icon>remove_red_eye</md-icon></button>
+            <button *ngIf="row.started" md-button (click)="stopTestEngine(row)" class="iconBtn-lg" title="Stop Engine"><md-icon>delete</md-icon></button>
           </div>
         </ng-template>
       </td-data-table>

@@ -12,3 +12,8 @@ services:
     image: elastest/ece
     ports:
       - 37008:8888
+    networks:
+      - elastest
+networks:
+    elastest:
+      driver: bridge      
