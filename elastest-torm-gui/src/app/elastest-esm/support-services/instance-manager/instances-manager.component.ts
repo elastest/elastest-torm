@@ -1,3 +1,4 @@
+import { Observable, Subscription } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EsmService } from '../../esm-service.service';
 import { EsmServiceModel } from '../../esm-service.model';
@@ -28,9 +29,11 @@ export class InstancesManagerComponent implements OnInit {
   pageSize: number = 5;
   sortBy: string = 'serviceName';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
-
   supportServices: EsmServiceModel[] = [];
   selectedService: string;
+
+  timer: Observable<number>;
+  subscription: Subscription;
 
 
   constructor(private _dataTableService: TdDataTableService, private esmService: EsmService,
@@ -74,19 +77,40 @@ export class InstancesManagerComponent implements OnInit {
   }
 
   loadServiceInstances() {
-    this.esmService.getSupportServicesInstances()
-      .subscribe(
-      (esmServicesInstances) => {
-        this.prepareDataTable(esmServicesInstances);
+    this.timer = Observable.interval(1000);
+    if (this.subscription === null || this.subscription === undefined) {
+      console.log('Start polling for check tssInstance status');
+      this.subscription = this.timer
+        .subscribe(() => {
+          this.esmService.getSupportServicesInstances()
+            .subscribe(
+            (esmServicesInstances) => {
+              if (this.allServicesReady(esmServicesInstances)) {
+                console.log('Stop polling for check tssInstance status');
+                this.subscription.unsubscribe();
+                this.subscription = undefined;
+              }
+              this.prepareDataTable(esmServicesInstances);
+            }
+            );
+        });
+    }
+  }
+
+  allServicesReady(esmServicesInstances: EsmServiceInstanceModel[]) {
+    for (let tSSInstance of esmServicesInstances) {
+      if (!tSSInstance.serviceReady) {
+        return false;
       }
-      );
+    }
+    return true;
   }
 
   provisionServiceInstance() {
     this.esmService.provisionServiceInstance(this.selectedService)
       .subscribe(
-      (esmServices) => {
-        console.log(esmServices); this.loadServiceInstances();
+      (tSSInstance) => {
+        console.log('Provision tss:' + tSSInstance + ':Call loadServicesInstances'); this.loadServiceInstances();
       }
       );
   }

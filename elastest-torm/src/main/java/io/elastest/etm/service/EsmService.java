@@ -209,10 +209,10 @@ public class EsmService {
 	/**
 	 * 
 	 * @param serviceId
-	 * @param tJobExecid
+	 * @param tJobExecId
 	 * @return the new service instance.
 	 */
-	public SupportServiceInstance provisionServiceInstance(String serviceId, Long tJobExecid) {
+	public SupportServiceInstance provisionServiceInstance(String serviceId, Long tJobExecId, Long tJobId) {
 		logger.info("Service id to provision: " + serviceId);
 		ObjectMapper mapper = new ObjectMapper();
 		String instanceId = "";
@@ -231,16 +231,16 @@ public class EsmService {
 							service.get("name").toString().replaceAll("\"", ""),
 							// service.get("short_name").toString().replaceAll("\"",
 							// ""),
-							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecid);
+							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecId);
 
-					fillEnvVariablesToTSS(newServiceInstance);
+					fillEnvVariablesToTSS(newServiceInstance, tJobExecId, tJobId);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
 					newServiceInstance.setManifestId(
 							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
 
-					if (tJobExecid != null) {
+					if (tJobExecId != null) {
 						tJobServicesInstances.put(instanceId, newServiceInstance);
 					} else {
 						servicesInstances.put(instanceId, newServiceInstance);
@@ -313,7 +313,7 @@ public class EsmService {
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										apiNode.get("name") != null	? apiNode.get("name").toString().replaceAll("\"", "") : "api",
+										apiNode.get("name") != null	? apiNode.get("name").toString().replaceAll("\"", "") + "api" : "api",
 										socatBindingsPorts);
 							}
 						}
@@ -442,6 +442,9 @@ public class EsmService {
 	}
 
 	public List<SupportServiceInstance> getServicesInstances() {
+		servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+			tSSInstance.setServiceReady(checkInstanceUrlIsUp(tSSInstance));
+		});
 		return new ArrayList<SupportServiceInstance>(servicesInstances.values());
 	}
 
@@ -467,27 +470,42 @@ public class EsmService {
 
 		return tSSInstanceList;
 	}
-
+	
 	public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
 		boolean up = true;
 		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
-
-			if (urlHash.getKey().toLowerCase().contains("gui")) {
+			if(urlHash.getValue().contains("http")){
 				URL url;
 				try {
 					url = new URL(urlHash.getValue());
+					logger.info("Service url to check: " +urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 					int responseCode = huc.getResponseCode();
 					up = up && (responseCode >= 200 && responseCode <= 299);
+					if (!up){
+						logger.info("Service no ready at url: " +urlHash.getValue());
+						return up;
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
+					return false;
 				}
 			}
+			logger.info("Service ready at url: " +urlHash.getValue());
 		}
+		
 		return up;
 	}
 	
-	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance) {
+	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance, Long tJobExecId, Long tJobId) {
+		if (tJobId != null){
+			supportServiceInstance.getParameters().put("ET_TJOBID", tJobId.toString());
+		}
+		
+		if (tJobExecId != null){
+			supportServiceInstance.getParameters().put("ET_TJOBEXECID", tJobExecId.toString());
+		}
+		
 		supportServiceInstance.getParameters().put("ET_CONTEXT_API", "http://" + utilTools.getMyIp() + ":" + serverPort + "/api/context/tss/" + supportServiceInstance.getInstanceId());
 		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
