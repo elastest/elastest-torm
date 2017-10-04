@@ -2,12 +2,15 @@ version: '3'
 
 services:
   postgres:
-    image: elastest/ece-postgres
+    image: postgres:9.6-alpine
     ports:
       - 5432:5432
     environment:
       - POSTGRES_USER=elastest
       - POSTGRES_PASSWORD=elastestpassword
+      - POSTGRES_DB=ece
+    networks:
+      - elastest
   ece:
     image: elastest/ece
     ports:
