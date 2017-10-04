@@ -28,8 +28,8 @@ import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.utils.ElastestConstants;
 
 @Service
-public class EpmIntegrationService {
-	private static final Logger logger = LoggerFactory.getLogger(EpmIntegrationService.class);
+public class TJobExecOrchestratorService {
+	private static final Logger logger = LoggerFactory.getLogger(TJobExecOrchestratorService.class);
 
 	@Value("${et.edm.elasticsearch.api}")
 	private String elasticsearchHost;
@@ -46,7 +46,7 @@ public class EpmIntegrationService {
 	private DatabaseSessionManager dbmanager;
 	private final EsmService esmService;
 
-	public EpmIntegrationService(DockerService2 dockerService, TestSuiteRepository testSuiteRepo,
+	public TJobExecOrchestratorService(DockerService2 dockerService, TestSuiteRepository testSuiteRepo,
 			TestCaseRepository testCaseRepo, TJobExecRepository tJobExecRepositoryImpl,
 			DatabaseSessionManager dbmanager, EsmService esmService) {
 		super();
@@ -151,7 +151,7 @@ public class EpmIntegrationService {
 			for (ObjectNode service : services) {
 				if (service.get("selected").toString().equals(Boolean.toString(true))) {
 					String instanceId = esmService
-							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId())
+							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId(), tJobExec.getTjob().getId())
 							.getInstanceId();
 					tJobExec.getServicesInstances().add(instanceId);
 				}

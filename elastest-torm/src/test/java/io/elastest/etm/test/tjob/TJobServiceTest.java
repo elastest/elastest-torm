@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.TJob;
-import io.elastest.etm.service.EpmIntegrationService;
+import io.elastest.etm.service.TJobExecOrchestratorService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
@@ -41,7 +41,7 @@ public class TJobServiceTest {
 	
 	@Test
 	public void createTJobTest(@Autowired TJob tJob  
-			, @Mock TJobRepository tJobRepo, @Mock EpmIntegrationService epmIntegrationService, @Mock TJobExecRepository tJobExecRepo){
+			, @Mock TJobRepository tJobRepo, @Mock TJobExecOrchestratorService epmIntegrationService, @Mock TJobExecRepository tJobExecRepo){
 		//TJob createdTJob = 
 		when(tJobRepo.save(tJob)).thenReturn(tJob);
 		TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo, epmIntegrationService);		

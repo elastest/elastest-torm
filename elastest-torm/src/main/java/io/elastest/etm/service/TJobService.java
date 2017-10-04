@@ -28,9 +28,9 @@ public class TJobService {
 
 	private final TJobRepository tJobRepo;
 	private final TJobExecRepository tJobExecRepositoryImpl;
-	private final EpmIntegrationService epmIntegrationService;
+	private final TJobExecOrchestratorService epmIntegrationService;
 		
-	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, EpmIntegrationService epmIntegrationService) {
+	public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl, TJobExecOrchestratorService epmIntegrationService) {
 		super();
 		this.tJobRepo = tJobRepo;
 		this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;

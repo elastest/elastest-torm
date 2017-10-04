@@ -33,6 +33,10 @@ public class SupportServiceInstance {
 	@JsonProperty("serviceShortName")
 	private String serviceShortName;
 	
+	@JsonView(FrontView.class)
+	@JsonProperty("serviceReady")
+	private boolean serviceReady;
+	
 	@JsonView(ProvisionView.class)
 	@JsonProperty("plan_id")	
 	private String plan_id;
@@ -41,7 +45,7 @@ public class SupportServiceInstance {
 	@JsonProperty("organization_guid")
 	private String organization_guid;
 	
-	@JsonView(ProvisionView.class)
+	@JsonView({ProvisionView.class, FrontView.class})
 	@JsonProperty("parameters")
 	private Map<String, String> parameters;
 	
@@ -95,6 +99,7 @@ public class SupportServiceInstance {
 		this.subServices = new ArrayList<>();
 		this.endpointsData = new HashMap<>();
 		this.portBindingContainers = new ArrayList<>();
+		this.serviceReady = false;
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, Long bindToTJob) {
@@ -114,6 +119,7 @@ public class SupportServiceInstance {
 		this.subServices = new ArrayList<>();
 		this.endpointsData = new HashMap<>();
 		this.portBindingContainers = new ArrayList<>();
+		this.serviceReady = false;
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, String organization_guid,
@@ -135,6 +141,7 @@ public class SupportServiceInstance {
 		this.urls = urls;
 		this.subServices = subServices;
 		this.containerIp = containerIp;
+		this.serviceReady = false;
 	}
 
 	public String getService_id() {
@@ -160,6 +167,15 @@ public class SupportServiceInstance {
 	public void setServiceShortName(String serviceShortName) {
 		this.serviceShortName = serviceShortName;
 	}
+	
+	public boolean isServiceReady() {
+		return serviceReady;
+	}
+
+	public void setServiceReady(boolean serviceInstanceUp) {
+		this.serviceReady = serviceInstanceUp;
+	}
+
 
 	public String getPlan_id() {
 		return plan_id;
