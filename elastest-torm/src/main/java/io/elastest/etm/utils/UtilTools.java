@@ -107,20 +107,7 @@ public class UtilTools {
 					throw new DockerClientException("Exception executing /sbin/ip route", e);
 				}
 			} else {
-				if (windowsSO.toLowerCase().contains("win")) {
-					try {
-						InetAddress ip = InetAddress.getLocalHost();
-						hostIp = ip.getHostAddress();
-						System.out.println("Current IP address : " + hostIp);
-
-					  } catch (UnknownHostException e) {
-						e.printStackTrace();
-					  }
-					
-				}else{
-					hostIp = "127.0.0.1";
-				}
-				
+				hostIp = "127.0.0.1";
 			}
 		}
 		logger.debug("Host IP is {}", hostIp);
@@ -134,6 +121,19 @@ public class UtilTools {
 			return getHostIp();
 	}
 	
+	public String getMyIp(){
+		String myIp = "";
+		try {
+			InetAddress ip = InetAddress.getLocalHost();
+			System.out.println("Current IP address : " + hostIp);
+			myIp = ip.getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		return myIp;
+	}
+
 	public String convertJsonString(Object obj, Class<?> serializationView) {
 		String jsonString = null;
 		try {
