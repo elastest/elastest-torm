@@ -38,7 +38,7 @@ public class ExternalService {
 	@Value("${elastest.torm-gui.port}")
 	private String tormGuiPort;
 	
-	@Value("${logstash.input.http.port}")
+	@Value("${et.etm.lstcp.port}")
 	private String logstashInputHttpPort;
 	
 	@Value("${et.services.ip}")
