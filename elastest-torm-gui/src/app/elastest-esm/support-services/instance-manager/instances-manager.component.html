@@ -21,11 +21,11 @@
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                             <div layout="row">                                
                                 
-                                <button md-button *ngIf="row.serviceReady; else waitServiceReady" (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail" id="view_service"><md-icon>remove_red_eye</md-icon></button>
+                                <button md-button *ngIf="row.serviceReady; else waitServiceReady" (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail" id="view_service"><md-icon>remove_red_eye</md-icon></button>                                
                                 <ng-template #waitServiceReady>
-                                        <button md-button class="iconBtn-lg" title="View Service Detail" id="view_service"><md-icon class="tc-grey-50">remove_red_eye</md-icon></button>
+                                    <img  class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;" >
                                 </ng-template>                                
-                                <button md-button (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service" id="delete_service"><md-icon>delete</md-icon></button>
+                                <button md-button  *ngIf="row.serviceReady;" (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service" id="delete_service"><md-icon>delete</md-icon></button>
                             </div>
                         </ng-template>
                     </td-data-table>
