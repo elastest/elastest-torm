@@ -43,9 +43,9 @@ export class TestEnginesService {
             .map((response) => response);
     }
 
-    getUrl(testEngineModel: TestEngineModel) {
-        let url: string = this.mainUrl + testEngineModel.name + '/url';
+    getUrl(engineName: string) {
+        let url: string = this.mainUrl + engineName + '/url';
         return this.http.get(url)
-            .map((response) => (response.json()));
+            .map((response) => response['_body']);
     }
 }

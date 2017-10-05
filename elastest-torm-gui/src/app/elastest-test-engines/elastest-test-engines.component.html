@@ -7,6 +7,9 @@
     <md-card-content>
       <td-data-table class="scroll_table" [data]="testEngines" [columns]="testEnginesColumns" [selectable]="false" [clickable]="true"
         [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <ng-template tdDataTableTemplate="started" let-value="value" let-row="row" let-column="column">
+          {{row.started}}
+        </ng-template>
         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
           <div layout="row">
             <button *ngIf="!row.started" md-button (click)="startTestEngine(row)" class="iconBtn-lg" title="Start Engine"><md-icon>play_circle_outline</md-icon></button>

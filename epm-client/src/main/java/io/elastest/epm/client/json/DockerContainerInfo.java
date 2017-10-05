@@ -41,16 +41,17 @@ public class DockerContainerInfo {
     }
 
     public static class DockerContainer {
-        @JsonProperty("is_running")
-        boolean isRunning;
 
-        @JsonProperty("name_without_project")
-        String nameWithoutProject;
+    	//TODO Problem with @JsonProperty and underscore
+    	boolean is_running; 
+    	
+    	//TODO Problem with @JsonProperty and underscore
+        String name_without_project;
 
         String command;
         Labels labels;
         String name;
-        Ports ports;
+        Map<String, List<PortInfo>> ports;
         String state;
         List<Map<String, Object>> volumes;
 
@@ -59,7 +60,7 @@ public class DockerContainerInfo {
         }
 
         public boolean isRunning() {
-            return isRunning;
+            return is_running;
         }
 
         public Labels getLabels() {
@@ -71,10 +72,10 @@ public class DockerContainerInfo {
         }
 
         public String getNameWithoutProject() {
-            return nameWithoutProject;
+            return name_without_project;
         }
 
-        public Ports getPorts() {
+        public Map<String, List<PortInfo>> getPorts() {
             return ports;
         }
 
@@ -152,33 +153,20 @@ public class DockerContainerInfo {
 
     }
 
-    public static class Ports {
-        Map<String, PortInfo> portsMap;
-
-        public Map<String, PortInfo> getPortsMap() {
-            return portsMap;
-        }
-
-        @Override
-        public String toString() {
-            return "Ports [getPortsMap()=" + getPortsMap() + "]";
-        }
-
-    }
-
     public static class PortInfo {
-        @JsonProperty("HostIp")
-        String hostIp;
+        
+    	//TODO Problem with @JsonProperty and upper case
+        String HostIp;
 
-        @JsonProperty("HostPort")
-        String hostPort;
+    	//TODO Problem with @JsonProperty and upper case
+        String HostPort;
 
         public String getHostIp() {
-            return hostIp;
+            return HostIp;
         }
 
         public String getHostPort() {
-            return hostPort;
+            return HostPort;
         }
 
         @Override

@@ -18,10 +18,14 @@ export class TestEngineViewComponent implements OnInit {
 
   ngOnInit() {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.testEnginesService.getUrl(params['name']))
-        .subscribe((url: string) => {
-          this.url = url;
-        });
+      this.route.params.subscribe((params: Params) => {
+        this.engineName = params['name'];
+        this.testEnginesService.getUrl(params['name'])
+          .subscribe((url: any) => {
+            this.url = url;
+          },
+        )
+      });
     }
   }
 

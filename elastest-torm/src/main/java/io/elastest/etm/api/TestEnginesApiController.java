@@ -40,7 +40,7 @@ public class TestEnginesApiController implements TestEnginesApi {
 
 	public ResponseEntity<Boolean> isRunning(
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-		Boolean started = this.testEngineService.isStarted(name);
+		Boolean started = this.testEngineService.isRunning(name);
 		return new ResponseEntity<Boolean>(started, HttpStatus.OK);
 	}
 

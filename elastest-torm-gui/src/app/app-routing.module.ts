@@ -178,7 +178,7 @@ const routes: Routes = [
                         component: ElastestTestEnginesComponent,
                     },
                     {
-                        path: 'test-engines/:name',
+                        path: ':name',
                         component: TestEngineViewComponent,
 
                     },

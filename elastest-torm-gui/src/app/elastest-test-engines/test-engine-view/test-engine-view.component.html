@@ -1,11 +1,11 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-  <md-card *ngIf="url" tdMediaToggle="gt-xs">
+  <md-card *ngIf="url" tdMediaToggle="gt-xs" flex="100">
     <md-card-title>
       {{engineName}}
     </md-card-title>
     <md-divider></md-divider>
     <md-card-content class="push-bottom-none">
-      <div layout="column" layout-gt-sm="row" [style.height.px]="600">
+      <div layout="column" layout-gt-sm="row" [style.height.px]="800">
         <iframe name="engine" height="100%" width="100%" scrolling="auto" frameborder="no" [src]="url | safe"></iframe>
       </div>
     </md-card-content>

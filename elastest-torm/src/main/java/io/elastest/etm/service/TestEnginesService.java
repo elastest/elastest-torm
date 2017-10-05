@@ -70,7 +70,7 @@ public class TestEnginesService {
 
 	public String createInstance(String engineName) {
 		String url = "";
-		if (!isStarted(engineName)) {
+		if (!isRunning(engineName)) {
 			try {
 				dockerComposeService.startProject(engineName);
 				url = getServiceUrl(engineName);
@@ -85,13 +85,17 @@ public class TestEnginesService {
 		String url = "";
 		try {
 			for (DockerContainer container : dockerComposeService.getContainers(serviceName).getContainers()) {
+
+				log.info(container);
+
 				String containerName = serviceName + "_" + serviceName + "_1"; // example:
 																				// ece_ece_1
 				if (container.getName().equals(containerName)) {
-					// System.out.println(container.getPorts().toString());
-					// System.out.println(container.getPorts().getPortsMap());
-					PortInfo portInfo = container.getPorts().getPortsMap().get(serviceName);
-					url = portInfo.getHostIp() + ":" + portInfo.getHostPort();
+					PortInfo portInfo = container.getPorts().entrySet().iterator().next().getValue().get(0);
+					url = "http://" + portInfo.getHostIp() + ":" + portInfo.getHostPort();
+					if (serviceName.equals("ere")) {
+						url += "/elastest-recommendation-engine";
+					}
 					log.debug("Url: " + url);
 				}
 			}
@@ -114,7 +118,7 @@ public class TestEnginesService {
 		return getServiceUrl(engineName);
 	}
 
-	public Boolean isStarted(String engineName) {
+	public Boolean isRunning(String engineName) {
 		try {
 			for (DockerContainer container : dockerComposeService.getContainers(engineName).getContainers()) {
 				String containerName = engineName + "_" + engineName + "_1";
