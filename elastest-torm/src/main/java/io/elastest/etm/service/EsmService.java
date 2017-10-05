@@ -59,7 +59,7 @@ public class EsmService {
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
 
-	@Value("ET_EDM_ALLUXIO_API")
+	@Value("${et.edm.alluxio.api}")
 	public String ET_EDM_ALLUXIO_API;
 	@Value("${et.edm.mysql.host}")
 	public String ET_EDM_MYSQL_HOST;
@@ -299,6 +299,7 @@ public class EsmService {
 						auxServiceInstance.setEndpointName(serviceName);
 						auxServiceInstance.setContainerIp(containerIp);
 						auxServiceInstance.setServiceIp(serviceIp);
+						auxServiceInstance.setParameters(serviceInstance.getParameters());
 						serviceInstance.getSubServices().add(auxServiceInstance);
 					}
 
