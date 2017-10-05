@@ -31,10 +31,10 @@ public class TestEnginesApiController implements TestEnginesApi {
 		testEngineService.stopInstance(name);
 		return new ResponseEntity<String>(name, HttpStatus.OK);
 	}
-	
+
 	public ResponseEntity<String> getUrlIfIsRunning(
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-		String url= this.testEngineService.getUrlIfIsRunning(name);
+		String url = this.testEngineService.getUrlIfIsRunning(name);
 		return new ResponseEntity<String>(url, HttpStatus.OK);
 	}
 
@@ -44,9 +44,15 @@ public class TestEnginesApiController implements TestEnginesApi {
 		return new ResponseEntity<Boolean>(started, HttpStatus.OK);
 	}
 
+	public ResponseEntity<Boolean> isWorking(
+			@ApiParam(value = "Engine Url.", required = true) @PathVariable("name") String name) {
+		Boolean working = this.testEngineService.checkIfEngineUrlIsUp(name);
+		return new ResponseEntity<Boolean>(working, HttpStatus.OK);
+	}
+
 	public ResponseEntity<List<String>> getTestEngines() {
 		List<String> testEngines = this.testEngineService.getTestEngines();
 		return new ResponseEntity<List<String>>(testEngines, HttpStatus.OK);
 	}
-	
+
 }

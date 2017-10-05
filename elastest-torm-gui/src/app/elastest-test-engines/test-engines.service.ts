@@ -37,6 +37,12 @@ export class TestEnginesService {
             .map((response) => (response.json()));
     }
 
+    isWorking(testEngineModel: TestEngineModel) {
+        let url: string = this.mainUrl + testEngineModel.name + '/working';
+        return this.http.get(url)
+            .map((response) => (response.json()));
+    }
+    
     stopTestEngine(testEngineModel: TestEngineModel) {
         let url: string = this.mainUrl + testEngineModel.name;
         return this.http.delete(url)

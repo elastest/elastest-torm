@@ -2,9 +2,12 @@ package io.elastest.etm.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.etm.model.SupportServiceInstance;
 
 @Service
 public class TestEnginesService {
@@ -104,6 +108,33 @@ public class TestEnginesService {
 			log.error("Service url not exist {}", serviceName, e);
 		}
 		return url;
+	}
+
+	public boolean checkIfEngineUrlIsUp(String engineName) {
+		String url = getServiceUrl(engineName);
+		return checkIfUrlIsUp(url);
+	}
+
+	public boolean checkIfUrlIsUp(String engineUrl) {
+		boolean up = false;
+		URL url;
+		try {
+			url = new URL(engineUrl);
+			log.info("Service url to check: " + engineUrl);
+			HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+			int responseCode = huc.getResponseCode();
+			up = (responseCode >= 200 && responseCode <= 299);
+			if (!up) {
+				log.info("Service no ready at url: " + engineUrl);
+				return up;
+			}
+		} catch (IOException e) {
+			return false;
+		}
+
+		log.info("Service ready at url: " + engineUrl);
+
+		return up;
 	}
 
 	public void stopInstance(String engineName) {

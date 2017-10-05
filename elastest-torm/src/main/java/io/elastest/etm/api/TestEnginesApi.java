@@ -56,6 +56,15 @@ public interface TestEnginesApi extends EtmApiRoot {
 	@RequestMapping(value = "/engines/{name}/started", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<Boolean> isRunning(
 			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
+	
+	
+	@ApiOperation(value = "Returns if service is working", notes = "Returns if service is working", response = Boolean.class, tags = {
+			"Engines", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+			@ApiResponse(code = 400, message = "Not found.", response = Boolean.class) })
+	@RequestMapping(value = "/engines/{name}/working", produces = { "application/json" }, method = RequestMethod.GET)
+	ResponseEntity<Boolean> isWorking(
+			@ApiParam(value = "Engine name.", required = true) @PathVariable("name") String name);
 
 	@ApiOperation(value = "Returns test engines list", notes = "Returns test engines list", response = String.class, responseContainer = "List", tags = {
 			"Engines", })
