@@ -48,7 +48,7 @@ export class EsmService {
   getSupportServiceInstance(id: string) {
     let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
     return this.http.get(url)
-      .map((response) => this.transformIntoSupportServiceInstance(response.json())
+      .map((response) => new EsmServiceInstanceModel(response.json())
       );
   }
 
@@ -67,13 +67,8 @@ export class EsmService {
     let retrivedServicesInstance: EsmServiceInstanceModel[] = [];
 
     for (let serviceInstance of res) {
-      retrivedServicesInstance.push(this.transformIntoSupportServiceInstance(serviceInstance));
+      retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance));
     }
     return retrivedServicesInstance;
-  }
-
-  transformIntoSupportServiceInstance(serviceInstance: any) {
-    console.log("Service instance " + JSON.stringify(serviceInstance));
-    return new EsmServiceInstanceModel(serviceInstance);
-  }
+  } 
 }
