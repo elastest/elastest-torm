@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,6 +96,10 @@ public class EsmService {
 	public String ET_EMP_INFLUXDB_HOST;
 	@Value("${et.emp.influxdb.graphite.port}")
 	public String ET_EMP_INFLUXDB_GRAPHITE_PORT;
+	@Value("${et.etm.lstcp.host}")
+	public String ET_ETM_LSTCP_HOST;
+	@Value("${et.etm.lstcp.port}")
+	public String ET_ETM_LSTCP_PORT;
 
 	public EsmServiceClient esmServiceClient;
 	public DockerService2 dockerService;
@@ -106,7 +111,7 @@ public class EsmService {
 		logger.info("EsmService constructor.");
 		this.esmServiceClient = esmServiceClient;
 		this.utilTools = utilTools;
-		this.servicesInstances = new HashMap<>();
+		this.servicesInstances = new ConcurrentHashMap<>();
 		this.tJobServicesInstances = new HashMap<>();
 		this.dockerService = dockerService;
 	}
@@ -114,7 +119,11 @@ public class EsmService {
 	@PostConstruct
 	public void init() {
 		logger.info("EsmService initialization.");
-		registerElastestServices();
+		try{
+			registerElastestServices();
+		}catch (Exception e){
+			logger.warn("Error during the services registry. ");
+		}
 	}
 
 	/**
@@ -410,6 +419,7 @@ public class EsmService {
 		Map<String, SupportServiceInstance> servicesInstances = withTJob ? tJobServicesInstances
 				: this.servicesInstances;
 		SupportServiceInstance serviceInstance = servicesInstances.get(instanceId);
+		serviceInstance.setServiceReady(false);
 
 		for (String containerId : serviceInstance.getPortBindingContainers()) {
 			dockerService.stopDockerContainer(containerId, dockerClient);
@@ -507,6 +517,15 @@ public class EsmService {
 			supportServiceInstance.getParameters().put("ET_TJOBEXECID", tJobExecId.toString());
 		}
 		
+		supportServiceInstance.getParameters().put("ET_LSHTTP_API", ET_ETM_LSHTTP_API);
+		supportServiceInstance.getParameters().put("ET_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);
+		supportServiceInstance.getParameters().put("ET_LSBEATS_PORT", ET_ETM_LSBEATS_PORT);
+		supportServiceInstance.getParameters().put("ET_LSTCP_HOST", ET_ETM_LSTCP_HOST);
+		supportServiceInstance.getParameters().put("ET_LSTCP_PORT", ET_ETM_LSTCP_PORT);
+		supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST", ET_ETM_LSTCP_HOST);
+		supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT", ET_ETM_LSTCP_PORT);
+		
+				
 		supportServiceInstance.getParameters().put("ET_CONTEXT_API", "http://" + utilTools.getMyIp() + ":" + serverPort + "/api/context/tss/" + supportServiceInstance.getInstanceId());
 		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
