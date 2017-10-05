@@ -1,26 +1,22 @@
 package io.elastest.etm.service;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
-import io.elastest.etm.model.SupportServiceInstance;
 
 @Service
 public class TestEnginesService {
@@ -64,11 +60,12 @@ public class TestEnginesService {
 	public String getDockerCompose(String engineName) {
 		String content = "";
 		try {
-			Resource engineFile = new ClassPathResource(ET_TEST_ENGINES_PATH + engineName + ".yml");
-			content = new String(Files.readAllBytes(engineFile.getFile().toPath()));
+			InputStream inputStream = getClass().getResourceAsStream("/" + ET_TEST_ENGINES_PATH + engineName + ".yml");
+			content = IOUtils.toString(inputStream, "UTF-8");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		return content;
 	}
 
