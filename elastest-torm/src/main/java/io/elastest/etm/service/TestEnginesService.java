@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 
@@ -61,11 +62,10 @@ public class TestEnginesService {
 	}
 
 	public String getDockerCompose(String engineName) {
-		File engineFile;
 		String content = "";
 		try {
-			engineFile = new ClassPathResource(ET_TEST_ENGINES_PATH + engineName + ".yml").getFile();
-			content = new String(Files.readAllBytes(engineFile.toPath()));
+			Resource engineFile = new ClassPathResource(ET_TEST_ENGINES_PATH + engineName + ".yml");
+			content = new String(Files.readAllBytes(engineFile.getFile().toPath()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
