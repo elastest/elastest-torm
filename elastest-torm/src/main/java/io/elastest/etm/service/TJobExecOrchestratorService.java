@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +68,24 @@ public class TJobExecOrchestratorService {
 		if (tJobServices != null && tJobServices != "") {
 			provideServices(tJobServices, tJobExec);
 		}
+
+		Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
+		tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+			tSSInstAssocToTJob.put(tSSInstId, esmService.gettJobServicesInstances().get(tSSInstId));
+		});
+		int tryCounter = 0;
+		logger.info("Waiting for associated TSS");
+		while(!tSSInstAssocToTJob.isEmpty() || tryCounter < 10){			
+			tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+				if(esmService.checkInstanceUrlIsUp(esmService.gettJobServicesInstances().get(tSSInstId))){
+					tSSInstAssocToTJob.remove(tSSInstId);
+				}
+			});
+			
+			tryCounter++;
+		}
+		
+		logger.info("TSS availabes");
 		
 		setTJobExecEnvVars(tJobExec);
 

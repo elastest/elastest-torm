@@ -489,14 +489,11 @@ public class EsmService {
 				URL url;
 				try {
 					url = new URL(urlHash.getValue());
-					logger.info("Service url to check: " +urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-					huc.setConnectTimeout(2000);					
-					logger.info("Timeout for check url:" + huc.getConnectTimeout());
+					huc.setConnectTimeout(2000);
 					int responseCode = huc.getResponseCode();
 					up = up && (responseCode >= 200 && responseCode <= 299);
 					if (!up){
-						logger.info("Service no ready at url: " +urlHash.getValue());
 						return up;
 					}
 				} catch (Exception e) {
@@ -504,7 +501,6 @@ public class EsmService {
 					return false;
 				}
 			}
-			logger.info("Service ready at url: " +urlHash.getValue());
 		}
 		
 		return up;
@@ -615,12 +611,9 @@ public class EsmService {
 					
 					String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort + path;
 					envVars.put(envNameAPI, envValueAPI);
-					logger.info("Envvar: " + envNameAPI + "=" + envValueAPI);
 				} else {
 					envVars.put(envNameHost, envValueHost);
 					envVars.put(envNamePort, envValuePort);
-					logger.info("Envvar: " + envNameHost + "=" + envValueHost);
-					logger.info("Envvar: " + envNamePort + "=" + envValuePort);
 				}
 
 			} catch (Exception e) {
