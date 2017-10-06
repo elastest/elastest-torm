@@ -5,7 +5,7 @@ node('TESTDOCKER'){
         echo("the node is up")
         def mycontainer = docker.image('elastest/ci-docker-compose-siblings')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
-        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/ubuntu/.gnupg") {
+        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
             
         git 'https://github.com/elastest/elastest-torm.git'
 
