@@ -491,13 +491,15 @@ public class EsmService {
 					url = new URL(urlHash.getValue());
 					logger.info("Service url to check: " +urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+					huc.setConnectTimeout(2000);					
+					logger.info("Timeout for check url:" + huc.getConnectTimeout());
 					int responseCode = huc.getResponseCode();
 					up = up && (responseCode >= 200 && responseCode <= 299);
 					if (!up){
 						logger.info("Service no ready at url: " +urlHash.getValue());
 						return up;
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					return false;
 				}
