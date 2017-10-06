@@ -6,7 +6,7 @@
     <groupId>io.elastest.epm</groupId>
     <artifactId>epm-client</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.5.0-alpha1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>ElasTest Platform Manager (EPM) client.</description>
