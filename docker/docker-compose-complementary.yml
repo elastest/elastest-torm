@@ -70,7 +70,7 @@ services:
             - elastest 
 
     esm:
-      image: elastest/esm:latest:0.5.0-alpha1
+      image: elastest/esm:0.5.0-alpha1
       hostname: esm
       volumes:
             - /var/run/docker.sock:/var/run/docker.sock:rw
