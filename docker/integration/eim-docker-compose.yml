@@ -13,7 +13,7 @@ services:
                 networks:
                         - elastest
         eim:
-                image: elastest/eim:0.1
+                image: elastest/eim:0.5.0-alpha1
                 # volumes:
                 #       - static-content:/tmp/ssh 
                 depends_on:

@@ -4,7 +4,7 @@ services:
 
   hdfs-namenode:
     # container_name: hdfs-namenode
-    image: elastest/edm-hadoop:0.1
+    image: elastest/edm-hadoop:0.5.0-alpha1
     # build: ./hadoop
     command: hdfs namenode
     ports:
@@ -17,7 +17,7 @@ services:
 
   hdfs-datanode:
     # container_name: hdfs-datanode
-    image: elastest/edm-hadoop:0.1
+    image: elastest/edm-hadoop:0.5.0-alpha1
     # build: ./hadoop
     command: hdfs datanode
     # The host port is randomly assigned by Docker,
@@ -31,7 +31,7 @@ services:
 
   alluxio-master:
     # container_name: alluxio-master
-    image: elastest/edm-alluxio:0.1
+    image: elastest/edm-alluxio:0.5.0-alpha1
     # build: ./alluxio
     command: master
     ports:
@@ -52,7 +52,7 @@ services:
 
   alluxio-worker:
     # container_name: alluxio-worker
-    image: elastest/edm-alluxio:0.1
+    image: elastest/edm-alluxio:0.5.0-alpha1
     # build: ./alluxio
     command: worker
     ports:
@@ -75,7 +75,7 @@ services:
 
   rest-api:
     # build: ./rest  # path is relative to docker-compose.yml location
-    image: elastest/edm:0.1
+    image: elastest/edm:0.5.0-alpha1
     volumes:
       - ./rest/rest_api_project:/usr/src/app # mount point
       - ./rest/alluxio_conf:/opt/alluxio/conf
@@ -92,7 +92,7 @@ services:
 
   alluxio-proxy:
     # container_name: alluxio-proxy
-    image: elastest/edm-alluxio:0.1
+    image: elastest/edm-alluxio:0.5.0-alpha1
     # build: ./alluxio
     command: proxy
     ports:
@@ -113,7 +113,7 @@ services:
 
   elasticsearch:
     # container_name: elasticsearch
-    image: elastest/edm-elasticsearch:0.1
+    image: elastest/edm-elasticsearch:0.5.0-alpha1
     # build: ./elasticsearch
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
@@ -135,7 +135,7 @@ services:
 
   esnode:
     # container_name: esnode
-    image: elastest/edm-elasticsearch:0.1
+    image: elastest/edm-elasticsearch:0.5.0-alpha1
     # build: ./elasticsearch
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
@@ -159,7 +159,7 @@ services:
 
   kibana:
     # container_name: kibana
-    image: elastest/edm-kibana:0.1
+    image: elastest/edm-kibana:0.5.0-alpha1
     # build: ./kibana
     volumes:
       - ./kibana/config/:/usr/share/kibana/config
@@ -178,7 +178,7 @@ services:
 
   cerebro:
     # container_name: cerebro
-    image: elastest/edm-cerebro:0.1
+    image: elastest/edm-cerebro:0.5.0-alpha1
     # build: ./cerebro
     volumes:
       - ./cerebro/config/conf:/opt/cerebro-0.6.5/conf
@@ -196,7 +196,7 @@ services:
 
   mysql:
     # container_name: mysql
-    # image: elastest/edm-mysql:0.1
+    # image: elastest/edm-mysql:0.5.0-alpha1
     image: mysql:5.7
     # build: ./mysql
     ports:

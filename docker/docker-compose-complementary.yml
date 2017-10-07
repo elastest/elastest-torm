@@ -1,7 +1,7 @@
 version: '3'
 services:
     etm-beats:
-        image: elastest/etm-dockbeat
+        image: elastest/etm-dockbeat:0.5.0-alpha1
         environment:
             - LOGSTASHHOST=etm-logstash
         volumes:
@@ -12,7 +12,7 @@ services:
             - elastest
         
     etm-logstash:        
-        image: elastest/etm-logstash
+        image: elastest/etm-logstash:0.5.0-alpha1
         expose:
             - 5002
             - 5000
@@ -30,7 +30,7 @@ services:
             - elastest       
                                   
     etm-rabbitmq:
-        image: elastest/etm-rabbitmq
+        image: elastest/etm-rabbitmq:0.5.0-alpha1
         hostname: my-rabbit
         expose:
             - 15672
@@ -42,7 +42,7 @@ services:
             - elastest
 
     edm-mysql:
-        image: elastest/edm-mysql
+        image: elastest/edm-mysql:0.5.0-alpha1
         environment:
             MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
             MYSQL_DATABASE: "elastest"
@@ -57,7 +57,7 @@ services:
             - elastest
 
     edm-elasticsearch:
-        image: elastest/etm-elasticsearch
+        image: elastest/etm-elasticsearch:0.5.0-alpha1
         expose:
             - 9200
         volumes:
@@ -70,7 +70,7 @@ services:
             - elastest 
 
     esm:
-      image: elastest/esm:latest
+      image: elastest/esm:latest:0.5.0-alpha1
       hostname: esm
       volumes:
             - /var/run/docker.sock:/var/run/docker.sock:rw

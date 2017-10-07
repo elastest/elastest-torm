@@ -2,7 +2,7 @@ version: '2.1'
 services:
     beats:
         container_name: beats
-        image: elastest/etm-dockbeat
+        image: elastest/etm-dockbeat:0.5.0-alpha1
         environment:
             - LOGSTASHHOST=logstash
         volumes:
@@ -14,7 +14,7 @@ services:
         
     logstash:        
         container_name: logstash
-        image: elastest/etm-logstash
+        image: elastest/etm-logstash:0.5.0-alpha1
         ports:
             - 5002:5002
             - 5000:5000
@@ -33,7 +33,7 @@ services:
                                   
     rabbit-MQ:
         container_name: rabbit-MQ
-        image: elastest/etm-rabbitmq
+        image: elastest/etm-rabbitmq:0.5.0-alpha1
         hostname: my-rabbit
         ports:
             - 15672:15672

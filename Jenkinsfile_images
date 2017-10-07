@@ -13,12 +13,12 @@ node('docker'){
               "Create logstash docker image"
             
                 echo ("Creating elastest/etm-logstash image..")                
-                sh 'cd ./docker/services/logstash; docker build -t elastest/etm-logstash .'
+                sh 'cd ./docker/services/logstash; docker build -t elastest/etm-logstash:0.5.0-alpha1 .'
     
             stage "Publish Logstash docker image"
     
                 echo ("Publish elastest/etm-logstash image")
-                def logstashimage = docker.image('elastest/etm-logstash')
+                def logstashimage = docker.image('elastest/etm-logstash:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -31,12 +31,12 @@ node('docker'){
               "Create rabbitmq docker image"
             
                 echo ("Creating elastest/etm-rabbitmq image..")                
-                sh 'cd ./docker/services/rabbitmq; docker build -t elastest/etm-rabbitmq .'
+                sh 'cd ./docker/services/rabbitmq; docker build -t elastest/etm-rabbitmq:0.5.0-alpha1 .'
     
             stage "Publish RabbitMQ docker image"
     
                 echo ("Publish elastest/etm-rabbitmq image")
-                def rabbitmqimage = docker.image('elastest/etm-rabbitmq')
+                def rabbitmqimage = docker.image('elastest/etm-rabbitmq:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -49,12 +49,12 @@ node('docker'){
               "Create elasticsearch docker image"
             
                 echo ("Creating elastest/etm-elasticsearch image..")                
-                sh 'cd ./docker/services/elasticsearch; docker build -t elastest/etm-elasticsearch .'
+                sh 'cd ./docker/services/elasticsearch; docker build -t elastest/etm-elasticsearch:0.5.0-alpha1 .'
     
             stage "Publish Elasticsearch docker image"
     
                 echo ("Publish elastest/etm-elasticsearch image")
-                def elasticsearchimage = docker.image('elastest/etm-elasticsearch')
+                def elasticsearchimage = docker.image('elastest/etm-elasticsearch:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -67,12 +67,12 @@ node('docker'){
               "Create dockbeat docker image"
             
                 echo ("Creating elastest/etm-dockbeat image..")                
-                sh 'cd ./docker/services/dockbeat; docker build -t elastest/etm-dockbeat .'
+                sh 'cd ./docker/services/dockbeat; docker build -t elastest/etm-dockbeat:0.5.0-alpha1 .'
     
             stage "Publish Dockbeat docker image"
     
                 echo ("Publish elastest/etm-dockbeat image")
-                def dockbeatimage = docker.image('elastest/etm-dockbeat')
+                def dockbeatimage = docker.image('elastest/etm-dockbeat:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -85,12 +85,12 @@ node('docker'){
               "Create check-service-up docker image"
             
                 echo ("Creating elastest/etm-check-service-up image..")                
-                sh 'cd ./docker/services/check-service-up; docker build -t elastest/etm-check-service-up .'
+                sh 'cd ./docker/services/check-service-up; docker build -t elastest/etm-check-service-up:0.5.0-alpha1 .'
     
             stage "Publish Check Service Up docker image"
     
                 echo ("Publish elastest/etm-check-service-up image")
-                def checkserviceupimage = docker.image('elastest/etm-check-service-up')
+                def checkserviceupimage = docker.image('elastest/etm-check-service-up:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -103,12 +103,12 @@ node('docker'){
               "Create test-etm-test1 docker image"
             
                 echo ("Creating elastest/test-etm-test1 image..")                
-                sh 'cd ./docker/services/examples/test-etm-test1; docker build -t elastest/test-etm-test1 .'
+                sh 'cd ./docker/services/examples/test-etm-test1; docker build -t elastest/test-etm-test1:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-test1 docker image"
     
                 echo ("Publish elastest/test-etm-test1 image")
-                def testetmtest1image = docker.image('elastest/test-etm-test1')
+                def testetmtest1image = docker.image('elastest/test-etm-test1:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -121,12 +121,12 @@ node('docker'){
               "Create test-etm-test2 docker image"
             
                 echo ("Creating elastest/test-etm-test2 image..")                
-                sh 'cd ./docker/services/examples/test-etm-test2; docker build -t elastest/test-etm-test2 .'
+                sh 'cd ./docker/services/examples/test-etm-test2; docker build -t elastest/test-etm-test2:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-test2 docker image"
     
                 echo ("Publish elastest/test-etm-test2 image")
-                def testetmtest2image = docker.image('elastest/test-etm-test2')
+                def testetmtest2image = docker.image('elastest/test-etm-test2:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -139,12 +139,12 @@ node('docker'){
               "Create test-etm-test3-sut docker image"
             
                 echo ("Creating elastest/test-etm-test3-sut image..")                
-                sh 'cd ./docker/services/examples/test-etm-test3-sut; docker build -t elastest/test-etm-test3-sut .'
+                sh 'cd ./docker/services/examples/test-etm-test3-sut; docker build -t elastest/test-etm-test3-sut:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-test3-sut docker image"
     
                 echo ("Publish elastest/test-etm-test3-sut image")
-                def testetmtest3sutimage = docker.image('elastest/test-etm-test3-sut')
+                def testetmtest3sutimage = docker.image('elastest/test-etm-test3-sut:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -157,12 +157,12 @@ node('docker'){
               "Create test-etm-sut3 docker image"
             
                 echo ("Creating elastest/test-etm-sut3 image..")                
-                sh 'cd ./docker/services/examples/test-etm-sut3; docker build -t elastest/test-etm-sut3 .'
+                sh 'cd ./docker/services/examples/test-etm-sut3; docker build -t elastest/test-etm-sut3:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-sut3 docker image"
     
                 echo ("Publish elastest/test-etm-sut3 image")
-                def testetmsut3image = docker.image('elastest/test-etm-sut3')
+                def testetmsut3image = docker.image('elastest/test-etm-sut3:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -175,12 +175,12 @@ node('docker'){
               "Create test-etm-alpinegitjava docker image"
             
                 echo ("Creating elastest/test-etm-alpinegitjava image..")                
-                sh 'cd ./docker/services/examples/test-etm-alpinegitjava; docker build -t elastest/test-etm-alpinegitjava .'
+                sh 'cd ./docker/services/examples/test-etm-alpinegitjava; docker build -t elastest/test-etm-alpinegitjava:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-alpinegitjava docker image"
     
                 echo ("Publish elastest/test-etm-alpinegitjava image")
-                def testetmalpinegitjavaimage = docker.image('elastest/test-etm-alpinegitjava')
+                def testetmalpinegitjavaimage = docker.image('elastest/test-etm-alpinegitjava:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -193,12 +193,12 @@ node('docker'){
               "Create Test-etm-javasutrepo docker image"
             
                 echo ("Creating elastest/test-etm-javasutrepo image..")                
-                sh 'cd ./docker/services/examples/test-etm-javasutrepo; docker build -t elastest/test-etm-javasutrepo .'
+                sh 'cd ./docker/services/examples/test-etm-javasutrepo; docker build -t elastest/test-etm-javasutrepo:0.5.0-alpha1 .'
     
             stage "Publish Test-etm-javasutrepo docker image"
     
                 echo ("Publish elastest/test-etm-javasutrepo image")
-                def testetmjavasutrepoimage = docker.image('elastest/test-etm-javasutrepo')
+                def testetmjavasutrepoimage = docker.image('elastest/test-etm-javasutrepo:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -211,12 +211,12 @@ node('docker'){
               "Create socat docker image"
             
                 echo ("Creating elastest/etm-socat image..")                
-                sh 'cd ./docker/services/socat; docker build -t elastest/etm-socat .'
+                sh 'cd ./docker/services/socat; docker build -t elastest/etm-socat:0.5.0-alpha1 .'
     
             stage "Publish Socat docker image"
     
                 echo ("Publish elastest/etm-socat image")
-                def socatimage = docker.image('elastest/etm-socat')
+                def socatimage = docker.image('elastest/etm-socat:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -229,12 +229,12 @@ node('docker'){
               "Create etm-dockpcap docker image"
             
                 echo ("Creating elastest/etm-dockpcap image..")                
-                sh 'cd ./docker/services/dockpcap; docker build -t elastest/etm-dockpcap .'
+                sh 'cd ./docker/services/dockpcap; docker build -t elastest/etm-dockpcap:0.5.0-alpha1 .'
     
             stage "Publish dockpcap docker image"
     
                 echo ("Publish elastest/etm-dockpcap image")
-                def dockpcapimage = docker.image('elastest/etm-dockpcap')
+                def dockpcapimage = docker.image('elastest/etm-dockpcap:0.5.0-alpha1')
                 //this is work arround as withDockerRegistry is not working properly 
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
