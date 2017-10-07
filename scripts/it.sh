@@ -27,7 +27,7 @@ export COMPOSE_PROJECT_NAME=$projectName
 
 echo $COMPOSE_PROJECT_NAME
 
-docker pull elastest/esm:latest
+docker pull elastest/esm:0.5.0-alpha1
 
 docker-compose -f ../docker/docker-compose-complementary.yml up -d
     
