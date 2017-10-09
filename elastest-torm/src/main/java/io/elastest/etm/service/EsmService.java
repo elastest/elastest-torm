@@ -496,6 +496,7 @@ public class EsmService {
 					responseCode = huc.getResponseCode();
 					up = up && (responseCode >= 200 && responseCode <= 299);
 					if (!up){
+						logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
 						logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
 						logger.info(tSSInstance.getServiceName() + " Service is not ready.");
 						return up;
