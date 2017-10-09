@@ -355,20 +355,26 @@ public class EsmService {
 		int auxPort = 37000;
 
 		if (node != null) {
-			if ( node.get("port") != null){
-				String nodePort = node.get("port").toString().replaceAll("\"", "");
-				if (socatBindingsPorts.containsKey(nodePort)) {
-					auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));
-				} else {
-					auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
-					socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
+			if (windowsSO.toLowerCase().contains("win")){
+				if (node.get("port") != null) {
+					String nodePort = node.get("port").toString().replaceAll("\"", "");
+					if (socatBindingsPorts.containsKey(nodePort)) {
+						auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));
+					} else {
+						auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
+						socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
+					}
 				}
-			}
 
-			if (node.get("protocol") != null && (node.get("protocol").toString().contains("http"))
+				if (node.get("protocol") != null && (node.get("protocol").toString().contains("http"))
+						|| node.get("protocol").toString().contains("ws")) {
+					((ObjectNode) node).put("port", auxPort);
+					serviceInstance.setServicePort(auxPort);
+					serviceInstance.getUrls().put(nodeName,	createServiceInstanceUrl(node, serviceInstance.getServiceIp()));
+				}
+			}else if (node.get("port") != null && node.get("protocol") != null && (node.get("protocol").toString().contains("http"))
 					|| node.get("protocol").toString().contains("ws")) {
-				((ObjectNode) node).put("port", auxPort);
-				serviceInstance.setServicePort(auxPort);
+				serviceInstance.setServicePort(Integer.parseInt(node.get("port").toString().replaceAll("\"", "")));
 				serviceInstance.getUrls().put(nodeName, createServiceInstanceUrl(node, serviceInstance.getServiceIp()));
 			}
 			serviceInstance.getEndpointsData().put(nodeName, node);
@@ -486,7 +492,7 @@ public class EsmService {
 	
 	public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
 		boolean up = true;
-		int responseCode = 200;
+		int responseCode = 0;
 		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
 			if(urlHash.getValue().contains("http")){
 				URL url;
