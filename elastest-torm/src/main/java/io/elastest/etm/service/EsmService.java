@@ -487,16 +487,21 @@ public class EsmService {
 		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
 			if(urlHash.getValue().contains("http")){
 				URL url;
+				int responseCode = 200;
 				try {
 					url = new URL(urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 					huc.setConnectTimeout(2000);
-					int responseCode = huc.getResponseCode();
+					responseCode = huc.getResponseCode();
 					up = up && (responseCode >= 200 && responseCode <= 299);
 					if (!up){
+						logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
+						logger.info(tSSInstance.getServiceName() + " Service is ready.");
 						return up;
 					}
 				} catch (Exception e) {
+					logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
+					logger.info(tSSInstance.getServiceName() + " Service is not ready.");
 					return false;
 				}
 			}
