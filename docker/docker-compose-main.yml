@@ -9,7 +9,7 @@ services:
             - etm-beats
         links:
             - etm-rabbitmq
-        image: elastest/etm:0.5.0-alpha1
+        image: elastest/etm
         environment:
             - EXEC_MODE=Lite
             - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19999/

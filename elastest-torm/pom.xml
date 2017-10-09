@@ -11,7 +11,7 @@
 	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5.0-alpha1</version>
+	<version>0.5.0-alpha2-SNAPSHOT</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>This artifact contains the Elastest Torm project, part of the Elastest platform.</description>
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>io.elastest.epm</groupId>
 			<artifactId>epm-client</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<version>0.5.0-alpha2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

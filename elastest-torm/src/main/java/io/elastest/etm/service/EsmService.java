@@ -497,7 +497,6 @@ public class EsmService {
 						return up;
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
 					return false;
 				}
 			}
