@@ -54,6 +54,9 @@ public class EsmService {
 	@Value("${et.services.ip}")
 	public String ET_SERVICES_IP;
 	
+	@Value("${os.name}")
+	private String windowsSO;
+	
 	@Value("${server.port}")
 	public String serverPort;
 
@@ -289,9 +292,8 @@ public class EsmService {
 					String ssrvContainerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
-					serviceIp = ET_SERVICES_IP;
-					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"",
-							"");
+					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					serviceIp = windowsSO.toLowerCase().contains("win") ? ET_SERVICES_IP : containerIp;
 					serviceInstance.setContainerIp(containerIp);
 					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceInstance.getServiceIp());
