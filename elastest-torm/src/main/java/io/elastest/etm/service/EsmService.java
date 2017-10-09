@@ -484,10 +484,11 @@ public class EsmService {
 	
 	public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
 		boolean up = true;
+		int responseCode = 200;
 		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
 			if(urlHash.getValue().contains("http")){
 				URL url;
-				int responseCode = 200;
+				
 				try {
 					url = new URL(urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -496,16 +497,19 @@ public class EsmService {
 					up = up && (responseCode >= 200 && responseCode <= 299);
 					if (!up){
 						logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
-						logger.info(tSSInstance.getServiceName() + " Service is ready.");
+						logger.info(tSSInstance.getServiceName() + " Service is not ready.");
 						return up;
 					}
 				} catch (Exception e) {
 					logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
-					logger.info(tSSInstance.getServiceName() + " Service is not ready.");
+					logger.info(tSSInstance.getServiceName() + " Service is not ready by exception error.");
 					return false;
 				}
 			}
 		}
+		
+		logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
+		logger.info(tSSInstance.getServiceName() + " Service is ready.");
 		
 		return up;
 	}
