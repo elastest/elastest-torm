@@ -502,6 +502,7 @@ public class EsmService {
 						return up;
 					}
 				} catch (Exception e) {
+					logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
 					logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
 					logger.info(tSSInstance.getServiceName() + " Service is not ready by exception error.");
 					return false;
