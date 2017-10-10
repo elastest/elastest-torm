@@ -143,7 +143,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   viewRecording(testModel: EusTestModel) {
     this.eusService.getRecording(testModel.id).subscribe(
       ok => {
-        this.viewSession(this.configurationService.configModel.eusServiceUrlNoPath + ok.text(), testModel, " - recorded test");
+        this.viewSession("http://" + this.eusHost + ":" + this.eusPort + ok.text(), testModel, " - recorded test");
       },
       error => console.error(error)
     );
