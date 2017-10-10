@@ -36,6 +36,7 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services/
+            - ET_PUBLIC_HOST=localhost
         entrypoint: /run.sh
         expose:
             - 8091
