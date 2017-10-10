@@ -10,6 +10,8 @@ services:
         links:
             - etm-rabbitmq
         image: elastest/etm
+        env_file:
+            - ./docker-compose.env
         environment:
             - EXEC_MODE=Normal
             - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19999/
