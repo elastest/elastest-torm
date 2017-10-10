@@ -293,7 +293,7 @@ public class EsmService {
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
 					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
-					serviceIp = windowsSO.toLowerCase().contains("win") ? ET_PUBLIC_HOST : containerIp;
+					serviceIp = !ET_PUBLIC_HOST.equals("localhost") ? ET_PUBLIC_HOST : containerIp;
 					serviceInstance.setContainerIp(containerIp);
 					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceInstance.getServiceIp());
@@ -355,7 +355,7 @@ public class EsmService {
 		int auxPort = 37000;
 
 		if (node != null) {
-			if (windowsSO.toLowerCase().contains("win")){
+			if (!ET_PUBLIC_HOST.equals("localhost")){
 				if (node.get("port") != null) {
 					String nodePort = node.get("port").toString().replaceAll("\"", "");
 					if (socatBindingsPorts.containsKey(nodePort)) {
@@ -502,7 +502,8 @@ public class EsmService {
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 					huc.setConnectTimeout(2000);
 					responseCode = huc.getResponseCode();
-					up = up && (responseCode >= 200 && responseCode <= 299);
+					up = up && ((responseCode >= 200 && responseCode <= 299)
+							|| (responseCode >= 400 && responseCode <= 415));
 					if (!up){
 						logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
 						logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
