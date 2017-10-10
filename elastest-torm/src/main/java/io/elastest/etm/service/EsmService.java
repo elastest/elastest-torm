@@ -52,7 +52,7 @@ public class EsmService {
 	public String ELASTEST_EXECUTION_MODE;
 
 	@Value("${et.services.ip}")
-	public String ET_SERVICES_IP;
+	public String ET_PUBLIC_HOST;
 	
 	@Value("${os.name}")
 	private String windowsSO;
@@ -293,7 +293,7 @@ public class EsmService {
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
 					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
-					serviceIp = windowsSO.toLowerCase().contains("win") ? ET_SERVICES_IP : containerIp;
+					serviceIp = windowsSO.toLowerCase().contains("win") ? ET_PUBLIC_HOST : containerIp;
 					serviceInstance.setContainerIp(containerIp);
 					serviceInstance.setServiceIp(serviceIp);
 					logger.info("Service Ip {}:" + serviceInstance.getServiceIp());
@@ -543,7 +543,7 @@ public class EsmService {
 		
 				
 		supportServiceInstance.getParameters().put("ET_CONTEXT_API", "http://" + utilTools.getMyIp() + ":" + serverPort + "/api/context/tss/" + supportServiceInstance.getInstanceId());
-		supportServiceInstance.getParameters().put("ET_SERVICES_IP", ET_SERVICES_IP);
+		supportServiceInstance.getParameters().put("ET_PUBLIC_HOST", ET_PUBLIC_HOST);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
 		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", ET_EDM_MYSQL_HOST);
 		supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT", ET_EDM_MYSQL_PORT);
