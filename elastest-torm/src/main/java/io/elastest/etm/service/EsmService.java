@@ -51,7 +51,7 @@ public class EsmService {
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
 
-	@Value("${et.services.ip}")
+	@Value("${et.public.host}")
 	public String ET_PUBLIC_HOST;
 	
 	@Value("${os.name}")
