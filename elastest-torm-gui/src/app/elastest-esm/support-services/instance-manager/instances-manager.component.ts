@@ -4,14 +4,14 @@ import { EsmService } from '../../esm-service.service';
 import { EsmServiceModel } from '../../esm-service.model';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, IPageChangeEvent } from '@covalent/core';
 import { EsmServiceInstanceModel } from '../../esm-service-instance.model';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'esm-instance-manager',
   templateUrl: './instances-manager.component.html',
   styleUrls: ['./instances-manager.component.scss']
 })
-export class InstancesManagerComponent implements OnInit {
+export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   serviceColumns: any[] = [
     { name: 'id', label: 'Id' },
@@ -85,11 +85,12 @@ export class InstancesManagerComponent implements OnInit {
           this.esmService.getSupportServicesInstances()
             .subscribe(
             (esmServicesInstances) => {
-              if (this.allServicesReady(esmServicesInstances)) {
+              console.log('Stop polling for check tssInstance status');
+              /*if (this.allServicesReady(esmServicesInstances)) {
                 console.log('Stop polling for check tssInstance status');
                 this.subscription.unsubscribe();
                 this.subscription = undefined;
-              }
+              }*/
               this.prepareDataTable(esmServicesInstances);
             }
             );
@@ -118,8 +119,8 @@ export class InstancesManagerComponent implements OnInit {
   deprovisionService(serviceInstance: EsmServiceInstanceModel) {
     this.esmService.deprovisionServiceInstance(serviceInstance.id)
       .subscribe(
-      (esmServices) => {
-        console.log(esmServices); this.loadServiceInstances();
+      () => {
+        console.log("Call load ServiceInstances"); this.loadServiceInstances();
       }
       );
   }
@@ -139,5 +140,12 @@ export class InstancesManagerComponent implements OnInit {
     this.filteredData = this.instancesData;
     this.filteredTotal = this.instancesData.length;
     this.filter();
+  }
+
+  ngOnDestroy(){
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
+    }
   }
 }

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -218,23 +219,33 @@ public class EsmService {
 		return esmServiceClient.getRegisteredServices();
 	}
 
+	@Async
+	public void provisionServiceInstanceAsync(String serviceId, Long tJobExecId, Long tJobId) {
+		provisionServiceInstanceSync(serviceId, tJobExecId, tJobId);
+	}
+	
+	public String provisionServiceInstanceSync(String serviceId, Long tJobExecId, Long tJobId) {
+		String instanceId = utilTools.generateUniqueId();
+		provisionServiceInstance(serviceId, tJobExecId, tJobId, instanceId);		
+		return instanceId;
+	}
+
 	/**
 	 * 
 	 * @param serviceId
 	 * @param tJobExecId
 	 * @return the new service instance.
 	 */
-	public SupportServiceInstance provisionServiceInstance(String serviceId, Long tJobExecId, Long tJobId) {
+	public void provisionServiceInstance(String serviceId, Long tJobExecId, Long tJobId, String instanceId) {
 		logger.info("Service id to provision: " + serviceId);
 		ObjectMapper mapper = new ObjectMapper();
-		String instanceId = "";
 		SupportServiceInstance newServiceInstance = null;
 
 		try {
 			JsonNode services = getRawRegisteredServices();
 			for (JsonNode service : services) {
 				if (service.get("id").toString().replaceAll("\"", "").equals(serviceId)) {
-					instanceId = utilTools.generateUniqueId();
+					//instanceId = utilTools.generateUniqueId();
 					logger.info("Service instance: " + instanceId);
 					List<ObjectNode> plans = Arrays
 							.asList(mapper.readValue(service.get("plans").toString(), ObjectNode[].class));
@@ -245,18 +256,18 @@ public class EsmService {
 							// ""),
 							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecId);
 
+					if (tJobExecId != null) {
+						tJobServicesInstances.put(instanceId, newServiceInstance);
+					} else {
+						servicesInstances.put(instanceId, newServiceInstance);
+					}
+					
 					fillEnvVariablesToTSS(newServiceInstance, tJobExecId, tJobId);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
 					newServiceInstance.setManifestId(
 							serviceInstanceDetail.get("context").get("manifest_id").toString().replaceAll("\"", ""));
 					buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
-
-					if (tJobExecId != null) {
-						tJobServicesInstances.put(instanceId, newServiceInstance);
-					} else {
-						servicesInstances.put(instanceId, newServiceInstance);
-					}
 				}
 			}
 
@@ -267,7 +278,6 @@ public class EsmService {
 		if (newServiceInstance == null) {
 			throw new RuntimeException("Service with name \"" + serviceId + "\" not found in ESM");
 		}
-		return newServiceInstance;
 	}
 
 	private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance, ObjectNode serviceInstanceDetail) {
@@ -293,6 +303,7 @@ public class EsmService {
 					String networkName = etDockerNetwork;
 					logger.info("Network name: " + networkName);
 					String containerIp = serviceInstanceDetail.get("context").get(fieldName).toString().replaceAll("\"", "");
+					logger.info("ET_PUBLIC_HOST value: " + ET_PUBLIC_HOST);
 					serviceIp = !ET_PUBLIC_HOST.equals("localhost") ? ET_PUBLIC_HOST : containerIp;
 					serviceInstance.setContainerIp(containerIp);
 					serviceInstance.setServiceIp(serviceIp);
@@ -491,9 +502,10 @@ public class EsmService {
 	}
 	
 	public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
-		boolean up = true;
+		boolean up = false;
 		int responseCode = 0;
 		for (Map.Entry<String, String> urlHash : tSSInstance.getUrls().entrySet()) {
+			up = true;
 			if(urlHash.getValue().contains("http")){
 				URL url;
 				

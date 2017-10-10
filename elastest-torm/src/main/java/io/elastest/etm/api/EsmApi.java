@@ -3,10 +3,12 @@ package io.elastest.etm.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
@@ -38,14 +40,14 @@ public interface EsmApi extends EtmApiRoot{
         method = RequestMethod.GET)
     ResponseEntity<List<SupportService>> getSupportServices();
     
-    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", response = SupportServiceInstance.class, tags={ "ESM", })
+    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", tags={ "ESM", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 201, message = "Instance created", response = SupportServiceInstance.class),
+        @ApiResponse(code = 201, message = "Instance created"),
         @ApiResponse(code = 500, message = "Internal error") })    
     @RequestMapping(value = "/esm/services/{serviceId}/prov",
-    	produces = { "application/json" },
-        method = RequestMethod.POST)
-    ResponseEntity<SupportServiceInstance> provisionServiceInstance(@ApiParam(value = "serviceId", required=true) @PathVariable(value="serviceId", required=false) String serviceId);
+    	method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
+    void provisionServiceInstance(@ApiParam(value = "serviceId", required=true) @PathVariable(value="serviceId", required=false) String serviceId);
     
     @ApiOperation(value = "Request to delete a service instance in the ESM.", notes = "Start the delete proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 

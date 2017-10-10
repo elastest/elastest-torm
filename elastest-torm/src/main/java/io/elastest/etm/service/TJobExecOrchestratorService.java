@@ -171,8 +171,8 @@ public class TJobExecOrchestratorService {
 			for (ObjectNode service : services) {
 				if (service.get("selected").toString().equals(Boolean.toString(true))) {
 					String instanceId = esmService
-							.provisionServiceInstance(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId(), tJobExec.getTjob().getId())
-							.getInstanceId();
+							.provisionServiceInstanceSync(service.get("id").toString().replaceAll("\"", ""), tJobExec.getId(), tJobExec.getTjob().getId());
+							
 					tJobExec.getServicesInstances().add(instanceId);
 				}
 			}

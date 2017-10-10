@@ -47,10 +47,7 @@ public class EsmServiceItTest {
 		
 		assertThat(nginx).isNotNull();
 		
-		SupportServiceInstance instance = esmService.provisionServiceInstance(nginx.getId(), null, null);
-		
-		logger.info("Endpoints: {}",instance.getEndpointsData());
-		
+		esmService.provisionServiceInstanceSync(nginx.getId(), null, null);
 	}
 
 }

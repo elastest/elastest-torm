@@ -49,7 +49,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
 		executor.setCorePoolSize(4);
 		executor.setMaxPoolSize(6);
 		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("TJob-");
+		executor.setThreadNamePrefix("ET-");
 		executor.initialize();
 		return executor;
 	}
