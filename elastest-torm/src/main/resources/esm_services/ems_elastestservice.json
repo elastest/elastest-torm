@@ -33,7 +33,7 @@
     },
     "manifest": {
         "id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
-        "manifest_content": "version: '2.1'\nservices:\n    ems:\n        container_name: elastest-ems\n        image: elastest/ems\n        networks:\n            - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
+        "manifest_content": "version: '2.1'\nservices:\n    ems:\n        image: elastest/ems\n        networks:\n            - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
         "manifest_type": "docker-compose",
         "plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
         "service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
