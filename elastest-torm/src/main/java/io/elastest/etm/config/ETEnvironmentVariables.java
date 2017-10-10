@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import io.elastest.etm.model.SupportServiceInstance;
 
 public class ETEnvironmentVariables {
-	@Value("${et.services.ip}")
+	@Value("${et.public.host}")
 	public String ET_SERVICES_IP;
 
 	@Value("${elastest.docker.network}")

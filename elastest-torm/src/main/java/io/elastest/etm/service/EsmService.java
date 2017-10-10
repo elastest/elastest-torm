@@ -584,15 +584,15 @@ public class EsmService {
 	public Map<String,String> getTSSInstanceEnvVars(SupportServiceInstance ssi, boolean publicEnvVars){		
 		Map<String, String> envVars = new HashMap<String, String>();
 		String servicePrefix = ssi.getServiceName().toUpperCase().replaceAll("-", "_");
-		String envVarNamePrefix =  publicEnvVars ? "ET_PUBLIC_" + servicePrefix : "ET_" + servicePrefix;
+		String envVarNamePrefix =  publicEnvVars ? "ET_PUBLIC" : "ET";
 		
 		for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData().entrySet()) {
-			String prefix = envVarNamePrefix;			
+			String prefix = envVarNamePrefix.contains("ET_PUBLIC") ? envVarNamePrefix : envVarNamePrefix  + "_" + servicePrefix;			
 			envVars.putAll(setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
 		}
 
 		for (SupportServiceInstance subssi : ssi.getSubServices()) {
-			String envNamePrefixSubSSI = envVarNamePrefix + "_"
+			String envNamePrefixSubSSI = envVarNamePrefix + "_" + servicePrefix + "_"
 					+ subssi.getEndpointName().toUpperCase().replaceAll("-", "_");
 
 			for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData().entrySet()) {
@@ -621,7 +621,7 @@ public class EsmService {
 
 				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
 				if (protocol.equals("http") || protocol.equals("ws")) {
-					String envNameAPI = prefix + "_" + "API";
+					String envNameAPI = prefix + "_API";
 					String path = entry.getValue().get("path").toString().replaceAll("\"", "");
 					if (!path.startsWith("/")) {
 						path = "/" + path;

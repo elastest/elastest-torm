@@ -41,7 +41,7 @@ public class ExternalService {
 	@Value("${et.etm.lstcp.port}")
 	private String logstashInputHttpPort;
 	
-	@Value("${et.services.ip}")
+	@Value("${et.public.host}")
 	private String servicesIp;
 	
 	public ExternalService(ProjectService projectService, TJobService tJobService, UtilTools utilTools){
