@@ -539,11 +539,11 @@ public class EsmService {
 	
 	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance, Long tJobExecId, Long tJobId) {
 		if (tJobId != null){
-			supportServiceInstance.getParameters().put("ET_TJOBID", tJobId.toString());
+			supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
 		}
 		
 		if (tJobExecId != null){
-			supportServiceInstance.getParameters().put("ET_TJOBEXECID", tJobExecId.toString());
+			supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", tJobExecId.toString());
 		}
 		
 		supportServiceInstance.getParameters().put("ET_LSHTTP_API", ET_ETM_LSHTTP_API);
@@ -554,7 +554,6 @@ public class EsmService {
 		supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST", ET_ETM_LSTCP_HOST);
 		supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT", ET_ETM_LSTCP_PORT);
 		
-				
 		supportServiceInstance.getParameters().put("ET_CONTEXT_API", "http://" + utilTools.getMyIp() + ":" + serverPort + "/api/context/tss/" + supportServiceInstance.getInstanceId());
 		supportServiceInstance.getParameters().put("ET_PUBLIC_HOST", ET_PUBLIC_HOST);
 		supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", ET_EDM_ALLUXIO_API);
