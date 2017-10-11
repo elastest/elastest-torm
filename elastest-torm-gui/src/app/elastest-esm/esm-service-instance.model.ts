@@ -30,9 +30,6 @@ export class EsmServiceInstanceModel {
             this.endpointsDataKeys = Object.keys(serviceInstance.endpointsData);
             for(let endpointDataKey of this.endpointsDataKeys){
                 this.endpointsNodeDataKeys.push(Object.keys(serviceInstance.endpointsData[endpointDataKey]));
-                for (let endpointField of Object.keys(this.endpointsOtherData[endpointDataKey])){
-                    console.log('Endpoint:' + JSON.stringify(this.endpointsOtherData[endpointDataKey][endpointField]));
-                }
             }
             this.urlsKeys = Object.keys(serviceInstance.urls);
             this.urls = serviceInstance.urls;

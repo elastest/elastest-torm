@@ -1,6 +1,5 @@
 package io.elastest.etm.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.FrontView;
 import io.elastest.etm.service.EsmService;
-import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 
 @Controller
@@ -28,6 +27,9 @@ public class EsmApiController implements EsmApi {
 
 	@Autowired
 	EsmService esmService;
+	
+	@Autowired
+	UtilTools utilTools;
 
 	@Value("${elastest.execution.mode}")
 	public String ELASTEST_EXECUTION_MODE;
@@ -51,10 +53,12 @@ public class EsmApiController implements EsmApi {
 	}
 
 	@Override
-	public void provisionServiceInstance(
+	public ResponseEntity<String> provisionServiceInstance(
 			@ApiParam(value = "Service Id", required = true) @PathVariable("serviceId") String serviceId) {
 		logger.info("Service provision:" + serviceId);
-		esmService.provisionServiceInstanceAsync(serviceId, null, null);
+		String instanceId = utilTools.generateUniqueId();
+		esmService.provisionServiceInstanceAsync(serviceId, null, null, instanceId);
+		return new ResponseEntity<String>(instanceId, HttpStatus.OK);
 	}
 
 	@Override

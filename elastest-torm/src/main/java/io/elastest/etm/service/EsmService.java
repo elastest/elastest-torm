@@ -220,8 +220,8 @@ public class EsmService {
 	}
 
 	@Async
-	public void provisionServiceInstanceAsync(String serviceId, Long tJobExecId, Long tJobId) {
-		provisionServiceInstanceSync(serviceId, tJobExecId, tJobId);
+	public void provisionServiceInstanceAsync(String serviceId, Long tJobExecId, Long tJobId, String instanceId) {
+		provisionServiceInstance(serviceId, tJobExecId, tJobId, instanceId);
 	}
 	
 	public String provisionServiceInstanceSync(String serviceId, Long tJobExecId, Long tJobId) {
@@ -245,7 +245,6 @@ public class EsmService {
 			JsonNode services = getRawRegisteredServices();
 			for (JsonNode service : services) {
 				if (service.get("id").toString().replaceAll("\"", "").equals(serviceId)) {
-					//instanceId = utilTools.generateUniqueId();
 					logger.info("Service instance: " + instanceId);
 					List<ObjectNode> plans = Arrays
 							.asList(mapper.readValue(service.get("plans").toString(), ObjectNode[].class));

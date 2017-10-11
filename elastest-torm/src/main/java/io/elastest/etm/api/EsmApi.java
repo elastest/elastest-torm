@@ -40,14 +40,14 @@ public interface EsmApi extends EtmApiRoot{
         method = RequestMethod.GET)
     ResponseEntity<List<SupportService>> getSupportServices();
     
-    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", tags={ "ESM", })
+    @ApiOperation(value = "Request to create a service instance in the ESM.", notes = "Start the provisioning proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 201, message = "Instance created"),
+        @ApiResponse(code = 201, message = "Instance created", response = String.class),
         @ApiResponse(code = 500, message = "Internal error") })    
     @RequestMapping(value = "/esm/services/{serviceId}/prov",
+    	produces = { "text/plain" },
     	method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.OK)
-    void provisionServiceInstance(@ApiParam(value = "serviceId", required=true) @PathVariable(value="serviceId", required=false) String serviceId);
+    ResponseEntity<String> provisionServiceInstance(@ApiParam(value = "serviceId", required=true) @PathVariable(value="serviceId", required=false) String serviceId);
     
     @ApiOperation(value = "Request to delete a service instance in the ESM.", notes = "Start the delete proces of a service Instance.", response = String.class, tags={ "ESM", })
     @ApiResponses(value = { 

@@ -31,6 +31,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
   supportServices: EsmServiceModel[] = [];
   selectedService: string;
+  tSSIOnTheFly: string[] = [];
 
   timer: Observable<number>;
   subscription: Subscription;
@@ -77,6 +78,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   }
 
   loadServiceInstances() {
+    console.log('tSSIOnTheFly size:' + this.tSSIOnTheFly.length);
     this.timer = Observable.interval(1000);
     if (this.subscription === null || this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
@@ -85,12 +87,13 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
           this.esmService.getSupportServicesInstances()
             .subscribe(
             (esmServicesInstances) => {
-              console.log('Stop polling for check tssInstance status');
-              /*if (this.allServicesReady(esmServicesInstances)) {
+              if (this.allServicesReady(esmServicesInstances)) {
                 console.log('Stop polling for check tssInstance status');
-                this.subscription.unsubscribe();
-                this.subscription = undefined;
-              }*/
+                if (this.subscription !== undefined) {
+                  this.subscription.unsubscribe();
+                  this.subscription = undefined;
+                }
+              }
               this.prepareDataTable(esmServicesInstances);
             }
             );
@@ -100,18 +103,27 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   allServicesReady(esmServicesInstances: EsmServiceInstanceModel[]) {
     for (let tSSInstance of esmServicesInstances) {
-      if (!tSSInstance.serviceReady) {
+      if (tSSInstance.serviceReady) {
+        this.tSSIOnTheFly.splice(this.tSSIOnTheFly.indexOf(tSSInstance.id), 1);
+        console.log('tSSIOnTheFly size after splice:' + this.tSSIOnTheFly.length);
+      } else {
         return false;
       }
     }
-    return true;
+    if (this.tSSIOnTheFly.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   provisionServiceInstance() {
     this.esmService.provisionServiceInstance(this.selectedService)
       .subscribe(
       (tSSInstance) => {
-        console.log('Provision tss:' + tSSInstance + ':Call loadServicesInstances'); this.loadServiceInstances();
+        console.log('TSS InstanceId:' + tSSInstance );
+        this.tSSIOnTheFly.push(tSSInstance);
+        this.loadServiceInstances();
       }
       );
   }

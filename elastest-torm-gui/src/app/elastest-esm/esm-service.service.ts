@@ -20,7 +20,7 @@ export class EsmService {
   provisionServiceInstance(serviceId: string) {
     let url = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
     return this.http.post(url, null)
-      .map((response) => console.log(JSON.stringify(response))
+      .map((response) => response['_body']
       );
   }
 
