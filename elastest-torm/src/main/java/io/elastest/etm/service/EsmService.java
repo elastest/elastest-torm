@@ -225,12 +225,6 @@ public class EsmService {
 		return instanceId;
 	}
 
-	/**
-	 * 
-	 * @param serviceId
-	 * @param tJobExecId
-	 * @return the new service instance.
-	 */
 	public void provisionServiceInstance(String serviceId, Long tJobExecId, Long tJobId, String instanceId) {
 		logger.info("Service id to provision: " + serviceId);
 		ObjectMapper mapper = new ObjectMapper();
