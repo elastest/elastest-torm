@@ -209,11 +209,6 @@ public class EsmService {
 		return services;
 	}
 
-	/**
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
 	public JsonNode getRawRegisteredServices() throws IOException {
 		logger.info("Get registered all data of a service.");
 		return esmServiceClient.getRegisteredServices();
