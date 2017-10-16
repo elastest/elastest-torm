@@ -67,16 +67,14 @@ public class DockerService2 {
 	}
 
 	public DockerClient getDockerClient() {
-		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()				
-				.build();		
+		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
 		return DockerClientBuilder.getInstance(config).build();
 	}
 
 	/* Config Methods */
 
 	public void configureDocker(DockerExecution dockerExec) {
-		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-				.build();
+		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
 		dockerExec.setDockerClient(DockerClientBuilder.getInstance(config).build());
 	}
 
@@ -333,6 +331,14 @@ public class DockerService2 {
 				.getNetworks().get(dockerExec.getNetwork()).getIpAddress();
 		return ip.split("/")[0];
 	}
+	
+	public String getContainerIpByNetwork(String containerId, String network){
+		DockerClient client = getDockerClient();
+		System.out.println(client.inspectContainerCmd(containerId).exec());
+		String ip = client.inspectContainerCmd(containerId).exec().getNetworkSettings()
+				.getNetworks().get(network).getIpAddress();
+		return ip.split("/")[0];
+	}
 
 	public String getNetworkName(String containerId, DockerClient dockerClient) {
 		return (String) dockerClient.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().keySet()
@@ -351,6 +357,11 @@ public class DockerService2 {
 
 	public boolean imageExist(String imageName, DockerExecution dockerExec) {
 		return !dockerExec.getDockerClient().searchImagesCmd(imageName).exec().isEmpty();
+	}
+
+	public void insertIntoNetwork(String networkId, String containerId) {
+		DockerClient client = getDockerClient();
+		client.connectToNetworkCmd().withNetworkId(networkId).withContainerId(containerId).exec();
 	}
 
 	/* Get TestResults */

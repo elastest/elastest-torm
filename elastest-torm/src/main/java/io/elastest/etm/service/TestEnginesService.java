@@ -24,14 +24,18 @@ public class TestEnginesService {
 	private Logger log = Logger.getLogger(TestEnginesService.class);
 
 	public DockerComposeService dockerComposeService;
+	public DockerService2 dockerService2;
 
 	public List<String> enginesList = new ArrayList<>();
+
+	public String network = "elastest_elastest";
 
 	@Value("${et.test.engines.path}")
 	public String ET_TEST_ENGINES_PATH;
 
-	public TestEnginesService(DockerComposeService dockerComposeService) {
+	public TestEnginesService(DockerComposeService dockerComposeService, DockerService2 dockerService2) {
 		this.dockerComposeService = dockerComposeService;
+		this.dockerService2 = dockerService2;
 	}
 
 	public void registerEngines() {
@@ -74,12 +78,24 @@ public class TestEnginesService {
 		if (!isRunning(engineName)) {
 			try {
 				dockerComposeService.startProject(engineName);
+				insertIntoETNetwork(engineName);
 				url = getServiceUrl(engineName);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return url;
+	}
+
+	public void insertIntoETNetwork(String engineName) {
+		try {
+			for (DockerContainer container : dockerComposeService.getContainers(engineName).getContainers()) {
+				dockerService2.insertIntoNetwork(network, container.getName());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public String getServiceUrl(String serviceName) {
@@ -92,8 +108,10 @@ public class TestEnginesService {
 				String containerName = serviceName + "_" + serviceName + "_1"; // example:
 																				// ece_ece_1
 				if (container.getName().equals(containerName)) {
-					PortInfo portInfo = container.getPorts().entrySet().iterator().next().getValue().get(0);
-					url = "http://" + portInfo.getHostIp() + ":" + portInfo.getHostPort();
+					String ip = dockerService2.getContainerIpByNetwork(container.getName(), network);
+					String port = container.getPorts().entrySet().iterator().next().getKey().split("/")[0];
+					url = "http://" + ip + ":" + port;
+					
 					if (serviceName.equals("ere")) {
 						url += "/elastest-recommendation-engine";
 					}
