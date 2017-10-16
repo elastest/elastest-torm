@@ -1,3 +1,4 @@
+import { PopupService } from '../shared/services/popup.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TestEngineModel } from './test-engine-model';
@@ -23,7 +24,11 @@ export class ElastestTestEnginesComponent implements OnInit {
   starting: any = {};
   stopping: any = {};
 
-  constructor(private testEnginesService: TestEnginesService, private router: Router, ) { }
+  constructor(
+    private testEnginesService: TestEnginesService,
+    private router: Router,
+    public popupService: PopupService,
+  ) { }
 
   ngOnInit() {
     this.getTestEngines();
@@ -63,6 +68,7 @@ export class ElastestTestEnginesComponent implements OnInit {
       },
       (error) => {
         console.log(error);
+        this.popupService.openSnackBar('Error starting service ' + testEngine.name, 'OK');
         this.starting[testEngine.name] = false;
       },
     );
@@ -70,6 +76,9 @@ export class ElastestTestEnginesComponent implements OnInit {
 
   initStartedTest(testEngine: TestEngineModel, url: string) {
     this.updateTestEngine(testEngine, true, url);
+    if (url === '') {
+      this.popupService.openSnackBar('Error: Could not start service ' + testEngine.name, 'OK');
+    }
     this.checkIfIsReady(testEngine, url);
   }
 

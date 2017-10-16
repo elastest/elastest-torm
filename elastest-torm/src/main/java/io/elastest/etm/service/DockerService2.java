@@ -334,7 +334,7 @@ public class DockerService2 {
 	
 	public String getContainerIpByNetwork(String containerId, String network){
 		DockerClient client = getDockerClient();
-		System.out.println(client.inspectContainerCmd(containerId).exec());
+
 		String ip = client.inspectContainerCmd(containerId).exec().getNetworkSettings()
 				.getNetworks().get(network).getIpAddress();
 		return ip.split("/")[0];
