@@ -28,7 +28,8 @@ public class TestEnginesService {
 
 	public List<String> enginesList = new ArrayList<>();
 
-	public String network = "elastest_elastest";
+	@Value("${elastest.docker.network}")
+	public String network;
 
 	@Value("${et.test.engines.path}")
 	public String ET_TEST_ENGINES_PATH;
