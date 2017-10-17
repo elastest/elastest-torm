@@ -51,6 +51,9 @@ public class DockerService2 {
 
 	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
+	
+	@Value("${elastest.docker.network}")
+	private String elastestNetwork;
 
 	@Autowired
 	private SutService sutService;
@@ -60,7 +63,7 @@ public class DockerService2 {
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		configureDocker(dockerExec);
-		dockerExec.setNetwork("bridge");
+		dockerExec.setNetwork(elastestNetwork);
 		if (dockerExec.isWithSut()) {
 			startSut(dockerExec);
 		}
@@ -226,7 +229,7 @@ public class DockerService2 {
 
 			CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
 					.withEnv(envList).withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId())
-					.withCmd(cmdList).exec();
+					.withCmd(cmdList).withNetworkMode(dockerExec.getNetwork()).exec();
 
 			String testContainerId = testContainer.getId();
 
