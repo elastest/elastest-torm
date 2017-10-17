@@ -279,7 +279,6 @@ public class EsmService {
 			String baseRegex = "[0-9a-f]{32}_" + serviceName + "_\\d_Ip";
 			Pattern pattern = Pattern.compile(baseRegex);
 			String serviceIp = null;
-			Map<String, String> socatBindingsPorts = new HashMap<>();
 
 			while (itEsmRespContextFields.hasNext()) {
 				String fieldName = itEsmRespContextFields.next();
@@ -318,28 +317,26 @@ public class EsmService {
 					if (manifest.get("endpoints").get(serviceName).get("api") != null) {
 						if (!manifest.get("endpoints").get(serviceName).get("api").isArray()) {
 							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("api"),
-									ssrvContainerName, networkName, "api", socatBindingsPorts);
+									ssrvContainerName, networkName, "api");
 						} else {
 							int apiNum = 0;
 							for (final JsonNode apiNode : manifest.get("endpoints").get(serviceName).get("api")) {
 								apiNum++;
 								getEndpointsInfo(auxServiceInstance, apiNode, ssrvContainerName, networkName,
-										apiNode.get("name") != null	? apiNode.get("name").toString().replaceAll("\"", "") + "api" : "api",
-										socatBindingsPorts);
+										apiNode.get("name") != null	? apiNode.get("name").toString().replaceAll("\"", "") + "api" : "api");
 							}
 						}
 					}
 					if (manifest.get("endpoints").get(serviceName).get("gui") != null) {
 						if (!manifest.get("endpoints").get(serviceName).get("gui").isArray()) {
 							getEndpointsInfo(auxServiceInstance, manifest.get("endpoints").get(serviceName).get("gui"),
-									ssrvContainerName, networkName, "gui", socatBindingsPorts);
+									ssrvContainerName, networkName, "gui");
 						} else {
 							int guiNum = 0;
 							for (final JsonNode guiNode : manifest.get("endpoints").get(serviceName).get("gui")) {
 								guiNum++;
 								getEndpointsInfo(auxServiceInstance, guiNode, ssrvContainerName, networkName,
-										guiNode.get("name") != null	? guiNode.get("name").toString().replaceAll("\"", "") + "gui" : "gui",
-										socatBindingsPorts);
+										guiNode.get("name") != null	? guiNode.get("name").toString().replaceAll("\"", "") + "gui" : "gui");
 							}
 						}
 					}
@@ -350,18 +347,18 @@ public class EsmService {
 	}
 
 	private SupportServiceInstance getEndpointsInfo(SupportServiceInstance serviceInstance, JsonNode node,
-			String tSSContainerName, String networkName, String nodeName, Map<String, String> socatBindingsPorts) {
+			String tSSContainerName, String networkName, String nodeName) {
 		int auxPort = 37000;
 
 		if (node != null) {
 			if (!ET_PUBLIC_HOST.equals("localhost")){
 				if (node.get("port") != null) {
 					String nodePort = node.get("port").toString().replaceAll("\"", "");
-					if (socatBindingsPorts.containsKey(nodePort)) {
-						auxPort = Integer.parseInt(socatBindingsPorts.get(nodePort));
+					if (serviceInstance.getEndpointsBindingsPorts().containsKey(nodePort)) {
+						auxPort = Integer.parseInt(serviceInstance.getEndpointsBindingsPorts().get(nodePort));
 					} else {
 						auxPort = bindingPort(serviceInstance, node, tSSContainerName, networkName);
-						socatBindingsPorts.put(nodePort, String.valueOf(auxPort));
+						serviceInstance.getEndpointsBindingsPorts().put(nodePort, String.valueOf(auxPort));
 					}
 				}
 
@@ -400,7 +397,6 @@ public class EsmService {
 					.add(dockerService.runDockerContainer(dockerClient, ET_SOCAT_IMAGE, envVariables,
 							"container" + listenPort, containerName, networkName, portBindings, listenPort));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -499,28 +495,28 @@ public class EsmService {
 				
 				try {
 					url = new URL(urlHash.getValue());
+					logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
 					HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 					huc.setConnectTimeout(2000);
 					responseCode = huc.getResponseCode();
 					up = up && ((responseCode >= 200 && responseCode <= 299)
 							|| (responseCode >= 400 && responseCode <= 415));
+					logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
+					
 					if (!up){
-						logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
-						logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
 						logger.info(tSSInstance.getServiceName() + " Service is not ready.");
 						return up;
 					}
 				} catch (Exception e) {
-					logger.info(tSSInstance.getServiceName() + " Service URL: " + urlHash.getValue());
-					logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
 					logger.info(tSSInstance.getServiceName() + " Service is not ready by exception error.");
 					return false;
 				}
 			}
 		}
 		
-		logger.info(tSSInstance.getServiceName() + " Service response: " + responseCode);
-		logger.info(tSSInstance.getServiceName() + " Service is ready.");
+		String checklMessage = up ? tSSInstance.getServiceName() + "Service is ready." : tSSInstance.getServiceName() + " Service is not ready.";
+		
+		logger.info(checklMessage);
 		
 		return up;
 	}
@@ -617,7 +613,18 @@ public class EsmService {
 				String envValueHost = publicEnvVars ? ssi.getServiceIp() : ssi.getContainerIp();
 
 				String envNamePort = prefix + "_PORT";
-				String envValuePort = entry.getValue().get("port").toString();
+				
+				String envValuePort = "";
+				if (ET_PUBLIC_HOST.equals("localhost")){
+					envValuePort = entry.getValue().get("port").toString();
+				}else{
+					for (Map.Entry<String, String> endpointBindingPort : ssi.getEndpointsBindingsPorts().entrySet()){
+						if(endpointBindingPort.getValue().equals(entry.getValue().get("port").toString())){
+							envValuePort = endpointBindingPort.getKey();
+						}
+					}
+				}
+				
 
 				String protocol = entry.getValue().findValue("protocol").toString().toLowerCase().replaceAll("\"", "");
 				if (protocol.equals("http") || protocol.equals("ws")) {

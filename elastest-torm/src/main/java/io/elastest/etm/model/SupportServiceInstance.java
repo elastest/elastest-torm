@@ -16,6 +16,25 @@ public class SupportServiceInstance {
 
 	public interface FrontView {
 	}
+	
+	/**
+	 * Gets or Sets status
+	 */
+	public enum SSIStatusEnum {
+		INITIALIZATION("INITIALIZATION"),
+
+		FAILURE("FAILURE"),
+
+		READY("READY"),
+		
+		STOPPING("STOPPING");
+
+		private String value;
+
+		SSIStatusEnum(String value) {
+			this.value = value;
+		}
+	}
     	   
 	@JsonView(FrontView.class)
 	@JsonProperty("instanceId")
@@ -36,6 +55,10 @@ public class SupportServiceInstance {
 	@JsonView(FrontView.class)
 	@JsonProperty("serviceReady")
 	private boolean serviceReady;
+	
+	@JsonView(FrontView.class)
+	@JsonProperty("serviceStatus")
+	private SSIStatusEnum serviceStatus;
 	
 	@JsonView(ProvisionView.class)
 	@JsonProperty("plan_id")	
@@ -93,6 +116,8 @@ public class SupportServiceInstance {
 
 	@JsonProperty("portBindingContainers")
 	private List<String> portBindingContainers;
+	
+	Map<String, String> endpointsBindingsPorts;
 
 	public SupportServiceInstance() {
 		this.urls = new HashMap<>();
@@ -100,10 +125,13 @@ public class SupportServiceInstance {
 		this.endpointsData = new HashMap<>();
 		this.portBindingContainers = new ArrayList<>();
 		this.serviceReady = false;
+		this.serviceStatus = SSIStatusEnum.INITIALIZATION;
+		this.endpointsBindingsPorts = new HashMap<>();
+		
 	}
 
 	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, Long bindToTJob) {
-		super();
+		this();
 		this.instanceId = instanceId;
 		this.service_id = service_id;
 		this.serviceName = serviceName;
@@ -115,33 +143,6 @@ public class SupportServiceInstance {
 		this.organization_guid = "org";
 		this.space_guid = "space";
 		this.manifestId = "";
-		this.urls = new HashMap<>();
-		this.subServices = new ArrayList<>();
-		this.endpointsData = new HashMap<>();
-		this.portBindingContainers = new ArrayList<>();
-		this.serviceReady = false;
-	}
-
-	public SupportServiceInstance(String instanceId, String service_id, String serviceName, String serviceShortName, String plan_id, String organization_guid,
-			Map<String, String> parameters, String space_guid, Long bindedToTJob, String serviceIp, int servicePort,
-			String manifestId, Map<String, String> urls, List<SupportServiceInstance> subServices, String containerIp) {
-		super();
-		this.instanceId = instanceId;
-		this.service_id = service_id;
-		this.serviceName = serviceName;
-		this.serviceShortName = serviceShortName;
-		this.plan_id = plan_id;
-		this.organization_guid = organization_guid;
-		this.parameters = parameters;
-		this.space_guid = space_guid;
-		this.tJobExecId = bindedToTJob;
-		this.serviceIp = serviceIp;
-		this.servicePort = servicePort;
-		this.manifestId = manifestId;
-		this.urls = urls;
-		this.subServices = subServices;
-		this.containerIp = containerIp;
-		this.serviceReady = false;
 	}
 
 	public String getService_id() {
@@ -175,7 +176,14 @@ public class SupportServiceInstance {
 	public void setServiceReady(boolean serviceInstanceUp) {
 		this.serviceReady = serviceInstanceUp;
 	}
+	
+	public SSIStatusEnum getServiceStatus() {
+		return serviceStatus;
+	}
 
+	public void setServiceStatus(SSIStatusEnum serviceStatus) {
+		this.serviceStatus = serviceStatus;
+	}
 
 	public String getPlan_id() {
 		return plan_id;
@@ -231,6 +239,14 @@ public class SupportServiceInstance {
 
 	public void setServicePort(int servicePort) {
 		this.servicePort = servicePort;
+	}
+
+	public Map<String, String> getEndpointsBindingsPorts() {
+		return endpointsBindingsPorts;
+	}
+
+	public void setEndpointsBindingsPorts(Map<String, String> endpointsBindingsPorts) {
+		this.endpointsBindingsPorts = endpointsBindingsPorts;
 	}
 
 	public String getInstanceId() {
