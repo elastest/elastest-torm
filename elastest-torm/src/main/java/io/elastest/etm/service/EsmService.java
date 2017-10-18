@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +129,11 @@ public class EsmService {
 		}catch (Exception e){
 			logger.warn("Error during the services registry. ");
 		}
+	}
+	
+	@PreDestroy
+	public void cleanTSSInstances(){
+		deprovisionServicesInstances();
 	}
 
 	/**
@@ -411,6 +417,19 @@ public class EsmService {
 		return url;
 	}
 
+	public void deprovisionServicesInstances(){
+		tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+			deprovisionServiceInstance(tSSInstanceId, true);
+		});
+		
+		tJobServicesInstances = null;
+		
+		servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+			deprovisionServiceInstance(tSSInstanceId, false);
+		});
+		
+		servicesInstances = null;
+	}
 	/**
 	 * 
 	 * 
