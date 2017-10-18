@@ -1,6 +1,5 @@
 package io.elastest.etm.api;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -16,14 +15,21 @@ import io.swagger.annotations.ApiResponses;
 
 @Api(value = "/context")
 public interface EtmServiceDiscoveryApi extends EtmApiRoot {
-	
-	 @ApiOperation(value = "Returns the env variables for a provided service instance", notes = "Returns the env variables for a provided service instance.", response = Map.class, tags={ "CONTEXT", })
-	    @ApiResponses(value = { 
-	        @ApiResponse(code = 200, message = "Successful operation", response = Map.class),
-	        @ApiResponse(code = 404, message = "Resource not found") })    
-	    @RequestMapping(value = "/context/tss/{tSSInstanceId}",
-	    	produces = { "application/json" },
-	        method = RequestMethod.GET)
-	public ResponseEntity<Map<String, String>> getTSSInstanceContext(@ApiParam(value = "tSSInstanceId", required=true) @PathVariable(value="tSSInstanceId", required=true) String tSSInstanceId); 
+
+	@ApiOperation(value = "Returns the env variables for a provided service instance", notes = "Returns the env variables for a provided service instance.", response = Map.class, tags = {
+			"CONTEXT", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Map.class),
+			@ApiResponse(code = 404, message = "Resource not found") })
+	@RequestMapping(value = "/context/tss/{tSSInstanceId}", produces = {
+			"application/json" }, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, String>> getTSSInstanceContext(
+			@ApiParam(value = "tSSInstanceId", required = true) @PathVariable(value = "tSSInstanceId", required = true) String tSSInstanceId);
+
+	@ApiOperation(value = "Returns the Elasticsearch API url", notes = "Returns the Elasticsearch API url.", response = String.class, tags = {
+			"CONTEXT", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+			@ApiResponse(code = 404, message = "Resource not found") })
+	@RequestMapping(value = "/context/elasticsearch/api", produces = { "text/plain" }, method = RequestMethod.GET)
+	public ResponseEntity<String> getElasticsearchApiUrl();
 
 }
