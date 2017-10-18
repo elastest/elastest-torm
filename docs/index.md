@@ -3,89 +3,73 @@ The Test Orchestration and Recommendation Manager (TORM) is the brain of ElasTes
 
 Before you start using ElasTest, you need to know the following terms:
 
-- **Project**: Set of test specifications.
-- **TJob**: Specification of a Test to run against any software.
+- **Project:** Set of test specifications.
+- **TJob:** Specification of a Test to run against any software.
 - **SuT (System under Test):** Specification of the System that is being tested for correct operation.
+- **TSS (Test Support Services):** On-demand services that provide additional functionality such as dynamic provisioning of web browsers, or devices for testing. These services can be provisioned associated with a TJob, to be used by the tests.
+- **TE (Test Engines):** On-demand services that unlike TSS, will not be associated with a particular TJob, but will serve all TJobs running on the platform.
 
 ## Features
-The version 0.1 of the ElasTest TORM, provides the following features:
+The current version of the ElasTest TORM (0.5.0-alpha2-SNAPSHOT), provides the following features:
 
-- Projects Management. 
-- TJobs Management.  
+- Projects Management.
+- TJobs Management.
 - SuTs Management.
 - Logs Management.
+- TSS Management.
+- TE Management.
 
 ## How to run
-To start using ElasTest, you need to follow the next steps. Several of these steps, are specific for Windows or Linux Operating Systems.
+To start using ElasTest, you need to follow the next steps. Several of these steps, are specific for Windows, Mac or Linux Operating Systems.
 
-### Windows 
-1.  Install [Docker Toolbox for windows](https://docs.docker.com/toolbox/toolbox_install_windows/).
-Start Boo2docker Virtual Machine from Virtual Box GUI and connect via ssh. Execute `docker-machine ssh` from power shell or any terminal emulator. 
-2.  Install [Docker Compose](https://docs.docker.com/compose/install/.) on the Virtual Machine Boot2docker created by Docker Toolbox installation. 
-    - `sudo -i` (get access as superuser)    
-    - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
-    - `chmod +x /usr/local/bin/docker-compose` 
+### Windows Prerequisites
+1.  Install [Docker Toolbox for Windows](https://docs.docker.com/toolbox/toolbox_install_windows/) or [Docker for Windows](https://docs.docker.com/docker-for-windows/install/) (the choice will depend on whether or not your operating system meets the requirements).
 
-3. Elasticsearch requires an increase of the max virtual memory to at least 262144 `sudo sysctl -w vm.max_map_count=262144`
-4. Switch Docker API to non-TLS port.
-    - Edit the file */var/lib/boot2docker/profile* with any editor `sudo vi /var/lib/boot2docker/profile`
-    - Change the DOCKER_HOST value to be *'-H tcp://0.0.0.0:2375'*
-    - Change the DOCKER_TLS value to be *no*.
-    - Execute `exit` in the shell to leave SSH session.
-    - Restart Boot2docker `docker-machine restart`
+2.  Set Docker Machine Env (only for Docker Toolbox installation)
 
+    To be able to use the docker tools, provides by Docker Toolbox installation from any terminal or CMD (CMD, powerShell, ConEmu...), you need to set the following environment variables:
+    - `SET DOCKER_TLS_VERIFY=1`
+    - `SET DOCKER_HOST=tcp://docker-machine-ip:2376` (replace docker-machine-ip with result of execute the command `docker-machine ip`)
+    - `SET DOCKER_CERT_PATH=C:\Users\logedUser\\.docker\machine\machines\default`
 
->**Note:** To this day, for each time the docker machine reboots, you will have to repeat the steps 2 and 3.
+    >**Note:** If the virtual machine that creates the Docker Toolbox installation by default, does not have the necessary resources, you can always create a custom one using the [*docker-machine*](https://docs.docker.com/machine/get-started/#use-machine-to-run-docker-containers) tool.
 
-### Linux 
-1. Install [Docker](https://docs.docker.com/engine/installation/).  
-2. Install [Docker Compose](https://docs.docker.com/compose/install/).
-    - `sudo -i` (get access as superuser)  
-    - ``curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose``
-    - `chmod +x /usr/local/bin/docker-compose` 
+### Linux Prerequisites
+1. Install [Docker](https://docs.docker.com/engine/installation/).
 
-    > **Note:** For use Docker Compose file Version 2.1 you need Docker Engine version 1.12.0+ and Compose 1.9.0+.
-    
-3. Elasticsearch requires an increase of the max virtual memory to at least 262144. 
-    - `sudo sysctl -w vm.max_map_count=262144`
+### Mac Prerequisites
+1. Install [Docker Toolbox for Mac](https://docs.docker.com/toolbox/toolbox_install_mac/) or [Docker for Mac](https://docs.docker.com/docker-for-mac/install/) (the choice will depend on whether or not your operating system meets the requirements).
 
-4. Enable the tcp Socket.
-    - Create the docker.conf file at the path `/etc/systemd/system/docker.service.d/docker.conf`
-    - Edit file and add the following three lines:
-    ```
-    [Service]
-    ExecStart=
-    ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
-    ```
-    > **Note:** If the directory *docker.service.d* does not exist, then you need create it.
-    > **Note:** In some cases it would be required to explicitly set and export the environmental variable `DOCKER_HOST=tcp://0.0.0.0:2375`. Please in case you adopt a different port, fix this variable accordingly.
+2. Set Docker Machine Env (only for Docker Toolbox installation)
 
-5. Reload configuration.
-    - `systemctl daemon-reload`
-6. Restart docker service.
-    - `systemctl restart docker.service`
+    To be able to use the docker tools, provides by Docker Toolbox installation from any terminal, you need to set the following environment variables:
 
-### Download ElasTest TORM 
-- Create a directory named *elastest-torm*, and change your current directory to this one.
+    - `export DOCKER_TLS_VERIFY=1`
+    - `export SET DOCKER_HOST=tcp://docker-machine-ip:2376` (replace docker-machine-ip with result of execute the command `docker-machine ip`)
+    - `export DOCKER_CERT_PATH=/Users/logedUser\.docker\machine\machines\default`
 
-- Download the docker compose files from the ElasTest TORM repository  
- `wget https://raw.githubusercontent.com/elastest/elastest-torm/master/docker-compose.yml`
+    >**Note:** Just like on windows, if the virtual machine that creates the Docker Toolbox installation by default, does not have the necessary resources, you can always create a custom one using the docker-machine tool.
 
-    >**Note:** On Windows you must be inside boot2docker (`docker-machine ssh`).
+### Execute ElasTest
+To know how to start ElasTest, follow the instructions given in the [ElasTest Platform](https://github.com/elastest/elastest-toolbox/blob/master/docs/index.md) documentation. 
+For example, the command to run ElasTest in `lite` mode is :
 
-### Start and stop ElasTest TORM
-- `cd elastest-torm`
-- `docker-compose -p elastest up `
-- To stop ElasTest TORM preferably run: `docker-compose -p elastest down `, otherwise press `Ctrl+C` in the shell
-
->**Note:** To run the latest version of ElasTest TORM you need to execute the command `docker image pull elastest/etm`, before running the docker-compose command.
-
+```docker run --rm -v /var/run/docker.sock:/var/run/docker.sock elastest/platform start --lite```
+ 
 ## Basic usage
-To use ElasTest and run your first test, you need to create at least one project and a TJob associated to the project. For this, start a Web Browser and enter the following URL:
-- Linux: http://localhost:8091/ 
-- Windows: http://192.168.99.100:8091/ (replace 192.168.99.100 with result of command `docker-machine ip`)
+To access the ElasTest GUI you need to load the ElasTest home page in a web browser:
+- Linux, Mac and Windows with Docker: http://localhost:37006/ 
+- Windows and Mac with Docker Toolbox: http://docker-machine-ip:37006/ 
+- Server mode: http://server-ip:37006/
 
-![ElasTest TORM. Logs and metrics of a TJob Execution](imgs/project_management.png)</p>
+(replace *server-ip* with the value of the *--server-addres* parameter)
+( replace the *docker-machine-ip* with result of command `docker-machine ip`)
+
+>**Note:** The value of the *ElasTest ip* (docker-machine-ip or server-ip) depends on the parameter `--server-address` with which the platform was started. To learn more about ElasTest start parameters, read the ElasTest Platform  [documentation](https://github.com/elastest/elastest-toolbox/blob/master/docs/index.md).
+
+![ElasTest TORM Home Page](imgs/home_page.png)</p>
+
+Before you can do your first test, you need to create at least one project and a TJob associated to the project.
 
 ### Create a Project.
 - Click on item *Projects* in the menu on the left.
@@ -93,12 +77,12 @@ To use ElasTest and run your first test, you need to create at least one project
 - Select the project by clicking on the row.
    
 ### Create a TJob
-- From the Project management page, create a new TJob. In the TJobs card click on the button *New TJob*. Fill in the fields *TJob Name* and *Image Name*. The image's name must be refer to a docker image with the test to run inside.
+- From the Project management page, create a new TJob. In the TJobs card click on the button *New TJob*. Fill in the mandatory fields. The image's name must be refer to a docker image with the test to run inside.
     
 ### Execute a TJob
 - From the list of TJobs you can execute a TJob by clicking on the play button.
 - Then you will see the logs and metrics generated by the TJob execution.<p>
-![ElasTest TORM. Logs and metrics of a TJob Execution](imgs/tjob_execution.png)</p>
+![ElasTest TORM. TJob execution](imgs/tjob_execution2.png)</p>
 
 ## Development documentation
 
@@ -106,7 +90,7 @@ To use ElasTest and run your first test, you need to create at least one project
 The ElasTest TORM Platform is divide in three parts:
 - ElasTest TORM Web Client Application.
 - ElasTest TORM Server Application.
-- ElasTest TORM Platform Services.
+- ElasTest Services.
 
 In the next diagram, you can to see The ElasTest TORM Components Architecture.
 
@@ -116,9 +100,9 @@ In the next diagram, you can to see The ElasTest TORM Components Architecture.
 This appication provides a friendly GUI to ElasTest TORM Platform, allowing to the users managment theirs test in a simple way. 
 
 #### ElasTest TORM Server Application 
-This application is the ElasTest TORM backend that provides the API to the Web Client Application to access the resources and implements integration with the rest of the platform services. It is a Java Application developed with SpringBoot, the Spring solution for creating stand-alone applications as quickly as possible.
+This application is the ElasTest TORM backend that provides the API to the Web Client Application to access the resources and implements integration with the rest of the ElasTest services. It is a Java Application developed with SpringBoot, the Spring solution for creating stand-alone applications as quickly as possible.
 
-#### ElasTest TORM Platform Services
+#### ElasTest TORM Services
 ElasTest TORM uses several external components to implement the features it offers. These services are shown in the diagram and described below.
 
 - **[MySql DB:](https://www.mysql.com/)** The DDBB System that uses the ElasTest TORM to store the persistent data, necessary to manage the Projects, TJobs, Suts and Executions.
@@ -128,7 +112,7 @@ ElasTest TORM uses several external components to implement the features it offe
 	
 ### Prepare development environment
 
-First, be sure you can execute ElasTest TORM in production as specified in section [How to run].
+First, be sure you can execute ElasTest TORM in production as specified in section [How to run](https://github.com/elastest/elastest-torm/blob/master/docs/index.md#how-to-run).
 
 Then, install the following development tools:
 - [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
@@ -147,37 +131,51 @@ git clone https://github.com/elastest/elastest-torm
 > **Note:** In windows, only folders within `C:\Users\` can be used inside Docker VM. If you clone the git repository outside of `C:\Users\`, then you need to share git folder with the VM in VirtualBox interface following [these instructions](http://support.divio.com/local-development/docker/how-to-use-a-directory-outside-cusers-with-docker-toolbox-on-windows).
 
 ### Development procedure
+First, you need to start the ElasTest Services, before you can execute TORM Server and Client applications. You can do it in two ways:
+ - Start the services using the [*ElasTest Platform*](https://github.com/elastest/elastest-toolbox) tool. This is the preferred option as it can be used on any operating system with docker installed.
+ - Start the services using the *docker-compose* tool. On Windows it will be necessary to install Docker Compose inside the boo2docker VM.
 
-#### Start and stop ElasTest TORM platform services
-First, you need to start platform services before you can execute TORM Server and Client applications. Execute `cd /git/elastest-torm/docker` on console to enter on folder that contains docker-compose files and follow the next instructions:
- > **Note:** On Windows you must execute this commands inside the VM (`docker-machine ssh`). 
+#### Start ElasTest TORM Services using ElasTest Platform
+If you choose this option, you only need to execute the following command:
+
+```docker run --rm -v /var/run/docker.sock:/var/run/docker.sock elastest/platform start --lite --dev=etm -l```
+
+>**Note:** For more information about this command you can see the ElasTest Platform [documentation](https://github.com/elastest/elastest-toolbox/blob/master/docs/index.md#start-command).
+
+#### Start ElasTest TORM Services using Docker Compose
+Execute `cd /git/elastest-torm/docker` on console to enter on folder that contains docker-compose files and follow the next instructions:
 
 ##### Start without ports binding
 To start Elastest services without ports binding run the following command:
 - `docker-compose -f docker-compose-complementary.yml -f docker-compose-main.yml -f docker-compose-lite.yml -p elastest up`
 
-To stop ElasTest services, you should run in a shell:
-- `docker-compose -f docker-compose-complementary.yml -f docker-compose-main.yml -f docker-compose-lite.yml -p elastest down`
-
-Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
-
 ##### Start with ports binding
 To start Elastest services with ports binding run the following command:
 - `docker-compose -f docker-compose-complementary.yml -f docker-compose-complementary-ports.yml -f docker-compose-main.yml -f docker-compose-main-ports.yml -f docker-compose-lite.yml -p elastest up`
 
-To stop ElasTest services, you should run in a shell:
+#### Stop ElasTest TORM Services using ElasTest Platform
+To stop the services, you must run the following command:
+- `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock elastest/platform stop`
+
+#### Stop ElasTest TORM Services using Docker Compose
+To stop the services, you must run the following command in a shell one of the following commands:
+
+##### Stop without ports binding
+- `docker-compose -f docker-compose-complementary.yml -f docker-compose-main.yml -f docker-compose-lite.yml -p elastest down`
+
+##### Stop with ports binding
 - `docker-compose -f docker-compose-complementary.yml -f docker-compose-complementary-ports.yml -f docker-compose-main.yml -f docker-compose-main-ports.yml -f docker-compose-lite.yml -p elastest down`
 
-Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
+>**Note:** Possibly also pressing `Ctrl+C` in the shell should work, but make sure all the docker environment has been actually clean.
 
-#### ElasTest TORM Server Application
+#### Start ElasTest TORM Server Application
 
-First, if you are on windows, you have to update the file `git/elastest-torm/elastest-torm/src/main/resources/application.properties` to make the property `services.ip` pointing to the docker VM IP. For example, if command `docker-machine ip` returns `192.168.99.100`, then you have to replace `services.ip=localhost` by `services.ip=192.168.99.100`.
+First, if you are on Windows with Docker Toolbox installed, you must add the environment variable `ET_PUBLIC_HOST=docker-machine-ip`, where the *docker-machine-ip* value, should be changed to the value returned by the `docker-machine ip`.
 
 You can develop ElasTest TORM Server Application using an editor and the command line or using Eclipse IDE:
 * Using *Eclipse IDE*: 
   * Load project in the IDE: 
-    * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option option and select the `/git/elastest-torm/elastest-torm` folder.
+    * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option and select the `/git/elastest-torm/elastest-torm` folder.
   * Compile and execute the project:
     * Right click over the project and select `Run as...> Java Application` and select class `ElastestETMSpringBoot`.
 
@@ -190,13 +188,12 @@ You can develop ElasTest TORM Server Application using an editor and the command
 
      >**Note:** Building the project may require root privileges for running the test `DockerServiceItTest`. Either execute the TORM as root or skip such test.
      
-      
-The server application can be used from the web interface (see next section). By default the endpoint of the ElasTest TORM Server Application should be located at URL `http://localhost:8091`, 
+The server application can be used from the web interface [(see next section)](https://github.com/elastest/elastest-torm/blob/master/docs/index.md#start-elastest-torm-client-application). By default the endpoint of the ElasTest TORM Server Application should be located at URL `http://localhost:8091`, 
 the exposed API could be checked at `http://localhost:8091/swagger-ui.html#/`.
 
 If you change any source file, you need to stop the service and start it again.
 
-#### ElasTest TORM Client Application
+#### Start ElasTest TORM Client Application
 
 You can develop ElasTest TORM Web Client Application using and editor and the command line or using Visual Studio Code:
 
