@@ -17,6 +17,7 @@ services:
             - 5002
             - 5000
             - 5001
+            - 5003
             - 5044
         depends_on:
             - etm-rabbitmq

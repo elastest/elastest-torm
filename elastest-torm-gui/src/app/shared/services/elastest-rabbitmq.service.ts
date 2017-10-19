@@ -17,7 +17,11 @@ export class ElastestRabbitmqService {
     private _sutMetricsSource = new Subject<string>();
     sutMetrics$ = this._sutMetricsSource.asObservable();
 
-    constructor(private stompWSManager: StompWSManager) { }
+    private observableMap: Map<string, Subject<string>>;
+
+    constructor(private stompWSManager: StompWSManager) {
+        this.observableMap = new Map<string, any>();
+    }
 
     configWSConnection() { this.stompWSManager.configWSConnection(); }
     startWsConnection() { this.stompWSManager.startWsConnection(); }
@@ -31,7 +35,7 @@ export class ElastestRabbitmqService {
     }
 
     public testLogResponse = (data) => {
-        this._testLogsSource.next(this.convertToLogTrace(data));
+        this._testLogsSource.next(this.adaptToTraceType(data));
     }
 
     public sutMetricsResponse = (data) => {
@@ -39,16 +43,24 @@ export class ElastestRabbitmqService {
     }
 
     public sutLogResponse = (data) => {
-        this._sutLogsSource.next(this.convertToLogTrace(data));
+        this._sutLogsSource.next(this.adaptToTraceType(data));
     }
 
-    convertToLogTrace(data: any) {
+    public dynamicObsResponse = (data) => {
+        let obs = this.getObservableFromData(data);
+        obs.next(this.adaptToTraceType(data));
+    }
+
+
+    adaptToTraceType(data: any) {
         let trace: any;
-        if (data.message !== undefined) {
+        if (data['trace_type'] === 'log') {
             trace = {
                 'timestamp': data['@timestamp'],
                 'message': data.message
-            }
+            };
+        } else if (data['trace_type'] === 'metrics') {
+            trace = data;
         }
 
         return trace;
@@ -70,11 +82,28 @@ export class ElastestRabbitmqService {
     public createAndSubscribeToTopic(tjobExecution: TJobExecModel) {
         let withSut: boolean = tjobExecution.tJob.hasSut();
 
-        this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution.id + '.log', this.testLogResponse);
-        this.stompWSManager.subscribeToTopicDestination('test.' + tjobExecution.id + '.metrics', this.testMetricsResponse);
+        this.stompWSManager.subscribeToTopicDestination('test.default_log.' + tjobExecution.id + '.log', this.testLogResponse);
+        this.stompWSManager.subscribeToTopicDestination('test.beats_metrics.' + tjobExecution.id + '.metrics', this.testMetricsResponse);
         if (withSut) {
-            this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution.id + '.log', this.sutLogResponse);
-            this.stompWSManager.subscribeToTopicDestination('sut.' + tjobExecution.id + '.metrics', this.sutMetricsResponse);
+            this.stompWSManager.subscribeToTopicDestination('sut.default_log.' + tjobExecution.id + '.log', this.sutLogResponse);
+            this.stompWSManager.subscribeToTopicDestination('sut.beats_metrics.' + tjobExecution.id + '.metrics', this.sutMetricsResponse);
         }
+
+    }
+
+    public createAndSubscribeToTopicDynamically(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
+        let name: string = componentType + '.' + infoId;
+        let _dynamicObs = new Subject<string>();
+        let dynamicObs$ = _dynamicObs.asObservable();
+        this.observableMap.set(name, _dynamicObs)
+
+        this.stompWSManager.subscribeToTopicDestination(name + '.' + tjobExecution.id + '.' + traceType, this.dynamicObsResponse);
+
+        return dynamicObs$;
+    }
+
+    getObservableFromData(data: any) {
+        let name: string = data['component_type'] + '.' + data['info_id'];
+        return this.observableMap.get(name);
     }
 }

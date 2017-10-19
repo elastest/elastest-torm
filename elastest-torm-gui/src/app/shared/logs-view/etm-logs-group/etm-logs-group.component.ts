@@ -65,6 +65,36 @@ export class EtmLogsGroupComponent implements OnInit {
     this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
   }
 
+  addMoreLogs(obj: any, tJobExec: TJobExecModel) {
+    let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
+    individualLogs.name = this.capitalize(obj.componentType) + ' Logs';
+    individualLogs.type = obj.type;
+    individualLogs.componentType = obj.componentType;
+    individualLogs.infoId = obj.infoId;
+    individualLogs.hidePrevBtn = !this.live;
+    individualLogs.logIndex = obj.logIndex;
+    individualLogs.traces = obj.data;
+    if (!this.alreadyExist(individualLogs.name)) {
+      this.logsList.push(individualLogs);
+      this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
+      this.elastestRabbitmqService.createAndSubscribeToTopicDynamically(tJobExec, obj.traceType, individualLogs.componentType, obj.infoId)
+        .subscribe(
+        (data) => this.updateLogsDataDynamic(data, individualLogs.componentType, individualLogs.infoId)
+        );
+    } else {
+      this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+    }
+  }
+
+  alreadyExist(name: string) {
+    for (let log of this.logsList) {
+      if (log.name === name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   createGroupedArray(arr, chunkSize) {
     let groups = [], i;
     for (i = 0; i < arr.length; i += chunkSize) {
@@ -85,6 +115,20 @@ export class EtmLogsGroupComponent implements OnInit {
     for (let group of this.groupedLogsList) {
       for (let log of group) {
         if (log.componentType === componentType) {
+          log.traces.push(data);
+          found = true;
+          break;
+        }
+      }
+      if (found) { break; }
+    }
+  }
+
+  updateLogsDataDynamic(data: any, componentType: string, infoId: string) {
+    let found: boolean = false;
+    for (let group of this.groupedLogsList) {
+      for (let log of group) {
+        if (log.componentType === componentType && log.infoId === infoId) {
           log.traces.push(data);
           found = true;
           break;

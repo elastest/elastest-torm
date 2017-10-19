@@ -6,6 +6,11 @@ export let componentTypes: string[] = [
     'sut',
 ];
 
+export let infoIds: string[] = [
+    'default_log',
+    'beats_metrics',
+];
+
 export class AllLogsTypesModel {
     logsList: LogFieldModel[];
 

@@ -1,3 +1,4 @@
+import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { EtmLogsGroupComponent } from '../../shared/logs-view/etm-logs-group/etm-logs-group.component';
@@ -18,12 +19,23 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   @Input()
   public live: boolean;
 
-  constructor() { }
+  tJob: TJobModel;
+  tJobExec: TJobExecModel;
+
+  componentType: string = 'dynamic_component_type3';
+  infoId: string = 'custom_log';
+
+  constructor(
+    private elastestESService: ElastestESService,
+  ) { }
 
   ngOnInit() {
   }
 
   initView(tJob: TJobModel, tJobExec: TJobExecModel) {
+    this.tJob = tJob;
+    this.tJobExec = tJobExec;
+
     //Load logs
     this.logsGroup.initLogsView(tJob, tJobExec);
 
@@ -45,5 +57,22 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   leaveEvent() {
     this.logsGroup.unselectTraces();
+  }
+
+  addMore() {
+    if (this.isInit()) {
+      this.elastestESService.searchAllDynamic(this.tJobExec.logIndex, this.infoId, this.componentType)
+        .subscribe(
+        (obj: any) => {
+          if (obj.traceType === 'log') {
+            this.logsGroup.addMoreLogs(obj, this.tJobExec);
+          }
+        }
+        );
+    }
+  }
+
+  isInit() {
+    return this.tJobExec !== undefined;
   }
 }

@@ -322,4 +322,48 @@ export class ElastestESService {
         log.type = 'sutlogs';
         log.componentType = 'sut';
     }
+
+
+    // Unknown
+    searchAllDynamic(index: string, infoId: string, componentType: string, theQuery?: any) {
+        let _obs = new Subject<any>();
+        let obs = _obs.asObservable();
+
+        let terms: any[] = this.getDynamicTerms(infoId, componentType);
+        this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
+            (data: any[]) => {
+                if (data.length > 0 && this.isLogTrace(data[0])) {                    
+                    let logTraces: string[] = this.convertToLogTraces(data);
+                    let obj: any = {
+                        traceType: 'log',
+                        type: 'dynamic',
+                        data: logTraces,
+                        componentType: componentType,
+                        infoId: infoId,
+                        logIndex: index,
+                    }
+                    _obs.next(obj);
+                }
+
+                // if data.trace_type == metrics
+                // _metrics.next(this.convertToMetricTraces(data, metricsField));
+            }
+        );
+
+        return obs;
+    }
+
+
+    getDynamicTerms(infoId: string, componentType: string) {
+        let terms: any[];
+        terms = [
+            { 'term': { info_id: infoId } },
+            { 'term': { component_type: componentType } },
+        ];
+        return terms;
+    }
+
+    isLogTrace(trace: any) {
+        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'log';
+    }
 }
