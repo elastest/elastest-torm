@@ -1,3 +1,4 @@
+import { DefaultESFieldModel, defaultInfoIdMap } from '../../defaultESData-model';
 import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
@@ -39,12 +40,11 @@ export class EtmLogsGroupComponent implements OnInit {
   ngAfterViewInit(): void {
     if (this.live) {
       this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
-        .subscribe((data) => this.updateLogsData(data, 'test'));
+        .subscribe((data) => this.updateLogsData(data, 'test', 'default_log'));
       this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
-        .subscribe((data) => this.updateLogsData(data, 'sut'));
+        .subscribe((data) => this.updateLogsData(data, 'sut', 'default_log'));
     }
   }
-
 
   initLogsView(tJob: TJobModel, tJobExec: TJobExecModel) {
     for (let log of tJob.execDashboardConfigModel.allLogsTypes.logsList) {
@@ -53,7 +53,10 @@ export class EtmLogsGroupComponent implements OnInit {
         individualLogs.name = this.capitalize(log.componentType) + ' Logs';
         individualLogs.type = log.componentType + 'logs';
         individualLogs.componentType = log.componentType;
-
+        if (log.infoId === undefined || log.infoId === null || log.infoId === '') {
+          log.infoId = defaultInfoIdMap.log;
+        }
+        individualLogs.infoId = log.infoId;
         individualLogs.hidePrevBtn = !this.live;
         individualLogs.logIndex = tJobExec.logIndex;
         if (!this.live) {
@@ -79,7 +82,7 @@ export class EtmLogsGroupComponent implements OnInit {
       this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
       this.elastestRabbitmqService.createAndSubscribeToTopicDynamically(tJobExec, obj.traceType, individualLogs.componentType, obj.infoId)
         .subscribe(
-        (data) => this.updateLogsDataDynamic(data, individualLogs.componentType, individualLogs.infoId)
+        (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.infoId)
         );
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
@@ -110,24 +113,11 @@ export class EtmLogsGroupComponent implements OnInit {
     return value;
   }
 
-  updateLogsData(data: any, componentType: string) {
+  updateLogsData(data: any, componentType: string, infoId: string) {
     let found: boolean = false;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
-        if (log.componentType === componentType) {
-          log.traces.push(data);
-          found = true;
-          break;
-        }
-      }
-      if (found) { break; }
-    }
-  }
-
-  updateLogsDataDynamic(data: any, componentType: string, infoId: string) {
-    let found: boolean = false;
-    for (let group of this.groupedLogsList) {
-      for (let log of group) {
+        console.log('traza', log, log.componentType, componentType, log.infoId, infoId);
         if (log.componentType === componentType && log.infoId === infoId) {
           log.traces.push(data);
           found = true;

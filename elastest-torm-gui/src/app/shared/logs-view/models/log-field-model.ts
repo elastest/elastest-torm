@@ -1,18 +1,7 @@
-export class LogFieldModel {
-    componentType: string;
-    name: string;
-    activated: boolean;
-
-    constructor(componentType: string) {
-        this.componentType = componentType;
-
-        let componentTypePrefix: string = '';
-        if (componentType !== undefined && componentType !== '') {
-            componentTypePrefix = componentType + '_';
-        }
-
-        this.name = componentTypePrefix + 'log';
-        this.activated = false;
+import { DefaultESFieldModel } from '../../defaultESData-model';
+export class LogFieldModel extends DefaultESFieldModel {
+    constructor(componentType: string, infoId?: string) {
+        super(componentType, 'log', infoId);
     }
 
     changeActive($event) {

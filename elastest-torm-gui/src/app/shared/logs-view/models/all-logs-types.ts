@@ -1,15 +1,7 @@
+import { DefaultESFieldModel, componentTypes } from '../../defaultESData-model';
 import { LogFieldModel } from './log-field-model';
 import { ESRabLogModel } from './es-rab-log-model';
 
-export let componentTypes: string[] = [
-    'test',
-    'sut',
-];
-
-export let infoIds: string[] = [
-    'default_log',
-    'beats_metrics',
-];
 
 export class AllLogsTypesModel {
     logsList: LogFieldModel[];

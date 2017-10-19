@@ -1,3 +1,4 @@
+import { DefaultESFieldModel, componentTypes } from '../../../defaultESData-model';
 import { MetricsFieldModel } from './metrics-field-model';
 
 // Aux Classes
@@ -23,11 +24,6 @@ export class SubtypesObjectModel {
     }
 }
 
-
-export let componentTypes: string[] = [
-    'test',
-    'sut',
-];
 
 // Subtypes
 export let cpuSubtypes: SubtypesObjectModel[] = [

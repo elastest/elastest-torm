@@ -33,7 +33,10 @@ export class DashboardConfigModel {
             }
 
             for (let log of json.allLogsTypes.logsList) {
-                let logModel: LogFieldModel = new LogFieldModel(log.componentType);
+                if (json.allLogsTypes.defaultInfoId === undefined) {
+                    json.allLogsTypes.defaultInfoId = '';
+                }
+                let logModel: LogFieldModel = new LogFieldModel(log.componentType, json.allLogsTypes.defaultInfoId);
                 logModel.activated = log.activated;
                 let position: number = this.allLogsTypes.getPositionByName(log.name);
                 this.allLogsTypes.logsList[position] = logModel;

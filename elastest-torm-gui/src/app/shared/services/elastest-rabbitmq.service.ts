@@ -51,7 +51,6 @@ export class ElastestRabbitmqService {
         obs.next(this.adaptToTraceType(data));
     }
 
-
     adaptToTraceType(data: any) {
         let trace: any;
         if (data['trace_type'] === 'log') {
@@ -65,7 +64,6 @@ export class ElastestRabbitmqService {
 
         return trace;
     }
-
 
     // Others
     public createAndSubscribe(tjobExecution: TJobExecModel) {

@@ -51,7 +51,7 @@ public class DockerService2 {
 
 	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
-	
+
 	@Value("${elastest.docker.network}")
 	private String elastestNetwork;
 
@@ -131,7 +131,7 @@ public class DockerService2 {
 				dockerExec.getDockerClient().pullImageCmd(sutImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 				dockerExec.setAppContainer(dockerExec.getDockerClient().createContainerCmd(sutImage).withEnv(envVar)
-						.withLogConfig(logConfig).withName(sutName).exec());
+						.withLogConfig(logConfig).withName(sutName).withNetworkMode(dockerExec.getNetwork()).exec());
 
 				sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
@@ -334,12 +334,12 @@ public class DockerService2 {
 				.getNetworks().get(dockerExec.getNetwork()).getIpAddress();
 		return ip.split("/")[0];
 	}
-	
-	public String getContainerIpByNetwork(String containerId, String network){
+
+	public String getContainerIpByNetwork(String containerId, String network) {
 		DockerClient client = getDockerClient();
 
-		String ip = client.inspectContainerCmd(containerId).exec().getNetworkSettings()
-				.getNetworks().get(network).getIpAddress();
+		String ip = client.inspectContainerCmd(containerId).exec().getNetworkSettings().getNetworks().get(network)
+				.getIpAddress();
 		return ip.split("/")[0];
 	}
 
