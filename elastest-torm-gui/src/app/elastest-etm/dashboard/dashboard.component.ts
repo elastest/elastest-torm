@@ -71,7 +71,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec);
 
         console.log('Suscribe to TJob execution.');
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec);
+        this.elastestRabbitmqService.createAndSubscribeToGenericTopics(this.tJobExec);
         this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
         if (tJobExec) {
           setTimeout(() => {

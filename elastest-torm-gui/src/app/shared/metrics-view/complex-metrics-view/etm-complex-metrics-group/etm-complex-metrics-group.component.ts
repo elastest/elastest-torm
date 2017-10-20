@@ -1,5 +1,5 @@
 import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
-import { Subject } from 'rxjs/Rx';
+import { Subject, Observable } from 'rxjs/Rx';
 import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
 import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
@@ -26,9 +26,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   loaded: boolean = false;
 
-  testMetricsSubscription: Subscription;
-  sutMetricsSubscription: Subscription;
-
   // TimeLine Observable
   @Output()
   timelineObs = new EventEmitter<any>();
@@ -49,11 +46,12 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {
     if (this.live) {
-      this.testMetricsSubscription = this.elastestRabbitmqService.testMetrics$
-        .subscribe((data) => this.updateMetricsData(data));
-
-      this.sutMetricsSubscription = this.elastestRabbitmqService.sutMetrics$
-        .subscribe((data) => this.updateMetricsData(data));
+      // Get default Rabbit queues 
+      let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
+      obsMap.forEach((obs: Observable<string>, key: string) => {
+        let componentType: string = key.split('.')[0];
+        obs.subscribe((data) => this.updateMetricsData(data));
+      });
     }
   }
 

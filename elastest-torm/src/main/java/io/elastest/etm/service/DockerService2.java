@@ -170,7 +170,8 @@ public class DockerService2 {
 		dockerExec.getDockerClient().pullImageCmd(checkImage).exec(new PullImageResultCallback()).awaitSuccess();
 
 		String checkContainerId = dockerExec.getDockerClient().createContainerCmd(checkImage).withEnv(envList)
-				.withName("check_" + dockerExec.getExecutionId()).exec().getId();
+				.withName("check_" + dockerExec.getExecutionId()).withNetworkMode(dockerExec.getNetwork()).exec()
+				.getId();
 		dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
 
 		dockerExec.getDockerClient().waitContainerCmd(checkContainerId).exec(new WaitContainerResultCallback())

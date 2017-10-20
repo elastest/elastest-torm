@@ -6,7 +6,7 @@ import { ElastestESService } from '../../services/elastest-es.service';
 import { ESRabLogModel } from '../models/es-rab-log-model';
 import { LogsViewComponent } from '../logs-view.component';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { Subscription } from 'rxjs/Rx';
+import { Observable, Subject, Subscription } from 'rxjs/Rx';
 
 @Component({
   selector: 'etm-logs-group',
@@ -39,10 +39,14 @@ export class EtmLogsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {
     if (this.live) {
-      this.testLogsSubscription = this.elastestRabbitmqService.testLogs$
-        .subscribe((data) => this.updateLogsData(data, 'test', 'default_log'));
-      this.sutLogsSubscription = this.elastestRabbitmqService.sutLogs$
-        .subscribe((data) => this.updateLogsData(data, 'sut', 'default_log'));
+      // Get default Rabbit queues 
+      let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
+      obsMap.forEach((obs: Observable<string>, key: string) => {
+        let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
+        if (obsData.traceType === 'log') {
+          obs.subscribe((data) => this.updateLogsData(data, obsData.componentType));
+        }
+      });
     }
   }
 
@@ -70,7 +74,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   addMoreLogs(obj: any, tJobExec: TJobExecModel) {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
-    individualLogs.name = this.capitalize(obj.componentType) + ' Logs';
+    individualLogs.name = this.capitalize(obj.componentType) + ' ' + this.capitalize(obj.infoId) + ' Logs';
     individualLogs.type = obj.type;
     individualLogs.componentType = obj.componentType;
     individualLogs.infoId = obj.infoId;
@@ -80,10 +84,13 @@ export class EtmLogsGroupComponent implements OnInit {
     if (!this.alreadyExist(individualLogs.name)) {
       this.logsList.push(individualLogs);
       this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
-      this.elastestRabbitmqService.createAndSubscribeToTopicDynamically(tJobExec, obj.traceType, individualLogs.componentType, obj.infoId)
-        .subscribe(
-        (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.infoId)
-        );
+      if (this.live) {
+        this.elastestRabbitmqService.createObservable(obj.traceType, individualLogs.componentType, obj.infoId);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(tJobExec, obj.traceType, individualLogs.componentType, obj.infoId)
+          .subscribe(
+          (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.infoId)
+          );
+      }
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
     }
@@ -113,11 +120,10 @@ export class EtmLogsGroupComponent implements OnInit {
     return value;
   }
 
-  updateLogsData(data: any, componentType: string, infoId: string) {
+  updateLogsData(data: any, componentType: string, infoId: string = defaultInfoIdMap.log) {
     let found: boolean = false;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
-        console.log('traza', log, log.componentType, componentType, log.infoId, infoId);
         if (log.componentType === componentType && log.infoId === infoId) {
           log.traces.push(data);
           found = true;
