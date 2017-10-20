@@ -22,8 +22,8 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   tJob: TJobModel;
   tJobExec: TJobExecModel;
 
-  componentType: string = 'dynamic_component_type3';
-  infoId: string = 'custom_log';
+  componentType: string = '';
+  infoId: string = '';
 
   constructor(
     private elastestESService: ElastestESService,
@@ -67,6 +67,8 @@ export class EtmLogsMetricsViewComponent implements OnInit {
           if (obj.traceType === 'log') {
             this.logsGroup.addMoreLogs(obj, this.tJobExec);
           }
+          this.componentType = '';
+          this.infoId = '';
         }
         );
     }

@@ -49,8 +49,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       // Get default Rabbit queues 
       let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
       obsMap.forEach((obs: Observable<string>, key: string) => {
-        let componentType: string = key.split('.')[0];
-        obs.subscribe((data) => this.updateMetricsData(data));
+        let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
+        if (obsData.traceType === 'metrics') {
+          obs.subscribe((data) => this.updateMetricsData(data));
+        }
       });
     }
   }
