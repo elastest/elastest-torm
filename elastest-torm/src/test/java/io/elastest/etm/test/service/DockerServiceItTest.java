@@ -81,7 +81,7 @@ public class DockerServiceItTest {
 			dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitSuccess();
 		}
 
-		String queueId = "test.1.log";
+		String queueId = "test.default_log.1.log";
 		String tag = "test_1_tjobexec";
 
 		WaitForMessagesHandler handler = connectToRabbitQueue(queueId);

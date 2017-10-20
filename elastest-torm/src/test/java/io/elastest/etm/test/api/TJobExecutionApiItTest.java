@@ -105,7 +105,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
 		if (withSut) {
 
-			String queueToSuscribe = "/topic/" + "sut." + exec.getId() + ".log";
+			String queueToSuscribe = "/topic/" + "sut.default_log." + exec.getId() + ".log";
 			log.info("Sut log queue '" + queueToSuscribe + "'");
 
 			WaitForMessagesHandler handler = new WaitForMessagesHandler();
@@ -116,7 +116,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 			log.info("Sut log queue received a message");
 		}
 
-		String queueToSuscribe = "/topic/" + "test." + exec.getId() + ".log";
+		String queueToSuscribe = "/topic/" + "test.default_log." + exec.getId() + ".log";
 		log.info("TJob log queue '" + queueToSuscribe + "'");
 
 		WaitForMessagesHandler handler = new WaitForMessagesHandler(
