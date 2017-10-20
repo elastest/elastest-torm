@@ -6,9 +6,6 @@ export class MetricsFieldModel extends DefaultESFieldModel {
     type: string;
     subtype: string;
     unit: Units;
-    componentType: string;
-    name: string;
-    activated: boolean;
 
     constructor(type: string, subtype: string, unit: Units, componentType: string, infoId?: string) {
         super(componentType, 'metrics', infoId);

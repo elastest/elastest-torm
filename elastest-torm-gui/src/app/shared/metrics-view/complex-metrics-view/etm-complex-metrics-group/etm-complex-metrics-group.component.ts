@@ -36,6 +36,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   @Output()
   leaveObs = new EventEmitter<any>();
 
+  tJob: TJobModel;
+  tJobExec: TJobExecModel;
+
   constructor(
     private elastestESService: ElastestESService,
     private elastestRabbitmqService: ElastestRabbitmqService,
@@ -63,6 +66,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
 
   initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel) {
+    this.tJob = tJob;
+    this.tJobExec = tJobExec;
+
     if (tJob.execDashboardConfigModel.showComplexMetrics) {
       this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
       this.allInOneMetrics.name = 'All Metrics';
@@ -76,6 +82,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
         individualMetrics.name = metric.type + ' ' + metric.subtype;
+        individualMetrics.componentType = metric.componentType;
 
         individualMetrics.activateAllMatchesByNameSuffix(metric.name);
         individualMetrics.hidePrevBtn = !this.live;
@@ -166,6 +173,20 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
         element.leaveCharts();
       }
     );
+  }
+
+  removeAndUnsubscribe(pos: number) {
+    // If is live, unsubscribe
+    let tmpCondition: number = 0; // Don't unsubscribe yet (it's temporally complex)
+    if (this.live && 1 === tmpCondition) {
+      let traceType: string = 'metrics';
+      let componentType: string = this.metricsList[pos].componentType;
+      let infoId: string = this.metricsList[pos].infoId;
+
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+    }
+    this.metricsList.splice(pos, 1);
+    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
   }
 
 }

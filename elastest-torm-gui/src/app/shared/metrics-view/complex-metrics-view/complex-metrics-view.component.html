@@ -1,5 +1,11 @@
 <md-card>
-  <md-card-title>{{model.name}}</md-card-title>
+  <md-card-title>
+    {{model.name}}
+    <button *ngIf="!showConfig" md-raised-button (click)="remove()" color="accent" aria-label="Remove" title="Remove" class="iconBtn push-top-sm"
+      style="float: right; margin-left: auto; margin-top: 0px">
+      <md-icon class="color-white">clear</md-icon>
+    </button>
+  </md-card-title>
   <md-divider></md-divider>
   <md-card-content>
     <td-expansion-panel *ngIf="showConfig" label="Chart configuration" expand="false" class="push-bottom">
@@ -25,8 +31,8 @@
         [gradient]="model.gradient" [xAxis]="model.showXAxis" [yAxis]="model.showYAxis" [legend]="model.showLegend" [legendTitle]="model.legendTitle"
         [showGridLines]="model.showGridLines" [showXAxisLabel]="model.showXAxisLabel" [showYAxisLabel]="model.showLeftYAxisLabel"
         [showRightOneYAxisLabel]="model.showRightOneYAxisLabel" [showRightTwoYAxisLabel]="model.showRightTwoYAxisLabel" [xAxisLabel]="model.xAxisLabel"
-        [yAxisLabel]="model.yAxisLabelLeft" [yAxisLabelRightOne]="model.yAxisLabelRightOne" [yAxisLabelRightTwo]="model.yAxisLabelRightTwo" [autoScale]="model.autoScale"
-        (select)="model.onSelect($event)">
+        [yAxisLabel]="model.yAxisLabelLeft" [yAxisLabelRightOne]="model.yAxisLabelRightOne" [yAxisLabelRightTwo]="model.yAxisLabelRightTwo"
+        [autoScale]="model.autoScale" (select)="model.onSelect($event)">
       </combo-chart-component>
     </div>
   </md-card-content>

@@ -1,6 +1,9 @@
 <md-card tdMediaToggle="gt-xs">
   <md-card-title>
     {{model.name}}
+    <button md-raised-button (click)="remove()" color="accent" aria-label="Remove" title="Remove" class="iconBtn push-top-sm" style="float: right; margin-left: auto; margin-top: 0px">
+      <md-icon class="color-white">clear</md-icon>
+    </button>
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content>

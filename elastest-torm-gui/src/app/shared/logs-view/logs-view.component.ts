@@ -14,6 +14,9 @@ export class LogsViewComponent implements OnInit {
   @Input()
   public model: LogViewModel;
 
+  @Input()
+  public remove: Function;
+
   lockScroll: boolean = false;
 
   constructor() { }

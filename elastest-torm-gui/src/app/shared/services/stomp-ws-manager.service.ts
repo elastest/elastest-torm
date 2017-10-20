@@ -16,7 +16,7 @@ export class StompWSManager {
     heartbeatOut: 10000,
     heartbeatIn: 10000
   }
-  
+
   subscriptions: Map<string, any>;
 
   endExecution: boolean = false;
@@ -30,7 +30,7 @@ export class StompWSManager {
     if (host !== undefined) {
       this.wsConf.host = this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
     }
-    
+
     this.stomp.configure(this.wsConf);
   }
 
@@ -40,7 +40,7 @@ export class StompWSManager {
      * @return {Promise} if resolved
      */
     this.stomp.startConnect().then(() => {
-      console.log('connected');      
+      console.log('connected');
     });
   }
 
@@ -69,6 +69,14 @@ export class StompWSManager {
       this.subscriptions.delete(key);
     });
 
+  }
+
+  unsubscribeSpecificWSDestination(key: string) {
+    let value = this.subscriptions.get(key);
+    if (value !== undefined) {
+      this.stomp.unsubscribe(value);
+      this.subscriptions.delete(key);
+    }
   }
 
   sendWSMessage(destination: string) {

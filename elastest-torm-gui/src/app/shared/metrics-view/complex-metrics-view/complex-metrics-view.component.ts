@@ -16,6 +16,9 @@ export class ComplexMetricsViewComponent implements OnInit {
     @Input()
     public showConfig: boolean;
 
+    @Input()
+    public remove: Function;
+  
     @ViewChild('comboChart')
     comboChart: ComboChartComponent;
 

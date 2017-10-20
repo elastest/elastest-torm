@@ -11,7 +11,9 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     allMetricsFields: AllMetricsFields;
     activatedFieldsList: boolean[]
     metricsIndex: string;
-
+    componentType: string;
+    infoId: string;
+    
     leftChartAllData: LineChartMetricModel[];
     rightChartOneAllData: LineChartMetricModel[];
     rightChartTwoAllData: LineChartMetricModel[];
@@ -22,7 +24,9 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.allMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
         this.initActivatedFieldsList();
         this.metricsIndex = '';
-
+        this.componentType = '';
+        this.infoId = '';
+        
         this.showXAxisLabel = false;
         this.xAxisLabel = 'Time';
 

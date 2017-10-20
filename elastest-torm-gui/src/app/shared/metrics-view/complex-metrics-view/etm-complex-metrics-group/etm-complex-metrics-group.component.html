@@ -7,7 +7,7 @@
 <ng-container *ngIf="metricsList.length > 0">
   <div *ngFor="let group of groupedMetricsList" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div *ngFor="let metric of group; let i = index; let f=first; let l=last;" [attr.flex-gt-sm]="f && l ? 100 : 50">
-      <complex-metrics-view #individual{{i}} [model]="metric" [showConfig]="false"></complex-metrics-view>
+      <complex-metrics-view #individual{{i}} [model]="metric" [showConfig]="false" [remove]="removeAndUnsubscribe.bind(this, i)"></complex-metrics-view>
     </div>
   </div>
 </ng-container>

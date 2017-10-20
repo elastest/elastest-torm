@@ -29,6 +29,9 @@ export class EtmLogsGroupComponent implements OnInit {
 
   selectedTraces: number[][] = [];
 
+  tJob: TJobModel;
+  tJobExec: TJobExecModel;
+
   constructor(
     private elastestESService: ElastestESService,
     private elastestRabbitmqService: ElastestRabbitmqService,
@@ -55,6 +58,9 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   initLogsView(tJob: TJobModel, tJobExec: TJobExecModel) {
+    this.tJob = tJob;
+    this.tJobExec = tJobExec;
+
     for (let log of tJob.execDashboardConfigModel.allLogsTypes.logsList) {
       if (log.activated) {
         let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
@@ -191,5 +197,17 @@ export class EtmLogsGroupComponent implements OnInit {
     this.selectedTraces = [];
   }
 
+  removeAndUnsubscribe(pos: number) {
+    // If is live, unsubscribe
+    if (this.live) {
+      let traceType: string = 'log';
+      let componentType: string = this.logsList[pos].componentType;
+      let infoId: string = this.logsList[pos].infoId;
+
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+    }
+    this.logsList.splice(pos, 1);
+    this.groupedLogsList = this.createGroupedArray(this.logsList, 2);
+  }
 
 }

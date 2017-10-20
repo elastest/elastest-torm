@@ -65,6 +65,12 @@ export class ElastestRabbitmqService {
         return dynamicObs$;
     }
 
+    public unsuscribeFromTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
+        let topicPrefix: string = componentType + '.' + infoId;
+        let destination: string = topicPrefix + '.' + tjobExecution.id + '.' + traceType;
+        this.stompWSManager.unsubscribeSpecificWSDestination(destination);
+    }
+
 
     // Response
     public dynamicObsResponse = (data) => {
