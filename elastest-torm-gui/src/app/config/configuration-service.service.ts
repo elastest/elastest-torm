@@ -28,7 +28,13 @@ export class ConfigurationService {
     };
     this.getElasticsearchApi(hostApi)
       .subscribe(
-      (data) => this.configModel.hostElasticsearch = data + '/',
+      (data) => {
+        let slash: string = '/';
+        if (data.slice(-1) === slash) {
+          slash = '';
+        }
+        this.configModel.hostElasticsearch = data + slash;
+      },
     );
   }
 
