@@ -46,15 +46,19 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {
     if (this.live) {
-      // Get default Rabbit queues 
-      let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
-      obsMap.forEach((obs: Observable<string>, key: string) => {
-        let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
-        if (obsData.traceType === 'metrics') {
-          obs.subscribe((data) => this.updateMetricsData(data));
-        }
-      });
+      this.initObservables();
     }
+  }
+
+  initObservables() {
+    // Get default Rabbit queues 
+    let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
+    obsMap.forEach((obs: Observable<string>, key: string) => {
+      let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
+      if (obsData.traceType === 'metrics') {
+        obs.subscribe((data) => this.updateMetricsData(data));
+      }
+    });
   }
 
 

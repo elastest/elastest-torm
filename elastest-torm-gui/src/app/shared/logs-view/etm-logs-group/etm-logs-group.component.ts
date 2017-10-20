@@ -39,15 +39,19 @@ export class EtmLogsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {
     if (this.live) {
-      // Get default Rabbit queues 
-      let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
-      obsMap.forEach((obs: Observable<string>, key: string) => {
-        let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
-        if (obsData.traceType === 'log') {
-          obs.subscribe((data) => this.updateLogsData(data, obsData.componentType));
-        }
-      });
+      this.initObservables();
     }
+  }
+
+  initObservables() {
+    // Get default Rabbit queues 
+    let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
+    obsMap.forEach((obs: Observable<string>, key: string) => {
+      let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
+      if (obsData.traceType === 'log') {
+        obs.subscribe((data) => this.updateLogsData(data, obsData.componentType));
+      }
+    });
   }
 
   initLogsView(tJob: TJobModel, tJobExec: TJobExecModel) {
