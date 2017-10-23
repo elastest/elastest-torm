@@ -62,9 +62,6 @@ To access the ElasTest GUI you need to load the ElasTest home page in a web brow
 - Windows and Mac with Docker Toolbox: http://docker-machine-ip:37006/ 
 - Server mode: http://server-ip:37006/
 
-(replace *server-ip* with the value of the *--server-addres* parameter)
-( replace the *docker-machine-ip* with result of command `docker-machine ip`)
-
 >**Note:** The value of the *ElasTest ip* (docker-machine-ip or server-ip) depends on the parameter `--server-address` with which the platform was started. To learn more about ElasTest start parameters, read the ElasTest Platform  [documentation](https://github.com/elastest/elastest-toolbox/blob/master/docs/index.md).
 
 ![ElasTest TORM Home Page](imgs/home_page.png)</p>
