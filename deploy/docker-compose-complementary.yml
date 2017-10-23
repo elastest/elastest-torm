@@ -44,6 +44,9 @@ services:
 volumes:
     beats-data:
       driver: local
+    shared-data:
+      driver: local
+      
 networks:
     elastest:
       driver: bridge

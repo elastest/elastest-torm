@@ -107,6 +107,8 @@ volumes:
       driver: local
     edm-mysql:
       driver: local
+    shared-data:
+      driver: local
 networks:
     elastest:
       driver: bridge

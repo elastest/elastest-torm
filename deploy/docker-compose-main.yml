@@ -37,6 +37,7 @@ services:
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services/
             - ET_PUBLIC_HOST=localhost
+            - ET_SHARED_FOLDER=/shared-data/
         entrypoint: /run.sh
         expose:
             - 8091
@@ -45,8 +46,10 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - platform-services:/platform-services
+            - shared-data:/shared-data
         networks:
             - elastest
+
 networks:
     elastest:
       driver: bridge
