@@ -1,7 +1,7 @@
 <!-- Metrics -->
 <div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="100">
-    <complex-metrics-view #allInOne [model]="allInOneMetrics" [showConfig]="true"></complex-metrics-view>
+    <complex-metrics-view #allInOne [model]="allInOneMetrics" [showConfig]="true" [remove]="removeAndUnsubscribeAIO.bind(this)"></complex-metrics-view>
   </div>
 </div>
 <ng-container *ngIf="metricsList.length > 0">

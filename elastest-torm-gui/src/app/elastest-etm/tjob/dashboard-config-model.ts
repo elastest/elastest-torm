@@ -26,17 +26,20 @@ export class DashboardConfigModel {
             let json: any = JSON.parse(jsonString);
             this.showComplexMetrics = json.showComplexMetrics;
             for (let metric of json.allMetricsFields.fieldsList) {
-                let metricModel: MetricsFieldModel = new MetricsFieldModel(metric.type, metric.subtype, metric.unit, metric.componentType);
+                if (metric.infoId === undefined) {
+                    metric.infoId = '';
+                }
+                let metricModel: MetricsFieldModel = new MetricsFieldModel(metric.type, metric.subtype, metric.unit, metric.componentType, metric.infoId);
                 metricModel.activated = metric.activated;
                 let position: number = this.allMetricsFields.getPositionByName(metricModel.name);
                 this.allMetricsFields.fieldsList[position] = metricModel;
             }
 
             for (let log of json.allLogsTypes.logsList) {
-                if (json.allLogsTypes.defaultInfoId === undefined) {
-                    json.allLogsTypes.defaultInfoId = '';
+                if (log.infoId === undefined) {
+                    log.infoId = '';
                 }
-                let logModel: LogFieldModel = new LogFieldModel(log.componentType, json.allLogsTypes.defaultInfoId);
+                let logModel: LogFieldModel = new LogFieldModel(log.componentType, log.infoId);
                 logModel.activated = log.activated;
                 let position: number = this.allLogsTypes.getPositionByName(log.name);
                 this.allLogsTypes.logsList[position] = logModel;

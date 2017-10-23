@@ -7,6 +7,7 @@ import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
+import { componentTypes, defaultInfoIdMap } from '../../../defaultESData-model';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -176,17 +177,42 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   removeAndUnsubscribe(pos: number) {
-    // If is live, unsubscribe
-    let tmpCondition: number = 0; // Don't unsubscribe yet (it's temporally complex)
-    if (this.live && 1 === tmpCondition) {
-      let traceType: string = 'metrics';
+    let lastMetric: boolean = false;
+    if (this.metricsList.length === 1) {
+      lastMetric = true;
+    }
+
+    // If is live and is the last metric card, unsubscribe
+    if (this.live && lastMetric && !this.allInOneMetrics) {
       let componentType: string = this.metricsList[pos].componentType;
       let infoId: string = this.metricsList[pos].infoId;
-
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+      this.unsubscribe(componentType, infoId);
     }
     this.metricsList.splice(pos, 1);
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
+  }
+
+  removeAndUnsubscribeAIO() {
+    if (this.live && this.metricsList.length === 0) {
+      this.unsubscribe(this.allInOneMetrics.componentType, this.allInOneMetrics.infoId);
+    }
+    this.allInOneMetrics = undefined;
+  }
+
+  unsubscribe(componentType: string, infoId: string) {
+    let traceType: string = 'metrics';
+
+    if (!infoId || infoId === '') {
+      infoId = defaultInfoIdMap.metrics;
+    }
+
+    if (!componentType || componentType === '') {
+      for (componentType of componentTypes) {
+        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+      }
+    } else {
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+    }
   }
 
 }

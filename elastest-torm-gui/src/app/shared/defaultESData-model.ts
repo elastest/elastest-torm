@@ -29,6 +29,7 @@ export class DefaultESFieldModel {
         let infoIdPrefix: string = '';
         if (infoId === undefined || infoId === '') {
             infoId = defaultInfoIdMap[traceType];
+            this.infoId = infoId;
         }
         infoIdPrefix = infoId + '_';
 
