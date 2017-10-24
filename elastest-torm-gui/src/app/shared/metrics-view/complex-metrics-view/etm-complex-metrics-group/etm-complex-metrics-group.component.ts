@@ -1,3 +1,4 @@
+import { SingleMetricModel } from '../../models/single-metric-model';
 import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
 import { Subject, Observable } from 'rxjs/Rx';
 import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
@@ -56,10 +57,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   initObservables() {
     // Get default Rabbit queues 
-    let obsMap: Map<string, Observable<string>> = this.elastestRabbitmqService.observableMap;
-    obsMap.forEach((obs: Observable<string>, key: string) => {
-      let obsData: any = this.elastestRabbitmqService.getDataFromObsName(key);
-      if (obsData.traceType === 'metrics') {
+    let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
+    subjectMap.forEach((obs: Subject<string>, key: string) => {
+      let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
+      if (subjectData.traceType === 'metrics') {
         obs.subscribe((data) => this.updateMetricsData(data));
       }
     });
@@ -95,7 +96,62 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
         this.metricsList.push(individualMetrics);
       }
     }
-    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
+    this.createGroupedMetricList();
+  }
+
+  addMoreMetrics(obj: any) {
+    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+    individualMetrics.name = obj.type + ' ' + obj.metricName;
+    individualMetrics.componentType = obj.componentType;
+
+    // individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+    individualMetrics.hidePrevBtn = !this.live;
+    individualMetrics.metricsIndex = this.tJobExec.logIndex;
+    individualMetrics.addSimpleMetricTraces(obj.data);
+
+    if (obj.unit) {
+      individualMetrics.yAxisLabelLeft = obj.unit;
+    }
+    if (!this.alreadyExist(individualMetrics.name)) {
+      this.metricsList.push(individualMetrics);
+      this.createGroupedMetricList();
+      this.elastestESService.popupService.openSnackBar('Metric added', 'OK');
+
+      let pos: number = this.metricsList.length - 1;
+
+      if (this.live) {
+        this.elastestRabbitmqService.createSubject(obj.traceType, individualMetrics.componentType, obj.infoId);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualMetrics.componentType, obj.infoId)
+          .subscribe(
+          (data) => {
+            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
+            if (this.metricsList[pos]) {
+              console.log(pos, individualMetrics.name)
+              this.metricsList[pos].addDataToSimpleMetric(obj.metricFieldModel, [parsedData]);
+            }
+          },
+        );
+      }
+    } else {
+      this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+    }
+  }
+
+  addMoreSingleMetric(obj: any) {
+  }
+
+  alreadyExist(name: string) {
+    for (let metric of this.metricsList) {
+      if (metric.name === name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  createGroupedMetricList() {
+    let defaultGroupNum: number = 2;
+    this.groupedMetricsList = this.createGroupedArray(this.metricsList, defaultGroupNum);
   }
 
   createGroupedArray(arr, chunkSize) {
@@ -113,7 +169,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       }
     }
 
-    this.allInOneMetrics.updateData(data);
+    if (this.allInOneMetrics) {
+      this.allInOneMetrics.updateData(data);
+    }
   }
 
   ngAfterViewChecked() {
@@ -189,7 +247,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       this.unsubscribe(componentType, infoId);
     }
     this.metricsList.splice(pos, 1);
-    this.groupedMetricsList = this.createGroupedArray(this.metricsList, 2);
+    this.createGroupedMetricList();
   }
 
   removeAndUnsubscribeAIO() {

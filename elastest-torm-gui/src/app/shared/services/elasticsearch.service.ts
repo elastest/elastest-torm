@@ -76,49 +76,43 @@ export class ElasticSearchService {
    * @param terms 
    * @param theQuery optional
    */
-  searchAllByTerm(index: string, terms: any[], theQuery?: any) {
+  searchAllByTerm(index: string, terms: any[], theQuery?: any, filterPath?: string[]) {
     let size: number = 1000;
-    let url = this.esUrl + index;
+    let url: string = this.esUrl + index;
     let searchUrl: string = url + '/_search';
 
-    if (theQuery === undefined || theQuery === null) {
-      theQuery = {
-        sort: [
-          { '@timestamp': 'asc' }
-        ],
-        query: {
-          bool: {
-            must: terms
-          }
-        },
-        size: size,
-      };
-    }
-    else {
-      theQuery['size'] = size;
-    }
+    searchUrl = this.addFilterToSearchUrl(searchUrl, filterPath);
 
-    let _logs = new Subject<string[]>();
+    if (theQuery === undefined || theQuery === null) {
+      theQuery = this.getDefaultQuery(terms);
+    }
+    theQuery['size'] = size;
+    let _logs: Subject<string[]> = new Subject<string[]>();
     let logs = _logs.asObservable();
 
     this.internalSearch(searchUrl, theQuery, size)
       .subscribe(
       (data) => {
-        let dataReceived: number = data.hits.hits.length;
-        if (dataReceived > 0) {
-          let lastReceivedPos: number = dataReceived - 1;
-          let sortId: number = data.hits.hits[lastReceivedPos].sort[0];
-          theQuery['search_after'] = [sortId];
+        if (data.hits && data.hits.hits) {
+          let dataReceived: number = data.hits.hits.length;
+          if (dataReceived > 0) {
+            let lastReceivedPos: number = dataReceived - 1;
+            let sortId: number = data.hits.hits[lastReceivedPos].sort[0];
+            theQuery['search_after'] = [sortId];
 
-          this.searchAllByTerm(index, terms, theQuery).subscribe(
-            (result) => {
-              _logs.next(data.hits.hits.concat(result));
-            },
-            (error) => console.error(error)
-          );
-        }
-        else {
+            this.searchAllByTerm(index, terms, theQuery, filterPath).subscribe(
+              (result) => {
+                _logs.next(data.hits.hits.concat(result));
+              },
+              (error) => console.error(error)
+            );
+          } else {
+            _logs.next([]);
+
+          }
+        } else {
           _logs.next([]);
+
         }
       });
 
@@ -217,16 +211,7 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery = {
-      sort: [
-        { '@timestamp': 'asc' }
-      ],
-      query: {
-        bool: {
-          must: must
-        }
-      }
-    };
+    let theQuery: any = this.getDefaultQuery(must);
 
     return this.internalSearch(searchUrl, theQuery, 10000);
   }
@@ -284,16 +269,7 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery = {
-      sort: [
-        { '@timestamp': 'asc' }
-      ],
-      query: {
-        bool: {
-          must: must
-        }
-      }
-    };
+    let theQuery: any = this.getDefaultQuery(must);
 
     return this.internalSearch(searchUrl, theQuery, 10000);
   }
@@ -352,16 +328,7 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery = {
-      sort: [
-        { '@timestamp': 'asc' }
-      ],
-      query: {
-        bool: {
-          must: must
-        }
-      }
-    };
+    let theQuery: any = this.getDefaultQuery(must);
 
     return this.internalSearch(searchUrl, theQuery, 10000);
   }
@@ -383,5 +350,44 @@ export class ElasticSearchService {
       }
       );
     return logs;
+  }
+
+
+  getDefaultQuery(must: any) {
+    let theQuery: any = {
+      sort: [
+        { '@timestamp': 'asc' }
+      ],
+      query: {
+        bool: {
+          must: must
+        }
+      }
+    };
+
+    return theQuery;
+  }
+
+  addFilterToSearchUrl(searchUrl: string, filterPath: string[]) {
+    if (filterPath && filterPath.length > 0) {
+      let filterPathPrefix: string = 'filter_path=';
+      let filterPathSource: string = 'hits.hits._source.';
+      let filterPathSort: string = 'hits.hits.sort,';
+
+      searchUrl += '?' + filterPathPrefix + filterPathSort;
+      let counter: number = 0;
+      for (let filter of filterPath) {
+        searchUrl += filterPathSource + filter;
+        if (counter < filterPath.length - 1) {
+          searchUrl += ',';
+        }
+        counter++;
+      }
+    }
+    return searchUrl;
+  }
+
+  getBasicFilterFields(): string[] {
+    return ['type', 'component_type', 'info_id', 'trace_type', '@timestamp'];
   }
 }

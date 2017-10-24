@@ -13,7 +13,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     metricsIndex: string;
     componentType: string;
     infoId: string;
-    
+
     leftChartAllData: LineChartMetricModel[];
     rightChartOneAllData: LineChartMetricModel[];
     rightChartTwoAllData: LineChartMetricModel[];
@@ -26,7 +26,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.metricsIndex = '';
         this.componentType = '';
         this.infoId = '';
-        
+
         this.showXAxisLabel = false;
         this.xAxisLabel = 'Time';
 
@@ -119,6 +119,14 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
             default:
                 break;
         }
+    }
+
+    addSimpleMetricTraces(data: LineChartMetricModel[]) {
+        this.leftChart = this.leftChart.concat(data);
+    }
+
+    addDataToSimpleMetric(metric: MetricsFieldModel, newData: SingleMetricModel[]) {
+        this.leftChart = this.addDataToGivenList(this.leftChart, metric, newData);
     }
 
     addDataToGivenList(list: LineChartMetricModel[], metric: MetricsFieldModel, newData: SingleMetricModel[]) {

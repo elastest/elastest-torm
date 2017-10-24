@@ -5,9 +5,9 @@ import { Units } from './all-metrics-fields-model';
 export class MetricsFieldModel extends DefaultESFieldModel {
     type: string;
     subtype: string;
-    unit: Units;
+    unit: Units | string;
 
-    constructor(type: string, subtype: string, unit: Units, componentType: string, infoId?: string) {
+    constructor(type: string, subtype: string, unit: Units  | string, componentType: string, infoId?: string) {
         super(componentType, 'metrics', infoId);
         this.type = type;
         this.subtype = subtype;

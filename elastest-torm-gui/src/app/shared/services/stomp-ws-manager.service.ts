@@ -59,12 +59,14 @@ export class StompWSManager {
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string) {
-    this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
+    if (!(destination in this.subscriptions)) {
+      this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
+    }
   }
 
   unsubscribeWSDestination() {
     this.subscriptions.forEach((value, key) => {
-      console.log("UNSUSCRIBE TOPICS", key, value);
+      console.log("UNSUBSCRIBE TOPICS", key, value);
       this.stomp.unsubscribe(value);
       this.subscriptions.delete(key);
     });

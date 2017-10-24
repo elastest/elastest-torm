@@ -16,7 +16,7 @@ export type Units = 'percent' | 'bytes' | 'amount/sec';
 
 export class SubtypesObjectModel {
     subtype: string;
-    unit: Units;
+    unit: Units | string;
 
     constructor(subtype: string, unit: Units) {
         this.subtype = subtype;
@@ -121,4 +121,14 @@ export class AllMetricsFields {
         return position;
     }
 
+    getDefaultUnitBySubtype(subtypeName: string) {
+        for (let type of metricFieldGroupList) {
+            for (let subtype of type.subtypes) {
+                if (subtypeName === subtype.subtype) {
+                    return subtype.unit;
+                }
+            }
+        }
+        return '';
+    }
 }

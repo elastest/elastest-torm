@@ -1,3 +1,4 @@
+import { AllMetricsFields } from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
@@ -12,6 +13,8 @@ import { Observable, Subject } from 'rxjs/Rx';
 
 @Injectable()
 export class ElastestESService {
+    allMetricsFields: AllMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
+
     constructor(
         private elasticsearchService: ElasticSearchService,
         public popupService: PopupService,
@@ -121,8 +124,7 @@ export class ElastestESService {
                     _metrics.next(this.convertToMetricTraces(data, metricsField));
                 }
             );
-        }
-        else {
+        } else {
             _metrics.next([]);
             this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
         }
@@ -171,6 +173,17 @@ export class ElastestESService {
             parsedData = this.convertToDiskData(trace, metricsField);
         } else if (trace.type === 'net' && metricsField.type === 'net') {
             parsedData = this.convertToNetData(trace, metricsField);
+        } else if (trace.type === metricsField.type) {
+            parsedData = this.convertToGenericMetricsData(trace, metricsField);
+        }
+        return parsedData;
+    }
+
+    convertToGenericMetricsData(trace: any, metricsField: MetricsFieldModel) {
+        let parsedData: SingleMetricModel = undefined;
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            parsedData = this.getBasicSingleMetric(trace);
+            parsedData.value = trace[trace.type][metricsField.subtype];
         }
         return parsedData;
     }
@@ -180,11 +193,11 @@ export class ElastestESService {
         if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
             switch (metricsField.subtype) {
                 case ('totalUsage'):
-
                     parsedData = this.getBasicSingleMetric(trace);
                     parsedData.value = trace.cpu.totalUsage * 100;
                     break;
                 default:
+                    // parsedData = this.convertToGenericMetricsData(trace, metricsField);
                     break;
             }
         }
@@ -324,36 +337,7 @@ export class ElastestESService {
     }
 
 
-    // Unknown
-    searchAllDynamic(index: string, infoId: string, componentType: string, theQuery?: any) {
-        let _obs = new Subject<any>();
-        let obs = _obs.asObservable();
-
-        let terms: any[] = this.getDynamicTerms(infoId, componentType);
-        this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
-            (data: any[]) => {
-                if (data.length > 0 && this.isLogTrace(data[0])) {                    
-                    let logTraces: string[] = this.convertToLogTraces(data);
-                    let obj: any = {
-                        traceType: 'log',
-                        type: 'dynamic',
-                        data: logTraces,
-                        componentType: componentType,
-                        infoId: infoId,
-                        logIndex: index,
-                    }
-                    _obs.next(obj);
-                }
-
-                // if data.trace_type == metrics
-                // _metrics.next(this.convertToMetricTraces(data, metricsField));
-            }
-        );
-
-        return obs;
-    }
-
-
+    // Dynamic
     getDynamicTerms(infoId: string, componentType: string) {
         let terms: any[];
         terms = [
@@ -363,7 +347,97 @@ export class ElastestESService {
         return terms;
     }
 
+    searchAllDynamic(index: string, infoId: string, componentType: string, metricName?: string, theQuery?: any) {
+        let _obs: Subject<any> = new Subject<any>();
+        let obs = _obs.asObservable();
+
+        let terms: any[] = this.getDynamicTerms(infoId, componentType);
+        let filters: string[] = this.elasticsearchService.getBasicFilterFields().concat(
+            ['message', 'units', 'unit']
+        );
+        if (metricName && metricName !== '') {
+            filters.push(metricName);
+        }
+
+        this.elasticsearchService.searchAllByTerm(index, terms, theQuery, filters)
+            .subscribe(
+            (data: any[]) => {
+                if (data.length > 0) {
+                    let convertedData: any;
+                    let firstElement: any = data[0];
+                    let firstSource: any = firstElement._source;
+                    let traceType: string = '';
+                    let type: string = firstSource.type;
+                    let obj: any = {
+                        traceType: traceType,
+                        type: type,
+                        data: convertedData,
+                        componentType: componentType,
+                        infoId: infoId,
+                        logIndex: index,
+                    };
+
+                    if (this.isLogTrace(firstElement)) {
+                        this.addDynamicLog(_obs, obj, data);
+                    } else if (this.isMetricsTrace(firstElement)) {
+                        this.addDynamicMetrics(_obs, obj, data);
+                    } else if (this.isSingleMetricTrace(firstElement)) {
+                        traceType = 'metrics';
+
+                    }
+
+                }
+            });
+
+        return obs;
+    }
+
+    addDynamicLog(_obs: Subject<any>, obj: any, data: any[]) {
+        let logTraces: string[] = this.convertToLogTraces(data);
+
+        obj.data = logTraces;
+        obj.traceType = 'log';
+        _obs.next(obj);
+    }
+
+    addDynamicMetrics(_obs: Subject<any>, obj: any, data: any[]) {
+        let firstElement: any = data[0];
+        let firstSource: any = firstElement._source;
+        let metricObj: any = firstSource[firstSource.type];
+        for (let metricName in metricObj) {
+            let unit: string;
+            if (firstSource.units && firstSource.units[metricName]) {
+                unit = firstSource.units[metricName];
+            } else {
+                unit = this.allMetricsFields.getDefaultUnitBySubtype(metricName);
+            }
+            let metricsField: MetricsFieldModel = new MetricsFieldModel(
+                firstSource.type, metricName, unit, obj.componentType, obj.infoId
+            );
+            let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
+
+            obj.data = metricsTraces;
+            obj.traceType = 'metrics';
+            obj['metricName'] = metricName;
+            obj['metricFieldModel'] = metricsField;
+
+            obj.unit = unit;
+            if (metricsTraces[0].series.length > 0) { // If chart is not empty, add it
+                _obs.next(obj);
+            }
+        }
+    }
+
+
     isLogTrace(trace: any) {
         return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'log';
+    }
+
+    isMetricsTrace(trace: any) {
+        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'metrics';
+    }
+
+    isSingleMetricTrace(trace: any) {
+        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'single_metric';
     }
 }

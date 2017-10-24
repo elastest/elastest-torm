@@ -1,18 +1,16 @@
 import { StompWSManager } from './stomp-ws-manager.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
 import { DefaultESFieldModel, componentTypes, defaultInfoIdMap } from '../defaultESData-model';
 
 @Injectable()
 export class ElastestRabbitmqService {
     public subjectMap: Map<string, Subject<string>>;
-    public observableMap: Map<string, Observable<string>>;
 
     constructor(private stompWSManager: StompWSManager) {
         this.subjectMap = new Map<string, Subject<string>>();
-        this.observableMap = new Map<string, Observable<string>>();
-        this.initDefaultObservables();
+        this.initDefaultSubjects();
     }
 
     configWSConnection() { this.stompWSManager.configWSConnection(); }
@@ -22,26 +20,26 @@ export class ElastestRabbitmqService {
         this.stompWSManager.unsubscribeWSDestination();
     }
 
-    // Create Observables
+    // Create Subjects
 
-    public initDefaultObservables() {
+    public initDefaultSubjects() {
         for (let type in defaultInfoIdMap) {
-            this.createObservable(type, 'test', defaultInfoIdMap[type])
-            this.createObservable(type, 'sut', defaultInfoIdMap[type])
+            this.createSubject(type, 'test', defaultInfoIdMap[type])
+            this.createSubject(type, 'sut', defaultInfoIdMap[type])
         }
     }
 
-    public createObservable(traceType: string, componentType: string, infoId: string) {
-        let name: string = componentType + '.' + infoId + '.' + traceType;
-        let _dynamicObs = new Subject<string>();
+    public createSubject(traceType: string, componentType: string, infoId: string) {
+        let name: string = this.getSubjectName(componentType, infoId, traceType);
+        if (this.existObs(name)) {
+            return this.getSubjectByName(name);
+        }
+
+        let _dynamicObs: Subject<string> = new Subject<string>();
         this.subjectMap.set(name, _dynamicObs);
 
-        let dynamicObs$: Observable<string> = this.subjectMap.get(name).asObservable();
-        this.observableMap.set(name, dynamicObs$);
-
-        return dynamicObs$;
+        return _dynamicObs;
     }
-
 
     // Create and Subscribe
 
@@ -58,11 +56,10 @@ export class ElastestRabbitmqService {
 
     public createAndSubscribeToTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
         let topicPrefix: string = componentType + '.' + infoId;
-        let obsName: string = componentType + '.' + infoId + '.' + traceType;
-        let dynamicObs$: Observable<string> = this.observableMap.get(obsName);
         this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + tjobExecution.id + '.' + traceType, this.dynamicObsResponse);
 
-        return dynamicObs$;
+        let obsName: string = this.getSubjectName(componentType, infoId, traceType);
+        return this.subjectMap.get(obsName);
     }
 
     public unsuscribeFromTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
@@ -74,7 +71,7 @@ export class ElastestRabbitmqService {
 
     // Response
     public dynamicObsResponse = (data) => {
-        let obs: Subject<string> = this.getObservableFromData(data);
+        let obs: Subject<string> = this.getSubjectFromData(data);
         let trace: any = this.adaptToTraceType(data);
         if (trace !== undefined) {
             obs.next(trace);
@@ -83,13 +80,28 @@ export class ElastestRabbitmqService {
 
     // Other functions
 
-    getObservableNameFromData(data: any) {
-        return data['component_type'] + '.' + data['info_id'] + '.' + data['trace_type'];
+    getSubjectNameFromData(data: any) {
+        return this.getSubjectName(data['component_type'], data['info_id'], data['trace_type']);
     }
 
-    getObservableFromData(data: any) {
-        let name: string = this.getObservableNameFromData(data);
+    getSubjectName(componentType: string, infoId: string, traceType: string) {
+        return componentType + '.' + infoId + '.' + traceType;
+    }
+
+    getSubjectFromData(data: any) {
+        let name: string = this.getSubjectNameFromData(data);
         return this.subjectMap.get(name);
+    }
+
+    getSubjectByName(name: string) {
+        if (this.existObs(name)) {
+            return this.subjectMap.get(name);
+        }
+        return undefined;
+    }
+
+    existObs(name: string): boolean {
+        return (name in this.subjectMap);
     }
 
     adaptToTraceType(data: any) {
@@ -105,7 +117,7 @@ export class ElastestRabbitmqService {
         return trace;
     }
 
-    getDataFromObsName(name: string) {
+    getDataFromSubjectName(name: string) {
         let splited: string[] = name.split('.');
         let data: any = {
             componentType: splited[0],
