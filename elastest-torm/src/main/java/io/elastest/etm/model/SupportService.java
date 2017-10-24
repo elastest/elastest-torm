@@ -3,8 +3,9 @@ package io.elastest.etm.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "Entity that represents an ElasTest service.")
+@ApiModel(description = "Entity that represents an ElasTest Test Support Service")
 public class SupportService {
 	
 	@JsonProperty("id")
@@ -27,6 +28,12 @@ public class SupportService {
 		this.shortName = shortName;
 	}
 	
+	/**
+	 * Get the TSS id
+	 * 
+	 * @return Id of the service
+	 **/
+	@ApiModelProperty(example = "1", value = "The service id.")
 	public String getId() {
 		return id;
 	}
@@ -35,6 +42,12 @@ public class SupportService {
 		this.id = id;
 	}
 
+	/**
+	 * Get the name of the TSS
+	 * 
+	 * @return The name of the TSS
+	 **/
+	@ApiModelProperty(example = "EUS", value = "The name of the TSS.")
 	public String getName() {
 		return name;
 	}
@@ -43,6 +56,12 @@ public class SupportService {
 		this.name = name;
 	}
 
+	/**
+	 * Get the short name of the TSS
+	 * 
+	 * @return The short name of the TSS
+	 **/
+	@ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
 	public String getShortName() {
 		return shortName;
 	}

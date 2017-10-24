@@ -9,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(description = "Entity that represents an ElasTest Test Support Service Instance")
 public class SupportServiceInstance {
 
 	public interface ProvisionView {
@@ -145,6 +149,12 @@ public class SupportServiceInstance {
 		this.manifestId = "";
 	}
 
+	/**
+	 * Get id
+	 * 
+	 * @return id
+	 **/
+	@ApiModelProperty(example = "1", value = "Identifies the TSS.")
 	public String getService_id() {
 		return service_id;
 	}
@@ -153,6 +163,12 @@ public class SupportServiceInstance {
 		this.service_id = service_id;
 	}
 
+	/**
+	 * Get Service Name
+	 * 
+	 * @return The Service Name
+	 **/
+	@ApiModelProperty(example = "EUS", value = "Name of the TSS.")
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -161,6 +177,12 @@ public class SupportServiceInstance {
 		this.serviceName = serviceName;
 	}
 
+	/**
+	 * Get The short name of the TSS
+	 * 
+	 * @return The short name of the service
+	 **/
+	@ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
 	public String getServiceShortName() {
 		return serviceShortName;
 	}
@@ -169,14 +191,27 @@ public class SupportServiceInstance {
 		this.serviceShortName = serviceShortName;
 	}
 	
+	/**
+	 * Indicates whether the TSS instance is ready
+	 * 
+	 * @return True or false
+	 **/
+	@ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
 	public boolean isServiceReady() {
 		return serviceReady;
 	}
-
+	
 	public void setServiceReady(boolean serviceInstanceUp) {
 		this.serviceReady = serviceInstanceUp;
 	}
 	
+	
+	/**
+	 * Get the current status of the TSS instance
+	 * 
+	 * @return The TSS status
+	 **/
+	@ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
 	public SSIStatusEnum getServiceStatus() {
 		return serviceStatus;
 	}
@@ -184,7 +219,7 @@ public class SupportServiceInstance {
 	public void setServiceStatus(SSIStatusEnum serviceStatus) {
 		this.serviceStatus = serviceStatus;
 	}
-
+	
 	public String getPlan_id() {
 		return plan_id;
 	}

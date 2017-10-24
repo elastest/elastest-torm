@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: REST API description of the ElasTest TORM Module.
-  version: '0.1.1'
+  version: 0.1.1
   title: ElasTest Torm REST API
   contact: {}
   license:
@@ -9,7 +9,452 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: 'localhost:8091'
 basePath: /
+tags:
+  - name: test-engines-api-controller
+    description: Test Engines Api Controller
+  - name: etm-service-discovery-api-controller
+    description: Etm Service Discovery Api Controller
+  - name: project-api-controller
+    description: Project Api Controller
+  - name: tjob-api-controller
+    description: Tjob Api Controller
+  - name: sut-api-controller
+    description: Sut Api Controller
+  - name: external-api-controller
+    description: External Api Controller
+  - name: esm-api-controller
+    description: Esm Api Controller
+  - name: pcap-api-controller
+    description: Pcap Api Controller
 paths:
+  /api/context/elasticsearch/api:
+    get:
+      tags:
+        - CONTEXT
+      summary: Returns the Elasticsearch API url
+      description: Returns the Elasticsearch API url.
+      operationId: getElasticsearchApiUrlUsingGET
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  '/api/context/tss/{tSSInstanceId}':
+    get:
+      tags:
+        - CONTEXT
+      summary: Returns the env variables for a provided service instance
+      description: Returns the env variables for a provided service instance.
+      operationId: getTSSInstanceContextUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tSSInstanceId
+          in: path
+          description: tSSInstanceId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/engines:
+    get:
+      tags:
+        - Engines
+      summary: Returns test engines list
+      description: Returns test engines list
+      operationId: getTestEnginesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: boolean
+        '400':
+          description: Not found.
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - Engines
+      summary: Starts a new instance of a passed Test Engine
+      description: 'Starts a new instance of a passed Test Engine at least must receive as input a JSON with the following fields: String engineName'
+      operationId: startTestEngineUsingPOST
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: engineName
+          description: Data to create the new Test Engine
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Creation successful
+          schema:
+            type: string
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '405':
+          description: Invalid input
+  '/api/engines/{name}':
+    delete:
+      tags:
+        - Engines
+      summary: Stops an instance of a passed Test Engine
+      description: 'Stops an instance of a passed Test Engine at least must receive as input a JSON with the following fields: String engineName'
+      operationId: stopTestEngineUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Engine Name.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Creation successful
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '405':
+          description: Invalid input
+  '/api/engines/{name}/started':
+    get:
+      tags:
+        - Engines
+      summary: Returns if service is running
+      description: Returns if service is running
+      operationId: isRunningUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Engine Name.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: boolean
+        '400':
+          description: Not found.
+          schema:
+            type: boolean
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  '/api/engines/{name}/url':
+    get:
+      tags:
+        - Engines
+      summary: Returns engine url if service is running
+      description: Returns engine url if service is running
+      operationId: getUrlIfIsRunningUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Engine Name.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '400':
+          description: Not found.
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  '/api/engines/{name}/working':
+    get:
+      tags:
+        - Engines
+      summary: Returns if service is working
+      description: Returns if service is working
+      operationId: isWorkingUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Engine Url.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: boolean
+        '400':
+          description: Not found.
+          schema:
+            type: boolean
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/esm/service:
+    get:
+      tags:
+        - ESM
+      summary: Returns all ElasTest Services registered in the ESM
+      description: Returns all ElasTest Services registered in the ESM.
+      operationId: getSupportServicesNamesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/esm/services:
+    get:
+      tags:
+        - ESM
+      summary: Returns all ElasTest Services registered in the ESM
+      description: Returns all ElasTest Services registered in the ESM.
+      operationId: getSupportServicesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SupportService'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/esm/services/instances:
+    get:
+      tags:
+        - ESM
+      summary: Returns all Support Services Insances provided by the ESM
+      description: Returns all Support Services Insances provided by the ESM.
+      operationId: getSupportServicesInstancesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SupportServiceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  '/api/esm/services/instances/tJobExec/{id}':
+    get:
+      tags:
+        - ESM
+      summary: Returns all Support Services Instances associated with a tJobExec
+      description: Returns all Support Services Instances associated with a tJobExec.
+      operationId: getTSSInstByTJobExecIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SupportServiceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  '/api/esm/services/instances/{id}':
+    get:
+      tags:
+        - ESM
+      summary: Returns the Support Services Insances info of a given id
+      description: Returns the Support Services Insances info of a given id.
+      operationId: getSupportServiceInstanceByIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/SupportServiceInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+    delete:
+      tags:
+        - ESM
+      summary: Request to delete a service instance in the ESM.
+      description: Start the delete proces of a service Instance.
+      operationId: deprovisionServiceInstanceUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Instance deleted
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal error
+  '/api/esm/services/{serviceId}/prov':
+    post:
+      tags:
+        - ESM
+      summary: Request to create a service instance in the ESM.
+      description: Start the provisioning proces of a service Instance.
+      operationId: provisionServiceInstanceUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      parameters:
+        - name: serviceId
+          in: path
+          description: Service Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: Instance created
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal error
   /api/external/tjob:
     post:
       tags:
@@ -73,6 +518,67 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+        '405':
+          description: Invalid input
+  /api/pcap:
+    post:
+      tags:
+        - Pcap
+      summary: Starts pcap monitoring of a SuT with a given Execution Id
+      description: 'Starts pcap monitoring of a SuT with a given Execution Id at least must receive as input a JSON with the following fields: String execID'
+      operationId: startPcapUsingPOST
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: execId
+          description: Execution Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Creation successful
+          schema:
+            type: boolean
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '405':
+          description: Invalid input
+  '/api/pcap/{execId}':
+    delete:
+      tags:
+        - Pcap
+      summary: Stops pcap monitoring of a SuT with a given Execution Id
+      description: 'Stops pcap monitoring of a SuT with a given Execution Id at least must receive as input a JSON with the following fields: String execID'
+      operationId: stopPcapUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/octet-stream
+      parameters:
+        - name: execId
+          in: path
+          description: Execution Id.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Creation successful
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '405':
           description: Invalid input
   /api/project:
@@ -773,6 +1279,306 @@ paths:
             type: integer
             format: int64
 definitions:
+  SupportService:
+    type: object
+    properties:
+      id:
+        type: string
+        example: '1'
+        description: The service id.
+      name:
+        type: string
+        example: EUS
+        description: The name of the TSS.
+      shortName:
+        type: string
+        example: EUS
+        description: The short name of the TSS.
+    description: Entity that represents an ElasTest Test Support Service
+  SupportServiceInstance:
+    type: object
+    properties:
+      containerIp:
+        type: string
+      context:
+        type: object
+        additionalProperties:
+          type: string
+      endpointName:
+        type: string
+      endpointsBindingsPorts:
+        type: object
+        additionalProperties:
+          type: string
+      endpointsData:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/JsonNode'
+      instanceId:
+        type: string
+      manifestId:
+        type: string
+      organization_guid:
+        type: string
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+      plan_id:
+        type: string
+      portBindingContainers:
+        type: array
+        items:
+          type: string
+      serviceIp:
+        type: string
+      serviceName:
+        type: string
+        example: EUS
+        description: Name of the TSS.
+      servicePort:
+        type: integer
+        format: int32
+      serviceReady:
+        type: boolean
+        example: false
+        description: The short name of the TSS.
+      serviceShortName:
+        type: string
+        example: EUS
+        description: The short name of the TSS.
+      serviceStatus:
+        type: string
+        example: EUS
+        description: The short name of the TSS.
+        enum:
+          - INITIALIZATION
+          - FAILURE
+          - READY
+          - STOPPING
+      service_id:
+        type: string
+        example: '1'
+        description: Identifies the TSS.
+      space_guid:
+        type: string
+      subServices:
+        type: array
+        items:
+          $ref: '#/definitions/SupportServiceInstance'
+      tJobExecId:
+        type: integer
+        format: int64
+      urls:
+        type: object
+        additionalProperties:
+          type: string
+    description: Entity that represents an ElasTest Test Support Service Instance
+  TJobExecution:
+    type: object
+    required:
+      - duration
+      - id
+      - result
+    properties:
+      duration:
+        type: integer
+        format: int64
+      error:
+        type: string
+      id:
+        type: integer
+        format: int64
+      logIndex:
+        type: string
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/Parameter'
+      result:
+        type: string
+        enum:
+          - FINISHED
+          - FAILURE
+          - IN PROGRESS
+          - WAITING
+      servicesInstances:
+        type: array
+        items:
+          type: string
+      sutExecution:
+        $ref: '#/definitions/SutExecution'
+      tJob:
+        $ref: '#/definitions/TJob'
+      testSuite:
+        $ref: '#/definitions/TestSuite'
+      tjob:
+        $ref: '#/definitions/TJob'
+      tssEnvVars:
+        type: object
+        additionalProperties:
+          type: string
+    description: Data generated by the execution of a TJob.
+  JsonNode:
+    type: object
+    properties:
+      array:
+        type: boolean
+      bigDecimal:
+        type: boolean
+      bigInteger:
+        type: boolean
+      binary:
+        type: boolean
+      boolean:
+        type: boolean
+      containerNode:
+        type: boolean
+      double:
+        type: boolean
+      float:
+        type: boolean
+      floatingPointNumber:
+        type: boolean
+      int:
+        type: boolean
+      integralNumber:
+        type: boolean
+      long:
+        type: boolean
+      missingNode:
+        type: boolean
+      nodeType:
+        type: string
+        enum:
+          - ARRAY
+          - BINARY
+          - BOOLEAN
+          - MISSING
+          - 'NULL'
+          - NUMBER
+          - OBJECT
+          - POJO
+          - STRING
+      'null':
+        type: boolean
+      number:
+        type: boolean
+      object:
+        type: boolean
+      pojo:
+        type: boolean
+      short:
+        type: boolean
+      textual:
+        type: boolean
+      valueNode:
+        type: boolean
+  SutSpecification:
+    type: object
+    required:
+      - name
+      - project
+      - specification
+    properties:
+      description:
+        type: string
+        example: My Web Application
+        description: Brief description of a SUT
+      eimConfig:
+        description: EIM configuration
+        $ref: '#/definitions/EimConfig'
+      id:
+        type: integer
+        format: int64
+        description: Value that identifies the SUT Specification.
+      name:
+        type: string
+        example: sut definition 1
+        description: Name of the SUT.
+      project:
+        example: '{ id:"1" }'
+        description: Project to which the SUT is associated
+        $ref: '#/definitions/Project'
+      specification:
+        type: string
+        example: 'https://github.com/elastest/elastest-torm.git'
+        description: URL of the GitHub repository where the SUT code is stored (not necessary if the ImageName field is filled)
+      sutExecution:
+        type: array
+        description: List of the SUT Executions of a SUT
+        items:
+          $ref: '#/definitions/SutExecution'
+      sutType:
+        type: string
+        enum:
+          - IMAGENAME
+          - REPOSITORY
+          - EXTERNAL
+      tjobs:
+        type: array
+        description: List of TJobs associated to a SUT Specification
+        items:
+          $ref: '#/definitions/TJob'
+    description: SUT definition.
+  TJob:
+    type: object
+    required:
+      - external
+      - imageName
+      - name
+      - project
+      - resultsPath
+    properties:
+      commands:
+        type: string
+        description: Commands to execute inside a Docker Container
+      esmServicesString:
+        type: string
+      execDashboardConfig:
+        type: string
+      execDashboardConfigPath:
+        type: string
+      external:
+        type: boolean
+        example: false
+        description: Boolean variable that indicates whether a TJob is really an external Job
+      id:
+        type: integer
+        format: int64
+        example: 1
+        description: Identifies a TJob.
+      imageName:
+        type: string
+        example: elastest/test-etm-test1
+        description: Name of the docker image that contains the test.
+      name:
+        type: string
+        example: myFirstTJob
+        description: The name of the TJob.
+      parameters:
+        type: array
+        description: List of parameters to pass to a docker container as an environment variables
+        items:
+          $ref: '#/definitions/Parameter'
+      project:
+        example: '{ id:"1" }'
+        description: Project to which the TJob is associated.
+        $ref: '#/definitions/Project'
+      resultsPath:
+        type: string
+        example: /app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml
+        description: absolute path of results file
+      sut:
+        example: '{ id:"1" }'
+        description: The SUT associated with the TJob.
+        $ref: '#/definitions/SutSpecification'
+      tjobExecs:
+        type: array
+        description: List of TJob Executions of a TJob
+        items:
+          $ref: '#/definitions/TJobExecution'
+    description: Entity that represents the test to run against a SUT.
   Project:
     type: object
     required:
@@ -796,6 +1602,25 @@ definitions:
         items:
           $ref: '#/definitions/TJob'
     description: 'ElasTest organizes your work in projects, each of which will contain the different tests and SUTs that you want to create.'
+  EimConfig:
+    type: object
+    properties:
+      agentId:
+        type: integer
+        format: int64
+      id:
+        type: integer
+        format: int64
+      instrumentalized:
+        type: boolean
+      ip:
+        type: string
+      privateKey:
+        type: string
+      sutSpecification:
+        $ref: '#/definitions/SutSpecification'
+      user:
+        type: string
   TestSuite:
     type: object
     properties:
@@ -880,42 +1705,6 @@ definitions:
         example: 'http://www.myapp.io:8090'
         description: URL to access the SUT.
     description: Data generated by the execution of a SUT.
-  TJobExecution:
-    type: object
-    required:
-      - duration
-      - id
-      - result
-    properties:
-      duration:
-        type: integer
-        format: int64
-      error:
-        type: string
-      id:
-        type: integer
-        format: int64
-      logIndex:
-        type: string
-      parameters:
-        type: array
-        items:
-          $ref: '#/definitions/Parameter'
-      result:
-        type: string
-        enum:
-          - FINISHED
-          - FAILURE
-          - IN PROGRESS
-      sutExecution:
-        $ref: '#/definitions/SutExecution'
-      tJob:
-        $ref: '#/definitions/TJob'
-      testSuite:
-        $ref: '#/definitions/TestSuite'
-      tjob:
-        $ref: '#/definitions/TJob'
-    description: Data generated by the execution of a TJob.
   Parameter:
     type: object
     properties:
@@ -928,49 +1717,6 @@ definitions:
         example: /bin/elastest
         description: Value of the Environment Variable.
     description: Environment Variable to pass to a docker container.
-  SutSpecification:
-    type: object
-    required:
-      - imageName
-      - name
-      - project
-      - specification
-    properties:
-      description:
-        type: string
-        example: My Web Application
-        description: Brief description of a SUT
-      id:
-        type: integer
-        format: int64
-        description: Value that identifies the SUT Specification.
-      imageName:
-        type: string
-        example: elastest/elastest-torm
-        description: Name of the Docker Image that conteins the SUT (not necessary if the Specification field is filled).
-      name:
-        type: string
-        example: sut definition 1
-        description: Name of the SUT.
-      project:
-        example: '{ id:"1" }'
-        description: Project to which the SUT is associated
-        $ref: '#/definitions/Project'
-      specification:
-        type: string
-        example: 'https://github.com/elastest/elastest-torm.git'
-        description: URL of the GitHub repository where the SUT code is stored (not necessary if the ImageName field is filled)
-      sutExecution:
-        type: array
-        description: List of the SUT Executions of a SUT
-        items:
-          $ref: '#/definitions/SutExecution'
-      tjobs:
-        type: array
-        description: List of TJobs associated to a SUT Specification
-        items:
-          $ref: '#/definitions/TJob'
-    description: SUT definition.
   ExternalJob:
     type: object
     required:
@@ -1002,56 +1748,3 @@ definitions:
         example: 0
         description: Id of the TJobExecution created.
     description: Object that contains the exchange information between Jenkins and ElasTest.
-  TJob:
-    type: object
-    required:
-      - external
-      - imageName
-      - name
-      - project
-    properties:
-      commands:
-        type: string
-        description: Commands to execute inside a Docker Container
-      execDashboardConfig:
-        type: string
-      execDashboardConfigPath:
-        type: string
-      external:
-        type: boolean
-        example: false
-        description: Boolean variable that indicates whether a TJob is really an external Job
-      id:
-        type: integer
-        format: int64
-        example: 1
-        description: Identifies a TJob.
-      imageName:
-        type: string
-        example: edujgurjc/torm-test-01
-        description: Name of the docker image that contains the test.
-      name:
-        type: string
-        example: myFirstTJob
-        description: The name of the TJob.
-      parameters:
-        type: array
-        description: List of parameters to pass to a docker container as an environment variables
-        items:
-          $ref: '#/definitions/Parameter'
-      project:
-        example: '{ id:"1" }'
-        description: Project to which the TJob is associated.
-        $ref: '#/definitions/Project'
-      resultsPath:
-        type: string
-      sut:
-        example: '{ id:"1" }'
-        description: The SUT associated with the TJob.
-        $ref: '#/definitions/SutSpecification'
-      tjobExecs:
-        type: array
-        description: List of TJob Executions of a TJob
-        items:
-          $ref: '#/definitions/TJobExecution'
-    description: Entity that represents the test to run against a SUT.
