@@ -22,9 +22,9 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   tJob: TJobModel;
   tJobExec: TJobExecModel;
 
-  componentType: string = 'test';
-  infoId: string = 'custom_metric';
-  metricName: string = 'single_metric_example';
+  componentType: string = '';
+  infoId: string = '';
+  metricName: string = '';
 
   constructor(
     private elastestESService: ElastestESService,
@@ -73,9 +73,9 @@ export class EtmLogsMetricsViewComponent implements OnInit {
             this.metricsGroup.addMoreMetrics(obj);
           }
 
-          // this.componentType = '';
-          // this.infoId = '';
-          // this.metricName = '';
+          this.componentType = '';
+          this.infoId = '';
+          this.metricName = '';
         }
         );
     }

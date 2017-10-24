@@ -183,12 +183,9 @@ export class ElastestESService {
         let parsedData: SingleMetricModel = undefined;
         if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace.type]) {
             parsedData = this.getBasicSingleMetric(trace);
-            console.log(metricsField)
             if (metricsField.traceType === 'single_metric') {
                 parsedData.value = trace[trace.type];
-                console.log('single', parsedData);
             } else {
-                console.log('not', parsedData);
                 parsedData.value = trace[trace.type][metricsField.subtype];
             }
         }
