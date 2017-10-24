@@ -101,7 +101,7 @@ export class ElastestRabbitmqService {
     }
 
     existObs(name: string): boolean {
-        return (name in this.subjectMap);
+        return this.subjectMap.has(name);
     }
 
     adaptToTraceType(data: any) {

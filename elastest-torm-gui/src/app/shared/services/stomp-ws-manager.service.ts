@@ -40,7 +40,7 @@ export class StompWSManager {
      * @return {Promise} if resolved
      */
     this.stomp.startConnect().then(() => {
-      console.log('connected');
+      console.log('Connected');
     });
   }
 
@@ -59,14 +59,14 @@ export class StompWSManager {
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string) {
-    if (!(destination in this.subscriptions)) {
+    if (!(this.subscriptions.has(destination))) {
       this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
     }
   }
 
   unsubscribeWSDestination() {
     this.subscriptions.forEach((value, key) => {
-      console.log("UNSUBSCRIBE TOPICS", key, value);
+      console.log('UNSUBSCRIBE TOPICS', key, value);
       this.stomp.unsubscribe(value);
       this.subscriptions.delete(key);
     });
