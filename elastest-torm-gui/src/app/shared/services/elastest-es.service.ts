@@ -140,9 +140,9 @@ export class ElastestESService {
 
             let position: number = undefined;
             let parsedMetric: any;
-            for (let logEntry of data) {
-                parsedMetric = this.convertToMetricTrace(logEntry._source, metricsField);
-                position = this.getMetricPosition(logEntry._source.component_type);
+            for (let metricTrace of data) {
+                parsedMetric = this.convertToMetricTrace(metricTrace._source, metricsField);
+                position = this.getMetricPosition(metricTrace._source.component_type);
                 if (position !== undefined && parsedMetric !== undefined) {
                     tracesList[position].series.push(parsedMetric);
                 }
@@ -151,8 +151,8 @@ export class ElastestESService {
             tracesList = this.getInitMetricsDataComplex(metricsField);
             let parsedMetric: any;
             let position: number = undefined;
-            for (let logEntry of data) {
-                parsedMetric = this.convertToMetricTrace(logEntry._source, metricsField);
+            for (let metricTrace of data) {
+                parsedMetric = this.convertToMetricTrace(metricTrace._source, metricsField);
                 position = 0;
                 if (position !== undefined && parsedMetric !== undefined) {
                     tracesList[position].series.push(parsedMetric);
@@ -181,9 +181,16 @@ export class ElastestESService {
 
     convertToGenericMetricsData(trace: any, metricsField: MetricsFieldModel) {
         let parsedData: SingleMetricModel = undefined;
-        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace.type]) {
             parsedData = this.getBasicSingleMetric(trace);
-            parsedData.value = trace[trace.type][metricsField.subtype];
+            console.log(metricsField)
+            if (metricsField.traceType === 'single_metric') {
+                parsedData.value = trace[trace.type];
+                console.log('single', parsedData);
+            } else {
+                console.log('not', parsedData);
+                parsedData.value = trace[trace.type][metricsField.subtype];
+            }
         }
         return parsedData;
     }
@@ -383,9 +390,8 @@ export class ElastestESService {
                         this.addDynamicMetrics(_obs, obj, data);
                     } else if (this.isSingleMetricTrace(firstElement)) {
                         traceType = 'metrics';
-
+                        this.addDynamicSingleMetric(_obs, obj, data);
                     }
-
                 }
             });
 
@@ -405,29 +411,41 @@ export class ElastestESService {
         let firstSource: any = firstElement._source;
         let metricObj: any = firstSource[firstSource.type];
         for (let metricName in metricObj) {
-            let unit: string;
-            if (firstSource.units && firstSource.units[metricName]) {
-                unit = firstSource.units[metricName];
-            } else {
-                unit = this.allMetricsFields.getDefaultUnitBySubtype(metricName);
-            }
-            let metricsField: MetricsFieldModel = new MetricsFieldModel(
-                firstSource.type, metricName, unit, obj.componentType, obj.infoId
-            );
-            let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
-
-            obj.data = metricsTraces;
-            obj.traceType = 'metrics';
-            obj['metricName'] = metricName;
-            obj['metricFieldModel'] = metricsField;
-
-            obj.unit = unit;
-            if (metricsTraces[0].series.length > 0) { // If chart is not empty, add it
-                _obs.next(obj);
-            }
+            this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'metrics');
         }
     }
 
+    addDynamicSingleMetric(_obs: Subject<any>, obj: any, data: any[]) {
+        let firstElement: any = data[0];
+        let firstSource: any = firstElement._source;
+        let metricName: string = firstSource.type;
+        this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'single_metric');
+    }
+
+    addDynamicMetric(_obs: Subject<any>, obj: any, data: any[], firstSource: any, metricName: string, traceType: string) {
+        let unit: string;
+        if (firstSource.units && firstSource.units[metricName]) {
+            unit = firstSource.units[metricName];
+        } else if (firstSource.unit) {
+            unit = firstSource.unit;
+        } else {
+            unit = this.allMetricsFields.getDefaultUnitBySubtype(metricName);
+        }
+
+        let metricsField: MetricsFieldModel
+            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.componentType, obj.infoId, traceType);
+        let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
+
+        obj.data = metricsTraces;
+        obj.traceType = traceType;
+        obj['metricName'] = metricName;
+        obj['metricFieldModel'] = metricsField;
+
+        obj.unit = unit;
+        if (metricsTraces[0].series.length > 0) { // If chart is not empty, add it
+            _obs.next(obj);
+        }
+    }
 
     isLogTrace(trace: any) {
         return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'log';

@@ -7,8 +7,11 @@ export class MetricsFieldModel extends DefaultESFieldModel {
     subtype: string;
     unit: Units | string;
 
-    constructor(type: string, subtype: string, unit: Units  | string, componentType: string, infoId?: string) {
-        super(componentType, 'metrics', infoId);
+    constructor(type: string, subtype: string, unit: Units  | string, componentType: string, infoId?: string, traceType?: string) {
+        if(!traceType){
+            traceType = 'metrics';
+        }
+        super(componentType, traceType, infoId);
         this.type = type;
         this.subtype = subtype;
         this.unit = unit;

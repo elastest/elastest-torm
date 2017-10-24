@@ -24,7 +24,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   componentType: string = 'test';
   infoId: string = 'custom_metric';
-  metricName: string = 'metric_example.metric1';
+  metricName: string = 'single_metric_example';
 
   constructor(
     private elastestESService: ElastestESService,
@@ -70,7 +70,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
           } else if (obj.traceType === 'metrics') {
             this.metricsGroup.addMoreMetrics(obj);
           } else if (obj.traceType === 'single_metric') {
-            this.metricsGroup.addMoreSingleMetric(obj);
+            this.metricsGroup.addMoreMetrics(obj);
           }
 
           // this.componentType = '';

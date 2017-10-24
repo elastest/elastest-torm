@@ -126,7 +126,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
           (data) => {
             let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
             if (this.metricsList[pos]) {
-              console.log(pos, individualMetrics.name)
               this.metricsList[pos].addDataToSimpleMetric(obj.metricFieldModel, [parsedData]);
             }
           },
@@ -135,9 +134,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
     }
-  }
-
-  addMoreSingleMetric(obj: any) {
   }
 
   alreadyExist(name: string) {
