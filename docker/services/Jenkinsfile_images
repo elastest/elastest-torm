@@ -170,6 +170,25 @@ node('docker'){
                     testetmsut3image.push()
                 }
 
+            stage "Test-etm-sut3-eim image build"
+    
+              "Create test-etm-sut3-eim docker image"
+            
+                echo ("Creating elastest/test-etm-sut3-eim image..")                
+                sh 'cd ./docker/services/examples/test-etm-sut3-eim; docker build -t elastest/test-etm-sut3-eim:latest .'
+    
+            stage "Publish Test-etm-sut3-eim docker image"
+    
+                echo ("Publish elastest/test-etm-sut3-eim image")
+                def testetmsut3image = docker.image('elastest/test-etm-sut3-eim:latest')
+                //this is work arround as withDockerRegistry is not working properly 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    testetmsut3image.push()
+                }
+
+
             stage "Test-etm-alpinegitjava image build"
     
               "Create test-etm-alpinegitjava docker image"

@@ -388,7 +388,11 @@ export class ElastestESService {
                     } else if (this.isSingleMetricTrace(firstElement)) {
                         traceType = 'metrics';
                         this.addDynamicSingleMetric(_obs, obj, data);
+                    } else {
+                        this.popupService.openSnackBar('Cannot add the traces obtained with the parameters provided', 'OK');
                     }
+                } else {
+                    this.popupService.openSnackBar('Nothing found', 'OK');
                 }
             });
 

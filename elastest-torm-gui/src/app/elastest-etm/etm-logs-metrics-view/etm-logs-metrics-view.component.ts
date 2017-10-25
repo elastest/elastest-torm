@@ -76,8 +76,9 @@ export class EtmLogsMetricsViewComponent implements OnInit {
           this.componentType = '';
           this.infoId = '';
           this.metricName = '';
-        }
-        );
+        },
+        (error) => console.log(error),
+      );
     }
   }
 
