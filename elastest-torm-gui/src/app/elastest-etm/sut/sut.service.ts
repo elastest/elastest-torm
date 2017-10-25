@@ -40,6 +40,7 @@ export class SutService {
     if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
       sut.instrumentalize = false;
     }
+    sutsDataToTable.currentSutExec = sut.currentSutExec;
 
     return sutsDataToTable;
   }

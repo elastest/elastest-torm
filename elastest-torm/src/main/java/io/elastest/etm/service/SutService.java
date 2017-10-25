@@ -10,24 +10,44 @@ import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @Service
 public class SutService {
 
 	private final SutRepository sutRepository;
 	private final SutExecutionRepository sutExecutionRepository;
+	private final EimService eimService;
 
-	public SutService(SutRepository sutRepository, SutExecutionRepository sutExecutionRepository) {
+	public SutService(SutRepository sutRepository, SutExecutionRepository sutExecutionRepository,
+			EimService eimService) {
 		super();
 		this.sutRepository = sutRepository;
 		this.sutExecutionRepository = sutExecutionRepository;
+		this.eimService = eimService;
 	}
 
 	public SutSpecification createSutSpecification(SutSpecification sutSpecification) {
-		if (sutSpecification.getId() == 0) { // If is a new Sut, set currentSutExec to 1
-			sutSpecification.setCurrentSutExec(new Long(1));
-		}
+		sutSpecification = prepareSutToSave(sutSpecification);
 		return sutRepository.save(sutSpecification);
+	}
+
+	public SutSpecification prepareSutToSave(SutSpecification sutSpecification) {
+		if (sutSpecification.getId() == 0) { // If is a new Sut, set
+			sutSpecification.setCurrentSutExec(new Long(1));
+		} else if (sutSpecification.getSutType() == SutTypeEnum.DEPLOYED) {
+			SutSpecification savedSut = sutRepository.getOne(sutSpecification.getId());
+			if (!savedSut.isinstrumentalize() && sutSpecification.isinstrumentalize()) { // Instrumentalize
+				sutSpecification.setCurrentSutExec(sutSpecification.getCurrentSutExec() + 1);
+
+				// Create SutExecution
+
+				this.eimService.instrumentSut(sutSpecification.getEimConfig());
+			} else if (savedSut.isinstrumentalize() && !sutSpecification.isinstrumentalize()) { // Deinstrumentalize
+				this.eimService.deinstrumentSut(sutSpecification.getEimConfig());
+			}
+		}
+		return sutSpecification;
 	}
 
 	public void deleteSut(Long sutId) {

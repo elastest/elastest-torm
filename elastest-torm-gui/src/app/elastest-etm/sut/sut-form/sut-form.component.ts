@@ -1,4 +1,3 @@
-import { EIMService } from '../../../shared/services/eim.service';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
@@ -29,7 +28,6 @@ export class SutFormComponent implements OnInit {
 
   constructor(private sutService: SutService, private route: ActivatedRoute,
     private projectService: ProjectService,
-    private eimService: EIMService,
   ) { }
 
   ngOnInit() {
@@ -109,13 +107,6 @@ export class SutFormComponent implements OnInit {
 
   postSave(sut: any) {
     this.sut = sut;
-    if (this.sut.instrumentalize) {
-      // Instrumentalize in EIM
-      this.eimService.registerAgent(this.sut.eimConfig).subscribe(
-        (data) => console.log('EIM', data),
-        (error) => console.log('EIM', error)
-      );
-    }
     window.history.back();
   }
 

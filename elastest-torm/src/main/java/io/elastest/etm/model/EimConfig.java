@@ -45,7 +45,7 @@ public class EimConfig {
 	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
 	@Column(name = "agentId")
 	@JsonProperty("agentId")
-	private Long agentId = null;
+	private String agentId = null;
 
 	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
 	@Column(name = "logstashIp")
@@ -69,7 +69,7 @@ public class EimConfig {
 
 	// Getters and setters
 
-	public EimConfig(Long id, String user, String privateKey, String ip, Long agentId, String logstashIp,
+	public EimConfig(Long id, String user, String privateKey, String ip, String agentId, String logstashIp,
 			String logstashBeatsPort, String logstashHttpPort) {
 		this.id = id == null ? 0 : id;
 		this.user = user;
@@ -121,11 +121,11 @@ public class EimConfig {
 		this.ip = ip;
 	}
 
-	public Long getAgentId() {
+	public String getAgentId() {
 		return agentId;
 	}
 
-	public void setAgentId(Long agentId) {
+	public void setAgentId(String agentId) {
 		this.agentId = agentId;
 	}
 
