@@ -21,6 +21,10 @@ export class SutFormComponent implements OnInit {
   repoNameChecked: boolean = false;
   deployedChecked: boolean = false;
 
+  withoutInsCheck: boolean = true;
+  elastestInsCheck: boolean = false;
+  adminInsCheck: boolean = false;
+
   specText: string = 'SuT Specification';
   deployedSpecText: string = 'SuT IP';
   managedSpecText: string = 'Docker Image';
@@ -117,4 +121,24 @@ export class SutFormComponent implements OnInit {
   changeUseEIM($event) {
     this.sut.instrumentalize = $event.checked;
   }
+
+
+
+  deployedType(selected: string) {
+    // Reset
+    this.withoutInsCheck = false;
+    this.elastestInsCheck = false;
+    this.adminInsCheck = false;
+
+    if (selected === 'withoutIns') {
+      this.withoutInsCheck = true;
+    } else {
+      if (selected === 'elastestIns') {
+        this.elastestInsCheck = true;
+      } else {
+        this.adminInsCheck = true;
+      }
+    }
+  }
+
 }
