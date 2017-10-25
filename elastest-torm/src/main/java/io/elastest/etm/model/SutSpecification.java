@@ -84,11 +84,21 @@ public class SutSpecification {
 	@JoinColumn(name = "eimConfig")
 	private EimConfig eimConfig;
 
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+	@Column(name = "instrumentalize")
+	@JsonProperty("instrumentalize")
+	private boolean instrumentalize = false;
+
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+	@Column(name = "currentSutExec")
+	@JsonProperty("currentSutExec")
+	private Long currentSutExec = null;
+
 	public SutSpecification() {
 	}
 
 	public SutSpecification(Long id, String name, String specification, String description, Project project,
-			List<TJob> tJobs, SutTypeEnum sutType) {
+			List<TJob> tJobs, SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.specification = specification;
@@ -96,14 +106,16 @@ public class SutSpecification {
 		this.project = project;
 		this.tJobs = tJobs;
 		this.sutType = sutType;
+		this.instrumentalize = instrumentalize;
+		this.currentSutExec = currentSutExec;
 	}
 
 	public enum SutTypeEnum {
-		IMAGENAME("IMAGENAME"),
+		MANAGED("MANAGED"),
 
 		REPOSITORY("REPOSITORY"),
 
-		EXTERNAL("EXTERNAL");
+		DEPLOYED("DEPLOYED");
 
 		private String value;
 
@@ -290,6 +302,34 @@ public class SutSpecification {
 		this.eimConfig = eimConfig;
 	}
 
+	/**
+	 * Get instrumentalize
+	 * 
+	 * @return instrumentalize
+	 **/
+
+	public boolean isinstrumentalize() {
+		return instrumentalize;
+	}
+
+	public void setinstrumentalize(boolean instrumentalize) {
+		this.instrumentalize = instrumentalize;
+	}
+
+	/**
+	 * Get currentSutExec
+	 * 
+	 * @return currentSutExec
+	 **/
+
+	public Long getCurrentSutExec() {
+		return currentSutExec;
+	}
+
+	public void setCurrentSutExec(Long currentSutExec) {
+		this.currentSutExec = currentSutExec;
+	}
+
 	// Other methods
 
 	@Override
@@ -306,7 +346,9 @@ public class SutSpecification {
 				&& Objects.equals(this.description, sutSpecification.description)
 				&& Objects.equals(this.project, sutSpecification.project)
 				&& Objects.equals(this.sutType, sutSpecification.sutType)
-				&& Objects.equals(this.eimConfig, sutSpecification.eimConfig);
+				&& Objects.equals(this.eimConfig, sutSpecification.eimConfig)
+				&& Objects.equals(this.instrumentalize, sutSpecification.instrumentalize)
+				&& Objects.equals(this.currentSutExec, sutSpecification.currentSutExec);
 	}
 
 	@Override
@@ -325,6 +367,8 @@ public class SutSpecification {
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("    sutType: ").append(toIndentedString(sutType)).append("\n");
 		sb.append("    eimConfig: ").append(toIndentedString(eimConfig)).append("\n");
+		sb.append("    instrumentalize: ").append(toIndentedString(instrumentalize)).append("\n");
+		sb.append("    currentSutExec: ").append(toIndentedString(currentSutExec)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

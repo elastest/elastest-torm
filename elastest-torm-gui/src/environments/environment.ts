@@ -3,8 +3,9 @@
 // `ng build --env=prod` then `environment.prod.ts` will be used instead.
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
-export const environment: { production: boolean, hostElasticSearch: string, eus: string } = {
+export const environment: { production: boolean, hostElasticSearch: string, hostEIM: string, eus: string } = {
   production: false,
   hostElasticSearch: 'localhost:9200',
+  hostEIM: 'localhost:37004',
   eus: '127.0.0.1:8040'
 };

@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class EtmServiceDiscoveryApiController implements EtmServiceDiscoveryApi 
 	@Value("${et.edm.elasticsearch.api}")
 	public String elasticsearchApi;
 
+	@Value("${et.public.host}")
+	public String publicHost;
+
 	@Override
 	public ResponseEntity<Map<String, String>> getTSSInstanceContext(
 			@PathVariable("tSSInstanceId") String tSSInstanceId) {
@@ -35,9 +39,25 @@ public class EtmServiceDiscoveryApiController implements EtmServiceDiscoveryApi 
 
 	@Override
 	public ResponseEntity<String> getElasticsearchApiUrl() {
-		return new ResponseEntity<String>("http://localhost:9200", HttpStatus.OK);
+		return new ResponseEntity<String>("http://" + publicHost + ":9200", HttpStatus.OK);
 		// return new ResponseEntity<String>(elasticsearchApi, HttpStatus.OK);
 		// TODO
 	}
 
+	@Override
+	public ResponseEntity<String> getLogstashIp() {
+		return new ResponseEntity<String>(publicHost, HttpStatus.OK);
+		// TODO real logstash ip with proxy
+	}
+
+	@Override
+	public ResponseEntity<Map<String, String>> getLogstashInfo() {
+		Map<String, String> logstashInfo = new HashMap<>();
+		// TODO real logstash ip with proxy
+		logstashInfo.put("logstashIp", publicHost);
+		logstashInfo.put("logstashBeatsPort", "5044");
+		logstashInfo.put("logstashHttpPort", "5003");
+
+		return new ResponseEntity<Map<String, String>>(logstashInfo, HttpStatus.OK);
+	}
 }

@@ -26,7 +26,6 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.Ports;
@@ -114,10 +113,10 @@ public class DockerService2 {
 		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
 		try {
 			logger.info("Starting sut " + dockerExec.getExecutionId());
-			if (sutExec.getSutSpecification().getSutType() != SutTypeEnum.EXTERNAL) {
+			if (sutExec.getSutSpecification().getSutType() != SutTypeEnum.DEPLOYED) {
 				String sutImage = appImage;
 				String envVar = "";
-				if (sutExec.getSutSpecification().getSutType() == SutTypeEnum.IMAGENAME) {
+				if (sutExec.getSutSpecification().getSutType() == SutTypeEnum.MANAGED) {
 					sutImage = sutExec.getSutSpecification().getSpecification();
 					envVar = "REPO_URL=none";
 				} else {
@@ -148,7 +147,7 @@ public class DockerService2 {
 				// Wait for Sut started
 				checkSut(dockerExec, sutIP, sutPort + "");
 			} else {
-				String sutUrl = sutExec.getSutSpecification().getSpecification();
+				String sutUrl = "http://" + sutExec.getSutSpecification().getSpecification();
 				sutExec.setUrl(sutUrl);
 			}
 

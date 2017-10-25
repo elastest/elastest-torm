@@ -32,4 +32,18 @@ public interface EtmServiceDiscoveryApi extends EtmApiRoot {
 	@RequestMapping(value = "/context/elasticsearch/api", produces = { "text/plain" }, method = RequestMethod.GET)
 	public ResponseEntity<String> getElasticsearchApiUrl();
 
+	@ApiOperation(value = "Returns the Logstash ip", notes = "Returns the Logstash ip.", response = String.class, tags = {
+			"CONTEXT", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+			@ApiResponse(code = 404, message = "Resource not found") })
+	@RequestMapping(value = "/context/logstash/ip", produces = { "text/plain" }, method = RequestMethod.GET)
+	public ResponseEntity<String> getLogstashIp();
+
+	@ApiOperation(value = "Returns the logstash info", notes = "Returns the logstash info.", response = Map.class, tags = {
+			"CONTEXT", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Map.class),
+			@ApiResponse(code = 404, message = "Resource not found") })
+	@RequestMapping(value = "/context/logstash/info", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, String>> getLogstashInfo();
+
 }

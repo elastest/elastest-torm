@@ -1,3 +1,4 @@
+import { EIMService } from '../../../shared/services/eim.service';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
@@ -17,12 +18,19 @@ export class SutFormComponent implements OnInit {
   editMode: boolean = false;
   currentPath: string = '';
 
-  imageNameChecked: boolean = true;
+  managedChecked: boolean = true;
   repoNameChecked: boolean = false;
-  externalChecked: boolean = false;
+  deployedChecked: boolean = false;
+
+  specText: string = 'SuT Specification';
+  deployedSpecText: string = 'SuT IP';
+  managedSpecText: string = 'Docker Image';
+
 
   constructor(private sutService: SutService, private route: ActivatedRoute,
-    private projectService: ProjectService) { }
+    private projectService: ProjectService,
+    private eimService: EIMService,
+  ) { }
 
   ngOnInit() {
     this.sut = new SutModel();
@@ -32,9 +40,9 @@ export class SutFormComponent implements OnInit {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
           .subscribe((sut: SutModel) => {
             this.sut = sut;
-            this.imageNameChecked = sut.sutType === 'IMAGENAME';
+            this.managedChecked = sut.sutType === 'MANAGED';
             this.repoNameChecked = sut.sutType === 'REPOSITORY';
-            this.externalChecked = sut.sutType === 'EXTERNAL';
+            this.deployedChecked = sut.sutType === 'DEPLOYED';
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
@@ -42,7 +50,7 @@ export class SutFormComponent implements OnInit {
           (project: ProjectModel) => {
             this.sut = new SutModel();
             this.sut.project = project;
-            this.sut.sutType = 'IMAGENAME';
+            this.sut.sutType = 'MANAGED';
           },
         );
       }
@@ -50,26 +58,45 @@ export class SutFormComponent implements OnInit {
   }
   sutBy(selected: string) {
     // Reset
-    this.imageNameChecked = false;
+    this.managedChecked = false;
     this.repoNameChecked = false;
-    this.externalChecked = false;
+    this.deployedChecked = false;
 
-    if (selected === 'imageName') {
-      this.sut.sutType = 'IMAGENAME';
-      this.imageNameChecked = true;
+    if (selected === 'managedSut') {
+      this.sut.sutType = 'MANAGED';
+      this.managedChecked = true;
     } else {
-      if (selected === 'repository') {
+      if (selected === 'deployedSut') {
+        this.sut.sutType = 'DEPLOYED';
+        this.deployedChecked = true;
+      } else {
         this.sut.sutType = 'REPOSITORY';
         this.repoNameChecked = true;
-      } else {
-        this.sut.sutType = 'EXTERNAL';
-        this.externalChecked = true;
       }
     }
   }
 
   goBack(): void {
     window.history.back();
+  }
+
+  preSave() {
+    if (this.sut.sutType === 'DEPLOYED') {
+      this.sutService.getLogstashInfo().subscribe(
+        (data) => {
+          this.sut.eimConfig.ip = this.sut.specification;
+          this.sut.eimConfig.logstashIp = data.logstashIp;
+          this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
+          this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
+
+          this.save();
+        },
+        (error) => console.log(error),
+      );
+    } else {
+      this.sut.eimConfig = undefined;
+      this.save();
+    }
   }
 
   save() {
@@ -82,6 +109,13 @@ export class SutFormComponent implements OnInit {
 
   postSave(sut: any) {
     this.sut = sut;
+    if (this.sut.instrumentalize) {
+      // Instrumentalize in EIM
+      this.eimService.registerAgent(this.sut.eimConfig).subscribe(
+        (data) => console.log('EIM', data),
+        (error) => console.log('EIM', error)
+      );
+    }
     window.history.back();
   }
 
@@ -90,6 +124,6 @@ export class SutFormComponent implements OnInit {
   }
 
   changeUseEIM($event) {
-    this.sut.eimConfig.instrumentalized = $event.checked;
+    this.sut.instrumentalize = $event.checked;
   }
 }

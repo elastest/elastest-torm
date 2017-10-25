@@ -21,6 +21,7 @@ export class ConfigurationService {
       'host': 'http://' + host,
       'hostApi': hostApi,
       'hostElasticsearch': 'http://' + environment.hostElasticSearch + '/',
+      'hostEIM': 'http://' + environment.hostEIM + '/',
       'hostWsServer': 'ws://' + host,
       'eusServiceUrlNoPath': 'http://' + environment.eus,
       'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
@@ -43,6 +44,22 @@ export class ConfigurationService {
     let url: string = hostApi + '/context/elasticsearch/api';
     return this.http.get(url)
       .map((response) => response['_body']);
+  }
+
+
+  public getLogstashIp() {
+    let hostApi: string = this.configModel.hostApi;
+    let url: string = hostApi + '/context/logstash/ip';
+    return this.http.get(url)
+      .map((response) => response['_body']);
+  }
+
+
+  public getLogstashInfo() {
+    let hostApi: string = this.configModel.hostApi;
+    let url: string = hostApi + '/context/logstash/info';
+    return this.http.get(url)
+      .map((response) => response.json());
   }
 
 }

@@ -28,11 +28,6 @@ public class EimConfig {
 	private Long id = null;
 
 	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
-	@Column(name = "instrumentalized")
-	@JsonProperty("instrumentalized")
-	private boolean instrumentalized = false;
-
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
 	@Column(name = "user")
 	@JsonProperty("user")
 	private String user = null;
@@ -52,6 +47,21 @@ public class EimConfig {
 	@JsonProperty("agentId")
 	private Long agentId = null;
 
+	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@Column(name = "logstashIp")
+	@JsonProperty("logstashIp")
+	private String logstashIp = null;
+
+	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@Column(name = "logstashBeatsPort")
+	@JsonProperty("logstashBeatsPort")
+	private String logstashBeatsPort = null;
+
+	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@Column(name = "logstashHttpPort")
+	@JsonProperty("logstashHttpPort")
+	private String logstashHttpPort = null;
+
 	@JsonView({ BasicAttEimConfig.class })
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimConfig")
 	@JoinColumn(name = "sutSpecification")
@@ -59,15 +69,17 @@ public class EimConfig {
 
 	// Getters and setters
 
-	public EimConfig(Long id, boolean instrumentalized, String user, String privateKey, String ip, Long agentId) {
+	public EimConfig(Long id, String user, String privateKey, String ip, Long agentId, String logstashIp,
+			String logstashBeatsPort, String logstashHttpPort) {
 		this.id = id == null ? 0 : id;
-		this.instrumentalized = instrumentalized;
 		this.user = user;
 		this.privateKey = privateKey;
 		this.ip = ip;
 		this.agentId = agentId;
+		this.logstashIp = logstashIp;
+		this.logstashBeatsPort = logstashBeatsPort;
+		this.logstashHttpPort = logstashHttpPort;
 	}
-
 
 	public EimConfig() {
 	}
@@ -83,14 +95,6 @@ public class EimConfig {
 
 	public void setId(Long id) {
 		this.id = id == null ? 0 : id;
-	}
-
-	public boolean isInstrumentalized() {
-		return instrumentalized;
-	}
-
-	public void setInstrumentalized(boolean instrumentalized) {
-		this.instrumentalized = instrumentalized;
 	}
 
 	public String getUser() {
@@ -125,6 +129,30 @@ public class EimConfig {
 		this.agentId = agentId;
 	}
 
+	public String getLogstashIp() {
+		return logstashIp;
+	}
+
+	public void setLogstashIp(String logstashIp) {
+		this.logstashIp = logstashIp;
+	}
+
+	public String getLogstashBeatsPort() {
+		return logstashBeatsPort;
+	}
+
+	public void setLogstashBeatsPort(String logstashBeatsPort) {
+		this.logstashBeatsPort = logstashBeatsPort;
+	}
+
+	public String getLogstashHttpPort() {
+		return logstashHttpPort;
+	}
+
+	public void setLogstashHttpPort(String logstashHttpPort) {
+		this.logstashHttpPort = logstashHttpPort;
+	}
+
 	public SutSpecification getSutSpecification() {
 		return sutSpecification;
 	}
@@ -135,8 +163,9 @@ public class EimConfig {
 
 	@Override
 	public String toString() {
-		return "instrumentalized=" + instrumentalized + ", user=" + user + ", privateKey=" + privateKey + ", ip=" + ip
-				+ ", agentId=" + agentId;
+		return "EimConfig [id=" + id + ", user=" + user + ", privateKey=" + privateKey + ", ip=" + ip + ", agentId="
+				+ agentId + ", logstashIp=" + logstashIp + ", logstashBeatsPort=" + logstashBeatsPort
+				+ ", logstashHttpPort=" + logstashHttpPort + ", sutSpecification=" + sutSpecification + "]";
 	}
 
 }

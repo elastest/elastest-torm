@@ -16,34 +16,32 @@
       </div>
 
       <div layout="column" class="push-top push-bottom">
-        <md-radio-group #radioGroup (change)="sutBy(imageName.checked ? 'imageName' : (repository.checked ? 'repository' : 'external'))">
-          <md-radio-button #imageName name="imageName" value="imageNameChecked" [checked]="imageNameChecked" class="push-right">
-            By Image Name
+        <md-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
+          <md-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
+            Managed SuT
           </md-radio-button>
 
-          <md-radio-button #repository name="repository" value="repoNameChecked" [checked]="repoNameChecked">
+          <!-- <md-radio-button #repository name="repository" value="repoNameChecked" [checked]="repoNameChecked">
             By GitHub App Repository
-          </md-radio-button>
+          </md-radio-button> -->
 
-          <md-radio-button #external name="external" value="externalChecked" [checked]="externalChecked">
-            By External IP
+          <md-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
+            Deployed SuT
           </md-radio-button>
         </md-radio-group>
-        <div layout="row" class="push-top">
-          <md-input-container flex="100">
-            <input mdInput type="text" placeholder="SuT Specification" [(ngModel)]="sut.specification" name="specification" required>
-          </md-input-container>
-        </div>
-        <div layout="row" class="push-top" *ngIf="externalChecked">
-          <md-checkbox [checked]="this.sut.eimConfig.instrumentalized" (change)="changeUseEIM($event)">Instrumentalized</md-checkbox>
-          <md-input-container *ngIf="this.sut.eimConfig.instrumentalized" flex-gt-md="15" flex-md="15" flex-offset-md="5" flex-offset-gt-md="5">
-            <input mdInput type="text" placeholder="IP" [(ngModel)]="this.sut.eimConfig.ip" name="IP" required>
-          </md-input-container>
-          <md-input-container *ngIf="this.sut.eimConfig.instrumentalized" flex-gt-md="15" flex-md="15" flex-offset-md="5" flex-offset-gt-md="5">
+        <div layout="row" class="push-top" *ngIf="deployedChecked">
+          <md-checkbox [checked]="this.sut.instrumentalize" (change)="changeUseEIM($event)">Instrumentalize Now</md-checkbox>
+          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15" flex-offset-md="5" flex-offset-gt-md="5">
             <input mdInput type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
           </md-input-container>
-          <md-input-container *ngIf="this.sut.eimConfig.instrumentalized" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
+          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
             <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
+          </md-input-container>
+        </div>
+        <div layout="row" class="push-top">
+          <md-input-container flex="100">
+            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+              [(ngModel)]="sut.specification" name="specification" required>
           </md-input-container>
         </div>
       </div>
@@ -51,7 +49,7 @@
   </md-card-content>
   <md-divider></md-divider>
   <md-card-actions>
-    <button md-button [disabled]="!sutForm.valid" color="primary" (click)="save()">SAVE</button>
+    <button md-button [disabled]="!sutForm.valid" color="primary" (click)="preSave()">SAVE</button>
     <button md-button color="primary" (click)="cancel()">CANCEL</button>
   </md-card-actions>
 </md-card>

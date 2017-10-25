@@ -9,6 +9,7 @@ export class SutModel {
     description: string;
     project: ProjectModel;
     eimConfig: EimConfigModel;
+    instrumentalize: boolean;
 
     constructor() {
         this.id = 0;
@@ -18,5 +19,6 @@ export class SutModel {
         this.description = '';
         this.project = undefined;
         this.eimConfig = new EimConfigModel();
+        this.instrumentalize = false;
     }
 }

@@ -24,6 +24,9 @@ public class SutService {
 	}
 
 	public SutSpecification createSutSpecification(SutSpecification sutSpecification) {
+		if (sutSpecification.getId() == 0) { // If is a new Sut, set currentSutExec to 1
+			sutSpecification.setCurrentSutExec(new Long(1));
+		}
 		return sutRepository.save(sutSpecification);
 	}
 

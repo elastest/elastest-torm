@@ -36,6 +36,10 @@ export class SutService {
     sutsDataToTable.description = sut.description;
     sutsDataToTable.project = sut.project;
     sutsDataToTable.eimConfig = new EimConfigModel(sut.eimConfig);
+    sutsDataToTable.instrumentalize = sut.instrumentalize;
+    if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
+      sut.instrumentalize = false;
+    }
 
     return sutsDataToTable;
   }
@@ -70,4 +74,7 @@ export class SutService {
       .map((response) => response.json());
   }
 
+  public getLogstashInfo() {
+    return this.configurationService.getLogstashInfo();
+  }
 }
