@@ -19,6 +19,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 
 public class EtmApiItTest {
 
@@ -156,7 +157,10 @@ public class EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"sutType\": \"REPOSITORY\""
+				  + "\"sutType\": \"REPOSITORY\","
+				  + "\"instrumentalize\": \"" + false + "\","
+				  + "\"currentSutExec\": \"" + null + "\","
+				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
 				+"}";
 	
 		HttpHeaders headers = new HttpHeaders();

@@ -72,7 +72,11 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"sut_definition_1\","
 				  + "\"project\": { \"id\":"+ projectId + "},"
 				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"sutType\": \"REPOSITORY\""  
+				  + "\"sutType\": \"REPOSITORY\","
+				  + "\"instrumentalize\": \"" + false + "\","
+				  + "\"currentSutExec\": \"" + null + "\","
+				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
+				  
 				+"}";
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -114,8 +118,9 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"" + sutSpec.getName() + "\","
 				  + "\"project\": { \"id\":"+ sutSpec.getProject().getId() + "},"
 				  + "\"specification\": \"" + sutSpec.getSpecification() + "\","  
-				  + "\"instrumentalize\": \"" + false + "\""
-				  + "\"currentSutExec\": \"" + null + "\""
+				  + "\"sutType\": \"" + sutSpec.getSutType() + "\","
+				  + "\"instrumentalize\": \"" + false + "\","
+				  + "\"currentSutExec\": \"" + null + "\","
 				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
 				+"}";
 
