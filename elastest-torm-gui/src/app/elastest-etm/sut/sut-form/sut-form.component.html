@@ -1,11 +1,12 @@
 <md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
   <md-card-title>
-    Sut
+    SuT
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content class="push-bottom-none">
     <form #sutForm="ngForm">
 
+      <!-- Common fields -->
       <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
         <md-input-container flex-gt-md="45" flex-md="45">
           <input mdInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName" required>
@@ -16,27 +17,18 @@
       </div>
 
       <div layout="column" class="push-top push-bottom">
+        <!-- SuT Type -->
         <md-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
           <md-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
             Managed SuT
           </md-radio-button>
-
-          <!-- <md-radio-button #repository name="repository" value="repoNameChecked" [checked]="repoNameChecked">
-            By GitHub App Repository
-          </md-radio-button> -->
 
           <md-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
             Deployed SuT
           </md-radio-button>
         </md-radio-group>
 
-        <div layout="row" class="push-top">
-          <md-input-container flex="100">
-            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
-              [(ngModel)]="sut.specification" name="specification" required>
-          </md-input-container>
-        </div>
-
+        <!-- Deployed types -->
         <div layout="row" class="push-top" *ngIf="deployedChecked">
           <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (elastestIns.checked ? 'elastestIns' : 'adminIns'))">
             <md-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
@@ -48,26 +40,73 @@
             </md-radio-button>
 
             <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck">
-              Instrumented by Admin
+              Instrumented by SuT Admin
             </md-radio-button>
           </md-radio-group>
         </div>
 
-        <div layout="row" class="push-top" *ngIf="elastestInsCheck || withoutInsCheck">
-          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15" flex-offset-md="5">
+        <!-- SuT Specification -->
+        <div layout="row" class="push-top" *ngIf="!adminInsCheck">
+          <md-input-container flex="100">
+            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+              [(ngModel)]="sut.specification" name="specification" required>
+          </md-input-container>
+        </div>
+
+        <!-- Deployed: Instrumented By Elastest fields -->
+        <div layout="row" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
+          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
             <input mdInput type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
           </md-input-container>
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
             <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
           </md-input-container>
-          <md-checkbox *ngIf="elastestInsCheck" [checked]="this.sut.instrumentalize" (change)="changeUseEIM($event)" flex-offset-gt-md="5">Instrumentalize Now</md-checkbox>
+
+          <!-- Instrumentalize? -->
+          <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+            <md-list-item *ngIf="!instrumentalized">
+              <div>
+                <h3>Not Instrumentalized</h3>
+                <p>
+                  <md-checkbox [checked]="this.sut.instrumentalize" (change)="instrumentalize($event)">Instrumentalize</md-checkbox>
+                </p>
+              </div>
+            </md-list-item>
+            <md-list-item *ngIf="instrumentalized">
+              <div>
+                <h3>Instrumentalized </h3>
+                <p>
+                  <md-checkbox [checked]="!this.sut.instrumentalize" (change)="deinstrumentalize($event)">De-Instrumentalize</md-checkbox>
+                </p>
+              </div>
+            </md-list-item>
+          </md-list>
         </div>
+
+        <!-- Deployed: Instrumented By SuT Admin Info -->
+        <div layout="row" class="push-top" *ngIf="deployedChecked && adminInsCheck">
+          <md-list>
+            <md-list-item *ngIf="sut.eimConfig.logstashIp">
+              <strong>Logstash IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
+            <md-list-item *ngIf="sut.eimConfig.logstashBeatsPort">
+              <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBeatsPort}}</md-list-item>
+            <md-list-item *ngIf="sut.eimConfig.logstashHttpPort">
+              <strong>HTTP Port:&nbsp;</strong> {{sut.eimConfig.logstashHttpPort}}</md-list-item>
+            <md-list-item *ngIf="sut.currentSutExec">
+              <strong>Execution ID:&nbsp;</strong> {{sut.currentSutExec}}</md-list-item>
+          </md-list>
+        </div>
+
       </div>
     </form>
   </md-card-content>
   <md-divider></md-divider>
+
+  <!-- Buttons -->
   <md-card-actions>
-    <button md-button [disabled]="!sutForm.valid" color="primary" (click)="preSave()">SAVE</button>
-    <button md-button color="primary" (click)="cancel()">CANCEL</button>
+    <button md-button [disabled]="!sutForm.valid" color="primary" (click)="preSave()" title="Save and return to previous page">SAVE</button>
+    <button md-button [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck" color="primary" (click)="preSave(false)"
+      title="Save and show info">SAVE AND SHOW INFO</button>
+    <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
   </md-card-actions>
 </md-card>

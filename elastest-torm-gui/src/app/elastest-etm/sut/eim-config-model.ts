@@ -28,4 +28,8 @@ export class EimConfigModel {
             this.logstashHttpPort = eimConfigJson.logstashHttpPort;
         }
     }
+
+    validatePrivateKey() {
+        this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\n');
+    }
 }

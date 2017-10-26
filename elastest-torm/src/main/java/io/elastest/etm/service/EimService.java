@@ -46,9 +46,16 @@ public class EimService {
 		headers.set("X_Broker_Api_Version", "2.12");
 
 		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(body, headers);
-		Map<String, String> response = restTemplate.postForObject(eimUrl + eimApiPath + "/agent", request, Map.class);
-		eimConfig.setAgentId(response.get("agentId"));
-		this.eimConfigRepository.save(eimConfig);
+
+		try {
+			Map<String, String> response = restTemplate.postForObject(eimUrl + eimApiPath + "/agent", request,
+					Map.class);
+			eimConfig.setAgentId(response.get("agentId"));
+			this.eimConfigRepository.save(eimConfig);
+		} catch (Exception e) {
+			System.err.println("EIM is not started");
+//			e.printStackTrace();
+		}
 	}
 
 	@Async

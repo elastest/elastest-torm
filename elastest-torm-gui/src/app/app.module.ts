@@ -46,7 +46,7 @@ import { EtmLogsMetricsViewComponent } from './elastest-etm/etm-logs-metrics-vie
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
-import {SafeUrlPipe} from "./sanitizer.pipe";
+import { SafeUrlPipe } from './sanitizer.pipe';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ElastestEreComponent } from './elastest-test-engines/elastest-ere/elastest-ere.component';
 import { ElastestEceComponent } from './elastest-test-engines/elastest-ece/elastest-ece.component';
@@ -67,9 +67,9 @@ const httpInterceptorProviders: Type<any>[] = [
     SafePipe,
     ElastestEusDialog,
     RunTJobModalComponent,
-    EtmLogsMetricsViewComponent,    
-    InstancesManagerComponent, 
-    ServiceGuiComponent, 
+    EtmLogsMetricsViewComponent,
+    InstancesManagerComponent,
+    ServiceGuiComponent,
     ServiceDetailComponent,
     SafeUrlPipe,
     ElastestTestEnginesComponent,

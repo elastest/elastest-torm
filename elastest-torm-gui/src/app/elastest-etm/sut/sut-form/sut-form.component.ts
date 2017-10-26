@@ -29,6 +29,7 @@ export class SutFormComponent implements OnInit {
   deployedSpecText: string = 'SuT IP';
   managedSpecText: string = 'Docker Image';
 
+  instrumentalized: boolean = false;
 
   constructor(private sutService: SutService, private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -42,9 +43,9 @@ export class SutFormComponent implements OnInit {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
           .subscribe((sut: SutModel) => {
             this.sut = sut;
-            this.managedChecked = sut.sutType === 'MANAGED';
-            this.repoNameChecked = sut.sutType === 'REPOSITORY';
-            this.deployedChecked = sut.sutType === 'DEPLOYED';
+            this.initSutType();
+            this.initInstrumentalizedBy();
+            this.initInstrumentalized();
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
@@ -53,11 +54,30 @@ export class SutFormComponent implements OnInit {
             this.sut = new SutModel();
             this.sut.project = project;
             this.sut.sutType = 'MANAGED';
+            this.sut.instrumentedBy = 'WITHOUT';
+            this.initInstrumentalized();
           },
         );
       }
     }
   }
+
+  initSutType() {
+    this.managedChecked = this.sut.sutType === 'MANAGED';
+    this.repoNameChecked = this.sut.sutType === 'REPOSITORY';
+    this.deployedChecked = this.sut.sutType === 'DEPLOYED';
+  }
+
+  initInstrumentalizedBy() {
+    this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
+    this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
+    this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
+  }
+
+  initInstrumentalized() {
+    this.instrumentalized = this.sut.instrumentalize;
+  }
+
   sutBy(selected: string) {
     // Reset
     this.managedChecked = false;
@@ -82,7 +102,7 @@ export class SutFormComponent implements OnInit {
     window.history.back();
   }
 
-  preSave() {
+  preSave(exit: boolean = true) {
     if (this.sut.sutType === 'DEPLOYED') {
       this.sutService.getLogstashInfo().subscribe(
         (data) => {
@@ -101,7 +121,7 @@ export class SutFormComponent implements OnInit {
     }
   }
 
-  save() {
+  save(exit: boolean = true) {
     this.sutService.createSut(this.sut)
       .subscribe(
       (sut) => this.postSave(sut),
@@ -109,20 +129,24 @@ export class SutFormComponent implements OnInit {
       );
   }
 
-  postSave(sut: any) {
+  postSave(sut: any, exit: boolean = true) {
     this.sut = sut;
-    window.history.back();
+    if (exit) {
+      window.history.back();
+    }
   }
 
   cancel() {
     window.history.back();
   }
 
-  changeUseEIM($event) {
+  instrumentalize($event) {
     this.sut.instrumentalize = $event.checked;
   }
 
-
+  deinstrumentalize($event) {
+    this.sut.instrumentalize = !$event.checked;
+  }
 
   deployedType(selected: string) {
     // Reset
@@ -131,11 +155,14 @@ export class SutFormComponent implements OnInit {
     this.adminInsCheck = false;
 
     if (selected === 'withoutIns') {
+      this.sut.instrumentedBy = 'WITHOUT';
       this.withoutInsCheck = true;
     } else {
       if (selected === 'elastestIns') {
+        this.sut.instrumentedBy = 'ELASTEST';
         this.elastestInsCheck = true;
       } else {
+        this.sut.instrumentedBy = 'ADMIN';
         this.adminInsCheck = true;
       }
     }

@@ -94,6 +94,11 @@ public class SutSpecification {
 	@JsonProperty("currentSutExec")
 	private Long currentSutExec = null;
 
+	@JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+	@Column(name = "instrumentedBy", nullable = false)
+	@JsonProperty("instrumentedBy")
+	private InstrumentedByEnum instrumentedBy;
+
 	public SutSpecification() {
 	}
 
@@ -132,6 +137,36 @@ public class SutSpecification {
 		@JsonCreator
 		public static SutTypeEnum fromValue(String text) {
 			for (SutTypeEnum b : SutTypeEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum InstrumentedByEnum {
+		WITHOUT("WITHOUT"),
+
+		ELASTEST("ELASTEST"),
+
+		ADMIN("ADMIN");
+
+		private String value;
+
+		InstrumentedByEnum(String value) {
+			this.value = value;
+		}
+
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
+
+		@JsonCreator
+		public static InstrumentedByEnum fromValue(String text) {
+			for (InstrumentedByEnum b : InstrumentedByEnum.values()) {
 				if (String.valueOf(b.value).equals(text)) {
 					return b;
 				}
@@ -330,6 +365,20 @@ public class SutSpecification {
 		this.currentSutExec = currentSutExec;
 	}
 
+	/**
+	 * Get instrumentedBy
+	 * 
+	 * @return instrumentedBy
+	 **/
+	
+	public InstrumentedByEnum getInstrumentedBy() {
+		return instrumentedBy;
+	}
+
+	public void setInstrumentedBy(InstrumentedByEnum instrumentedBy) {
+		this.instrumentedBy = instrumentedBy;
+	}
+
 	// Other methods
 
 	@Override
@@ -348,12 +397,13 @@ public class SutSpecification {
 				&& Objects.equals(this.sutType, sutSpecification.sutType)
 				&& Objects.equals(this.eimConfig, sutSpecification.eimConfig)
 				&& Objects.equals(this.instrumentalize, sutSpecification.instrumentalize)
-				&& Objects.equals(this.currentSutExec, sutSpecification.currentSutExec);
+				&& Objects.equals(this.currentSutExec, sutSpecification.currentSutExec)
+				&& Objects.equals(this.instrumentedBy, sutSpecification.instrumentedBy);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, description, project, sutType, eimConfig);
+		return Objects.hash(id, name, specification, description, project, sutType, eimConfig, instrumentedBy);
 	}
 
 	@Override
@@ -369,6 +419,7 @@ public class SutSpecification {
 		sb.append("    eimConfig: ").append(toIndentedString(eimConfig)).append("\n");
 		sb.append("    instrumentalize: ").append(toIndentedString(instrumentalize)).append("\n");
 		sb.append("    currentSutExec: ").append(toIndentedString(currentSutExec)).append("\n");
+		sb.append("    instrumentedBy: ").append(toIndentedString(instrumentedBy)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

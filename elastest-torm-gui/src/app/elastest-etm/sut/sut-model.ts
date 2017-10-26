@@ -11,6 +11,7 @@ export class SutModel {
     eimConfig: EimConfigModel;
     instrumentalize: boolean;
     currentSutExec: string;
+    instrumentedBy: string;
 
     constructor() {
         this.id = 0;
@@ -22,5 +23,6 @@ export class SutModel {
         this.eimConfig = new EimConfigModel();
         this.instrumentalize = false;
         this.currentSutExec = undefined;
+        this.instrumentedBy = '';
     }
 }

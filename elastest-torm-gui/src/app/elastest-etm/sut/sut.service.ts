@@ -41,7 +41,8 @@ export class SutService {
       sut.instrumentalize = false;
     }
     sutsDataToTable.currentSutExec = sut.currentSutExec;
-
+    sutsDataToTable.instrumentedBy = sut.instrumentedBy;
+    
     return sutsDataToTable;
   }
 
@@ -61,13 +62,13 @@ export class SutService {
 
   public createSut(sut: SutModel) {
     let url: string = this.configurationService.configModel.hostApi + '/sut';
+    sut.eimConfig.validatePrivateKey();
     return this.http.post(url, sut)
       .map((response) => response.json());
   }
+  
 
-  public modifySut() {
-
-  }
+  public modifySut() { }
 
   public deleteSut(sut: SutModel) {
     let url: string = this.configurationService.configModel.hostApi + '/sut/' + sut.id;
