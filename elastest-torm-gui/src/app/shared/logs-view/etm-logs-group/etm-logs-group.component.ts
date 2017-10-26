@@ -1,4 +1,4 @@
-import { DefaultESFieldModel, defaultInfoIdMap } from '../../defaultESData-model';
+import { DefaultESFieldModel, defaultStreamMap } from '../../defaultESData-model';
 import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
@@ -67,10 +67,10 @@ export class EtmLogsGroupComponent implements OnInit {
         individualLogs.name = this.capitalize(log.componentType) + ' Logs';
         individualLogs.type = log.componentType + 'logs';
         individualLogs.componentType = log.componentType;
-        if (log.infoId === undefined || log.infoId === null || log.infoId === '') {
-          log.infoId = defaultInfoIdMap.log;
+        if (log.stream === undefined || log.stream === null || log.stream === '') {
+          log.stream = defaultStreamMap.log;
         }
-        individualLogs.infoId = log.infoId;
+        individualLogs.stream = log.stream;
         individualLogs.hidePrevBtn = !this.live;
         individualLogs.logIndex = tJobExec.logIndex;
         if (!this.live) {
@@ -84,10 +84,10 @@ export class EtmLogsGroupComponent implements OnInit {
 
   addMoreLogs(obj: any) {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
-    individualLogs.name = this.capitalize(obj.componentType) + ' ' + this.capitalize(obj.infoId) + ' Logs';
+    individualLogs.name = this.capitalize(obj.componentType) + ' ' + this.capitalize(obj.stream) + ' Logs';
     individualLogs.type = obj.type;
     individualLogs.componentType = obj.componentType;
-    individualLogs.infoId = obj.infoId;
+    individualLogs.stream = obj.stream;
     individualLogs.hidePrevBtn = !this.live;
     individualLogs.logIndex = obj.logIndex;
     individualLogs.traces = obj.data;
@@ -96,10 +96,10 @@ export class EtmLogsGroupComponent implements OnInit {
       this.createGroupedLogsList();
       this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.traceType, individualLogs.componentType, obj.infoId);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualLogs.componentType, obj.infoId)
+        this.elastestRabbitmqService.createSubject(obj.traceType, individualLogs.componentType, obj.stream);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualLogs.componentType, obj.stream)
           .subscribe(
-          (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.infoId)
+          (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.stream)
           );
       }
     } else {
@@ -136,11 +136,11 @@ export class EtmLogsGroupComponent implements OnInit {
     return value;
   }
 
-  updateLogsData(data: any, componentType: string, infoId: string = defaultInfoIdMap.log) {
+  updateLogsData(data: any, componentType: string, stream: string = defaultStreamMap.log) {
     let found: boolean = false;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
-        if (log.componentType === componentType && log.infoId === infoId) {
+        if (log.componentType === componentType && log.stream === stream) {
           log.traces.push(data);
           found = true;
           break;
@@ -208,9 +208,9 @@ export class EtmLogsGroupComponent implements OnInit {
     if (this.live) {
       let traceType: string = 'log';
       let componentType: string = this.logsList[pos].componentType;
-      let infoId: string = this.logsList[pos].infoId;
+      let stream: string = this.logsList[pos].stream;
 
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();

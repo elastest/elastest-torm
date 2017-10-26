@@ -89,7 +89,7 @@ export class ElasticSearchService {
     theQuery['size'] = size;
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs = _logs.asObservable();
-
+    
     this.internalSearch(searchUrl, theQuery, size)
       .subscribe(
       (data) => {
@@ -388,6 +388,6 @@ export class ElasticSearchService {
   }
 
   getBasicFilterFields(): string[] {
-    return ['type', 'component_type', 'info_id', 'trace_type', '@timestamp'];
+    return ['type', 'component_type', 'stream', 'trace_type', '@timestamp'];
   }
 }

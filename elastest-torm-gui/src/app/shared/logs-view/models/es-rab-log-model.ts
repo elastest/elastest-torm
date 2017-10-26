@@ -12,7 +12,7 @@ export class ESRabLogModel implements LogViewModel {
     hidePrevBtn: boolean;
     type: string;
     componentType: string;
-    infoId: string;
+    stream: string;
     logIndex: string;
 
     constructor(elastestESService: ElastestESService, ) {
@@ -24,7 +24,7 @@ export class ESRabLogModel implements LogViewModel {
         this.hidePrevBtn = false;
         this.type = '';
         this.componentType = '';
-        this.infoId = '';
+        this.stream = '';
         this.logIndex = '';
 
         this.elastestESService = elastestESService;

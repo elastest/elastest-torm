@@ -12,7 +12,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     activatedFieldsList: boolean[]
     metricsIndex: string;
     componentType: string;
-    infoId: string;
+    stream: string;
 
     leftChartAllData: LineChartMetricModel[];
     rightChartOneAllData: LineChartMetricModel[];
@@ -25,7 +25,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.initActivatedFieldsList();
         this.metricsIndex = '';
         this.componentType = '';
-        this.infoId = '';
+        this.stream = '';
 
         this.showXAxisLabel = false;
         this.xAxisLabel = 'Time';

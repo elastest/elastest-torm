@@ -3,22 +3,22 @@ export let componentTypes: string[] = [
     'sut',
 ];
 
-// Default infoId values for each traceType
-export let defaultInfoIdMap: any = {
+// Default stream values for each traceType
+export let defaultStreamMap: any = {
     log: 'default_log',
     metrics: 'beats_metrics',
 }
 
 export class DefaultESFieldModel {
     componentType: string;
-    infoId: string;
+    stream: string;
     traceType: string;
     name: string;
     activated: boolean;
 
-    constructor(componentType: string, traceType: string, infoId?: string) {
+    constructor(componentType: string, traceType: string, stream?: string) {
         this.componentType = componentType;
-        this.infoId = infoId;
+        this.stream = stream;
         this.traceType = traceType;
 
         let componentTypePrefix: string = '';
@@ -26,15 +26,15 @@ export class DefaultESFieldModel {
             componentTypePrefix = componentType + '_';
         }
 
-        let infoIdPrefix: string = '';
-        if (infoId === undefined || infoId === '') {
-            infoId = defaultInfoIdMap[traceType];
-            this.infoId = infoId;
+        let streamPrefix: string = '';
+        if (stream === undefined || stream === '') {
+            stream = defaultStreamMap[traceType];
+            this.stream = stream;
         }
-        infoIdPrefix = infoId + '_';
+        streamPrefix = stream + '_';
 
 
-        this.name = componentTypePrefix + infoIdPrefix + traceType;
+        this.name = componentTypePrefix + streamPrefix + traceType;
         this.activated = false;
     }
 

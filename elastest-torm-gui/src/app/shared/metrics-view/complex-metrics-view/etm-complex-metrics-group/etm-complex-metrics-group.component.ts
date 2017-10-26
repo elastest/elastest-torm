@@ -8,7 +8,7 @@ import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
-import { componentTypes, defaultInfoIdMap } from '../../../defaultESData-model';
+import { componentTypes, defaultStreamMap } from '../../../defaultESData-model';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -60,7 +60,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
-      if (subjectData.traceType === 'metrics') {
+      if (subjectData.traceType === 'composed_metrics') {
         obs.subscribe((data) => this.updateMetricsData(data));
       }
     });
@@ -120,8 +120,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       let pos: number = this.metricsList.length - 1;
 
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.traceType, individualMetrics.componentType, obj.infoId);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualMetrics.componentType, obj.infoId)
+        this.elastestRabbitmqService.createSubject(obj.traceType, individualMetrics.componentType, obj.stream);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualMetrics.componentType, obj.stream)
           .subscribe(
           (data) => {
             let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
@@ -239,8 +239,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     // If is live and is the last metric card, unsubscribe
     if (this.live && lastMetric && !this.allInOneMetrics) {
       let componentType: string = this.metricsList[pos].componentType;
-      let infoId: string = this.metricsList[pos].infoId;
-      this.unsubscribe(componentType, infoId);
+      let stream: string = this.metricsList[pos].stream;
+      this.unsubscribe(componentType, stream);
     }
     this.metricsList.splice(pos, 1);
     this.createGroupedMetricList();
@@ -248,24 +248,24 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   removeAndUnsubscribeAIO() {
     if (this.live && this.metricsList.length === 0) {
-      this.unsubscribe(this.allInOneMetrics.componentType, this.allInOneMetrics.infoId);
+      this.unsubscribe(this.allInOneMetrics.componentType, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
   }
 
-  unsubscribe(componentType: string, infoId: string) {
-    let traceType: string = 'metrics';
+  unsubscribe(componentType: string, stream: string) {
+    let traceType: string = 'composed_metrics';
 
-    if (!infoId || infoId === '') {
-      infoId = defaultInfoIdMap.metrics;
+    if (!stream || stream === '') {
+      stream = defaultStreamMap.metrics;
     }
 
     if (!componentType || componentType === '') {
       for (componentType of componentTypes) {
-        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
       }
     } else {
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, infoId);
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
     }
   }
 

@@ -183,7 +183,7 @@ export class ElastestESService {
         let parsedData: SingleMetricModel = undefined;
         if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace.type]) {
             parsedData = this.getBasicSingleMetric(trace);
-            if (metricsField.traceType === 'single_metric') {
+            if (metricsField.traceType === 'atomic_metric') {
                 parsedData.value = trace[trace.type];
             } else {
                 parsedData.value = trace[trace.type][metricsField.subtype];
@@ -342,25 +342,28 @@ export class ElastestESService {
 
 
     // Dynamic
-    getDynamicTerms(infoId: string, componentType: string) {
+    getDynamicTerms(stream: string, componentType: string) {
         let terms: any[];
         terms = [
-            { 'term': { info_id: infoId } },
+            { 'term': { stream: stream } },
             { 'term': { component_type: componentType } },
         ];
         return terms;
     }
 
-    searchAllDynamic(index: string, infoId: string, componentType: string, metricName?: string, theQuery?: any) {
+    searchAllDynamic(index: string, stream: string, componentType: string, metricName?: string, theQuery?: any) {
         let _obs: Subject<any> = new Subject<any>();
         let obs = _obs.asObservable();
 
-        let terms: any[] = this.getDynamicTerms(infoId, componentType);
+        let terms: any[] = this.getDynamicTerms(stream, componentType);
         let filters: string[] = this.elasticsearchService.getBasicFilterFields().concat(
             ['message', 'units', 'unit']
         );
         if (metricName && metricName !== '') {
             filters.push(metricName);
+            terms.push(
+                { 'term': { type: metricName.split('.')[0] } },
+            );
         }
 
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery, filters)
@@ -377,17 +380,17 @@ export class ElastestESService {
                         type: type,
                         data: convertedData,
                         componentType: componentType,
-                        infoId: infoId,
+                        stream: stream,
                         logIndex: index,
                     };
 
                     if (this.isLogTrace(firstElement)) {
                         this.addDynamicLog(_obs, obj, data);
                     } else if (this.isMetricsTrace(firstElement)) {
-                        this.addDynamicMetrics(_obs, obj, data);
-                    } else if (this.isSingleMetricTrace(firstElement)) {
-                        traceType = 'metrics';
-                        this.addDynamicSingleMetric(_obs, obj, data);
+                        this.addDynamicComposedMetrics(_obs, obj, data);
+                    } else if (this.isAtomicMetricTrace(firstElement)) {
+                        traceType = 'composed_metrics';
+                        this.addDynamicAtomicMetric(_obs, obj, data);
                     } else {
                         this.popupService.openSnackBar('Cannot add the traces obtained with the parameters provided', 'OK');
                     }
@@ -407,20 +410,20 @@ export class ElastestESService {
         _obs.next(obj);
     }
 
-    addDynamicMetrics(_obs: Subject<any>, obj: any, data: any[]) {
+    addDynamicComposedMetrics(_obs: Subject<any>, obj: any, data: any[]) {
         let firstElement: any = data[0];
         let firstSource: any = firstElement._source;
         let metricObj: any = firstSource[firstSource.type];
         for (let metricName in metricObj) {
-            this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'metrics');
+            this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'composed_metrics');
         }
     }
 
-    addDynamicSingleMetric(_obs: Subject<any>, obj: any, data: any[]) {
+    addDynamicAtomicMetric(_obs: Subject<any>, obj: any, data: any[]) {
         let firstElement: any = data[0];
         let firstSource: any = firstElement._source;
         let metricName: string = firstSource.type;
-        this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'single_metric');
+        this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'atomic_metric');
     }
 
     addDynamicMetric(_obs: Subject<any>, obj: any, data: any[], firstSource: any, metricName: string, traceType: string) {
@@ -434,7 +437,7 @@ export class ElastestESService {
         }
 
         let metricsField: MetricsFieldModel
-            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.componentType, obj.infoId, traceType);
+            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.componentType, obj.stream, traceType);
         let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
 
         obj.data = metricsTraces;
@@ -453,10 +456,10 @@ export class ElastestESService {
     }
 
     isMetricsTrace(trace: any) {
-        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'metrics';
+        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'composed_metrics';
     }
 
-    isSingleMetricTrace(trace: any) {
-        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'single_metric';
+    isAtomicMetricTrace(trace: any) {
+        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'atomic_metric';
     }
 }

@@ -23,7 +23,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   tJobExec: TJobExecModel;
 
   componentType: string = '';
-  infoId: string = '';
+  stream: string = '';
   metricName: string = '';
 
   constructor(
@@ -62,19 +62,19 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   addMore() {
     if (this.isInit()) {
-      this.elastestESService.searchAllDynamic(this.tJobExec.logIndex, this.infoId, this.componentType, this.metricName)
+      this.elastestESService.searchAllDynamic(this.tJobExec.logIndex, this.stream, this.componentType, this.metricName)
         .subscribe(
         (obj: any) => {
           if (obj.traceType === 'log') {
             this.logsGroup.addMoreLogs(obj);
-          } else if (obj.traceType === 'metrics') {
+          } else if (obj.traceType === 'composed_metrics') {
             this.metricsGroup.addMoreMetrics(obj);
-          } else if (obj.traceType === 'single_metric') {
+          } else if (obj.traceType === 'atomic_metric') {
             this.metricsGroup.addMoreMetrics(obj);
           }
 
           this.componentType = '';
-          this.infoId = '';
+          this.stream = '';
           this.metricName = '';
         },
         (error) => console.log(error),

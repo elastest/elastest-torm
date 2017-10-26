@@ -2,7 +2,7 @@ import { StompWSManager } from './stomp-ws-manager.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Rx';
-import { DefaultESFieldModel, componentTypes, defaultInfoIdMap } from '../defaultESData-model';
+import { DefaultESFieldModel, componentTypes, defaultStreamMap } from '../defaultESData-model';
 
 @Injectable()
 export class ElastestRabbitmqService {
@@ -23,14 +23,14 @@ export class ElastestRabbitmqService {
     // Create Subjects
 
     public initDefaultSubjects() {
-        for (let type in defaultInfoIdMap) {
-            this.createSubject(type, 'test', defaultInfoIdMap[type])
-            this.createSubject(type, 'sut', defaultInfoIdMap[type])
+        for (let type in defaultStreamMap) {
+            this.createSubject(type, 'test', defaultStreamMap[type])
+            this.createSubject(type, 'sut', defaultStreamMap[type])
         }
     }
 
-    public createSubject(traceType: string, componentType: string, infoId: string) {
-        let name: string = this.getSubjectName(componentType, infoId, traceType);
+    public createSubject(traceType: string, componentType: string, stream: string) {
+        let name: string = this.getSubjectName(componentType, stream, traceType);
         if (this.existObs(name)) {
             return this.getSubjectByName(name);
         }
@@ -45,25 +45,25 @@ export class ElastestRabbitmqService {
 
     public createAndSubscribeToGenericTopics(tjobExecution: TJobExecModel) {
         let withSut: boolean = tjobExecution.tJob.hasSut();
-        for (let type in defaultInfoIdMap) {
-            this.createAndSubscribeToTopic(tjobExecution, type, 'test', defaultInfoIdMap[type])
+        for (let type in defaultStreamMap) {
+            this.createAndSubscribeToTopic(tjobExecution, type, 'test', defaultStreamMap[type])
 
             if (withSut) {
-                this.createAndSubscribeToTopic(tjobExecution, type, 'sut', defaultInfoIdMap[type])
+                this.createAndSubscribeToTopic(tjobExecution, type, 'sut', defaultStreamMap[type])
             }
         }
     }
 
-    public createAndSubscribeToTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
-        let topicPrefix: string = componentType + '.' + infoId;
+    public createAndSubscribeToTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, stream: string) {
+        let topicPrefix: string = componentType + '.' + stream;
         this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + tjobExecution.id + '.' + traceType, this.dynamicObsResponse);
 
-        let obsName: string = this.getSubjectName(componentType, infoId, traceType);
+        let obsName: string = this.getSubjectName(componentType, stream, traceType);
         return this.subjectMap.get(obsName);
     }
 
-    public unsuscribeFromTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, infoId: string) {
-        let topicPrefix: string = componentType + '.' + infoId;
+    public unsuscribeFromTopic(tjobExecution: TJobExecModel, traceType: string, componentType: string, stream: string) {
+        let topicPrefix: string = componentType + '.' + stream;
         let destination: string = topicPrefix + '.' + tjobExecution.id + '.' + traceType;
         this.stompWSManager.unsubscribeSpecificWSDestination(destination);
     }
@@ -81,11 +81,11 @@ export class ElastestRabbitmqService {
     // Other functions
 
     getSubjectNameFromData(data: any) {
-        return this.getSubjectName(data['component_type'], data['info_id'], data['trace_type']);
+        return this.getSubjectName(data['component_type'], data['stream'], data['trace_type']);
     }
 
-    getSubjectName(componentType: string, infoId: string, traceType: string) {
-        return componentType + '.' + infoId + '.' + traceType;
+    getSubjectName(componentType: string, stream: string, traceType: string) {
+        return componentType + '.' + stream + '.' + traceType;
     }
 
     getSubjectFromData(data: any) {
@@ -111,7 +111,7 @@ export class ElastestRabbitmqService {
                 'timestamp': data['@timestamp'],
                 'message': data.message
             };
-        } else if (data['trace_type'] === 'metrics') {
+        } else if (data['trace_type'] === 'composed_metrics') {
             trace = data;
         }
         return trace;
@@ -121,7 +121,7 @@ export class ElastestRabbitmqService {
         let splited: string[] = name.split('.');
         let data: any = {
             componentType: splited[0],
-            infoId: splited[1],
+            stream: splited[1],
             traceType: splited[2],
         };
         return data;
