@@ -30,6 +30,18 @@ export class TJobExecService {
       .map((response) => this.transformTJobExecDataToDataTable(response.json()));
   }
 
+  public getTJobExecutionFiles(tJobId: number, tJobExecId: number){
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
+    return this.http.get(url)
+    .map((response) => response.json());
+  }
+
+  /*public getTJobExecutionFiles(tJobExec: TJobExecModel){
+    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobExec.tJob.id + '/exec/' + tJobExec.id + '/files';
+    return this.http.get(url)
+    .map((response) => console.log(response.json()));
+  }*/
+
   public transformTJobExecDataToDataTable(tjobExecs: any[]) {
     let tjobExecsDataToTable: TJobExecModel[] = [];
     for (let tjobExec of tjobExecs) {

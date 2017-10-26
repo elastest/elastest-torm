@@ -131,7 +131,9 @@ public class TJobExecution {
 
 		FAILURE("FAILURE"),
 
-		IN_PROGRESS("IN PROGRESS");
+		IN_PROGRESS("IN PROGRESS"),
+		
+		WAITING("WAITING");
 
 		private String value;
 

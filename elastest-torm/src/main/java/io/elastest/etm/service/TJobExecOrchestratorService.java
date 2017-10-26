@@ -98,7 +98,7 @@ public class TJobExecOrchestratorService {
 			List<ReportTestSuite> testSuites;
 			// Start Test
 			testSuites = dockerService.executeTest(dockerExec);
-			tJobExec.setResult(TJobExecution.ResultEnum.FINISHED);
+			tJobExec.setResult(TJobExecution.ResultEnum.WAITING);
 			saveTestResults(testSuites, tJobExec);
 
 			// End and purge services
@@ -106,6 +106,8 @@ public class TJobExecOrchestratorService {
 			if (tJobServices != null && tJobServices != "") {
 				deprovideServices(tJobExec);
 			}
+			
+			tJobExec.setResult(TJobExecution.ResultEnum.FINISHED);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (!e.getMessage().equals("end error")) { // TODO customize
@@ -194,8 +196,19 @@ public class TJobExecOrchestratorService {
 	 */
 	private void deprovideServices(TJobExecution tJobExec) {
 		logger.info("Start the service deprovision.");
-		for (String instance_id : tJobExec.getServicesInstances()) {
-			esmService.deprovisionServiceInstance(instance_id, true);
+		List<String> instancesAux = new ArrayList<String>(tJobExec.getServicesInstances());
+		for (String instanceId : tJobExec.getServicesInstances()) {
+			esmService.deprovisionServiceInstance(instanceId, true);
+		}
+		
+		logger.info("Start the services check.");
+		while (!tJobExec.getServicesInstances().isEmpty()){
+			for (String instanceId : instancesAux){
+				if (!esmService.isInstanceUp(instanceId)){
+					tJobExec.getServicesInstances().remove(instanceId);
+					logger.info("Service {} removed from TJob.", instanceId);
+				}
+			}
 		}
 	}
 

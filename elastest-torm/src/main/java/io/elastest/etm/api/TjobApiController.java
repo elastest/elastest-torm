@@ -20,6 +20,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
@@ -109,6 +110,13 @@ public class TjobApiController implements TjobApi {
 
 		TJob tJob = tJobService.modifyTJob(body);
 		return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(@ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId")Long tJobExecId,
+			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
+		
+		return new ResponseEntity<List<TJobExecutionFile>>(tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId), HttpStatus.OK);
 	}
 
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -108,4 +109,14 @@ public interface TjobApi extends EtmApiRoot{
         consumes = { "application/json" },
         method = RequestMethod.PUT)
     ResponseEntity<TJob> modifyTJob(@ApiParam(value = "TJob object that needs to modify." ,required=true )  @Valid @RequestBody TJob body);
+    
+    @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags={ "TJob Execution", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "TJob Executions files not found") })    
+    @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}/files",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(@ApiParam(value = "TJobExec Id.", required=true ) @PathVariable("tJobExecId") Long tJobExecId,
+    		@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
 }

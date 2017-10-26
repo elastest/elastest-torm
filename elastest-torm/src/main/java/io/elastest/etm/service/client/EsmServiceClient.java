@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -122,6 +123,7 @@ public class EsmServiceClient {
 		return serviceInstanceData;		
 	}
 	
+	@Async
 	public void deprovisionServiceInstance(String instanceId, SupportServiceInstance serviceInstance){
 		logger.info("Request removal of a service instance.");		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -134,7 +136,7 @@ public class EsmServiceClient {
 		
 		try{
 			httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, entity, ObjectNode.class);
-			logger.info("Registered service." );
+			logger.info("Service {} deprovisioned.", serviceInstance.getServiceName() );
 		}catch(Exception e){
 			throw new RuntimeException("Exception deprovisioning instance \"" + instanceId + "\"", e);
 		}				

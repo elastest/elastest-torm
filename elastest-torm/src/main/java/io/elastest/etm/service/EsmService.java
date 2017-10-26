@@ -1,5 +1,7 @@
 package io.elastest.etm.service;
 
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -49,22 +51,14 @@ public class EsmService {
 
 	@Value("${et.esm.ss.desc.files.path}")
 	public String ESM_SERVICES_FILES_PATH;
-
-	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;
-
+	@Value("${et.shared.folder}")
+	public String ET_SHARED_FOLDER;
 	@Value("${et.public.host}")
 	public String ET_PUBLIC_HOST;
-	
-	@Value("${os.name}")
-	private String windowsSO;
-	
 	@Value("${server.port}")
 	public String serverPort;
-
 	@Value("${elastest.docker.network}")
 	private String etDockerNetwork;
-
 	@Value("${et.edm.alluxio.api}")
 	public String ET_EDM_ALLUXIO_API;
 	@Value("${et.edm.mysql.host}")
@@ -249,14 +243,16 @@ public class EsmService {
 							// service.get("short_name").toString().replaceAll("\"",
 							// ""),
 							"", plans.get(0).get("id").toString().replaceAll("\"", ""), tJobExecId);
-
+					
+					fillEnvVariablesToTSS(newServiceInstance, tJobExecId, tJobId);
+					
 					if (tJobExecId != null) {
 						tJobServicesInstances.put(instanceId, newServiceInstance);
+						createExecFilesFolder(newServiceInstance);
 					} else {
 						servicesInstances.put(instanceId, newServiceInstance);
 					}
 					
-					fillEnvVariablesToTSS(newServiceInstance, tJobExecId, tJobId);
 					esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId, Boolean.toString(false));
 					ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
 					newServiceInstance.setManifestId(
@@ -459,6 +455,24 @@ public class EsmService {
 		servicesInstances.remove(instanceId);
 		return result;
 	}
+	
+	public boolean isInstanceUp(String instanceId){
+		boolean result = false;
+		try{
+			result = esmServiceClient.getServiceInstanceInfo(instanceId).toString().equals("{}") ? false : true;
+			logger.info("Check instance status:{}", instanceId, ". Info: {}", result);
+			result = true;
+		}catch (RuntimeException re){
+			logger.info("Error cause: {}", re.getCause().getMessage());
+			if(re.getCause().getMessage().contains("404")){
+				logger.info("Check instance status:{}", instanceId, ". Info: {}", result);
+				result = false;
+			}
+		}
+		
+		
+		return result;
+	}
 
 	public SupportServiceInstance getServiceInstanceFromMem(String id) {
 		return servicesInstances.get(id);
@@ -540,13 +554,29 @@ public class EsmService {
 		return up;
 	}
 	
-	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance, Long tJobExecId, Long tJobId) {
-		if (tJobId != null){
-			supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
-		}
+	private void createExecFilesFolder(SupportServiceInstance supportServiceInstance){
+		logger.info("try to create folder.");
+		File folderStructure = new File(supportServiceInstance.getParameters().get("ET_FILES_PATH"));
 		
-		if (tJobExecId != null){
+		try {
+			if (!folderStructure.exists()) {
+				logger.info("creating folder at {}.", folderStructure.getAbsolutePath());
+				folderStructure.mkdirs();
+				logger.info("Folder created.");
+			}
+		} catch (Exception e) {
+			logger.error("File does not created.");
+			throw e;
+		}
+	}
+	
+	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance, Long tJobExecId, Long tJobId) {
+		if (tJobId != null && tJobExecId != null){
+			supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
 			supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", tJobExecId.toString());
+			String fileSeparator =   IS_OS_WINDOWS ? "\\" : "/";
+			supportServiceInstance.getParameters().put("ET_FILES_PATH", ET_SHARED_FOLDER + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId + fileSeparator + "exec_" 
+			+ tJobExecId + fileSeparator + supportServiceInstance.getServiceName().toLowerCase());
 		}
 		
 		supportServiceInstance.getParameters().put("ET_LSHTTP_API", ET_ETM_LSHTTP_API);
