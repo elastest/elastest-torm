@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.io.BufferedReader;
@@ -140,15 +141,18 @@ public class TJobService {
 		TJob tJob = getTJobById(tJobId);
 		tJob.getSelectedServices();
 		
-		String tJobExecFolder = sharedFolder + "/tjobs/tjob_" + tJobId + "/exec_" + tJobExecId;
+		String fileSeparator = IS_OS_WINDOWS ? "\\" : "/";
+		String tJobExecFolder = sharedFolder + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId
+				+ fileSeparator + "exec_" + tJobExecId + fileSeparator;
 		try {
 			File file = ResourceUtils.getFile(tJobExecFolder);
 			// If not in dev mode
 			if (file.exists()) {
 				List<String> servicesFolders = new ArrayList<>(Arrays.asList(file.list()));
 				for (String serviceFolderName: servicesFolders) {
-					logger.info("File name:" + serviceFolderName);
-					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + "/" + serviceFolderName);
+					logger.info("Files folder:" + serviceFolderName);
+					logger.info("Full path:" + tJobExecFolder + serviceFolderName);
+					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + serviceFolderName);
 					List<String> servicesFilesNames = new ArrayList<>(Arrays.asList(serviceFolder.list()));
 					for (String serviceFileName: servicesFilesNames){
 						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(serviceFileName), serviceFolderName));

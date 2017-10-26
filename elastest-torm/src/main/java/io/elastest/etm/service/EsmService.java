@@ -571,14 +571,16 @@ public class EsmService {
 	}
 	
 	private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance, Long tJobExecId, Long tJobId) {
-		if (tJobId != null && tJobExecId != null){
+		if (tJobId != null && tJobExecId != null) {
 			supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
 			supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", tJobExecId.toString());
-			String fileSeparator =   IS_OS_WINDOWS ? "\\" : "/";
-			supportServiceInstance.getParameters().put("ET_FILES_PATH", ET_SHARED_FOLDER + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId + fileSeparator + "exec_" 
-			+ tJobExecId + fileSeparator + supportServiceInstance.getServiceName().toLowerCase());
+			String fileSeparator = IS_OS_WINDOWS ? "\\" : "/";
+			supportServiceInstance.getParameters().put("ET_FILES_PATH",
+					ET_SHARED_FOLDER + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId + fileSeparator
+							+ "exec_" + tJobExecId + fileSeparator
+							+ supportServiceInstance.getServiceName().toLowerCase() + fileSeparator);
 		}
-		
+
 		supportServiceInstance.getParameters().put("ET_LSHTTP_API", ET_ETM_LSHTTP_API);
 		supportServiceInstance.getParameters().put("ET_LSBEATS_HOST", ET_ETM_LSBEATS_HOST);
 		supportServiceInstance.getParameters().put("ET_LSBEATS_PORT", ET_ETM_LSBEATS_PORT);
