@@ -33,6 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
@@ -113,7 +114,9 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"name\": \"" + sutSpec.getName() + "\","
 				  + "\"project\": { \"id\":"+ sutSpec.getProject().getId() + "},"
 				  + "\"specification\": \"" + sutSpec.getSpecification() + "\","  
-				  + "\"sutType\": \"" + sutSpec.getSutType() + "\""
+				  + "\"instrumentalize\": \"" + false + "\""
+				  + "\"currentSutExec\": \"" + null + "\""
+				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
 				+"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
