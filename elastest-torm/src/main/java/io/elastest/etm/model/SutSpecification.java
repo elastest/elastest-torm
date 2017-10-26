@@ -103,7 +103,7 @@ public class SutSpecification {
 	}
 
 	public SutSpecification(Long id, String name, String specification, String description, Project project,
-			List<TJob> tJobs, SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec) {
+			List<TJob> tJobs, SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec, InstrumentedByEnum instrumentedBy) {
 		this.id = id == null ? 0 : id;
 		this.name = name;
 		this.specification = specification;
@@ -113,6 +113,7 @@ public class SutSpecification {
 		this.sutType = sutType;
 		this.instrumentalize = instrumentalize;
 		this.currentSutExec = currentSutExec;
+		this.instrumentedBy = instrumentedBy;
 	}
 
 	public enum SutTypeEnum {

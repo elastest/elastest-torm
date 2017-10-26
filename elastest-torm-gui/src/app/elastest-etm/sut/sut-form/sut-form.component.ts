@@ -44,7 +44,7 @@ export class SutFormComponent implements OnInit {
           .subscribe((sut: SutModel) => {
             this.sut = sut;
             this.initSutType();
-            this.initInstrumentalizedBy();
+            this.initInstrumentedBy();
             this.initInstrumentalized();
           });
       } else if (this.currentPath === 'new') {
@@ -68,7 +68,7 @@ export class SutFormComponent implements OnInit {
     this.deployedChecked = this.sut.sutType === 'DEPLOYED';
   }
 
-  initInstrumentalizedBy() {
+  initInstrumentedBy() {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';

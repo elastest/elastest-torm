@@ -37,6 +37,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
@@ -107,20 +108,27 @@ public class DockerService2 {
 	public void stopDockerContainer(DockerClient dockerClient, String containerId) {
 		dockerClient.stopContainerCmd(containerId).exec();
 	}
+
 	/* Starting Methods */
 
 	public void startSut(DockerExecution dockerExec) {
-		SutExecution sutExec = sutService.createSutExecutionBySut(dockerExec.gettJobexec().getTjob().getSut());
-		try {
+		SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+		SutExecution sutExec;
+		int sutPort = 8080;
+		String sutIP = "";
+
+		// If it's MANAGED SuT
+		if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
 			logger.info("Starting sut " + dockerExec.getExecutionId());
-			if (sutExec.getSutSpecification().getSutType() != SutTypeEnum.DEPLOYED) {
+			sutExec = sutService.createSutExecutionBySut(sut);
+			try {
 				String sutImage = appImage;
 				String envVar = "";
-				if (sutExec.getSutSpecification().getSutType() == SutTypeEnum.MANAGED) {
-					sutImage = sutExec.getSutSpecification().getSpecification();
+				if (sut.getSutType() == SutTypeEnum.MANAGED) {
+					sutImage = sut.getSpecification();
 					envVar = "REPO_URL=none";
 				} else {
-					envVar = "REPO_URL=" + sutExec.getSutSpecification().getSpecification();
+					envVar = "REPO_URL=" + sut.getSpecification();
 				}
 				logger.info("Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
 				String sutName = "sut_" + dockerExec.getExecutionId();
@@ -139,23 +147,24 @@ public class DockerService2 {
 
 				dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
 
-				String sutIP = getContainerIp(appContainerId, dockerExec);
-				int sutPort = 8080;
-				String sutUrl = "http://" + sutIP + ":" + sutPort;
-				sutExec.setUrl(sutUrl);
+				sutIP = getContainerIp(appContainerId, dockerExec);
 
 				// Wait for Sut started
 				checkSut(dockerExec, sutIP, sutPort + "");
-			} else {
-				String sutUrl = "http://" + sutExec.getSutSpecification().getSpecification();
-				sutExec.setUrl(sutUrl);
+			} catch (Exception e) {
+				e.printStackTrace();
+				sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
+				endSutExec(dockerExec);
 			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
-			endSutExec(dockerExec);
+		} else { // If it's DEPLOYED SuT
+			Long currentSutExecId = sut.getCurrentSutExec();
+			sutExec = sutService.getSutExecutionById(currentSutExecId);
+			sutIP = sut.getSpecification();
 		}
+
+		String sutUrl = "http://" + sutIP + ":" + sutPort;
+		sutExec.setUrl(sutUrl);
+
 		dockerExec.setSutExec(sutExec);
 	}
 

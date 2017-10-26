@@ -10,6 +10,7 @@ import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @Service
@@ -32,22 +33,25 @@ public class SutService {
 		return sutRepository.save(sutSpecification);
 	}
 
-	public SutSpecification prepareSutToSave(SutSpecification sutSpecification) {
-		if (sutSpecification.getId() == 0) { // If is a new Sut, set
-			sutSpecification.setCurrentSutExec(new Long(1));
-		} else if (sutSpecification.getSutType() == SutTypeEnum.DEPLOYED) {
-			SutSpecification savedSut = sutRepository.getOne(sutSpecification.getId());
-			if (!savedSut.isinstrumentalize() && sutSpecification.isinstrumentalize()) { // Instrumentalize
-				sutSpecification.setCurrentSutExec(sutSpecification.getCurrentSutExec() + 1);
-
-				// Create SutExecution
-
-				this.eimService.instrumentSut(sutSpecification.getEimConfig());
-			} else if (savedSut.isinstrumentalize() && !sutSpecification.isinstrumentalize()) { // Deinstrumentalize
-				this.eimService.deinstrumentSut(sutSpecification.getEimConfig());
+	public SutSpecification prepareSutToSave(SutSpecification sut) {
+		if (sut.getId() == 0) { // If is a new Sut, set
+			sut = sutRepository.save(sut); // Save first
+			SutExecution sutExec = createSutExecutionBySut(sut);
+			sut.setCurrentSutExec(sutExec.getId());
+		} else if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
+			SutSpecification savedSut = sutRepository.getOne(sut.getId());
+			if (!savedSut.isinstrumentalize() && sut.isinstrumentalize()) { // Instrumentalize
+				SutExecution sutExec = createSutExecutionBySut(sut);
+				sut.setCurrentSutExec(sutExec.getId());
+				if (sut.getInstrumentedBy() != InstrumentedByEnum.ADMIN) {
+					sutExec.setUrl(sut.getSpecification());
+				}
+				this.eimService.instrumentSut(sut.getEimConfig());
+			} else if (savedSut.isinstrumentalize() && !sut.isinstrumentalize()) { // Deinstrumentalize
+				this.eimService.deinstrumentSut(sut.getEimConfig());
 			}
 		}
-		return sutSpecification;
+		return sut;
 	}
 
 	public void deleteSut(Long sutId) {

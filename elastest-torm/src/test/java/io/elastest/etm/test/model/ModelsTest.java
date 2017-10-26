@@ -17,6 +17,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -39,8 +40,8 @@ public class ModelsTest {
 		Project project = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
 		Project project2 = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
 				
-		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null);
-		SutSpecification sut2 = new SutSpecification(34l,"name","specification", "description",project2, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null);
+		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT);
+		SutSpecification sut2 = new SutSpecification(34l,"name","specification", "description",project2, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT);
 		
 		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig", null);
 		TJob tjob2 = new TJob(34l, "name", "imageName", sut2, project2, false, "execDashboardConfig", null);
@@ -53,7 +54,7 @@ public class ModelsTest {
 	public void executionTest(){
 		
 		Project project = new Project(3l, "name", new ArrayList<TJob>(), new ArrayList<SutSpecification>());
-		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null);
+		SutSpecification sut = new SutSpecification(34l,"name","specification", "description",project, new ArrayList<>(), SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT);
 		TJob tjob = new TJob(34l, "name", "imageName", sut, project, false, "execDashboardConfig", null);
 		
 		List<Parameter> params = new ArrayList<>();
