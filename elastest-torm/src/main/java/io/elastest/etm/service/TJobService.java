@@ -159,7 +159,7 @@ public class TJobService {
 					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + serviceFolderName);
 					List<String> servicesFilesNames = new ArrayList<>(Arrays.asList(serviceFolder.list()));
 					for (String serviceFileName: servicesFilesNames){
-						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(tJobExecFilePath + serviceFileName), serviceFolderName));
+						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(tJobExecFilePath + serviceFolderName + serviceFileName), serviceFolderName));
 					}
 				}
 			}
