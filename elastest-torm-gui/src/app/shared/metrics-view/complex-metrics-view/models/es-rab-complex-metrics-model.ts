@@ -11,7 +11,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     allMetricsFields: AllMetricsFields;
     activatedFieldsList: boolean[]
     metricsIndex: string;
-    componentType: string;
+    component: string;
     stream: string;
 
     leftChartAllData: LineChartMetricModel[];
@@ -24,7 +24,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.allMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
         this.initActivatedFieldsList();
         this.metricsIndex = '';
-        this.componentType = '';
+        this.component = '';
         this.stream = '';
 
         this.showXAxisLabel = false;
@@ -92,7 +92,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
 
     updateData(trace: any) {
-        let positionsList: number[] = this.allMetricsFields.getPositionsList(trace.type, trace.component_type);
+        let positionsList: number[] = this.allMetricsFields.getPositionsList(trace.type, trace.component, trace.stream);
         for (let position of positionsList) {
             let metric: MetricsFieldModel = this.allMetricsFields.fieldsList[position];
             let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(trace, metric);

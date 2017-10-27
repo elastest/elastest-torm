@@ -57,7 +57,7 @@ export class ElastestLogManagerComponent implements OnInit {
   public indexName: string;
   public hosts: string;
   public message: string;
-  public componentType: string;
+  public component: string;
   public maxResults: number = 500;
   public urlCopied: string;
   public showLoadMore: boolean = false;
@@ -100,7 +100,7 @@ export class ElastestLogManagerComponent implements OnInit {
     { name: 'message', label: 'Message' },
     { name: 'level', label: 'Level' },
     { name: 'type', label: 'Type' },
-    { name: 'componentType', label: 'Component Type' },
+    { name: 'component', label: 'Component' },
     { name: 'host', label: 'Host' },
   ];
 
@@ -143,8 +143,8 @@ export class ElastestLogManagerComponent implements OnInit {
       autoSearch = true;
     }
 
-    if (params.componentType !== undefined && params.componentType !== null) {
-      this.componentType = decodeURIComponent(params.componentType);
+    if (params.component !== undefined && params.component !== null) {
+      this.component = decodeURIComponent(params.component);
       autoSearch = true;
     }
 
@@ -371,7 +371,7 @@ export class ElastestLogManagerComponent implements OnInit {
               }
             }
           },
-          { 'term': { trace_type: 'log' } }
+          { 'term': { stream_type: 'log' } }
         ]
       }
     };
@@ -390,7 +390,7 @@ export class ElastestLogManagerComponent implements OnInit {
       ],
       query: queries,
       size: this.maxResults,
-      _source: ['host', 'component_type', 'message', 'level', 'logmessage', '@timestamp', 'tjobexec']
+      _source: ['host', 'component', 'message', 'level', 'logmessage', '@timestamp', 'tjobexec']
     };
 
     if (!append) {
@@ -490,8 +490,8 @@ export class ElastestLogManagerComponent implements OnInit {
     let message = this.processCommaSeparatedValue(this.message);
     this.addTermFilter(queries, 'message', message);
 
-    let componentType = this.processCommaSeparatedValue(this.componentType);
-    this.addTermFilter(queries, 'component_type', componentType);
+    let component = this.processCommaSeparatedValue(this.component);
+    this.addTermFilter(queries, 'component', component);
   }
 
   public processCommaSeparatedValue(value: string) {
@@ -515,7 +515,7 @@ export class ElastestLogManagerComponent implements OnInit {
     let time: string = '';
     let message: string = '';
     let level: string = '';
-    let componentType: string = '';
+    let component: string = '';
     let host: string = '';
     let sortId: number = undefined;
 
@@ -542,7 +542,7 @@ export class ElastestLogManagerComponent implements OnInit {
           message = 'undefined';
         }
         level = logEntry._source.level;
-        componentType = logEntry._source['component_type'];
+        component = logEntry._source['component'];
 
         host = logEntry._source.host;
         if (logEntry.host !== undefined) {
@@ -553,13 +553,13 @@ export class ElastestLogManagerComponent implements OnInit {
 
         if (!fromData) { // New search or Load More
           position = this.rowData.length;
-          logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+          logRow = { tjobexec, type, time, message, level, component, host, sortId, position };
           this.rowData.push(logRow);
           loaded = true;
         }
         else { // Add from row selected
           position = newPosition;
-          logRow = { tjobexec, type, time, message, level, componentType, host, sortId, position };
+          logRow = { tjobexec, type, time, message, level, component, host, sortId, position };
           if (counter > 0
             && (time !== this.rowData[position].time || message !== this.rowData[position].message)
           ) { // If not is Last trace and not repeated
@@ -915,8 +915,8 @@ export class ElastestLogManagerComponent implements OnInit {
       this.urlCopied += 'hosts=' + encodeURIComponent(this.hosts) + '&';
     }
 
-    if (this.componentType !== undefined) {
-      this.urlCopied += 'componentType=' + encodeURIComponent(this.componentType) + '&';
+    if (this.component !== undefined) {
+      this.urlCopied += 'component=' + encodeURIComponent(this.component) + '&';
     }
 
     if (this.maxResults !== undefined) {

@@ -1,40 +1,40 @@
-export let componentTypes: string[] = [
+export let components: string[] = [
     'test',
     'sut',
 ];
 
-// Default stream values for each traceType
+// Default stream values for each streamType
 export let defaultStreamMap: any = {
     log: 'default_log',
-    metrics: 'beats_metrics',
+    composed_metrics: 'beats_metrics',
+    atomic_metric: 'beats_metrics',
 }
 
 export class DefaultESFieldModel {
-    componentType: string;
+    component: string;
     stream: string;
-    traceType: string;
+    streamType: string;
     name: string;
     activated: boolean;
 
-    constructor(componentType: string, traceType: string, stream?: string) {
-        this.componentType = componentType;
+    constructor(component: string, streamType: string, stream?: string) {
+        this.component = component;
         this.stream = stream;
-        this.traceType = traceType;
+        this.streamType = streamType;
 
-        let componentTypePrefix: string = '';
-        if (componentType !== undefined && componentType !== '') {
-            componentTypePrefix = componentType + '_';
+        let componentPrefix: string = '';
+        if (component !== undefined && component !== '') {
+            componentPrefix = component + '_';
         }
 
         let streamPrefix: string = '';
         if (stream === undefined || stream === '') {
-            stream = defaultStreamMap[traceType];
+            stream = defaultStreamMap[streamType];
             this.stream = stream;
         }
         streamPrefix = stream + '_';
 
-
-        this.name = componentTypePrefix + streamPrefix + traceType;
+        this.name = componentPrefix + streamPrefix + streamType;
         this.activated = false;
     }
 

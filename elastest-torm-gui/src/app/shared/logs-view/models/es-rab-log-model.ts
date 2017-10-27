@@ -11,7 +11,7 @@ export class ESRabLogModel implements LogViewModel {
     prevLoaded: boolean;
     hidePrevBtn: boolean;
     type: string;
-    componentType: string;
+    component: string;
     stream: string;
     logIndex: string;
 
@@ -23,7 +23,7 @@ export class ESRabLogModel implements LogViewModel {
         this.prevLoaded = false;
         this.hidePrevBtn = false;
         this.type = '';
-        this.componentType = '';
+        this.component = '';
         this.stream = '';
         this.logIndex = '';
 
@@ -31,7 +31,7 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     getAllLogs() {
-        this.elastestESService.searchAllLogs(this.logIndex, this.type, this.componentType)
+        this.elastestESService.searchAllLogs(this.logIndex, this.type, this.component)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -40,7 +40,7 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces, this.type, this.componentType)
+        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces, this.type, this.component)
             .subscribe(
             (data) => {
                 if (data.length > 0) {

@@ -51,8 +51,8 @@ export class EtmLogsGroupComponent implements OnInit {
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
-      if (subjectData.traceType === 'log') {
-        obs.subscribe((data) => this.updateLogsData(data, subjectData.componentType));
+      if (subjectData.streamType === 'log') {
+        obs.subscribe((data) => this.updateLogsData(data, subjectData.component));
       }
     });
   }
@@ -64,9 +64,9 @@ export class EtmLogsGroupComponent implements OnInit {
     for (let log of tJob.execDashboardConfigModel.allLogsTypes.logsList) {
       if (log.activated) {
         let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
-        individualLogs.name = this.capitalize(log.componentType) + ' Logs';
-        individualLogs.type = log.componentType + 'logs';
-        individualLogs.componentType = log.componentType;
+        individualLogs.name = this.capitalize(log.component) + ' Logs';
+        individualLogs.type = log.component + 'logs';
+        individualLogs.component = log.component;
         if (log.stream === undefined || log.stream === null || log.stream === '') {
           log.stream = defaultStreamMap.log;
         }
@@ -84,9 +84,9 @@ export class EtmLogsGroupComponent implements OnInit {
 
   addMoreLogs(obj: any) {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
-    individualLogs.name = this.capitalize(obj.componentType) + ' ' + this.capitalize(obj.stream) + ' Logs';
+    individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';
     individualLogs.type = obj.type;
-    individualLogs.componentType = obj.componentType;
+    individualLogs.component = obj.component;
     individualLogs.stream = obj.stream;
     individualLogs.hidePrevBtn = !this.live;
     individualLogs.logIndex = obj.logIndex;
@@ -96,10 +96,10 @@ export class EtmLogsGroupComponent implements OnInit {
       this.createGroupedLogsList();
       this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.traceType, individualLogs.componentType, obj.stream);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualLogs.componentType, obj.stream)
+        this.elastestRabbitmqService.createSubject(obj.streamType, individualLogs.component, obj.stream);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.streamType, individualLogs.component, obj.stream)
           .subscribe(
-          (data) => this.updateLogsData(data, individualLogs.componentType, individualLogs.stream)
+          (data) => this.updateLogsData(data, individualLogs.component, individualLogs.stream)
           );
       }
     } else {
@@ -136,11 +136,11 @@ export class EtmLogsGroupComponent implements OnInit {
     return value;
   }
 
-  updateLogsData(data: any, componentType: string, stream: string = defaultStreamMap.log) {
+  updateLogsData(data: any, component: string, stream: string = defaultStreamMap.log) {
     let found: boolean = false;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
-        if (log.componentType === componentType && log.stream === stream) {
+        if (log.component === component && log.stream === stream) {
           log.traces.push(data);
           found = true;
           break;
@@ -206,11 +206,11 @@ export class EtmLogsGroupComponent implements OnInit {
   removeAndUnsubscribe(pos: number) {
     // If is live, unsubscribe
     if (this.live) {
-      let traceType: string = 'log';
-      let componentType: string = this.logsList[pos].componentType;
+      let streamType: string = 'log';
+      let component: string = this.logsList[pos].component;
       let stream: string = this.logsList[pos].stream;
 
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();

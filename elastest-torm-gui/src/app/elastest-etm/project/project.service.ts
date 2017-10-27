@@ -19,25 +19,27 @@ export class ProjectService {
     return projectsDataToTable;
   }
 
-  transformToProjectmodel(project: any) {
+  transformToProjectmodel(project: any, onlyProject: boolean = false) {
     let projectDataToTable: ProjectModel;
 
     projectDataToTable = new ProjectModel();
     projectDataToTable.id = project.id;
     projectDataToTable.name = project.name;
-    projectDataToTable.suts = this.sutService.transformSutDataToDataTable(project.suts);
-    projectDataToTable.tjobs = this.tJobService.transformTJobDataToDataTable(project.tjobs);
+    if (!onlyProject) {
+      projectDataToTable.suts = this.sutService.transformSutDataToDataTable(project.suts);
+      projectDataToTable.tjobs = this.tJobService.transformTJobDataToDataTable(project.tjobs);
+    }
     return projectDataToTable;
   }
 
-  public getProject(id: string) {
+  public getProject(id: string, onlyProject: boolean = false) {
     let url = this.confgurationService.configModel.hostApi + '/project/' + id;
     return this.http.get(url)
       .map(
       (response) => {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
-          return this.transformToProjectmodel(data);
+          return this.transformToProjectmodel(data, onlyProject);
         }
         else {
           throw new Error('Empty response. Project not exist or you don\'t have permissions to access it');

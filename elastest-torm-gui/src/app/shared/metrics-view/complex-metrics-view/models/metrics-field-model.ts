@@ -7,19 +7,18 @@ export class MetricsFieldModel extends DefaultESFieldModel {
     subtype: string;
     unit: Units | string;
 
-    constructor(type: string, subtype: string, unit: Units  | string, componentType: string, stream?: string, traceType?: string) {
-        if(!traceType){
-            traceType = 'composed_metrics';
+    constructor(type: string, subtype: string, unit: Units | string, component: string, stream?: string, streamType?: string) {
+        if (streamType === undefined) {
+            streamType = 'composed_metrics';
         }
-        super(componentType, traceType, stream);
+        super(component, streamType, stream);
         this.type = type;
         this.subtype = subtype;
         this.unit = unit;
 
-        let namePrefix: string = this.name.split('composed_metrics')[0]; // remove trace_type added at the end on super constructor
-        namePrefix = this.name.split('beats_metrics')[0]; // remove default stream if added at the end on super constructor
+        let namePrefix: string = this.name.split('composed_metrics')[0]; // remove stream_type added at the end on super constructor
+        // namePrefix = namePrefix.split('beats_metrics')[0]; // remove default stream if added at the end on super constructor
         this.name = namePrefix + type + '_' + subtype;
-
         this.activated = false;
     }
 }

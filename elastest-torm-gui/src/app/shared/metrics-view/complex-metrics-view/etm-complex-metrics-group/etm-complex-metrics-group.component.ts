@@ -8,7 +8,7 @@ import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
-import { componentTypes, defaultStreamMap } from '../../../defaultESData-model';
+import { components, defaultStreamMap } from '../../../defaultESData-model';
 
 @Component({
   selector: 'etm-complex-metrics-group',
@@ -60,7 +60,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
-      if (subjectData.traceType === 'composed_metrics') {
+      if (subjectData.streamType === 'composed_metrics') {
         obs.subscribe((data) => this.updateMetricsData(data));
       }
     });
@@ -82,12 +82,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
     for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
-        let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
-        individualMetrics.name = metric.type + ' ' + metric.subtype;
-        individualMetrics.componentType = metric.componentType;
+        let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
         individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-        individualMetrics.hidePrevBtn = !this.live;
         individualMetrics.metricsIndex = tJobExec.logIndex;
         if (!this.live) {
           individualMetrics.getAllMetrics();
@@ -100,18 +97,17 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   addMoreMetrics(obj: any) {
-    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
-    individualMetrics.name = obj.type + ' ' + obj.metricName;
-    individualMetrics.componentType = obj.componentType;
+    obj.subtype = obj.metricName;
+    let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(obj);
 
     // individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-    individualMetrics.hidePrevBtn = !this.live;
     individualMetrics.metricsIndex = this.tJobExec.logIndex;
     individualMetrics.addSimpleMetricTraces(obj.data);
 
     if (obj.unit) {
       individualMetrics.yAxisLabelLeft = obj.unit;
     }
+
     if (!this.alreadyExist(individualMetrics.name)) {
       this.metricsList.push(individualMetrics);
       this.createGroupedMetricList();
@@ -120,8 +116,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       let pos: number = this.metricsList.length - 1;
 
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.traceType, individualMetrics.componentType, obj.stream);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.traceType, individualMetrics.componentType, obj.stream)
+        this.elastestRabbitmqService.createSubject(obj.streamType, individualMetrics.component, obj.stream);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.streamType, individualMetrics.component, obj.stream)
           .subscribe(
           (data) => {
             let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
@@ -129,11 +125,25 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
               this.metricsList[pos].addDataToSimpleMetric(obj.metricFieldModel, [parsedData]);
             }
           },
-        );
+          (error) => console.log(error)
+          );
       }
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
     }
+  }
+
+  initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
+    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+    individualMetrics.name = this.createName(metric.stream, metric.type, metric.subtype);
+    individualMetrics.component = metric.component;
+    individualMetrics.stream = metric.stream;
+    individualMetrics.hidePrevBtn = !this.live;
+    return individualMetrics;
+  }
+
+  createName(stream: string, type: string, subtype: string) {
+    return stream + ' ' + type + ' ' + subtype;
   }
 
   alreadyExist(name: string) {
@@ -238,9 +248,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
     // If is live and is the last metric card, unsubscribe
     if (this.live && lastMetric && !this.allInOneMetrics) {
-      let componentType: string = this.metricsList[pos].componentType;
+      let component: string = this.metricsList[pos].component;
       let stream: string = this.metricsList[pos].stream;
-      this.unsubscribe(componentType, stream);
+      this.unsubscribe(component, stream);
     }
     this.metricsList.splice(pos, 1);
     this.createGroupedMetricList();
@@ -248,24 +258,24 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   removeAndUnsubscribeAIO() {
     if (this.live && this.metricsList.length === 0) {
-      this.unsubscribe(this.allInOneMetrics.componentType, this.allInOneMetrics.stream);
+      this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
   }
 
-  unsubscribe(componentType: string, stream: string) {
-    let traceType: string = 'composed_metrics';
+  unsubscribe(component: string, stream: string) {
+    let streamType: string = 'composed_metrics';
 
     if (!stream || stream === '') {
       stream = defaultStreamMap.metrics;
     }
 
-    if (!componentType || componentType === '') {
-      for (componentType of componentTypes) {
-        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
+    if (!component || component === '') {
+      for (component of components) {
+        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
       }
     } else {
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, traceType, componentType, stream);
+      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
     }
   }
 

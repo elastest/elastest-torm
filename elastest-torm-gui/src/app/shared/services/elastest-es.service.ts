@@ -20,11 +20,11 @@ export class ElastestESService {
         public popupService: PopupService,
     ) { }
 
-    getTermsByTypeAndComponentType(type: string, componentType: string) {
+    getTermsByTypeAndComponent(type: string, component: string) {
         let terms: any[];
         terms = [
             { 'term': { _type: type } },
-            { 'term': { component_type: componentType } },
+            { 'term': { component: component } },
         ];
         return terms;
     }
@@ -32,19 +32,19 @@ export class ElastestESService {
 
     getTermsByMetricsField(metricsField: MetricsFieldModel) {
         let terms: any[] = [{ 'term': { _type: metricsField.type } }];
-        if (metricsField.componentType !== undefined && metricsField.componentType !== '') {
+        if (metricsField.component !== undefined && metricsField.component !== '') {
             terms.push(
-                { 'term': { component_type: metricsField.componentType } },
+                { 'term': { component: metricsField.component } },
             );
         }
         return terms;
     }
 
-    searchAllLogs(index: string, type: string, componentType: string, theQuery?: any) {
+    searchAllLogs(index: string, type: string, component: string, theQuery?: any) {
         let _logs = new Subject<string[]>();
         let logs = _logs.asObservable();
 
-        let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
+        let terms: any[] = this.getTermsByTypeAndComponent(type, component);
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
             (data) => {
                 _logs.next(this.convertToLogTraces(data));
@@ -54,13 +54,13 @@ export class ElastestESService {
         return logs;
     }
 
-    getPrevLogsFromTrace(index: string, traces: any[], type: string, componentType: string) {
+    getPrevLogsFromTrace(index: string, traces: any[], type: string, component: string) {
         let _logs = new Subject<string[]>();
         let logs = _logs.asObservable();
 
         if (traces.length > 0) {
             let trace: any = traces[0];
-            let terms: any[] = this.getTermsByTypeAndComponentType(type, componentType);
+            let terms: any[] = this.getTermsByTypeAndComponent(type, component);
             this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
                 (data) => {
                     _logs.next(this.convertToLogTraces(data));
@@ -135,14 +135,14 @@ export class ElastestESService {
 
     convertToMetricTraces(data: any[], metricsField: MetricsFieldModel) {
         let tracesList: LineChartMetricModel[];
-        if (metricsField.componentType === undefined || metricsField.componentType === '') {
+        if (metricsField.component === undefined || metricsField.component === '') {
             tracesList = this.getInitMetricsData();
 
             let position: number = undefined;
             let parsedMetric: any;
             for (let metricTrace of data) {
                 parsedMetric = this.convertToMetricTrace(metricTrace._source, metricsField);
-                position = this.getMetricPosition(metricTrace._source.component_type);
+                position = this.getMetricPosition(metricTrace._source.component);
                 if (position !== undefined && parsedMetric !== undefined) {
                     tracesList[position].series.push(parsedMetric);
                 }
@@ -183,7 +183,7 @@ export class ElastestESService {
         let parsedData: SingleMetricModel = undefined;
         if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace.type]) {
             parsedData = this.getBasicSingleMetric(trace);
-            if (metricsField.traceType === 'atomic_metric') {
+            if (metricsField.streamType === 'atomic_metric') {
                 parsedData.value = trace[trace.type];
             } else {
                 parsedData.value = trace[trace.type][metricsField.subtype];
@@ -296,14 +296,14 @@ export class ElastestESService {
         return parsedData;
     }
 
-    getMetricPosition(componentType: string) {
+    getMetricPosition(component: string) {
         let position: number = undefined;
 
-        componentType = componentType.toLowerCase();
-        componentType = componentType.charAt(0).toUpperCase() + componentType.slice(1);
+        component = component.toLowerCase();
+        component = component.charAt(0).toUpperCase() + component.slice(1);
 
-        if (MetricsDataType[componentType] !== undefined) {
-            position = MetricsDataType[componentType];
+        if (MetricsDataType[component] !== undefined) {
+            position = MetricsDataType[component];
         }
         return position;
     }
@@ -331,31 +331,31 @@ export class ElastestESService {
     initTestLog(log: ESRabLogModel) {
         log.name = 'Test Logs';
         log.type = 'testlogs';
-        log.componentType = 'test';
+        log.component = 'test';
     }
 
     initSutLog(log: ESRabLogModel) {
         log.name = 'SuT Logs';
         log.type = 'sutlogs';
-        log.componentType = 'sut';
+        log.component = 'sut';
     }
 
 
     // Dynamic
-    getDynamicTerms(stream: string, componentType: string) {
+    getDynamicTerms(stream: string, component: string) {
         let terms: any[];
         terms = [
             { 'term': { stream: stream } },
-            { 'term': { component_type: componentType } },
+            { 'term': { component: component } },
         ];
         return terms;
     }
 
-    searchAllDynamic(index: string, stream: string, componentType: string, metricName?: string, theQuery?: any) {
+    searchAllDynamic(index: string, stream: string, component: string, metricName?: string, theQuery?: any) {
         let _obs: Subject<any> = new Subject<any>();
         let obs = _obs.asObservable();
 
-        let terms: any[] = this.getDynamicTerms(stream, componentType);
+        let terms: any[] = this.getDynamicTerms(stream, component);
         let filters: string[] = this.elasticsearchService.getBasicFilterFields().concat(
             ['message', 'units', 'unit']
         );
@@ -373,13 +373,13 @@ export class ElastestESService {
                     let convertedData: any;
                     let firstElement: any = data[0];
                     let firstSource: any = firstElement._source;
-                    let traceType: string = '';
+                    let streamType: string = '';
                     let type: string = firstSource.type;
                     let obj: any = {
-                        traceType: traceType,
+                        streamType: streamType,
                         type: type,
                         data: convertedData,
-                        componentType: componentType,
+                        component: component,
                         stream: stream,
                         logIndex: index,
                     };
@@ -389,7 +389,7 @@ export class ElastestESService {
                     } else if (this.isMetricsTrace(firstElement)) {
                         this.addDynamicComposedMetrics(_obs, obj, data);
                     } else if (this.isAtomicMetricTrace(firstElement)) {
-                        traceType = 'composed_metrics';
+                        streamType = 'composed_metrics';
                         this.addDynamicAtomicMetric(_obs, obj, data);
                     } else {
                         this.popupService.openSnackBar('Cannot add the traces obtained with the parameters provided', 'OK');
@@ -406,7 +406,7 @@ export class ElastestESService {
         let logTraces: string[] = this.convertToLogTraces(data);
 
         obj.data = logTraces;
-        obj.traceType = 'log';
+        obj.streamType = 'log';
         _obs.next(obj);
     }
 
@@ -426,7 +426,7 @@ export class ElastestESService {
         this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'atomic_metric');
     }
 
-    addDynamicMetric(_obs: Subject<any>, obj: any, data: any[], firstSource: any, metricName: string, traceType: string) {
+    addDynamicMetric(_obs: Subject<any>, obj: any, data: any[], firstSource: any, metricName: string, streamType: string) {
         let unit: string;
         if (firstSource.units && firstSource.units[metricName]) {
             unit = firstSource.units[metricName];
@@ -437,11 +437,11 @@ export class ElastestESService {
         }
 
         let metricsField: MetricsFieldModel
-            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.componentType, obj.stream, traceType);
+            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.component, obj.stream, streamType);
         let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
 
         obj.data = metricsTraces;
-        obj.traceType = traceType;
+        obj.streamType = streamType;
         obj['metricName'] = metricName;
         obj['metricFieldModel'] = metricsField;
 
@@ -452,14 +452,14 @@ export class ElastestESService {
     }
 
     isLogTrace(trace: any) {
-        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'log';
+        return trace._source['stream_type'] !== undefined && trace._source['stream_type'] !== null && trace._source['stream_type'] === 'log';
     }
 
     isMetricsTrace(trace: any) {
-        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'composed_metrics';
+        return trace._source['stream_type'] !== undefined && trace._source['stream_type'] !== null && trace._source['stream_type'] === 'composed_metrics';
     }
 
     isAtomicMetricTrace(trace: any) {
-        return trace._source['trace_type'] !== undefined && trace._source['trace_type'] !== null && trace._source['trace_type'] === 'atomic_metric';
+        return trace._source['stream_type'] !== undefined && trace._source['stream_type'] !== null && trace._source['stream_type'] === 'atomic_metric';
     }
 }

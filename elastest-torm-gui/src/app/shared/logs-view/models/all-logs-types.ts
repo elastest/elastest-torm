@@ -1,4 +1,4 @@
-import { DefaultESFieldModel, componentTypes } from '../../defaultESData-model';
+import { DefaultESFieldModel, components } from '../../defaultESData-model';
 import { LogFieldModel } from './log-field-model';
 import { ESRabLogModel } from './es-rab-log-model';
 
@@ -8,8 +8,8 @@ export class AllLogsTypesModel {
 
     constructor() {
         this.logsList = [];
-        for (let componentType of componentTypes) {
-            this.createFieldsListByComponent(componentType);
+        for (let component of components) {
+            this.createFieldsListByComponent(component);
         }
     }
 
@@ -26,8 +26,8 @@ export class AllLogsTypesModel {
         return position;
     }
 
-    createFieldsListByComponent(componentType: string) {
-        let logField: LogFieldModel = new LogFieldModel(componentType);
+    createFieldsListByComponent(component: string) {
+        let logField: LogFieldModel = new LogFieldModel(component);
         logField.activated = true;
         this.logsList.push(logField);
     }

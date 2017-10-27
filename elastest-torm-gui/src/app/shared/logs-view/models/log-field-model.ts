@@ -1,7 +1,7 @@
 import { DefaultESFieldModel } from '../../defaultESData-model';
 export class LogFieldModel extends DefaultESFieldModel {
-    constructor(componentType: string, stream?: string) {
-        super(componentType, 'log', stream);
+    constructor(component: string, stream?: string) {
+        super(component, 'log', stream);
     }
 
     changeActive($event) {

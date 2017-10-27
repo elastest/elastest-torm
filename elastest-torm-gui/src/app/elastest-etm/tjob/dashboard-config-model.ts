@@ -29,7 +29,7 @@ export class DashboardConfigModel {
                 if (metric.stream === undefined) {
                     metric.stream = '';
                 }
-                let metricModel: MetricsFieldModel = new MetricsFieldModel(metric.type, metric.subtype, metric.unit, metric.componentType, metric.stream);
+                let metricModel: MetricsFieldModel = new MetricsFieldModel(metric.type, metric.subtype, metric.unit, metric.component, metric.stream);
                 metricModel.activated = metric.activated;
                 let position: number = this.allMetricsFields.getPositionByName(metricModel.name);
                 this.allMetricsFields.fieldsList[position] = metricModel;
@@ -39,7 +39,7 @@ export class DashboardConfigModel {
                 if (log.stream === undefined) {
                     log.stream = '';
                 }
-                let logModel: LogFieldModel = new LogFieldModel(log.componentType, log.stream);
+                let logModel: LogFieldModel = new LogFieldModel(log.component, log.stream);
                 logModel.activated = log.activated;
                 let position: number = this.allLogsTypes.getPositionByName(log.name);
                 this.allLogsTypes.logsList[position] = logModel;

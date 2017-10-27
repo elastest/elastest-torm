@@ -1,4 +1,4 @@
-import { DefaultESFieldModel, componentTypes } from '../../../defaultESData-model';
+import { DefaultESFieldModel, components } from '../../../defaultESData-model';
 import { MetricsFieldModel } from './metrics-field-model';
 
 // Aux Classes
@@ -62,27 +62,27 @@ export class AllMetricsFields {
     constructor(withComponent: boolean = true) {
         this.fieldsList = [];
         if (withComponent) {
-            for (let componentType of componentTypes) {
-                this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(componentType));
+            for (let component of components) {
+                this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(component));
             }
         } else {
             this.fieldsList = this.getFieldListWithoutComponent();
         }
     }
 
-    createFieldsListByComponent(componentType: string) {
+    createFieldsListByComponent(component: string) {
         let list: MetricsFieldModel[] = [];
-        for (let metricFieldGroup of metricFieldGroupList) { // Foreach type for this componentType
-            list = list.concat(this.createFieldsListBySublist(metricFieldGroup, componentType));
+        for (let metricFieldGroup of metricFieldGroupList) { // Foreach type for this component
+            list = list.concat(this.createFieldsListBySublist(metricFieldGroup, component));
         }
         return list;
     }
 
-    createFieldsListBySublist(metricFieldGroup: MetricFieldGroupModel, componentType: string) {
+    createFieldsListBySublist(metricFieldGroup: MetricFieldGroupModel, component: string) {
         let list: MetricsFieldModel[] = [];
 
-        for (let subtype of metricFieldGroup.subtypes) { // Foreach subtype of this type and this componentType
-            let newField: MetricsFieldModel = new MetricsFieldModel(metricFieldGroup.type, subtype.subtype, subtype.unit, componentType);
+        for (let subtype of metricFieldGroup.subtypes) { // Foreach subtype of this type and this component
+            let newField: MetricsFieldModel = new MetricsFieldModel(metricFieldGroup.type, subtype.subtype, subtype.unit, component);
             if (newField.type === 'cpu' && newField.subtype === 'totalUsage') { // Hardcoded
                 newField.activated = true;
             }
@@ -95,8 +95,11 @@ export class AllMetricsFields {
         return this.createFieldsListByComponent('');
     }
 
-    getPositionsList(type: string, componentType: string) {
-        let namePrefix: string = componentType + '_' + type;
+    getPositionsList(type: string, component: string, stream?: string) {
+        let namePrefix: string = component + '_' + type;
+        if (stream) {
+            namePrefix = component + '_' + stream + '_' + type;
+        }
         let positionsList: number[] = [];
         let counter: number = 0;
         for (let metric of this.fieldsList) {
