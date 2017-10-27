@@ -1,3 +1,4 @@
+import { ConfigurationService } from '../../config/configuration-service.service';
 import { FileModel } from './file-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { Component, Input, OnInit } from '@angular/core';
@@ -39,7 +40,12 @@ export class FilesManagerComponent implements OnInit {
   timer: Observable<number>;
   subscription: Subscription;
 
-  constructor(private _dataTableService: TdDataTableService, private tJobExecService: TJobExecService) { }
+  filesUrlPrefix: string;
+
+  constructor(private _dataTableService: TdDataTableService, private tJobExecService: TJobExecService,
+    private configurationService: ConfigurationService) {
+      this.filesUrlPrefix = configurationService.configModel.host;
+    }
 
   ngOnInit() {
     this.loadExecutionFiles();
