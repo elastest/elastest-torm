@@ -141,17 +141,19 @@ public class TJobService {
 		TJob tJob = getTJobById(tJobId);
 		tJob.getSelectedServices();
 		
-		String fileSeparator = IS_OS_WINDOWS ? "\\" : "/";
+		String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
 		String tJobExecFolder = sharedFolder + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId
 				+ fileSeparator + "exec_" + tJobExecId + fileSeparator;
+		
+		logger.debug("Shared folder:" + tJobExecFolder);
 		try {
 			File file = ResourceUtils.getFile(tJobExecFolder);
 			// If not in dev mode
 			if (file.exists()) {
 				List<String> servicesFolders = new ArrayList<>(Arrays.asList(file.list()));
 				for (String serviceFolderName: servicesFolders) {
-					logger.info("Files folder:" + serviceFolderName);
-					logger.info("Full path:" + tJobExecFolder + serviceFolderName);
+					logger.debug("Files folder:" + serviceFolderName);
+					logger.debug("Full path:" + tJobExecFolder + serviceFolderName);
 					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + serviceFolderName);
 					List<String> servicesFilesNames = new ArrayList<>(Arrays.asList(serviceFolder.list()));
 					for (String serviceFileName: servicesFilesNames){
@@ -165,12 +167,12 @@ public class TJobService {
 
 					String serviceFolderName;
 					while ((serviceFolderName = br.readLine()) != null) {
-						logger.info("File name (dev mode):" + serviceFolderName);
+						logger.debug("File name (dev mode):" + serviceFolderName);
 						Resource serviceFolderRsc = new ClassPathResource(tJobExecFolder + "/" + serviceFolderName);
 						try (BufferedReader serviceFolderBr = new BufferedReader(new InputStreamReader(serviceFolderRsc.getInputStream()), 1024)) {
 							String fileName;
 							while ((fileName = br.readLine()) != null) {
-								logger.info("File name (dev mode):" + fileName);
+								logger.debug("File name (dev mode):" + fileName);
 								filesList.add(new TJobExecutionFile(fileName, getFileUrl(fileName), serviceFolderName));
 							}
 							serviceFolderBr.close();

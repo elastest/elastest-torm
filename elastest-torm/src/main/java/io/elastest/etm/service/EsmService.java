@@ -574,7 +574,7 @@ public class EsmService {
 		if (tJobId != null && tJobExecId != null) {
 			supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
 			supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", tJobExecId.toString());
-			String fileSeparator = IS_OS_WINDOWS ? "\\" : "/";
+			String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
 			supportServiceInstance.getParameters().put("ET_FILES_PATH",
 					ET_SHARED_FOLDER + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId + fileSeparator
 							+ "exec_" + tJobExecId + fileSeparator
