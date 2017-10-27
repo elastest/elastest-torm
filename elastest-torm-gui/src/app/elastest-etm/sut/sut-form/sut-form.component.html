@@ -85,7 +85,11 @@
 
         <!-- Deployed: Instrumented By SuT Admin Info -->
         <div layout="row" class="push-top" *ngIf="deployedChecked && adminInsCheck">
-          <md-list>
+          <div *ngIf="showGetInfoBtn()">
+            <button md-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck" (click)="preSave(false)"
+              title="Save and get monitoring details">SAVE AND GET MONITORING DETAILS</button>
+          </div>
+          <md-list *ngIf="!showGetInfoBtn()">
             <md-list-item *ngIf="sut.eimConfig.logstashIp">
               <strong>Logstash IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
             <md-list-item *ngIf="sut.eimConfig.logstashBeatsPort">
@@ -105,8 +109,6 @@
   <!-- Buttons -->
   <md-card-actions>
     <button md-button [disabled]="!sutForm.valid" color="primary" (click)="preSave()" title="Save and return to previous page">SAVE</button>
-    <button md-button [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck" color="primary" (click)="preSave(false)"
-      title="Save and show info">SAVE AND SHOW INFO</button>
     <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
   </md-card-actions>
 </md-card>

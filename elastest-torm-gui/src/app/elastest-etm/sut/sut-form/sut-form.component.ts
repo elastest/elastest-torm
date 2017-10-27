@@ -168,4 +168,9 @@ export class SutFormComponent implements OnInit {
     }
   }
 
+  showGetInfoBtn() {
+    return (
+      !this.sut.eimConfig.logstashIp && !this.sut.eimConfig.logstashBeatsPort && !this.sut.eimConfig.logstashHttpPort && !this.sut.currentSutExec
+    );
+  }
 }
