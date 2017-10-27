@@ -161,7 +161,6 @@ public class TJobService {
 					for (String serviceFileName: servicesFilesNames){
 						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(tJobExecFilePath + serviceFileName), serviceFolderName));
 					}
-					
 				}
 			}
 		} catch (IOException fnfe) {
@@ -172,7 +171,7 @@ public class TJobService {
 	}
 	
 	public String getFileUrl(String serviceFilePath) throws IOException {				
-		String urlResponse = contextPath + registryContextPath + "/" + serviceFilePath;		
+		String urlResponse = contextPath.replaceFirst("/", "") + registryContextPath + "/" + serviceFilePath.replace("\\\\", "/");		
 		return urlResponse;
 	}
 	

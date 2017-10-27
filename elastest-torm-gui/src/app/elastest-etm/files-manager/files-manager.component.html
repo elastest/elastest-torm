@@ -9,10 +9,10 @@
             [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)">
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
               <div layout="row">
-                <button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
-                  id="download_file">
-                  <a md-raised-button routerLink="filesUrlPrefix + row.url"><md-icon >file_download</md-icon></a>
-                </button>                
+                <!--button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
+                  id="download_file"-->
+                  <a md-raised-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn-lg" ><md-icon>file_download</md-icon></a>
+                <!--/button-->                
               </div>
             </ng-template>
           </td-data-table>
