@@ -11,7 +11,7 @@
               <div layout="row">
                 <button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
                   id="download_file">
-                  <md-icon>file_download</md-icon>
+                  <a md-raised-button routerLink="row.url"><md-icon >file_download</md-icon></a>
                 </button>                
               </div>
             </ng-template>

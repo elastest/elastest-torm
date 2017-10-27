@@ -142,8 +142,10 @@ public class TJobService {
 		tJob.getSelectedServices();
 		
 		String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
-		String tJobExecFolder = sharedFolder + fileSeparator + "tjobs" + fileSeparator + "tjob_" + tJobId
+		String tJobExecFilePath = "tjobs" + fileSeparator + "tjob_" + tJobId
 				+ fileSeparator + "exec_" + tJobExecId + fileSeparator;
+		String tJobExecFolder = sharedFolder + tJobExecFilePath;
+		
 		
 		logger.debug("Shared folder:" + tJobExecFolder);
 		try {
@@ -157,35 +159,11 @@ public class TJobService {
 					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + serviceFolderName);
 					List<String> servicesFilesNames = new ArrayList<>(Arrays.asList(serviceFolder.list()));
 					for (String serviceFileName: servicesFilesNames){
-						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(serviceFileName), serviceFolderName));
+						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(tJobExecFilePath + serviceFileName), serviceFolderName));
 					}
 					
 				}
-			} else { // Dev mode
-				Resource resource = new ClassPathResource(tJobExecFolder);
-				try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()), 1024)) {
-
-					String serviceFolderName;
-					while ((serviceFolderName = br.readLine()) != null) {
-						logger.debug("File name (dev mode):" + serviceFolderName);
-						Resource serviceFolderRsc = new ClassPathResource(tJobExecFolder + "/" + serviceFolderName);
-						try (BufferedReader serviceFolderBr = new BufferedReader(new InputStreamReader(serviceFolderRsc.getInputStream()), 1024)) {
-							String fileName;
-							while ((fileName = br.readLine()) != null) {
-								logger.debug("File name (dev mode):" + fileName);
-								filesList.add(new TJobExecutionFile(fileName, getFileUrl(fileName), serviceFolderName));
-							}
-							serviceFolderBr.close();
-						} catch (IOException ioe) {
-							logger.error(ioe.getMessage());
-						}
-					}
-					br.close();
-				} catch (IOException ioe) {
-					logger.error(ioe.getMessage());
-				}
 			}
-
 		} catch (IOException fnfe) {
 			logger.warn("Error building the URLs of the files of the executio {}", tJobExecId);
 		}
@@ -193,8 +171,8 @@ public class TJobService {
 		return filesList;
 	}
 	
-	public String getFileUrl(String recordingFileName) throws IOException {				
-		String urlResponse = contextPath + registryContextPath + "/" + recordingFileName;		
+	public String getFileUrl(String serviceFilePath) throws IOException {				
+		String urlResponse = contextPath + registryContextPath + "/" + serviceFilePath;		
 		return urlResponse;
 	}
 	
