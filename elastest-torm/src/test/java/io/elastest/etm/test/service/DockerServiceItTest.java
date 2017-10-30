@@ -82,7 +82,7 @@ public class DockerServiceItTest {
 		}
 
 		String queueId = "test.default_log.1.log";
-		String tag = "test_1_tjobexec";
+		String tag = "test_1_exec";
 
 		WaitForMessagesHandler handler = connectToRabbitQueue(queueId);
 
