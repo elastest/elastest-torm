@@ -66,6 +66,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   @Input()
   eusPort: number;
 
+  @Input()
+  standalone : boolean = true;
+
   @Output()
   onInitComponent = new EventEmitter<string>();
 

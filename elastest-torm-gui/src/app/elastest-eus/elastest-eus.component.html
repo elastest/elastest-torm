@@ -1,5 +1,5 @@
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="standalone">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>Manual tests</md-card-title>
@@ -32,7 +32,7 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
-            <md-card-title>Automated tests</md-card-title>
+            <md-card-title>{{ standalone ? "Automated tests" : "Web Browsers" }}</md-card-title>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
