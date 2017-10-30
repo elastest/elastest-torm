@@ -53,7 +53,7 @@
 
         <div *ngIf="serviceInstance.serviceName == 'elastest-eus'">
           <md-divider></md-divider>
-          <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standalone"></app-elastest-eus>
+          <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standaloneService"></app-elastest-eus>
         </div>
       </md-card-content>
     </md-card>
