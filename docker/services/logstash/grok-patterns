@@ -108,7 +108,7 @@ JAVALOGLEVEL (ALERT|TRACE|DEBUG|NOTICE|INFO|WARNING|ERROR|CRITICAL|FATAL|SEVERE|
 
 
 # CONTAINER NAME for Logs
-CONTAINERNAME (test_\d*|sut_\d*|dynamic_\d*)(?=_tjobexec)
+CONTAINERNAME (test_\d*|sut_\d*|dynamic_\d*)(?=exec)
 
-# TJobExec ID
-TJOBEXID (?<=test_|sut_|beats_|logstash_|dynamic_)(\d*)
+# exec ID
+EXECID (?<=test_|sut_|beats_|logstash_|dynamic_)(\d*)

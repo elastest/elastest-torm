@@ -388,6 +388,6 @@ export class ElasticSearchService {
   }
 
   getBasicFilterFields(): string[] {
-    return ['type', 'component', 'stream', 'stream_type', '@timestamp'];
+    return ['type', 'component', 'stream', 'stream_type', '@timestamp', 'exec'];
   }
 }

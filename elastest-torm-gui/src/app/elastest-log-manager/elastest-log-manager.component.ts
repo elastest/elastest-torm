@@ -390,7 +390,7 @@ export class ElastestLogManagerComponent implements OnInit {
       ],
       query: queries,
       size: this.maxResults,
-      _source: ['host', 'component', 'message', 'level', 'logmessage', '@timestamp', 'tjobexec']
+      _source: ['host', 'component', 'message', 'level', 'logmessage', '@timestamp', 'exec']
     };
 
     if (!append) {
@@ -510,7 +510,7 @@ export class ElastestLogManagerComponent implements OnInit {
    * @param data
    */
   parseSearchedData(data: any, fromData: boolean = false) {
-    let tjobexec: string = '';
+    let exec: string = '';
     let type: string = '';
     let time: string = '';
     let message: string = '';
@@ -532,7 +532,7 @@ export class ElastestLogManagerComponent implements OnInit {
       let counter: number = total;
 
       for (let logEntry of data.hits.hits) {
-        tjobexec = logEntry._source.tjobexec;
+        exec = logEntry._source.exec;
         type = logEntry._type;
         time = logEntry._source['@timestamp'];
         message = '';
@@ -553,13 +553,13 @@ export class ElastestLogManagerComponent implements OnInit {
 
         if (!fromData) { // New search or Load More
           position = this.rowData.length;
-          logRow = { tjobexec, type, time, message, level, component, host, sortId, position };
+          logRow = { exec, type, time, message, level, component, host, sortId, position };
           this.rowData.push(logRow);
           loaded = true;
         }
         else { // Add from row selected
           position = newPosition;
-          logRow = { tjobexec, type, time, message, level, component, host, sortId, position };
+          logRow = { exec, type, time, message, level, component, host, sortId, position };
           if (counter > 0
             && (time !== this.rowData[position].time || message !== this.rowData[position].message)
           ) { // If not is Last trace and not repeated

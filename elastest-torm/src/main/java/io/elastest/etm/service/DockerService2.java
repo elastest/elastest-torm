@@ -281,7 +281,7 @@ public class DockerService2 {
 
 		Map<String, String> configMap = new HashMap<String, String>();
 		configMap.put("syslog-address", "tcp://" + logstashHost + ":" + port);
-		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_tjobexec");
+		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_exec");
 
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
