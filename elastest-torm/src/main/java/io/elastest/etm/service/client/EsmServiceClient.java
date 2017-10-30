@@ -76,7 +76,7 @@ public class EsmServiceClient {
 			httpClient.put(URL_ESM_REGISTER_SERVICE, entity);
 			logger.info("Registered service." );
 		}catch(Exception e){
-			throw new RuntimeException("Exception registering service \""+serviceRegistry+"\"",e);
+//			throw new RuntimeException("Exception registering service \""+serviceRegistry+"\"",e);
 		}		
 	}
 	
@@ -93,11 +93,11 @@ public class EsmServiceClient {
 			result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity, ObjectNode.class);
 			logger.info("Manifest registered: {}" + result.getBody().toString());
 		}catch(Exception e){
-			if (result != null && result.getBody().toString().equals("\"duplicate\"")){				
-				throw new RuntimeException("The manifest already exists",e);
-			}else{
-				throw new RuntimeException("Exception registering manifest of service \""+id+"\"", e);								
-			}			
+//			if (result != null && result.getBody().toString().equals("\"duplicate\"")){				
+//				throw new RuntimeException("The manifest already exists",e);
+//			}else{
+//				throw new RuntimeException("Exception registering manifest of service \""+id+"\"", e);								
+//			}			
 		}
 	}
 
