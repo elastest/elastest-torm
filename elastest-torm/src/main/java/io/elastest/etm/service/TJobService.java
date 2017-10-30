@@ -158,8 +158,10 @@ public class TJobService {
 					logger.debug("Full path:" + tJobExecFolder + serviceFolderName);
 					File serviceFolder = ResourceUtils.getFile(tJobExecFolder + serviceFolderName);
 					List<String> servicesFilesNames = new ArrayList<>(Arrays.asList(serviceFolder.list()));
-					for (String serviceFileName: servicesFilesNames){
-						filesList.add(new TJobExecutionFile(serviceFileName, getFileUrl(tJobExecFilePath + serviceFolderName + serviceFileName), serviceFolderName));
+					for (String serviceFileName : servicesFilesNames) {
+						filesList.add(new TJobExecutionFile(serviceFileName,
+								getFileUrl(tJobExecFilePath + serviceFolderName + fileSeparator + serviceFileName),
+								serviceFolderName));
 					}
 				}
 			}
