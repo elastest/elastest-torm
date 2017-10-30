@@ -1,5 +1,8 @@
 package io.elastest.etm.api;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -115,8 +118,15 @@ public class TjobApiController implements TjobApi {
 	@Override
 	public ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(@ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId")Long tJobExecId,
 			@ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
+		ResponseEntity<List<TJobExecutionFile>> response;
 		
-		return new ResponseEntity<List<TJobExecutionFile>>(tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId), HttpStatus.OK);
+		try{
+			response = new ResponseEntity<List<TJobExecutionFile>>(tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId), HttpStatus.OK);
+		}catch(Exception e){
+			response = new ResponseEntity<List<TJobExecutionFile>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return response;
 	}
 
 }
