@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PreDestroy;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -48,6 +49,7 @@ public class DockerService2 {
 
 	private static final String DOKCER_LISTENING_ON_TCP_PORT_PREFIX = "tcp://";
 	private static String appImage = "elastest/test-etm-javasutrepo", checkImage = "elastest/etm-check-service-up";
+	private static final Map<String, String> createdContainers = new HashMap<>();
 
 	@Value("${logstash.host:#{null}}")
 	private String logstashHost;
@@ -60,6 +62,24 @@ public class DockerService2 {
 
 	@Autowired
 	public UtilTools utilTools;
+
+	@PreDestroy
+	public void removeAllContainers() {
+		DockerClient dockerClient = getDockerClient();
+		logger.info("Stopping started containers...");
+		for (Map.Entry<String, String> entry : createdContainers.entrySet()) {
+			String containerId = entry.getKey();
+			String containerName = entry.getValue();
+			try {
+				stopDockerContainer(containerId, dockerClient);
+				removeDockerContainer(containerId, dockerClient);
+				logger.info(containerName + " removed");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public void loadBasicServices(DockerExecution dockerExec) throws Exception {
 		configureDocker(dockerExec);
@@ -91,6 +111,7 @@ public class DockerService2 {
 				.withPortBindings(portBindings).withPublishAllPorts(true).exec();
 
 		dockerClient.startContainerCmd(container.getId()).exec();
+		createdContainers.put(container.getId(), containerName);
 
 		logger.info("Id del contenedor:" + container.getId());
 
@@ -99,6 +120,7 @@ public class DockerService2 {
 
 	public void removeDockerContainer(String containerId, DockerClient dockerClient) {
 		dockerClient.removeContainerCmd(containerId).exec();
+		createdContainers.remove(containerId);
 	}
 
 	public void stopDockerContainer(String containerId, DockerClient dockerClient) {
@@ -146,6 +168,7 @@ public class DockerService2 {
 				dockerExec.setAppContainerId(appContainerId);
 
 				dockerExec.getDockerClient().startContainerCmd(appContainerId).exec();
+				createdContainers.put(appContainerId, sutName);
 
 				sutIP = getContainerIp(appContainerId, dockerExec);
 
@@ -176,11 +199,11 @@ public class DockerService2 {
 		envList.add(envVar2);
 
 		dockerExec.getDockerClient().pullImageCmd(checkImage).exec(new PullImageResultCallback()).awaitSuccess();
-
+		String checkName = "check_" + dockerExec.getExecutionId();
 		String checkContainerId = dockerExec.getDockerClient().createContainerCmd(checkImage).withEnv(envList)
-				.withName("check_" + dockerExec.getExecutionId()).withNetworkMode(dockerExec.getNetwork()).exec()
-				.getId();
+				.withName(checkName).withNetworkMode(dockerExec.getNetwork()).exec().getId();
 		dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
+		createdContainers.put(checkContainerId, checkName);
 
 		dockerExec.getDockerClient().waitContainerCmd(checkContainerId).exec(new WaitContainerResultCallback())
 				.awaitStatusCode();
@@ -192,6 +215,7 @@ public class DockerService2 {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(checkContainerId).exec();
+			createdContainers.remove(checkContainerId);
 		} catch (Exception e) {
 		}
 	}
@@ -235,10 +259,10 @@ public class DockerService2 {
 			LogConfig logConfig = getLogConfig(5000, "test_", dockerExec);
 
 			dockerExec.getDockerClient().pullImageCmd(testImage).exec(new PullImageResultCallback()).awaitSuccess();
-
+			String testName = "test_" + dockerExec.getExecutionId();
 			CreateContainerResponse testContainer = dockerExec.getDockerClient().createContainerCmd(testImage)
-					.withEnv(envList).withLogConfig(logConfig).withName("test_" + dockerExec.getExecutionId())
-					.withCmd(cmdList).withNetworkMode(dockerExec.getNetwork()).exec();
+					.withEnv(envList).withLogConfig(logConfig).withName(testName).withCmd(cmdList)
+					.withNetworkMode(dockerExec.getNetwork()).exec();
 
 			String testContainerId = testContainer.getId();
 
@@ -246,6 +270,7 @@ public class DockerService2 {
 			dockerExec.setTestContainerId(testContainerId);
 
 			dockerExec.getDockerClient().startContainerCmd(testContainerId).exec();
+			createdContainers.put(testContainerId, testName);
 
 			// this essentially test the since=0 case
 			// dockerClient.logContainerCmd(container.getId())
@@ -311,6 +336,7 @@ public class DockerService2 {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getTestContainerId()).exec();
+			createdContainers.remove(dockerExec.getTestContainerId());
 		} catch (Exception e) {
 			logger.info("Error on ending test execution  " + dockerExec.getExecutionId());
 
@@ -327,6 +353,7 @@ public class DockerService2 {
 			} catch (Exception e) {
 			}
 			dockerExec.getDockerClient().removeContainerCmd(dockerExec.getAppContainerId()).exec();
+			createdContainers.remove(dockerExec.getAppContainerId());
 			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
 		} catch (Exception e) {
 			sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
