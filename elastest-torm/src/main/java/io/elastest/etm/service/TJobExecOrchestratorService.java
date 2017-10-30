@@ -73,16 +73,19 @@ public class TJobExecOrchestratorService {
 		tJobExec.getServicesInstances().forEach((tSSInstId) -> {
 			tSSInstAssocToTJob.put(tSSInstId, esmService.gettJobServicesInstances().get(tSSInstId));
 		});
-		int tryCounter = 0;
+		
 		logger.info("Waiting for associated TSS");
-		while(!tSSInstAssocToTJob.isEmpty() || tryCounter < 10){			
+		while(!tSSInstAssocToTJob.isEmpty()) {			
+			try{
+				Thread.sleep(2000);
+			} catch (InterruptedException ie) {
+				logger.error("Interrupted Exception {}: " + ie.getMessage());
+			}
 			tJobExec.getServicesInstances().forEach((tSSInstId) -> {
 				if(esmService.checkInstanceUrlIsUp(esmService.gettJobServicesInstances().get(tSSInstId))){
 					tSSInstAssocToTJob.remove(tSSInstId);
 				}
 			});
-			
-			tryCounter++;
 		}
 		
 		logger.info("TSS availabes");
