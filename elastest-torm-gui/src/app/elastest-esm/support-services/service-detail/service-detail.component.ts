@@ -11,6 +11,8 @@ import { Component, OnInit, Input } from '@angular/core';
 export class ServiceDetailComponent implements OnInit {
   @Input()
   serviceInstance: EsmServiceInstanceModel;
+  @Input()
+  standaloneService: boolean = true;
 
   constructor(private route: ActivatedRoute, private esmService: EsmService) {
   }
