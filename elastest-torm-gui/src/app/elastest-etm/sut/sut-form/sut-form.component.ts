@@ -111,20 +111,20 @@ export class SutFormComponent implements OnInit {
           this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
           this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
 
-          this.save();
+          this.save(exit);
         },
         (error) => console.log(error),
       );
     } else {
       this.sut.eimConfig = undefined;
-      this.save();
+      this.save(exit);
     }
   }
 
   save(exit: boolean = true) {
     this.sutService.createSut(this.sut)
       .subscribe(
-      (sut) => this.postSave(sut),
+      (sut) => this.postSave(sut, exit),
       (error) => console.log(error)
       );
   }
