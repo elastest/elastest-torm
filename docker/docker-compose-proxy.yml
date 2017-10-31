@@ -1,0 +1,13 @@
+version: '3'
+services:
+    etm-proxy:
+        image: elastest/etm-proxy
+        expose:
+            - 80
+        ports:
+            - 80:80
+        networks:
+            - elastest
+networks:
+    elastest:
+      driver: bridge
