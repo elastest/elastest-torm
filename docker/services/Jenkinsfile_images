@@ -115,6 +115,42 @@ node('docker'){
                     sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                     proxyimage.push()
                 }
+                
+            stage "Socat image build"
+    
+              "Create socat docker image"
+            
+                echo ("Creating elastest/etm-socat image..")                
+                sh 'cd ./docker/services/socat; docker build -t elastest/etm-socat:latest .'
+    
+            stage "Publish Socat docker image"
+    
+                echo ("Publish elastest/etm-socat image")
+                def socatimage = docker.image('elastest/etm-socat:latest')
+                //this is work arround as withDockerRegistry is not working properly 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    socatimage.push()
+                }
+
+            stage "dockpcap image build"
+    
+              "Create etm-dockpcap docker image"
+            
+                echo ("Creating elastest/etm-dockpcap image..")                
+                sh 'cd ./docker/services/dockpcap; docker build -t elastest/etm-dockpcap:latest .'
+    
+            stage "Publish dockpcap docker image"
+    
+                echo ("Publish elastest/etm-dockpcap image")
+                def dockpcapimage = docker.image('elastest/etm-dockpcap:latest')
+                //this is work arround as withDockerRegistry is not working properly 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    dockpcapimage.push()
+                }
 
             stage "Test-etm-test1 image build"
     
@@ -241,42 +277,6 @@ node('docker'){
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                     sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                     testetmjavasutrepoimage.push()
-                }
-                
-            stage "Socat image build"
-    
-              "Create socat docker image"
-            
-                echo ("Creating elastest/etm-socat image..")                
-                sh 'cd ./docker/services/socat; docker build -t elastest/etm-socat:latest .'
-    
-            stage "Publish Socat docker image"
-    
-                echo ("Publish elastest/etm-socat image")
-                def socatimage = docker.image('elastest/etm-socat:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    socatimage.push()
-                }
-
-            stage "dockpcap image build"
-    
-              "Create etm-dockpcap docker image"
-            
-                echo ("Creating elastest/etm-dockpcap image..")                
-                sh 'cd ./docker/services/dockpcap; docker build -t elastest/etm-dockpcap:latest .'
-    
-            stage "Publish dockpcap docker image"
-    
-                echo ("Publish elastest/etm-dockpcap image")
-                def dockpcapimage = docker.image('elastest/etm-dockpcap:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    dockpcapimage.push()
                 }
         }
 }
