@@ -39,7 +39,7 @@ public class EtmServiceDiscoveryApiController implements EtmServiceDiscoveryApi 
 
 	@Override
 	public ResponseEntity<String> getElasticsearchApiUrl() {
-		return new ResponseEntity<String>("http://" + publicHost + ":80", HttpStatus.OK);
+		return new ResponseEntity<String>("http://" + publicHost + ":80/elasticsearch", HttpStatus.OK);
 		// return new ResponseEntity<String>(elasticsearchApi, HttpStatus.OK);
 		// TODO
 	}
