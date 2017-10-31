@@ -25,8 +25,8 @@ export class ProjectService {
     projectDataToTable = new ProjectModel();
     projectDataToTable.id = project.id;
     projectDataToTable.name = project.name;
+    projectDataToTable.suts = this.sutService.transformSutDataToDataTable(project.suts);
     if (!onlyProject) {
-      projectDataToTable.suts = this.sutService.transformSutDataToDataTable(project.suts);
       projectDataToTable.tjobs = this.tJobService.transformTJobDataToDataTable(project.tjobs);
     }
     return projectDataToTable;
@@ -40,8 +40,7 @@ export class ProjectService {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
           return this.transformToProjectmodel(data, onlyProject);
-        }
-        else {
+        } else {
           throw new Error('Empty response. Project not exist or you don\'t have permissions to access it');
         }
       });
