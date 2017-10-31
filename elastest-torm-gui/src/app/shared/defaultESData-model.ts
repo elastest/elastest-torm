@@ -6,8 +6,8 @@ export let components: string[] = [
 // Default stream values for each streamType
 export let defaultStreamMap: any = {
     log: 'default_log',
-    composed_metrics: 'beats_metrics',
-    atomic_metric: 'beats_metrics',
+    composed_metrics: 'et_dockbeat',
+    atomic_metric: 'et_dockbeat',
 }
 
 export class DefaultESFieldModel {

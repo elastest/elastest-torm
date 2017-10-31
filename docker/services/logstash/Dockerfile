@@ -1,6 +1,6 @@
-FROM maven:alpine
+FROM java:openjdk-8-jre-alpine
 
-RUN apk update
+RUN apk update && apk add bash
 
 RUN apk add git
 

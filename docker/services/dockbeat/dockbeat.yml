@@ -144,7 +144,7 @@ output:
   ### Logstash as output
   logstash:
     # The Logstash hosts
-    hosts: ["LOGSTASHHOST:5044"]
+    hosts: ["LOGSTASHHOST:5037"]
 
     # Number of workers per Logstash host.
     #worker: 1
@@ -226,16 +226,18 @@ shipper:
   # logical properties.
   #tags: ["service-X", "web-tier"]
 
+  # If this option is set to true, the custom fields are stored as top-level
+  # fields in the output document instead of being grouped under a fields
+  # sub-dictionary. Default is false.
+
+  #fields_under_root: true
+
   # Optional fields that you can specify to add additional information to the
   # output. Fields can be scalar values, arrays, dictionaries, or any nested
   # combination of these.
   #fields:
-  #  env: staging
+    #stream: et_dockbeat_metrics
 
-  # If this option is set to true, the custom fields are stored as top-level
-  # fields in the output document instead of being grouped under a fields
-  # sub-dictionary. Default is false.
-  #fields_under_root: false
 
   # Uncomment the following if you want to ignore transactions created
   # by the server on which the shipper is installed. This option is useful

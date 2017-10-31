@@ -17,7 +17,7 @@ export class MetricsFieldModel extends DefaultESFieldModel {
         this.unit = unit;
 
         let namePrefix: string = this.name.split('composed_metrics')[0]; // remove stream_type added at the end on super constructor
-        // namePrefix = namePrefix.split('beats_metrics')[0]; // remove default stream if added at the end on super constructor
+        // namePrefix = namePrefix.split('et_dockbeat')[0]; // remove default stream if added at the end on super constructor
         this.name = namePrefix + type + '_' + subtype;
         this.activated = false;
     }
