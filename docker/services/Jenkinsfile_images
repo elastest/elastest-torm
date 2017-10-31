@@ -8,23 +8,23 @@ node('docker'){
             
             git 'https://github.com/elastest/elastest-torm'
             
-            //stage "Logstash image build"
+            stage "Logstash image build"
     
-              //"Create logstash docker image"
+              "Create logstash docker image"
             
-                //echo ("Creating elastest/etm-logstash image..")                
-                //sh 'cd ./docker/services/logstash; docker build -t elastest/etm-logstash:latest .'
+                echo ("Creating elastest/etm-logstash image..")                
+                sh 'cd ./docker/services/logstash; docker build -t elastest/etm-logstash:latest .'
     
-            //stage "Publish Logstash docker image"
+            stage "Publish Logstash docker image"
     
-                //echo ("Publish elastest/etm-logstash image")
-                //def logstashimage = docker.image('elastest/etm-logstash:latest')
+                echo ("Publish elastest/etm-logstash image")
+                def logstashimage = docker.image('elastest/etm-logstash:latest')
                 //this is work arround as withDockerRegistry is not working properly 
-                //withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    //usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    //sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    //logstashimage.push()
-                //}
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    logstashimage.push()
+                }
 
             stage "RabbitMQ image build"
     
