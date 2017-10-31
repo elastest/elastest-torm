@@ -369,12 +369,13 @@ export class ElasticSearchService {
   }
 
   addFilterToSearchUrl(searchUrl: string, filterPath: string[]) {
+    searchUrl += '?ignore_unavailable'; // For multiple index (ignore if not exist)
     if (filterPath && filterPath.length > 0) {
       let filterPathPrefix: string = 'filter_path=';
       let filterPathSource: string = 'hits.hits._source.';
       let filterPathSort: string = 'hits.hits.sort,';
 
-      searchUrl += '?' + filterPathPrefix + filterPathSort;
+      searchUrl += '&' + filterPathPrefix + filterPathSort;
       let counter: number = 0;
       for (let filter of filterPath) {
         searchUrl += filterPathSource + filter;

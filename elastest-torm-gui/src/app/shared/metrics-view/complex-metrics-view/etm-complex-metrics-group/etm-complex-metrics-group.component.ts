@@ -117,7 +117,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
       if (this.live) {
         this.elastestRabbitmqService.createSubject(obj.streamType, individualMetrics.component, obj.stream);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.streamType, individualMetrics.component, obj.stream)
+        let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
+
+        this.elastestRabbitmqService.createAndSubscribeToTopic(index, obj.streamType, individualMetrics.component, obj.stream)
           .subscribe(
           (data) => {
             let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
@@ -272,10 +274,12 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
     if (!component || component === '') {
       for (component of components) {
-        this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
+        let index: string = this.tJobExec.getCurrentESIndex(component);
+        this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
       }
     } else {
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
+      let index: string = this.tJobExec.getCurrentESIndex(component);
+      this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
   }
 

@@ -30,10 +30,10 @@ export class TJobExecService {
       .map((response) => this.transformTJobExecDataToDataTable(response.json()));
   }
 
-  public getTJobExecutionFiles(tJobId: number, tJobExecId: number){
+  public getTJobExecutionFiles(tJobId: number, tJobExecId: number) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
     return this.http.get(url)
-    .map((response) => response.json());
+      .map((response) => response.json());
   }
 
   /*public getTJobExecutionFiles(tJobExec: TJobExecModel){
@@ -61,16 +61,14 @@ export class TJobExecService {
     tjobExecsDataToTable.result = tjobExec.result;
     if (tjobExec.sutExecution !== undefined && tjobExec.sutExecution !== null) {
       tjobExecsDataToTable.sutExec = this.sutExecService.transformToSutExecmodel(tjobExec.sutExecution);
-    }
-    else {
+    } else {
       tjobExecsDataToTable.sutExec = new SutExecModel();
     }
     tjobExecsDataToTable.logIndex = tjobExec.logIndex;
 
     if (tjobExec.tJob !== undefined && tjobExec.tJob !== null) {
       tjobExecsDataToTable.tJob = this.transformToTjobmodelForTJobExec(tjobExec.tJob);
-    }
-    else {
+    } else {
       tjobExecsDataToTable.tJob = new TJobModel();
     }
     tjobExecsDataToTable.testSuite = tjobExec.testSuite;
@@ -112,8 +110,7 @@ export class TJobExecService {
     tjobsDataToTable.imageName = tjob.imageName;
     if (tjob.sut !== undefined && tjob.sut !== null) {
       tjobsDataToTable.sut = this.sutService.transformToSutmodel(tjob.sut);
-    }
-    else {
+    } else {
       tjobsDataToTable.sut = new SutModel();
     }
     tjobsDataToTable.project = tjob.project;

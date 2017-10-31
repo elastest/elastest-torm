@@ -31,7 +31,7 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     getAllLogs() {
-        this.elastestESService.searchAllLogs(this.logIndex, this.type, this.component)
+        this.elastestESService.searchAllLogs(this.logIndex, this.stream, this.component)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -40,7 +40,7 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces, this.type, this.component)
+        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces, this.stream, this.component)
             .subscribe(
             (data) => {
                 if (data.length > 0) {

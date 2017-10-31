@@ -29,6 +29,15 @@ export class ElastestESService {
         return terms;
     }
 
+    getTermsByStreamAndComponent(stream: string, component: string) {
+        let terms: any[];
+        terms = [
+            { 'term': { stream: stream } },
+            { 'term': { component: component } },
+        ];
+        return terms;
+    }
+
 
     getTermsByMetricsField(metricsField: MetricsFieldModel) {
         let terms: any[] = [{ 'term': { _type: metricsField.type } }];
@@ -40,11 +49,11 @@ export class ElastestESService {
         return terms;
     }
 
-    searchAllLogs(index: string, type: string, component: string, theQuery?: any) {
+    searchAllLogs(index: string, stream: string, component: string, theQuery?: any) {
         let _logs = new Subject<string[]>();
         let logs = _logs.asObservable();
 
-        let terms: any[] = this.getTermsByTypeAndComponent(type, component);
+        let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
             (data) => {
                 _logs.next(this.convertToLogTraces(data));
@@ -54,26 +63,24 @@ export class ElastestESService {
         return logs;
     }
 
-    getPrevLogsFromTrace(index: string, traces: any[], type: string, component: string) {
+    getPrevLogsFromTrace(index: string, traces: any[], stream: string, component: string) {
         let _logs = new Subject<string[]>();
         let logs = _logs.asObservable();
 
         if (traces.length > 0) {
             let trace: any = traces[0];
-            let terms: any[] = this.getTermsByTypeAndComponent(type, component);
+            let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
             this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe(
                 (data) => {
                     _logs.next(this.convertToLogTraces(data));
                     if (data.length > 0) {
                         this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-                    }
-                    else {
+                    } else {
                         this.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
                     }
                 }
             );
-        }
-        else {
+        } else {
             _logs.next([]);
             this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
         }
@@ -331,12 +338,14 @@ export class ElastestESService {
     initTestLog(log: ESRabLogModel) {
         log.name = 'Test Logs';
         log.type = 'testlogs';
+        log.stream = 'custom_log';
         log.component = 'test';
     }
 
     initSutLog(log: ESRabLogModel) {
         log.name = 'SuT Logs';
         log.type = 'sutlogs';
+        log.stream = 'custom_log';
         log.component = 'sut';
     }
 

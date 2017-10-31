@@ -97,7 +97,8 @@ export class EtmLogsGroupComponent implements OnInit {
       this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
         this.elastestRabbitmqService.createSubject(obj.streamType, individualLogs.component, obj.stream);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(this.tJobExec, obj.streamType, individualLogs.component, obj.stream)
+        let index: string = this.tJobExec.getCurrentESIndex(individualLogs.component);
+        this.elastestRabbitmqService.createAndSubscribeToTopic(index, obj.streamType, individualLogs.component, obj.stream)
           .subscribe(
           (data) => this.updateLogsData(data, individualLogs.component, individualLogs.stream)
           );
@@ -209,8 +210,9 @@ export class EtmLogsGroupComponent implements OnInit {
       let streamType: string = 'log';
       let component: string = this.logsList[pos].component;
       let stream: string = this.logsList[pos].stream;
+      let index: string = this.tJobExec.getCurrentESIndex(component);
 
-      this.elastestRabbitmqService.unsuscribeFromTopic(this.tJobExec, streamType, component, stream);
+      this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();

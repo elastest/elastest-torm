@@ -30,4 +30,28 @@ export class TJobExecModel {
     public hasSutExec(): boolean {
         return (this.sutExec !== undefined && this.sutExec !== null && this.sutExec.id !== 0);
     }
+
+    getTJobIndex(): string {
+        let testIndex: string = this.logIndex.split(',')[0];
+        return testIndex;
+    }
+
+    getSutIndex(): string {
+        let sutIndex: string = '';
+        if (this.tJob.hasSut()) {
+            sutIndex = this.logIndex.split(',')[1];
+            if (!sutIndex) {
+                sutIndex = this.getTJobIndex();
+            }
+        }
+        return sutIndex;
+    }
+
+    getCurrentESIndex(component: string) {
+        let index: string = this.getTJobIndex();
+        if (component === 'sut') {
+            index = this.getSutIndex();
+        }
+        return index;
+    }
 }

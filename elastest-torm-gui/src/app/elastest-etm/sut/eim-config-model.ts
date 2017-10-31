@@ -30,6 +30,8 @@ export class EimConfigModel {
     }
 
     validatePrivateKey() {
-        this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\n');
+        if (this.privateKey) {
+            this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\n');
+        }
     }
 }

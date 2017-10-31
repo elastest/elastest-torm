@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -348,4 +349,13 @@ public class TJobExecution {
 		return sb.toString();
 	}
 
+	
+	public void generateLogIndex(){
+	    SutSpecification sut = this.getTjob().getSut();
+	    String logIndex = this.getId().toString();
+	    if(sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED){
+	        logIndex += ",s" + sut.getId() + "_e" + sut.getCurrentSutExec();
+	    }
+	    this.setLogIndex(logIndex);
+	}
 }

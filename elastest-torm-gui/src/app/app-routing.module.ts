@@ -215,6 +215,10 @@ const routes: Routes = [
                 path: 'vnc',
                 component: TestVncComponent,
             },
+            {
+                path: 'eus',
+                component: ElastestEusComponent,
+            },
 
         ]
     },

@@ -45,26 +45,28 @@ export class ElastestRabbitmqService {
 
     public createAndSubscribeToGenericTopics(tjobExecution: TJobExecModel) {
         let withSut: boolean = tjobExecution.tJob.hasSut();
+        let testIndex: string = tjobExecution.getTJobIndex();
         for (let type in defaultStreamMap) {
-            this.createAndSubscribeToTopic(tjobExecution, type, 'test', defaultStreamMap[type])
+            this.createAndSubscribeToTopic(testIndex, type, 'test', defaultStreamMap[type])
 
             if (withSut) {
-                this.createAndSubscribeToTopic(tjobExecution, type, 'sut', defaultStreamMap[type])
+                let sutIndex: string = tjobExecution.getSutIndex();
+                this.createAndSubscribeToTopic(sutIndex, type, 'sut', defaultStreamMap[type])
             }
         }
     }
 
-    public createAndSubscribeToTopic(tjobExecution: TJobExecModel, streamType: string, component: string, stream: string) {
+    public createAndSubscribeToTopic(exec: string, streamType: string, component: string, stream: string) {
         let topicPrefix: string = component + '.' + stream;
-        this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + tjobExecution.id + '.' + streamType, this.dynamicObsResponse);
+        this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + exec + '.' + streamType, this.dynamicObsResponse);
 
         let obsName: string = this.getSubjectName(component, stream, streamType);
         return this.subjectMap.get(obsName);
     }
 
-    public unsuscribeFromTopic(tjobExecution: TJobExecModel, streamType: string, component: string, stream: string) {
+    public unsuscribeFromTopic(exec: string, streamType: string, component: string, stream: string) {
         let topicPrefix: string = component + '.' + stream;
-        let destination: string = topicPrefix + '.' + tjobExecution.id + '.' + streamType;
+        let destination: string = topicPrefix + '.' + exec + '.' + streamType;
         this.stompWSManager.unsubscribeSpecificWSDestination(destination);
     }
 
