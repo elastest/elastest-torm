@@ -6,6 +6,8 @@ services:
             - 80
         ports:
             - 80:80
+        depends_on:
+            - etm
         networks:
             - elastest
 networks:
