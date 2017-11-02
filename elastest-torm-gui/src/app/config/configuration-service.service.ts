@@ -22,7 +22,7 @@ export class ConfigurationService {
       'hostApi': hostApi,
       'hostElasticsearch': 'http://' + environment.hostElasticSearch + '/',
       'hostEIM': 'http://' + environment.hostEIM + '/',
-      'hostWsServer': 'ws://' + host,
+      'hostWsServer': 'ws://' + host + '/rabbitmq',
       'eusServiceUrlNoPath': 'http://' + environment.eus,
       'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
       'eusWebSocketUrl': 'ws://' + environment.eus + '/eus/v1/eus-ws',
