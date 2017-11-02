@@ -38,16 +38,16 @@ export class ConfigurationService {
       },
     );
 
-    this.getWSHost(hostApi)
+   /* this.getWSHost(hostApi)
     .subscribe(
     (data) => {
       let slash: string = '/';
       if (data.slice(-1) === slash) {
         slash = '';
       }
-      this.configModel.hostWsServer = data + slash;
+      this.configModel.hostWsServer = 'ws://' + data + slash;
     },
-  );
+  );*/
 
   }
 
