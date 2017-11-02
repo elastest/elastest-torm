@@ -160,8 +160,8 @@ public class EtmApiItTest {
 				  + "\"sutType\": \"REPOSITORY\","
 				  + "\"instrumentalize\": \"" + false + "\","
 				  + "\"currentSutExec\": \"" + null + "\","
-				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
-				+"}";
+                  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
+                  + "\"port\": \"" + null + "\""				+"}";
 	
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);

@@ -12,6 +12,7 @@ export class SutModel {
     instrumentalize: boolean;
     currentSutExec: string;
     instrumentedBy: string;
+    port: string;
 
     constructor() {
         this.id = 0;
@@ -24,5 +25,6 @@ export class SutModel {
         this.instrumentalize = false;
         this.currentSutExec = undefined;
         this.instrumentedBy = '';
+        this.port = undefined;
     }
 }

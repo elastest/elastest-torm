@@ -79,7 +79,7 @@ export class FilesManagerComponent implements OnInit {
   }
 
   loadExecutionFiles() {
-    this.timer = Observable.interval(2000);
+    this.timer = Observable.interval(3500);
     if (this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer

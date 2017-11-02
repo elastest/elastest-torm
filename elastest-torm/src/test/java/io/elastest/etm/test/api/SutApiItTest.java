@@ -75,7 +75,8 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"sutType\": \"REPOSITORY\","
 				  + "\"instrumentalize\": \"" + false + "\","
 				  + "\"currentSutExec\": \"" + null + "\","
-				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
+				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
+				  + "\"port\": \"" + null + "\""
 				  
 				+"}";
 		
@@ -121,8 +122,8 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"sutType\": \"" + sutSpec.getSutType() + "\","
 				  + "\"instrumentalize\": \"" + false + "\","
 				  + "\"currentSutExec\": \"" + null + "\","
-				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\""
-				+"}";
+                  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
+                  + "\"port\": \"" + null + "\""				+"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 	

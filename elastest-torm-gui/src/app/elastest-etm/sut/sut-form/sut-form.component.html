@@ -54,6 +54,14 @@
           </md-input-container>
         </div>
 
+        <!-- Managed -->
+        <div layout="row" class="push-top" *ngIf="managedSut.checked">
+          <md-input-container flex="100">
+            <input mdInput type="text" placeholder="HTTP Port"
+              [(ngModel)]="sut.port" name="port">
+          </md-input-container>
+        </div>
+
         <!-- Deployed: Instrumented By Elastest fields -->
         <div layout="row" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">

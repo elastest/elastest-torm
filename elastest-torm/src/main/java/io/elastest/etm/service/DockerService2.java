@@ -136,7 +136,11 @@ public class DockerService2 {
 	public void startSut(DockerExecution dockerExec) {
 		SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 		SutExecution sutExec;
-		int sutPort = 8080;
+		String sutPort = "8080";
+		if(sut.getPort() != null){
+		    sutPort = sut.getPort();
+		}
+		
 		String sutIP = "";
 
 		// If it's MANAGED SuT

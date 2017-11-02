@@ -42,6 +42,7 @@ export class SutService {
     }
     sutsDataToTable.currentSutExec = sut.currentSutExec;
     sutsDataToTable.instrumentedBy = sut.instrumentedBy;
+    sutsDataToTable.port = sut.port;
 
     return sutsDataToTable;
   }
