@@ -755,6 +755,10 @@ public class EsmService {
                 etEmpInfluxdbHost);
         supportServiceInstance.getParameters().put(
                 "ET_EMP_INFLUXDB_GRAPHITE_PORT", etEmpInfluxdbGraphitePort);
+        
+        supportServiceInstance.getParameters().put(
+                "USE_TORM", "true");        
+        
     }
 
     public Map<String, String> getTSSInstanceContext(String tSSInstanceId) {
