@@ -14,6 +14,7 @@ export class ConfigurationService {
   }
 
   load() {
+    console.log("Starting configuration.");
     let host: string = window.location.host;
     let hostApi: string = 'http://' + host + '/api';
     this.configModel = {
@@ -27,27 +28,32 @@ export class ConfigurationService {
       'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
       'eusWebSocketUrl': 'ws://' + environment.eus + '/eus/v1/eus-ws',
     };
-    this.getElasticsearchApi(hostApi)
-      .subscribe(
-      (data) => {
-        let slash: string = '/';
-        if (data.slice(-1) === slash) {
-          slash = '';
-        }
-        this.configModel.hostElasticsearch = data + slash;
-      },
-    );
 
-   /* this.getWSHost(hostApi)
-    .subscribe(
-    (data) => {
-      let slash: string = '/';
-      if (data.slice(-1) === slash) {
-        slash = '';
-      }
-      this.configModel.hostWsServer = 'ws://' + data + slash;
-    },
-  );*/
+    return new Promise((resolve, reject) => {
+      this.getElasticsearchApi(hostApi)
+        .subscribe((data) => {
+          let slash: string = '/';
+          if (data.slice(-1) === slash) {
+            slash = '';
+          }
+          this.configModel.hostElasticsearch = data + slash;
+          resolve();
+          console.log("The configuration is completed.");
+        },
+      );
+
+    });
+
+    /* this.getWSHost(hostApi)
+     .subscribe(
+     (data) => {
+       let slash: string = '/';
+       if (data.slice(-1) === slash) {
+         slash = '';
+       }
+       this.configModel.hostWsServer = 'ws://' + data + slash;
+     },
+   );*/
 
   }
 
