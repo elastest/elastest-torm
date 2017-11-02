@@ -6,6 +6,8 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
+        
+        <div *ngIf="standaloneService">
         <md-list>
           <md-list-item>
             <strong class="push-right-xs">Instance Id:</strong> {{serviceInstance.id}}
@@ -45,7 +47,8 @@
           </div>
 
         </td-expansion-panel>
-
+		</div>
+		
         <div *ngIf="serviceInstance.uiUrl">
           <md-divider></md-divider>
           <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
@@ -58,6 +61,7 @@
       </md-card-content>
     </md-card>
 
+	<div *ngIf="standaloneService">
     <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
         <md-card-title>
           {{subService.serviceName}}
@@ -107,6 +111,7 @@
         </md-card-content>
         <md-divider></md-divider>
       </md-card>
+	</div>
 
   </div>
 </div>
