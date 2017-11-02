@@ -37,8 +37,19 @@ export class ConfigurationService {
         this.configModel.hostElasticsearch = data + slash;
       },
     );
-  }
 
+    this.getWSHost(hostApi)
+    .subscribe(
+    (data) => {
+      let slash: string = '/';
+      if (data.slice(-1) === slash) {
+        slash = '';
+      }
+      this.configModel.hostWsServer = data + slash;
+    },
+  );
+
+  }
 
   public getElasticsearchApi(hostApi: string) {
     let url: string = hostApi + '/context/elasticsearch/api';
@@ -46,6 +57,11 @@ export class ConfigurationService {
       .map((response) => response['_body']);
   }
 
+  public getWSHost(hostApi: string) {
+    let url: string = hostApi + '/context/ws-host';
+    return this.http.get(url)
+      .map((response) => response['_body']);
+  }
 
   public getLogstashIp() {
     let hostApi: string = this.configModel.hostApi;
