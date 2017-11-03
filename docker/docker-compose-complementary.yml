@@ -67,7 +67,7 @@ services:
             - xpack.security.enabled=false
             - http.host=0.0.0.0
             - transport.host=127.0.0.1
-            - ES_JAVA_OPTS="-Xmx3g -Xms3g"
+            - ES_JAVA_OPTS=-Xmx3g -Xms3g
         networks:
             - elastest 
 
