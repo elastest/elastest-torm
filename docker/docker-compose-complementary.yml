@@ -67,6 +67,7 @@ services:
             - xpack.security.enabled=false
             - http.host=0.0.0.0
             - transport.host=127.0.0.1
+            - ES_HEAP_SIZE=10g
         networks:
             - elastest 
 
