@@ -142,6 +142,9 @@ export class EtmLogsGroupComponent implements OnInit {
     for (let group of this.groupedLogsList) {
       for (let log of group) {
         if (log.component === component && log.stream === stream) {
+          if (log.traces.length >= log.maxsize) {
+            log.traces.splice(0, 1);
+          }
           log.traces.push(data);
           found = true;
           break;

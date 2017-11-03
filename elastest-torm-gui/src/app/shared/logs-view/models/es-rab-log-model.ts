@@ -14,6 +14,7 @@ export class ESRabLogModel implements LogViewModel {
     component: string;
     stream: string;
     logIndex: string;
+    maxsize: number = 1000;
 
     constructor(elastestESService: ElastestESService, ) {
         this.name = '';
