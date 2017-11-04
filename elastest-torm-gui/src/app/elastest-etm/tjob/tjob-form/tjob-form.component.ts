@@ -21,7 +21,7 @@ export class TJobFormComponent implements OnInit {
 
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
-  withCommands: boolean = false;
+  withCommands: boolean = true;
   elastestEsmServices: string[];
   esmServicesCatalog: EsmServiceModel[];
   action: string;

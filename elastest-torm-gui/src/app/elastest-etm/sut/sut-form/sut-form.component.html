@@ -21,7 +21,7 @@
         <!-- SuT Type -->
         <md-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
           <md-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
-            Managed SuT
+            Dockerized SuT
           </md-radio-button>
 
           <md-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
@@ -57,7 +57,7 @@
         <!-- Managed -->
         <div layout="row" class="push-top" *ngIf="managedSut.checked">
           <md-input-container flex="100">
-            <input mdInput type="text" placeholder="HTTP Port"
+            <input mdInput type="text" placeholder="Wait for http port"
               [(ngModel)]="sut.port" name="port">
           </md-input-container>
         </div>
