@@ -136,11 +136,7 @@ public class DockerService2 {
 	public void startSut(DockerExecution dockerExec) {
 		SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 		SutExecution sutExec;
-		String sutPort = "8080";
-		if(sut.getPort() != null){
-		    sutPort = sut.getPort();
-		}
-		
+				
 		String sutIP = "";
 
 		// If it's MANAGED SuT
@@ -176,8 +172,14 @@ public class DockerService2 {
 
 				sutIP = getContainerIp(appContainerId, dockerExec);
 
+				if(sut.getPort() != null){
+					String sutPort = sut.getPort();
+					logger.info("Start testing if SuT is ready checking port "+sutPort);
+					checkSut(dockerExec, sutIP, sutPort);
+				}
+				
 				// Wait for Sut started
-				checkSut(dockerExec, sutIP, sutPort + "");
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
@@ -189,8 +191,9 @@ public class DockerService2 {
 			sutIP = sut.getSpecification();
 		}
 
-		String sutUrl = "http://" + sutIP + ":" + sutPort;
+		String sutUrl = "http://" + sutIP + ":" + ( sut.getPort() != null? sut.getPort() : "");
 		sutExec.setUrl(sutUrl);
+		sutExec.setIp(sutIP);
 
 		dockerExec.setSutExec(sutExec);
 	}
@@ -247,8 +250,8 @@ public class DockerService2 {
 			}
 
 			if (dockerExec.isWithSut()) {
-				envVar = "APP_IP=" + dockerExec.getSutExec().getUrl();
-				envList.add(envVar);
+				envList.add("APP_IP=" + dockerExec.getSutExec().getUrl());
+				envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
 			}
 
 			// Commands (optional)

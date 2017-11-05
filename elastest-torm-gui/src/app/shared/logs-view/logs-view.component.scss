@@ -3,5 +3,10 @@
     height: 10vh;
     font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     overflow-y: auto; overflow-x: hidden;
-    list-style: none
+    list-style: none;
+    padding: 0px;
+
+    li {
+      word-break: break-all;
+    }
 }
