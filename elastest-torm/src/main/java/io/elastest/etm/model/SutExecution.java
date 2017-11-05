@@ -89,6 +89,8 @@ public class SutExecution {
 	@JsonProperty("deployStatus")
 	private DeployStatusEnum deployStatus = null;
 
+	private String ip;
+
 	
 	/* Constructors */
 	public SutExecution() {	}
@@ -121,15 +123,22 @@ public class SutExecution {
 	 * 
 	 * @return url
 	 **/
-	@ApiModelProperty(example = "http://www.myapp.io:8090", required = true, value = "URL to access the SUT.")
-	@NotNull
-
+	@ApiModelProperty(example = "http://www.myapp.io:8090", value = "URL to access the SUT.")
 	public String getUrl() {
 		return url;
 	}
 
 	public void setUrl(String url) {
 		this.url = url==null? "": url;
+	}
+	
+	@ApiModelProperty(example = "192.168.0.1", value = "SUT IP.")
+	public String getIp(){
+		return ip;
+	}
+	
+	public void setIp(String ip) {
+		this.ip = ip==null? "": ip;
 	}
 	
 	/**
