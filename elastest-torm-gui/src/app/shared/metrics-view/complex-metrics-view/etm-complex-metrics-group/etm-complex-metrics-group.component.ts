@@ -199,7 +199,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   updateMetricsData(data: any) {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
-        metric.updateData(data);
+        if (this.isDefault(metric)) {
+          metric.updateData(data);
+        }
       }
     }
 
@@ -313,4 +315,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
+  isDefault(metric: ESRabComplexMetricsModel) {
+    return (components.indexOf(metric.component) > -1 || metric.component === '') // Default metrics has empty component
+      && (metric.stream === defaultStreamMap.composed_metrics || metric.stream === defaultStreamMap.atomic_metric);
+  }
 }
