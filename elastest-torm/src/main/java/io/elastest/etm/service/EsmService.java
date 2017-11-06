@@ -296,7 +296,11 @@ public class EsmService {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            if (newServiceInstance != null) {
+                deprovisionServiceInstance(newServiceInstance.getInstanceId(),
+                        tJobExecId != null);
+            }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
                             + "\"",
@@ -310,7 +314,7 @@ public class EsmService {
     }
 
     private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance,
-            ObjectNode serviceInstanceDetail) {
+            ObjectNode serviceInstanceDetail) throws Exception {
         ObjectNode manifest = esmServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         Iterator<String> subServicesNames = manifest.get("endpoints")
@@ -367,53 +371,66 @@ public class EsmService {
 
                     auxServiceInstance.setEndpointName(serviceName);
 
-                    if (manifest.get("endpoints").get(serviceName)
-                            .get("api") != null) {
-                        if (!manifest.get("endpoints").get(serviceName)
-                                .get("api").isArray()) {
-                            getEndpointsInfo(auxServiceInstance,
-                                    manifest.get("endpoints").get(serviceName)
-                                            .get("api"),
-                                    ssrvContainerName, networkName, "api");
-                        } else {
-                            int apiNum = 0;
-                            for (final JsonNode apiNode : manifest
-                                    .get("endpoints").get(serviceName)
-                                    .get("api")) {
-                                apiNum++;
-                                getEndpointsInfo(auxServiceInstance, apiNode,
-                                        ssrvContainerName, networkName,
-                                        apiNode.get("name") != null
-                                                ? apiNode.get("name").toString()
-                                                        .replaceAll("\"", "")
-                                                        + "api"
-                                                : "api");
+                    try {
+                        if (manifest.get("endpoints").get(serviceName)
+                                .get("api") != null) {
+                            if (!manifest.get("endpoints").get(serviceName)
+                                    .get("api").isArray()) {
+                                getEndpointsInfo(auxServiceInstance,
+                                        manifest.get("endpoints")
+                                                .get(serviceName).get("api"),
+                                        ssrvContainerName, networkName, "api");
+                            } else {
+                                int apiNum = 0;
+                                for (final JsonNode apiNode : manifest
+                                        .get("endpoints").get(serviceName)
+                                        .get("api")) {
+                                    apiNum++;
+                                    getEndpointsInfo(auxServiceInstance,
+                                            apiNode, ssrvContainerName,
+                                            networkName,
+                                            apiNode.get("name") != null
+                                                    ? apiNode.get("name")
+                                                            .toString()
+                                                            .replaceAll("\"",
+                                                                    "")
+                                                            + "api"
+                                                    : "api");
+                                }
                             }
                         }
-                    }
-                    if (manifest.get("endpoints").get(serviceName)
-                            .get("gui") != null) {
-                        if (!manifest.get("endpoints").get(serviceName)
-                                .get("gui").isArray()) {
-                            getEndpointsInfo(auxServiceInstance,
-                                    manifest.get("endpoints").get(serviceName)
-                                            .get("gui"),
-                                    ssrvContainerName, networkName, "gui");
-                        } else {
-                            int guiNum = 0;
-                            for (final JsonNode guiNode : manifest
-                                    .get("endpoints").get(serviceName)
-                                    .get("gui")) {
-                                guiNum++;
-                                getEndpointsInfo(auxServiceInstance, guiNode,
-                                        ssrvContainerName, networkName,
-                                        guiNode.get("name") != null
-                                                ? guiNode.get("name").toString()
-                                                        .replaceAll("\"", "")
-                                                        + "gui"
-                                                : "gui");
+                        if (manifest.get("endpoints").get(serviceName)
+                                .get("gui") != null) {
+                            if (!manifest.get("endpoints").get(serviceName)
+                                    .get("gui").isArray()) {
+                                getEndpointsInfo(auxServiceInstance,
+                                        manifest.get("endpoints")
+                                                .get(serviceName).get("gui"),
+                                        ssrvContainerName, networkName, "gui");
+                            } else {
+                                int guiNum = 0;
+                                for (final JsonNode guiNode : manifest
+                                        .get("endpoints").get(serviceName)
+                                        .get("gui")) {
+                                    guiNum++;
+                                    getEndpointsInfo(auxServiceInstance,
+                                            guiNode, ssrvContainerName,
+                                            networkName,
+                                            guiNode.get("name") != null
+                                                    ? guiNode.get("name")
+                                                            .toString()
+                                                            .replaceAll("\"",
+                                                                    "")
+                                                            + "gui"
+                                                    : "gui");
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        logger.error("Error building endpoints info: {}",
+                                e.getMessage());
+                        throw new Exception("Error building endpoints info: "
+                                + e.getMessage());
                     }
                     break;
                 }
@@ -423,7 +440,8 @@ public class EsmService {
 
     private SupportServiceInstance getEndpointsInfo(
             SupportServiceInstance serviceInstance, JsonNode node,
-            String tSSContainerName, String networkName, String nodeName) {
+            String tSSContainerName, String networkName, String nodeName)
+            throws Exception {
         int auxPort = 37000;
 
         if (node != null) {
@@ -436,10 +454,18 @@ public class EsmService {
                         auxPort = Integer.parseInt(serviceInstance
                                 .getEndpointsBindingsPorts().get(nodePort));
                     } else {
-                        auxPort = bindingPort(serviceInstance, node,
-                                tSSContainerName, networkName);
-                        serviceInstance.getEndpointsBindingsPorts()
-                                .put(nodePort, String.valueOf(auxPort));
+                        try {
+                            auxPort = bindingPort(serviceInstance, node,
+                                    tSSContainerName, networkName);
+                            serviceInstance.getEndpointsBindingsPorts()
+                                    .put(nodePort, String.valueOf(auxPort));
+                        } catch (Exception e) {
+                            logger.error("Ports binding fails: {} ",
+                                    e.getMessage());
+                            throw new Exception(
+                                    "Ports binding fails: " + e.getMessage());
+                        }
+
                     }
                 }
 
@@ -467,7 +493,8 @@ public class EsmService {
     }
 
     private int bindingPort(SupportServiceInstance serviceInstance,
-            JsonNode node, String containerName, String networkName) {
+            JsonNode node, String containerName, String networkName)
+            throws Exception {
         DockerClient dockerClient = dockerService.getDockerClient();
         int listenPort = 37000;
         try {
@@ -488,8 +515,9 @@ public class EsmService {
                             ET_SOCAT_IMAGE, envVariables,
                             "container" + listenPort, containerName,
                             networkName, portBindings, listenPort));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new Exception(e.getMessage());
         }
 
         return listenPort;
@@ -755,10 +783,9 @@ public class EsmService {
                 etEmpInfluxdbHost);
         supportServiceInstance.getParameters().put(
                 "ET_EMP_INFLUXDB_GRAPHITE_PORT", etEmpInfluxdbGraphitePort);
-        
-        supportServiceInstance.getParameters().put(
-                "USE_TORM", "true");        
-        
+
+        supportServiceInstance.getParameters().put("USE_TORM", "true");
+
     }
 
     public Map<String, String> getTSSInstanceContext(String tSSInstanceId) {
