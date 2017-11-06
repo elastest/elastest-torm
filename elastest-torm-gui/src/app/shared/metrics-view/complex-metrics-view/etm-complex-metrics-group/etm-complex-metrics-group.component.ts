@@ -70,20 +70,24 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     });
   }
 
+  initAIO() {
+    this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
+    this.allInOneMetrics.name = 'All Metrics';
+    this.allInOneMetrics.hidePrevBtn = !this.live;
+    this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
+    if (!this.live) {
+      this.allInOneMetrics.getAllMetrics();
+    }
+  }
 
   initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel) {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
     if (this.tJob.execDashboardConfigModel.showComplexMetrics) {
-      this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
-      this.allInOneMetrics.name = 'All Metrics';
-      this.allInOneMetrics.hidePrevBtn = !this.live;
-      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
-      if (!this.live) {
-        this.allInOneMetrics.getAllMetrics();
-      }
+      this.initAIO();
     }
+
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
@@ -92,11 +96,11 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
           if (!this.live) {
             individualMetrics.getAllMetrics();
-            this.metricsList.push(individualMetrics);
           }
+          this.metricsList.push(individualMetrics);
         } else { // Else, is a custom metric
           let pos: number = this.initCustomMetric(metric, individualMetrics);
-          if (pos >= 0) {
+          if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.type : metric.type + '.' + metric.subtype;
             this.elastestESService.searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
               .subscribe(
@@ -115,34 +119,31 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       individualMetrics.yAxisLabelLeft = metric.unit;
     }
 
-    if (!this.alreadyExist(individualMetrics.name)) {
-      this.metricsList.push(individualMetrics);
-      this.createGroupedMetricList();
+    this.metricsList.push(individualMetrics);
+    this.createGroupedMetricList();
 
-      this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
-        metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
-      );
+    this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
+      metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
+    );
 
-      let pos: number = this.metricsList.length - 1;
+    let pos: number = this.metricsList.length - 1;
 
-      if (this.live) {
-        this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
-        let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
+    if (this.live) {
+      this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
+      let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
 
-        this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
-          .subscribe(
-          (data) => {
-            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
-            if (this.metricsList[pos]) {
-              this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
-            }
-          },
-          (error) => console.log(error)
-          );
-      }
-      return pos;
+      this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
+        .subscribe(
+        (data) => {
+          let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
+          if (this.metricsList[pos]) {
+            this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+          }
+        },
+        (error) => console.log(error)
+        );
     }
-    return -1;
+    return pos;
   }
 
   addMoreMetrics(obj: any) {

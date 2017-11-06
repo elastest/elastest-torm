@@ -1,6 +1,6 @@
 import { LogFieldModel } from '../models/log-field-model';
 import { TJobService } from '../../../elastest-etm/tjob/tjob.service';
-import { DefaultESFieldModel, defaultStreamMap } from '../../defaultESData-model';
+import { DefaultESFieldModel, defaultStreamMap, components } from '../../defaultESData-model';
 import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
@@ -78,6 +78,8 @@ export class EtmLogsGroupComponent implements OnInit {
         individualLogs.logIndex = this.tJobExec.logIndex;
         if (!this.live) {
           individualLogs.getAllLogs();
+        } else if (!this.isDefault(individualLogs)) {
+          this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
         }
         this.logsList.push(individualLogs);
       }
@@ -101,16 +103,20 @@ export class EtmLogsGroupComponent implements OnInit {
       this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
       this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.streamType, individualLogs.component, obj.stream);
-        let index: string = this.tJobExec.getCurrentESIndex(individualLogs.component);
-        this.elastestRabbitmqService.createAndSubscribeToTopic(index, obj.streamType, individualLogs.component, obj.stream)
-          .subscribe(
-          (data) => this.updateLogsData(data, individualLogs.component, individualLogs.stream)
-          );
+        this.createSubjectAndSubscribe(individualLogs.component, obj.stream, obj.streamType);
       }
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
     }
+  }
+
+  createSubjectAndSubscribe(component: string, stream: string, streamType: string) {
+    this.elastestRabbitmqService.createSubject(streamType, component, stream);
+    let index: string = this.tJobExec.getCurrentESIndex(component);
+    this.elastestRabbitmqService.createAndSubscribeToTopic(index, streamType, component, stream)
+      .subscribe(
+      (data) => this.updateLogsData(data, component, stream)
+      );
   }
 
   alreadyExist(name: string) {
@@ -227,5 +233,9 @@ export class EtmLogsGroupComponent implements OnInit {
     this.createGroupedLogsList();
     let logField: LogFieldModel = new LogFieldModel(component, stream);
     this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
+  }
+
+  isDefault(log: ESRabLogModel) {
+    return components.indexOf(log.component) > -1 && log.stream === defaultStreamMap.log;
   }
 }
