@@ -205,7 +205,6 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
 
     filterDataByGivenList(allList: LineChartMetricModel[]) {
-
         let list: LineChartMetricModel[] = [];
         let position: number;
         for (let metric of allList) {

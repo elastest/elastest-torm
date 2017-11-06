@@ -398,7 +398,6 @@ export class ElastestESService {
                     } else if (this.isMetricsTrace(firstElement)) {
                         this.addDynamicComposedMetrics(_obs, obj, data);
                     } else if (this.isAtomicMetricTrace(firstElement)) {
-                        streamType = 'composed_metrics';
                         this.addDynamicAtomicMetric(_obs, obj, data);
                     } else {
                         this.popupService.openSnackBar('Cannot add the traces obtained with the parameters provided', 'OK');
@@ -446,12 +445,11 @@ export class ElastestESService {
         }
 
         let metricsField: MetricsFieldModel
-            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.component, obj.stream, streamType);
+            = new MetricsFieldModel(firstSource.type, metricName, unit, obj.component, obj.stream, streamType, true);
         let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
 
         obj.data = metricsTraces;
         obj.streamType = streamType;
-        obj['metricName'] = metricName;
         obj['metricFieldModel'] = metricsField;
 
         obj.unit = unit;

@@ -58,7 +58,7 @@ export class TjobExecManagerComponent implements OnInit {
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
                 { queryParams: { fromTJobManager: true } });
             } else {
-              this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec);
+              this.logsAndMetrics.initView(this.tJob, this.tJobExec);
             }
           },
           (error) => console.log(error),

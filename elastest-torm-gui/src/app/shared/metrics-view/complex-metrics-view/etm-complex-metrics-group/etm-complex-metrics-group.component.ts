@@ -1,3 +1,5 @@
+import { MetricsFieldModel } from '../models/metrics-field-model';
+import { TJobService } from '../../../../elastest-etm/tjob/tjob.service';
 import { SingleMetricModel } from '../../models/single-metric-model';
 import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
 import { Subject, Observable } from 'rxjs/Rx';
@@ -20,6 +22,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   @Input()
   public live: boolean;
+  @Input()
+  tJob: TJobModel;
+  @Input()
+  tJobExec: TJobExecModel;
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
@@ -38,8 +44,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   @Output()
   leaveObs = new EventEmitter<any>();
 
-  tJob: TJobModel;
-  tJobExec: TJobExecModel;
 
   constructor(
     private elastestESService: ElastestESService,
@@ -60,7 +64,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
-      if (subjectData.streamType === 'composed_metrics') {
+      if (subjectData.streamType === 'composed_metrics' || subjectData.streamType === 'atomic_metric') {
         obs.subscribe((data) => this.updateMetricsData(data));
       }
     });
@@ -71,65 +75,86 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    if (tJob.execDashboardConfigModel.showComplexMetrics) {
+    if (this.tJob.execDashboardConfigModel.showComplexMetrics) {
       this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
       this.allInOneMetrics.name = 'All Metrics';
       this.allInOneMetrics.hidePrevBtn = !this.live;
-      this.allInOneMetrics.metricsIndex = tJobExec.logIndex;
+      this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
       if (!this.live) {
         this.allInOneMetrics.getAllMetrics();
       }
     }
-    for (let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
+    for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-
-        individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-        individualMetrics.metricsIndex = tJobExec.logIndex;
-        if (!this.live) {
-          individualMetrics.getAllMetrics();
+        individualMetrics.metricsIndex = this.tJobExec.logIndex;
+        if (metric.component === '') { // If no component, is a default metric
+          individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+          if (!this.live) {
+            individualMetrics.getAllMetrics();
+            this.metricsList.push(individualMetrics);
+          }
+        } else { // Else, is a custom metric
+          let pos: number = this.initCustomMetric(metric, individualMetrics);
+          if (pos >= 0) {
+            let metricName: string = metric.streamType === 'atomic_metric' ? metric.type : metric.type + '.' + metric.subtype;
+            this.elastestESService.searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
+              .subscribe(
+              (obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data),
+              (error) => console.log(error),
+            );
+          }
         }
-
-        this.metricsList.push(individualMetrics);
       }
     }
     this.createGroupedMetricList();
   }
 
-  addMoreMetrics(obj: any) {
-    obj.subtype = obj.metricName;
-    let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(obj);
-
-    // individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-    individualMetrics.metricsIndex = this.tJobExec.logIndex;
-    individualMetrics.addSimpleMetricTraces(obj.data);
-
-    if (obj.unit) {
-      individualMetrics.yAxisLabelLeft = obj.unit;
+  initCustomMetric(metric: MetricsFieldModel, individualMetrics: ESRabComplexMetricsModel): number {
+    if (metric.unit) {
+      individualMetrics.yAxisLabelLeft = metric.unit;
     }
 
     if (!this.alreadyExist(individualMetrics.name)) {
       this.metricsList.push(individualMetrics);
       this.createGroupedMetricList();
-      this.elastestESService.popupService.openSnackBar('Metric added', 'OK');
+
+      this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
+        metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
+      );
 
       let pos: number = this.metricsList.length - 1;
 
       if (this.live) {
-        this.elastestRabbitmqService.createSubject(obj.streamType, individualMetrics.component, obj.stream);
+        this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
         let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
 
-        this.elastestRabbitmqService.createAndSubscribeToTopic(index, obj.streamType, individualMetrics.component, obj.stream)
+        this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
           .subscribe(
           (data) => {
-            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, obj.metricFieldModel);
+            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
             if (this.metricsList[pos]) {
-              this.metricsList[pos].addDataToSimpleMetric(obj.metricFieldModel, [parsedData]);
+              this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
             }
           },
           (error) => console.log(error)
           );
       }
+      return pos;
+    }
+    return -1;
+  }
+
+  addMoreMetrics(obj: any) {
+    let metric: MetricsFieldModel = obj.metricFieldModel;
+    let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+
+    if (!this.alreadyExist(individualMetrics.name)) {
+      individualMetrics.addSimpleMetricTraces(obj.data);
+      individualMetrics.metricsIndex = this.tJobExec.logIndex;
+      this.initCustomMetric(metric, individualMetrics);
+      this.elastestESService.popupService.openSnackBar('Metric added', 'OK');
+
     } else {
       this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
     }
@@ -137,15 +162,15 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
     let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
-    individualMetrics.name = this.createName(metric.stream, metric.type, metric.subtype);
+    individualMetrics.name = this.createName(metric.component, metric.stream, metric.type, metric.subtype);
     individualMetrics.component = metric.component;
     individualMetrics.stream = metric.stream;
     individualMetrics.hidePrevBtn = !this.live;
     return individualMetrics;
   }
 
-  createName(stream: string, type: string, subtype: string) {
-    return stream + ' ' + type + ' ' + subtype;
+  createName(component: string, stream: string, type: string, subtype: string) {
+    return component + ' ' + stream + ' ' + type + ' ' + subtype;
   }
 
   alreadyExist(name: string) {
@@ -248,14 +273,18 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       lastMetric = true;
     }
 
+    let component: string = this.metricsList[pos].component;
+    let stream: string = this.metricsList[pos].stream;
+    let name: string = this.metricsList[pos].name;
+
     // If is live and is the last metric card, unsubscribe
     if (this.live && lastMetric && !this.allInOneMetrics) {
-      let component: string = this.metricsList[pos].component;
-      let stream: string = this.metricsList[pos].stream;
       this.unsubscribe(component, stream);
     }
     this.metricsList.splice(pos, 1);
     this.createGroupedMetricList();
+
+    this.tJob.execDashboardConfigModel.allMetricsFields.disableMetricFieldByTitleName(name);
   }
 
   removeAndUnsubscribeAIO() {

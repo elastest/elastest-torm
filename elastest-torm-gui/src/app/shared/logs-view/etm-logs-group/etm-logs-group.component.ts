@@ -1,3 +1,5 @@
+import { LogFieldModel } from '../models/log-field-model';
+import { TJobService } from '../../../elastest-etm/tjob/tjob.service';
 import { DefaultESFieldModel, defaultStreamMap } from '../../defaultESData-model';
 import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
@@ -18,6 +20,10 @@ export class EtmLogsGroupComponent implements OnInit {
 
   @Input()
   public live: boolean;
+  @Input()
+  tJob: TJobModel;
+  @Input()
+  tJobExec: TJobExecModel;
 
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
@@ -28,9 +34,6 @@ export class EtmLogsGroupComponent implements OnInit {
   sutLogsSubscription: Subscription;
 
   selectedTraces: number[][] = [];
-
-  tJob: TJobModel;
-  tJobExec: TJobExecModel;
 
   constructor(
     private elastestESService: ElastestESService,
@@ -61,7 +64,7 @@ export class EtmLogsGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    for (let log of tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+    for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
       if (log.activated) {
         let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
         individualLogs.name = this.capitalize(log.component) + ' Logs';
@@ -72,7 +75,7 @@ export class EtmLogsGroupComponent implements OnInit {
         }
         individualLogs.stream = log.stream;
         individualLogs.hidePrevBtn = !this.live;
-        individualLogs.logIndex = tJobExec.logIndex;
+        individualLogs.logIndex = this.tJobExec.logIndex;
         if (!this.live) {
           individualLogs.getAllLogs();
         }
@@ -94,6 +97,8 @@ export class EtmLogsGroupComponent implements OnInit {
     if (!this.alreadyExist(individualLogs.name)) {
       this.logsList.push(individualLogs);
       this.createGroupedLogsList();
+      let logField: LogFieldModel = new LogFieldModel(individualLogs.component, individualLogs.stream);
+      this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
       this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
         this.elastestRabbitmqService.createSubject(obj.streamType, individualLogs.component, obj.stream);
@@ -208,17 +213,19 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   removeAndUnsubscribe(pos: number) {
+    let component: string = this.logsList[pos].component;
+    let stream: string = this.logsList[pos].stream;
+    let name: string = this.logsList[pos].name;
     // If is live, unsubscribe
     if (this.live) {
       let streamType: string = 'log';
-      let component: string = this.logsList[pos].component;
-      let stream: string = this.logsList[pos].stream;
       let index: string = this.tJobExec.getCurrentESIndex(component);
 
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();
+    let logField: LogFieldModel = new LogFieldModel(component, stream);
+    this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
   }
-
 }

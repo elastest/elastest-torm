@@ -29,7 +29,15 @@ export class DashboardConfigModel {
                 if (metric.stream === undefined) {
                     metric.stream = '';
                 }
-                let metricModel: MetricsFieldModel = new MetricsFieldModel(metric.type, metric.subtype, metric.unit, metric.component, metric.stream);
+
+                if (metric.streamType === undefined) {
+                    metric.streamType = 'composed_metrics';
+                }
+                
+                let metricModel: MetricsFieldModel = new MetricsFieldModel(
+                    metric.type, metric.subtype, metric.unit, metric.component, metric.stream, metric.streamType
+                );
+                
                 metricModel.activated = metric.activated;
                 let position: number = this.allMetricsFields.getPositionByName(metricModel.name);
                 this.allMetricsFields.fieldsList[position] = metricModel;

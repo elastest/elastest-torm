@@ -77,24 +77,26 @@ export class TJobService {
       });
   }
 
-  public createTJob(tjob: TJobModel, action: string) {
-    if (!tjob.hasSut()) {
-      tjob.sut = undefined;
+  public createTJob(tJob: TJobModel, action: string) {
+    if (!tJob.hasSut()) {
+      tJob.sut = undefined;
     }
-    tjob.generateExecDashboardConfig();
-    tjob.esmServicesString = JSON.stringify(tjob.esmServices);
-    let url = this.configurationService.configModel.hostApi + '/tjob';
+    tJob.generateExecDashboardConfig();
+    tJob.esmServicesString = JSON.stringify(tJob.esmServices);
+    let url: string = this.configurationService.configModel.hostApi + '/tjob';
     if (action === 'new') {
-      return this.http.post(url, tjob)
+      return this.http.post(url, tJob)
         .map((response) => response.json());
     } else {
-      return this.http.put(url, tjob)
+      return this.http.put(url, tJob)
         .map((response) => response.json());
     }
 
   }
 
-  public modifyTJob() { }
+  public modifyTJob(tJob: TJobModel) {
+    return this.createTJob(tJob, 'edit');
+  }
 
   public deleteTJob(tJob: TJobModel) {
     let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id;

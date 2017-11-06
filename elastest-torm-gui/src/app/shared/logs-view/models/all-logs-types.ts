@@ -23,13 +23,43 @@ export class AllLogsTypesModel {
             }
             counter++;
         }
+        if (position === undefined) { // If no position, return new position
+            position = this.logsList.length;
+        }
         return position;
     }
 
+    addLogFieldToList(name: string, component: string, stream: string, activated: boolean = false) {
+        let alreadySaved: boolean = false;
+        for (let logField of this.logsList) {
+            if (logField.name === name) {
+                alreadySaved = true;
+                logField.activated = activated;
+                break;
+            }
+        }
+        if (!alreadySaved) {
+            this.createFieldsListByComponentAndStream(component, stream, activated);
+        }
+    }
+
     createFieldsListByComponent(component: string) {
-        let logField: LogFieldModel = new LogFieldModel(component);
-        logField.activated = true;
+        this.createFieldsListByComponentAndStream(component);
+    }
+
+    createFieldsListByComponentAndStream(component: string, stream?: string, activated: boolean = true) {
+        let logField: LogFieldModel = this.getNewLogField(component, stream, activated);
         this.logsList.push(logField);
+    }
+
+    getNewLogField(component: string, stream?: string, activated: boolean = true) {
+        let logField: LogFieldModel = new LogFieldModel(component, stream);
+        logField.activated = activated;
+        return logField;
+    }
+
+    disableLogField(name: string, component: string, stream: string) {
+        this.addLogFieldToList(name, component, stream, false);
     }
 
 }

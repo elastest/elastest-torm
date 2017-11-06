@@ -32,6 +32,7 @@
         </md-input-container>
       </div>
 
+      <!-- Commands -->
       <div layout="column" class="push-top push-bottom pad-top">
         <!--<md-slide-toggle [(ngModel)]="withCommands" name="toggleCommands">Commands</md-slide-toggle>-->
         <!--<div layout="column" *ngIf="withCommands" class="push-top">-->
@@ -41,6 +42,7 @@
         <!--</div>-->
       </div>
 
+       <!-- Parameters -->
       <td-expansion-panel expand="true" class="push-bottom" *ngIf="esmServicesCatalog.length > 0">
         <ng-template td-expansion-panel-label>
           <span>Parameters</span>
@@ -50,6 +52,7 @@
         </div>
       </td-expansion-panel>
 
+      <!-- ESM services -->
       <td-expansion-panel expand="true" class="push-bottom" *ngIf="esmServicesCatalog.length > 0">
         <ng-template td-expansion-panel-label>
           <span>Test Support Services</span>
@@ -61,6 +64,7 @@
         </div>
       </td-expansion-panel>
 
+      <!-- Monitoring config -->
       <td-expansion-panel expand="true" class="push-bottom" *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null">
         <ng-template td-expansion-panel-label>
           <span>Metrics and logs</span>

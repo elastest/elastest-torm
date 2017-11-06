@@ -1,3 +1,4 @@
+import { TJobService } from '../tjob/tjob.service';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobModel } from '../tjob/tjob-model';
@@ -28,6 +29,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   constructor(
     private elastestESService: ElastestESService,
+    private tJobService: TJobService,
   ) { }
 
   ngOnInit() {
@@ -37,10 +39,10 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    //Load logs
+    // Load logs
     this.logsGroup.initLogsView(tJob, tJobExec);
 
-    //Load metrics
+    // Load metrics
     this.metricsGroup.initMetricsView(tJob, tJobExec);
   }
 
@@ -84,5 +86,12 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   isInit() {
     return this.tJobExec !== undefined;
+  }
+
+  saveMonitoringConfig() {   
+    this.tJobService.modifyTJob(this.tJob).subscribe(
+      (data) => this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK'),
+      (error) => console.log(error)
+    );
   }
 }

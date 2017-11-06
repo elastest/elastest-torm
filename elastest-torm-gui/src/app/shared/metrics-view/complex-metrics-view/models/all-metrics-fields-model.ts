@@ -18,7 +18,7 @@ export class SubtypesObjectModel {
     subtype: string;
     unit: Units | string;
 
-    constructor(subtype: string, unit: Units) {
+    constructor(subtype: string, unit: Units | string) {
         this.subtype = subtype;
         this.unit = unit;
     }
@@ -70,6 +70,22 @@ export class AllMetricsFields {
         }
     }
 
+    addMetricsFieldToList(metricsFieldModel: MetricsFieldModel, component: string, stream: string, streamType?: string, activated: boolean = false
+    ) {
+        let alreadySaved: boolean = false;
+        for (let metricsField of this.fieldsList) {
+            if (metricsField.name === metricsFieldModel.name) {
+                alreadySaved = true;
+                metricsField.activated = activated;
+                break;
+            }
+        }
+        if (!alreadySaved) {
+            let subtypeObj: SubtypesObjectModel = new SubtypesObjectModel(metricsFieldModel.subtype, metricsFieldModel.unit);
+            this.addFieldToFieldList(this.fieldsList, metricsFieldModel.type, subtypeObj, component, stream, streamType, activated);
+        }
+    }
+
     createFieldsListByComponent(component: string) {
         let list: MetricsFieldModel[] = [];
         for (let metricFieldGroup of metricFieldGroupList) { // Foreach type for this component
@@ -78,17 +94,42 @@ export class AllMetricsFields {
         return list;
     }
 
-    createFieldsListBySublist(metricFieldGroup: MetricFieldGroupModel, component: string) {
+    createFieldsListBySublist(
+        metricFieldGroup: MetricFieldGroupModel, component: string, stream?: string, streamType?: string, activated: boolean = false
+    ) {
         let list: MetricsFieldModel[] = [];
 
         for (let subtype of metricFieldGroup.subtypes) { // Foreach subtype of this type and this component
-            let newField: MetricsFieldModel = new MetricsFieldModel(metricFieldGroup.type, subtype.subtype, subtype.unit, component);
-            if (newField.type === 'cpu' && newField.subtype === 'totalUsage') { // Hardcoded
-                newField.activated = true;
-            }
-            list.push(newField);
+            list = [...this.addFieldToFieldList(list, metricFieldGroup.type, subtype, component, stream, streamType, activated)];
         }
         return list;
+    }
+
+    addFieldToFieldList(
+        list: MetricsFieldModel[], type: string, subtype: SubtypesObjectModel,
+        component: string, stream?: string, streamType?: string, activated: boolean = false
+    ) {
+        let newField: MetricsFieldModel = new MetricsFieldModel(
+            type, subtype.subtype, subtype.unit, component, stream, streamType, activated);
+        if (newField.type === 'cpu' && newField.subtype === 'totalUsage') { // Hardcoded
+            newField.activated = true;
+        }
+        list.push(newField);
+        return list;
+    }
+
+    disableMetricField(name: string, component: string, stream: string) {
+        // this.addFieldToFieldList(this.fieldsList, name, component, stream, false);
+    }
+
+    disableMetricFieldByTitleName(name: string) {
+        name = name.replace(/\s/g, '_');
+        for (let metricsField of this.fieldsList) {
+            if (metricsField.name === name) {
+                metricsField.activated = false;
+                break;
+            }
+        }
     }
 
     getFieldListWithoutComponent() {
@@ -120,6 +161,9 @@ export class AllMetricsFields {
                 break;
             }
             counter++;
+        }
+        if (position === undefined) { // If no position, return new position
+            position = this.fieldsList.length;
         }
         return position;
     }
