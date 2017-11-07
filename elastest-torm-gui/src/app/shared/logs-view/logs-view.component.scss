@@ -10,3 +10,14 @@
       word-break: break-all;
     }
 }
+
+
+md-card-title{
+  font-size: 21px;
+}
+/* sm */ 
+@media (min-width : 961px) {
+  md-card-title{
+    font-size: 23px;
+  }
+}
