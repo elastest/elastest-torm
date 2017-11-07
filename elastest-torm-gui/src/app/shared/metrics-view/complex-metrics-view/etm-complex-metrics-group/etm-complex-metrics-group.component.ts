@@ -122,6 +122,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.metricsList.push(individualMetrics);
     this.createGroupedMetricList();
 
+    individualMetrics.allMetricsFields.fieldsList.push(metric);
     this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
       metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
     );
@@ -199,7 +200,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   updateMetricsData(data: any) {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
-        if (this.isDefault(metric)) {
+        if (metric.isDefault()) {
           metric.updateData(data);
         }
       }
@@ -313,10 +314,5 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       let index: string = this.tJobExec.getCurrentESIndex(component);
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
-  }
-
-  isDefault(metric: ESRabComplexMetricsModel) {
-    return (components.indexOf(metric.component) > -1 || metric.component === '') // Default metrics has empty component
-      && (metric.stream === defaultStreamMap.composed_metrics || metric.stream === defaultStreamMap.atomic_metric);
   }
 }

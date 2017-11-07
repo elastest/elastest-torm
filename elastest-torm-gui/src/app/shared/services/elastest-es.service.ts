@@ -107,7 +107,7 @@ export class ElastestESService {
     // Metrics
 
     searchAllMetrics(index: string, metricsField: MetricsFieldModel, theQuery?: any) {
-        let _metrics = new Subject<LineChartMetricModel[]>();
+        let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
         let terms: any[] = this.getTermsByMetricsField(metricsField);
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
@@ -120,7 +120,7 @@ export class ElastestESService {
     }
 
     getPrevMetricsFromTrace(index: string, trace: any, metricsField: MetricsFieldModel) {
-        let _metrics = new Subject<LineChartMetricModel[]>();
+        let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
         let metrics = _metrics.asObservable();
 
         if (trace !== undefined) {
@@ -138,7 +138,6 @@ export class ElastestESService {
 
         return metrics;
     }
-
 
     convertToMetricTraces(data: any[], metricsField: MetricsFieldModel) {
         let tracesList: LineChartMetricModel[];

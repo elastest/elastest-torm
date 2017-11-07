@@ -5,6 +5,7 @@ import { AllMetricsFields } from './all-metrics-fields-model';
 import { ColorSchemeModel } from '../../models/color-scheme-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
 import { ComplexMetricsModel } from './complex-metrics-model';
+import { components, defaultStreamMap } from '../../../defaultESData-model';
 
 export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     elastestESService: ElastestESService;
@@ -121,8 +122,13 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         }
     }
 
-    addSimpleMetricTraces(data: LineChartMetricModel[]) {
-        this.leftChart = this.leftChart.concat(data);
+    addSimpleMetricTraces(data: LineChartMetricModel[]) { // Used for Custom metrics, which are single metrics
+        if (this.leftChart.length === 0) {
+            this.leftChart = this.leftChart.concat(data);
+        } else {
+            this.leftChart[0].series = this.leftChart[0].series.concat(data[0].series);
+            this.leftChart = [...this.leftChart];
+        }
     }
 
     addDataToSimpleMetric(metric: MetricsFieldModel, newData: SingleMetricModel[]) {
@@ -156,21 +162,42 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
     loadPrevious() {
         let compareTrace: any = this.getOldTrace();
-        let position: number = 0;
-        for (let metric of this.allMetricsFields.fieldsList) {
-            this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metric)
-                .subscribe(
-                (data) => {
-                    if (data.length > 0) {
-                        this.addData(metric, data[0].series);
-                        this.prevLoaded = true;
-                        this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-                    } else {
-                        this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
-                    }
-                },
+        if (this.isDefault()) { // Default chart
+            let position: number = 0;
+            for (let metric of this.allMetricsFields.fieldsList) {
+                this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metric)
+                    .subscribe(
+                    (data) => {
+                        if (data.length > 0) {
+                            this.addData(metric, data[0].series);
+                            this.prevLoaded = true;
+                            this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                        } else {
+                            this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
+                        }
+                    },
+                );
+                position++;
+            }
+        } else { // Custom chart
+            let individualChart: MetricsFieldModel = this.allMetricsFields.fieldsList.find(
+                (individualChart: MetricsFieldModel) => individualChart.name === this.name.split(' ').join('_'),
             );
-            position++;
+            if (individualChart) {
+                this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, individualChart)
+                    .subscribe(
+                    (data) => {
+                        if (data.length > 0) {
+                            this.addSimpleMetricTraces(data);
+                            this.prevLoaded = true;
+                            this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+                        } else {
+                            this.elastestESService.popupService.openSnackBar('There aren\'t previous traces to load', 'OK');
+                        }
+                    },
+                );
+            }
+
         }
     }
 
@@ -261,5 +288,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         this.allMetricsFields.fieldsList.map(
             (data) => this.activatedFieldsList.push(data.activated)
         );
+    }
+
+    isDefault() {
+        return (components.indexOf(this.component) > -1 || this.component === '') // Default metrics has empty component
+            && (this.stream === defaultStreamMap.composed_metrics || this.stream === defaultStreamMap.atomic_metric || this.stream === ''); // AIO Chart has empty component and stream
     }
 }
