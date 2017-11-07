@@ -70,11 +70,18 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     });
   }
 
+  getIgnoreComponent(): string {
+    return this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
+  }
+
   initAIO() {
-    this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService);
+    let ignoreComponent: string = this.getIgnoreComponent();
+    this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
     this.allInOneMetrics.name = 'All Metrics';
     this.allInOneMetrics.hidePrevBtn = !this.live;
     this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
+    let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
+    this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
     if (!this.live) {
       this.allInOneMetrics.getAllMetrics();
     }
@@ -163,7 +170,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
-    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService);
+    let ignoreComponent: string = this.getIgnoreComponent();
+    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
     individualMetrics.name = this.createName(metric.component, metric.stream, metric.type, metric.subtype);
     individualMetrics.component = metric.component;
     individualMetrics.stream = metric.stream;
@@ -171,11 +179,11 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return individualMetrics;
   }
 
-  createName(component: string, stream: string, type: string, subtype: string) {
+  createName(component: string, stream: string, type: string, subtype: string): string {
     return component + ' ' + stream + ' ' + type + ' ' + subtype;
   }
 
-  alreadyExist(name: string) {
+  alreadyExist(name: string): boolean {
     for (let metric of this.metricsList) {
       if (metric.name === name) {
         return true;

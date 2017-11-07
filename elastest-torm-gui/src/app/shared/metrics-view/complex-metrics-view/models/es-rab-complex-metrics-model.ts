@@ -19,10 +19,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     rightChartOneAllData: LineChartMetricModel[];
     rightChartTwoAllData: LineChartMetricModel[];
 
-    constructor(elastestESService: ElastestESService) {
+    constructor(elastestESService: ElastestESService, ignoreComponent: string = '') {
         super();
         this.elastestESService = elastestESService;
-        this.allMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
+        this.allMetricsFields = new AllMetricsFields(true, ignoreComponent); // Object with a list of all metrics
         this.initActivatedFieldsList();
         this.metricsIndex = '';
         this.component = '';
@@ -255,12 +255,31 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         }
     }
 
+    activateAllMatchesByStreamTypeAndSubtype(stream: string, type: string, subtype?: string) {
+        this.deactivateAll();
+        for (let metric of this.allMetricsFields.fieldsList) {
+            if (!subtype) {
+                subtype = metric.subtype;
+            }
+            if (metric.type === type && metric.stream === stream && metric.subtype === subtype) {
+                metric.activated = true;
+                break;
+            }
+        }
+        this.initActivatedFieldsList();
+    }
 
     activateAllMatchesByNameList(nameList: string[]) {
         this.deactivateAll();
         for (let name of nameList) {
             this.activateByName(name);
         }
+        this.initActivatedFieldsList();
+    }
+
+    activateAndApplyByName(name: string) {
+        this.deactivateAll();
+        this.activateByName(name);
         this.initActivatedFieldsList();
     }
 

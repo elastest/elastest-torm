@@ -88,7 +88,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     return this.tJobExec !== undefined;
   }
 
-  saveMonitoringConfig() {   
+  saveMonitoringConfig() {
     this.tJobService.modifyTJob(this.tJob).subscribe(
       (data) => this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK'),
       (error) => console.log(error)

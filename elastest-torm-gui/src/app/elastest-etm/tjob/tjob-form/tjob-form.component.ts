@@ -95,4 +95,21 @@ export class TJobFormComponent implements OnInit {
   cancel() {
     window.history.back();
   }
+
+  logChecked(log: any): boolean {
+    if (this.hideSut(log)) {
+      return false;
+    } else {
+      return log.activated;
+    }
+
+  }
+
+  hideSut(log: any): boolean {
+    return log.name.startsWith('sut')
+      && (
+        this.tJob.sut === this.sutEmpty || this.tJob.sut === undefined
+        || (this.action !== 'new' && !this.tJob.hasSut())
+      );
+  }
 }

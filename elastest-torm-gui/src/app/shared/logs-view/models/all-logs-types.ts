@@ -6,10 +6,12 @@ import { ESRabLogModel } from './es-rab-log-model';
 export class AllLogsTypesModel {
     logsList: LogFieldModel[];
 
-    constructor() {
+    constructor(ignoreComponent: string = '') {
         this.logsList = [];
         for (let component of components) {
-            this.createFieldsListByComponent(component);
+            if (component !== ignoreComponent) {
+                this.createFieldsListByComponent(component);
+            }
         }
     }
 

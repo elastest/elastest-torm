@@ -59,11 +59,13 @@ export let metricFieldGroupList: MetricFieldGroupModel[] = [
 export class AllMetricsFields {
     fieldsList: MetricsFieldModel[];
 
-    constructor(withComponent: boolean = true) {
+    constructor(withComponent: boolean = true, ignoreComponent: string = '') {
         this.fieldsList = [];
         if (withComponent) {
             for (let component of components) {
-                this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(component));
+                if (component !== ignoreComponent) {
+                    this.fieldsList = this.fieldsList.concat(this.createFieldsListByComponent(component));
+                }
             }
         } else {
             this.fieldsList = this.getFieldListWithoutComponent();
@@ -110,10 +112,8 @@ export class AllMetricsFields {
         component: string, stream?: string, streamType?: string, activated: boolean = false
     ) {
         let newField: MetricsFieldModel = new MetricsFieldModel(
-            type, subtype.subtype, subtype.unit, component, stream, streamType, activated);
-        if (newField.type === 'cpu' && newField.subtype === 'totalUsage') { // Hardcoded
-            newField.activated = true;
-        }
+            type, subtype.subtype, subtype.unit, component, stream, streamType, activated
+        );
         list.push(newField);
         return list;
     }
@@ -123,6 +123,7 @@ export class AllMetricsFields {
     }
 
     disableMetricFieldByTitleName(name: string) {
+        name = name.replace(/^\s/, ''); // repair if starts with white space
         name = name.replace(/\s/g, '_');
         for (let metricsField of this.fieldsList) {
             if (metricsField.name === name) {
