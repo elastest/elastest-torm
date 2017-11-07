@@ -21,7 +21,7 @@ export class TJobFormComponent implements OnInit {
 
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
-  withCommands: boolean = true;
+  useImageCommand: boolean = false;
   elastestEsmServices: string[];
   esmServicesCatalog: EsmServiceModel[];
   action: string;
@@ -45,7 +45,7 @@ export class TJobFormComponent implements OnInit {
               .subscribe((tJob: TJobModel) => {
                 this.tJob = tJob;
                 this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
-                this.withCommands = this.tJob.withCommands();
+                this.useImageCommand = !this.tJob.withCommands();
                 for (let esmService of this.tJob.esmServices) {
                   for (let esmServiceToSelect of this.esmServicesCatalog) {
                     if (esmService.selected && esmService.id === esmServiceToSelect.id) {
@@ -72,7 +72,7 @@ export class TJobFormComponent implements OnInit {
   }
 
   save() {
-    if (!this.withCommands) {
+    if (this.useImageCommand) {
       this.tJob.commands = '';
     }
 

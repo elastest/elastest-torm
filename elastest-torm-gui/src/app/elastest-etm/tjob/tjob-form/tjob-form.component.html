@@ -37,8 +37,8 @@
 
       <!-- Commands -->
       <div layout="column" class="push-top push-bottom pad-top">
-        <md-slide-toggle [(ngModel)]="withCommands" name="toggleCommands">Commands</md-slide-toggle>
-        <div layout="column" *ngIf="withCommands" class="push-top">
+        <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
+        <div layout="column" *ngIf="!useImageCommand" class="push-top">
           <md-input-container>
             <textarea id="commands" rows="10" mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands" [(ngModel)]="tJob.commands"
               name="commands" required></textarea>
