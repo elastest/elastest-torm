@@ -19,25 +19,25 @@ export class TJobExecService {
 
   //  TJobExecution functions
   public runTJob(tJobId: number, parameters: any[]) {
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
     return this.http.post(url, parameters)
       .map((response) => response.json());
   }
 
   public getTJobsExecutions(tJob: TJobModel) {
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
     return this.http.get(url)
       .map((response) => this.transformTJobExecDataToDataTable(response.json()));
   }
 
   public getTJobExecutionFiles(tJobId: number, tJobExecId: number) {
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
     return this.http.get(url)
       .map((response) => response.json());
   }
 
   /*public getTJobExecutionFiles(tJobExec: TJobExecModel){
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobExec.tJob.id + '/exec/' + tJobExec.id + '/files';
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobExec.tJob.id + '/exec/' + tJobExec.id + '/files';
     return this.http.get(url)
     .map((response) => console.log(response.json()));
   }*/
@@ -82,7 +82,7 @@ export class TJobExecService {
   }
 
   public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number) {
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url)
       .map(
       (response) => {
@@ -96,8 +96,14 @@ export class TJobExecService {
   }
 
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
-    let url = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
     return this.http.delete(url)
+      .map((response) => response.json());
+  }
+
+  public getResultStatus(tJob: TJobModel, tJobExecution: TJobExecModel) {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/result';
+    return this.http.get(url)
       .map((response) => response.json());
   }
 

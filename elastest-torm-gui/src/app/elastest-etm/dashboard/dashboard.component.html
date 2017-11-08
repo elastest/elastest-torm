@@ -6,6 +6,14 @@
         <span *ngIf="tJob"> "{{tJob.name}}"</span>
         <span>: Execution {{tJobExecId}}</span>
       </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div>
+          <img *ngIf="tJobExec && !tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+          <md-icon *ngIf="tJobExec && tJobExec.finished()" style="vertical-align: middle;" color="accent">done</md-icon>
+          <span style="vertical-align: middle;">{{statusMessage}}</span>
+        </div>
+      </md-card-content>
     </md-card>
   </div>
 </div>

@@ -69,7 +69,7 @@ public class TJobExecOrchestratorService {
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
         if (tJobServices != null && tJobServices != "") {
-            tJobExec.setResult(TJobExecution.ResultEnum.STARTING_TSS);
+            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STARTING_TSS);
             provideServices(tJobServices, tJobExec);
         }
 
@@ -80,7 +80,7 @@ public class TJobExecOrchestratorService {
         });
 
         logger.info("Waiting for associated TSS");
-        tJobExec.setResult(TJobExecution.ResultEnum.WAITING_TSS);
+        updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING_TSS);
         while (!tSSInstAssocToTJob.isEmpty()) {
             try {
                 Thread.sleep(2000);

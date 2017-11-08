@@ -34,6 +34,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   serviceInstances: EsmServiceInstanceModel[] = [];
   instancesNumber: number;
 
+  statusMessage: string = '';
+
   constructor(private _titleService: Title,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
@@ -77,6 +79,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
             } else {
+              this.checkResultStatus();
               this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
               if (tJobExec) {
                 setTimeout(() => {
@@ -96,8 +99,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   getSupportServicesInstances() {
     this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec)
       .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
-        // result is always IN PROGRESS because tJobExec is not updated in GUI
-        if (serviceInstances.length === this.instancesNumber || this.tJobExec.result === 'FINISHED') {
+        if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
           this.serviceInstances = [...serviceInstances];
         } else {
           setTimeout(() => {
@@ -107,8 +109,57 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       });
   }
 
-
   ngOnDestroy() {
     this.elastestRabbitmqService.unsubscribeWSDestination();
+  }
+
+  checkResultStatus() {
+    this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
+      (data) => {
+        this.tJobExec.result = data;
+        this.updateStatusMsg(data);
+        if (data === 'FINISHED' || data === 'FAILURE') {
+          console.log('TJob Execution Finished');
+        } else {
+          setTimeout(() => {
+            this.checkResultStatus();
+          }, 2000);
+        }
+      }
+    )
+  }
+
+  updateStatusMsg(resultStatus: string) {
+    switch (resultStatus) {
+      case 'FINISHED':
+        this.statusMessage = 'Finished';
+        break;
+      case 'FAILURE':
+        this.statusMessage = 'Failure';
+        break;
+      case 'IN PROGRESS':
+        this.statusMessage = 'Initializing';
+        break;
+      case 'WAITING':
+        this.statusMessage = 'Waiting for Test Results';
+        break;
+      case 'STARTING TSS':
+        this.statusMessage = 'Starting Test Support Services';
+        break;
+      case 'EXECUTING SUT':
+        this.statusMessage = 'Executing dockerized SuT';
+        break;
+      case 'WAITING SUT':
+        this.statusMessage = 'Waiting for SuT service ready';
+        break;
+      case 'EXECUTING TEST':
+        this.statusMessage = 'Executing Test';
+        break;
+      case 'WAITING TSS':
+        this.statusMessage = 'Waiting for Test Support Services';
+        break;
+      default:
+        this.statusMessage = '';
+    }
   }
 }
