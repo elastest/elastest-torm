@@ -116,9 +116,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   checkResultStatus() {
     this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
       (data) => {
-        this.tJobExec.result = data;
-        this.updateStatusMsg(data);
-        if (data === 'FINISHED' || data === 'FAILURE') {
+        this.tJobExec.result = data.result;
+        this.tJobExec.resultMsg = data.msg;
+        if (this.tJobExec.finished()) {
           console.log('TJob Execution Finished');
         } else {
           setTimeout(() => {
@@ -128,38 +128,5 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       }
     )
   }
-
-  updateStatusMsg(resultStatus: string) {
-    switch (resultStatus) {
-      case 'FINISHED':
-        this.statusMessage = 'Finished';
-        break;
-      case 'FAILURE':
-        this.statusMessage = 'Failure';
-        break;
-      case 'IN PROGRESS':
-        this.statusMessage = 'Initializing';
-        break;
-      case 'WAITING':
-        this.statusMessage = 'Waiting for Test Results';
-        break;
-      case 'STARTING TSS':
-        this.statusMessage = 'Starting Test Support Services';
-        break;
-      case 'EXECUTING SUT':
-        this.statusMessage = 'Executing dockerized SuT';
-        break;
-      case 'WAITING SUT':
-        this.statusMessage = 'Waiting for SuT service ready';
-        break;
-      case 'EXECUTING TEST':
-        this.statusMessage = 'Executing Test';
-        break;
-      case 'WAITING TSS':
-        this.statusMessage = 'Waiting for Test Support Services';
-        break;
-      default:
-        this.statusMessage = '';
-    }
-  }
 }
+

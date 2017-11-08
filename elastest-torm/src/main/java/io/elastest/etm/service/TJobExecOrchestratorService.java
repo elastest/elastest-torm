@@ -24,6 +24,7 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
@@ -68,8 +69,11 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
+        String resultMsg = "Initializing";
+        tJobExec.setResultMsg(resultMsg);
+        tJobExecRepositoryImpl.save(tJobExec);
+
         if (tJobServices != null && tJobServices != "") {
-            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STARTING_TSS);
             provideServices(tJobServices, tJobExec);
         }
 
@@ -80,7 +84,9 @@ public class TJobExecOrchestratorService {
         });
 
         logger.info("Waiting for associated TSS");
-        updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING_TSS);
+        resultMsg = "Waiting for Test Support Services";
+        updateTJobExecResultStatus(tJobExec,
+                TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
             try {
                 Thread.sleep(2000);
@@ -107,16 +113,26 @@ public class TJobExecOrchestratorService {
 
             // Start sut if it's necessary
             if (dockerExec.isWithSut()) {
-                updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.EXECUTING_SUT);
-                updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING_SUT);
+                resultMsg = "Executing dockerized SuT";
+                updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+
+                resultMsg = "Waiting for SuT service ready";
+                updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
                 dockerService.startSut(dockerExec);
             }
 
             List<ReportTestSuite> testSuites;
             // Start Test
-            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.EXECUTING_TEST);
+            resultMsg = "Executing Test";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             testSuites = dockerService.executeTest(dockerExec);
-            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING);
+
+            resultMsg = "Waiting for Test Results";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.WAITING, resultMsg);
             saveTestResults(testSuites, tJobExec);
 
             // End and purge services
@@ -124,13 +140,15 @@ public class TJobExecOrchestratorService {
             if (tJobServices != null && tJobServices != "") {
                 deprovideServices(tJobExec);
             }
-
-            tJobExec.setResult(TJobExecution.ResultEnum.FINISHED);
+            resultMsg = "Finished";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.FINISHED, resultMsg);
         } catch (Exception e) {
             e.printStackTrace();
-            if (!e.getMessage().equals("end error")) { // TODO customize
-                                                       // exception
-                tJobExec.setResult(TJobExecution.ResultEnum.FAILURE);
+            if (!e.getMessage().equals("end error")) {
+                resultMsg = "Failure";
+                updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.FAILURE, resultMsg);
             }
         }
 
@@ -187,6 +205,7 @@ public class TJobExecOrchestratorService {
      */
     private void provideServices(String tJobServices, TJobExecution tJobExec) {
         logger.info("Start the service provision.");
+        String resultMsg = "Starting Test Support Service: ";
         ObjectMapper mapper = new ObjectMapper();
         try {
             List<ObjectNode> services = Arrays
@@ -194,6 +213,12 @@ public class TJobExecOrchestratorService {
             for (ObjectNode service : services) {
                 if (service.get("selected").toString()
                         .equals(Boolean.toString(true))) {
+
+                    updateTJobExecResultStatus(tJobExec,
+                            TJobExecution.ResultEnum.STARTING_TSS,
+                            resultMsg + service.get("short-name").toString()
+                                    .replaceAll("\"", ""));
+
                     String instanceId = esmService.provisionServiceInstanceSync(
                             service.get("id").toString().replaceAll("\"", ""),
                             tJobExec.getId(), tJobExec.getTjob().getId());
@@ -238,8 +263,10 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private void updateTJobExecResultStatus(TJobExecution tJobExec, ResultEnum result) {
+    private void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
         tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
         tJobExecRepositoryImpl.save(tJobExec);
     }
 

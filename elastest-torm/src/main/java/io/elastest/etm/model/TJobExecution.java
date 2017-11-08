@@ -115,6 +115,11 @@ public class TJobExecution {
     @Transient
     private Map<String, String> tssEnvVars;
 
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "resultMsg")
+    private String resultMsg = null;
+
     // Constructors
     public TJobExecution() {
         this.id = (long) 0;
@@ -326,6 +331,18 @@ public class TJobExecution {
         return this;
     }
 
+    /*
+     * resultMsg get/set
+     */
+
+    public String getResultMsg() {
+        return resultMsg;
+    }
+
+    public void setResultMsg(String resultMsg) {
+        this.resultMsg = resultMsg;
+    }
+
     // Others
     @Override
     public boolean equals(java.lang.Object o) {
@@ -343,13 +360,14 @@ public class TJobExecution {
                 && Objects.equals(this.error, tjobExecution.error)
                 && Objects.equals(this.logIndex, tjobExecution.logIndex)
                 && Objects.equals(this.testSuite, tjobExecution.testSuite)
-                && Objects.equals(this.parameters, tjobExecution.parameters);
+                && Objects.equals(this.parameters, tjobExecution.parameters)
+                && Objects.equals(this.resultMsg, tjobExecution.resultMsg);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
-                testSuite, parameters);
+                testSuite, parameters, resultMsg);
     }
 
     @Override
@@ -369,6 +387,8 @@ public class TJobExecution {
         sb.append("    testSuite: ").append(toIndentedString(testSuite))
                 .append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters))
+                .append("\n");
+        sb.append("    resultMsg: ").append(toIndentedString(resultMsg))
                 .append("\n");
         sb.append("}");
         return sb.toString();

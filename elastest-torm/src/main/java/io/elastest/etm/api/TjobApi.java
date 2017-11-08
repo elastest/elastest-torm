@@ -1,6 +1,7 @@
 package io.elastest.etm.api;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -132,14 +133,14 @@ public interface TjobApi extends EtmApiRoot {
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
 
-    @ApiOperation(value = "Returns the current result status of a TJob Execution", notes = "Returns the current result status of a TJob Execution.", response = Enum.class, tags = {
+    @ApiOperation(value = "Returns the current result and result message of a TJob Execution", notes = "Returns the current result and result message of a TJob Execution.", response = Map.class, tags = {
             "TJob Execution", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = Enum.class),
+            @ApiResponse(code = 200, message = "Successful operation", response = Map.class),
             @ApiResponse(code = 404, message = "Result status not found") })
     @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}/result", produces = {
             "application/json" }, method = RequestMethod.GET)
-    ResponseEntity<TJobExecution.ResultEnum> getTJobExecResultStatus(
+    ResponseEntity<Map<String, Object>> getTJobExecResultStatus(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
 

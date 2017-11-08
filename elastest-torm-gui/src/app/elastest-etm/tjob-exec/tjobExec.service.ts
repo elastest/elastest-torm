@@ -73,6 +73,7 @@ export class TJobExecService {
     }
     tjobExecsDataToTable.testSuite = tjobExec.testSuite;
     tjobExecsDataToTable.parameters = tjobExec.parameters;
+    tjobExecsDataToTable.resultMsg = tjobExec.resultMsg;
 
     return tjobExecsDataToTable;
   }

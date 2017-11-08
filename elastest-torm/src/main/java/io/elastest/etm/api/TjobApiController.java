@@ -1,7 +1,9 @@
 package io.elastest.etm.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -138,13 +140,16 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    public ResponseEntity<ResultEnum> getTJobExecResultStatus(
+    public ResponseEntity<Map<String, Object>> getTJobExecResultStatus(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
         TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId,
                 tJobExecId);
-        TJobExecution.ResultEnum result = tJobExec.getResult();
-        return new ResponseEntity<ResultEnum>(result, HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", tJobExec.getResult());
+        response.put("msg", tJobExec.getResultMsg());
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
     }
 
