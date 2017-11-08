@@ -25,6 +25,7 @@ import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.utils.ElastestConstants;
@@ -106,16 +107,16 @@ public class TJobExecOrchestratorService {
 
             // Start sut if it's necessary
             if (dockerExec.isWithSut()) {
-                tJobExec.setResult(TJobExecution.ResultEnum.EXECUTING_SUT);
-                tJobExec.setResult(TJobExecution.ResultEnum.WAITING_SUT);
+                updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.EXECUTING_SUT);
+                updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING_SUT);
                 dockerService.startSut(dockerExec);
             }
 
             List<ReportTestSuite> testSuites;
             // Start Test
-            tJobExec.setResult(TJobExecution.ResultEnum.EXECUTING_TEST);
+            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.EXECUTING_TEST);
             testSuites = dockerService.executeTest(dockerExec);
-            tJobExec.setResult(TJobExecution.ResultEnum.WAITING);
+            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.WAITING);
             saveTestResults(testSuites, tJobExec);
 
             // End and purge services
@@ -235,6 +236,11 @@ public class TJobExecOrchestratorService {
                 }
             }
         }
+    }
+
+    private void updateTJobExecResultStatus(TJobExecution tJobExec, ResultEnum result) {
+        tJobExec.setResult(result);
+        tJobExecRepositoryImpl.save(tJobExec);
     }
 
 }
