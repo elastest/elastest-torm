@@ -41,15 +41,21 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     loadPrevious() {
-        this.elastestESService.getPrevLogsFromTrace(this.logIndex, this.traces, this.stream, this.component)
+        let tracesArrayToCompare: any[] = this.traces;
+        if (!this.prevLoaded && this.prevTraces.length > 0) {
+            tracesArrayToCompare = this.prevTraces;
+        }
+        this.elastestESService.getPrevLogsFromTrace(this.logIndex, tracesArrayToCompare, this.stream, this.component)
             .subscribe(
             (data) => {
                 if (data.length > 0) {
-                    this.prevTraces = data;
-                    this.prevLoaded = true;
+                    this.prevTraces = data.concat(this.prevTraces);
                 }
+
+                this.prevLoaded = true; // If data.length > 0 already loaded all traces, else, there aren't traces to load
             },
-        );
+            (error) => this.prevLoaded = true // 'There isn\'t reference traces yet to load previous'
+            );
     }
 
     selectTimeRange(domain) {
@@ -105,5 +111,17 @@ export class ESRabLogModel implements LogViewModel {
 
     clearFilter() {
         this.filteredTraces = [];
+    }
+
+    loadLastTraces(size: number = 10) {
+        this.elastestESService.getLastLogTraces(this.logIndex, this.stream, this.component, size)
+            .subscribe(
+            (data) => {
+                if (this.prevTraces.length === 0) {
+                    this.prevTraces = data.concat(this.prevTraces);
+                    // Keep prevLoaded to false
+                }
+            }
+            );
     }
 }

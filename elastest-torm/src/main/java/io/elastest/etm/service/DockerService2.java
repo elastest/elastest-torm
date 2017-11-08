@@ -85,9 +85,6 @@ public class DockerService2 {
     public void loadBasicServices(DockerExecution dockerExec) throws Exception {
         configureDocker(dockerExec);
         dockerExec.setNetwork(elastestNetwork);
-        if (dockerExec.isWithSut()) {
-            startSut(dockerExec);
-        }
     }
 
     public DockerClient getDockerClient() {

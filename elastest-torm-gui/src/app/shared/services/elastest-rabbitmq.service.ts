@@ -43,7 +43,7 @@ export class ElastestRabbitmqService {
 
     // Create and Subscribe
 
-    public createAndSubscribeToGenericTopics(tjobExecution: TJobExecModel) {
+    public subscribeToDefaultTopics(tjobExecution: TJobExecModel) {
         let withSut: boolean = tjobExecution.tJob.hasSut();
         let testIndex: string = tjobExecution.getTJobIndex();
         for (let type in defaultStreamMap) {

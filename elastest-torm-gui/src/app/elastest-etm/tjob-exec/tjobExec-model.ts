@@ -54,4 +54,12 @@ export class TJobExecModel {
         }
         return index;
     }
+
+    finished(): boolean {
+        return this.result === 'FINISHED' || this.result === 'FAILURE';
+    }
+
+    starting(): boolean {
+        return this.result === 'IN PROGRESS' || this.result === 'STARTING TSS' || this.result === 'WAITING TSS';
+    }
 }

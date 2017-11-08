@@ -50,7 +50,7 @@ export class ElastestESService {
     }
 
     searchAllLogs(index: string, stream: string, component: string, theQuery?: any) {
-        let _logs = new Subject<string[]>();
+        let _logs: Subject<string[]> = new Subject<string[]>();
         let logs = _logs.asObservable();
 
         let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
@@ -81,7 +81,7 @@ export class ElastestESService {
                 }
             );
         } else {
-            _logs.next([]);
+            _logs.error('There isn\'t reference traces yet to load previous')
             this.popupService.openSnackBar('There isn\'t reference traces yet to load previous', 'OK');
         }
         return logs;
@@ -100,6 +100,21 @@ export class ElastestESService {
             }
         }
         return tracesList;
+    }
+
+
+    getLastLogTraces(index: string, stream: string, component: string, size: number = 10) {
+        let _logs: Subject<string[]> = new Subject<string[]>();
+        let logs = _logs.asObservable();
+
+        let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
+
+        this.elasticsearchService.getLast(index, terms, size).subscribe(
+            (data) => {
+                _logs.next(this.convertToLogTraces(data));
+            }
+        );
+        return logs;
     }
 
 
@@ -333,6 +348,24 @@ export class ElastestESService {
         tracesList.push(trace);
         return tracesList;
     }
+
+
+
+    getLastMetricTraces(index: string, metricsField: MetricsFieldModel, size: number = 10) {
+        let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
+        let metrics = _metrics.asObservable();
+
+        let terms: any[] = this.getTermsByMetricsField(metricsField);
+
+        this.elasticsearchService.getLast(index, terms, size).subscribe(
+            (data) => {
+                _metrics.next(this.convertToMetricTraces(data, metricsField));
+            }
+        );
+        return metrics;
+    }
+
+
 
     initTestLog(log: ESRabLogModel) {
         log.name = 'Test Logs';

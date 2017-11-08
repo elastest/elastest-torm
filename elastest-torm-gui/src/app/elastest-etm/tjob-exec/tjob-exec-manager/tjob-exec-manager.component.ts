@@ -53,7 +53,7 @@ export class TjobExecManagerComponent implements OnInit {
           .subscribe(
           (tJob: TJobModel) => {
             this.tJob = tJob;
-            if (this.tJobExec.result === 'IN PROGRESS') {
+            if (!this.tJobExec.finished()) {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'],
                 { queryParams: { fromTJobManager: true } });

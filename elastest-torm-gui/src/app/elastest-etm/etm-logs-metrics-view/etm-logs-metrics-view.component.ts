@@ -94,4 +94,9 @@ export class EtmLogsMetricsViewComponent implements OnInit {
       (error) => console.log(error)
     );
   }
+
+  loadLastTraces() {
+    this.logsGroup.loadLastTraces();
+    this.metricsGroup.loadLastTraces();
+  }
 }

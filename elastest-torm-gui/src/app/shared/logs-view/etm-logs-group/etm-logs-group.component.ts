@@ -238,4 +238,10 @@ export class EtmLogsGroupComponent implements OnInit {
   isDefault(log: ESRabLogModel) {
     return components.indexOf(log.component) > -1 && log.stream === defaultStreamMap.log;
   }
+
+  loadLastTraces() {
+    for (let log of this.logsList) {
+      log.loadLastTraces();
+    }
+  }
 }

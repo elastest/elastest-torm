@@ -71,22 +71,23 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobService.getTJob(this.tJobExec.tJob.id.toString())
           .subscribe(
           (tJob: TJobModel) => {
-            if (this.tJobExec.result !== 'IN PROGRESS') {
+            if (this.tJobExec.finished()) {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
             } else {
+              this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
+              if (tJobExec) {
+                setTimeout(() => {
+                  this.getSupportServicesInstances();
+                }, 0);
+              }
               this.logsAndMetrics.initView(tJob, this.tJobExec);
+              if (!this.tJobExec.starting()) { // If it's already started, get last trace(s)
+                this.logsAndMetrics.loadLastTraces();
+              }
+              this.elastestRabbitmqService.subscribeToDefaultTopics(this.tJobExec);
             }
           });
-
-        console.log('Suscribe to TJob execution.');
-        this.elastestRabbitmqService.createAndSubscribeToGenericTopics(this.tJobExec);
-        this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
-        if (tJobExec) {
-          setTimeout(() => {
-            this.getSupportServicesInstances();
-          }, 0);
-        }
       });
   }
 

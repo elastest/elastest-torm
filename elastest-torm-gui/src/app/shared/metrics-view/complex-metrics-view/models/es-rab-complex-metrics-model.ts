@@ -313,4 +313,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         return (components.indexOf(this.component) > -1 || this.component === '') // Default metrics has empty component
             && (this.stream === defaultStreamMap.composed_metrics || this.stream === defaultStreamMap.atomic_metric || this.stream === ''); // AIO Chart has empty component and stream
     }
+
+    loadLastTraces(size: number = 10) {
+        for (let metric of this.allMetricsFields.fieldsList) {
+            // this.elastestESService.getLastMetricTraces(this.metricsIndex, metric, size);
+        }// TODO
+    }
 }

@@ -323,4 +323,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
   }
+
+  loadLastTraces(){
+    for (let chart of this.metricsList) {
+      chart.loadLastTraces();
+    }
+  }
 }

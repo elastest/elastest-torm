@@ -171,8 +171,7 @@ export class ElasticSearchService {
           _logs.next(orderedMessages);
         }
       );
-    }
-    else {
+    } else {
       _logs.next([]);
     }
   }
@@ -199,6 +198,35 @@ export class ElasticSearchService {
       );
 
     return logs;
+  }
+
+  getLast(index: string, terms: any[], size: number = 1000, theQuery?: any) {
+    if (theQuery === undefined || theQuery === null) {
+      theQuery = {
+        sort: [
+          { '@timestamp': 'desc' }
+        ],
+        query: {
+          bool: {
+            must: terms
+          }
+        },
+      }
+    }
+    theQuery['size'] = size;
+
+    let url: string = this.esUrl + index;
+    let searchUrl: string = url + '/_search';
+
+    searchUrl = this.addFilterToSearchUrl(searchUrl);
+    return this.internalSearch(searchUrl, theQuery, size)
+      .map(
+      (data) => {
+        let dataArray: any[] = data.hits.hits;
+        return dataArray.reverse();
+      },
+      (error) => console.log(error)
+      );
   }
 
   searchMessage(url: string, fromMessage: string, terms: any[]) {
@@ -368,7 +396,7 @@ export class ElasticSearchService {
     return theQuery;
   }
 
-  addFilterToSearchUrl(searchUrl: string, filterPath: string[]) {
+  addFilterToSearchUrl(searchUrl: string, filterPath?: string[]) {
     searchUrl += '?ignore_unavailable'; // For multiple index (ignore if not exist)
     if (filterPath && filterPath.length > 0) {
       let filterPathPrefix: string = 'filter_path=';
