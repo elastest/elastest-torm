@@ -1,33 +1,41 @@
 <!-- Monitoring Configuration -->
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
     <div flex-gt-sm="100">
-        <md-card class="pad-top pad-bottom">
-            <md-card-title>Monitoring Configuration</md-card-title>
-            <md-divider></md-divider>
-            <md-card-content>
-                <td-expansion-panel label="Add More Monitoring Card" expand="false" class="push-bottom">
-                    <md-list-item flex-gt-xs="100" class="push">
-                        <div layout="row" layout-align="center center">
-                            <md-input-container class="push-right">
-                                <input mdInput id="component" value="" [(ngModel)]="component" placeholder="Component" required>
-                            </md-input-container>
-                            <md-input-container class="push-right">
-                                <input mdInput id="stream" value="" [(ngModel)]="stream" placeholder="Stream" required>
-                            </md-input-container>
-                            <md-input-container class="push-right">
-                                <input mdInput id="metric" value="" [(ngModel)]="metricName" placeholder="Specific metric (use: type.metric)">
-                            </md-input-container>
-                            <button md-raised-button color="accent" (click)="addMore()" aria-label="Add More" title="Add More" class="iconBtn push-top-sm">
-                                <md-icon class="color-white">add</md-icon> Add
-                            </button>
+        <md-card>
+            <td-expansion-panel label="" expand="false" class="push-bottom" #monitoringExp>
+                <ng-template td-expansion-panel-header>
+                    <div layout="row">
+                        <md-card-title> Monitoring Configuration </md-card-title>
+                        <span flex></span>
+                        <div style="padding: 0 20px;">
+                            <md-icon *ngIf="!monitoringExp.expand" style="margin-top: 80%;margin-right: 20%;">keyboard_arrow_down</md-icon>
                         </div>
-                    </md-list-item>
-                </td-expansion-panel>
-                <button md-raised-button color="accent" (click)="saveMonitoringConfig()" aria-label="Save Monitoring Configuration" title="Save Monitoring Configuration"
-                    class="iconBtn push-top-sm push-left-sm">
-                    <md-icon class="color-white">save</md-icon> Save Monitoring Configuration
-                </button>
-            </md-card-content>
+                    </div>
+                    <md-divider></md-divider>
+                </ng-template>
+                <md-card-content>
+                    <h3>Add More Monitoring Card</h3>
+                    <div layout="row" class="push-bottom">
+                        <md-input-container class="push-right">
+                            <input mdInput id="component" value="" [(ngModel)]="component" placeholder="Component" required>
+                        </md-input-container>
+                        <md-input-container class="push-right">
+                            <input mdInput id="stream" value="" [(ngModel)]="stream" placeholder="Stream" required>
+                        </md-input-container>
+                        <md-input-container class="push-right">
+                            <input mdInput id="metric" value="" [(ngModel)]="metricName" placeholder="Specific metric (use: type.metric)">
+                        </md-input-container>
+                        <button md-raised-button color="accent" (click)="addMore()" aria-label="Add More" title="Add More" class="iconBtn push-top-sm push-bottom-sm">
+                            <md-icon class="color-white">add</md-icon> Add
+                        </button>
+                    </div>
+                    <md-divider></md-divider>
+                    <button md-raised-button color="accent" (click)="saveMonitoringConfig()" aria-label="Save Monitoring Configuration" title="Save Monitoring Configuration"
+                        class="iconBtn push-top-sm push-left-sm">
+                        <md-icon class="color-white">save</md-icon> Save Monitoring Configuration
+                    </button>
+                </md-card-content>
+            </td-expansion-panel>
         </md-card>
     </div>
 </div>
