@@ -51,4 +51,8 @@ export class LogsViewComponent implements OnInit {
     let offset: number = element.offsetTop - element.parentElement.offsetTop;
     return offset;
   }
+
+  lockLogScroll(){
+    this.lockScroll = !this.lockScroll;
+  }
 }

@@ -2,21 +2,37 @@
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
-                TJob Execution {{tJobExec.id}}
+                <span>TJob</span>
+                <span *ngIf="tJob"> "{{tJob.name}}"</span>
+                <span>: Execution {{tJobExecId}}</span>
             </md-card-title>
             <md-divider></md-divider>
             <md-card-content>
                 <div layout="row">
-                    <span flex-gt-xs="25"><md-card-subtitle>Result</md-card-subtitle><h4>{{tJobExec.result}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Duration</md-card-subtitle><h4>{{tJobExec.duration}}</h4></span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Result</md-card-subtitle>
+                        <h4>{{tJobExec.result}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Duration</md-card-subtitle>
+                        <h4>{{tJobExec.duration}}</h4>
+                    </span>
                     <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
-                        <md-card-subtitle>Sut Execution</md-card-subtitle><h4>None</h4>
+                        <md-card-subtitle>Sut Execution</md-card-subtitle>
+                        <h4>None</h4>
                     </span>
                     <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
-                        <md-card-subtitle>Sut Execution</md-card-subtitle><h4>{{tJobExec.sutExec.id}}</h4>
+                        <md-card-subtitle>Sut Execution</md-card-subtitle>
+                        <h4>{{tJobExec.sutExec.id}}</h4>
                     </span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Error</md-card-subtitle><h4>{{tJobExec.error}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Log Index</md-card-subtitle><h4>{{tJobExec.logIndex}}</h4></span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Error</md-card-subtitle>
+                        <h4>{{tJobExec.error}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Log Index</md-card-subtitle>
+                        <h4>{{tJobExec.logIndex}}</h4>
+                    </span>
                 </div>
                 <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
                     <td-data-table [data]="tJobExec.parameters"></td-data-table>
@@ -35,13 +51,34 @@
             <md-divider></md-divider>
             <md-card-content>
                 <div layout="row">
-                    <span flex-gt-xs="25"><md-card-subtitle>Name</md-card-subtitle><h4>{{tJobExec.testSuite.name}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Nº Test</md-card-subtitle><h4>{{tJobExec.testSuite.numTests}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Errors</md-card-subtitle><h4>{{tJobExec.testSuite.errors}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Failures</md-card-subtitle><h4>{{tJobExec.testSuite.failures}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Skipped</md-card-subtitle><h4>{{tJobExec.testSuite.skipped}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Flakes</md-card-subtitle><h4>{{tJobExec.testSuite.flakes}}</h4></span>
-                    <span flex-gt-xs="25"><md-card-subtitle>Time Elapsed</md-card-subtitle><h4>{{tJobExec.testSuite.timeElapsed}}</h4></span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Name</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.name}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Nº Test</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.numTests}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Errors</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.errors}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Failures</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.failures}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Skipped</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.skipped}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Flakes</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.flakes}}</h4>
+                    </span>
+                    <span flex-gt-xs="25">
+                        <md-card-subtitle>Time Elapsed</md-card-subtitle>
+                        <h4>{{tJobExec.testSuite.timeElapsed}}</h4>
+                    </span>
                 </div>
                 <div layout="row" class="push-top">
                     <md-card-subtitle>Test Cases</md-card-subtitle>

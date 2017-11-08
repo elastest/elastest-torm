@@ -1,7 +1,11 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
   <div flex-gt-sm="100">
-    <md-card class="pad-top pad-bottom">
-      <md-card-title>TJob Execution: {{tJobExecId}}</md-card-title>
+    <md-card class="pad-bottom">
+      <md-card-title>
+        <span>TJob</span>
+        <span *ngIf="tJob"> "{{tJob.name}}"</span>
+        <span>: Execution {{tJobExecId}}</span>
+      </md-card-title>
     </md-card>
   </div>
 </div>

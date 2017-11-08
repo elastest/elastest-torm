@@ -25,6 +25,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics') logsAndMetrics: EtmLogsMetricsViewComponent;
 
   tJobId: number;
+  tJob: TJobModel;
   withSut: boolean = false;
 
   tJobExecId: number;
@@ -71,6 +72,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobService.getTJob(this.tJobExec.tJob.id.toString())
           .subscribe(
           (tJob: TJobModel) => {
+            this.tJob = tJob;
             if (this.tJobExec.finished()) {
               this.router.navigate(
                 ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);

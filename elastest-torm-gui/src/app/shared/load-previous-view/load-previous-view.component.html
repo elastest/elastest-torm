@@ -1,1 +1,3 @@
-<button md-raised-button color="accent" (click)="loadPrevious()" [disabled]="model.prevLoaded" *ngIf="!model.hidePrevBtn">Load Previous</button>
+<button md-button (click)="loadPrevious()" [disabled]="model.prevLoaded" *ngIf="!model.hidePrevBtn" class="iconBtn" title="Load Previous">
+    <md-icon title="Load Previous">arrow_upward</md-icon>
+</button>
