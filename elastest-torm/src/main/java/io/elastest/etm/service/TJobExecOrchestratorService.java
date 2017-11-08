@@ -11,7 +11,6 @@ import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -88,7 +87,7 @@ public class TJobExecOrchestratorService {
 
             // Start SuT if it's necessary
             if (dockerExec.isWithSut()) {
-                initSut(dockerExec, tJobExec);
+                initSut(dockerExec);
             }
 
             List<ReportTestSuite> testSuites;
@@ -269,18 +268,7 @@ public class TJobExecOrchestratorService {
 
     /**** SuT Methods ****/
 
-    public void initSut(DockerExecution dockerExec, TJobExecution tJobExec) {
-//        String resultMsg = "Executing dockerized SuT";
-//        updateTJobExecResultStatus(tJobExec,
-//                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
-//
-//        resultMsg = "Waiting for SuT service ready";
-//        updateTJobExecResultStatus(tJobExec,
-//                TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
-        this.startSut(dockerExec);
-    }
-
-    public void startSut(DockerExecution dockerExec) {
+    public void initSut(DockerExecution dockerExec) {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         SutExecution sutExec;
 
@@ -288,35 +276,10 @@ public class TJobExecOrchestratorService {
 
         // If it's MANAGED SuT
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-            logger.info("Starting sut " + dockerExec.getExecutionId());
-            sutExec = sutService.createSutExecutionBySut(sut);
-            try {
-                // Create container
-                dockerService.createSutContainer(dockerExec);
-                sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
-
-                // Start container
-                String sutContainerId = dockerExec.getAppContainerId();
-                dockerService.startSutcontainer(dockerExec);
-
-                sutIP = dockerService.getContainerIp(sutContainerId,
-                        dockerExec);
-
-                if (sut.getPort() != null) {
-                    String sutPort = sut.getPort();
-                    logger.info("Start testing if SuT is ready checking port "
-                            + sutPort);
-                    dockerService.checkSut(dockerExec, sutIP, sutPort);
-                }
-                // Wait for Sut started
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
-                dockerService.endSutExec(dockerExec);
-                sutService.modifySutExec(dockerExec.getSutExec());
-            }
-        } else { // If it's DEPLOYED SuT
+            sutExec = startManagedSut(dockerExec);
+        }
+        // If it's DEPLOYED SuT
+        else {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
@@ -328,6 +291,49 @@ public class TJobExecOrchestratorService {
         sutExec.setIp(sutIP);
 
         dockerExec.setSutExec(sutExec);
+    }
+
+    private SutExecution startManagedSut(DockerExecution dockerExec) {
+        TJobExecution tJobExec = dockerExec.gettJobexec();
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+
+        String resultMsg = "Executing dockerized SuT";
+        updateTJobExecResultStatus(tJobExec,
+                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+
+        logger.info(resultMsg + " " + dockerExec.getExecutionId());
+        SutExecution sutExec = sutService.createSutExecutionBySut(sut);
+        try {
+            // Create container
+            dockerService.createSutContainer(dockerExec);
+            sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+
+            // Start container
+            String sutContainerId = dockerExec.getAppContainerId();
+            dockerService.startSutcontainer(dockerExec);
+
+            String sutIP = dockerService.getContainerIp(sutContainerId,
+                    dockerExec);
+
+            if (sut.getPort() != null) {
+                String sutPort = sut.getPort();
+
+                resultMsg = "Waiting for SuT service ready in port " + sutPort;
+                logger.info(resultMsg);
+                updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+
+                // Wait for Sut started
+                dockerService.checkSut(dockerExec, sutIP, sutPort);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
+            dockerService.endSutExec(dockerExec);
+            sutService.modifySutExec(dockerExec.getSutExec());
+        }
+        return sutExec;
     }
 
     /**** TJob Exec Methods ****/
