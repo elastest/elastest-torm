@@ -1,6 +1,6 @@
 <ng-container *ngIf="logsList.length > 0">
-    <div #logsContainer *ngFor="let group of groupedLogsList" layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-    <div *ngFor="let log of group; let i = index; let f=first; let l=last;" [attr.flex-gt-sm]="f && l ? 100 : 50">
+    <div #logsContainer *ngFor="let group of groupedLogsList" layout-xs="column" layout-gt-xs="column" layout-gt-md="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+    <div *ngFor="let log of group; let i = index; let f=first; let l=last;" [attr.flex-gt-md]="f && l ? 100 : 50">
       <logs-view #individual{{i}} [model]="log" [remove]="removeAndUnsubscribe.bind(this, i)"></logs-view>
     </div>
   </div>
