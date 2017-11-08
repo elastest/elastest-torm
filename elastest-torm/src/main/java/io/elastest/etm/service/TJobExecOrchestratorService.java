@@ -11,12 +11,11 @@ import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -24,12 +23,13 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
-import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @Service
 public class TJobExecOrchestratorService {
@@ -50,11 +50,13 @@ public class TJobExecOrchestratorService {
 
     private DatabaseSessionManager dbmanager;
     private final EsmService esmService;
+    private SutService sutService;
 
     public TJobExecOrchestratorService(DockerService2 dockerService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
             TJobExecRepository tJobExecRepositoryImpl,
-            DatabaseSessionManager dbmanager, EsmService esmService) {
+            DatabaseSessionManager dbmanager, EsmService esmService,
+            SutService sutService) {
         super();
         this.dockerService = dockerService;
         this.testSuiteRepo = testSuiteRepo;
@@ -62,6 +64,7 @@ public class TJobExecOrchestratorService {
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.dbmanager = dbmanager;
         this.esmService = esmService;
+        this.sutService = sutService;
     }
 
     @Async
@@ -73,35 +76,7 @@ public class TJobExecOrchestratorService {
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
 
-        if (tJobServices != null && tJobServices != "") {
-            provideServices(tJobServices, tJobExec);
-        }
-
-        Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
-        tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-            tSSInstAssocToTJob.put(tSSInstId,
-                    esmService.gettJobServicesInstances().get(tSSInstId));
-        });
-
-        logger.info("Waiting for associated TSS");
-        resultMsg = "Waiting for Test Support Services";
-        updateTJobExecResultStatus(tJobExec,
-                TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
-        while (!tSSInstAssocToTJob.isEmpty()) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-                logger.error("Interrupted Exception {}: " + ie.getMessage());
-            }
-            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                if (esmService.checkInstanceUrlIsUp(
-                        esmService.gettJobServicesInstances().get(tSSInstId))) {
-                    tSSInstAssocToTJob.remove(tSSInstId);
-                }
-            });
-        }
-
-        logger.info("TSS availabes");
+        initTSS(tJobExec, tJobServices);
 
         setTJobExecEnvVars(tJobExec);
 
@@ -111,16 +86,9 @@ public class TJobExecOrchestratorService {
             // Create queues and load basic services
             dockerService.loadBasicServices(dockerExec);
 
-            // Start sut if it's necessary
+            // Start SuT if it's necessary
             if (dockerExec.isWithSut()) {
-                resultMsg = "Executing dockerized SuT";
-                updateTJobExecResultStatus(tJobExec,
-                        TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
-
-                resultMsg = "Waiting for SuT service ready";
-                updateTJobExecResultStatus(tJobExec,
-                        TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
-                dockerService.startSut(dockerExec);
+                initSut(dockerExec, tJobExec);
             }
 
             List<ReportTestSuite> testSuites;
@@ -198,6 +166,42 @@ public class TJobExecOrchestratorService {
         }
     }
 
+    /**** TSS methods ****/
+
+    private void initTSS(TJobExecution tJobExec, String tJobServices) {
+        String resultMsg = "";
+
+        if (tJobServices != null && tJobServices != "") {
+            provideServices(tJobServices, tJobExec);
+        }
+
+        Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
+        tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+            tSSInstAssocToTJob.put(tSSInstId,
+                    esmService.gettJobServicesInstances().get(tSSInstId));
+        });
+
+        logger.info("Waiting for associated TSS");
+        resultMsg = "Waiting for Test Support Services";
+        updateTJobExecResultStatus(tJobExec,
+                TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
+        while (!tSSInstAssocToTJob.isEmpty()) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ie) {
+                logger.error("Interrupted Exception {}: " + ie.getMessage());
+            }
+            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                if (esmService.checkInstanceUrlIsUp(
+                        esmService.gettJobServicesInstances().get(tSSInstId))) {
+                    tSSInstAssocToTJob.remove(tSSInstId);
+                }
+            });
+        }
+
+        logger.info("TSS availabes");
+    }
+
     /**
      * 
      * @param tJobServices
@@ -262,6 +266,71 @@ public class TJobExecOrchestratorService {
             }
         }
     }
+
+    /**** SuT Methods ****/
+
+    public void initSut(DockerExecution dockerExec, TJobExecution tJobExec) {
+//        String resultMsg = "Executing dockerized SuT";
+//        updateTJobExecResultStatus(tJobExec,
+//                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+//
+//        resultMsg = "Waiting for SuT service ready";
+//        updateTJobExecResultStatus(tJobExec,
+//                TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+        this.startSut(dockerExec);
+    }
+
+    public void startSut(DockerExecution dockerExec) {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        SutExecution sutExec;
+
+        String sutIP = "";
+
+        // If it's MANAGED SuT
+        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
+            logger.info("Starting sut " + dockerExec.getExecutionId());
+            sutExec = sutService.createSutExecutionBySut(sut);
+            try {
+                // Create container
+                dockerService.createSutContainer(dockerExec);
+                sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+
+                // Start container
+                String sutContainerId = dockerExec.getAppContainerId();
+                dockerService.startSutcontainer(dockerExec);
+
+                sutIP = dockerService.getContainerIp(sutContainerId,
+                        dockerExec);
+
+                if (sut.getPort() != null) {
+                    String sutPort = sut.getPort();
+                    logger.info("Start testing if SuT is ready checking port "
+                            + sutPort);
+                    dockerService.checkSut(dockerExec, sutIP, sutPort);
+                }
+                // Wait for Sut started
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
+                dockerService.endSutExec(dockerExec);
+                sutService.modifySutExec(dockerExec.getSutExec());
+            }
+        } else { // If it's DEPLOYED SuT
+            Long currentSutExecId = sut.getCurrentSutExec();
+            sutExec = sutService.getSutExecutionById(currentSutExecId);
+            sutIP = sut.getSpecification();
+        }
+
+        String sutUrl = "http://" + sutIP + ":"
+                + (sut.getPort() != null ? sut.getPort() : "");
+        sutExec.setUrl(sutUrl);
+        sutExec.setIp(sutIP);
+
+        dockerExec.setSutExec(sutExec);
+    }
+
+    /**** TJob Exec Methods ****/
 
     private void updateTJobExecResultStatus(TJobExecution tJobExec,
             ResultEnum result, String msg) {
