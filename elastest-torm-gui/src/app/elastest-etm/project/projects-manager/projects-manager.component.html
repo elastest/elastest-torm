@@ -2,86 +2,29 @@
     <div layout="column" layout-gt-sm="row">
         <div flex-gt-sm="100">
             <md-card>
-                <div layout="row" layout-align="start center" class="pad-right-sm">
-                    <span *ngIf="!searchBox.searchVisible">
-                        <md-card-title>Projects</md-card-title>
-                    </span>
-                    <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="search($event)"
-                        flex>
-                    </td-search-box>
-                </div>
+                <md-card-title>Projects</md-card-title>
                 <md-divider></md-divider>
                 <div class="push" layout="row">
                     <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
                 </div>
                 <md-divider></md-divider>
                 <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
-                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="showProjectChilds($event)">
+                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)" (rowClick)="viewProject($event.row)">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div layout="row">
-                            <button md-button (click)="editProject(row)" class="iconBtn-lg" title="Edit Project"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteProject(row)" class="iconBtn-lg" title="Delete Project"><md-icon>delete</md-icon></button>
+                            <button md-button (click)="viewProject(row)" class="iconBtn-lg" title="View Project">
+                                <md-icon>remove_red_eye</md-icon>
+                            </button>
+                            <button md-button (click)="editProject(row)" class="iconBtn-lg" title="Edit Project">
+                                <md-icon>mode_edit</md-icon>
+                            </button>
+                            <button md-button (click)="deleteProject(row)" class="iconBtn-lg" title="Delete Project">
+                                <md-icon>delete</md-icon>
+                            </button>
                         </div>
                     </ng-template>
                 </td-data-table>
             </md-card>
         </div>
-    </div>
-</div>
-
-<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="projectChildsActived">
-    <div flex-gt-lg="50" layout-gt-sm="column">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                Project {{projectSelected.id}} TJobs
-            </md-card-title>
-            <md-divider></md-divider>
-            <md-card-content #scrollMeTest>
-                <div class="push-top push-bottom" layout="row">
-                    <button md-raised-button color="accent" (click)="newTJob()">New TJob</button>
-                </div>
-                <md-divider></md-divider>
-                <td-data-table #tjobsTable class="scroll_table" [data]="tjobData" [columns]="tjobColumns" [selectable]="false" [clickable]="true"
-                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-                    <ng-template tdDataTableTemplate="sut" let-value="value" let-row="row" let-column="column">
-                        <span *ngIf="row.hasSut()">{{row.sut.id}}</span>
-                        <span *ngIf="!row.hasSut()">None</span>
-                    </ng-template>
-                    <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                        <div layout="row">
-                            <button md-button (click)="runTJob(row, projectSelected)" class="iconBtn-lg" title="Run TJob"><md-icon>play_circle_outline</md-icon></button>
-                            <button md-button (click)="viewTJob(row)" class="iconBtn-lg" title="View TJob"><md-icon>remove_red_eye</md-icon></button>
-                            <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteTJob(row)" class="iconBtn-lg" title="Delete TJob"><md-icon>delete</md-icon></button>
-                        </div>
-                    </ng-template>
-                </td-data-table>
-            </md-card-content>
-        </md-card>
-    </div>
-
-    <div flex-gt-lg="50" layout-gt-sm="column">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                Project {{projectSelected.id}} SuTs
-            </md-card-title>
-            <md-divider></md-divider>
-            <md-card-content #scrollMeSut>
-                <div class="push-top push-bottom" layout="row">
-                    <button md-raised-button color="accent" (click)="newSut()">New SuT</button>
-                </div>
-                <md-divider></md-divider>
-                <td-data-table #sutsTable class="scroll_table" [data]="sutData" [columns]="sutColumns" [selectable]="false" [clickable]="true"
-                    [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-                    <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                        <div layout="row">
-                            <!-- <button md-button (click)="viewSut(row)" class="iconBtn-lg" title="View Sut"><md-icon>remove_red_eye</md-icon></button> -->
-                            <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT"><md-icon>mode_edit</md-icon></button>
-                            <button md-button (click)="deleteSut(row)" class="iconBtn-lg" title="Delete SuT"><md-icon>delete</md-icon></button>
-                        </div>
-                    </ng-template>
-                </td-data-table>
-            </md-card-content>
-        </md-card>
     </div>
 </div>

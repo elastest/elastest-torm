@@ -1,3 +1,4 @@
+import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
 import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
@@ -65,6 +66,10 @@ const routes: Routes = [
                     {
                         path: ':projectId',
                         children: [
+                            {
+                                path: '',
+                                component: ProjectManagerComponent,
+                            },
                             {
                                 path: 'tjob',
                                 children: [
