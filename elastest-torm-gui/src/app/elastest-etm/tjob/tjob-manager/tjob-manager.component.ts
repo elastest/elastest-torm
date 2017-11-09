@@ -102,8 +102,7 @@ export class TjobManagerComponent implements OnInit {
       let dialogRef = this.dialog.open(RunTJobModalComponent, {
         data: this.tJob.cloneTJob(),
       });
-    }
-    else {
+    } else {
       this.tJobExecService.runTJob(this.tJob.id, this.tJob.parameters)
         .subscribe(
         (tjobExecution: TJobExecModel) => {

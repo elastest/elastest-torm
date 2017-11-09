@@ -40,6 +40,14 @@ md-card-content a {
     cursor: pointer;
 }
 
+.td-data-table-cell, .td-data-table-column{
+    padding: 0 15px 0 15px !important;
+}
+
+.td-data-table-cell{
+    line-height: 40px !important;
+}
+
 //
 #dataTable > div, .scroll_table div{
     max-height: 74vh !important;

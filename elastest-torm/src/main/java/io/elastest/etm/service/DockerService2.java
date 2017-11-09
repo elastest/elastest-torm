@@ -500,29 +500,32 @@ public class DockerService2 {
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {
         List<ReportTestSuite> testSuites = null;
+        String resultsPath = dockerExec.gettJobexec().getTjob()
+                .getResultsPath();
 
-        try {
-            InputStream inputStream = getFileFromContainer(
-                    dockerExec.getTestContainerId(),
-                    dockerExec.gettJobexec().getTjob().getResultsPath(),
-                    dockerExec);
+        if (resultsPath != null && !resultsPath.isEmpty()) {
+            try {
+                InputStream inputStream = getFileFromContainer(
+                        dockerExec.getTestContainerId(), resultsPath,
+                        dockerExec);
 
-            String result = IOUtils.toString(inputStream,
-                    StandardCharsets.UTF_8);
-            result = repairXML(result);
+                String result = IOUtils.toString(inputStream,
+                        StandardCharsets.UTF_8);
+                result = repairXML(result);
 
-            TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(
-                    null);
-            InputStream byteArrayIs = new ByteArrayInputStream(
-                    result.getBytes());
-            testSuites = testSuiteXmlParser
-                    .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
+                TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(
+                        null);
+                InputStream byteArrayIs = new ByteArrayInputStream(
+                        result.getBytes());
+                testSuites = testSuiteXmlParser
+                        .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
 
-        } catch (IOException e) {
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
         }
         return testSuites;
     }

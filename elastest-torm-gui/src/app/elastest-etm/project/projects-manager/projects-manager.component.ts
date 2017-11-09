@@ -84,7 +84,6 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     });
   }
 
-
   viewProject(project: ProjectModel) {
     this.router.navigate(['/projects', project.id]);
   }
