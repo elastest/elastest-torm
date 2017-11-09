@@ -61,12 +61,12 @@ public class ModelsTest {
 		params.add(new Parameter(45l,"param1", "value1", tjob, null));
 		tjob.setParameters(params);
 		
-		TJobExecution exec = new TJobExecution(45l, 34543534l, ResultEnum.FINISHED);
+		TJobExecution exec = new TJobExecution(45l, 34543534l, ResultEnum.SUCCESS);
 		List<Parameter> paramsExec = new ArrayList<>();
 		paramsExec.add(new Parameter(45l,"param1", "value1", tjob, exec));
 		exec.setParameters(paramsExec);
 		
-		TJobExecution exec2 = new TJobExecution(45l, 34543534l, ResultEnum.FINISHED);
+		TJobExecution exec2 = new TJobExecution(45l, 34543534l, ResultEnum.SUCCESS);
 		List<Parameter> paramsExec2 = new ArrayList<>();
 		paramsExec2.add(new Parameter(45l,"param1", "value1", tjob, exec2));
 		exec2.setParameters(paramsExec2);
