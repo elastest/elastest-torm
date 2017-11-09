@@ -132,5 +132,11 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       }
     )
   }
+
+  viewTJob() {
+    this.router.navigate(
+      ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
+    );
+  }
 }
 

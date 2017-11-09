@@ -68,7 +68,8 @@
             <div *ngIf="column.name !== 'options'" (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
-                  <md-icon style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                    <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">                    
+                  <md-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
                 </ng-container>
                 {{value}}
               </span>
