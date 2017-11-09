@@ -66,7 +66,12 @@
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" (click)="viewTJobExec(row)" class="hover-pointer">
-              <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue"> {{value}}</span>
+              <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
+                <ng-container *ngIf="column.name === 'result'">
+                  <md-icon style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                </ng-container>
+                {{value}}
+              </span>
               <ng-template #tjobSutValue>
                 <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>
                 <span *ngIf="!row.hasSutExec()">None</span>
@@ -76,10 +81,10 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row">
-              <button md-button (click)="viewTJobExec(row)" stopRowClick title="View TJob Execution">
+              <button md-button (click)="viewTJobExec(row)" stopRowClick title="View TJob Execution" class="iconBtn">
                 <md-icon>remove_red_eye</md-icon>
               </button>
-              <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution">
+              <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution" class="iconBtn">
                 <md-icon>delete</md-icon>
               </button>
             </div>

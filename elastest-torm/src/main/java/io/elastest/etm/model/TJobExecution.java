@@ -142,9 +142,15 @@ public class TJobExecution {
      * Gets or Sets result
      */
     public enum ResultEnum {
-        FINISHED("FINISHED"),
+        /* FINISED STATUS */
 
-        FAILURE("FAILURE"),
+        SUCCESS("SUCCESS"),
+
+        FAIL("FAIL"),
+
+        ERROR("ERROR"),
+
+        /* PROGRESS STATUS */
 
         IN_PROGRESS("IN PROGRESS"),
 

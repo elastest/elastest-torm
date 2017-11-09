@@ -35,6 +35,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   instancesNumber: number;
 
   statusMessage: string = '';
+  statusIcon: any = {
+    name: '',
+    color: '',
+  };
 
   constructor(private titlesService: TitlesService,
     private tJobService: TJobService,
@@ -118,6 +122,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec.result = data.result;
         this.tJobExec.resultMsg = data.msg;
         if (this.tJobExec.finished()) {
+          this.statusIcon = this.tJobExec.getResultIcon();
           console.log('TJob Execution Finished');
         } else {
           setTimeout(() => {

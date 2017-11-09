@@ -36,7 +36,7 @@ export class FilesManagerComponent implements OnInit {
   pageSize: number = 5;
   sortBy: string = 'serviceName';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
-  
+
   timer: Observable<number>;
   subscription: Subscription;
 
@@ -44,8 +44,8 @@ export class FilesManagerComponent implements OnInit {
 
   constructor(private _dataTableService: TdDataTableService, private tJobExecService: TJobExecService,
     private configurationService: ConfigurationService) {
-      this.filesUrlPrefix = configurationService.configModel.host;
-    }
+    this.filesUrlPrefix = configurationService.configModel.host;
+  }
 
   ngOnInit() {
     this.loadExecutionFiles();
@@ -87,7 +87,7 @@ export class FilesManagerComponent implements OnInit {
           this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
             .subscribe(
             (tJobExecution) => {
-              if (tJobExecution.result === 'FINISHED') {
+              if (tJobExecution.finished()) {
                 console.log('Stop polling to retrive files');
                 if (this.subscription !== undefined) {
                   this.subscription.unsubscribe();
@@ -95,9 +95,9 @@ export class FilesManagerComponent implements OnInit {
                 }
               }
               this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId)
-              .subscribe((tJobsExecFiles) => {
-                this.prepareDataTable(tJobsExecFiles)
-              });
+                .subscribe((tJobsExecFiles) => {
+                  this.prepareDataTable(tJobsExecFiles)
+                });
             });
         });
     }
@@ -110,7 +110,7 @@ export class FilesManagerComponent implements OnInit {
     this.filter();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     if (this.subscription !== undefined) {
       this.subscription.unsubscribe();
       this.subscription = undefined;

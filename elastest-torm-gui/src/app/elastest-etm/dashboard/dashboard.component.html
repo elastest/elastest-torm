@@ -10,7 +10,7 @@
       <md-card-content>
         <div *ngIf="tJobExec">
           <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-          <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" color="accent">done</md-icon>
+          <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
           <span style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
         </div>
       </md-card-content>

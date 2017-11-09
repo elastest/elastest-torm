@@ -94,7 +94,7 @@ public class TJobService {
 	
 	public void finishTJobExecution(Long tJobExecId){
 		TJobExecution tJobExecution = tJobExecRepositoryImpl.findOne(tJobExecId);
-		tJobExecution.setResult(ResultEnum.FINISHED);
+		tJobExecution.setResult(ResultEnum.SUCCESS);
 		
 		tJobExecRepositoryImpl.save(tJobExecution);
 	}

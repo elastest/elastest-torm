@@ -26,6 +26,11 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExec: TJobExecModel;
   tJob: TJobModel;
 
+  statusIcon: any = {
+    name: '',
+    color: '',
+  };
+
   constructor(
     private titlesService: TitlesService,
     private tJobExecService: TJobExecService, private tJobService: TJobService,
@@ -52,7 +57,10 @@ export class TjobExecManagerComponent implements OnInit {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
+
+        this.statusIcon = this.tJobExec.getResultIcon();
         this.titlesService.setTopTitle(tJobExec.getRouteString());
+        
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {

@@ -57,7 +57,7 @@ export class TJobExecModel {
     }
 
     finished(): boolean {
-        return this.result === 'FINISHED' || this.result === 'FAILURE';
+        return this.result === 'SUCCESS' || this.result === 'FAIL' || this.result === 'ERROR';
     }
 
     starting(): boolean {
@@ -67,5 +67,31 @@ export class TJobExecModel {
 
     public getRouteString(): string {
         return this.tJob.getRouteString() + ' / Execution ' + this.id;
+    }
+
+    public getResultIcon(): any {
+        let icon: any = {
+            name: '',
+            color: '',
+        };
+        if (this.finished()) {
+            switch (this.result) {
+                case 'SUCCESS':
+                    icon.name = 'check_circle';
+                    icon.color = '#7bba17';
+                    break;
+                case 'FAIL':
+                    icon.name = 'error';
+                    icon.color = '#c82a0e';
+                    break;
+                case 'ERROR':
+                    icon.name = 'do_not_disturb';
+                    icon.color = '#c82a0e';
+                    break;
+                default:
+                    break;
+            }
+        }
+        return icon;
     }
 }

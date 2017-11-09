@@ -107,15 +107,19 @@ public class TJobExecOrchestratorService {
             if (tJobServices != null && tJobServices != "") {
                 deprovideServices(tJobExec);
             }
-            resultMsg = "Finished";
-            updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.FINISHED, resultMsg);
+
+            if (tJobExec.getTestSuite() != null) {
+                ResultEnum finishStatus = tJobExec.getTestSuite()
+                        .getFinalStatus();
+                resultMsg = "Finished: " + finishStatus;
+                updateTJobExecResultStatus(tJobExec, finishStatus, resultMsg);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             if (!e.getMessage().equals("end error")) {
                 resultMsg = "Failure";
                 updateTJobExecResultStatus(tJobExec,
-                        TJobExecution.ResultEnum.FAILURE, resultMsg);
+                        TJobExecution.ResultEnum.ERROR, resultMsg);
             }
         }
 
