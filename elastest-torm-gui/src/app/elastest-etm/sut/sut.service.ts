@@ -1,3 +1,4 @@
+import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
 import { EimConfigModel } from './eim-config-model';
 import { SutModel } from './sut-model';
 import { SutExecModel } from '../sut-exec/sutExec-model';
@@ -9,42 +10,15 @@ import 'rxjs/Rx';
 
 @Injectable()
 export class SutService {
-  constructor(private http: Http, private configurationService: ConfigurationService) { }
+  constructor(
+    private http: Http, private configurationService: ConfigurationService,
+    private eTModelsTransformServices: ETModelsTransformServices,
+  ) { }
 
   public getSuts() {
     let url = this.configurationService.configModel.hostApi + '/sut';
     return this.http.get(url)
-      .map((response) => this.transformSutDataToDataTable(response.json()));
-  }
-
-  transformSutDataToDataTable(suts: any[]) {
-    let sutsDataToTable: SutModel[] = [];
-    for (let sut of suts) {
-      sutsDataToTable.push(this.transformToSutmodel(sut));
-    }
-    return sutsDataToTable;
-  }
-
-  transformToSutmodel(sut: any) {
-    let sutsDataToTable: SutModel;
-
-    sutsDataToTable = new SutModel();
-    sutsDataToTable.id = sut.id;
-    sutsDataToTable.name = sut.name;
-    sutsDataToTable.specification = sut.specification;
-    sutsDataToTable.sutType = sut.sutType;
-    sutsDataToTable.description = sut.description;
-    sutsDataToTable.project = sut.project;
-    sutsDataToTable.eimConfig = new EimConfigModel(sut.eimConfig);
-    sutsDataToTable.instrumentalize = sut.instrumentalize;
-    if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
-      sut.instrumentalize = false;
-    }
-    sutsDataToTable.currentSutExec = sut.currentSutExec;
-    sutsDataToTable.instrumentedBy = sut.instrumentedBy;
-    sutsDataToTable.port = sut.port;
-
-    return sutsDataToTable;
+      .map((response) => this.eTModelsTransformServices.jsonToSutsList(response.json()));
   }
 
   public getSut(id: number) {
@@ -54,7 +28,7 @@ export class SutService {
       (response) => {
         let data: any = response.json();
         if (data !== undefined && data !== null) {
-          return this.transformToSutmodel(data);
+          return this.eTModelsTransformServices.jsonToSutModel(data);
         } else {
           throw new Error('Empty response. SuT not exist or you don\'t have permissions to access it');
         }

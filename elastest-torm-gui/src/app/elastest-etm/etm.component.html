@@ -1,7 +1,11 @@
 <td-layout-nav logo="assets:elastestlogo">
-  <button md-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu"><md-icon>menu</md-icon></button>
+  <button md-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu">
+    <md-icon>menu</md-icon>
+  </button>
   <div td-toolbar-content layout="row" layout-align="center center" flex>
-    <span></span>
+    <div layout="row" layout-align="start center" class="push-left">
+      <span id="topTitle">{{topTitle}}</span>
+    </div>
     <span flex></span>
     <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/api/etm" target="_blank">
       <md-icon>chrome_reader_mode</md-icon>
@@ -52,9 +56,6 @@
         Vnc Test
       </a> -->
     </md-nav-list>
-    <md-toolbar>
-      <span>{{title}}</span>
-    </md-toolbar>
     <router-outlet></router-outlet>
   </td-layout-manage-list>
   <!-- <td-layout-footer>

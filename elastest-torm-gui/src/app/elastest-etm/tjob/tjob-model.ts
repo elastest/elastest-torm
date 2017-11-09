@@ -70,4 +70,8 @@ export class TJobModel {
         console.log('Service id:' + i);
         this.esmServices[i].selected = $event.checked;
     }
+
+    public getRouteString(): string {
+        return this.project.getRouteString() + ' / TJob / ' + this.id;
+    }
 }

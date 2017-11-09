@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles-service';
 import { SutModel } from '../../sut/sut-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
@@ -41,7 +42,7 @@ export class ProjectManagerComponent implements OnInit {
   ];
 
   constructor(
-    private projectService: ProjectService,
+    private titlesService: TitlesService, private projectService: ProjectService,
     private route: ActivatedRoute, private router: Router,
     private tJobService: TJobService, private tJobExecService: TJobExecService, private sutService: SutService,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
@@ -50,6 +51,7 @@ export class ProjectManagerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('Project');
     this.project = new ProjectModel();
     this.loadProject();
   }
@@ -59,6 +61,7 @@ export class ProjectManagerComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
         .subscribe((project: ProjectModel) => {
           this.project = project;
+          this.titlesService.setTopTitle(this.project.getRouteString());
         });
     }
   }

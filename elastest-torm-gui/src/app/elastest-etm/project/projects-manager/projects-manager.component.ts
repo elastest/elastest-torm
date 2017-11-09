@@ -1,7 +1,8 @@
+import { TitlesService } from '../../../shared/services/titles-service';
 import { Router } from '@angular/router';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
-import { Title } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import {
   IPageChangeEvent,
   ITdDataTableRowClickEvent,
@@ -36,12 +37,15 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   projectChildsActived: boolean = false;
   projectSelected: ProjectModel = undefined;
 
-  constructor(private _titleService: Title,
+  constructor(
+    private titlesService: TitlesService,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog) { }
+    public dialog: MdDialog,
+  ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('Projects');
     this.loadProjects();
   }
 
@@ -55,7 +59,6 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this._titleService.setTitle('Product Stats');
   }
 
   editProject(project: ProjectModel) {

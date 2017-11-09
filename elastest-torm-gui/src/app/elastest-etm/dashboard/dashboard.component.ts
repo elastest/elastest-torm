@@ -1,9 +1,9 @@
+import { TitlesService } from '../../shared/services/titles-service';
 import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../elastest-esm/esm-service.service';
 import { EtmLogsMetricsViewComponent } from '../etm-logs-metrics-view/etm-logs-metrics-view.component';
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 
@@ -36,7 +36,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   statusMessage: string = '';
 
-  constructor(private _titleService: Title,
+  constructor(private titlesService: TitlesService,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private elastestRabbitmqService: ElastestRabbitmqService,
@@ -56,19 +56,19 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('TJob Execution');
   }
 
   ngAfterViewInit(): void {
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
-
-    this._titleService.setTitle('ElasTest ETM');
   }
 
   loadTJobExec() {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
+        this.titlesService.setTopTitle(tJobExec.getRouteString());
         this.withSut = this.tJobExec.tJob.hasSut();
 
         this.tJobService.getTJob(this.tJobExec.tJob.id.toString())

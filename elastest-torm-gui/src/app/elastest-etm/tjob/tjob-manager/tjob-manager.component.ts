@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles-service';
 import { RunTJobModalComponent } from '../run-tjob-modal/run-tjob-modal.component';
 import { SutModel } from '../../sut/sut-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
@@ -41,13 +42,15 @@ export class TjobManagerComponent implements OnInit {
   ];
   tJobExecData: TJobExecModel[] = [];
 
-  constructor(private tJobService: TJobService, private tJobExecService: TJobExecService,
+  constructor(
+    private titlesService: TitlesService, private tJobService: TJobService, private tJobExecService: TJobExecService,
     private route: ActivatedRoute, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog) { }
 
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('TJob');
     this.tJob = new TJobModel();
     this.reloadTJob();
   }
@@ -57,11 +60,12 @@ export class TjobManagerComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
         .subscribe((tJob: TJobModel) => {
           this.tJob = tJob;
+          this.titlesService.setTopTitle(tJob.getRouteString());
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }
-          this.tJobExecData = this.tJobExecService.transformTJobExecDataToDataTable(tJob.tjobExecs);
-          this.sortTJobsExec(); //Id desc
+          this.tJobExecData = this.tJobService.getTJobExecsList(tJob);
+          this.sortTJobsExec(); // Id desc
         });
     }
   }
@@ -131,5 +135,4 @@ export class TjobManagerComponent implements OnInit {
       }
     });
   }
-
 }

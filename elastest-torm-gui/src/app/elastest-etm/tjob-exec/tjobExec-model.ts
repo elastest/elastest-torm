@@ -63,4 +63,9 @@ export class TJobExecModel {
     starting(): boolean {
         return this.result === 'IN PROGRESS' || this.result === 'STARTING TSS' || this.result === 'WAITING TSS';
     }
+
+
+    public getRouteString(): string {
+        return this.tJob.getRouteString() + ' / Exec / ' + this.id;
+    }
 }

@@ -6,10 +6,14 @@ export class ProjectModel {
     name: string;
     suts: SutModel[];
     tjobs: TJobModel[];
-    constructor(){
+    constructor() {
         this.id = 0;
         this.name = '';
         this.suts = [];
         this.tjobs = [];
+    }
+
+    public getRouteString(): string {
+        return 'Project / ' + this.id;
     }
 }

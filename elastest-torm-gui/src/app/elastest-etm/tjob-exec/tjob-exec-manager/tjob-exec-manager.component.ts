@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles-service';
 import { EtmLogsMetricsViewComponent } from '../../etm-logs-metrics-view/etm-logs-metrics-view.component';
 
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
@@ -25,7 +26,9 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExec: TJobExecModel;
   tJob: TJobModel;
 
-  constructor(private tJobExecService: TJobExecService, private tJobService: TJobService,
+  constructor(
+    private titlesService: TitlesService,
+    private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router,
   ) {
@@ -40,6 +43,7 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('TJob Execution');
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
   }
@@ -48,7 +52,7 @@ export class TjobExecManagerComponent implements OnInit {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
-
+        this.titlesService.setTopTitle(tJobExec.getRouteString());
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {

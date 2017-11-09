@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -32,14 +33,14 @@ public class Project implements Serializable {
 	public interface BasicAttProject{
 	}
 	
-	@JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class })
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class, BasicAttTJobExec.class })
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="id")
 	@JsonProperty("id")
 	private Long id = null;
 	
-	@JsonView(BasicAttProject.class)
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class, BasicAttTJobExec.class  })
 	@JsonProperty("name")
 	private String name = null;
 	
@@ -49,7 +50,7 @@ public class Project implements Serializable {
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<TJob> tJobs;
 	
-	@JsonView({ BasicAttProject.class, BasicAttTJob.class })
+	@JsonView({ BasicAttProject.class, BasicAttTJob.class, BasicAttTJobExec.class })
 	@JsonProperty("suts")
 	//bi-directional many-to-one association to ElasEtmTjobexec
 	@OneToMany(mappedBy="project", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE)

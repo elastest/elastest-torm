@@ -1,3 +1,5 @@
+import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
+import { TitlesService } from './shared/services/titles-service';
 import { TestEnginesService } from './elastest-test-engines/test-engines.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { RouterModule } from '@angular/router';
@@ -118,6 +120,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestRabbitmqService,
     ElastestESService,
     PopupService,
+    TitlesService,
+    ETModelsTransformServices,
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true

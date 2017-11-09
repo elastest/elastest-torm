@@ -27,4 +27,8 @@ export class SutModel {
         this.instrumentedBy = '';
         this.port = undefined;
     }
+
+    public getRouteString(): string {
+        return this.project.getRouteString() + ' / SuT / ' + this.id;
+    }
 }

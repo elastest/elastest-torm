@@ -1,8 +1,9 @@
+import { TitlesService } from '../shared/services/titles-service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 
-import { Title } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 
 import { TdMediaService } from '@covalent/core';
 
@@ -14,16 +15,18 @@ import { TdMediaService } from '@covalent/core';
 export class EtmComponent implements AfterViewInit, OnInit {
   @ViewChild('manageList') manageList: TdLayoutManageListComponent;
 
-  title: string;
+  topTitle: string;
   openedMenu: boolean = true;
 
   constructor(
-    private _titleService: Title,
+    private titlesService: TitlesService,
     public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService,
     private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('ElasTest');
+
     this.elastestRabbitmqService.configWSConnection();
     this.elastestRabbitmqService.startWsConnection();
   }
@@ -31,9 +34,6 @@ export class EtmComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     // broadcast to all listener observables when loading the page
     this.media.broadcast();
-
-    this._titleService.setTitle('Test Management');
-    this.title = this._titleService.getTitle();
     this.cdr.detectChanges();
   }
 
@@ -80,4 +80,6 @@ export class EtmComponent implements AfterViewInit, OnInit {
       }
     }
   }
+
+  setTitles() { }
 }
