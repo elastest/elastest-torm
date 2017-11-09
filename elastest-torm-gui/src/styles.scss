@@ -31,6 +31,15 @@ md-card-content a {
     width: 172px !important;
 }
 
+
+.mat-clickable .td-data-table-row:hover{
+    cursor: pointer;
+}
+
+.hover-pointer:hover{
+    cursor: pointer;
+}
+
 //
 #dataTable > div, .scroll_table div{
     max-height: 74vh !important;

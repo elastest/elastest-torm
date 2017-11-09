@@ -69,4 +69,10 @@ export class TjobExecManagerComponent implements OnInit {
         );
       });
   }
+
+  viewTJob() {
+    this.router.navigate(
+      ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
+    );
+  }
 }

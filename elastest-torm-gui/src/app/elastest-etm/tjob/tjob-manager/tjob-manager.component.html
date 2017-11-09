@@ -49,7 +49,7 @@
       <md-divider></md-divider>
       <md-card-content>
         <td-data-table #tjobsTable class="scroll_table" [data]="tJobExecData" [columns]="tJobExecColumns" [selectable]="false" [clickable]="true"
-          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (rowClick)="viewTJobExec($event.row)">
           <ng-template tdDataTableTemplate="sutExecution" let-value="value" let-row="row" let-column="column">
             <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>
             <span *ngIf="!row.hasSutExec()">None</span>
