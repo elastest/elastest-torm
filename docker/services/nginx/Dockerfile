@@ -8,4 +8,3 @@ COPY proxy.conf /etc/nginx/sites-available/proxy.conf
 COPY start-nginx.sh /start-nginx.sh
 
 CMD /start-nginx.sh
-#CMD  htpasswd -b -c /etc/nginx/conf.d/nginx.htpasswd $ET_USER $ET_PASS; nginx -g "daemon off;"
