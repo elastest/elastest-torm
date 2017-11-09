@@ -7,4 +7,6 @@ COPY nginx.htpasswd /etc/nginx/conf.d/nginx.htpasswd
 COPY proxy.conf /etc/nginx/sites-available/proxy.conf
 COPY start-nginx.sh /start-nginx.sh
 
+RUN chmod 777 /start-nginx.sh
+
 CMD /start-nginx.sh
