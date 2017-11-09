@@ -9,4 +9,5 @@ else
     mv /etc/nginx/conf.d/nginx-securized.conf /etc/nginx/conf.d/default.conf
 fi
 
+
 nginx -g "daemon off;"
