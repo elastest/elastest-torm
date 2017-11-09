@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles.service';
 import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { EsmServiceModel } from '../../../elastest-esm/esm-service.model';
 import { ProjectModel } from '../../project/project-model';
@@ -26,12 +27,15 @@ export class TJobFormComponent implements OnInit {
   esmServicesCatalog: EsmServiceModel[];
   action: string;
 
-  constructor(private tJobService: TJobService, private route: ActivatedRoute,
+  constructor(
+    private titlesService: TitlesService,
+    private tJobService: TJobService, private route: ActivatedRoute,
     private projectService: ProjectService, private esmService: EsmService) {
     this.esmServicesCatalog = [];
   }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('Edit TJob');
     this.tJob = new TJobModel();
     this.action = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -44,6 +48,7 @@ export class TJobFormComponent implements OnInit {
             this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
               .subscribe((tJob: TJobModel) => {
                 this.tJob = tJob;
+                this.titlesService.setTopTitle(this.tJob.getRouteString());
                 this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
                 this.useImageCommand = !this.tJob.withCommands();
                 for (let esmService of this.tJob.esmServices) {

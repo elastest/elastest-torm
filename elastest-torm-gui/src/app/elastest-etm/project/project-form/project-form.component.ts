@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { ProjectModel } from '../project-model';
@@ -13,31 +14,38 @@ export class ProjectFormComponent implements OnInit {
   project: ProjectModel;
   editMode: boolean = false;
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, ) { }
+  constructor(
+    private titlesService: TitlesService,
+    private projectService: ProjectService, private route: ActivatedRoute,
+  ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('Edit Project');
     this.project = new ProjectModel();
-    if (this.route.params !== null || this.route.params !== undefined){
+    if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
-      .subscribe ((project: ProjectModel) => this.project = project);
+        .subscribe((project: ProjectModel) => {
+          this.project = project;
+          this.titlesService.setTopTitle(this.project.getRouteString());
+        });
     }
-    
+
   }
 
   goBack(): void {
     window.history.back();
   }
 
-  save(){
+  save() {
     this.projectService.createProject(this.project)
-    .subscribe(
+      .subscribe(
       project => this.postSave(project),
       error => console.log(error)
-    );
+      );
 
   }
 
-  postSave(project: any){
+  postSave(project: any) {
     this.project = project;
     window.history.back();
   }

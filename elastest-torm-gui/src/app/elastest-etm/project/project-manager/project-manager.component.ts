@@ -1,4 +1,4 @@
-import { TitlesService } from '../../../shared/services/titles-service';
+import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
@@ -66,6 +66,29 @@ export class ProjectManagerComponent implements OnInit {
     }
   }
 
+  editProject() {
+    this.router.navigate(['/projects/edit', this.project.id]);
+  }
+
+  deleteProject() {
+    let iConfirmConfig: IConfirmConfig = {
+      message: 'Project ' + this.project.id + ':' + this.project.name + ' will be deleted, do you want to continue?',
+      disableClose: false, // defaults to false
+      viewContainerRef: this._viewContainerRef,
+      title: 'Confirm',
+      cancelButton: 'Cancel',
+      acceptButton: 'Yes, delete',
+    };
+    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
+      if (accept) {
+        this.projectService.deleteProject(this.project).subscribe(
+          (project) => this.router.navigate(['/projects'])
+          ,
+          (error) => console.log(error)
+        );
+      }
+    });
+  }
 
   /****** TJobs functions ******/
 

@@ -1,4 +1,4 @@
-import { TitlesService } from '../shared/services/titles-service';
+import { TitlesService } from '../shared/services/titles.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';

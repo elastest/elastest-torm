@@ -23,15 +23,19 @@ export class ETModelsTransformServices {
 
     /**
      * @param project 
-     * @param onlyProject : not load TJobs. Cyclic references
+     * Cyclic references:
+     * @param withoutTJobs
+     * * @param withoutSuts
      */
-    jsonToProjectModel(project: any, onlyProject: boolean = false): ProjectModel {
+    jsonToProjectModel(project: any, withoutTJobs: boolean = false, withoutSuts: boolean = false): ProjectModel {
         let newProject: ProjectModel;
         newProject = new ProjectModel();
         newProject.id = project.id;
         newProject.name = project.name;
-        newProject.suts = this.jsonToSutsList(project.suts);
-        if (!onlyProject) {
+        if (!withoutSuts) {
+            newProject.suts = this.jsonToSutsList(project.suts, true);
+        }
+        if (!withoutTJobs) {
             newProject.tjobs = this.jsonToTJobsList(project.tjobs, true);
         }
         return newProject;
@@ -51,7 +55,7 @@ export class ETModelsTransformServices {
      * @param tjob 
      * @param fromProject Cyclic references
      */
-    jsonToTJobModel(tjob: any, fromProject: boolean = false, fromExec: boolean = false): TJobModel {
+    jsonToTJobModel(tjob: any, fromProject: boolean = false): TJobModel {
         let newTJob: TJobModel;
 
         newTJob = new TJobModel();
@@ -59,7 +63,7 @@ export class ETModelsTransformServices {
         newTJob.name = tjob.name;
         newTJob.imageName = tjob.imageName;
         if (tjob.sut !== undefined && tjob.sut !== null) {
-            newTJob.sut = this.jsonToSutModel(tjob.sut);
+            newTJob.sut = this.jsonToSutModel(tjob.sut, true); // Hardcoded fromProject (like fromTJob)
         } else {
             newTJob.sut = new SutModel();
         }
@@ -129,15 +133,15 @@ export class ETModelsTransformServices {
 
 
     /***** Sut *****/
-    jsonToSutsList(suts: any[]): SutModel[] {
+    jsonToSutsList(suts: any[], fromProject: boolean = false): SutModel[] {
         let sutsList: SutModel[] = [];
         for (let sut of suts) {
-            sutsList.push(this.jsonToSutModel(sut));
+            sutsList.push(this.jsonToSutModel(sut, fromProject));
         }
         return sutsList;
     }
 
-    jsonToSutModel(sut: any): SutModel {
+    jsonToSutModel(sut: any, fromProject: boolean = false): SutModel {
         let newSut: SutModel;
 
         newSut = new SutModel();
@@ -146,7 +150,11 @@ export class ETModelsTransformServices {
         newSut.specification = sut.specification;
         newSut.sutType = sut.sutType;
         newSut.description = sut.description;
-        newSut.project = sut.project;
+        if (!fromProject) {
+            newSut.project = this.jsonToProjectModel(sut.project, true, true);
+        } else {
+            newSut.project = sut.project;
+        }
         newSut.eimConfig = new EimConfigModel(sut.eimConfig);
         newSut.instrumentalize = sut.instrumentalize;
         if (sut.instrumentalize === undefined || sut.instrumentalize === null) {

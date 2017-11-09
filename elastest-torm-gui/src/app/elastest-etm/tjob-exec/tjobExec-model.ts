@@ -66,6 +66,6 @@ export class TJobExecModel {
 
 
     public getRouteString(): string {
-        return this.tJob.getRouteString() + ' / Exec / ' + this.id;
+        return this.tJob.getRouteString() + ' / Execution ' + this.id;
     }
 }

@@ -1,4 +1,4 @@
-import { TitlesService } from '../../shared/services/titles-service';
+import { TitlesService } from '../../shared/services/titles.service';
 import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../elastest-esm/esm-service.service';
 import { EtmLogsMetricsViewComponent } from '../etm-logs-metrics-view/etm-logs-metrics-view.component';
@@ -60,7 +60,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
   }
 

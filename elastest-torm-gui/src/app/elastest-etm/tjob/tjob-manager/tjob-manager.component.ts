@@ -1,4 +1,4 @@
-import { TitlesService } from '../../../shared/services/titles-service';
+import { TitlesService } from '../../../shared/services/titles.service';
 import { RunTJobModalComponent } from '../run-tjob-modal/run-tjob-modal.component';
 import { SutModel } from '../../sut/sut-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';

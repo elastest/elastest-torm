@@ -14,6 +14,6 @@ export class ProjectModel {
     }
 
     public getRouteString(): string {
-        return 'Project / ' + this.id;
+        return this.name;
     }
 }

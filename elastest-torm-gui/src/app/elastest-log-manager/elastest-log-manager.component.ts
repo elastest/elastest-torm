@@ -5,6 +5,8 @@ import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild 
 
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { ElasticSearchService } from '../shared/services/elasticsearch.service';
+import { TitlesService } from '../shared/services/titles.service';
+
 import { dateToInputLiteral } from './utils/Utils';
 import { Router } from '@angular/router';
 import {
@@ -108,7 +110,7 @@ export class ElastestLogManagerComponent implements OnInit {
 
   constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
     private _dataTableService: TdDataTableService, private popupService: PopupService,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService, private titlesService: TitlesService,
   ) {
     this.urlElastic = this.configurationService.configModel.hostElasticsearch;
 
@@ -219,7 +221,9 @@ export class ElastestLogManagerComponent implements OnInit {
     let url = this.urlElastic + '_mapping';
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('Log Analyzer');
+  }
 
   ngAfterViewChecked() {
     this.scrollToBottom();

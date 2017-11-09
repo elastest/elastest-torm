@@ -1,5 +1,5 @@
 import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
-import { TitlesService } from './shared/services/titles-service';
+import { TitlesService } from './shared/services/titles.service';
 import { TestEnginesService } from './elastest-test-engines/test-engines.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { RouterModule } from '@angular/router';

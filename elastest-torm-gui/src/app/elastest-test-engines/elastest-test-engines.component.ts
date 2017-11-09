@@ -1,3 +1,4 @@
+import { TitlesService } from '../shared/services/titles.service';
 import { PopupService } from '../shared/services/popup.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
@@ -25,12 +26,14 @@ export class ElastestTestEnginesComponent implements OnInit {
   stopping: any = {};
 
   constructor(
+    private titlesService: TitlesService,
     private testEnginesService: TestEnginesService,
     private router: Router,
     public popupService: PopupService,
   ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('Test Engines');
     this.getTestEngines();
   }
 

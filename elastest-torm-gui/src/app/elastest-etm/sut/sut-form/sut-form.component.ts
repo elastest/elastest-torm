@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles.service';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
@@ -31,11 +32,14 @@ export class SutFormComponent implements OnInit {
 
   instrumentalized: boolean = false;
 
-  constructor(private sutService: SutService, private route: ActivatedRoute,
+  constructor(
+    private titlesService: TitlesService,
+    private sutService: SutService, private route: ActivatedRoute,
     private projectService: ProjectService,
   ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadTitle('Edit SuT');
     this.sut = new SutModel();
     this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -43,6 +47,7 @@ export class SutFormComponent implements OnInit {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
           .subscribe((sut: SutModel) => {
             this.sut = sut;
+            this.titlesService.setTopTitle(this.sut.getRouteString());
             this.initSutType();
             this.initInstrumentedBy();
             this.initInstrumentalized();

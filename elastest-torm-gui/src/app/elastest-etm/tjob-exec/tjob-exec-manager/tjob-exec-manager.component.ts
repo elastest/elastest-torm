@@ -1,4 +1,4 @@
-import { TitlesService } from '../../../shared/services/titles-service';
+import { TitlesService } from '../../../shared/services/titles.service';
 import { EtmLogsMetricsViewComponent } from '../../etm-logs-metrics-view/etm-logs-metrics-view.component';
 
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';

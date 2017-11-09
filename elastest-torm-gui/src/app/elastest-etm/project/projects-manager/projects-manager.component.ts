@@ -1,4 +1,4 @@
-import { TitlesService } from '../../../shared/services/titles-service';
+import { TitlesService } from '../../../shared/services/titles.service';
 import { Router } from '@angular/router';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
@@ -67,7 +67,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   deleteProject(project: ProjectModel) {
     let iConfirmConfig: IConfirmConfig = {
-      message: 'Project ' + project.id + ' will be deleted, do you want to continue?',
+      message: 'Project ' + project.id + ':' + project.name + ' will be deleted, do you want to continue?',
       disableClose: false, // defaults to false
       viewContainerRef: this._viewContainerRef,
       title: 'Confirm',

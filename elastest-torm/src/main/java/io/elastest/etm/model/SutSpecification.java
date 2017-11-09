@@ -66,7 +66,7 @@ public class SutSpecification {
     @OneToMany(mappedBy = "sutSpecification", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<SutExecution> sutExecution = null;
 
-    @JsonView(SutView.class)
+    @JsonView({ SutView.class })
     @JsonProperty("project")
     @ManyToOne(fetch = FetchType.LAZY)
     private Project project = null;
@@ -429,8 +429,7 @@ public class SutSpecification {
                         sutSpecification.currentSutExec)
                 && Objects.equals(this.instrumentedBy,
                         sutSpecification.instrumentedBy)
-                && Objects.equals(this.port,
-                        sutSpecification.port);
+                && Objects.equals(this.port, sutSpecification.port);
     }
 
     @Override
@@ -461,8 +460,7 @@ public class SutSpecification {
                 .append(toIndentedString(currentSutExec)).append("\n");
         sb.append("    instrumentedBy: ")
                 .append(toIndentedString(instrumentedBy)).append("\n");
-        sb.append("    port: ")
-        .append(toIndentedString(port)).append("\n");
+        sb.append("    port: ").append(toIndentedString(port)).append("\n");
         sb.append("}");
         return sb.toString();
     }

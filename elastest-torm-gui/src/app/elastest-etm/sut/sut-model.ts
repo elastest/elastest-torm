@@ -29,6 +29,6 @@ export class SutModel {
     }
 
     public getRouteString(): string {
-        return this.project.getRouteString() + ' / SuT / ' + this.id;
+        return this.project.getRouteString() + ' / SuT / ' + this.name;
     }
 }

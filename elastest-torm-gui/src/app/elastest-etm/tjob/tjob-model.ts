@@ -72,6 +72,6 @@ export class TJobModel {
     }
 
     public getRouteString(): string {
-        return this.project.getRouteString() + ' / TJob / ' + this.id;
+        return this.project.getRouteString() + ' / ' + this.name;
     }
 }

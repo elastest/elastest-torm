@@ -1,3 +1,4 @@
+import { TitlesService } from '../../../shared/services/titles.service';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EsmService } from '../../esm-service.service';
@@ -37,10 +38,13 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   subscription: Subscription;
 
 
-  constructor(private _dataTableService: TdDataTableService, private esmService: EsmService,
+  constructor(
+    private titlesService: TitlesService,
+    private _dataTableService: TdDataTableService, private esmService: EsmService,
     private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('Test Support Services');
     this.loadServiceInstances();
     this.esmService.getSupportServices()
       .subscribe(
@@ -121,7 +125,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     this.esmService.provisionServiceInstance(this.selectedService)
       .subscribe(
       (tSSInstance) => {
-        console.log('TSS InstanceId:' + tSSInstance );
+        console.log('TSS InstanceId:' + tSSInstance);
         this.tSSIOnTheFly.push(tSSInstance);
         this.loadServiceInstances();
       }
@@ -154,7 +158,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     this.filter();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     if (this.subscription !== undefined) {
       this.subscription.unsubscribe();
       this.subscription = undefined;
