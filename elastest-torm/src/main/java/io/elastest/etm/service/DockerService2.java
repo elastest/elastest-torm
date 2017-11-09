@@ -320,7 +320,7 @@ public class DockerService2 {
             int code = dockerExec.getDockerClient()
                     .waitContainerCmd(testContainerId)
                     .exec(new WaitContainerResultCallback()).awaitStatusCode();
-
+            dockerExec.setTestContainerExitCode(code);
             logger.info("Test container ends with code " + code);
 
             return getTestResults(dockerExec);

@@ -15,7 +15,8 @@ public class DockerExecution {
 	private TJobExecution tJobexec;
 	private boolean withSut;
 	private SutExecution sutExec;
-
+	private int testContainerExitCode;
+	
 	public DockerExecution() {
 	}
 
@@ -99,7 +100,15 @@ public class DockerExecution {
 	}
 
 	public void setSutExec(SutExecution sutExec) {
-		this.sutExec = sutExec;
-	}
+        this.sutExec = sutExec;
+    }
+
+    public int getTestContainerExitCode() {
+        return testContainerExitCode;
+    }
+
+    public void setTestContainerExitCode(int testContainerExitCode) {
+        this.testContainerExitCode = testContainerExitCode;
+    }
 
 }

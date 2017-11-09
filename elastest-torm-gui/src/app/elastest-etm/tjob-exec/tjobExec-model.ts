@@ -78,7 +78,7 @@ export class TJobExecModel {
             switch (this.result) {
                 case 'SUCCESS':
                     icon.name = 'check_circle';
-                    icon.color = '#7bba17';
+                    icon.color = '#669a13';
                     break;
                 case 'FAIL':
                     icon.name = 'error';

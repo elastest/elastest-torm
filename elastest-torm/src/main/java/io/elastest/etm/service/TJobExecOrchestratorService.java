@@ -108,12 +108,7 @@ public class TJobExecOrchestratorService {
                 deprovideServices(tJobExec);
             }
 
-            if (tJobExec.getTestSuite() != null) {
-                ResultEnum finishStatus = tJobExec.getTestSuite()
-                        .getFinalStatus();
-                resultMsg = "Finished: " + finishStatus;
-                updateTJobExecResultStatus(tJobExec, finishStatus, resultMsg);
-            }
+            saveFinishStatus(tJobExec, dockerExec);
         } catch (Exception e) {
             e.printStackTrace();
             if (!e.getMessage().equals("end error")) {
@@ -129,6 +124,24 @@ public class TJobExecOrchestratorService {
         // Saving execution data
         tJobExecRepositoryImpl.save(tJobExec);
         dbmanager.unbindSession();
+    }
+
+    public void saveFinishStatus(TJobExecution tJobExec,
+            DockerExecution dockerExec) {
+        String resultMsg = "";
+        ResultEnum finishStatus = ResultEnum.SUCCESS;
+
+        if (tJobExec.getTestSuite() != null) {
+            finishStatus = tJobExec.getTestSuite().getFinalStatus();
+
+        } else {
+            if (dockerExec.getTestContainerExitCode() != 0) {
+                finishStatus = ResultEnum.FAIL;
+            }
+        }
+
+        resultMsg = "Finished: " + finishStatus;
+        updateTJobExecResultStatus(tJobExec, finishStatus, resultMsg);
     }
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
