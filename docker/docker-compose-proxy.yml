@@ -8,9 +8,6 @@ services:
             - 37000:80
         depends_on:
             - etm
-        environment:
-            - ET_USER=elastest
-            - ET_PASS=elastest
         networks:
             - elastest
 networks:
