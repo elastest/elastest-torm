@@ -59,7 +59,7 @@ echo "Starting maven integration tests"
 
 cd ../elastest-torm
 
-mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} -Det.etm.incontainer=${ET_ETM_INCONTAINER} -Delastest.docker.network=${ELASTEST_DOCKER_NETWORK} Det.in.prod package
+mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} -Det.etm.incontainer=${ET_ETM_INCONTAINER} -Delastest.docker.network=${ELASTEST_DOCKER_NETWORK} -Det.in.prod=${ET_IN_PROD} package
 
 mvnExit=$?
 
