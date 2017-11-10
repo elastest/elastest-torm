@@ -17,44 +17,33 @@ export class ConfigurationService {
     console.log("Starting configuration.");
     let host: string = window.location.host;
     let hostApi: string = 'http://' + host + '/api';
-    this.configModel = {
-      'hostName': window.location.hostname,
-      'host': 'http://' + host,
-      'hostApi': hostApi,
-      'hostElasticsearch': 'http://' + environment.hostElasticSearch + '/',
-      'hostEIM': 'http://' + environment.hostEIM + '/',
-      'hostWsServer': 'ws://' + host + '/rabbitmq',
-      'eusServiceUrlNoPath': 'http://' + environment.eus,
-      'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
-      'eusWebSocketUrl': 'ws://' + environment.eus + '/eus/v1/eus-ws',
-    };
 
     return new Promise((resolve, reject) => {
-      this.getElasticsearchApi(hostApi)
-        .subscribe((data) => {
-          let slash: string = '/';
-          if (data.slice(-1) === slash) {
-            slash = '';
-          }
-          this.configModel.hostElasticsearch = data + slash;
+      this.getServicesInfo(hostApi)
+        .subscribe((servicesInfo) => {
+          this.configModel = {
+            'hostName': window.location.hostname,
+            'host': 'http://' + host,
+            'hostApi': hostApi,
+            'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
+            'hostEIM': 'http://' + environment.hostEIM + '/',
+            'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
+            'eusServiceUrlNoPath': 'http://' + environment.eus,
+            'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
+            'eusWebSocketUrl': 'ws://' + environment.eus + '/eus/v1/eus-ws',
+          };
+
           resolve();
-          console.log("The configuration is completed.");
+          console.log( "The configuration is completed." );
         },
       );
-
     });
+  }
 
-    /* this.getWSHost(hostApi)
-     .subscribe(
-     (data) => {
-       let slash: string = '/';
-       if (data.slice(-1) === slash) {
-         slash = '';
-       }
-       this.configModel.hostWsServer = 'ws://' + data + slash;
-     },
-   );*/
-
+  public getServicesInfo(hostApi: string) {
+    let url: string = hostApi + '/context/services/info';
+    return this.http.get(url)
+      .map((response) => response.json());
   }
 
   public getElasticsearchApi(hostApi: string) {

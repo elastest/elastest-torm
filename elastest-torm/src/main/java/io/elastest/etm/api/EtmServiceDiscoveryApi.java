@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import io.elastest.etm.model.ServicesInfo;
+import io.elastest.etm.model.TJob;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,5 +61,13 @@ public interface EtmServiceDiscoveryApi extends EtmApiRoot {
     @RequestMapping(value = "/context/logstash/info", produces = {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<Map<String, String>> getLogstashInfo();
-
+    
+    @ApiOperation(value = "Return relevant information about the ElasTest services", notes = "Return relevant information about the ElasTest services.", response = ServicesInfo.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ServicesInfo.class),
+            @ApiResponse(code = 400, message = "TJob not found.") })
+    @RequestMapping(value = "/context/services/info", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    public ResponseEntity<ServicesInfo> getServicesInfo();    
 }

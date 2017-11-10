@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.google.common.util.concurrent.Service;
+
+import io.elastest.etm.model.ServicesInfo;
 import io.elastest.etm.service.EsmService;
 
 @Controller
@@ -25,6 +28,12 @@ public class EtmServiceDiscoveryApiController
     @Value("${et.public.host}")
     public String publicHost;
 
+    @Value("${et.in.prod}")
+    public boolean etInProd;
+
+    @Value("${et.etm.rabbit.path.with-proxy}")
+    public String etEtmRabbitPathWithProxy;
+
     @Override
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
             @PathVariable("tSSInstanceId") String tSSInstanceId) {
@@ -37,7 +46,16 @@ public class EtmServiceDiscoveryApiController
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
 
+    @Override
+    public ResponseEntity<ServicesInfo> getServicesInfo() {
+        ServicesInfo servicesInfo = new ServicesInfo();
+        servicesInfo.setElasticSearchUrl(
+                etInProd ? "http://" + publicHost + ":37000/elasticsearch"
+                        : elasticsearchApi);
+        servicesInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
+        return new ResponseEntity<ServicesInfo>(servicesInfo, HttpStatus.OK);
     }
 
     @Override
@@ -50,8 +68,7 @@ public class EtmServiceDiscoveryApiController
 
     @Override
     public ResponseEntity<String> getRabbitHost() {
-        return new ResponseEntity<String>(publicHost + ":37006",
-                HttpStatus.OK);
+        return new ResponseEntity<String>(publicHost + ":37006", HttpStatus.OK);
     }
 
     @Override

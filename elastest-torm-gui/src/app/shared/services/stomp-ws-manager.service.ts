@@ -28,7 +28,7 @@ export class StompWSManager {
 
   configWSConnection(host?: string) {
     if (host !== undefined) {
-      this.wsConf.host = this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
+      this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
     }
 
     this.stomp.configure(this.wsConf);

@@ -38,6 +38,8 @@ services:
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services/
             - ET_PUBLIC_HOST=localhost
             - ET_SHARED_FOLDER=/shared-data/
+            - ET_PROXY_PORT=37000
+            - ET_IN_PROD=true
         entrypoint: /run.sh
         expose:
             - 8091
