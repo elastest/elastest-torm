@@ -62,6 +62,19 @@ export class TJobExecService {
       });
   }
 
+  public stopTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/stop';
+    return this.http.delete(url)
+      .map((response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.eTModelsTransformServices.jsonToTJobExecModel(data);
+        } else {
+          throw new Error('Empty response. TJob Execution not exist or you don\'t have permissions to access it');
+        }
+      });
+  }
+
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
     return this.http.delete(url)

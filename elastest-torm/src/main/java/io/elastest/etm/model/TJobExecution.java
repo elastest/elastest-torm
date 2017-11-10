@@ -150,6 +150,8 @@ public class TJobExecution {
 
         ERROR("ERROR"),
 
+        STOPPED("STOPPED"),
+
         /* PROGRESS STATUS */
 
         IN_PROGRESS("IN PROGRESS"),

@@ -11,9 +11,15 @@
       <md-divider></md-divider>
       <md-card-content>
         <div *ngIf="tJobExec">
-          <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+          <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
+            title="Executing TJob">
           <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
           <span style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
+          <span flex></span>
+          <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution" [disabled]="disableStopBtn">
+            <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
+            <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
+          </button>
         </div>
       </md-card-content>
     </md-card>
@@ -22,12 +28,12 @@
 
 
 <!-- logs & Metrics -->
-<etm-logs-metrics-view #logsAndMetrics [live]="true"></etm-logs-metrics-view>
+<etm-logs-metrics-view #logsAndMetrics [live]="true "></etm-logs-metrics-view>
 
 <!-- Esm Services Instances -->
-<div *ngFor="let serviceInstance of serviceInstances">
-  <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+<div *ngFor="let serviceInstance of serviceInstances ">
+  <esm-service-detail [serviceInstance]="serviceInstance " [standaloneService]="false "></esm-service-detail>
 </div>
 
 <!-- Execution files -->
-<etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager>
+<etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>

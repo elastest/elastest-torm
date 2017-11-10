@@ -40,6 +40,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     color: '',
   };
 
+  disableStopBtn: boolean = false;
+
   constructor(private titlesService: TitlesService,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
@@ -138,5 +140,20 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
     );
   }
-}
 
+  stopExec() {
+    this.disableStopBtn = true;
+    this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec)
+      .subscribe(
+      (tJobExec: TJobExecModel) => {
+        this.tJobExec = tJobExec;
+        let msg: string = 'The execution has been stopped';
+        if (!this.tJobExec.stopped()) {
+          msg = 'The execution has finished before stopping it';
+        }
+        this.elastestESService.popupService.openSnackBar(msg);
+      },
+      (error) => this.disableStopBtn = false
+      );
+  }
+}

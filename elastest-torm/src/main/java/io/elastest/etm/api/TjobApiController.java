@@ -23,7 +23,6 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
@@ -43,6 +42,10 @@ public class TjobApiController implements TjobApi {
     @Autowired
     EsmService esmService;
 
+    /*****************/
+    /***** TJobs *****/
+    /*****************/
+
     @JsonView(BasicAttTJob.class)
     public ResponseEntity<TJob> createTJob(
             @ApiParam(value = "TJob object that needs to create", required = true) @Valid @RequestBody TJob body) {
@@ -60,22 +63,12 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<Long> deleteTJobExecution(
-            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+    @JsonView(BasicAttTJob.class)
+    public ResponseEntity<TJob> modifyTJob(
+            @ApiParam(value = "Tjob object that needs to modify.", required = true) @Valid @RequestBody TJob body) {
 
-        tJobService.deleteTJobExec(tJobExecId);
-        return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
-    }
-
-    @JsonView(BasicAttTJobExec.class)
-    public ResponseEntity<TJobExecution> execTJob(
-            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters) {
-
-        TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters);
-        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
+        TJob tJob = tJobService.modifyTJob(body);
+        return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
     @JsonView(BasicAttTJob.class)
@@ -91,6 +84,28 @@ public class TjobApiController implements TjobApi {
 
         TJob tJob = tJobService.getTJobById(tJobId);
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
+    }
+
+    /*********************/
+    /***** TJobExecs *****/
+    /*********************/
+
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<TJobExecution> execTJob(
+            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters) {
+
+        TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters);
+        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
+    }
+
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<Long> deleteTJobExecution(
+            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+
+        tJobService.deleteTJobExec(tJobExecId);
+        return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
     }
 
     @JsonView(BasicAttTJobExec.class)
@@ -111,14 +126,6 @@ public class TjobApiController implements TjobApi {
                 .getTJobsExecutionsByTJobId(tJobId);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
-    }
-
-    @JsonView(BasicAttTJob.class)
-    public ResponseEntity<TJob> modifyTJob(
-            @ApiParam(value = "Tjob object that needs to modify.", required = true) @Valid @RequestBody TJob body) {
-
-        TJob tJob = tJobService.modifyTJob(body);
-        return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
     @Override
@@ -151,6 +158,14 @@ public class TjobApiController implements TjobApi {
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
+    }
+
+    @Override
+    public ResponseEntity<TJobExecution> stopTJobExecution(
+            @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+        TJobExecution tJobExec = tJobService.stopTJobExec(tJobExecId);        
+        return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 
 }

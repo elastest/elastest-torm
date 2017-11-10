@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +69,8 @@ public class TJobExecOrchestratorService {
     }
 
     @Async
-    public void executeTJob(TJobExecution tJobExec, String tJobServices) {
+    public Future<Void> executeTJob(TJobExecution tJobExec,
+            String tJobServices) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
@@ -91,6 +94,7 @@ public class TJobExecOrchestratorService {
             }
 
             List<ReportTestSuite> testSuites;
+
             // Start Test
             resultMsg = "Executing Test";
             updateTJobExecResultStatus(tJobExec,
@@ -124,6 +128,23 @@ public class TJobExecOrchestratorService {
         // Saving execution data
         tJobExecRepositoryImpl.save(tJobExec);
         dbmanager.unbindSession();
+        return new AsyncResult<Void>(null);
+    }
+
+    public TJobExecution forceEndExecution(TJobExecution tJobExec) {
+        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        DockerExecution dockerExec = new DockerExecution(tJobExec);
+        dockerService.configureDocker(dockerExec);
+        try {
+            dockerService.endAllExec(dockerExec);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String resultMsg = "Stopped";
+        updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STOPPED,
+                resultMsg);
+        return tJobExec;
     }
 
     public void saveFinishStatus(TJobExecution tJobExec,
@@ -345,7 +366,9 @@ public class TJobExecOrchestratorService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            if (!e.getMessage().equals("stopped by user")) {
+                e.printStackTrace();
+            }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
             dockerService.endSutExec(dockerExec);
             sutService.modifySutExec(dockerExec.getSutExec());

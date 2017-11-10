@@ -57,11 +57,15 @@ export class TJobExecModel {
     }
 
     finished(): boolean {
-        return this.result === 'SUCCESS' || this.result === 'FAIL' || this.result === 'ERROR';
+        return this.result === 'SUCCESS' || this.result === 'FAIL' || this.result === 'ERROR' || this.result === 'STOPPED';
     }
 
     starting(): boolean {
         return this.result === 'IN PROGRESS' || this.result === 'STARTING TSS' || this.result === 'WAITING TSS';
+    }
+
+    stopped(): boolean {
+        return this.result === 'STOPPED';
     }
 
 
@@ -82,6 +86,10 @@ export class TJobExecModel {
                     break;
                 case 'FAIL':
                     icon.name = 'error';
+                    icon.color = '#c82a0e';
+                    break;
+                case 'STOPPED':
+                    icon.name = 'indeterminate_check_box';
                     icon.color = '#c82a0e';
                     break;
                 case 'ERROR':

@@ -26,6 +26,10 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "tjob")
 public interface TjobApi extends EtmApiRoot {
 
+    /*****************/
+    /***** TJobs *****/
+    /*****************/
+
     @ApiOperation(value = "Create a new TJob", notes = "Creates a new TJob associated with an existing project. This method,"
             + " at least must receive as input a JSON with the following fields: TJob name, imageName, external and project.", response = TJob.class, tags = {
                     "TJob", })
@@ -47,30 +51,6 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<Long> deleteTJob(
             @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId);
 
-    @ApiOperation(value = "Deletes a TJob Execution", notes = "Deletes the TJob Execution for a given id.", response = Long.class, tags = {
-            "TJob Execution", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = Long.class),
-            @ApiResponse(code = 404, message = "TJob Execution not found", response = Long.class) })
-    @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}", method = RequestMethod.DELETE)
-    ResponseEntity<Long> deleteTJobExecution(
-            @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
-
-    @ApiOperation(value = "Executes a TJob", notes = "Execute the TJob with the received id.", response = Long.class, tags = {
-            "TJob Execution", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
-            @ApiResponse(code = 400, message = "Invalid ID supplied"),
-            @ApiResponse(code = 404, message = "TJob not found"),
-            @ApiResponse(code = 500, message = "Server Error") })
-    @RequestMapping(value = "/tjob/{tJobId}/exec", consumes = {
-            "application/json" }, produces = {
-                    "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<TJobExecution> execTJob(
-            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters);
-
     @ApiOperation(value = "Returns all tjobs", notes = "Returns all TJobs.", response = TJob.class, responseContainer = "List", tags = {
             "TJob", })
     @ApiResponses(value = {
@@ -90,6 +70,45 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<TJob> getTJobById(
             @ApiParam(value = "TJob id.", required = true) @PathVariable("tJobId") Long tJobId);
 
+    @ApiOperation(value = "Modifies a existing TJob", notes = "Modifies the TJob that matches the received TJob.", response = TJob.class, tags = {
+            "TJob", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "TJob Mofification Successful", response = TJob.class),
+            @ApiResponse(code = 405, message = "Invalid input", response = TJob.class) })
+    @RequestMapping(value = "/tjob", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.PUT)
+    ResponseEntity<TJob> modifyTJob(
+            @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody TJob body);
+
+    /*********************/
+    /***** TJobExecs *****/
+    /*********************/
+
+    @ApiOperation(value = "Executes a TJob", notes = "Execute the TJob with the received id.", response = Long.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+            @ApiResponse(code = 400, message = "Invalid ID supplied"),
+            @ApiResponse(code = 404, message = "TJob not found"),
+            @ApiResponse(code = 500, message = "Server Error") })
+    @RequestMapping(value = "/tjob/{tJobId}/exec", consumes = {
+            "application/json" }, produces = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<TJobExecution> execTJob(
+            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters);
+
+    @ApiOperation(value = "Deletes a TJob Execution", notes = "Deletes the TJob Execution for a given id.", response = Long.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Long.class),
+            @ApiResponse(code = 404, message = "TJob Execution not found", response = Long.class) })
+    @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}", method = RequestMethod.DELETE)
+    ResponseEntity<Long> deleteTJobExecution(
+            @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
+
     @ApiOperation(value = "Returns a TJob Execution", notes = "Returns the TJob Execution for a given id.", response = TJobExecution.class, tags = {
             "TJob Execution", })
     @ApiResponses(value = {
@@ -101,6 +120,17 @@ public interface TjobApi extends EtmApiRoot {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
+    @ApiOperation(value = "Stops a TJob Execution", notes = "Stops the TJob Execution for a given id.", response = TJobExecution.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Long.class),
+            @ApiResponse(code = 404, message = "TJob Execution not found", response = Long.class) })
+    @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}/stop", produces = {
+            "application/json" }, method = RequestMethod.DELETE)
+    ResponseEntity<TJobExecution> stopTJobExecution(
+            @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
+            @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
+
     @ApiOperation(value = "Returns all TJob Executions of a TJob", notes = "Returns all TJob Executions of a TJob.", response = TJobExecution.class, responseContainer = "List", tags = {
             "TJob Execution", })
     @ApiResponses(value = {
@@ -110,17 +140,6 @@ public interface TjobApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
-
-    @ApiOperation(value = "Modifies a existing TJob", notes = "Modifies the TJob that matches the received TJob.", response = TJob.class, tags = {
-            "TJob", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "TJob Mofification Successful", response = TJob.class),
-            @ApiResponse(code = 405, message = "Invalid input", response = TJob.class) })
-    @RequestMapping(value = "/tjob", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.PUT)
-    ResponseEntity<TJob> modifyTJob(
-            @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody TJob body);
 
     @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
             "TJob Execution", })

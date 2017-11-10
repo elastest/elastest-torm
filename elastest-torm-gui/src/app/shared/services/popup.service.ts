@@ -6,7 +6,7 @@ export class PopupService {
     constructor(private snackBar: MdSnackBar,
     ) { }
 
-    openSnackBar(message: string, action: string, duration?: number, extraClasses?: any[]) {
+    openSnackBar(message: string, action: string = 'OK', duration?: number, extraClasses?: any[]) {
         return this.snackBar.open(message, action, {
             duration: duration ? duration : 3500,
             extraClasses: extraClasses ? extraClasses : []
