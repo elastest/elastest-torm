@@ -167,12 +167,18 @@ To stop the services, you must run the following command in a shell one of the f
 
 #### Start ElasTest TORM Server Application
 
-First, if you are on Windows with Docker Toolbox installed, you must add the environment variable `ET_PUBLIC_HOST=docker-machine-ip`, where the *docker-machine-ip* value, should be changed to the value returned by the `docker-machine ip`.
+Depending on whether you are using [Docker](https://www.docker.com/what-docker) or [Docker Toolbox Tool](https://www.docker.com/products/docker-toolbox), you must define the following environment variables:
+
+|   | With Docker Toolbox  | With Docker  |
+|---|---|---|
+| Environment Variables  |<ul><li>`ET_PUBLIC_HOST=docker-machine-ip` => VM Ip where ElasTest is running. The *docker-machine-ip* value, should be changed to the value returned by the execution of the `docker-machine ip` command. </li><li>`ET_IN_PROD`=false => The false value of this variable indicates that you want to run ElasTest in development mode</li><li>`DOCKER_TLS_VERIFY=1`</li><li>`SET DOCKER_HOST=tcp://docker-machine-ip:2376` (replace docker-machine-ip with result of execute the command `docker-machine ip`)</li><li>`DOCKER_CERT_PATH=/Users/logedUser\.docker\machine\machines\default`</li></ul>  |<ul><li>`ET_IN_PROD`=false => The false value of this variable indicates that you want to run ElasTest in development mode.</li></ul> |
+
 
 You can develop ElasTest TORM Server Application using an editor and the command line or using Eclipse IDE:
 * Using *Eclipse IDE*: 
   * Load project in the IDE: 
     * Import *elastest-torm* project from local Git Repository using `File > Import... > Maven > Import existing project` option and select the `/git/elastest-torm/elastest-torm` folder.
+  * Define the environment variables. Go to `Run -> Run Configurations...` and Select tab `Environment`. You can create the variables you need by clicking on the button with the text `New`.
   * Compile and execute the project:
     * Right click over the project and select `Run as...> Java Application` and select class `ElastestETMSpringBoot`.
 
@@ -181,7 +187,7 @@ You can develop ElasTest TORM Server Application using an editor and the command
       * Go to the root directory of the project with `cd /git/elastest-torm/elastest-torm`
       * Configure the property file in `src/main/resources/application.properties`
       * Compile the project `mvn clean package`
-      * Execute command `mvn spring-boot:run`
+      * Execute the expring boot application with the command `mvn spring-boot:run` by adding the necessary environmet variables `mvn spring-boot:run -DmyEnvVariable=value....`
 
      >**Note:** Building the project may require root privileges for running the test `DockerServiceItTest`. Either execute the TORM as root or skip such test.
      
