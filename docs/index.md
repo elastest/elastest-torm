@@ -135,7 +135,7 @@ First, you need to start the ElasTest Services, before you can execute TORM Serv
 #### Start ElasTest TORM Services using ElasTest Platform
 If you choose this option, you only need to execute the following command:
 
-```docker run --rm -v /var/run/docker.sock:/var/run/docker.sock elastest/platform start --lite --dev=etm -l```
+```docker run --rm -v /var/run/docker.sock:/var/run/docker.sock elastest/platform start --lite -l```
 
 >**Note:** For more information about this command you can see the ElasTest Platform [documentation](https://github.com/elastest/elastest-toolbox/blob/master/docs/index.md#start-command).
 
