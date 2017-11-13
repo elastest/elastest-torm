@@ -34,9 +34,10 @@ export class TjobManagerComponent implements OnInit {
   tJobExecColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'result', label: 'Result' },
-    { name: 'duration', label: 'Duration' },
+    // { name: 'duration', label: 'Duration' },
+    { name: 'startDate', label: 'Start Date' },
     { name: 'sutExecution', label: 'Sut Execution' },
-    { name: 'error', label: 'Error' },
+    // { name: 'error', label: 'Error' },
     { name: 'logIndex', label: 'Log Index' },
     { name: 'options', label: 'Options' },
   ];

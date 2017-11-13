@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class TJobService {
     public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters) {
         TJob tjob = tJobRepo.findOne(tJobId);
         TJobExecution tJobExec = new TJobExecution();
+        tJobExec.setStartDate(new Date());
         tJobExec.setTjob(tjob);
         tJobExec.setParameters(parameters);
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -143,7 +145,7 @@ public class TJobService {
     public TJob getTJobByName(String name) {
         return tJobRepo.findByName(name);
     }
-    
+
     public List<TJobExecution> getAllTJobExecs() {
         return tJobExecRepositoryImpl.findAll();
     }

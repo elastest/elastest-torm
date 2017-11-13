@@ -127,6 +127,7 @@ export class ETModelsTransformServices {
         newTJobExec.testSuite = tjobExec.testSuite;
         newTJobExec.parameters = tjobExec.parameters;
         newTJobExec.resultMsg = tjobExec.resultMsg;
+        newTJobExec.startDate = new Date(tjobExec.startDate);
 
         return newTJobExec;
     }

@@ -19,8 +19,8 @@
                         <h4 [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
                     <span flex-gt-xs="25">
-                        <md-card-subtitle>Duration</md-card-subtitle>
-                        <h4>{{tJobExec.duration}}</h4>
+                        <md-card-subtitle>Start Date</md-card-subtitle>
+                        <h4>{{ tJobExec.startDate }}</h4>
                     </span>
                     <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
                         <md-card-subtitle>Sut Execution</md-card-subtitle>
@@ -29,10 +29,6 @@
                     <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
                         <md-card-subtitle>Sut Execution</md-card-subtitle>
                         <h4>{{tJobExec.sutExec.id}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Error</md-card-subtitle>
-                        <h4>{{tJobExec.error}}</h4>
                     </span>
                     <span flex-gt-xs="25">
                         <md-card-subtitle>Log Index</md-card-subtitle>

@@ -60,7 +60,7 @@ export class TjobExecManagerComponent implements OnInit {
 
         this.statusIcon = this.tJobExec.getResultIcon();
         this.titlesService.setTopTitle(tJobExec.getRouteString());
-        
+
         this.tJobService.getTJob(this.tJobId.toString())
           .subscribe(
           (tJob: TJobModel) => {

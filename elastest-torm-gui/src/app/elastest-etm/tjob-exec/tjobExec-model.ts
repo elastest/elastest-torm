@@ -14,6 +14,7 @@ export class TJobExecModel {
     testSuite: any;
     parameters: any[];
     resultMsg: string;
+    startDate: Date;
 
     constructor() {
         this.id = 0;
@@ -26,6 +27,7 @@ export class TJobExecModel {
         this.testSuite = undefined;
         this.parameters = [];
         this.resultMsg = '';
+        this.startDate = undefined;
     }
 
     public hasSutExec(): boolean {

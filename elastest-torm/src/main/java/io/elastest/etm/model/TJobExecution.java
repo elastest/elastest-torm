@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,11 @@ public class TJobExecution {
             BasicAttProject.class })
     @Column(name = "resultMsg")
     private String resultMsg = null;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "startDate")
+    private Date startDate = null;
 
     // Constructors
     public TJobExecution() {
@@ -351,6 +357,18 @@ public class TJobExecution {
         this.resultMsg = resultMsg;
     }
 
+    /*
+     * startDate get/set
+     */
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
     // Others
     @Override
     public boolean equals(java.lang.Object o) {
@@ -369,13 +387,14 @@ public class TJobExecution {
                 && Objects.equals(this.logIndex, tjobExecution.logIndex)
                 && Objects.equals(this.testSuite, tjobExecution.testSuite)
                 && Objects.equals(this.parameters, tjobExecution.parameters)
-                && Objects.equals(this.resultMsg, tjobExecution.resultMsg);
+                && Objects.equals(this.resultMsg, tjobExecution.resultMsg)
+                && Objects.equals(this.startDate, tjobExecution.startDate);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
-                testSuite, parameters, resultMsg);
+                testSuite, parameters, resultMsg, startDate);
     }
 
     @Override
@@ -397,6 +416,8 @@ public class TJobExecution {
         sb.append("    parameters: ").append(toIndentedString(parameters))
                 .append("\n");
         sb.append("    resultMsg: ").append(toIndentedString(resultMsg))
+                .append("\n");
+        sb.append("    startDate: ").append(toIndentedString(startDate))
                 .append("\n");
         sb.append("}");
         return sb.toString();
