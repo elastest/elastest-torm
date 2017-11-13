@@ -1,3 +1,6 @@
+import {
+    TJobExecsManagerComponent,
+} from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
 import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
 import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
@@ -140,19 +143,16 @@ const routes: Routes = [
                         path: '',
                         component: TJobsManagerComponent,
                     },
-                    {
-                        path: 'edit/:id',
-                        component: TJobFormComponent,
-                    },
-                    {
-                        path: 'edit',
-                        component: TJobFormComponent,
-                    },
                 ]
             },
             {
-                path: 'tojobs',
-                component: TJobsManagerComponent,
+                path: 'tjobexecs',
+                children: [
+                    {
+                        path: '',
+                        component: TJobExecsManagerComponent,
+                    },
+                ]
             },
             {
                 path: 'suts',

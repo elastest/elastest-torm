@@ -86,9 +86,11 @@ export class TjobManagerComponent implements OnInit {
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
         this.tJobExecService.deleteTJobExecution(this.tJob, tJobExec).subscribe(
-          (tJob) => this.reloadTJob(),
-          (error) => console.log(error)
-        );
+          (exec) => {
+            this.tJobExecService.popupService.openSnackBar('TJob Execution Nº' + tJobExec.id + ' has been removed successfully!');
+            this.reloadTJob();
+          },
+          (error) => this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted'));
       }
     });
   }

@@ -1,3 +1,4 @@
+import { PopupService } from '../../shared/services/popup.service';
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
 import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
 import { DashboardConfigModel } from '../tjob/dashboard-config-model';
@@ -15,7 +16,8 @@ import 'rxjs/Rx';
 export class TJobExecService {
   constructor(
     private http: Http, private configurationService: ConfigurationService,
-    private eTModelsTransformServices: ETModelsTransformServices
+    private eTModelsTransformServices: ETModelsTransformServices,
+    public popupService: PopupService,
   ) { }
 
   //  TJobExecution functions
@@ -43,11 +45,23 @@ export class TJobExecService {
     .map((response) => console.log(response.json()));
   }*/
 
-
   public getTJobExecution(tJob: TJobModel, idTJobExecution: number) {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
+  public getAllTJobExecs() {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs';
+    return this.http.get(url)
+      .map(
+      (response) => {
+        let data: any = response.json();
+        if (data !== undefined && data !== null) {
+          return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+        } else {
+          throw new Error('Empty response. There are not TJobExecutions or you don\'t have permissions to access them');
+        }
+      });
+  }
   public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number) {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url)

@@ -55,6 +55,7 @@ import { ElastestEceComponent } from './elastest-test-engines/elastest-ece/elast
 import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { FilesManagerComponent } from './elastest-etm/files-manager/files-manager.component';
 import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
+import { TJobExecsManagerComponent } from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -82,6 +83,7 @@ const httpInterceptorProviders: Type<any>[] = [
     TestEngineViewComponent,
     FilesManagerComponent,
     ProjectManagerComponent,
+    TJobExecsManagerComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

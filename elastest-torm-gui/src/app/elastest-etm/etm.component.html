@@ -31,6 +31,11 @@
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
+      <a md-list-item md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/tjobexecs']" id="tjobexecs">
+        <md-icon md-list-icon>queue_play_next</md-icon>
+        TJob Execs
+      </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
         [routerLink]="['/test-engines']" id="nav_test_engines">

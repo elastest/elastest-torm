@@ -1,3 +1,6 @@
+import { TitlesService } from '../../../shared/services/titles.service';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob.service';
 import { Component, OnInit } from '@angular/core';
 
@@ -8,11 +11,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TJobsManagerComponent implements OnInit {
 
-  idTJob: number;
-
-  constructor(private tJobService: TJobService) { }
+  constructor(
+    private titlesService: TitlesService, private tJobService: TJobService, private tJobExecService: TJobExecService,
+  ) { }
 
   ngOnInit() {
+    this.titlesService.setHeadAndTopTitle('TJobs');
   }
 
 

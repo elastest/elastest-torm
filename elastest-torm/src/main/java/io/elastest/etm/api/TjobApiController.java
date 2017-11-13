@@ -129,6 +129,14 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getAllTJobExecutions() {
+        List<TJobExecution> tjobExecList = tJobService.getAllTJobExecs();
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
@@ -165,8 +173,7 @@ public class TjobApiController implements TjobApi {
     public ResponseEntity<TJobExecution> stopTJobExecution(
             @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
-        TJobExecution tJobExec = tJobService.stopTJobExec(tJobExecId);        
+        TJobExecution tJobExec = tJobService.stopTJobExec(tJobExecId);
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
-
 }
