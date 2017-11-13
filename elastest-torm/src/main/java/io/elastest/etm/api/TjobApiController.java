@@ -161,6 +161,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
+    @JsonView(BasicAttTJobExec.class)
     public ResponseEntity<TJobExecution> stopTJobExecution(
             @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {

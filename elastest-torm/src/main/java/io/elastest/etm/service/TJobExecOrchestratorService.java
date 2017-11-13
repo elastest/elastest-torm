@@ -308,9 +308,14 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    /**** SuT Methods ****/
+    /****
+     * SuT Methods
+     * 
+     * @throws TJobStoppedException
+     ****/
 
-    public void initSut(DockerExecution dockerExec) {
+    public void initSut(DockerExecution dockerExec)
+            throws TJobStoppedException {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         SutExecution sutExec;
 
@@ -318,7 +323,11 @@ public class TJobExecOrchestratorService {
 
         // If it's MANAGED SuT
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-            sutExec = startManagedSut(dockerExec);
+            try {
+                sutExec = startManagedSut(dockerExec);
+            } catch (TJobStoppedException e) {
+                throw e;
+            }
         }
         // If it's DEPLOYED SuT
         else {
@@ -335,7 +344,8 @@ public class TJobExecOrchestratorService {
         dockerExec.setSutExec(sutExec);
     }
 
-    private SutExecution startManagedSut(DockerExecution dockerExec) {
+    private SutExecution startManagedSut(DockerExecution dockerExec)
+            throws TJobStoppedException {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
@@ -370,7 +380,7 @@ public class TJobExecOrchestratorService {
             }
 
         } catch (TJobStoppedException e) {
-            // Exception stopping
+            throw e;
         } catch (Exception e) {
             logger.error("Exception during TJob execution", e);
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
