@@ -29,6 +29,7 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -106,7 +107,7 @@ public class DockerService2 {
     public String runDockerContainer(DockerClient dockerClient,
             String imageName, List<String> envs, String containerName,
             String targetContainerName, String networkName, Ports portBindings,
-            int listenPort) {
+            int listenPort) throws TJobStoppedException {
         try {
             dockerClient.pullImageCmd(imageName)
                     .exec(new PullImageResultCallback()).awaitSuccess();
@@ -116,6 +117,10 @@ public class DockerService2 {
             } else {
                 throw isee;
             }
+        } catch (DockerClientException e) {
+            logger.info("Error on Pulling " + imageName
+                    + " image. Probably because the user has stopped the execution");
+            throw new TJobStoppedException();
         }
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageName).withName(containerName)
@@ -154,7 +159,8 @@ public class DockerService2 {
         return "sut_" + dockerExec.getExecutionId();
     }
 
-    public void createSutContainer(DockerExecution dockerExec) {
+    public void createSutContainer(DockerExecution dockerExec)
+            throws TJobStoppedException {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String sutImage = appImage;
         String envVar = "";
@@ -179,6 +185,10 @@ public class DockerService2 {
                 logger.error("Error pulling the image: {}", isee.getMessage());
                 throw isee;
             }
+        } catch (DockerClientException e) {
+            logger.info(
+                    "Error on Pulling SuT image. Probably because the user has stopped the execution");
+            throw new TJobStoppedException();
         }
 
         dockerExec.setAppContainer(dockerExec.getDockerClient()
@@ -223,7 +233,7 @@ public class DockerService2 {
         } catch (DockerClientException e) {
             logger.info(
                     "Error on Pulling CheckSut. Probably because the user has stopped the execution");
-            throw new Exception("stopped by user"); // TODO Customize Exception
+            throw new TJobStoppedException();
         }
         String checkName = getCheckName(dockerExec);
         String checkContainerId = dockerExec.getDockerClient()
@@ -237,10 +247,12 @@ public class DockerService2 {
             dockerExec.getDockerClient().waitContainerCmd(checkContainerId)
                     .exec(new WaitContainerResultCallback()).awaitStatusCode();
             logger.info("Sut is ready " + dockerExec.getExecutionId());
-        } catch (Exception e) {
+
+        } catch (DockerClientException e) {
             logger.info(
                     "Error on Waiting for CheckSut. Probably because the user has stopped the execution");
-            throw new Exception("stopped by user"); // TODO Customize Exception
+            throw new TJobStoppedException();
+        } catch (Exception e) {
         }
         endCheckSutExec(dockerExec);
     }
@@ -249,7 +261,8 @@ public class DockerService2 {
         return "test_" + dockerExec.getExecutionId();
     }
 
-    public List<ReportTestSuite> executeTest(DockerExecution dockerExec) {
+    public List<ReportTestSuite> executeTest(DockerExecution dockerExec)
+            throws Exception {
         try {
             logger.info("Starting test " + dockerExec.getExecutionId());
             String testImage = dockerExec.gettJobexec().getTjob()
@@ -301,8 +314,10 @@ public class DockerService2 {
                     logger.info("Docker image does not exits locally.");
                     throw isee;
                 }
-            } catch (DockerClientException dce) {
-                logger.info("docker exception: " + dce.getMessage());
+            } catch (DockerClientException e) {
+                logger.info(
+                        "Error on Pulling TJob image. Probably because the user has stopped the execution");
+                throw new TJobStoppedException();
             }
             String testName = getTestName(dockerExec);
             CreateContainerResponse testContainer = dockerExec.getDockerClient()
@@ -336,6 +351,10 @@ public class DockerService2 {
 
             return getTestResults(dockerExec);
 
+        } catch (DockerClientException dce) {
+            throw new TJobStoppedException();
+        } catch (TJobStoppedException dce) {
+            throw new TJobStoppedException();
         } catch (Exception e) {
             e.printStackTrace();
             try {
@@ -384,61 +403,19 @@ public class DockerService2 {
     }
 
     public void endTestExec(DockerExecution dockerExec) {
-        if (existsContainer(getTestName(dockerExec), dockerExec)) {
-            try {
-                logger.info(
-                        "Ending test execution " + dockerExec.getExecutionId());
-                try {
-                    dockerExec.getDockerClient()
-                            .stopContainerCmd(dockerExec.getTestContainerId())
-                            .exec();
-                } catch (Exception e) {
-                }
-                dockerExec.getDockerClient()
-                        .removeContainerCmd(dockerExec.getTestContainerId())
-                        .exec();
-                createdContainers.remove(dockerExec.getTestContainerId());
-            } catch (Exception e) {
-                logger.info("Error on ending test execution  "
-                        + dockerExec.getExecutionId());
-            }
-        } else {
-            logger.info("Ending test execution " + dockerExec.getExecutionId()
-                    + " -> Not started. ");
-        }
+        endContainer(dockerExec, getTestName(dockerExec));
     }
 
     public void endSutExec(DockerExecution dockerExec) {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
         // If it's Managed Sut, and container is created
-        if (sut.getSutType() != SutTypeEnum.DEPLOYED
-                && existsContainer(getSutName(dockerExec), dockerExec)) {
-
+        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
             updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
-            try {
-                logger.info(
-                        "Ending sut execution " + dockerExec.getExecutionId());
-                try {
-                    dockerExec.getDockerClient()
-                            .stopContainerCmd(dockerExec.getAppContainerId())
-                            .exec();
-                } catch (Exception e) {
-                }
-                dockerExec.getDockerClient()
-                        .removeContainerCmd(dockerExec.getAppContainerId())
-                        .exec();
-                createdContainers.remove(dockerExec.getAppContainerId());
-                updateSutExecDeployStatus(dockerExec,
-                        DeployStatusEnum.UNDEPLOYED);
-            } catch (Exception e) {
-                updateSutExecDeployStatus(dockerExec, DeployStatusEnum.ERROR);
-                logger.info("Error on ending Sut execution "
-                        + dockerExec.getExecutionId());
-            }
+            endContainer(dockerExec, getSutName(dockerExec));
+            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
         } else {
-            logger.info("Ending sut execution " + dockerExec.getExecutionId()
-                    + " -> Not started. ");
+            logger.info("SuT not ended by ElasTest -> Deployed SuT");
         }
         endCheckSutExec(dockerExec);
     }
@@ -454,25 +431,41 @@ public class DockerService2 {
     }
 
     public void endCheckSutExec(DockerExecution dockerExec) {
-        if (existsContainer(getCheckName(dockerExec), dockerExec)) {
-            String checkContainerId = getContainerIdByName(
-                    getCheckName(dockerExec), dockerExec);
+        endContainer(dockerExec, getCheckName(dockerExec));
+    }
+
+    public void endContainer(DockerExecution dockerExec, String containerName) {
+        if (existsContainer(containerName, dockerExec)) {
+            String containerId = getContainerIdByName(containerName,
+                    dockerExec);
             try {
-                try {
-                    dockerExec.getDockerClient()
-                            .stopContainerCmd(checkContainerId).exec();
-                } catch (Exception e) {
-                }
-                dockerExec.getDockerClient()
-                        .removeContainerCmd(checkContainerId).exec();
-                createdContainers.remove(checkContainerId);
+                logger.info("Stopping " + containerName + " container");
+                dockerExec.getDockerClient().stopContainerCmd(containerId)
+                        .exec();
+            } catch (DockerClientException e) {
+                // throw new TJobStoppedException();
+            } catch (NotModifiedException e) {
+                logger.info(
+                        "Container " + containerName + " is already stopped");
             } catch (Exception e) {
-                logger.info("Error on ending Check execution "
-                        + dockerExec.getExecutionId());
+                logger.info(
+                        "Error during stop " + containerName + " container");
+            } finally {
+                try {
+                    logger.info("Removing " + containerName + " container");
+                    dockerExec.getDockerClient().removeContainerCmd(containerId)
+                            .exec();
+                } catch (DockerClientException e) {
+                    // throw new TJobStoppedException();
+                } catch (Exception e) {
+                    logger.info("Error during remove " + containerName
+                            + "container");
+                }
+                createdContainers.remove(containerId);
             }
         } else {
-            logger.info("Ending sut execution " + dockerExec.getExecutionId()
-                    + " -> Not started. ");
+            logger.info("Could not end " + containerName
+                    + " container -> Not started.");
         }
     }
 

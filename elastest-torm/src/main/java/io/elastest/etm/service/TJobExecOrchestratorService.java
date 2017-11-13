@@ -113,8 +113,10 @@ public class TJobExecOrchestratorService {
             }
 
             saveFinishStatus(tJobExec, dockerExec);
+        } catch (TJobStoppedException e) {
+            // Stop exception
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error during Test execution", e);
             if (!e.getMessage().equals("end error")) {
                 resultMsg = "Failure";
                 updateTJobExecResultStatus(tJobExec,
@@ -137,8 +139,10 @@ public class TJobExecOrchestratorService {
         dockerService.configureDocker(dockerExec);
         try {
             dockerService.endAllExec(dockerExec);
+        } catch (TJobStoppedException e) {
+            // Stop exception
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception during Force End execution", e);
         }
 
         String resultMsg = "Stopped";
@@ -365,10 +369,10 @@ public class TJobExecOrchestratorService {
                 dockerService.checkSut(dockerExec, sutIP, sutPort);
             }
 
+        } catch (TJobStoppedException e) {
+            // Exception stopping
         } catch (Exception e) {
-            if (!e.getMessage().equals("stopped by user")) {
-                e.printStackTrace();
-            }
+            logger.error("Exception during TJob execution", e);
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
             dockerService.endSutExec(dockerExec);
             sutService.modifySutExec(dockerExec.getSutExec());

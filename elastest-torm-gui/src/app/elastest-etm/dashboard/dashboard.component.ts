@@ -125,7 +125,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
         this.tJobExec.resultMsg = data.msg;
         if (this.tJobExec.finished()) {
           this.statusIcon = this.tJobExec.getResultIcon();
-          console.log('TJob Execution Finished');
+          console.log('TJob Execution Finished with status ' + this.tJobExec.result);
         } else {
           setTimeout(() => {
             this.checkResultStatus();

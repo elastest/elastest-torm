@@ -105,12 +105,6 @@ public class TJobService {
             cancelExecuted = asyncExec.cancel(true);
             // If is not cancelled, stop async Exec and stop services
             if (cancelExecuted) {
-                int counter = 200;
-                while (!asyncExec.isDone() && counter > 0) {
-                    logger.info("Not stopped yet");
-                    Thread.sleep(2000);
-                    counter++;
-                }
                 logger.info("Forcing Execution Stop");
                 try {
                     tJobExec = tJobExecOrchestratorService
@@ -124,7 +118,7 @@ public class TJobService {
             }
             asyncExecs.remove(mapKey);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info("Error during forcing stop", e);
         }
         return tJobExec;
     }
