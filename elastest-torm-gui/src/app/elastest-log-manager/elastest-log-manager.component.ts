@@ -33,9 +33,9 @@ export class ElastestLogManagerComponent implements OnInit {
   public onlyTable: boolean = false;
   public goToLogManager: string;
 
-  public indices = [];
-  public defaultFrom = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
-  public defaultTo = new Date(new Date().valueOf() + (2 * 60 * 60 * 1000));
+  public indices: any[] = [];
+  public defaultFrom: Date = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
+  public defaultTo: Date = new Date(new Date().valueOf() + (2 * 60 * 60 * 1000));
 
   // show/hide the grid and spinner
   public rowData: any[] = [];
@@ -113,7 +113,10 @@ export class ElastestLogManagerComponent implements OnInit {
     private configurationService: ConfigurationService, private titlesService: TitlesService,
   ) {
     this.urlElastic = this.configurationService.configModel.hostElasticsearch;
-
+    this._elasticSearchService.getIndices()
+      .subscribe(
+      (indices: any[]) => this.indices = indices,
+    );
     let params: any = router.parseUrl(router.url).queryParams;
 
     this.showGrid = false;
@@ -171,7 +174,6 @@ export class ElastestLogManagerComponent implements OnInit {
       this.testlogsType = true;
     }
 
-
     if (params.debugLevel !== undefined && params.debugLevel !== null && params.debugLevel === 'false') {
       autoSearch = true;
       this.debugLevel = false;
@@ -218,7 +220,7 @@ export class ElastestLogManagerComponent implements OnInit {
       this.search(dateToInputLiteral(this.defaultFrom), dateToInputLiteral(this.defaultTo));
     }
 
-    let url = this.urlElastic + '_mapping';
+    let url: string = this.urlElastic + '_mapping';
   }
 
   ngOnInit() {
@@ -262,12 +264,12 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   // Used in html file
-  public getDefaultFromValue() {
+  public getDefaultFromValue(): string {
     return dateToInputLiteral(this.defaultFrom);
   }
 
   // Used in html file
-  public getDefaultToValue() {
+  public getDefaultToValue(): string {
     return dateToInputLiteral(this.defaultTo);
   }
 
@@ -380,7 +382,7 @@ export class ElastestLogManagerComponent implements OnInit {
       }
     };
 
-    let url = this.urlElastic + this.indexName + '/_search?&filter_path=hits.hits._source,hits.hits._type,hits';
+    let url: string = this.urlElastic + this.indexName + '/_search?&filter_path=hits.hits._source,hits.hits._type,hits';
 
     console.log('URL:', url);
 
@@ -410,13 +412,12 @@ export class ElastestLogManagerComponent implements OnInit {
         } else {
           theQuery['search_after'] = [this.rowData[this.rowData.length - 1].sortId];
         }
-      }
-      else { //Add more from row
+      } else { //Add more from row
         theQuery['search_after'] = [this.dataForAdding.sortId];
       }
     }
 
-    this._elasticSearchService.internalSearch(url, theQuery, this.maxResults, append)
+    this._elasticSearchService.internalSearch(url, theQuery, append)
       .finally(
       () => { this.emptyTableText = this.emptyTableTextDefault; }
       )
@@ -560,8 +561,7 @@ export class ElastestLogManagerComponent implements OnInit {
           logRow = { exec, type, time, message, level, component, host, sortId, position };
           this.rowData.push(logRow);
           loaded = true;
-        }
-        else { // Add from row selected
+        } else { // Add from row selected
           position = newPosition;
           logRow = { exec, type, time, message, level, component, host, sortId, position };
           if (counter > 0
@@ -592,12 +592,10 @@ export class ElastestLogManagerComponent implements OnInit {
         (data) => this.searchByPatterns()
         );
 
-    }
-    else {
+    } else {
       if (fromData) { // Add more from row selected
         this.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK', popupDuration, popupCss);
-      }
-      else { // New search or load more
+      } else { // New search or load more
         this.popupService.openSnackBar('There aren\'t logs to load', 'OK', popupDuration, popupCss);
       }
     }
@@ -698,12 +696,10 @@ export class ElastestLogManagerComponent implements OnInit {
       this.patterns.splice(position, 1);
       if (this.patterns.length === 0) {
         this.addPattern();
-      }
-      else {
+      } else {
         this.searchByPatterns();
       }
-    }
-    else if (position === this.patterns.length - 1
+    } else if (position === this.patterns.length - 1
       && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { //Last pattern with search message and not searched
       this.patterns.splice(position, 1);
       this.addPattern();
@@ -744,8 +740,7 @@ export class ElastestLogManagerComponent implements OnInit {
     let pattern: SearchPatternModel = this.patterns[index];
     if (pattern.found < 1) {
       this.searchByPattern(index);
-    }
-    else {
+    } else {
       pattern.found = -1;
       pattern.position = -1;
       pattern.results = [];
@@ -798,8 +793,7 @@ export class ElastestLogManagerComponent implements OnInit {
       if (position === this.patterns.length - 1) {
         this.addPattern();
       }
-    }
-    else {
+    } else {
       this.popupService.openSnackBar('Search value can not be empty', 'OK');
     }
   }
@@ -812,7 +806,6 @@ export class ElastestLogManagerComponent implements OnInit {
       }
     }
   }
-
 
   next(index: number) {
     let pattern: SearchPatternModel = this.patterns[index];
@@ -863,7 +856,7 @@ export class ElastestLogManagerComponent implements OnInit {
     }
   }
 
-  getNextPosition(element: number, array: Array<number>) {
+  getNextPosition(element: number, array: Array<number>): number {
     let i: number;
     for (i = 0; i < array.length; i++) {
       if (element < array[i]) {
@@ -873,7 +866,7 @@ export class ElastestLogManagerComponent implements OnInit {
     return -1;
   }
 
-  getPrevPosition(element: number, array: Array<number>) {
+  getPrevPosition(element: number, array: Array<number>): number {
     let i: number;
     for (i = array.length; i >= 0; i--) {
       if (element > array[i]) {
@@ -883,15 +876,14 @@ export class ElastestLogManagerComponent implements OnInit {
     return -1;
   }
 
-  sorted(a: number, b: number) {
+  sorted(a: number, b: number): number {
     return a - b;
   }
 
   getSearchTableRows() {
     if (document.getElementById('dataTable') !== null && document.getElementById('dataTable') !== undefined) {
       return document.getElementById('dataTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-    }
-    else {
+    } else {
       return undefined;
     }
   }

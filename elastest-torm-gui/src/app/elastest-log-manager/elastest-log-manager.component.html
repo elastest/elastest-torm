@@ -14,10 +14,15 @@
               <div layout="column" flex-gt-xs="30" custom-flex-xl="20">
                 <div layout="row">
                   <div class="margin-top-gt-xs">
-                    <md-input-container class="noMarginInput">
-                      <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" name="indexName"
-                        placeholder="Exec Id" required>
-                    </md-input-container>
+                    <md-select [(ngModel)]="indexName" placeholder="Select an Index" required name="indices" [disabled]="indices.length === 0"
+                      class="noMarginInput form-control input-sm">
+                      <md-option *ngFor="let index of indices" [value]="index">
+                        {{index}}
+                      </md-option>
+                      <md-option [value]="'*'">
+                        All
+                      </md-option>
+                    </md-select>
                   </div>
 
                   <div flex-offset-gt-sm="5" class="margin-top-gt-xs">
@@ -36,8 +41,7 @@
                       <input mdInput #hostsCmp class="form-control input-sm" id="hosts" name="hosts" value="" [(ngModel)]="hosts" placeholder="Host">
                     </md-input-container>
                     <md-input-container flex="30" flex-offset-gt-xl="5">
-                      <input mdInput class="form-control input-sm" id="component" name="component" value="" [(ngModel)]="component"
-                        placeholder="Component">
+                      <input mdInput class="form-control input-sm" id="component" name="component" value="" [(ngModel)]="component" placeholder="Component">
                     </md-input-container>
                   </div>
                 </div>
@@ -54,7 +58,8 @@
                 </div>
               </div>
 
-              <div flex-gt-xs="10" flex-gt-md="10" flex-gt-lg="10" flex-offset-gt-xs="20" flex-offset-gt-lg="15" custom-flex-offset-xl="5" class="margin-top-gt-xs">
+              <div flex-gt-xs="10" flex-gt-md="10" flex-gt-lg="10" flex-offset-gt-xs="20" flex-offset-gt-lg="15" custom-flex-offset-xl="5"
+                class="margin-top-gt-xs">
                 <md-card-subtitle>Type</md-card-subtitle>
                 <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
                 <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
@@ -71,11 +76,14 @@
         </td-expansion-panel>
         <md-card-content class="push-bottom-none">
           <div layout="row" class="push-top">
-            <button md-raised-button color="accent" (click)="search(from.value, to.value, false)"><md-icon>search</md-icon> Load log
+            <button md-raised-button color="accent" (click)="search(from.value, to.value, false)">
+              <md-icon>search</md-icon> Load log
             </button>
-            <button md-button *ngIf="showLoadMore !showPauseTail" (click)="search(from.value, to.value, true)"><md-icon>vertical_align_bottom</md-icon> More from last
+            <button md-button *ngIf="showLoadMore !showPauseTail" (click)="search(from.value, to.value, true)">
+              <md-icon>vertical_align_bottom</md-icon> More from last
             </button>
-            <button md-button *ngIf="showClearData && !showPauseTail" (click)="addMore()"><md-icon>vertical_align_center</md-icon> More from selected
+            <button md-button *ngIf="showClearData && !showPauseTail" (click)="addMore()">
+              <md-icon>vertical_align_center</md-icon> More from selected
             </button>
             <button md-button *ngIf="showGrid && !showPauseTail" (click)="copyToClipboard()">
               <md-icon>link</md-icon> Share link
@@ -94,7 +102,9 @@
         <div layout-gt-md="row" layout-gt-xs="column">
           <span flex-gt-xs="70">Mark in Log</span>
           <span flex-gt-xs="20" flex-offset-gt-sm="5">
-          <button md-button (click)="removeAllPatterns()" title="Delete all patterns" class="iconBtn"><md-icon>delete</md-icon></button>
+            <button md-button (click)="removeAllPatterns()" title="Delete all patterns" class="iconBtn">
+              <md-icon>delete</md-icon>
+            </button>
           </span>
         </div>
       </md-card-title>
@@ -113,14 +123,22 @@
                 <div layout-gt-md="row" layout="column" layout-align="center center">
                   <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
                     class="hiddenElement" required>
-                  <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm"><md-icon [style.color]="pattern.color">color_lens</md-icon></button>
+                  <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">
+                    <md-icon [style.color]="pattern.color">color_lens</md-icon>
+                  </button>
                   <button md-button (click)="markOrClean(i)" class="push-top-sm iconBtn">
                     <md-icon *ngIf="pattern.found < 0" color="accent" title="Mark rows">invert_colors</md-icon>
-                    <md-icon *ngIf="pattern.found >= 0" title="Clean rows">invert_colors_off</md-icon> 
+                    <md-icon *ngIf="pattern.found >= 0" title="Clean rows">invert_colors_off</md-icon>
                   </button>
-                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm"><md-icon>delete</md-icon></button>
-                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top-sm"><md-icon>navigate_before</md-icon></button>
-                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top-sm"><md-icon>navigate_next</md-icon></button>
+                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm">
+                    <md-icon>delete</md-icon>
+                  </button>
+                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top-sm">
+                    <md-icon>navigate_before</md-icon>
+                  </button>
+                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top-sm">
+                    <md-icon>navigate_next</md-icon>
+                  </button>
                 </div>
               </md-list-item>
             </div>

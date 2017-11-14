@@ -18,6 +18,9 @@ export class TJobExecsManagerComponent implements OnInit {
   tJobExecsFinished: TJobExecModel[] = [];
   tJobExecsRunning: TJobExecModel[] = [];
 
+  defaultRefreshText: string = 'Refresh';
+  refreshText: string = this.defaultRefreshText;
+
   // TJob Exec Data
   tJobExecColumns: any[] = [
     { name: 'id', label: 'Id' },
@@ -43,7 +46,8 @@ export class TJobExecsManagerComponent implements OnInit {
     this.loadTJobExecs();
   }
 
-  loadTJobExecs() {
+  loadTJobExecs(refreshText: string = ''): void {
+    this.refreshText = refreshText;
     this.tJobExecService.getAllTJobExecs()
       .subscribe((tJobExecs: TJobExecModel[]) => {
         this.tJobExecsFinished = [];
@@ -60,6 +64,7 @@ export class TJobExecsManagerComponent implements OnInit {
             }
           }
         );
+        this.refreshText = this.defaultRefreshText;
       });
   }
 

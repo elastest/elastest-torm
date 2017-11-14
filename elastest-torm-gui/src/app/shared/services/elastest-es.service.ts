@@ -64,7 +64,7 @@ export class ElastestESService {
     }
 
     getPrevLogsFromTrace(index: string, traces: any[], stream: string, component: string) {
-        let _logs = new Subject<string[]>();
+        let _logs: Subject<string[]> = new Subject<string[]>();
         let logs = _logs.asObservable();
 
         if (traces.length > 0) {

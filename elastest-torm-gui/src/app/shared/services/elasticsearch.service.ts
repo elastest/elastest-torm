@@ -20,10 +20,25 @@ export class ElasticSearchService {
     this.esUrl = this.configurationService.configModel.hostElasticsearch;
   }
 
-  internalSearch(url: string, query: any, maxResults: number, append: boolean = false) {
+  getSearch(url: string) {
+    let requestOptions: RequestOptions = new RequestOptions({
+      method: RequestMethod.Get,
+      url,
+    });
+
+    return this.http.request(new Request(requestOptions))
+      .map((res: Response) => {
+        return res.json();
+      }, (err: Response) => {
+        console.error('Error:', err);
+      });
+
+  }
+
+  internalSearch(url: string, query: any, append: boolean = false) {
     // console.log('URL:', url, 'Query:', query);
 
-    let requestOptions = new RequestOptions({
+    let requestOptions: RequestOptions = new RequestOptions({
       method: RequestMethod.Post,
       url,
       body: JSON.stringify(query)
@@ -42,7 +57,7 @@ export class ElasticSearchService {
   }
 
   getInfo(url: string) {
-    let requestOptions = new RequestOptions({
+    let requestOptions: RequestOptions = new RequestOptions({
       method: RequestMethod.Get,
       url
     });
@@ -55,16 +70,14 @@ export class ElasticSearchService {
       });
   }
 
-  getIndices(url: string) {
-    let requestOptions = new RequestOptions({
-      method: RequestMethod.Get,
-      url
-    });
-
-    return this.http.request(new Request(requestOptions))
-      .map((res: Response) => {
-        return res.json();
-      }, (err: Response) => {
+  getIndices() {
+    let url: string = this.esUrl + '_aliases';
+    return this.getSearch(url)
+      .map(
+      (res: Response) => {
+        return Object.keys(res);
+      },
+      (err: Response) => {
         console.error('Error:', err);
       });
   }
@@ -90,7 +103,7 @@ export class ElasticSearchService {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs = _logs.asObservable();
 
-    this.internalSearch(searchUrl, theQuery, size)
+    this.internalSearch(searchUrl, theQuery)
       .subscribe(
       (data) => {
         if (data.hits && data.hits.hits) {
@@ -219,7 +232,7 @@ export class ElasticSearchService {
     let searchUrl: string = url + '/_search';
 
     searchUrl = this.addFilterToSearchUrl(searchUrl);
-    return this.internalSearch(searchUrl, theQuery, size)
+    return this.internalSearch(searchUrl, theQuery)
       .map(
       (data) => {
         let dataArray: any[] = data.hits.hits;
@@ -240,8 +253,8 @@ export class ElasticSearchService {
 
     let searchUrl: string = url + '/_search';
     let theQuery: any = this.getDefaultQuery(must);
-
-    return this.internalSearch(searchUrl, theQuery, 10000);
+    theQuery['size'] = 10000;
+    return this.internalSearch(searchUrl, theQuery);
   }
 
 
@@ -299,7 +312,8 @@ export class ElasticSearchService {
     let searchUrl: string = url + '/_search';
     let theQuery: any = this.getDefaultQuery(must);
 
-    return this.internalSearch(searchUrl, theQuery, 10000);
+    theQuery['size'] = 10000;
+    return this.internalSearch(searchUrl, theQuery);
   }
 
   /**
@@ -358,7 +372,8 @@ export class ElasticSearchService {
     let searchUrl: string = url + '/_search';
     let theQuery: any = this.getDefaultQuery(must);
 
-    return this.internalSearch(searchUrl, theQuery, 10000);
+    theQuery['size'] = 10000;
+    return this.internalSearch(searchUrl, theQuery);
   }
 
   /**
