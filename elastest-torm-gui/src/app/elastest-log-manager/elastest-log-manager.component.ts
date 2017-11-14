@@ -1,7 +1,9 @@
+import { GetIndexModalComponent } from './get-index-modal/get-index-modal.component';
+import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Element } from '@angular/compiler';
 import { PopupService } from '../shared/services/popup.service';
-import { Component, OnInit, Output, EventEmitter, Inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild, ViewContainerRef } from '@angular/core';
 
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { ElasticSearchService } from '../shared/services/elasticsearch.service';
@@ -17,6 +19,7 @@ import {
   TdDataTableSortingOrder,
 } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
+import { MdDialog, MdDialogRef } from '@angular/material';
 
 
 @Component({
@@ -34,7 +37,7 @@ export class ElastestLogManagerComponent implements OnInit {
   public goToLogManager: string;
 
   public indices: any[] = [];
-  public defaultFrom: Date = new Date(new Date().valueOf() - (10 * 60 * 60 * 1000));
+  public defaultFrom: Date = new Date(new Date().valueOf() - (24 * 60 * 60 * 1000));
   public defaultTo: Date = new Date(new Date().valueOf() + (2 * 60 * 60 * 1000));
 
   // show/hide the grid and spinner
@@ -56,7 +59,7 @@ export class ElastestLogManagerComponent implements OnInit {
   public useTail: boolean = false;
 
   public urlElastic: string;
-  public indexName: string;
+  public indexName: string = '*';
   public hosts: string;
   public message: string;
   public component: string;
@@ -98,6 +101,7 @@ export class ElastestLogManagerComponent implements OnInit {
   patterns: SearchPatternModel[] = [this.patternDefault];
 
   columns: any[] = [
+    { name: 'exec', label: 'Exec' },
     { name: 'time', label: 'Time' },
     { name: 'message', label: 'Message' },
     { name: 'level', label: 'Level' },
@@ -111,6 +115,8 @@ export class ElastestLogManagerComponent implements OnInit {
   constructor(public _elasticSearchService: ElasticSearchService, public router: Router,
     private _dataTableService: TdDataTableService, private popupService: PopupService,
     private configurationService: ConfigurationService, private titlesService: TitlesService,
+    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    public dialog: MdDialog,
   ) {
     this.urlElastic = this.configurationService.configModel.hostElasticsearch;
     this._elasticSearchService.getIndices()
@@ -321,8 +327,7 @@ export class ElastestLogManagerComponent implements OnInit {
       }
       if (this.currentRowSelected < this.rowData.length - 1) {
         this.search(from, to, true, true);
-      }
-      else { //If is last element, call search like load more
+      } else { //If is last element, call search like load more
         this.search(from, to, true, false);
       }
     }
@@ -332,6 +337,10 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   public search(from: string, to: string, append: boolean = false, fromData: boolean = false) {
+    if (!this.indexName || this.indexName === '') {
+      this.popupService.openSnackBar('Please, select at least one execution');
+      return;
+    }
     this.emptyTableText = "Searching...";
     this.generateCopyUrl(from, to);
     if (!append) {
@@ -955,5 +964,22 @@ export class ElastestLogManagerComponent implements OnInit {
 
   openColorPicker(i: number) {
     document.getElementById('pattern' + i + 'Color').click();
+  }
+
+  openSelectExecutions(): void {
+    let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
+      height: '80%',
+      width: '90%',
+    });
+    dialogRef.afterClosed()
+      .subscribe(
+      (data: any) => {
+        if (data && data.selectedIndices && data.selectedIndices !== '') {
+          this.indexName = data.selectedIndices;
+        } else {
+          this.popupService.openSnackBar('No execution was selected');
+        }
+      },
+    );
   }
 }

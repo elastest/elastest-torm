@@ -12,19 +12,24 @@
           <div class="md-padding">
             <div layout="row" layout-xs="column">
               <div layout="column" flex-gt-xs="30" custom-flex-xl="20">
+                <!-- Button, indices and max -->
                 <div layout="row">
-                  <div class="margin-top-gt-xs">
-                    <md-select [(ngModel)]="indexName" placeholder="Select an Index" required name="indices" [disabled]="indices.length === 0"
-                      class="noMarginInput form-control input-sm">
-                      <md-option *ngFor="let index of indices" [value]="index">
-                        {{index}}
-                      </md-option>
-                      <md-option [value]="'*'">
-                        All
-                      </md-option>
-                    </md-select>
+                  <div layout="column">
+                    <!-- Indices  -->
+                    <md-input-container class="noMarginInput">
+                      <input mdInput type="string" class="form-control input-sm" id="indexName" [(ngModel)]="indexName" value="" name="indexName"
+                        placeholder="Exec Id" required [disabled]="true">
+                    </md-input-container>
+
+                    <!-- Select indices (MODAL) -->
+                    <div>
+                      <button md-raised-button color="accent" (click)="openSelectExecutions()">
+                        Select Executions
+                      </button>
+                    </div>
                   </div>
 
+                  <!-- Max -->
                   <div flex-offset-gt-sm="5" class="margin-top-gt-xs">
                     <md-input-container class="noMarginInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="maxResults" name="max_results"
@@ -32,6 +37,8 @@
                     </md-input-container>
                   </div>
                 </div>
+
+                <!-- Message/Hosts/Component -->
                 <div layout="row">
                   <div class="margin-top-gt-xs">
                     <md-input-container flex="30">
@@ -46,6 +53,8 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Date -->
               <div layout="column" flex-gt-xs="15" custom-flex-xl="15" flex-offset-gt-sm="5" class="margin-top-gt-xs">
                 <md-input-container>
                   <input #from mdInput type="datetime-local" id="from" placeholder="From" [value]="getDefaultFromValue()" required>
@@ -58,12 +67,15 @@
                 </div>
               </div>
 
+              <!-- Type -->
               <div flex-gt-xs="10" flex-gt-md="10" flex-gt-lg="10" flex-offset-gt-xs="20" flex-offset-gt-lg="15" custom-flex-offset-xl="5"
                 class="margin-top-gt-xs">
                 <md-card-subtitle>Type</md-card-subtitle>
                 <md-checkbox #testlogs name="testlogsType" [(ngModel)]="testlogsType" (change)="testlogsType = testlogs.checked">Test</md-checkbox>
                 <md-checkbox #sutlogs name="sutlogsType" [(ngModel)]="sutlogsType" (change)="sutlogsType = sutlogs.checked">SuT</md-checkbox>
               </div>
+
+              <!-- Level -->
               <div flex-gt-xs="10" flex-gt-lg="25" flex-offset-gt-sm="5" class="margin-top-gt-xs">
                 <md-card-subtitle>Level</md-card-subtitle>
                 <md-checkbox #debug name="debugLevel" [(ngModel)]="debugLevel" (change)="debugLevel = debug.checked">DEBUG</md-checkbox>

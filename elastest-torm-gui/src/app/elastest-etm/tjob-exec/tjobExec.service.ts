@@ -27,6 +27,7 @@ export class TJobExecService {
       .map((response) => response.json());
   }
 
+  // Get all Executions of a TJob
   public getTJobsExecutions(tJob: TJobModel) {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
     return this.http.get(url)
@@ -45,6 +46,7 @@ export class TJobExecService {
     .map((response) => console.log(response.json()));
   }*/
 
+  // Get a specific TJob Execution
   public getTJobExecution(tJob: TJobModel, idTJobExecution: number) {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
