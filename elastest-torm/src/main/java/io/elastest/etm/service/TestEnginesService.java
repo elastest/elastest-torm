@@ -114,7 +114,7 @@ public class TestEnginesService {
 					url = "http://" + ip + ":" + port;
 					
 					if (serviceName.equals("ere")) {
-						url += "/elastest-recommendation-engine";
+						url += "/ere-app";
 					}
 					log.debug("Url: " + url);
 				}
