@@ -14,11 +14,17 @@ import { Observable, Subject } from 'rxjs/Rx';
 @Injectable()
 export class ElastestESService {
     allMetricsFields: AllMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
-
+    esUrl: string;
     constructor(
         private elasticsearchService: ElasticSearchService,
         public popupService: PopupService,
-    ) { }
+    ) {
+        this.esUrl = this.elasticsearchService.esUrl;
+    }
+
+    search(url: string, searchBody: any) {
+        return this.elasticsearchService.internalSearch(url, searchBody);
+    }
 
     getTermsByTypeAndComponent(type: string, component: string) {
         let terms: any[];
@@ -397,7 +403,7 @@ export class ElastestESService {
         let obs = _obs.asObservable();
 
         let terms: any[] = this.getDynamicTerms(stream, component);
-        let filters: string[] = this.elasticsearchService.getBasicFilterFields().concat(
+        let filters: string[] = this.getBasicFilterFields().concat(
             ['message', 'units', 'unit']
         );
         if (metricName && metricName !== '') {
@@ -500,5 +506,15 @@ export class ElastestESService {
 
     isAtomicMetricTrace(trace: any) {
         return trace._source['stream_type'] !== undefined && trace._source['stream_type'] !== null && trace._source['stream_type'] === 'atomic_metric';
+    }
+
+    getBasicFilterFields(streamType?): string[] {
+        let filters: string[] = ['type', 'component', 'stream', 'stream_type', '@timestamp', 'exec'];
+
+        if (streamType && streamType === 'log') {
+            filters.push('message', 'level');
+        }
+
+        return filters;
     }
 }

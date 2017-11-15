@@ -426,7 +426,7 @@ export class ElastestLogManagerComponent implements OnInit {
       }
     }
 
-    this._elasticSearchService.internalSearch(url, theQuery, append)
+    this._elasticSearchService.internalSearch(url, theQuery)
       .finally(
       () => { this.emptyTableText = this.emptyTableTextDefault; }
       )

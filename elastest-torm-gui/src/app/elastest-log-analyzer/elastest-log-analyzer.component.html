@@ -1,0 +1,89 @@
+<md-sidenav-container fullscreen>
+  <div id="content" layout-fill>
+    <md-card id="logCard" class="push-none">
+      <md-card-title>
+        <div layout-gt-sm="row" layout-gt-xs="column" layout-xs="column">
+          <span>Log</span>
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
+        <ag-grid-angular *ngIf="logRows.length > 0" class="ag-fresh" [rowData]="logRows" [columnDefs]="logColumns" style="width: 100%; height: 80%;">
+        </ag-grid-angular>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <!-- SIDENAV -->
+  <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="20">
+    <md-card tdMediaToggle="gt-xs" *ngIf="logAnalyzerModel">
+      <md-card-title>
+        Load Log
+      </md-card-title>
+      <md-divider></md-divider>
+      <form #logManagerForm="ngForm">
+        <td-expansion-panel label="Configuration and filters" expand="true">
+          <div class="md-padding" layout="column">
+            <!-- Button, indices and max -->
+            <div layout="row">
+              <div layout="column" flex="50">
+                <!-- Indices  -->
+                <div flex="50">
+                  <md-input-container class="noMarginInput">
+                    <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzerModel.selectedIndicesToString()}}"
+                      name="selectedIndices" placeholder="Selected Executions" required [disabled]="true">
+                  </md-input-container>
+                </div>
+                <!-- Select indices (MODAL) -->
+                <div flex="50">
+                  <button md-raised-button color="accent" (click)="openSelectExecutions()">
+                    Select Executions
+                  </button>
+                </div>
+              </div>
+              <!-- Max -->
+              <div flex="45" flex-offset-gt-sm="5" class="margin-top-gt-xs">
+                <md-input-container class="noMarginInput">
+                  <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="logAnalyzerModel.maxResults"
+                    name="max_results" placeholder="Max">
+                </md-input-container>
+              </div>
+            </div>
+
+            <!-- Date -->
+            <div layout="column" flex-gt-xs="15" custom-flex-xl="15" class="margin-top-gt-xs">
+              <md-input-container>
+                <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
+              </md-input-container>
+              <div layout="row">
+                <md-input-container>
+                  <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
+                </md-input-container>
+                <md-checkbox #tail [checked]="logAnalyzerModel.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" flex-offset-gt-lg="5"
+                  style="line-height: 4;">Tail</md-checkbox>
+              </div>
+            </div>
+          </div>
+        </td-expansion-panel>
+
+        <md-card-content class="push-bottom-none">
+          <div layout="row" class="push-top">
+            <button md-raised-button color="accent" (click)="loadLog()">
+              <md-icon>search</md-icon> Load log
+            </button>
+            <button md-button *ngIf="showLoadMore !showPauseTail" (click)="search(from.value, to.value, true)">
+              <md-icon>vertical_align_bottom</md-icon> More from last
+            </button>
+            <button md-button *ngIf="showClearData && !showPauseTail" (click)="addMore()">
+              <md-icon>vertical_align_center</md-icon> More from selected
+            </button>
+            <button md-button *ngIf="showGrid && !showPauseTail" (click)="copyToClipboard()">
+              <md-icon>link</md-icon> Share link
+            </button>
+            <md-checkbox #pauseTail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="tailSearch(!pauseTail.checked)">Pause Tail</md-checkbox>
+          </div>
+        </md-card-content>
+      </form>
+    </md-card>
+  </md-sidenav>
+</md-sidenav-container>

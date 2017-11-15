@@ -37,7 +37,7 @@ export class ESTermModel {
         let formatted: any = {};
         if (!this.empty()) {
             formatted = { term: {} };
-            formatted.terms[this.name] = this.value;
+            formatted.term[this.name] = this.value;
         }
         return formatted;
     }
@@ -199,14 +199,14 @@ export class ESSearchBodyModel {
 }
 
 export class ESSearchModel {
+    private searchPath: string;
     indices: string[];
-    filterPath: string[];
-    searchPath: string;
+    filterPathList: string[];
     body: ESSearchBodyModel;
 
     constructor() {
         this.indices = [];
-        this.filterPath = [];
+        this.filterPathList = [];
         this.searchPath = '/_search';
         this.body = new ESSearchBodyModel();
     }
@@ -217,16 +217,16 @@ export class ESSearchModel {
 
     addFiltersPathToSearchUrl(searchUrl: string) {
         searchUrl += '?ignore_unavailable'; // For multiple index (ignore if not exist)
-        if (this.filterPath && this.filterPath.length > 0) {
+        if (this.filterPathList && this.filterPathList.length > 0) {
             let filterPathPrefix: string = 'filter_path=';
             let filterPathSource: string = 'hits.hits._source.';
             let filterPathSort: string = 'hits.hits.sort,';
 
             searchUrl += '&' + filterPathPrefix + filterPathSort;
             let counter: number = 0;
-            for (let filter of this.filterPath) {
+            for (let filter of this.filterPathList) {
                 searchUrl += filterPathSource + filter;
-                if (counter < this.filterPath.length - 1) {
+                if (counter < this.filterPathList.length - 1) {
                     searchUrl += ',';
                 }
                 counter++;
@@ -252,7 +252,30 @@ export class ESSearchModel {
         return body;
     }
 
-    formatIndices() {
+    formatIndices(): string {
         return this.indices.join(',');
+    }
+
+    getSearchPath(): string {
+        return this.searchPath;
+    }
+
+    // Utils
+    getSourcesListFromRaw(raw: any): any[] {
+        let data: any[] = [];
+        if (raw && raw.hits && raw.hits.hits) {
+            data = raw.hits.hits;
+        }
+        return data;
+    }
+
+    getDataListFromRaw(raw: any): any[] {
+        let data: any[] = [];
+        let sourcesList: any[] = this.getSourcesListFromRaw(raw);
+        for (let elem of sourcesList) {
+            data.push(elem._source);
+        }
+
+        return data;
     }
 }

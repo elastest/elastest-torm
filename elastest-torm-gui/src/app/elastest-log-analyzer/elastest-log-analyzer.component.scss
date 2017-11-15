@@ -1,0 +1,19 @@
+md-sidenav-container {
+    min-height: 100%;
+}
+
+:host /deep/ .mat-sidenav-content{
+    padding: 8px;
+}
+
+#logCard{
+    width: 100%;
+    height: 98%;
+}
+#logCard md-card-title{
+    height: 3%;
+}
+
+#logCard md-card-content{
+    height: 96%;
+}

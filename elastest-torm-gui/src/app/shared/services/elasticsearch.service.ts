@@ -35,7 +35,7 @@ export class ElasticSearchService {
 
   }
 
-  internalSearch(url: string, query: any, append: boolean = false) {
+  internalSearch(url: string, query: any) {
     // console.log('URL:', url, 'Query:', query);
 
     let requestOptions: RequestOptions = new RequestOptions({
@@ -429,9 +429,5 @@ export class ElasticSearchService {
       }
     }
     return searchUrl;
-  }
-
-  getBasicFilterFields(): string[] {
-    return ['type', 'component', 'stream', 'stream_type', '@timestamp', 'exec'];
   }
 }

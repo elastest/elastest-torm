@@ -28,7 +28,7 @@ import { SutService } from './elastest-etm/sut/sut.service';
 import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { ElasticSearchService } from './shared/services/elasticsearch.service';
-import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule } from '@angular/material';
+import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule, MdSidenavModule } from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
@@ -56,7 +56,9 @@ import { TestEngineViewComponent } from './elastest-test-engines/test-engine-vie
 import { FilesManagerComponent } from './elastest-etm/files-manager/files-manager.component';
 import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
 import { TJobExecsManagerComponent } from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
-import { GetIndexModalComponent } from './elastest-log-manager/get-index-modal/get-index-modal.component';
+import { GetIndexModalComponent } from './elastest-log-analyzer/get-index-modal/get-index-modal.component';
+import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
+import { AgGridModule } from 'ag-grid-angular/main';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -86,6 +88,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ProjectManagerComponent,
     TJobExecsManagerComponent,
     GetIndexModalComponent,
+    ElastestLogAnalyzerComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -100,6 +103,8 @@ const httpInterceptorProviders: Type<any>[] = [
     FormsModule,
     MdButtonToggleModule,
     MdDialogModule,
+    MdSidenavModule,
+    AgGridModule.withComponents([]),
     CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
       interceptors: [{
