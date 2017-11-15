@@ -334,12 +334,11 @@ public class TJobExecOrchestratorService {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
+            String sutUrl = "http://" + sutIP + ":"
+                    + (sut.getPort() != null ? sut.getPort() : "");
+            sutExec.setUrl(sutUrl);
+            sutExec.setIp(sutIP);
         }
-
-        String sutUrl = "http://" + sutIP + ":"
-                + (sut.getPort() != null ? sut.getPort() : "");
-        sutExec.setUrl(sutUrl);
-        sutExec.setIp(sutIP);
 
         dockerExec.setSutExec(sutExec);
     }
@@ -378,6 +377,11 @@ public class TJobExecOrchestratorService {
                 // Wait for Sut started
                 dockerService.checkSut(dockerExec, sutIP, sutPort);
             }
+
+            String sutUrl = "http://" + sutIP + ":"
+                    + (sut.getPort() != null ? sut.getPort() : "");
+            sutExec.setUrl(sutUrl);
+            sutExec.setIp(sutIP);
 
         } catch (TJobStoppedException e) {
             throw e;
