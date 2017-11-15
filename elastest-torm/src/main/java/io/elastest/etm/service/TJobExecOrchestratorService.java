@@ -261,7 +261,7 @@ public class TJobExecOrchestratorService {
 
                     updateTJobExecResultStatus(tJobExec,
                             TJobExecution.ResultEnum.STARTING_TSS,
-                            resultMsg + service.get("short-name").toString()
+                            resultMsg + service.get("name").toString()
                                     .replaceAll("\"", ""));
 
                     String instanceId = esmService.provisionServiceInstanceSync(
