@@ -34,6 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
@@ -76,8 +77,8 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"instrumentalize\": \"" + false + "\","
 				  + "\"currentSutExec\": \"" + null + "\","
 				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
-				  + "\"port\": \"" + null + "\""
-				  
+				  + "\"port\": \"" + null + "\","
+				  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\""				  
 				+"}";
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -123,7 +124,9 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"instrumentalize\": \"" + false + "\","
 				  + "\"currentSutExec\": \"" + null + "\","
                   + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
-                  + "\"port\": \"" + null + "\""				+"}";
+                  + "\"port\": \"" + null + "\","
+                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\""
+                  +"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
 	

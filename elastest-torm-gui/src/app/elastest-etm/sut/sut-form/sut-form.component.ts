@@ -26,6 +26,8 @@ export class SutFormComponent implements OnInit {
   elastestInsCheck: boolean = false;
   adminInsCheck: boolean = false;
 
+  dockerCompose: boolean = false;
+
   specText: string = 'SuT Specification';
   deployedSpecText: string = 'SuT IP';
   managedSpecText: string = 'Docker Image';
@@ -51,6 +53,7 @@ export class SutFormComponent implements OnInit {
             this.initSutType();
             this.initInstrumentedBy();
             this.initInstrumentalized();
+            this.dockerCompose = this.sut.managedDockerType === 'COMPOSE';
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
@@ -61,19 +64,20 @@ export class SutFormComponent implements OnInit {
             this.sut.sutType = 'MANAGED';
             this.sut.instrumentedBy = 'WITHOUT';
             this.initInstrumentalized();
+            this.sut.managedDockerType = 'IMAGE';
           },
         );
       }
     }
   }
 
-  initSutType() {
+  initSutType(): void {
     this.managedChecked = this.sut.sutType === 'MANAGED';
     this.repoNameChecked = this.sut.sutType === 'REPOSITORY';
     this.deployedChecked = this.sut.sutType === 'DEPLOYED';
   }
 
-  initInstrumentedBy() {
+  initInstrumentedBy(): void {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
@@ -177,5 +181,10 @@ export class SutFormComponent implements OnInit {
     return (
       !this.sut.eimConfig.logstashIp && !this.sut.eimConfig.logstashBeatsPort && !this.sut.eimConfig.logstashHttpPort && !this.sut.currentSutExec
     );
+  }
+
+  managedDockerTypeBy(compose: boolean): void {
+    this.dockerCompose = compose;
+    this.sut.managedDockerType = compose ? 'COMPOSE' : 'IMAGE';
   }
 }

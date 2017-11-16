@@ -13,6 +13,7 @@ export class SutModel {
     currentSutExec: string;
     instrumentedBy: string;
     port: string;
+    managedDockerType: string;
 
     constructor() {
         this.id = 0;
@@ -26,6 +27,7 @@ export class SutModel {
         this.currentSutExec = undefined;
         this.instrumentedBy = '';
         this.port = undefined;
+        this.managedDockerType = '';
     }
 
     public getRouteString(): string {

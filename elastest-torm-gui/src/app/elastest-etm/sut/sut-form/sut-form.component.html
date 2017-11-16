@@ -46,20 +46,47 @@
           </md-radio-group>
         </div>
 
-        <!-- SuT Specification -->
-        <div layout="row" class="push-top" *ngIf="!adminInsCheck">
+        <!-- Managed -->
+        <div layout="column" class="push-top" *ngIf="managedSut.checked">
+          <!-- SuT DOCKER Type -->
+          <div class="push-bottom">
+            <md-radio-group #radioGroupManagedDockerType (change)="managedDockerTypeBy(dockerComposeRadio.checked)">
+              <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{!dockerCompose}}" [checked]="!dockerCompose" class="push-right">
+                With Docker Image
+              </md-radio-button>
+
+              <md-radio-button #dockerComposeRadio name="dockerComposeRadio" value="{{dockerCompose}}" [checked]="dockerCompose">
+                With Docker Compose
+              </md-radio-button>
+            </md-radio-group>
+          </div>
+
           <md-input-container flex="100">
-            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
-              [(ngModel)]="sut.specification" name="specification" required>
+            <input mdInput type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">
           </md-input-container>
         </div>
 
-        <!-- Managed -->
-        <div layout="row" class="push-top" *ngIf="managedSut.checked">
-          <md-input-container flex="100">
-            <input mdInput type="text" placeholder="Wait for http port"
-              [(ngModel)]="sut.port" name="port">
+
+        <!-- SuT Specification -->
+        <div layout="column" class="push-top" *ngIf="!adminInsCheck">
+          <md-input-container flex="100" *ngIf="!dockerCompose; else dockerComposeSpec">
+            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+              [(ngModel)]="sut.specification" name="specification" required>
           </md-input-container>
+
+          <ng-template #dockerComposeSpec>
+            <!-- Specification as Docker Compose -->
+            <md-input-container flex="100">
+              <textarea id="composeSpec" rows="10" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification" name="composeSpec"
+                required></textarea>
+            </md-input-container>
+
+            <!-- Main service name -->
+            <md-input-container flex="100">
+              <input mdInput type="text" placeholder="Main Service Name"
+                [(ngModel)]="sut.mainService" name="mainService" required>
+            </md-input-container>
+          </ng-template>
         </div>
 
         <!-- Deployed: Instrumented By Elastest fields -->

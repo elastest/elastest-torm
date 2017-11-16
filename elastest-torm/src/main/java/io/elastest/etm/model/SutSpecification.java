@@ -54,7 +54,7 @@ public class SutSpecification {
     private String name = null;
 
     @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
-    @Column(name = "specification")
+    @Column(name = "specification", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("specification")
     private String specification = null;
 
@@ -105,13 +105,23 @@ public class SutSpecification {
     @JsonProperty("port")
     private String port = null;
 
+    @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+    @Column(name = "managedDockerType", nullable = false)
+    @JsonProperty("managedDockerType")
+    private ManagedDockerType managedDockerType;
+
+    @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+    @JsonProperty("mainService")
+    private String mainService = null;
+
     public SutSpecification() {
     }
 
     public SutSpecification(Long id, String name, String specification,
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
-            InstrumentedByEnum instrumentedBy, String port) {
+            InstrumentedByEnum instrumentedBy, String port,
+            ManagedDockerType managedDockerType) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -123,6 +133,7 @@ public class SutSpecification {
         this.currentSutExec = currentSutExec;
         this.instrumentedBy = instrumentedBy;
         this.port = port;
+        this.managedDockerType = managedDockerType;
     }
 
     public enum SutTypeEnum {
@@ -177,6 +188,34 @@ public class SutSpecification {
         @JsonCreator
         public static InstrumentedByEnum fromValue(String text) {
             for (InstrumentedByEnum b : InstrumentedByEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    public enum ManagedDockerType {
+        IMAGE("IMAGE"),
+
+        COMPOSE("COMPOSE");
+
+        private String value;
+
+        ManagedDockerType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ManagedDockerType fromValue(String text) {
+            for (ManagedDockerType b : ManagedDockerType.values()) {
                 if (String.valueOf(b.value).equals(text)) {
                     return b;
                 }
@@ -403,6 +442,34 @@ public class SutSpecification {
         this.port = port;
     }
 
+    /**
+     * Get managedDockerType
+     * 
+     * @return managedDockerType
+     **/
+
+    public ManagedDockerType getManagedDockerType() {
+        return managedDockerType;
+    }
+
+    public void setManagedDockerType(ManagedDockerType managedDockerType) {
+        this.managedDockerType = managedDockerType;
+    }
+
+    /**
+     * Get mainService
+     * 
+     * @return mainService
+     **/
+
+    public String getMainService() {
+        return mainService;
+    }
+
+    public void setMainService(String mainService) {
+        this.mainService = mainService;
+    }
+
     // Other methods
 
     @Override
@@ -429,13 +496,18 @@ public class SutSpecification {
                         sutSpecification.currentSutExec)
                 && Objects.equals(this.instrumentedBy,
                         sutSpecification.instrumentedBy)
-                && Objects.equals(this.port, sutSpecification.port);
+                && Objects.equals(this.port, sutSpecification.port)
+                && Objects.equals(this.managedDockerType,
+                        sutSpecification.managedDockerType)
+                && Objects.equals(this.mainService,
+                        sutSpecification.mainService);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, specification, description, project,
-                sutType, eimConfig, instrumentedBy, port);
+                sutType, eimConfig, instrumentedBy, port, managedDockerType,
+                mainService);
     }
 
     @Override
@@ -461,6 +533,10 @@ public class SutSpecification {
         sb.append("    instrumentedBy: ")
                 .append(toIndentedString(instrumentedBy)).append("\n");
         sb.append("    port: ").append(toIndentedString(port)).append("\n");
+        sb.append("    managedDockerType: ")
+                .append(toIndentedString(managedDockerType)).append("\n");
+        sb.append("    mainService: ").append(toIndentedString(mainService))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

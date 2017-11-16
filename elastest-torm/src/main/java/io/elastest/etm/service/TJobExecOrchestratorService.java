@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
+import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
@@ -30,6 +32,8 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @Service
@@ -44,6 +48,7 @@ public class TJobExecOrchestratorService {
     public String ELASTEST_EXECUTION_MODE;
 
     private final DockerService2 dockerService;
+    private final DockerComposeService dockerComposeService;
     private final TestSuiteRepository testSuiteRepo;
     private final TestCaseRepository testCaseRepo;
 
@@ -57,7 +62,7 @@ public class TJobExecOrchestratorService {
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
-            SutService sutService) {
+            SutService sutService, DockerComposeService dockerComposeService) {
         super();
         this.dockerService = dockerService;
         this.testSuiteRepo = testSuiteRepo;
@@ -66,6 +71,7 @@ public class TJobExecOrchestratorService {
         this.dbmanager = dbmanager;
         this.esmService = esmService;
         this.sutService = sutService;
+        this.dockerComposeService = dockerComposeService;
     }
 
     @Async
@@ -99,7 +105,9 @@ public class TJobExecOrchestratorService {
             resultMsg = "Executing Test";
             updateTJobExecResultStatus(tJobExec,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-            testSuites = dockerService.executeTest(dockerExec);
+
+            dockerService.createTestContainer(dockerExec);
+            testSuites = dockerService.startTestContainer(dockerExec);
 
             resultMsg = "Waiting for Test Results";
             updateTJobExecResultStatus(tJobExec,
@@ -107,7 +115,7 @@ public class TJobExecOrchestratorService {
             saveTestResults(testSuites, tJobExec);
 
             // End and purge services
-            dockerService.endAllExec(dockerExec);
+            endAllExecs(dockerExec);
             if (tJobServices != null && tJobServices != "") {
                 deprovideServices(tJobExec);
             }
@@ -121,6 +129,11 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Failure";
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.ERROR, resultMsg);
+                try {
+                    endAllExecs(dockerExec);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
@@ -138,7 +151,7 @@ public class TJobExecOrchestratorService {
         DockerExecution dockerExec = new DockerExecution(tJobExec);
         dockerService.configureDocker(dockerExec);
         try {
-            dockerService.endAllExec(dockerExec);
+            endAllExecs(dockerExec);
         } catch (TJobStoppedException e) {
             // Stop exception
         } catch (Exception e) {
@@ -169,45 +182,21 @@ public class TJobExecOrchestratorService {
         updateTJobExecResultStatus(tJobExec, finishStatus, resultMsg);
     }
 
-    public void saveTestResults(List<ReportTestSuite> testSuites,
-            TJobExecution tJobExec) {
-        System.out.println("Saving test results " + tJobExec.getId());
-
-        TestSuite tSuite;
-        TestCase tCase;
-        if (testSuites != null && testSuites.size() > 0) {
-            ReportTestSuite reportTestSuite = testSuites.get(0);
-            tSuite = new TestSuite();
-            tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
-            tSuite.setErrors(reportTestSuite.getNumberOfErrors());
-            tSuite.setFailures(reportTestSuite.getNumberOfFailures());
-            tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
-            tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
-            tSuite.setName(reportTestSuite.getName());
-            tSuite.setnumTests(reportTestSuite.getNumberOfTests());
-
-            tSuite = testSuiteRepo.save(tSuite);
-
-            for (ReportTestCase reportTestCase : reportTestSuite
-                    .getTestCases()) {
-                tCase = new TestCase();
-                tCase.setName(reportTestCase.getName());
-                tCase.setTime(reportTestCase.getTime());
-                tCase.setFailureDetail(reportTestCase.getFailureDetail());
-                tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
-                tCase.setFailureMessage(reportTestCase.getFailureMessage());
-                tCase.setFailureType(reportTestCase.getFailureType());
-                tCase.setTestSuite(tSuite);
-
-                testCaseRepo.save(tCase);
+    public void endAllExecs(DockerExecution dockerExec) throws Exception {
+        try {
+            endTestExec(dockerExec);
+            if (dockerExec.isWithSut()) {
+                endSutExec(dockerExec);
             }
-
-            testSuiteRepo.save(tSuite);
-            tJobExec.setTestSuite(tSuite);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("end error"); // TODO Customize Exception
         }
     }
 
+    /*********************/
     /**** TSS methods ****/
+    /*********************/
 
     private void initTSS(TJobExecution tJobExec, String tJobServices) {
         String resultMsg = "";
@@ -308,11 +297,9 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    /****
-     * SuT Methods
-     * 
-     * @throws TJobStoppedException
-     ****/
+    /**********************/
+    /**** SuT Methods ****/
+    /**********************/
 
     public void initSut(DockerExecution dockerExec)
             throws TJobStoppedException {
@@ -355,17 +342,22 @@ public class TJobExecOrchestratorService {
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
         try {
-            // Create container
-            dockerService.createSutContainer(dockerExec);
+
+            // By Docker Image
+            if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
+                startSutByDockerImage(dockerExec);
+            }
+            // By Docker Compose
+            else {
+                startSutByDockerCompose(dockerExec);
+            }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
-            // Start container
             String sutContainerId = dockerExec.getAppContainerId();
-            dockerService.startSutcontainer(dockerExec);
-
             String sutIP = dockerService.getContainerIp(sutContainerId,
                     dockerExec);
 
+            // If port is defined, wait for SuT ready
             if (sut.getPort() != null) {
                 String sutPort = sut.getPort();
 
@@ -374,10 +366,12 @@ public class TJobExecOrchestratorService {
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
 
-                // Wait for Sut started
+                // Wait for SuT started
                 dockerService.checkSut(dockerExec, sutIP, sutPort);
+                endCheckSutExec(dockerExec);
             }
 
+            // Save SuTUrl and Ip into sutexec
             String sutUrl = "http://" + sutIP + ":"
                     + (sut.getPort() != null ? sut.getPort() : "");
             sutExec.setUrl(sutUrl);
@@ -388,13 +382,105 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Exception during TJob execution", e);
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
-            dockerService.endSutExec(dockerExec);
+            endSutExec(dockerExec);
             sutService.modifySutExec(dockerExec.getSutExec());
         }
         return sutExec;
     }
 
+    public void startSutByDockerImage(DockerExecution dockerExec)
+            throws TJobStoppedException {
+        // Create container
+        dockerService.createSutContainer(dockerExec);
+        // Start container
+        dockerService.startSutcontainer(dockerExec);
+    }
+
+    public void startSutByDockerCompose(DockerExecution dockerExec)
+            throws Exception {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        String mainService = sut.getMainService();
+        String composeProjectName = dockerService.getSutName(dockerExec);
+
+        // Create Containers
+        boolean created = dockerComposeService.createProject(composeProjectName,
+                sut.getSpecification());
+
+        // Start Containers
+        if (created) {
+            dockerComposeService.startProject(composeProjectName);
+
+            for (DockerContainer container : dockerComposeService
+                    .getContainers(composeProjectName).getContainers()) {
+                String containerId = dockerService
+                        .getContainerIdByName(container.getName(), dockerExec);
+
+                // Insert into ElasTest network
+                dockerService.insertIntoNetwork(dockerExec.getNetwork(),
+                        containerId);
+
+                // Insert container into containers list
+                dockerService.insertCreatedContainer(containerId,
+                        container.getName());
+
+                // If is main service container, set app id
+                if (container.getName() == mainService) {
+                    dockerExec.setAppContainerId(containerId);
+                }
+            }
+        } else {
+            throw new Exception();
+        }
+
+    }
+
+    public void endSutExec(DockerExecution dockerExec) {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+
+        // If it's Managed Sut, and container is created
+        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
+            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
+
+            if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
+                dockerService.endContainer(dockerExec,
+                        dockerService.getSutName(dockerExec));
+            } else {
+                endComposedSutExec(dockerExec);
+            }
+            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
+        } else {
+            logger.info("SuT not ended by ElasTest -> Deployed SuT");
+        }
+        endCheckSutExec(dockerExec);
+    }
+
+    public void endComposedSutExec(DockerExecution dockerExec) {
+
+    }
+
+    public void updateSutExecDeployStatus(DockerExecution dockerExec,
+            DeployStatusEnum status) {
+        SutExecution sutExec = dockerExec.getSutExec();
+
+        if (sutExec != null) {
+            sutExec.setDeployStatus(status);
+        }
+        dockerExec.setSutExec(sutExec);
+    }
+
+    public void endCheckSutExec(DockerExecution dockerExec) {
+        dockerService.endContainer(dockerExec,
+                dockerService.getCheckName(dockerExec));
+    }
+
+    /***************************/
     /**** TJob Exec Methods ****/
+    /***************************/
+
+    public void endTestExec(DockerExecution dockerExec) {
+        dockerService.endContainer(dockerExec,
+                dockerService.getTestName(dockerExec));
+    }
 
     private void updateTJobExecResultStatus(TJobExecution tJobExec,
             ResultEnum result, String msg) {
@@ -403,4 +489,41 @@ public class TJobExecOrchestratorService {
         tJobExecRepositoryImpl.save(tJobExec);
     }
 
+    public void saveTestResults(List<ReportTestSuite> testSuites,
+            TJobExecution tJobExec) {
+        System.out.println("Saving test results " + tJobExec.getId());
+
+        TestSuite tSuite;
+        TestCase tCase;
+        if (testSuites != null && testSuites.size() > 0) {
+            ReportTestSuite reportTestSuite = testSuites.get(0);
+            tSuite = new TestSuite();
+            tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
+            tSuite.setErrors(reportTestSuite.getNumberOfErrors());
+            tSuite.setFailures(reportTestSuite.getNumberOfFailures());
+            tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
+            tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
+            tSuite.setName(reportTestSuite.getName());
+            tSuite.setnumTests(reportTestSuite.getNumberOfTests());
+
+            tSuite = testSuiteRepo.save(tSuite);
+
+            for (ReportTestCase reportTestCase : reportTestSuite
+                    .getTestCases()) {
+                tCase = new TestCase();
+                tCase.setName(reportTestCase.getName());
+                tCase.setTime(reportTestCase.getTime());
+                tCase.setFailureDetail(reportTestCase.getFailureDetail());
+                tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
+                tCase.setFailureMessage(reportTestCase.getFailureMessage());
+                tCase.setFailureType(reportTestCase.getFailureType());
+                tCase.setTestSuite(tSuite);
+
+                testCaseRepo.save(tCase);
+            }
+
+            testSuiteRepo.save(tSuite);
+            tJobExec.setTestSuite(tSuite);
+        }
+    }
 }

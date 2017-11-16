@@ -164,7 +164,8 @@ export class ETModelsTransformServices {
         newSut.currentSutExec = sut.currentSutExec;
         newSut.instrumentedBy = sut.instrumentedBy;
         newSut.port = sut.port;
-
+        newSut.managedDockerType = sut.managedDockerType;
+        
         return newSut;
     }
 

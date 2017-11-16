@@ -44,6 +44,7 @@ import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
@@ -95,7 +96,14 @@ public class DockerService2 {
         return DockerClientBuilder.getInstance(config).build();
     }
 
-    /* Config Methods */
+    public void insertCreatedContainer(String containerId,
+            String containerName) {
+        createdContainers.put(containerId, containerName);
+    }
+
+    /**************************/
+    /***** Config Methods *****/
+    /**************************/
 
     public void configureDocker(DockerExecution dockerExec) {
         DockerClientConfig config = DefaultDockerClientConfig
@@ -153,7 +161,9 @@ public class DockerService2 {
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
-    /* Starting Methods */
+    /****************************/
+    /***** Starting Methods *****/
+    /****************************/
 
     public String getSutName(DockerExecution dockerExec) {
         return "sut_" + dockerExec.getExecutionId();
@@ -163,6 +173,8 @@ public class DockerService2 {
             throws TJobStoppedException {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String sutImage = appImage;
+
+        // Load ENV VARS
         String envVar = "";
         if (sut.getSutType() == SutTypeEnum.MANAGED) {
             sutImage = sut.getSpecification();
@@ -170,11 +182,14 @@ public class DockerService2 {
         } else {
             envVar = "REPO_URL=" + sut.getSpecification();
         }
+
+        // Load Log Config
         logger.info(
                 "Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
         String sutName = getSutName(dockerExec);
         LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
 
+        // Pull Image
         try {
             dockerExec.getDockerClient().pullImageCmd(sutImage)
                     .exec(new PullImageResultCallback()).awaitSuccess();
@@ -191,6 +206,7 @@ public class DockerService2 {
             throw new TJobStoppedException();
         }
 
+        // Create Container
         dockerExec.setAppContainer(dockerExec.getDockerClient()
                 .createContainerCmd(sutImage).withEnv(envVar)
                 .withLogConfig(logConfig).withName(sutName)
@@ -254,16 +270,20 @@ public class DockerService2 {
             throw new TJobStoppedException();
         } catch (Exception e) {
         }
-        endCheckSutExec(dockerExec);
     }
+
+    /****************/
+    /***** Test *****/
+    /****************/
 
     public String getTestName(DockerExecution dockerExec) {
         return "test_" + dockerExec.getExecutionId();
     }
 
-    public List<ReportTestSuite> executeTest(DockerExecution dockerExec)
-            throws Exception {
+    public void createTestContainer(DockerExecution dockerExec)
+            throws TJobStoppedException {
         try {
+
             logger.info("Starting test " + dockerExec.getExecutionId());
             String testImage = dockerExec.gettJobexec().getTjob()
                     .getImageName();
@@ -330,18 +350,22 @@ public class DockerService2 {
 
             dockerExec.setTestcontainer(testContainer);
             dockerExec.setTestContainerId(testContainerId);
+        } catch (DockerClientException dce) {
+            throw new TJobStoppedException();
+        } catch (TJobStoppedException dce) {
+            throw new TJobStoppedException();
+        }
+    }
+
+    public List<ReportTestSuite> startTestContainer(DockerExecution dockerExec)
+            throws TJobStoppedException {
+        try {
+            String testContainerId = dockerExec.getTestContainerId();
+            String testName = getTestName(dockerExec);
 
             dockerExec.getDockerClient().startContainerCmd(testContainerId)
                     .exec();
             createdContainers.put(testContainerId, testName);
-
-            // this essentially test the since=0 case
-            // dockerClient.logContainerCmd(container.getId())
-            // .withStdErr(true)
-            // .withStdOut(true)
-            // .withFollowStream(true)
-            // .withTailAll()
-            // .exec(loggingCallback);
 
             int code = dockerExec.getDockerClient()
                     .waitContainerCmd(testContainerId)
@@ -353,15 +377,6 @@ public class DockerService2 {
 
         } catch (DockerClientException dce) {
             throw new TJobStoppedException();
-        } catch (TJobStoppedException dce) {
-            throw new TJobStoppedException();
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                endAllExec(dockerExec);
-            } catch (Exception e1) {
-            }
-            return new ArrayList<ReportTestSuite>();
         }
     }
 
@@ -390,49 +405,54 @@ public class DockerService2 {
     /***** End execution methods *****/
     /*********************************/
 
-    public void endAllExec(DockerExecution dockerExec) throws Exception {
-        try {
-            endTestExec(dockerExec);
-            if (dockerExec.isWithSut()) {
-                endSutExec(dockerExec);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("end error"); // TODO Customize Exception
-        }
-    }
+    // public void endAllExec(DockerExecution dockerExec) throws Exception {
+    // try {
+    // endTestExec(dockerExec);
+    // if (dockerExec.isWithSut()) {
+    // endSutExec(dockerExec);
+    // }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // throw new Exception("end error"); // TODO Customize Exception
+    // }
+    // }
 
-    public void endTestExec(DockerExecution dockerExec) {
-        endContainer(dockerExec, getTestName(dockerExec));
-    }
+    // public void endTestExec(DockerExecution dockerExec) {
+    // endContainer(dockerExec, getTestName(dockerExec));
+    // }
 
-    public void endSutExec(DockerExecution dockerExec) {
-        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+    // public void endSutExec(DockerExecution dockerExec) {
+    // SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+    //
+    // // If it's Managed Sut, and container is created
+    // if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
+    // updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
+    //
+    // if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
+    // endContainer(dockerExec, getSutName(dockerExec));
+    // } else {
+    //
+    // }
+    // updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
+    // } else {
+    // logger.info("SuT not ended by ElasTest -> Deployed SuT");
+    // }
+    // endCheckSutExec(dockerExec);
+    // }
 
-        // If it's Managed Sut, and container is created
-        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
-            endContainer(dockerExec, getSutName(dockerExec));
-            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
-        } else {
-            logger.info("SuT not ended by ElasTest -> Deployed SuT");
-        }
-        endCheckSutExec(dockerExec);
-    }
-
-    public void updateSutExecDeployStatus(DockerExecution dockerExec,
-            DeployStatusEnum status) {
-        SutExecution sutExec = dockerExec.getSutExec();
-
-        if (sutExec != null) {
-            sutExec.setDeployStatus(status);
-        }
-        dockerExec.setSutExec(sutExec);
-    }
-
-    public void endCheckSutExec(DockerExecution dockerExec) {
-        endContainer(dockerExec, getCheckName(dockerExec));
-    }
+    // public void updateSutExecDeployStatus(DockerExecution dockerExec,
+    // DeployStatusEnum status) {
+    // SutExecution sutExec = dockerExec.getSutExec();
+    //
+    // if (sutExec != null) {
+    // sutExec.setDeployStatus(status);
+    // }
+    // dockerExec.setSutExec(sutExec);
+    // }
+    //
+    // public void endCheckSutExec(DockerExecution dockerExec) {
+    // endContainer(dockerExec, getCheckName(dockerExec));
+    // }
 
     public void endContainer(DockerExecution dockerExec, String containerName) {
         if (existsContainer(containerName, dockerExec)) {
@@ -531,8 +551,9 @@ public class DockerService2 {
                 .withContainerId(containerId).exec();
     }
 
-    /* Get TestResults */
-
+    /***************************/
+    /***** Get TestResults *****/
+    /***************************/
     public InputStream getFileFromContainer(String containerName,
             String fileName, DockerExecution dockerExec) {
         InputStream inputStream = null;
