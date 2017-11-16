@@ -299,10 +299,11 @@ public class TJobExecOrchestratorService {
 
     /**********************/
     /**** SuT Methods ****/
-    /**********************/
+    /**
+     * @throws Exception
+     ********************/
 
-    public void initSut(DockerExecution dockerExec)
-            throws TJobStoppedException {
+    public void initSut(DockerExecution dockerExec) throws Exception {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         SutExecution sutExec;
 
@@ -331,7 +332,7 @@ public class TJobExecOrchestratorService {
     }
 
     private SutExecution startManagedSut(DockerExecution dockerExec)
-            throws TJobStoppedException {
+            throws Exception {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
@@ -382,8 +383,12 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Exception during TJob execution", e);
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
-            endSutExec(dockerExec);
-            sutService.modifySutExec(dockerExec.getSutExec());
+            try {
+                sutService.modifySutExec(dockerExec.getSutExec());
+            } catch (Exception e1) {
+
+            }
+            throw e;
         }
         return sutExec;
     }
@@ -401,40 +406,50 @@ public class TJobExecOrchestratorService {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String mainService = sut.getMainService();
         String composeProjectName = dockerService.getSutName(dockerExec);
+        // docker-compose-ui api removes underscores '_'
+        String containerPrefix = composeProjectName.replaceAll("_", "");
 
         // Create Containers
         boolean created = dockerComposeService.createProject(composeProjectName,
                 sut.getSpecification());
 
         // Start Containers
-        if (created) {
-            dockerComposeService.startProject(composeProjectName);
+        if (!created) {
+            throw new Exception(
+                    "Sut docker compose containers are not created");
+        }
 
-            for (DockerContainer container : dockerComposeService
-                    .getContainers(composeProjectName).getContainers()) {
-                String containerId = dockerService
-                        .getContainerIdByName(container.getName(), dockerExec);
+        dockerComposeService.startProject(composeProjectName);
 
-                // Insert into ElasTest network
-                dockerService.insertIntoNetwork(dockerExec.getNetwork(),
-                        containerId);
+        for (DockerContainer container : dockerComposeService
+                .getContainers(composeProjectName).getContainers()) {
+            String containerId = dockerService
+                    .getContainerIdByName(container.getName(), dockerExec);
 
-                // Insert container into containers list
-                dockerService.insertCreatedContainer(containerId,
-                        container.getName());
+            // Insert into ElasTest network
+            dockerService.insertIntoNetwork(dockerExec.getNetwork(),
+                    containerId);
 
-                // If is main service container, set app id
-                if (container.getName() == mainService) {
-                    dockerExec.setAppContainerId(containerId);
-                }
+            // Insert container into containers list
+            dockerService.insertCreatedContainer(containerId,
+                    container.getName());
+
+            // If is main service container, set app id
+            if (container.getName()
+                    .startsWith(containerPrefix + "_" + mainService)) {
+                dockerExec.setAppContainerId(containerId);
             }
-        } else {
-            throw new Exception();
+        }
+
+        if (dockerExec.getAppContainerId().isEmpty()
+                || dockerExec.getAppContainerId() == null) {
+            throw new Exception(
+                    "Main Sut service from docker compose not started");
         }
 
     }
 
-    public void endSutExec(DockerExecution dockerExec) {
+    public void endSutExec(DockerExecution dockerExec) throws Exception {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
         // If it's Managed Sut, and container is created
@@ -454,8 +469,10 @@ public class TJobExecOrchestratorService {
         endCheckSutExec(dockerExec);
     }
 
-    public void endComposedSutExec(DockerExecution dockerExec) {
-
+    public void endComposedSutExec(DockerExecution dockerExec)
+            throws Exception {
+        String composeProjectName = dockerService.getSutName(dockerExec);
+        dockerComposeService.stopProject(composeProjectName);
     }
 
     public void updateSutExecDeployStatus(DockerExecution dockerExec,

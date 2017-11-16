@@ -41,10 +41,7 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.SutExecution;
-import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
@@ -404,55 +401,6 @@ public class DockerService2 {
     /*********************************/
     /***** End execution methods *****/
     /*********************************/
-
-    // public void endAllExec(DockerExecution dockerExec) throws Exception {
-    // try {
-    // endTestExec(dockerExec);
-    // if (dockerExec.isWithSut()) {
-    // endSutExec(dockerExec);
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // throw new Exception("end error"); // TODO Customize Exception
-    // }
-    // }
-
-    // public void endTestExec(DockerExecution dockerExec) {
-    // endContainer(dockerExec, getTestName(dockerExec));
-    // }
-
-    // public void endSutExec(DockerExecution dockerExec) {
-    // SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
-    //
-    // // If it's Managed Sut, and container is created
-    // if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-    // updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
-    //
-    // if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
-    // endContainer(dockerExec, getSutName(dockerExec));
-    // } else {
-    //
-    // }
-    // updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
-    // } else {
-    // logger.info("SuT not ended by ElasTest -> Deployed SuT");
-    // }
-    // endCheckSutExec(dockerExec);
-    // }
-
-    // public void updateSutExecDeployStatus(DockerExecution dockerExec,
-    // DeployStatusEnum status) {
-    // SutExecution sutExec = dockerExec.getSutExec();
-    //
-    // if (sutExec != null) {
-    // sutExec.setDeployStatus(status);
-    // }
-    // dockerExec.setSutExec(sutExec);
-    // }
-    //
-    // public void endCheckSutExec(DockerExecution dockerExec) {
-    // endContainer(dockerExec, getCheckName(dockerExec));
-    // }
 
     public void endContainer(DockerExecution dockerExec, String containerName) {
         if (existsContainer(containerName, dockerExec)) {

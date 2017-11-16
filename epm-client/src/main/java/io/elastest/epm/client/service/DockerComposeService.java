@@ -216,6 +216,9 @@ public class DockerComposeService {
 
         log.trace("Start project response code {}", response.code());
         if (!response.isSuccessful()) {
+            
+            log.error("Start project response code {}", response.code());
+            
             throw new DockerException(response.errorBody().string());
         }
         return true;
