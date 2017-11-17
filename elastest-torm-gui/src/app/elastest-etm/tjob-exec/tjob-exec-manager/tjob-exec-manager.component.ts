@@ -31,6 +31,17 @@ export class TjobExecManagerComponent implements OnInit {
     color: '',
   };
 
+    // TJob Data
+    testCaseColumns: any[] = [
+      { name: 'id', label: 'Id' },
+      { name: 'name', label: 'Name' },
+      { name: 'time', label: 'Time' },
+      { name: 'failureMessage', label: 'Failure Msg' },
+      { name: 'failureType', label: 'Failure Type' },
+      { name: 'failureErrorLine', label: 'Failure Error Line' },
+      { name: 'failureDetail', label: 'Failure Detail' },
+    ];
+
   constructor(
     private titlesService: TitlesService,
     private tJobExecService: TJobExecService, private tJobService: TJobService,

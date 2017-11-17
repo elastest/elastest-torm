@@ -21,7 +21,7 @@ export class FilesManagerComponent implements OnInit {
 
 
   filesColumns: any[] = [
-    { name: 'name', label: 'name' },
+    { name: 'name', label: 'Name' },
     { name: 'serviceName', label: 'Service' },
     { name: 'options', label: 'Options' },
   ];

@@ -85,7 +85,7 @@
                     <md-card-subtitle>Test Cases</md-card-subtitle>
                 </div>
 
-                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases"
+                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases" [columns]="testCaseColumns"
                     [selectable]="false" [clickable]="false" [sortable]="false">
                 </td-data-table>
             </md-card-content>

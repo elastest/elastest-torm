@@ -8,7 +8,7 @@
                     <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
                 </div>
                 <md-divider></md-divider>
-                <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="false"
+                <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
                     [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
                     <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                         <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>
