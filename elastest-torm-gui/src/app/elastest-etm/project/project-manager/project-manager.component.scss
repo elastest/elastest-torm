@@ -1,0 +1,13 @@
+:host /deep/ #sutsTable td{
+    max-width: 3vw;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+:host /deep/ #sutsTable td:has(.sutOptions){
+    max-width: initial !important;
+    overflow: initial !important;
+    white-space: initial !important;
+    text-overflow: initial !important;
+}

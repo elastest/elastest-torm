@@ -82,9 +82,6 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row">
-              <button md-button (click)="viewTJobExec(row)" stopRowClick title="View TJob Execution" class="iconBtn">
-                <md-icon>remove_red_eye</md-icon>
-              </button>
               <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution" class="iconBtn-lg">
                 <md-icon>delete</md-icon>
               </button>

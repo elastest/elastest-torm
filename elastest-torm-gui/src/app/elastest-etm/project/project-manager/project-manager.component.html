@@ -26,7 +26,7 @@
   </div>
 </div>
 
-<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="project">
+<div layout="column" layout-gt-lg="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="project">
   <div flex-gt-lg="50" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>TJobs</md-card-title>
@@ -53,9 +53,6 @@
               <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
                 <md-icon>play_circle_outline</md-icon>
               </button>
-              <button md-button (click)="viewTJob(row)" class="iconBtn-lg" title="View TJob">
-                <md-icon>remove_red_eye</md-icon>
-              </button>
               <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
                 <md-icon>mode_edit</md-icon>
               </button>
@@ -78,11 +75,10 @@
           <button md-raised-button color="accent" (click)="newSut()">New SuT</button>
         </div>
         <md-divider></md-divider>
-        <td-data-table #sutsTable class="scroll_table" [data]="project.suts" [columns]="sutColumns" [selectable]="false" [clickable]="false"
+        <td-data-table #sutsTable id="sutsTable" class="scroll_table" [data]="project.suts" [columns]="sutColumns" [selectable]="false" [clickable]="false"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row">
-              <!-- <button md-button (click)="viewSut(row)" class="iconBtn-lg" title="View Sut"><md-icon>remove_red_eye</md-icon></button> -->
+            <div layout="row" class="sutOptions">
               <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT">
                 <md-icon>mode_edit</md-icon>
               </button>
