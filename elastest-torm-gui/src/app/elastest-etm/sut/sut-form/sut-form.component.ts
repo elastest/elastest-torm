@@ -100,6 +100,7 @@ export class SutFormComponent implements OnInit {
       if (selected === 'deployedSut') {
         this.sut.sutType = 'DEPLOYED';
         this.deployedChecked = true;
+        this.sut.mainService = '';
       } else {
         this.sut.sutType = 'REPOSITORY';
         this.repoNameChecked = true;
