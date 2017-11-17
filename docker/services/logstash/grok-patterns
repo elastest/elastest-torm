@@ -107,8 +107,15 @@ LOGLEVEL ([Aa]lert|ALERT|[Tt]race|TRACE|[Dd]ebug|DEBUG|[Nn]otice|NOTICE|[Ii]nfo|
 JAVALOGLEVEL (ALERT|TRACE|DEBUG|NOTICE|INFO|WARNING|ERROR|CRITICAL|FATAL|SEVERE|EMERGENCY)
 
 
-# CONTAINER NAME for Logs
-CONTAINERNAME (test_\d*|sut_\d*|dynamic_\d*)(?=_exec)
+# CONTAINER NAME for Logs (ex: test_37_exec or test_37_servicename_exec or sut34_exec...)
+# OLD => CONTAINERNAME (test_\d*|sut_\d*|dynamic_\d*)(?=_exec)
+CONTAINERNAME ((test|sut|dynamic)(_)?(\d*))(.*)?(?=(_exec))
 
-# exec ID
+# exec ID EXECID (?<=\D_|\D\d)(\d*)
 EXECID (?<=test_|sut_|beats_|logstash_|dynamic_)(\d*)
+
+# COMPONENT
+COMPONENT (test|sut|dynamic)(?=((_)?(\d*)(.*)?))
+
+# component service
+COMPONENTSERVICE (?<=\d_)(.*)

@@ -380,10 +380,8 @@ public class DockerService2 {
     public LogConfig getLogConfig(int port, String tagPrefix,
             DockerExecution dockerExec) {
 
-        if (logstashHost == null) {
-            logstashHost = getHostIpByNetwork(dockerExec,
-                    dockerExec.getNetwork());
-        }
+        logstashHost = getLogstashHost(dockerExec);
+
         logger.info("Logstash IP to send logs from containers: {}",
                 logstashHost);
 
@@ -396,6 +394,13 @@ public class DockerService2 {
         logConfig.setConfig(configMap);
 
         return logConfig;
+    }
+
+    public String getLogstashHost(DockerExecution dockerExec) {
+        if (logstashHost == null) {
+            return getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
+        }
+        return logstashHost;
     }
 
     /*********************************/

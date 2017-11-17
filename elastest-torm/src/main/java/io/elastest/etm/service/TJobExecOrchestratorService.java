@@ -406,12 +406,18 @@ public class TJobExecOrchestratorService {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String mainService = sut.getMainService();
         String composeProjectName = dockerService.getSutName(dockerExec);
-        // docker-compose-ui api removes underscores '_'
+        // Because docker-compose-ui api removes underscores '_'
         String containerPrefix = composeProjectName.replaceAll("_", "");
+
+        // TMP replace sut exec and logstash sut tcp
+        String dockerComposeYml = sut.getSpecification()
+                .replaceAll("ETSUTREPLACE", composeProjectName)
+                .replaceAll("LOGSTASHSUTTCP", "tcp://"
+                        + dockerService.getLogstashHost(dockerExec) + ":5001");
 
         // Create Containers
         boolean created = dockerComposeService.createProject(composeProjectName,
-                sut.getSpecification());
+                dockerComposeYml);
 
         // Start Containers
         if (!created) {
