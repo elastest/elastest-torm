@@ -69,7 +69,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.loadTJobExec();
   }
 
-  loadTJobExec() {
+  loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
@@ -101,7 +101,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       });
   }
 
-  getSupportServicesInstances() {
+  getSupportServicesInstances(): void {
     this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec)
       .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
         if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
@@ -118,7 +118,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.elastestRabbitmqService.unsubscribeWSDestination();
   }
 
-  checkResultStatus() {
+  checkResultStatus(): void {
     this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
       (data) => {
         this.tJobExec.result = data.result;
@@ -135,13 +135,13 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     )
   }
 
-  viewTJob() {
+  viewTJob(): void {
     this.router.navigate(
       ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
     );
   }
 
-  stopExec() {
+  stopExec(): void {
     this.disableStopBtn = true;
     this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec)
       .subscribe(

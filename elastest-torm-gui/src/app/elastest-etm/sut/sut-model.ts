@@ -35,4 +35,16 @@ export class SutModel {
     public getRouteString(): string {
         return this.project.getRouteString() + ' / SuT / ' + this.name;
     }
+
+    public isManaged(): boolean {
+        return this.sutType === 'MANAGED';
+    }
+
+    public isDeployed(): boolean {
+        return this.sutType === 'DEPLOYED';
+    }
+
+    public isByDockerCompose(): boolean {
+        return this.isManaged && this.managedDockerType === 'COMPOSE';
+    }
 }

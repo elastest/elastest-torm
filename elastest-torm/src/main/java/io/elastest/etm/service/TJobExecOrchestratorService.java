@@ -439,16 +439,14 @@ public class TJobExecOrchestratorService {
             // Insert container into containers list
             dockerService.insertCreatedContainer(containerId,
                     container.getName());
-
             // If is main service container, set app id
             if (container.getName()
-                    .startsWith(containerPrefix + "_" + mainService)) {
+                    .equals(containerPrefix + "_" + mainService + "_1")) {
                 dockerExec.setAppContainerId(containerId);
             }
         }
 
-        if (dockerExec.getAppContainerId().isEmpty()
-                || dockerExec.getAppContainerId() == null) {
+        if (dockerExec.getAppContainerId() == null || dockerExec.getAppContainerId().isEmpty()) {
             throw new Exception(
                     "Main Sut service from docker compose not started");
         }

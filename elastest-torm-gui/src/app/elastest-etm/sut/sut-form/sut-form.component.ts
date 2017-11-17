@@ -53,7 +53,7 @@ export class SutFormComponent implements OnInit {
             this.initSutType();
             this.initInstrumentedBy();
             this.initInstrumentalized();
-            this.dockerCompose = this.sut.managedDockerType === 'COMPOSE';
+            this.dockerCompose = this.sut.isByDockerCompose();
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
