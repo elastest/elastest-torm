@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.model.ExternalJob;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.elastest.etm.api.model.ExternalJob;
+import io.elastest.etm.api.model.TestSupportServices;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -38,18 +41,20 @@ public class ExternalService {
 
     @Value("${et.public.host}")
     private String etPublicHost;
-    
+
     @Value("${et.etm.api}")
     private String etEtmApi;
-    
+
     @Value("${et.proxy.port}")
     private String etProxyPort;
 
     @Value("${et.in.prod}")
     public boolean etInProd;
-    
+
     @Value("${et.etm.dev.gui.port}")
     public String etEtmDevGuiPort;
+    
+    public UtilTools utilTools;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService, UtilTools utilTools) {
@@ -58,8 +63,44 @@ public class ExternalService {
         this.tJobService = tJobService;
     }
 
-    public ExternalJob createElasTestEntitiesForExtJob(
-            ExternalJob externalJob) {
+    public ExternalJob executeExternalTJob(ExternalJob externalJob) throws Exception {
+        logger.info("Executing TJob from external Job.");
+        try {
+            logger.debug("Creating TJob data structure.");
+            TJob tJob = createElasTestEntitiesForExtJob(externalJob);
+            
+            logger.debug("Creating TJobExecution.");
+            TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
+                    new ArrayList<>());
+
+            externalJob.setExecutionUrl(
+                    (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
+                            : "http://localhost" + ":" + etEtmDevGuiPort)
+                            + "/#/projects/" + tJob.getProject().getId()
+                            + "/tjob/" + tJob.getId() + "/tjob-exec/"
+                            + tJobExec.getId() + "/dashboard");
+            externalJob.setLogAnalyzerUrl(
+                    (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
+                            : "http://localhost" + ":" + etEtmDevGuiPort)
+                            + "/#/logmanager?indexName="
+                            + tJobExec.getId());
+            externalJob.settSSEnvVars(tJobExec.getTssEnvVars());
+            externalJob.setServicesIp(etPublicHost);
+            externalJob
+                    .setLogstashPort(etInProd ? etProxyPort : etEtmLsHttpPort);
+            externalJob.settJobExecId(tJobExec.getId());
+
+            logger.debug("TJobExecutino URL:" + externalJob.getExecutionUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error message: " + e.getMessage());
+            throw e;
+        }
+
+        return externalJob;
+    }
+
+    private TJob createElasTestEntitiesForExtJob(ExternalJob externalJob) throws Exception {
         logger.info("Creating external job entities.");
 
         try {
@@ -82,31 +123,20 @@ public class ExternalService {
                 tJob.setProject(project);
                 tJob.setExternal(true);
             }
-
-            logger.info("Creating TJobExecution.");
-            TJobExecution tJobExecution = tJobService.executeTJob(tJob.getId(),
-                    new ArrayList<>());
             
-            externalJob.setExecutionUrl((etInProd ? "http://" + etPublicHost + ":" + etProxyPort :
-                     "http://localhost" + ":" + etEtmDevGuiPort) + "/#/projects/" + project.getId() + "/tjob/"
-                    + tJob.getId() + "/tjob-exec/" + tJobExecution.getId()
-                    + "/dashboard");
-            externalJob.setLogAnalyzerUrl((etInProd ? "http://" + etPublicHost + ":" + etProxyPort :
-                "http://localhost" + ":" + etEtmDevGuiPort) + "/#/logmanager?indexName="
-                    + tJobExecution.getId());
-
-            externalJob.setServicesIp(etPublicHost);
-            externalJob.setLogstashPort(etInProd ? etProxyPort : etEtmLsHttpPort);
-            externalJob.settJobExecId(tJobExecution.getId());
-
-            logger.debug("TJobExecutino URL:" + externalJob.getExecutionUrl());
+            tJob.setSelectedServices("[");
+            for(TestSupportServices tSService : externalJob.gettSServices()) {
+                tJob.setSelectedServices(tJob.getSelectedServices() + tSService.toJsonString());
+            }
+            
+            tJob.setSelectedServices(tJob.getSelectedServices() + "]"); 
+//            utilTools.convertJsonString(externalJob.gettSServices().to)
+            return tJob;
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error message: " + e.getMessage());
             throw e;
         }
-
-        return externalJob;
     }
 
 }

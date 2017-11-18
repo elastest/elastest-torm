@@ -104,6 +104,7 @@ public class EsmService {
     public UtilTools utilTools;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
+    private Map<Long, List<String>> tSSIByTJobExecAssociated;
 
     public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
             DockerService2 dockerService) {
@@ -112,6 +113,7 @@ public class EsmService {
         this.utilTools = utilTools;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
+        this.tSSIByTJobExecAssociated = new HashMap<>();
         this.dockerService = dockerService;
     }
 
@@ -278,6 +280,13 @@ public class EsmService {
                     if (tJobExecId != null) {
                         tJobServicesInstances.put(instanceId,
                                 newServiceInstance);
+                        List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
+                                .get(tJobExecId) == null ? new ArrayList<>()
+                                        : tSSIByTJobExecAssociated
+                                                .get(tJobExecId);
+                        tSSIByTJobExecAssociatedList.add(newServiceInstance.getInstanceId());
+                        tSSIByTJobExecAssociated.put(tJobExecId, tSSIByTJobExecAssociatedList);
+                        
                         createExecFilesFolder(newServiceInstance);
                     } else {
                         servicesInstances.put(instanceId, newServiceInstance);
@@ -546,6 +555,11 @@ public class EsmService {
         servicesInstances = null;
     }
 
+    public String deprovisionServiceInstance(String instanceId,
+            Long tJobExecId){
+        tSSIByTJobExecAssociated.remove(tJobExecId);
+        return deprovisionServiceInstance(instanceId, true);
+    }
     /**
      * 
      * 
@@ -890,5 +904,14 @@ public class EsmService {
             }
         }
         return envVars;
+    }
+
+    public Map<Long, List<String>> gettSSIByTJobExecAssociated() {
+        return tSSIByTJobExecAssociated;
+    }
+
+    public void settSSIByTJobExecAssociated(
+            Map<Long, List<String>> tSSIByTJobExecAssociated) {
+        this.tSSIByTJobExecAssociated = tSSIByTJobExecAssociated;
     }
 }

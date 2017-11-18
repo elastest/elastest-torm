@@ -73,6 +73,44 @@ public class TJobExecOrchestratorService {
         this.sutService = sutService;
         this.dockerComposeService = dockerComposeService;
     }
+    
+//    @Async
+//    public Future<Void> executeExternalJob(TJobExecution tJobExec) {
+//        dbmanager.bindSession();
+//        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+//        
+//        String resultMsg = "Initializing";
+//        tJobExec.setResultMsg(resultMsg);
+//        tJobExecRepositoryImpl.save(tJobExec);
+//        
+//        initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+//        setTJobExecEnvVars(tJobExec);
+//        
+//        // Start Test
+//        resultMsg = "Executing Test";
+//        updateTJobExecResultStatus(tJobExec,
+//                TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+//        
+//        return new AsyncResult<Void>(null);
+//    }
+
+    public TJobExecution executeExternalJob(TJobExecution tJobExec) {
+        dbmanager.bindSession();
+        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        
+        String resultMsg = "Initializing";
+        tJobExec.setResultMsg(resultMsg);
+        tJobExecRepositoryImpl.save(tJobExec);
+        
+        initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+        setTJobExecEnvVars(tJobExec);
+        
+        // Start Test
+        resultMsg = "Executing Test";
+        updateTJobExecResultStatus(tJobExec,
+                TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+        return tJobExec;
+    }
 
     @Async
     public Future<Void> executeTJob(TJobExecution tJobExec,
@@ -157,10 +195,21 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Exception during Force End execution", e);
         }
+        
+        //Deprovision all TSS associated
+        logger.debug("Requesting the TSS deprovision.");
+        deprovideServices(tJobExec);
 
-        String resultMsg = "Stopped";
-        updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STOPPED,
-                resultMsg);
+        if (tJobExec.getTjob().isExternal()){
+            String resultMsg = "Success";
+            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.SUCCESS,
+                    resultMsg);
+        } else {
+            String resultMsg = "Stopped";
+            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STOPPED,
+                    resultMsg);
+        }
+        
         return tJobExec;
     }
 
@@ -281,9 +330,15 @@ public class TJobExecOrchestratorService {
     private void deprovideServices(TJobExecution tJobExec) {
         logger.info("Start the service deprovision.");
         List<String> instancesAux = new ArrayList<String>(
-                tJobExec.getServicesInstances());
-        for (String instanceId : tJobExec.getServicesInstances()) {
-            esmService.deprovisionServiceInstance(instanceId, true);
+                tJobExec.getServicesInstances().size() > 0
+                        ? tJobExec.getServicesInstances()
+                        : esmService.gettSSIByTJobExecAssociated()
+                                .get(tJobExec.getId()));
+        logger.debug("TSS list size: {}",  esmService.gettSSIByTJobExecAssociated()
+                                .get(tJobExec.getId()).size());
+        for (String instanceId : instancesAux) {
+            esmService.deprovisionServiceInstance(instanceId, tJobExec.getId());
+            logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
 
         logger.info("Start the services check.");

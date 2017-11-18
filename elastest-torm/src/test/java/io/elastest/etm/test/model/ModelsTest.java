@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
-import io.elastest.etm.model.ExternalJob;
+import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
@@ -107,16 +107,16 @@ public class ModelsTest {
     @Test
     public void testCreateExternalJob() {
         ExternalJob extJob = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1");
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null);
         assertTrue(extJob.getJobName().equals("Job1"));
     }
 
     @Test
     public void testEqualsExternalJobs() {
         ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1");
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null);
         ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1");
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null);
         assertTrue(extJob1.equals(extJob2));
         assertEquals(extJob1.hashCode(), extJob2.hashCode());
     }

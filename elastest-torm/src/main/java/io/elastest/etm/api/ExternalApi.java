@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.ExternalJob;
+import io.elastest.etm.api.model.ExternalJob;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,7 +27,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     	produces = { "application/json" },
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    ExternalJob createExternalTJob(@ApiParam(value = "Object with the external Job Data (the name)." ,required=true )  @Valid @RequestBody ExternalJob body);
+    ExternalJob executeExternalTJob(@ApiParam(value = "Object with the external Job Data (the name)." ,required=true )  @Valid @RequestBody ExternalJob body);
 	
 	
 	@ApiOperation(value = "Receives the completion signal of an External Job", notes = "Sets the execution of TJob in the Completed state.", tags={ "External", })

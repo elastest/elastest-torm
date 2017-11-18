@@ -1,7 +1,9 @@
-package io.elastest.etm.model;
+package io.elastest.etm.api.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
@@ -32,19 +34,34 @@ public class ExternalJob {
 	@JsonProperty("servicesIp")	
 	private String servicesIp;
 	
+	@JsonProperty("tSServices")
+    private List<TestSupportServices> tSServices;
+	
+	@JsonProperty("tSSEnvVars")
+	private Map<String, String> tSSEnvVars;
+	
+	@JsonProperty("result")
+	private int result;
+	
 	public ExternalJob(){}
 	
-	public ExternalJob(String jobName, String executionUrl, String logAnalyzerUrl,  Long tJobExecId,
-			String logstashPort, String servicesIp){
-		this.jobName = jobName;
-		this.executionUrl = executionUrl;
-		this.logAnalyzerUrl = logAnalyzerUrl;
-		this.tJobExecId = tJobExecId;		
-		this.logstashPort = logstashPort;
-		this.servicesIp = servicesIp;
-	}
-		
-	@ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
+    public ExternalJob(String jobName, String executionUrl,
+            String logAnalyzerUrl, Long tJobExecId, String logstashPort,
+            String servicesIp, List<TestSupportServices> tSServices,
+            Map<String, String> tSSEnvVars, int result) {
+        super();
+        this.jobName = jobName;
+        this.executionUrl = executionUrl;
+        this.logAnalyzerUrl = logAnalyzerUrl;
+        this.tJobExecId = tJobExecId;
+        this.logstashPort = logstashPort;
+        this.servicesIp = servicesIp;
+        this.tSServices = tSServices;
+        this.tSSEnvVars = tSSEnvVars;
+        this.result = result;
+    }
+
+    @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
 	@NotNull
 	public String getJobName() {
 		return jobName;
@@ -97,8 +114,32 @@ public class ExternalJob {
 	public void setServicesIp(String servicesIp) {
 		this.servicesIp = servicesIp;
 	}
+	
+	public List<TestSupportServices> gettSServices() {
+        return tSServices;
+    }
 
-	@Override
+    public void settSServices(List<TestSupportServices> tSServices) {
+        this.tSServices = tSServices;
+    }
+
+	public Map<String, String> gettSSEnvVars() {
+        return tSSEnvVars;
+    }
+
+    public void settSSEnvVars(Map<String, String> tSSEnvVars) {
+        this.tSSEnvVars = tSSEnvVars;
+    }
+
+    public int getResult() {
+        return result;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
+
+    @Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
 			return true;
@@ -112,12 +153,15 @@ public class ExternalJob {
 				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
 				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
 				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
-				&& Objects.equals(this.servicesIp, externalJob.servicesIp);
+				&& Objects.equals(this.servicesIp, externalJob.servicesIp)
+				&& Objects.equals(this.tSServices, externalJob.tSServices)
+				&& Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars)
+				&& Objects.equals(this.result, externalJob.result);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp);
+		return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp, tSServices, tSSEnvVars, result);
 	}
 
 	@Override
@@ -130,6 +174,9 @@ public class ExternalJob {
 		sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId)).append("\n");
 		sb.append("    logstashPort: ").append(toIndentedString(logstashPort)).append("\n");
 		sb.append("    servicesIp: ").append(toIndentedString(servicesIp)).append("\n");
+		sb.append("    tSServices: ").append(toIndentedString(tSServices)).append("\n");
+		sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars)).append("\n");
+		sb.append("    result: ").append(toIndentedString(result)).append("\n");
 		sb.append("}");
 		
 		return sb.toString();

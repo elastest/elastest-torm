@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Parameter;
@@ -75,10 +76,10 @@ public class TJobService {
     }
 
     public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters) {
-        TJob tjob = tJobRepo.findOne(tJobId);
+        TJob tJob = tJobRepo.findOne(tJobId);
         TJobExecution tJobExec = new TJobExecution();
         tJobExec.setStartDate(new Date());
-        tJobExec.setTjob(tjob);
+        tJobExec.setTjob(tJob);
         tJobExec.setParameters(parameters);
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
@@ -86,13 +87,17 @@ public class TJobService {
         tJobExec.generateLogIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
-        if (!tjob.isExternal()) {
-            // Run async execution
+        //TODO Future<Void> asyncExec = tjob.isExternal()
+        // ? tJobExecOrchestratorService.executeTJob(tJobExec,
+        // tjob.getSelectedServices())
+        // : tJobExecOrchestratorService.executeExternalJob(tJobExec);
+        if (!tJob.isExternal()) {
             Future<Void> asyncExec = tJobExecOrchestratorService
-                    .executeTJob(tJobExec, tjob.getSelectedServices());
+                    .executeTJob(tJobExec, tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
+        } else {
+            tJobExecOrchestratorService.executeExternalJob(tJobExec);
         }
-
         return tJobExec;
     }
 
@@ -125,12 +130,15 @@ public class TJobService {
         return tJobExec;
     }
 
-    public void finishTJobExecution(Long tJobExecId) {
-        TJobExecution tJobExecution = tJobExecRepositoryImpl
-                .findOne(tJobExecId);
-        tJobExecution.setResult(ResultEnum.SUCCESS);
-
-        tJobExecRepositoryImpl.save(tJobExecution);
+    public void finishExternalTJobExecution(ExternalJob externalJob) {
+        logger.info("Finishing the external Job.");
+        TJobExecution tJobExec = tJobExecRepositoryImpl
+                .findOne(externalJob.gettJobExecId());
+        
+        tJobExec.setResult(TJobExecution.ResultEnum.values()[externalJob.getResult()]);
+        tJobExecOrchestratorService.forceEndExecution(tJobExec);
+        tJobExecRepositoryImpl.save(tJobExec);
+        
     }
 
     public void deleteTJobExec(Long tJobExecId) {
