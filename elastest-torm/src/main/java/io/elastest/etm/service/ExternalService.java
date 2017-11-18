@@ -124,13 +124,19 @@ public class ExternalService {
                 tJob.setExternal(true);
             }
             
-            tJob.setSelectedServices("[");
-            for(TestSupportServices tSService : externalJob.getTSServices()) {
-                tJob.setSelectedServices(tJob.getSelectedServices() + tSService.toJsonString());
+            if (externalJob.getTSServices() != null
+                    && externalJob.getTSServices().size() > 0) {
+                tJob.setSelectedServices("[");
+                
+                for (TestSupportServices tSService : externalJob
+                        .getTSServices()) {
+                    tJob.setSelectedServices(tJob.getSelectedServices()
+                            + tSService.toJsonString());
+                }
+
+                tJob.setSelectedServices(tJob.getSelectedServices() + "]");
             }
-            
-            tJob.setSelectedServices(tJob.getSelectedServices() + "]"); 
-//            utilTools.convertJsonString(externalJob.gettSServices().to)
+
             return tJob;
         } catch (Exception e) {
             e.printStackTrace();
