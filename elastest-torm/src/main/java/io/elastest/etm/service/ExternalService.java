@@ -84,7 +84,7 @@ public class ExternalService {
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName="
                             + tJobExec.getId());
-            externalJob.settSSEnvVars(tJobExec.getTssEnvVars());
+            externalJob.setTSSEnvVars(tJobExec.getTssEnvVars());
             externalJob.setServicesIp(etPublicHost);
             externalJob
                     .setLogstashPort(etInProd ? etProxyPort : etEtmLsHttpPort);
@@ -125,7 +125,7 @@ public class ExternalService {
             }
             
             tJob.setSelectedServices("[");
-            for(TestSupportServices tSService : externalJob.gettSServices()) {
+            for(TestSupportServices tSService : externalJob.getTSServices()) {
                 tJob.setSelectedServices(tJob.getSelectedServices() + tSService.toJsonString());
             }
             

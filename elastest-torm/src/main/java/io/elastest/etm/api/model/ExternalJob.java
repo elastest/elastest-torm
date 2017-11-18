@@ -115,19 +115,19 @@ public class ExternalJob {
 		this.servicesIp = servicesIp;
 	}
 	
-	public List<TestSupportServices> gettSServices() {
+	public List<TestSupportServices> getTSServices() {
         return tSServices;
     }
 
-    public void settSServices(List<TestSupportServices> tSServices) {
+    public void setTSServices(List<TestSupportServices> tSServices) {
         this.tSServices = tSServices;
     }
 
-	public Map<String, String> gettSSEnvVars() {
+	public Map<String, String> getTSSEnvVars() {
         return tSSEnvVars;
     }
 
-    public void settSSEnvVars(Map<String, String> tSSEnvVars) {
+    public void setTSSEnvVars(Map<String, String> tSSEnvVars) {
         this.tSSEnvVars = tSSEnvVars;
     }
 
