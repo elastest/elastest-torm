@@ -47,7 +47,7 @@ public class EsmServiceItTest {
 		
 		assertThat(nginx).isNotNull();
 		
-		esmService.provisionServiceInstanceSync(nginx.getId(), null, null);
+		esmService.provisionServiceInstanceSync(nginx.getId(), null);
 	}
 
 }

@@ -38,6 +38,8 @@ import com.github.dockerjava.api.model.Ports;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.UtilTools;
 
@@ -238,20 +240,18 @@ public class EsmService {
     }
 
     @Async
-    public void provisionServiceInstanceAsync(String serviceId, Long tJobExecId,
-            Long tJobId, String instanceId) {
-        provisionServiceInstance(serviceId, tJobExecId, tJobId, instanceId);
+    public void provisionServiceInstanceAsync(String serviceId, TJobExecution tJobExec, String instanceId) {
+        provisionServiceInstance(serviceId, tJobExec, instanceId);
     }
 
     public String provisionServiceInstanceSync(String serviceId,
-            Long tJobExecId, Long tJobId) {
+            TJobExecution tJobExec) {
         String instanceId = utilTools.generateUniqueId();
-        provisionServiceInstance(serviceId, tJobExecId, tJobId, instanceId);
+        provisionServiceInstance(serviceId, tJobExec, instanceId);
         return instanceId;
     }
 
-    public void provisionServiceInstance(String serviceId, Long tJobExecId,
-            Long tJobId, String instanceId) {
+    public void provisionServiceInstance(String serviceId, TJobExecution tJobExec, String instanceId) {
         logger.info("Service id to provision: " + serviceId);
         ObjectMapper mapper = new ObjectMapper();
         SupportServiceInstance newServiceInstance = null;
@@ -272,20 +272,19 @@ public class EsmService {
                             // ""),
                             "", plans.get(0).get("id").toString()
                                     .replaceAll("\"", ""),
-                            tJobExecId);
+                                    tJobExec.getId());
 
-                    fillEnvVariablesToTSS(newServiceInstance, tJobExecId,
-                            tJobId);
+                    fillEnvVariablesToTSS(newServiceInstance, tJobExec);
 
-                    if (tJobExecId != null) {
+                    if (tJobExec.getId() != null) {
                         tJobServicesInstances.put(instanceId,
                                 newServiceInstance);
                         List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
-                                .get(tJobExecId) == null ? new ArrayList<>()
+                                .get(tJobExec.getId()) == null ? new ArrayList<>()
                                         : tSSIByTJobExecAssociated
-                                                .get(tJobExecId);
+                                                .get(tJobExec.getId());
                         tSSIByTJobExecAssociatedList.add(newServiceInstance.getInstanceId());
-                        tSSIByTJobExecAssociated.put(tJobExecId, tSSIByTJobExecAssociatedList);
+                        tSSIByTJobExecAssociated.put(tJobExec.getId(), tSSIByTJobExecAssociatedList);
                         
                         createExecFilesFolder(newServiceInstance);
                     } else {
@@ -308,7 +307,7 @@ public class EsmService {
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        tJobExecId != null);
+                        tJobExec != null && tJobExec.getId() != null);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -729,9 +728,11 @@ public class EsmService {
     }
 
     private void fillEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance, Long tJobExecId,
-            Long tJobId) {
-        if (tJobId != null && tJobExecId != null) {
+            SupportServiceInstance supportServiceInstance, TJobExecution tJobExec) {
+        if (tJobExec != null && tJobExec.getTjob() != null) {
+            Long tJobId =  tJobExec.getTjob().getId();
+            Long tJobExecId =  tJobExec.getId();
+            
             supportServiceInstance.getParameters().put("ET_TJOB_ID",
                     tJobId.toString());
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
@@ -744,6 +745,10 @@ public class EsmService {
                             + fileSeparator + supportServiceInstance
                                     .getServiceName().toLowerCase()
                             + fileSeparator);
+            
+            if (tJobExec.getTjob().getSut().getManagedDockerType().equals(SutSpecification.ManagedDockerType.COMPOSE))
+            supportServiceInstance.getParameters().put("DOCKER_NETWORK",
+                    "sut" + tJobExecId + "_default");
         }
 
         supportServiceInstance.getParameters().put("ET_LSHTTP_API",
