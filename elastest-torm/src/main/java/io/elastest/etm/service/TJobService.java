@@ -75,19 +75,26 @@ public class TJobService {
         return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
     }
 
-    public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters) {
+    public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters,
+            List<Parameter> sutParameters) {
         TJob tJob = tJobRepo.findOne(tJobId);
         TJobExecution tJobExec = new TJobExecution();
         tJobExec.setStartDate(new Date());
+        if (tJob.getSut() != null && sutParameters != null
+                && !sutParameters.isEmpty()) {
+            tJob.getSut().setParameters(sutParameters);
+        }
         tJobExec.setTjob(tJob);
-        tJobExec.setParameters(parameters);
+        if (parameters != null && !parameters.isEmpty()) {
+            tJobExec.setParameters(parameters);
+        }
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         // After first save, get real Id
         tJobExec.generateLogIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
-        //TODO Future<Void> asyncExec = tjob.isExternal()
+        // TODO Future<Void> asyncExec = tjob.isExternal()
         // ? tJobExecOrchestratorService.executeTJob(tJobExec,
         // tjob.getSelectedServices())
         // : tJobExecOrchestratorService.executeExternalJob(tJobExec);
@@ -134,11 +141,11 @@ public class TJobService {
         logger.info("Finishing the external Job.");
         TJobExecution tJobExec = tJobExecRepositoryImpl
                 .findOne(externalJob.gettJobExecId());
-        
-        tJobExec.setResult(TJobExecution.ResultEnum.values()[externalJob.getResult()]);
+
+        tJobExec.setResult(ResultEnum.values()[externalJob.getResult()]);
         tJobExecOrchestratorService.forceEndExecution(tJobExec);
         tJobExecRepositoryImpl.save(tJobExec);
-        
+
     }
 
     public void deleteTJobExec(Long tJobExecId) {

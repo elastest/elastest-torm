@@ -138,6 +138,15 @@
           </md-list>
         </div>
 
+        <!-- Parameters -->
+        <td-expansion-panel expand="true" class="push-bottom">
+          <ng-template td-expansion-panel-label>
+            <span>Parameters</span>
+          </ng-template>
+          <div class="pad">
+            <parameters-view [model]="sut.parameters"></parameters-view>
+          </div>
+        </td-expansion-panel>
       </div>
     </form>
   </md-card-content>

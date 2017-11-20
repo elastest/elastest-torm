@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.ExecParams;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution;
@@ -93,9 +93,8 @@ public class TjobApiController implements TjobApi {
     @JsonView(BasicAttTJobExec.class)
     public ResponseEntity<TJobExecution> execTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters) {
-
-        TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters);
+            @ApiParam(value = "Execution Parameters", required = false) @Valid @RequestBody ExecParams parameters) {
+        TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters.gettJobParams(), parameters.getSutParams());
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 

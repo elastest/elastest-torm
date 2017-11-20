@@ -93,7 +93,6 @@ export class ETModelsTransformServices {
         return newTJob;
     }
 
-
     /***** TJobExec *****/
     public jsonToTJobExecsList(tjobExecs: any[]): TJobExecModel[] {
         let tJobExecsList: TJobExecModel[] = [];
@@ -102,7 +101,6 @@ export class ETModelsTransformServices {
         }
         return tJobExecsList;
     }
-
 
     public jsonToTJobExecModel(tjobExec: any): TJobExecModel {
         let newTJobExec: TJobExecModel;
@@ -131,7 +129,6 @@ export class ETModelsTransformServices {
 
         return newTJobExec;
     }
-
 
     /***** Sut *****/
     jsonToSutsList(suts: any[], fromProject: boolean = false): SutModel[] {
@@ -166,7 +163,8 @@ export class ETModelsTransformServices {
         newSut.port = sut.port;
         newSut.managedDockerType = sut.managedDockerType;
         newSut.mainService = sut.mainService;
-        
+        newSut.parameters = sut.parameters;
+
         return newSut;
     }
 
@@ -179,7 +177,6 @@ export class ETModelsTransformServices {
         return sutExecsList;
     }
 
-
     jsonToSutExecModel(sutExec: any) {
         let newSutExec: SutExecModel;
 
@@ -188,6 +185,7 @@ export class ETModelsTransformServices {
         newSutExec.deplotStatus = sutExec.deplotStatus;
         newSutExec.url = sutExec.url;
         newSutExec.sut = sutExec.sut;
+        newSutExec.parameters = sutExec.parameters;
 
         return newSutExec;
     }

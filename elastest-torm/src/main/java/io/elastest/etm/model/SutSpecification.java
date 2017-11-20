@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -113,6 +115,11 @@ public class SutSpecification {
     @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
     @JsonProperty("mainService")
     private String mainService = null;
+
+    @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+    @ElementCollection
+    @CollectionTable(name = "SutParameter", joinColumns = @JoinColumn(name = "SutSpecification"))
+    private List<Parameter> parameters;
 
     public SutSpecification() {
     }
@@ -470,6 +477,20 @@ public class SutSpecification {
         this.mainService = mainService;
     }
 
+    /**
+     * Get parameters
+     * 
+     * @return parameters
+     **/
+
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+    }
+
     // Other methods
 
     @Override
@@ -500,14 +521,15 @@ public class SutSpecification {
                 && Objects.equals(this.managedDockerType,
                         sutSpecification.managedDockerType)
                 && Objects.equals(this.mainService,
-                        sutSpecification.mainService);
+                        sutSpecification.mainService)
+                && Objects.equals(this.parameters, sutSpecification.parameters);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, instrumentedBy, port, managedDockerType,
-                mainService);
+                mainService, parameters);
     }
 
     @Override
@@ -536,6 +558,8 @@ public class SutSpecification {
         sb.append("    managedDockerType: ")
                 .append(toIndentedString(managedDockerType)).append("\n");
         sb.append("    mainService: ").append(toIndentedString(mainService))
+                .append("\n");
+        sb.append("    parameters: ").append(toIndentedString(parameters))
                 .append("\n");
         sb.append("}");
         return sb.toString();

@@ -22,12 +22,16 @@ export class RunTJobModalComponent implements OnInit {
   }
 
   runTJob() {
-    this.tJobExecService.runTJob(this.tJob.id, this.tJob.parameters)
+    this.tJobExecService.runTJob(this.tJob.id, this.tJob.parameters, this.hasSut() ? this.tJob.sut.parameters : undefined)
       .subscribe(
       (tjobExecution: TJobExecModel) => {
         this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
       },
       (error) => console.error('Error:' + error),
     );
+  }
+
+  hasSut() {
+    return (this.tJob.sut !== undefined && this.tJob.sut !== null && this.tJob.sut.id !== 0);
   }
 }

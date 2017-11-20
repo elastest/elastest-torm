@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.ExecParams;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -97,7 +97,7 @@ public interface TjobApi extends EtmApiRoot {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TJobExecution> execTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "Parameters", required = true) @Valid @RequestBody List<Parameter> parameters);
+            @ApiParam(value = "Execution Parameters", required = false) @Valid @RequestBody ExecParams parameters);
 
     @ApiOperation(value = "Deletes a TJob Execution", notes = "Deletes the TJob Execution for a given id.", response = Long.class, tags = {
             "TJob Execution", })
@@ -140,7 +140,7 @@ public interface TjobApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TJobExecution>> getTJobsExecutionsByTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
-    
+
     @ApiOperation(value = "Returns all TJob Executions", notes = "Returns all TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
             "TJob Execution", })
     @ApiResponses(value = {

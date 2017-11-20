@@ -71,7 +71,7 @@ public class ExternalService {
             
             logger.debug("Creating TJobExecution.");
             TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
-                    new ArrayList<>());
+                    new ArrayList<>(), new ArrayList<>());
 
             externalJob.setExecutionUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort

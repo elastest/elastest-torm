@@ -21,9 +21,18 @@ export class TJobExecService {
   ) { }
 
   //  TJobExecution functions
-  public runTJob(tJobId: number, parameters: any[]) {
+  public runTJob(tJobId: number, parameters?: any[], sutParams?: any[]) {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
-    return this.http.post(url, parameters)
+    let body: any = {};
+    if (parameters) {
+      body['tJobParams'] = parameters;
+    }
+
+    if (sutParams) {
+      body['sutParams'] = sutParams;
+    }
+
+    return this.http.post(url, body)
       .map((response) => response.json());
   }
 

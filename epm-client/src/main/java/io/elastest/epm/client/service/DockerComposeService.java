@@ -184,13 +184,12 @@ public class DockerComposeService {
         return dockerComposeProject;
     }
 
-    public boolean createProject(String projectName, String dockerComposeYml)
+    public boolean createProject(DockerComposeCreateProject project)
             throws IOException {
-        DockerComposeCreateProject createProject = new DockerComposeCreateProject(
-                projectName, dockerComposeYml.replaceAll("'", "\""));
-        log.debug("Creating Docker Compose with data: {}", createProject);
+        
+        log.debug("Creating Docker Compose with data: {}", project);
 
-        String json = jsonService.objectToJson(createProject);
+        String json = jsonService.objectToJson(project);
         RequestBody data = create(parse(APPLICATION_JSON), json);
         Response<ResponseBody> response = dockerComposeApi.createProject(data)
                 .execute();
@@ -201,6 +200,15 @@ public class DockerComposeService {
         }
 
         return true;
+    }
+
+    
+    public boolean createProject(String projectName, String dockerComposeYml)
+            throws IOException {
+        DockerComposeCreateProject createProject = new DockerComposeCreateProject(
+                projectName, dockerComposeYml.replaceAll("'", "\""));
+        
+        return createProject(createProject);
     }
 
     public boolean startProject(String projectName) throws IOException {

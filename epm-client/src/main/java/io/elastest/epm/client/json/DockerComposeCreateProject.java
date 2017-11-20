@@ -16,6 +16,8 @@
  */
 package io.elastest.epm.client.json;
 
+import java.util.List;
+
 /**
  * Utility class for serialize JSON messages (create project).
  *
@@ -26,6 +28,24 @@ public class DockerComposeCreateProject {
 
     String name;
     String yml;
+    String env;
+
+    public DockerComposeCreateProject(String name, String yml,
+            List<String> envList) {
+        this.name = name;
+        this.yml = yml;
+
+        if (envList.size() == 1) {
+            this.env = envList.get(0);
+        } else {
+
+            StringBuilder sb = new StringBuilder();
+            for (String var : envList) {
+                sb.append(var).append("\n");
+            }
+            this.env = sb.toString();
+        }
+    }
 
     public DockerComposeCreateProject(String name, String yml) {
         this.name = name;
@@ -40,10 +60,14 @@ public class DockerComposeCreateProject {
         return yml;
     }
 
+    public String getEnv() {
+        return env;
+    }
+
     @Override
     public String toString() {
         return "DockerComposeCreateProject [getName()=" + getName()
-                + ", getYml()=" + getYml() + "]";
+                + ", getYml()=" + getYml() + ", getEnv()=" + getEnv() + "]";
     }
 
 }

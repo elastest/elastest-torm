@@ -15,6 +15,7 @@ export class SutModel {
     port: string;
     managedDockerType: string;
     mainService: string;
+    parameters: any[];
 
     constructor() {
         this.id = 0;
@@ -30,6 +31,7 @@ export class SutModel {
         this.port = undefined;
         this.managedDockerType = '';
         this.mainService = '';
+        this.parameters = [];
     }
 
     public getRouteString(): string {

@@ -171,14 +171,23 @@ public class DockerService2 {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String sutImage = appImage;
 
-        // Load ENV VARS
-        String envVar = "";
+        // Environment variables (optional)
+        ArrayList<String> envList = new ArrayList<>();
+        String envVar;
+
+        // Get Parameters and insert into Env Vars
+        for (Parameter parameter : sut.getParameters()) {
+            envVar = parameter.getName() + "=" + parameter.getValue();
+            envList.add(envVar);
+        }
+
         if (sut.getSutType() == SutTypeEnum.MANAGED) {
             sutImage = sut.getSpecification();
             envVar = "REPO_URL=none";
         } else {
             envVar = "REPO_URL=" + sut.getSpecification();
         }
+        envList.add(envVar);
 
         // Load Log Config
         logger.info(
@@ -205,7 +214,7 @@ public class DockerService2 {
 
         // Create Container
         dockerExec.setAppContainer(dockerExec.getDockerClient()
-                .createContainerCmd(sutImage).withEnv(envVar)
+                .createContainerCmd(sutImage).withEnv(envList)
                 .withLogConfig(logConfig).withName(sutName)
                 .withNetworkMode(dockerExec.getNetwork()).exec());
 

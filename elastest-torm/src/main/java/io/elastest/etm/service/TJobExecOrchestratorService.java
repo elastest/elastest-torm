@@ -1,5 +1,7 @@
 package io.elastest.etm.service;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,11 +22,13 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
@@ -73,38 +77,38 @@ public class TJobExecOrchestratorService {
         this.sutService = sutService;
         this.dockerComposeService = dockerComposeService;
     }
-    
-//    @Async
-//    public Future<Void> executeExternalJob(TJobExecution tJobExec) {
-//        dbmanager.bindSession();
-//        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
-//        
-//        String resultMsg = "Initializing";
-//        tJobExec.setResultMsg(resultMsg);
-//        tJobExecRepositoryImpl.save(tJobExec);
-//        
-//        initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-//        setTJobExecEnvVars(tJobExec);
-//        
-//        // Start Test
-//        resultMsg = "Executing Test";
-//        updateTJobExecResultStatus(tJobExec,
-//                TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-//        
-//        return new AsyncResult<Void>(null);
-//    }
+
+    // @Async
+    // public Future<Void> executeExternalJob(TJobExecution tJobExec) {
+    // dbmanager.bindSession();
+    // tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+    //
+    // String resultMsg = "Initializing";
+    // tJobExec.setResultMsg(resultMsg);
+    // tJobExecRepositoryImpl.save(tJobExec);
+    //
+    // initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+    // setTJobExecEnvVars(tJobExec);
+    //
+    // // Start Test
+    // resultMsg = "Executing Test";
+    // updateTJobExecResultStatus(tJobExec,
+    // TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+    //
+    // return new AsyncResult<Void>(null);
+    // }
 
     public TJobExecution executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
-        
+
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
-        
+
         initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
         setTJobExecEnvVars(tJobExec);
-        
+
         // Start Test
         resultMsg = "Executing Test";
         updateTJobExecResultStatus(tJobExec,
@@ -152,10 +156,17 @@ public class TJobExecOrchestratorService {
                     TJobExecution.ResultEnum.WAITING, resultMsg);
             saveTestResults(testSuites, tJobExec);
 
+            logger.info("Ending Execution...");
             // End and purge services
             endAllExecs(dockerExec);
             if (tJobServices != null && tJobServices != "") {
-                deprovideServices(tJobExec);
+                try {
+                    deprovideServices(tJobExec);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    throw new Exception("end error"); // TODO Customize
+                                                      // Exception
+                }
             }
 
             saveFinishStatus(tJobExec, dockerExec);
@@ -163,7 +174,7 @@ public class TJobExecOrchestratorService {
             // Stop exception
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
-            if (!e.getMessage().equals("end error")) {
+            if (!"end error".equals(e.getMessage())) {
                 resultMsg = "Failure";
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.ERROR, resultMsg);
@@ -172,6 +183,8 @@ public class TJobExecOrchestratorService {
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
+            } else {
+                saveFinishStatus(tJobExec, dockerExec);
             }
         }
 
@@ -195,21 +208,25 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Exception during Force End execution", e);
         }
-        
-        //Deprovision all TSS associated
-        logger.debug("Requesting the TSS deprovision.");
-        deprovideServices(tJobExec);
 
-        if (tJobExec.getTjob().isExternal()){
+        // Deprovision all TSS associated
+        logger.debug("Requesting the TSS deprovision.");
+        try {
+            deprovideServices(tJobExec);
+        } catch (Exception e) {
+            logger.error("Exception during Deprovide Services");
+        }
+
+        if (tJobExec.getTjob().isExternal()) {
             String resultMsg = "Success";
-            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.SUCCESS,
-                    resultMsg);
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.SUCCESS, resultMsg);
         } else {
             String resultMsg = "Stopped";
-            updateTJobExecResultStatus(tJobExec, TJobExecution.ResultEnum.STOPPED,
-                    resultMsg);
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.STOPPED, resultMsg);
         }
-        
+
         return tJobExec;
     }
 
@@ -329,13 +346,18 @@ public class TJobExecOrchestratorService {
      */
     private void deprovideServices(TJobExecution tJobExec) {
         logger.info("Start the service deprovision.");
-        List<String> instancesAux = new ArrayList<String>(
-                tJobExec.getServicesInstances().size() > 0
-                        ? tJobExec.getServicesInstances()
-                        : esmService.gettSSIByTJobExecAssociated()
-                                .get(tJobExec.getId()));
-        logger.debug("TSS list size: {}",  esmService.gettSSIByTJobExecAssociated()
-                                .get(tJobExec.getId()).size());
+        List<String> instancesAux = new ArrayList<String>();
+        if (tJobExec.getServicesInstances().size() > 0) {
+            instancesAux = new ArrayList<String>(
+                    tJobExec.getServicesInstances());
+        } else if (esmService.gettSSIByTJobExecAssociated()
+                .get(tJobExec.getId()) != null) {
+            instancesAux = new ArrayList<String>(esmService
+                    .gettSSIByTJobExecAssociated().get(tJobExec.getId()));
+        }
+
+        logger.debug("TSS list size: {}", esmService
+                .gettSSIByTJobExecAssociated().get(tJobExec.getId()).size());
         for (String instanceId : instancesAux) {
             esmService.deprovisionServiceInstance(instanceId, tJobExec.getId());
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
@@ -470,9 +492,21 @@ public class TJobExecOrchestratorService {
                 .replaceAll("LOGSTASHSUTTCP", "tcp://"
                         + dockerService.getLogstashHost(dockerExec) + ":5001");
 
+        // Environment variables (optional)
+        ArrayList<String> envList = new ArrayList<>();
+        String envVar;
+
+        // Get Parameters and insert into Env Vars
+        for (Parameter parameter : sut.getParameters()) {
+            envVar = parameter.getName() + "=" + parameter.getValue();
+            envList.add(envVar);
+        }
+
+        DockerComposeCreateProject project = new DockerComposeCreateProject(
+                composeProjectName, dockerComposeYml, envList);
+
         // Create Containers
-        boolean created = dockerComposeService.createProject(composeProjectName,
-                dockerComposeYml);
+        boolean created = dockerComposeService.createProject(project);
 
         // Start Containers
         if (!created) {
@@ -487,10 +521,14 @@ public class TJobExecOrchestratorService {
             String containerId = dockerService
                     .getContainerIdByName(container.getName(), dockerExec);
 
+            try{
             // Insert into ElasTest network
-            dockerService.insertIntoNetwork(dockerExec.getNetwork(),
+                dockerService.insertIntoNetwork(dockerExec.getNetwork(),
                     containerId);
-
+            }catch (Exception e) {
+                logger.warn("Cannot insert container {} into network {}",
+                        containerId, dockerExec.getNetwork(), e);
+            }
             // Insert container into containers list
             dockerService.insertCreatedContainer(containerId,
                     container.getName());
@@ -501,7 +539,8 @@ public class TJobExecOrchestratorService {
             }
         }
 
-        if (dockerExec.getAppContainerId() == null || dockerExec.getAppContainerId().isEmpty()) {
+        if (dockerExec.getAppContainerId() == null
+                || dockerExec.getAppContainerId().isEmpty()) {
             throw new Exception(
                     "Main Sut service from docker compose not started");
         }

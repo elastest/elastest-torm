@@ -97,7 +97,7 @@ export class ProjectManagerComponent implements OnInit {
   }
 
   runTJob(tJob: TJobModel, project: ProjectModel) {
-    if (tJob.parameters.length > 0) {
+    if (tJob.hasParameters()) {
       tJob.project = project;
       let dialogRef = this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),

@@ -40,7 +40,7 @@ export class TJobModel {
         this.esmServicesChecked = 0;
     }
 
-    public generateExecDashboardConfig() {
+    public generateExecDashboardConfig(): void {
         this.execDashboardConfig = JSON.stringify(this.execDashboardConfigModel);
     }
 
@@ -48,7 +48,7 @@ export class TJobModel {
         return (this.sut !== undefined && this.sut !== null && this.sut.id !== 0);
     }
 
-    public cloneTJob() {
+    public cloneTJob(): TJobModel {
         let tJob: TJobModel = Object.assign({}, this, {
             parameters: [...this.parameters],
             tjobExecs: [...this.tjobExecs],
@@ -61,17 +61,21 @@ export class TJobModel {
         return this.commands !== undefined && this.commands !== null && this.commands !== '';
     }
 
-    public arrayCommands() {
+    public arrayCommands(): string[] {
         let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
         return commandsArray;
     }
 
-    public changeServiceSelection($event, i: number) {
+    public changeServiceSelection($event, i: number): void {
         console.log('Service id:' + i);
         this.esmServices[i].selected = $event.checked;
     }
 
     public getRouteString(): string {
         return this.project.getRouteString() + ' / ' + this.name;
+    }
+
+    hasParameters(): boolean {
+        return this.parameters.length > 0 || this.sut.parameters.length > 0;
     }
 }

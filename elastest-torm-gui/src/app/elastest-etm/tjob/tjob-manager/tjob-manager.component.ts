@@ -49,14 +49,13 @@ export class TjobManagerComponent implements OnInit {
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog) { }
 
-
   ngOnInit() {
     this.titlesService.setHeadTitle('TJob');
     this.tJob = new TJobModel();
     this.reloadTJob();
   }
 
-  reloadTJob() {
+  reloadTJob(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
         .subscribe((tJob: TJobModel) => {
@@ -71,11 +70,11 @@ export class TjobManagerComponent implements OnInit {
     }
   }
 
-  sortTJobsExec() {
+  sortTJobsExec(): void {
     this.tJobExecData = this.tJobExecData.reverse();
   }
 
-  deleteTJobExec(tJobExec: TJobExecModel) {
+  deleteTJobExec(tJobExec: TJobExecModel): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob Execution ' + tJobExec.id + ' will be deleted, do you want to continue?',
       disableClose: false,
@@ -96,17 +95,17 @@ export class TjobManagerComponent implements OnInit {
     });
   }
 
-  viewTJobExec(tJobExec: TJobExecModel) {
+  viewTJobExec(tJobExec: TJobExecModel): void {
     this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tJobExec.id]);
   }
 
-  runTJob() {
-    if (this.tJob.parameters.length > 0) {
+  runTJob(): void {
+    if (this.tJob.hasParameters()) {
       let dialogRef = this.dialog.open(RunTJobModalComponent, {
         data: this.tJob.cloneTJob(),
       });
     } else {
-      this.tJobExecService.runTJob(this.tJob.id, this.tJob.parameters)
+      this.tJobExecService.runTJob(this.tJob.id)
         .subscribe(
         (tjobExecution: TJobExecModel) => {
           this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
@@ -116,10 +115,10 @@ export class TjobManagerComponent implements OnInit {
     }
   }
 
-  editTJob() {
+  editTJob(): void {
     this.router.navigate(['/projects', this.tJob.project.id, 'tjob', 'edit', this.tJob.id]);
   }
-  deleteTJob() {
+  deleteTJob(): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob ' + this.tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
       disableClose: false,
