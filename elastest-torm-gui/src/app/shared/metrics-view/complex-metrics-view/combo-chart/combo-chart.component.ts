@@ -367,11 +367,11 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   getXDomainByChart(chart: any) {
-    let values = [];
+    let values: any[] = [];
 
     for (const results of chart) {
       for (const d of results.series) {
-        if (!values.includes(d.name)) {
+        if (d && !values.includes(d.name)) {
           values.push(d.name);
         }
       }
