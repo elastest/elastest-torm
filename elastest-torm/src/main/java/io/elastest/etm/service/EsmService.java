@@ -272,11 +272,11 @@ public class EsmService {
                             // ""),
                             "", plans.get(0).get("id").toString()
                                     .replaceAll("\"", ""),
-                                    tJobExec.getId());
+                                    tJobExec != null ? tJobExec.getId() : null);
 
                     fillEnvVariablesToTSS(newServiceInstance, tJobExec);
 
-                    if (tJobExec.getId() != null) {
+                    if (tJobExec != null && tJobExec.getId() != null) {
                         tJobServicesInstances.put(instanceId,
                                 newServiceInstance);
                         List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
