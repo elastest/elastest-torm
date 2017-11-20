@@ -745,10 +745,6 @@ public class EsmService {
                             + fileSeparator + supportServiceInstance
                                     .getServiceName().toLowerCase()
                             + fileSeparator);
-            
-            if (tJobExec.getTjob().getSut().getManagedDockerType().equals(SutSpecification.ManagedDockerType.COMPOSE))
-            supportServiceInstance.getParameters().put("DOCKER_NETWORK",
-                    "sut" + tJobExecId + "_default");
         }
 
         supportServiceInstance.getParameters().put("ET_LSHTTP_API",
