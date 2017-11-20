@@ -90,7 +90,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		String body = "[{\"Param1\":\"NewValue1\"}]";
+		String body = "{\"tJobParams\" : [{\"Param1\":\"NewValue1\"}], \"sutParams\" : [{\"Param1\":\"NewValue1\"}]}";
 		HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
 		Map<String, Object> urlParams = new HashMap<>();
