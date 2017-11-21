@@ -61,10 +61,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   eusUrl: string;
 
   @Input()
-  eusHost: string;
+  eusHost: string = "localhost";
 
   @Input()
-  eusPort: number;
+  eusPort: number = 8040;
 
   @Input()
   standalone : boolean = true;
