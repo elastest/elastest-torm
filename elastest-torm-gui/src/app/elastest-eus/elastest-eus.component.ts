@@ -30,6 +30,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   selectedVersion: string;
   browserVersions = {
     'chrome': [
+      { value: '62', viewValue: '62' },
       { value: '61', viewValue: '61' },
       { value: '60', viewValue: '60' },
       { value: '59', viewValue: '59' },
@@ -37,6 +38,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       { value: '57', viewValue: '57' }
     ],
     'firefox': [
+      { value: '57', viewValue: '57' },
+      { value: '56', viewValue: '56' },
       { value: '55', viewValue: '55' },
       { value: '54', viewValue: '54' },
       { value: '53', viewValue: '53' },
