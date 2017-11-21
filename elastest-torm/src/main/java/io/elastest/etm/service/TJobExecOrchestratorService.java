@@ -173,7 +173,7 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
             if (!"end error".equals(e.getMessage())) {
-                resultMsg = "Failure";
+                resultMsg = "Error";
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.ERROR, resultMsg);
                 try {
