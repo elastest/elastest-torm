@@ -333,7 +333,7 @@ public class EsmService {
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
             logger.info("Manifest services {}:" + serviceName);
-            String baseRegex = "[0-9a-f]{32}_" + serviceName + "_\\d_Ip";
+            String baseRegex = "[0-9a-f]{32}_" + serviceName + "_Ip";
             Pattern pattern = Pattern.compile(baseRegex);
             String serviceIp = null;
 
