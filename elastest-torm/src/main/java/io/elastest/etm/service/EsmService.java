@@ -336,8 +336,9 @@ public class EsmService {
             String baseRegex = "[0-9a-f]{32}_" + serviceName + "_Ip";
             Pattern pattern = Pattern.compile(baseRegex);
             String serviceIp = null;
+            boolean ipFound = false;
 
-            while (itEsmRespContextFields.hasNext()) {
+            while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
                 logger.info("Instance data fields {}:" + fieldName);
                 Matcher matcher = pattern.matcher(fieldName);
@@ -440,8 +441,12 @@ public class EsmService {
                         throw new Exception("Error building endpoints info: "
                                 + e.getMessage());
                     }
-                    break;
+                    ipFound = true;
                 }
+            }
+            
+            if (!ipFound) {
+                throw new Exception("Field ip not found for " + serviceName +  " instance.");
             }
         }
     }
