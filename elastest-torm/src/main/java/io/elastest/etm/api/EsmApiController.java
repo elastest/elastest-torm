@@ -49,7 +49,7 @@ public class EsmApiController implements EsmApi {
 	@Override
 	@JsonView(FrontView.class)
 	public ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances() {
-		return new ResponseEntity<List<SupportServiceInstance>>(esmService.getServicesInstances(), HttpStatus.OK);
+		return new ResponseEntity<List<SupportServiceInstance>>(esmService.getServicesInstancesAsList(), HttpStatus.OK);
 	}
 
 	@Override

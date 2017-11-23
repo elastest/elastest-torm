@@ -29,10 +29,11 @@ export class ConfigurationService {
             'hostEIM': 'http://' + environment.hostEIM + '/',
             'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
             'eusServiceUrlNoPath': 'http://' + environment.eus,
-            'eusServiceUrl': 'http://' + environment.eus + '/eus/v1/',
-            'eusWebSocketUrl': 'ws://' + environment.eus + '/eus/v1/eus-ws',
+            'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/',
+            'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.eusWSapi : 'ws://' + environment.eus + '/eus/v1/eus-ws',
+            'elasTestExecMode': servicesInfo.elasTestExecMode,
           };
-
+         
           resolve();
           console.log( "The configuration is completed." );
         },

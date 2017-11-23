@@ -10,29 +10,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.google.common.util.concurrent.Service;
-
-import io.elastest.etm.model.ServicesInfo;
+import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.EtmContextService;
 
 @Controller
-public class EtmServiceDiscoveryApiController
-        implements EtmServiceDiscoveryApi {
+public class EtmContextApiController
+        implements EtmContextApi {
 
     @Autowired
     EsmService esmService;
-
-    @Value("${et.edm.elasticsearch.api}")
-    public String elasticsearchApi;
-
+    @Autowired
+    EtmContextService etmContextService;
     @Value("${et.public.host}")
     public String publicHost;
-
-    @Value("${et.in.prod}")
-    public boolean etInProd;
-
-    @Value("${et.etm.rabbit.path.with-proxy}")
-    public String etEtmRabbitPathWithProxy;
+   
 
     @Override
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
@@ -49,13 +41,8 @@ public class EtmServiceDiscoveryApiController
     }
 
     @Override
-    public ResponseEntity<ServicesInfo> getServicesInfo() {
-        ServicesInfo servicesInfo = new ServicesInfo();
-        servicesInfo.setElasticSearchUrl(
-                etInProd ? "http://" + publicHost + ":37000/elasticsearch"
-                        : elasticsearchApi);
-        servicesInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
-        return new ResponseEntity<ServicesInfo>(servicesInfo, HttpStatus.OK);
+    public ResponseEntity<ContextInfo> getContextInfo() {
+        return new ResponseEntity<ContextInfo>(etmContextService.getContextInfo(), HttpStatus.OK);
     }
 
     @Override

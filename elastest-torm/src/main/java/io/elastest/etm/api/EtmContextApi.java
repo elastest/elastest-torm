@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.ServicesInfo;
+import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.TJob;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Api(value = "/context")
-public interface EtmServiceDiscoveryApi extends EtmApiRoot {
+public interface EtmContextApi extends EtmApiRoot {
 
     @ApiOperation(value = "Returns the env variables for a provided service instance", notes = "Returns the env variables for a provided service instance.", response = Map.class, tags = {
             "CONTEXT", })
@@ -62,12 +62,12 @@ public interface EtmServiceDiscoveryApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<Map<String, String>> getLogstashInfo();
     
-    @ApiOperation(value = "Return relevant information about the ElasTest services", notes = "Return relevant information about the ElasTest services.", response = ServicesInfo.class, tags = {
+    @ApiOperation(value = "Return relevant information about the ElasTest services", notes = "Return relevant information about the ElasTest services.", response = ContextInfo.class, tags = {
             "CONTEXT", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = ServicesInfo.class),
+            @ApiResponse(code = 200, message = "Successful operation", response = ContextInfo.class),
             @ApiResponse(code = 400, message = "TJob not found.") })
     @RequestMapping(value = "/context/services/info", produces = {
             "application/json" }, method = RequestMethod.GET)
-    public ResponseEntity<ServicesInfo> getServicesInfo();    
+    public ResponseEntity<ContextInfo> getContextInfo();    
 }

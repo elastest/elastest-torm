@@ -33,6 +33,9 @@ public class TestEnginesService {
 
 	@Value("${et.test.engines.path}")
 	public String ET_TEST_ENGINES_PATH;
+	
+	@Value("${elastest.execution.mode")
+	public String elastestExecMode;
 
 	public TestEnginesService(DockerComposeService dockerComposeService, DockerService2 dockerService2) {
 		this.dockerComposeService = dockerComposeService;
@@ -47,10 +50,12 @@ public class TestEnginesService {
 
 	@PostConstruct
 	public void init() {
-		registerEngines();
-		for (String engine : this.enginesList) {
-			createProject(engine);
-		}
+        if (!elastestExecMode.equals("normal")) {
+            registerEngines();
+            for (String engine : this.enginesList) {
+                createProject(engine);
+            }
+        }
 	}
 
 	public void createProject(String name) {

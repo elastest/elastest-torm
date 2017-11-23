@@ -8,4 +8,5 @@ export interface ConfigModel {
   eusServiceUrlNoPath: string;
   eusServiceUrl: string;
   eusWebSocketUrl: string;
+  elasTestExecMode: string;
 }

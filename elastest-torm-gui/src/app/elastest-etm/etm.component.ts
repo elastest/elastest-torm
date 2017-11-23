@@ -1,3 +1,4 @@
+import { ConfigurationService } from '../config/configuration-service.service';
 import { TitlesService } from '../shared/services/titles.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
@@ -18,11 +19,9 @@ export class EtmComponent implements AfterViewInit, OnInit {
   topTitle: string;
   openedMenu: boolean = true;
 
-  constructor(
-    private titlesService: TitlesService,
-    public media: TdMediaService, private elastestRabbitmqService: ElastestRabbitmqService,
-    private cdr: ChangeDetectorRef,
-  ) { }
+  constructor(private titlesService: TitlesService, public media: TdMediaService,
+    private elastestRabbitmqService: ElastestRabbitmqService,
+    private cdr: ChangeDetectorRef, private configService: ConfigurationService) { }
 
   ngOnInit() {
     this.titlesService.setHeadAndTopTitle('ElasTest');

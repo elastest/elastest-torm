@@ -38,7 +38,6 @@ import com.github.dockerjava.api.model.Ports;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.UtilTools;
@@ -49,6 +48,7 @@ public class EsmService {
             .getLogger(EsmService.class);
 
     public static final String ET_SOCAT_IMAGE = "elastest/etm-socat";
+    public static final String EUS_TSS_ID = "29216b91-497c-43b7-a5c4-6613f13fa0e9";
 
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
@@ -100,6 +100,9 @@ public class EsmService {
     public String etEtmLstcpHost;
     @Value("${et.etm.lstcp.port}")
     public String etEtmLstcpPort;
+    
+    @Value("${elastest.execution.mode}")
+    public String elasTestExecutionMode;
 
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
@@ -124,6 +127,10 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
+            if (elasTestExecutionMode.equals("normal")){
+                provisionServiceInstanceSync(EUS_TSS_ID, null);
+                logger.debug("EUS is started from ElasTest in normal mode");
+            }
         } catch (Exception e) {
             logger.warn("Error during the services registry. ");
         }
@@ -174,7 +181,7 @@ public class EsmService {
         }
     }
 
-    public void registerElastestService(File serviceFile) {
+    public void registerElastestService(File serviceFile) throws IOException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String content = new String(
@@ -182,29 +189,46 @@ public class EsmService {
 
             ObjectNode serviceDefJson = mapper.readValue(content,
                     ObjectNode.class);
-            esmServiceClient
-                    .registerService(serviceDefJson.get("register").toString());
-            esmServiceClient.registerManifest("{ " + "\"id\": "
-                    + serviceDefJson.get("manifest").get("id").toString()
-                    + ", \"manifest_content\": "
-                    + serviceDefJson.get("manifest").get("manifest_content")
-                            .toString()
-                    + ", \"manifest_type\": "
-                    + serviceDefJson.get("manifest").get("manifest_type")
-                            .toString()
-                    + ", \"plan_id\": "
-                    + serviceDefJson.get("manifest").get("plan_id").toString()
-                    + ", \"service_id\": "
-                    + serviceDefJson.get("manifest").get("service_id")
-                            .toString()
-                    + ", \"endpoints\": "
-                    + serviceDefJson.get("manifest").get("endpoints").toString()
-                    + " }",
-                    serviceDefJson.get("manifest").get("id").toString()
-                            .replaceAll("\"", ""));
+            
+            if (elasTestExecutionMode.equals("normal")){
+                if (serviceDefJson.get("register").get("id").toString()
+                        .replaceAll("\"", "").equals(EUS_TSS_ID)){
+                    registerElasTestService(serviceDefJson);
+                }
+            } else {
+                registerElasTestService(serviceDefJson);
+            }
+            
         } catch (IOException e) {
             e.printStackTrace();
+            throw e;
         }
+    }
+    
+    private void registerElasTestService( ObjectNode serviceDefJson){
+        esmServiceClient
+                .registerService(serviceDefJson.get("register").toString());
+        esmServiceClient.registerManifest(
+                "{ " + "\"id\": "
+                        + serviceDefJson.get("manifest").get("id").toString()
+                        + ", \"manifest_content\": "
+                        + serviceDefJson.get("manifest").get("manifest_content")
+                                .toString()
+                        + ", \"manifest_type\": "
+                        + serviceDefJson.get("manifest").get("manifest_type")
+                                .toString()
+                        + ", \"plan_id\": "
+                        + serviceDefJson.get("manifest").get("plan_id")
+                                .toString()
+                        + ", \"service_id\": "
+                        + serviceDefJson.get("manifest").get("service_id")
+                                .toString()
+                        + ", \"endpoints\": "
+                        + serviceDefJson.get("manifest").get("endpoints")
+                                .toString()
+                        + " }",
+                serviceDefJson.get("manifest").get("id").toString()
+                        .replaceAll("\"", ""));
     }
 
     public List<String> getRegisteredServicesName() {
@@ -634,12 +658,16 @@ public class EsmService {
         return esmServiceClient.getServiceInstanceInfo(instanceId);
     }
 
-    public List<SupportServiceInstance> getServicesInstances() {
+    public List<SupportServiceInstance> getServicesInstancesAsList() {
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             tSSInstance.setServiceReady(checkInstanceUrlIsUp(tSSInstance));
         });
         return new ArrayList<SupportServiceInstance>(
                 servicesInstances.values());
+    }
+    
+    public  Map<String, SupportServiceInstance> getServicesInstances() {
+        return servicesInstances;
     }
 
     public void setServicesInstances(
