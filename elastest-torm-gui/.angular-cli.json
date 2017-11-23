@@ -25,7 +25,8 @@
         "theme.scss",
         "../node_modules/@covalent/core/common/platform.css",
         "../node_modules/ag-grid/dist/styles/ag-grid.css",
-        "../node_modules/ag-grid/dist/styles/theme-fresh.css"
+        "../node_modules/ag-grid/dist/styles/theme-fresh.css",
+        "../node_modules/ag-grid/dist/styles/theme-material.css"
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js",

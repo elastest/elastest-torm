@@ -5,13 +5,17 @@ import { ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
+import { ColumnApi, GridApi } from 'ag-grid/main';
 
 @Component({
-  selector: 'app-elastest-log-analyzer',
+  selector: 'elastest-log-analyzer',
   templateUrl: './elastest-log-analyzer.component.html',
   styleUrls: ['./elastest-log-analyzer.component.scss']
 })
 export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
+  private gridApi: GridApi;
+  private gridColumnApi: ColumnApi;
+
   public esSearchModel: ESSearchModel;
   public logAnalyzerModel: LogAnalyzerModel;
   public streamType: string = 'log';
@@ -37,6 +41,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.fromDate.nativeElement.value = this.getDefaultFromValue();
     this.toDate.nativeElement.value = this.getDefaultToValue();
+  }
+
+  // Function to init some parameters of ag-grid
+  onGridReady(params): void {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+
+    this.gridApi.sizeColumnsToFit();
   }
 
   initStreamTypeTerm(): void {
@@ -84,12 +96,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     for (let field of this.esSearchModel.filterPathList) {
       this.logColumns.push(
-        { headerName: field, field: field, width: 300 },
+        { headerName: field, field: field, width: 280, suppressSizeToFit: false, },
       );
     }
   }
-
-
 
   /**** Dates ****/
 

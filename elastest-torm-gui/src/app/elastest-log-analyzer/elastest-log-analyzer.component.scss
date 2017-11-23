@@ -17,3 +17,13 @@ md-sidenav-container {
 #logCard md-card-content{
     height: 96%;
 }
+
+
+:host /deep/ .ag-material{
+    color: #000;
+    font-family: initial;
+}
+
+:host /deep/ .ag-material .ag-cell-not-inline-editing {
+    padding-top: 2px !important;
+}
