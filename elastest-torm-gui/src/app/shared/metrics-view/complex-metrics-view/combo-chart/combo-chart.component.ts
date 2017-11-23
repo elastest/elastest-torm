@@ -155,14 +155,14 @@ export class ComboChartComponent extends BaseChartComponent {
   timelinePadding: number = 10;
 
   // TimeLine Observable
-  _timelineObs = new Subject<any>();
+  _timelineObs: Subject<any> = new Subject<any>();
   timelineObs = this._timelineObs.asObservable();
 
   // Hover and leave Observable for tooltip
-  _hoverObs = new Subject<any>();
+  _hoverObs: Subject<any> = new Subject<any>();
   hoverObs = this._hoverObs.asObservable();
 
-  _leaveObs = new Subject<any>();
+  _leaveObs: Subject<any> = new Subject<any>();
   leaveObs = this._leaveObs.asObservable();
 
   // Functions
@@ -188,7 +188,7 @@ export class ComboChartComponent extends BaseChartComponent {
     });
   }
 
-  initLegendSpace() {
+  initLegendSpace(): void {
     if (this.yAxis) {
       if (this.leftChart.length > 0) {
         if (this.rightChartTwo.length > 0) {
@@ -265,7 +265,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.hideLabels();
   }
 
-  showLabelsDefault() {
+  showLabelsDefault(): void {
     if (this.showYAxisLabelDefault === undefined) {
       this.showYAxisLabelDefault = this.showYAxisLabel;
     }
@@ -277,7 +277,7 @@ export class ComboChartComponent extends BaseChartComponent {
     }
   }
 
-  hideLabels() {
+  hideLabels(): void {
     this.showYAxisLabel = this.showYAxisLabelDefault && this.leftChart.length > 0;
     this.showRightOneYAxisLabel = this.showRightOneYAxisLabelDefault && this.rightChartOne.length > 0;
     this.showRightTwoYAxisLabel = this.showRightTwoYAxisLabelDefault && this.rightChartTwo.length > 0;
@@ -304,7 +304,6 @@ export class ComboChartComponent extends BaseChartComponent {
     this.deactivateAll();
     this.tooltipObj.hideTooltip();
   }
-
 
   updateHoveredVertical(item): void {
     this.updateHoveredVerticalAux(item);
@@ -344,8 +343,8 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   getScaleType(values): string {
-    let date = true;
-    let num = true;
+    let date: boolean = true;
+    let num: boolean = true;
 
     for (const value of values) {
       if (!this.isDate(value)) {
@@ -357,8 +356,8 @@ export class ComboChartComponent extends BaseChartComponent {
       }
     }
 
-    if (date) return 'time';
-    if (num) return 'linear';
+    if (date) { return 'time'; }
+    if (num) { return 'linear'; }
     return 'ordinal';
   }
 
@@ -366,10 +365,11 @@ export class ComboChartComponent extends BaseChartComponent {
     return this.getXDomainByChart(this.combinedSeries);
   }
 
-  getXDomainByChart(chart: any) {
+  getXDomainByChart(chart: any): any[] {
     let values: any[] = [];
 
     for (const results of chart) {
+      console.log('aglia', results)
       for (const d of results.series) {
         if (d && !values.includes(d.name)) {
           values.push(d.name);
@@ -378,23 +378,23 @@ export class ComboChartComponent extends BaseChartComponent {
     }
 
     this.scaleType = this.getScaleType(values);
-    let domain = [];
+    let domain: any[] = [];
 
     if (this.scaleType === 'time') {
-      const min = Math.min(...values);
-      const max = Math.max(...values);
+      const min: number = Math.min(...values);
+      const max: number = Math.max(...values);
       domain = [new Date(min), new Date(max)];
       this.xSet = [...values].sort((a, b) => {
-        const aDate = a.getTime();
-        const bDate = b.getTime();
-        if (aDate > bDate) return 1;
-        if (bDate > aDate) return -1;
+        const aDate: any = a.getTime();
+        const bDate: any = b.getTime();
+        if (aDate > bDate) { return 1; }
+        if (bDate > aDate) { return -1; }
         return 0;
       });
     } else if (this.scaleType === 'linear') {
       values = values.map(v => Number(v));
-      const min = Math.min(...values);
-      const max = Math.max(...values);
+      const min: number = Math.min(...values);
+      const max: number = Math.max(...values);
       domain = [min, max];
       this.xSet = [...values].sort();
     } else {
@@ -406,16 +406,16 @@ export class ComboChartComponent extends BaseChartComponent {
     return domain;
   }
 
-  getYDomainRightOne() {
+  getYDomainRightOne(): any[] {
     return this.getYDomainRight(this.rightChartOne);
   }
 
-  getYDomainRightTwo() {
+  getYDomainRightTwo(): any[] {
     return this.getYDomainRight(this.rightChartTwo);
   }
 
   getYDomainRight(chart: any): any[] {
-    const domain = [];
+    const domain: any[] = [];
 
     for (const results of chart) {
       for (const d of results.series) {
@@ -435,10 +435,10 @@ export class ComboChartComponent extends BaseChartComponent {
       }
     }
 
-    let min = Math.min(...domain);
-    const max = Math.max(...domain);
+    let min: number = Math.min(...domain);
+    const max: number = Math.max(...domain);
     if (this.yRightAxisScaleFactor) {
-      const minMax = this.yRightAxisScaleFactor(min, max);
+      const minMax: any = this.yRightAxisScaleFactor(min, max);
       return [Math.min(0, minMax.min), minMax.max];
     } else {
       min = Math.min(0, min);
@@ -491,13 +491,17 @@ export class ComboChartComponent extends BaseChartComponent {
     return this.roundDomains ? scale.nice() : scale;
   }
 
-  getYDomain() {
+  getYDomain(): number[] {
     let values: any;
     let max: number;
     let min: number;
 
     for (const result of this.leftChart.slice(0)) {
-      values = result.series.map(d => d.value);
+      values = result.series.map(d => {
+        if (d) {
+          d.value;
+        }
+      });
       const resultMin: number = Math.min(0, ...values);
       if (min === undefined) {
         min = resultMin;
@@ -519,12 +523,12 @@ export class ComboChartComponent extends BaseChartComponent {
     }
   }
 
-  onClick(data) {
+  onClick(data): void {
     this.select.emit(data);
   }
 
   setColors(): void {
-    let domain;
+    let domain: any;
     if (this.schemeType === 'ordinal') {
       domain = this.xDomain;
     } else {
@@ -533,8 +537,8 @@ export class ComboChartComponent extends BaseChartComponent {
     this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
   }
 
-  getLegendOptions() {
-    const opts = {
+  getLegendOptions(): any {
+    const opts: any = {
       scaleType: this.schemeType,
       colors: undefined,
       domain: [],
@@ -566,7 +570,7 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   onActivate(item) {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx: number = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -577,7 +581,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.activate.emit({ value: item, entries: this.activeEntries });
   }
 
-  onDeactivate(item) {
+  onDeactivate(item): void {
     const idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
