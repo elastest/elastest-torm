@@ -64,10 +64,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   eusUrl: string;
 
   @Input()
-  eusHost: string;
+  eusHost: string = "localhost";
 
   @Input()
-  eusPort: number;
+  eusPort: number = 8040;
 
   @Input()
   standalone : boolean = true;
@@ -78,19 +78,23 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
-    if (this.eusUrl){
+    if ((this.configurationService.configModel.eusServiceUrl && !this.standalone)
+      || !this.configurationService.configModel.eusServiceUrl && this.standalone) {
       this.eusService.setEusUrl(this.eusUrl);
+      this.eusService.setEusHost(this.eusHost);
+    } else {
+      this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
+      this.eusService.setEusHost(this.configurationService.configModel.eusHost);
+      this.eusPort = +this.configurationService.configModel.eusPort;
     }
 
-    if (this.eusHost){
-      this.eusService.setEusHost(this.eusHost);
-    }
-    if (!this.websocket) {      
-      if(this.eusHost && this.eusPort){
-        this.websocket = new WebSocket("ws://" + this.eusHost + ":" + this.eusPort + "/eus/v1/eus-ws");        
-      }else{
+    if (!this.websocket) {
+      if ((this.configurationService.configModel.eusServiceUrl && !this.standalone)
+        || !this.configurationService.configModel.eusServiceUrl && this.standalone) {
+        this.websocket = new WebSocket("ws://" + this.eusHost + ":" + this.eusPort + "/eus/v1/eus-ws");
+      } else {
         this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
-      }      
+      }
 
       this.websocket.onopen = () => this.websocket.send("getSessions");
       this.websocket.onopen = () => this.websocket.send("getRecordings");

@@ -5,6 +5,8 @@ export interface ConfigModel {
   hostElasticsearch: string;
   hostEIM: string;
   hostWsServer: string;
+  eusHost: string;
+  eusPort: string;
   eusServiceUrlNoPath: string;
   eusServiceUrl: string;
   eusWebSocketUrl: string;

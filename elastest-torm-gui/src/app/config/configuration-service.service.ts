@@ -21,6 +21,7 @@ export class ConfigurationService {
     return new Promise((resolve, reject) => {
       this.getServicesInfo(hostApi)
         .subscribe((servicesInfo) => {
+          let eusUrl = new URL(servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/');
           this.configModel = {
             'hostName': window.location.hostname,
             'host': 'http://' + host,
@@ -28,6 +29,8 @@ export class ConfigurationService {
             'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
             'hostEIM': 'http://' + environment.hostEIM + '/',
             'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
+            'eusHost': eusUrl.hostname,
+            'eusPort': eusUrl.port,
             'eusServiceUrlNoPath': 'http://' + environment.eus,
             'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/',
             'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.eusWSapi : 'ws://' + environment.eus + '/eus/v1/eus-ws',
