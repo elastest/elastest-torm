@@ -86,6 +86,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
       this.eusService.setEusHost(this.configurationService.configModel.eusHost);
       this.eusPort = +this.configurationService.configModel.eusPort;
+      this.eusHost = this.configurationService.configModel.eusHost;
     }
 
     if (!this.websocket) {
@@ -153,6 +154,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   viewRecording(testModel: EusTestModel) {
     this.eusService.getRecording(testModel.id).subscribe(
       ok => {
+        console.log("Video url: " + "http://" + this.eusHost + ":" + this.eusPort + ok.text());
         this.viewSession("http://" + this.eusHost + ":" + this.eusPort + ok.text(), testModel, " - recorded test");
       },
       error => console.error(error)
