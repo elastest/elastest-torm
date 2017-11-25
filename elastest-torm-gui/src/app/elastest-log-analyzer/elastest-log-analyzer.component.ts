@@ -61,6 +61,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     // Add term stream_type === 'log'
     this.esSearchModel.body.query.bool.must.termList.push(this.streamTypeTerm);
+    this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
   }
 
   loadLog(): void {
@@ -70,6 +71,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.indices = this.logAnalyzerModel.selectedIndices;
     this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
     this.esSearchModel.body.size = this.logAnalyzerModel.maxResults;
+    this.setRange();
 
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
     let searchBody: string = this.esSearchModel.getSearchBody();
@@ -78,8 +80,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       .subscribe(
       (data: any) => {
         this.logRows = this.esSearchModel.getDataListFromRaw(data);
-        console.log(this.logRows);
-
         if (this.logRows.length > 0) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
@@ -91,13 +91,21 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       );
   }
 
+  setRange(): void {
+    this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
+    this.esSearchModel.body.query.bool.must.range.gte = this.getFromDate();
+    this.esSearchModel.body.query.bool.must.range.lte = this.getToDate();
+  }
+
   setTableHeader(): void {
     this.logColumns = [];
 
     for (let field of this.esSearchModel.filterPathList) {
-      this.logColumns.push(
-        { headerName: field, field: field, width: 280, suppressSizeToFit: false, },
-      );
+      if (field !== 'stream_type') { // stream_type is always log
+        this.logColumns.push(
+          { headerName: field, field: field, width: 280, suppressSizeToFit: false, },
+        );
+      }
     }
   }
 
@@ -109,6 +117,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public getDefaultToValue(): string {
     return dateToInputLiteral(this.logAnalyzerModel.getDefaultToDate());
+  }
+
+  public getFromDate(): any {
+    return this.fromDate.nativeElement.value;
+  }
+
+  public getToDate(): any {
+    return this.toDate.nativeElement.value;
   }
 
   public setUseTail(tail: boolean): void {

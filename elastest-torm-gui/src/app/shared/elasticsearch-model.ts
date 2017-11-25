@@ -1,3 +1,29 @@
+export type SortValues = 'asc' | 'desc';
+
+export class ESSortModel {
+    sortMap: Map<string, SortValues>;
+
+    constructor() {
+        this.sortMap = new Map<string, SortValues>();
+    }
+
+    empty(): boolean {
+        return this.sortMap.size === 0;
+    }
+
+    convertToESFormat(): any[] {
+        let formatted: any[] = [];
+        if (!this.empty()) {
+            this.sortMap.forEach((value: SortValues, key: string) => {
+                let sortObj: any = {};
+                sortObj[key] = value;
+                formatted.push(sortObj);
+            });
+        }
+        return formatted;
+    }
+}
+
 export class ESTermsModel {
     name: string;
     values: string[];
@@ -48,27 +74,26 @@ export class ESRangeModel {
     gt: any;
     lte: any;
     lt: any;
-    boost: any;
+    boost: number;
     others: { // Can be used to set not generic fileds like:  "format": "dd/MM/yyyy||yyyy" (view ES Range docs)
         label: string,
         value: string,
     }[];
 
-    constructor() {
+    constructor() { // null is a valid ES value fot gt, gte, lt and lte
         this.field = '';
-        this.gte = '';
-        this.gt = '';
-        this.lte = '';
-        this.lt = '';
-        this.boost = '';
+        this.gte = undefined;
+        this.gt = undefined;
+        this.lte = undefined;
+        this.lt = undefined;
+        this.boost = 1.0;
         this.others = [];
     }
 
     empty(): boolean {
         return (this.field === '') ||
             (
-                this.field !== '' && this.gte === '' && this.gt === ''
-                && this.lte === '' && this.lt === '' && this.boost === '' && this.others.length === 0
+                this.field !== '' && !this.gte && !this.gt && !this.lte && !this.lt && this.others.length === 0
             );
     }
 
@@ -76,13 +101,12 @@ export class ESRangeModel {
         let formatted: any = {};
         if (!this.empty()) {
             formatted = { range: {} };
-            formatted.range[this.field] = {
-                gte: this.gte,
-                gt: this.gt,
-                lte: this.lte,
-                lt: this.lt,
-                boost: this.boost,
-            };
+            formatted.range[this.field] = { boost: this.boost };
+            if (this.gte) { formatted.range[this.field].gte = this.gte; }
+            if (this.gt) { formatted.range[this.field].gt = this.gt; }
+            if (this.lte) { formatted.range[this.field].lte = this.lte; }
+            if (this.lt) { formatted.range[this.field].lt = this.lt; }
+
             for (let other of this.others) {
                 if (other.label !== '' && other.value !== '') {
                     formatted.range[other.label] = other.value;
@@ -178,10 +202,12 @@ export class ESQueryModel {
 export class ESSearchBodyModel {
     size: number;
     query: ESQueryModel;
+    sort: ESSortModel;
 
     constructor() {
         this.size = -1;
         this.query = new ESQueryModel();
+        this.sort = new ESSortModel();
     }
 
     empty(): boolean {
@@ -193,6 +219,7 @@ export class ESSearchBodyModel {
         if (!this.empty()) {
             formatted.size = this.size;
             formatted.query = this.query.convertToESFormat();
+            formatted.sort = this.sort.convertToESFormat();
         }
         return formatted;
     }
