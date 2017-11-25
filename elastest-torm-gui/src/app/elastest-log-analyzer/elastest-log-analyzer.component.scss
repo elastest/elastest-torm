@@ -17,3 +17,7 @@ md-sidenav-container {
 #logCard md-card-content{
     height: 96%;
 }
+
+:host /deep/ .mat-tab-label {
+    min-width: 110px !important;
+  }

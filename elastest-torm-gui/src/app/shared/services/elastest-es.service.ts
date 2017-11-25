@@ -509,7 +509,7 @@ export class ElastestESService {
     }
 
     getBasicFilterFields(streamType?): string[] {
-        let filters: string[] = ['type', 'component', 'stream', 'stream_type', '@timestamp', 'exec'];
+        let filters: string[] = ['@timestamp', 'type', 'component', 'stream', 'stream_type', 'exec'];
 
         if (streamType && streamType === 'log') {
             filters.push('message', 'level');

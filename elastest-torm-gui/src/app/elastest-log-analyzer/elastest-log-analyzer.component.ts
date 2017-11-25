@@ -27,6 +27,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   @ViewChild('fromDate') fromDate: ElementRef;
   @ViewChild('toDate') toDate: ElementRef;
 
+  // Buttons
+  public showLoadMore: boolean = false;
+  public showPauseTail: boolean = false;
+  public showClearData: boolean = false;
+
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
   ) {
@@ -80,13 +85,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       .subscribe(
       (data: any) => {
         this.logRows = this.esSearchModel.getDataListFromRaw(data);
-        if (this.logRows.length > 0) {
+        let logsLoaded: boolean = this.logRows.length > 0;
+        if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
-
+        this.updateButtons(logsLoaded);
       }
       );
   }
@@ -109,6 +115,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
+
+  updateButtons(show: boolean): void {
+    this.showLoadMore = show;
+    this.showClearData = show;
+  }
   /**** Dates ****/
 
   public getDefaultFromValue(): string {
@@ -130,6 +141,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public setUseTail(tail: boolean): void {
     this.logAnalyzerModel.tail = tail;
   }
+
+  public clearData() {
+    this.logRows = [];
+    this.logColumns = [];
+    // clearInterval(this.tailInterval);
+    // this.tailInterval = undefined;
+    this.showLoadMore = false;
+    this.showPauseTail = false;
+    this.showClearData = false;
+    // this.removeAllPatterns();
+    // this.dataForAdding = undefined;
+  }
+
 
   /**** Modal ****/
   public openSelectExecutions(): void {
