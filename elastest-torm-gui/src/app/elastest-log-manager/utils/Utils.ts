@@ -29,3 +29,15 @@ function pad(n: any, width: number, z?: string) {
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
+
+export function minDate(date1: Date, date2: Date): Date {
+  let min: Date;
+  date1 > date2 ? min = date2 : min = date1;
+  return min;
+}
+
+export function maxDate(date1: Date, date2: Date): Date {
+  let max: Date;
+  date1 < date2 ? max = date2 : max = date1;
+  return max;
+}

@@ -1,3 +1,4 @@
+import { minDate } from '../../elastest-log-manager/utils/Utils';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
@@ -8,6 +9,7 @@ import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { Component, Inject, OnInit } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
+import { dateToInputLiteral } from '../utils/Utils';
 
 @Component({
   selector: 'get-index-modal',
@@ -49,6 +51,7 @@ export class GetIndexModalComponent implements OnInit {
   }
 
   ngOnInit() { }
+
   loadProjects(): void {
     this.projectService.getProjects()
       .subscribe(
@@ -63,18 +66,18 @@ export class GetIndexModalComponent implements OnInit {
 
   loadTJobExecs(tJob: TJobModel): void {
     this.tJobExecService.getTJobsExecutions(tJob).subscribe(
-      (execs: TJobExecModel[]) => this.tJobExecs = execs.reverse(),
+      (execs: TJobExecModel[]) => {
+        this.tJobExecs = execs.reverse();
+      },
     );
   }
 
-  saveIndices(): void {
-    let selectedIndices: string[] = [];
-
-    this.selectedTJobExecs.forEach((tJobExec: TJobExecModel, key: number) => {
-      selectedIndices.push(tJobExec.logIndex);
-    });
-
-    this.dialogRef.close({ selectedIndices: selectedIndices });
+  initDefaultSelection(): void {
+    if (this.tJobExecs.length > 0) {
+      this.selectedTJob = this.tJobExecs[0].tJob;
+      this.selectedProject = this.selectedTJob.project;
+      this.checkTJobExec(true, this.tJobExecs[0]);
+    }
   }
 
   selectAllExecs(checked: boolean): void {
@@ -93,5 +96,22 @@ export class GetIndexModalComponent implements OnInit {
       this.selectedTJobExecs.delete(key);
     }
 
+  }
+
+  // On press OK
+  saveIndices(): void {
+    let selectedIndices: string[] = [];
+    let fromDate: Date = new Date();
+    let auxDate: Date = fromDate;
+    this.selectedTJobExecs.forEach((tJobExec: TJobExecModel, key: number) => {
+      selectedIndices.push(tJobExec.logIndex);
+      auxDate = minDate(auxDate, tJobExec.startDate);
+    });
+
+    auxDate === fromDate ? fromDate = undefined : fromDate = auxDate;
+
+    let response: any = { selectedIndices: selectedIndices };
+    response.fromDate = fromDate;
+    this.dialogRef.close(response);
   }
 }

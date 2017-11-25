@@ -35,6 +35,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
   ) {
+    this.openSelectExecutions();
   }
 
   ngOnInit() {
@@ -70,8 +71,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadLog(): void {
-    this.logAnalyzerModel.fromDate = this.fromDate.nativeElement.value;
-    this.logAnalyzerModel.toDate = this.toDate.nativeElement.value;
+    this.logAnalyzerModel.fromDate = this.getFromDate();
+    this.logAnalyzerModel.toDate = this.getToDate();
 
     this.esSearchModel.indices = this.logAnalyzerModel.selectedIndices;
     this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
@@ -138,11 +139,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     return this.toDate.nativeElement.value;
   }
 
+  public setFromDate(date: Date): void {
+    this.fromDate.nativeElement.value = dateToInputLiteral(date);
+  }
+
+  public setToDate(date: Date): void {
+    this.toDate.nativeElement.value = dateToInputLiteral(date);
+  }
+
   public setUseTail(tail: boolean): void {
     this.logAnalyzerModel.tail = tail;
   }
 
-  public clearData() {
+  public clearData(): void {
     this.logRows = [];
     this.logColumns = [];
     // clearInterval(this.tailInterval);
@@ -164,11 +173,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed()
       .subscribe(
       (data: any) => {
-        if (data && data.selectedIndices && data.selectedIndices !== '') {
-          this.logAnalyzerModel.selectedIndices = data.selectedIndices;
-        } else {
-          this.elastestESService.popupService.openSnackBar('No execution was selected');
-        }
+        if (data) { // Ok Pressed
+          if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
+            this.logAnalyzerModel.selectedIndices = data.selectedIndices;
+            if (data.fromDate) {
+              this.setFromDate(data.fromDate);
+            }
+          } else {
+            this.elastestESService.popupService.openSnackBar('No execution was selected. Selected all by default');
+          }
+          this.loadLog();
+        } else { }
       },
     );
   }
