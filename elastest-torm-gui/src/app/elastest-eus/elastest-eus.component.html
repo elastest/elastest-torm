@@ -38,7 +38,8 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewSession(value, row, ' - automated test')" id="view_automated">View</button>
+                        <i class="material-icons" (click)="getLiveUrl(value)" style="cursor: pointer">open_in_new</i>
+                        <i class="material-icons" (click)="viewSession(value, row, ' - automated test')" id="view_automated" title="open as dialog">open_in_browser</i>
                     </ng-template>
                 </td-data-table>
             </md-card-content>
@@ -54,8 +55,9 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <button md-raised-button color="accent" (click)="viewRecording(row)" id="view_recording">View</button>
-                        <button md-raised-button color="accent" (click)="deleteRecording(row)" id="delete_recording">Delete</button>
+                        <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" title="open in new tab">open_in_new</i>
+                        <i class="material-icons" (click)="viewRecording(row)" id="view_recording" title="open as dialog">open_in_browser</i>
+                        <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" title="delete recording">delete</i>
                     </ng-template>
                 </td-data-table>
             </md-card-content>

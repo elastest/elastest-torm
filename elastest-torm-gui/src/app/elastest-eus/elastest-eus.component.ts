@@ -161,11 +161,25 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     dialog.componentInstance.closeButton = true;
   }
 
+  getLiveUrl(url: string) {
+    window.open(url);
+  }
+
+  getRecordingUrl(testModel: EusTestModel) {
+    this.eusService.getRecording(testModel.id).subscribe(
+      ok => {
+        window.open("http://" + this.eusHost + ":" + this.eusPort + ok.text());
+      },
+      error => console.error(error)
+    );
+  }
+
   viewRecording(testModel: EusTestModel) {
     this.eusService.getRecording(testModel.id).subscribe(
       ok => {
-        console.log("Video url: " + "http://" + this.eusHost + ":" + this.eusPort + ok.text());
-        this.viewSession("http://" + this.eusHost + ":" + this.eusPort + ok.text(), testModel, " - recorded test");
+        let videoUrl = "http://" + this.eusHost + ":" + this.eusPort + ok.text();
+        console.log("Video URL: " + videoUrl);
+        this.viewSession(videoUrl, testModel, " - recorded test");
       },
       error => console.error(error)
     );
