@@ -32,8 +32,8 @@ export class ConfigurationService {
             'eusHost': eusUrl.hostname,
             'eusPort': eusUrl.port,
             'eusServiceUrlNoPath': 'http://' + environment.eus,
-            'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/',
-            'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.eusWSapi : 'ws://' + environment.eus + '/eus/v1/eus-ws',
+            'eusServiceUrl': servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/',
+            'eusWebSocketUrl': servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.eusWSapi : 'ws://' + environment.eus + '/eus/v1/eus-ws',
             'elasTestExecMode': servicesInfo.elasTestExecMode,
           };
          
