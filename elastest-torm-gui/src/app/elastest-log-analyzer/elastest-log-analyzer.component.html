@@ -49,15 +49,26 @@
                   </div>
                 </div>
 
-                <!-- Components -->
-                <div id="logComponents" layout="column" class="pad-top">
-                  <md-card-subtitle class="pad-left-none">Components</md-card-subtitle>
-                  <tree-root #componentsTree [nodes]="logAnalyzer.components.tree">
-                    <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                      <md-checkbox (change)="logAnalyzer.components.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                        [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
-                    </ng-template>
-                  </tree-root>
+                <!-- Components And Levels -->
+                <div id="componentsLevels" layout="row" class="pad-top">
+                  <div flex="50">
+                    <md-card-subtitle class="pad-left-none">Components</md-card-subtitle>
+                    <tree-root #componentsTree [nodes]="logAnalyzer.components.tree">
+                      <ng-template #treeNodeTemplate let-node="node" let-index="index">
+                        <md-checkbox (change)="logAnalyzer.components.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                      </ng-template>
+                    </tree-root>
+                  </div>
+                  <div flex="45" flex-offset="5">
+                    <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
+                    <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
+                      <ng-template #treeNodeTemplate let-node="node" let-index="index">
+                        <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                      </ng-template>
+                    </tree-root>
+                  </div>
                 </div>
               </div>
 
@@ -68,7 +79,7 @@
                 <div layout="row">
                   <div flex="20">
                     <md-input-container class="noMarginInput">
-                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="500" [(ngModel)]="logAnalyzer.maxResults"
+                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
                         name="max_results" placeholder="Nº Entries">
                     </md-input-container>
                   </div>

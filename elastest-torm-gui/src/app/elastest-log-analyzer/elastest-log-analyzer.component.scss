@@ -54,10 +54,10 @@ md-sidenav-container {
     max-height: 19% !important;
 }
 
-#logComponents{
+#componentsLevels{
     max-height: 32% !important;
 }
 
-:host /deep/ #logComponents .angular-tree-component{
+:host /deep/ #componentsLevels .angular-tree-component{
     overflow: hidden;
 }

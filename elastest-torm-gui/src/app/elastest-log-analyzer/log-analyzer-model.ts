@@ -9,17 +9,17 @@ export class LogAnalyzerModel {
 
     // Filters
     components: AgTreeCheckModel;
-    level: string[];
+    levels: AgTreeCheckModel;
 
     constructor() {
         this.selectedIndices = ['*'];
         this.fromDate = this.getDefaultFromDate();
         this.toDate = this.getDefaultToDate();
-        this.maxResults = 500;
+        this.maxResults = 800;
         this.tail = false;
 
         this.components = new AgTreeCheckModel();
-        this.level = [];
+        this.levels = new AgTreeCheckModel();
     }
 
     public getDefaultFromDate(): Date {
@@ -47,7 +47,28 @@ export class LogAnalyzerModel {
         for (let component of components) {
             let treeComponent: TreeCheckElementModel = new TreeCheckElementModel();
             treeComponent.name = component;
+            treeComponent.checked = true;
             this.components.tree.push(treeComponent);
+        }
+    }
+
+    public setLevels(rows: any[]): void {
+        const levels: string[] = Array.from(
+            new Set(
+                rows.map(
+                    (item: any) => item.level,
+                ),
+            )
+        );
+
+        this.levels = new AgTreeCheckModel();
+        for (let level of levels) {
+            if (level && level !== '') {
+                let treeLevel: TreeCheckElementModel = new TreeCheckElementModel();
+                treeLevel.name = level;
+                treeLevel.checked = true;
+                this.levels.tree.push(treeLevel);
+            }
         }
     }
 

@@ -38,6 +38,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   // Filters
   @ViewChild('componentsTree') componentsTree: TreeComponent;
+  @ViewChild('levelsTree') levelsTree: TreeComponent;
 
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
@@ -113,7 +114,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
-          this.updateComponents();
+          this.updateTrees();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
@@ -145,9 +146,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.showClearData = show;
   }
 
-  updateComponents() {
+  updateTrees() {
     this.logAnalyzer.setComponents(this.logRows);
     this.componentsTree.treeModel.update();
+
+    this.logAnalyzer.setLevels(this.logRows);
+    this.levelsTree.treeModel.update();
   }
 
   /***** Dates *****/
