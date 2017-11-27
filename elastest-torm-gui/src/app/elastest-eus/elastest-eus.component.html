@@ -3,6 +3,7 @@
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>Manual tests</md-card-title>
+            <md-card-subtitle>Request a web browser and try any SUT. To request a web browser to use in your tests from the code, use the following URL of the EUS API <strong>{{configurationService.configModel.eusServiceUrl}}</strong></md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
