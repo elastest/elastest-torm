@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { TitlesService } from '../shared/services/titles.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
@@ -18,14 +19,17 @@ export class EtmComponent implements AfterViewInit, OnInit {
 
   topTitle: string;
   openedMenu: boolean = true;
+  enableRefresh: boolean = false;
 
   constructor(private titlesService: TitlesService, public media: TdMediaService,
     private elastestRabbitmqService: ElastestRabbitmqService,
-    private cdr: ChangeDetectorRef, private configService: ConfigurationService) { }
+    private cdr: ChangeDetectorRef, private configService: ConfigurationService, private router: Router) { }
 
   ngOnInit() {
+    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
+      this.enableRefresh = true;
+    }
     this.titlesService.setHeadAndTopTitle('ElasTest');
-
     this.elastestRabbitmqService.configWSConnection();
     this.elastestRabbitmqService.startWsConnection();
   }
@@ -77,6 +81,20 @@ export class EtmComponent implements AfterViewInit, OnInit {
       } else if (documentBody.msRequestFullscreen) {
         documentBody.msRequestFullscreen();
       }
+    }
+  }
+
+  refresh() {
+    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
+      this.router.navigate(['/refresh'], { queryParams: { url: 'tjobexecs' } });
+    } 
+  }
+
+  isReloadable() {
+    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
+      return true;
+    } else {
+      return false;
     }
   }
 

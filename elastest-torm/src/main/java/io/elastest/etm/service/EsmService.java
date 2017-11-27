@@ -101,8 +101,8 @@ public class EsmService {
     @Value("${et.etm.lstcp.port}")
     public String etEtmLstcpPort;
     
-    @Value("${elastest.execution.mode}")
-    public String elasTestExecutionMode;
+    @Value("${exec.mode}")
+    public String execMode;
 
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
@@ -127,7 +127,7 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
-            if (elasTestExecutionMode.equals("normal")){
+            if (execMode.equals("normal")){
                 provisionServiceInstanceSync(EUS_TSS_ID, null);
                 logger.debug("EUS is started from ElasTest in normal mode");
             }
@@ -190,7 +190,7 @@ public class EsmService {
             ObjectNode serviceDefJson = mapper.readValue(content,
                     ObjectNode.class);
             
-            if (elasTestExecutionMode.equals("normal")){
+            if (execMode.equals("normal")){
                 if (serviceDefJson.get("register").get("id").toString()
                         .replaceAll("\"", "").equals(EUS_TSS_ID)){
                     registerElasTestService(serviceDefJson);

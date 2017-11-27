@@ -31,9 +31,6 @@ public class EsmApiController implements EsmApi {
 	@Autowired
 	UtilTools utilTools;
 
-	@Value("${elastest.execution.mode}")
-	public String ELASTEST_EXECUTION_MODE;
-
 	@Override
 	public ResponseEntity<List<String>> getSupportServicesNames() {
 		List<String> servicesList = esmService.getRegisteredServicesName();

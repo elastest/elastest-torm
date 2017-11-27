@@ -46,9 +46,6 @@ public class TJobExecOrchestratorService {
     @Value("${et.edm.elasticsearch.api}")
     private String elasticsearchHost;
 
-    @Value("${elastest.execution.mode}")
-    public String ELASTEST_EXECUTION_MODE;
-
     private final DockerService2 dockerService;
     private final DockerComposeService dockerComposeService;
     private final TestSuiteRepository testSuiteRepo;

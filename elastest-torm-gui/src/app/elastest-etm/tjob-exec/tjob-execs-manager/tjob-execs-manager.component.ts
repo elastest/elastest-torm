@@ -42,7 +42,7 @@ export class TJobExecsManagerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('TJob Executions');
+    this.titlesService.setHeadAndTopTitle('Dashboard');
     this.loadTJobExecs();
   }
 

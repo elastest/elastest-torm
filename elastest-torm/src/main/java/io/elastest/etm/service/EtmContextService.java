@@ -23,8 +23,8 @@ public class EtmContextService {
     public boolean etInProd;
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
-    @Value("${elastest.execution.mode}")
-    String elasTestExecutionMode;
+    @Value("${exec.mode}")
+    String execMode;
 
     public ContextInfo getContextInfo() {
         ContextInfo contextInfo = new ContextInfo();
@@ -32,7 +32,7 @@ public class EtmContextService {
                 etInProd ? "http://" + publicHost + ":37000/elasticsearch"
                         : elasticsearchApi);
         contextInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
-        contextInfo.setElasTestExecMode(elasTestExecutionMode);
+        contextInfo.setElasTestExecMode(execMode);
         contextInfo.setEusSSInstance(getEusApiUrl());
         return contextInfo;
     }

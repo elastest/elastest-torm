@@ -12,7 +12,7 @@ import {
   TdDialogService,
   IConfirmConfig,
 } from '@covalent/core';
-import { AfterViewInit, Component, OnInit, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
 @Component({
@@ -21,6 +21,9 @@ import { MdDialog } from '@angular/material';
   styleUrls: ['./projects-manager.component.scss']
 })
 export class ProjectsManagerComponent implements OnInit, AfterViewInit {
+
+  @Input()
+  isNested: boolean = false;
 
   // Project data
   projectColumns: any[] = [
@@ -45,7 +48,9 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('Projects');
+    if (!this.isNested) {
+      this.titlesService.setHeadAndTopTitle('Projects');
+    }
     this.loadProjects();
   }
 

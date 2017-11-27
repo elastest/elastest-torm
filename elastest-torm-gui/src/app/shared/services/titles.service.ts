@@ -30,4 +30,8 @@ export class TitlesService {
         }
         this.setTopTitle(top);
     }
+
+    getTitle() {
+        return this._titleService;
+    }
 }

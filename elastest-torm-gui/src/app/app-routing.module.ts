@@ -33,6 +33,7 @@ import { EmailTemplateComponent } from './templates/email/email.component';
 import { TemplatesComponent } from './templates/templates.component';
 import { UsersFormComponent } from './users/form/form.component';
 import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
+import { RefreshComponent } from './shared/refresh/refresh.component';
 
 const routes: Routes = [
     {
@@ -223,6 +224,10 @@ const routes: Routes = [
             {
                 path: 'eus',
                 component: ElastestEusComponent,
+            },
+            {
+                path: 'refresh',
+                component: RefreshComponent,
             },
 
         ]
