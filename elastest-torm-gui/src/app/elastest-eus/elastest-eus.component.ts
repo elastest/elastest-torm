@@ -1,10 +1,11 @@
+import { TitlesService } from '../shared/services/titles.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
-import {ElastestEusDialog} from './elastest-eus.dialog';
-import {ElastestEusDialogService} from './elastest-eus.dialog.service';
-import {EusService} from './elastest-eus.service';
-import {EusTestModel} from './elastest-eus-test-model';
-import {ConfigurationService} from '../config/configuration-service.service';
+import { MdDialogRef, MdDialog, MdDialogConfig } from '@angular/material';
+import { ElastestEusDialog } from './elastest-eus.dialog';
+import { ElastestEusDialogService } from './elastest-eus.dialog.service';
+import { EusService } from './elastest-eus.service';
+import { EusTestModel } from './elastest-eus-test-model';
+import { ConfigurationService } from '../config/configuration-service.service';
 
 
 @Component({
@@ -67,25 +68,34 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   eusHost: string = "localhost";
 
   @Input()
-  eusPort: number = 8040;
+  eusPort: string = "8040";
 
   @Input()
-  standalone : boolean = true;
+  standalone: boolean = true;
+
+  @Input()
+  isNested: boolean = false;
 
   @Output()
   onInitComponent = new EventEmitter<string>();
 
-  constructor(private eusService: EusService, private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
+  constructor(private titlesService: TitlesService, private eusService: EusService,
+     private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
+    if (!this.isNested) {
+      this.titlesService.setHeadAndTopTitle('Web Browsers');
+    }
     if ((this.configurationService.configModel.eusServiceUrl && !this.standalone)
       || !this.configurationService.configModel.eusServiceUrl && this.standalone) {
+      console.log("Uses default or passed arguments.");
       this.eusService.setEusUrl(this.eusUrl);
       this.eusService.setEusHost(this.eusHost);
     } else {
+      console.log("Uses data from backend.");
       this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
       this.eusService.setEusHost(this.configurationService.configModel.eusHost);
-      this.eusPort = +this.configurationService.configModel.eusPort;
+      this.eusPort = this.configurationService.configModel.eusPort;
       this.eusHost = this.configurationService.configModel.eusHost;
     }
 
