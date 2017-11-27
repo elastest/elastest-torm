@@ -10,6 +10,7 @@ export class LogAnalyzerModel {
     // Filters
     components: AgTreeCheckModel;
     levels: AgTreeCheckModel;
+    messageFilter: string;
 
     constructor() {
         this.selectedIndices = ['*'];
@@ -20,6 +21,7 @@ export class LogAnalyzerModel {
 
         this.components = new AgTreeCheckModel();
         this.levels = new AgTreeCheckModel();
+        this.messageFilter = '';
     }
 
     public getDefaultFromDate(): Date {

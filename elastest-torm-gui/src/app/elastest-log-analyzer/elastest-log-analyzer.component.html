@@ -2,8 +2,8 @@
   <div id="content" layout-fill>
     <md-card id="logCard" class="push-none">
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
-        <ag-grid-angular #logsGrid *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-          [enableColResize]="true" (gridReady)="onGridReady($event)" style="width: 100%; height: 80%;">
+        <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
+          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
     </md-card>
@@ -19,7 +19,7 @@
               <!-- Top Content -->
               <div id="filtersTop" class="pad-sm pad-top" layout="column">
                 <!-- Indices and Select Buttons -->
-                <div layout="row">
+                <div layout="column">
                   <!-- Indices  -->
                   <div flex="50">
                     <md-input-container class="noMarginInput">
@@ -36,21 +36,25 @@
                 </div>
 
                 <!-- Date -->
-                <div id="logDate" layout="column" flex-gt-xs="15" custom-flex-xl="15" class="margin-top-gt-xs">
-                  <md-input-container>
-                    <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
-                  </md-input-container>
+                <div id="logDate" layout="column" class="margin-top-gt-xs">
                   <div layout="row">
-                    <md-input-container>
+                    <md-input-container flex="90" class="oveflowHidden">
+                      <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
+                    </md-input-container>
+                  </div>
+                  <div layout="row" class="push-top-sm">
+                    <md-input-container flex="90" class="overflowHidden">
                       <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
                     </md-input-container>
+                  </div>
+                  <div layout="column" class="push-top">
                     <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" flex-offset-gt-lg="5"
                       style="line-height: 4;">Tail</md-checkbox>
                   </div>
                 </div>
 
                 <!-- Components And Levels -->
-                <div id="componentsLevels" layout="row" class="pad-top">
+                <div id="componentsLevels" layout="column" class="pad-top">
                   <div flex="50">
                     <md-card-subtitle class="pad-left-none">Components</md-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.components.tree">
@@ -60,7 +64,7 @@
                       </ng-template>
                     </tree-root>
                   </div>
-                  <div flex="45" flex-offset="5">
+                  <div flex="45" class="push-top-sm">
                     <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
@@ -70,6 +74,12 @@
                     </tree-root>
                   </div>
                 </div>
+
+                <div clas="push-top-sm">
+                  <md-input-container flex="100">
+                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Message">
+                  </md-input-container>
+                </div>
               </div>
 
               <md-divider></md-divider>
@@ -77,7 +87,7 @@
               <!-- Bottom Content (Buttons, ...) -->
               <div id="filtersBottom" layout="column" class="push-top-sm">
                 <div layout="row">
-                  <div flex="20">
+                  <div flex="25">
                     <md-input-container class="noMarginInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
                         name="max_results" placeholder="Nº Entries">
@@ -110,7 +120,38 @@
               </div>
             </form>
           </md-tab>
+          <!-- Mark (Patterns) -->
           <md-tab label="Mark">
+            <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
+              <md-list-item flex-gt-xs="100">
+                <div layout="row" layout-align="center center">
+                  <md-input-container>
+                    <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}"
+                      (keydown.enter)="searchByPattern(i)">
+                  </md-input-container>
+                </div>
+                <div layout-gt-md="row" layout="column" layout-align="center center">
+                  <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
+                    class="hiddenElement" required>
+                  <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">
+                    <md-icon [style.color]="pattern.color">color_lens</md-icon>
+                  </button>
+                  <button md-button (click)="markOrClean(i)" class="push-top-sm iconBtn">
+                    <md-icon *ngIf="pattern.found < 0" color="accent" title="Mark rows">invert_colors</md-icon>
+                    <md-icon *ngIf="pattern.found >= 0" title="Clean rows">invert_colors_off</md-icon>
+                  </button>
+                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm">
+                    <md-icon>delete</md-icon>
+                  </button>
+                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top-sm">
+                    <md-icon>navigate_before</md-icon>
+                  </button>
+                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top-sm">
+                    <md-icon>navigate_next</md-icon>
+                  </button>
+                </div>
+              </md-list-item>
+            </div>
           </md-tab>
         </md-tab-group>
       </md-card-content>
