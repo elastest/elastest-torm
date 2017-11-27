@@ -68,7 +68,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   eusHost: string = "localhost";
 
   @Input()
-  eusPort: string = "8040";
+  eusPort: number = 8040;
 
   @Input()
   standalone: boolean = true;
@@ -95,7 +95,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       console.log("Uses data from backend.");
       this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
       this.eusService.setEusHost(this.configurationService.configModel.eusHost);
-      this.eusPort = this.configurationService.configModel.eusPort;
+      this.eusPort = +this.configurationService.configModel.eusPort;
       this.eusHost = this.configurationService.configModel.eusHost;
     }
 
