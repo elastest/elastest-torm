@@ -26,13 +26,15 @@ md-sidenav-container {
     height: 99% !important; //96% with card title
 }
 
-#logSidenav, #logSidenav md-card-content, #logSidenav md-tab-group, #logManagerForm{
+#logSidenav, #logSidenav md-tab-group, #logManagerForm{
     height: 100%;
     margin: 0;
 }
 
 #logSidenav md-card-content{
+    height: 99%;
     padding-top: 4px;
+    padding-bottom: 0;
 }
 
 :host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper{
@@ -40,11 +42,11 @@ md-sidenav-container {
 }
 
 #filtersTop{
-    height: 80%;
+    height: 82%;
 }
 
 #filtersBottom{
-    height: 17%;
+    height: 16%;
 }
 
 
