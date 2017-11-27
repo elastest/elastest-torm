@@ -26,7 +26,8 @@
         "../node_modules/@covalent/core/common/platform.css",
         "../node_modules/ag-grid/dist/styles/ag-grid.css",
         "../node_modules/ag-grid/dist/styles/theme-fresh.css",
-        "../node_modules/ag-grid/dist/styles/ag-theme-material.css"
+        "../node_modules/ag-grid/dist/styles/ag-theme-material.css",
+        "../node_modules/angular-tree-component/dist/angular-tree-component.css"        
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js",

@@ -15,9 +15,47 @@ md-sidenav-container {
 }
 
 #logCard md-card-content{
-    height: 96%;
+    height: 100%; //93% with card title
 }
 
 :host /deep/ .mat-tab-label {
     min-width: 110px !important;
-  }
+}
+
+:host /deep/ ag-grid-angular{
+    height: 99% !important; //96% with card title
+}
+
+#logSidenav, #logSidenav md-card-content, #logSidenav md-tab-group, #logManagerForm{
+    height: 100%;
+    margin: 0;
+}
+
+#logSidenav md-card-content{
+    padding-top: 4px;
+}
+
+:host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper{
+    height: 93% !important;
+}
+
+#filtersTop{
+    height: 80%;
+}
+
+#filtersBottom{
+    height: 17%;
+}
+
+
+:host /deep/ #logDate{
+    max-height: 19% !important;
+}
+
+#logComponents{
+    max-height: 32% !important;
+}
+
+:host /deep/ #logComponents .angular-tree-component{
+    overflow: hidden;
+}

@@ -1,3 +1,4 @@
+import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
@@ -6,6 +7,9 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import { ColumnApi, GridApi } from 'ag-grid/main';
+import { ITreeOptions, IActionMapping } from 'angular-tree-component';
+import { TreeComponent } from 'angular-tree-component';
+
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -17,7 +21,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   private gridColumnApi: ColumnApi;
 
   public esSearchModel: ESSearchModel;
-  public logAnalyzerModel: LogAnalyzerModel;
+  public logAnalyzer: LogAnalyzerModel;
   public streamType: string = 'log';
   public streamTypeTerm: ESTermModel = new ESTermModel();
 
@@ -32,6 +36,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public showPauseTail: boolean = false;
   public showClearData: boolean = false;
 
+  // Filters
+  @ViewChild('componentsTree') componentsTree: TreeComponent;
+
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
   ) {
@@ -39,7 +46,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.logAnalyzerModel = new LogAnalyzerModel();
+    this.logAnalyzer = new LogAnalyzerModel();
     this.initStreamTypeTerm();
     this.initESModel();
   }
@@ -48,6 +55,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.fromDate.nativeElement.value = this.getDefaultFromValue();
     this.toDate.nativeElement.value = this.getDefaultToValue();
   }
+
+  /***** INIT *****/
 
   // Function to init some parameters of ag-grid
   onGridReady(params): void {
@@ -70,15 +79,21 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
   }
 
-  loadLog(): void {
-    this.logAnalyzerModel.fromDate = this.getFromDate();
-    this.logAnalyzerModel.toDate = this.getToDate();
 
-    this.esSearchModel.indices = this.logAnalyzerModel.selectedIndices;
+  /***** Load Log *****/
+
+  prepareLoadLog(): void {
+    this.logAnalyzer.fromDate = this.getFromDate();
+    this.logAnalyzer.toDate = this.getToDate();
+
+    this.esSearchModel.indices = this.logAnalyzer.selectedIndices;
     this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
-    this.esSearchModel.body.size = this.logAnalyzerModel.maxResults;
+    this.esSearchModel.body.size = this.logAnalyzer.maxResults;
     this.setRange();
+  }
 
+  loadLog(): void {
+    this.prepareLoadLog();
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
     let searchBody: string = this.esSearchModel.getSearchBody();
 
@@ -86,10 +101,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       .subscribe(
       (data: any) => {
         this.logRows = this.esSearchModel.getDataListFromRaw(data);
+        // let rows: any[] = this.esSearchModel.getDataListFromRaw(data);
+        // if (this.logRows.length === 0) {
+        //   this.logRows = rows;
+        // } else if (this.gridApi !== undefined) { // TODO Make working...
+        //   this.gridApi.redrawRows({ rowNodes: rows });
+        //   this.gridApi.sizeColumnsToFit();
+        // }
+
         let logsLoaded: boolean = this.logRows.length > 0;
         if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
+          this.updateComponents();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
@@ -116,19 +140,24 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   updateButtons(show: boolean): void {
     this.showLoadMore = show;
     this.showClearData = show;
   }
-  /**** Dates ****/
+
+  updateComponents() {
+    this.logAnalyzer.setComponents(this.logRows);
+    this.componentsTree.treeModel.update();
+  }
+
+  /***** Dates *****/
 
   public getDefaultFromValue(): string {
-    return dateToInputLiteral(this.logAnalyzerModel.getDefaultFromDate());
+    return dateToInputLiteral(this.logAnalyzer.getDefaultFromDate());
   }
 
   public getDefaultToValue(): string {
-    return dateToInputLiteral(this.logAnalyzerModel.getDefaultToDate());
+    return dateToInputLiteral(this.logAnalyzer.getDefaultToDate());
   }
 
   public getFromDate(): any {
@@ -148,7 +177,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   public setUseTail(tail: boolean): void {
-    this.logAnalyzerModel.tail = tail;
+    this.logAnalyzer.tail = tail;
   }
 
   public clearData(): void {
@@ -175,7 +204,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       (data: any) => {
         if (data) { // Ok Pressed
           if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
-            this.logAnalyzerModel.selectedIndices = data.selectedIndices;
+            this.logAnalyzer.selectedIndices = data.selectedIndices;
             if (data.fromDate) {
               this.setFromDate(data.fromDate);
             }

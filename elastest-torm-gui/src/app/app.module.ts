@@ -59,6 +59,7 @@ import { TJobExecsManagerComponent } from './elastest-etm/tjob-exec/tjob-execs-m
 import { GetIndexModalComponent } from './elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
 import { AgGridModule } from 'ag-grid-angular/main';
+import { TreeModule } from 'angular-tree-component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -105,6 +106,7 @@ const httpInterceptorProviders: Type<any>[] = [
     MdDialogModule,
     MdSidenavModule,
     AgGridModule.withComponents([]),
+    TreeModule,
     CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
       interceptors: [{
