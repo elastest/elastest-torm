@@ -8,74 +8,76 @@ import { Observable } from 'rxjs/Rx';
 @Injectable()
 export class ConfigurationService {
 
-  public configModel: ConfigModel;
+    public configModel: ConfigModel;
 
-  constructor(private http: Http, ) {
-  }
+    constructor(private http: Http, ) {
+    }
 
-  load() {
-    console.log("Starting configuration.");
-    let host: string = window.location.host;
-    let hostApi: string = 'http://' + host + '/api';
+    load() {
+        console.log("Starting configuration.");
+        let host: string = window.location.host;
+        let hostApi: string = 'http://' + host + '/api';
 
-    return new Promise((resolve, reject) => {
-      this.getServicesInfo(hostApi)
-        .subscribe((servicesInfo) => {
-          let eusUrl = new URL(servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.api
-            : 'http://' + environment.eus + '/eus/v1/');
-          this.configModel = {
-            'hostName': window.location.hostname,
-            'host': 'http://' + host,
-            'hostApi': hostApi,
-            'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
-            'hostEIM': 'http://' + environment.hostEIM + '/',
-            'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
-            'eusHost': eusUrl.hostname,
-            'eusPort': eusUrl.port,
-            'eusServiceUrlNoPath': 'http://' + environment.eus,
-            'eusServiceUrl': servicesInfo.eusSSInstance !== null? servicesInfo.eusSSInstance.urls.api : 'http://' + environment.eus + '/eus/v1/',
-            'eusWebSocketUrl': servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.eusWSapi : 'ws://' + environment.eus + '/eus/v1/eus-ws',
-            'elasTestExecMode': servicesInfo.elasTestExecMode,
-          };
-         
-          resolve();
-          console.log( "The configuration is completed." );
-        },
-      );
-    });
-  }
+        return new Promise((resolve, reject) => {
+            this.getServicesInfo(hostApi)
+                .subscribe((servicesInfo) => {
+                    let eusUrl = servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+                    ? new URL(servicesInfo.eusSSInstance.urls.api) : null;
+                    this.configModel = {
+                        'hostName': window.location.hostname,
+                        'host': 'http://' + host,
+                        'hostApi': hostApi,
+                        'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
+                        'hostEIM': 'http://' + environment.hostEIM + '/',
+                        'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
+                        'eusHost': eusUrl !== null ? eusUrl.hostname : null,
+                        'eusPort': eusUrl !== null ? eusUrl.port : null,
+                        'eusServiceUrlNoPath': 'http://' + environment.eus,
+                        'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+                            ? servicesInfo.eusSSInstance.urls.api : null,
+                        'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+                            ? servicesInfo.eusSSInstance.urls.eusWSapi : null,
+                        'elasTestExecMode': servicesInfo.elasTestExecMode,
+                    };
 
-  public getServicesInfo(hostApi: string) {
-    let url: string = hostApi + '/context/services/info';
-    return this.http.get(url)
-      .map((response) => response.json());
-  }
+                    resolve();
+                    console.log("The configuration is completed.");
+                },
+            );
+        });
+    }
 
-  public getElasticsearchApi(hostApi: string) {
-    let url: string = hostApi + '/context/elasticsearch/api';
-    return this.http.get(url)
-      .map((response) => response['_body']);
-  }
+    public getServicesInfo(hostApi: string) {
+        let url: string = hostApi + '/context/services/info';
+        return this.http.get(url)
+            .map((response) => response.json());
+    }
 
-  public getWSHost(hostApi: string) {
-    let url: string = hostApi + '/context/ws-host';
-    return this.http.get(url)
-      .map((response) => response['_body']);
-  }
+    public getElasticsearchApi(hostApi: string) {
+        let url: string = hostApi + '/context/elasticsearch/api';
+        return this.http.get(url)
+            .map((response) => response['_body']);
+    }
 
-  public getLogstashIp() {
-    let hostApi: string = this.configModel.hostApi;
-    let url: string = hostApi + '/context/logstash/ip';
-    return this.http.get(url)
-      .map((response) => response['_body']);
-  }
+    public getWSHost(hostApi: string) {
+        let url: string = hostApi + '/context/ws-host';
+        return this.http.get(url)
+            .map((response) => response['_body']);
+    }
+
+    public getLogstashIp() {
+        let hostApi: string = this.configModel.hostApi;
+        let url: string = hostApi + '/context/logstash/ip';
+        return this.http.get(url)
+            .map((response) => response['_body']);
+    }
 
 
-  public getLogstashInfo() {
-    let hostApi: string = this.configModel.hostApi;
-    let url: string = hostApi + '/context/logstash/info';
-    return this.http.get(url)
-      .map((response) => response.json());
-  }
+    public getLogstashInfo() {
+        let hostApi: string = this.configModel.hostApi;
+        let url: string = hostApi + '/context/logstash/info';
+        return this.http.get(url)
+            .map((response) => response.json());
+    }
 
 }

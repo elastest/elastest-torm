@@ -101,7 +101,7 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
-        createESIndex(tJobExec);
+        //createESIndex(tJobExec);
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
