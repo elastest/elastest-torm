@@ -369,7 +369,6 @@ export class ComboChartComponent extends BaseChartComponent {
     let values: any[] = [];
 
     for (const results of chart) {
-      console.log('aglia', results)
       for (const d of results.series) {
         if (d && !values.includes(d.name)) {
           values.push(d.name);

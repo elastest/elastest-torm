@@ -8,6 +8,19 @@ export class TreeElementModel {
         this.name = '';
         this.children = [];
     }
+
+    setByObj(elem: any): void {
+        if (elem.name) {
+            this.name = elem.name;
+        }
+        if (elem.children) {
+            for (let child of elem.children) {
+                let newChild: TreeElementModel = new TreeElementModel();
+                newChild.setByObj(child);
+                this.children.push(newChild);
+            }
+        }
+    }
 }
 
 export class AgTreeModel {
@@ -15,6 +28,14 @@ export class AgTreeModel {
 
     constructor() {
         this.tree = [];
+    }
+
+    public setByObjArray(elemArray: any[]): void {
+        for (let elem of elemArray) {
+            let newElem: TreeElementModel = new TreeElementModel();
+            newElem.setByObj(elem);
+            this.tree.push(newElem);
+        }
     }
 }
 
@@ -26,6 +47,22 @@ export class TreeCheckElementModel extends TreeElementModel {
     constructor() {
         super();
         this.checked = false;
+    }
+
+    setByObj(elem: any): void {
+        if (elem.name) {
+            this.name = elem.name;
+        }
+        if (elem.children) {
+            for (let child of elem.children) {
+                let newChild: TreeCheckElementModel = new TreeCheckElementModel();
+                newChild.setByObj(child);
+                this.children.push(newChild);
+            }
+        }
+        if (elem.checked) {
+            this.checked = elem.checked;
+        }
     }
 }
 
@@ -75,4 +112,13 @@ export class AgTreeCheckModel {
         }
         this.updateParentNodeCheckbox(node.parent);
     }
+
+    public setByObjArray(elemArray: any[]): void {
+        for (let elem of elemArray) {
+            let newElem: TreeCheckElementModel = new TreeCheckElementModel();
+            newElem.setByObj(elem);
+            this.tree.push(newElem);
+        }
+    }
+
 }

@@ -61,6 +61,7 @@ import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-l
 import { AgGridModule } from 'ag-grid-angular/main';
 import { TreeModule } from 'angular-tree-component';
 import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/execution-modal.component';
+import { MonitoringConfigurationComponent } from './elastest-etm/etm-logs-metrics-view/monitoring-configuration/monitoring-configuration.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -92,6 +93,7 @@ const httpInterceptorProviders: Type<any>[] = [
     GetIndexModalComponent,
     ElastestLogAnalyzerComponent,
     ExecutionModalComponent,
+    MonitoringConfigurationComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -148,7 +150,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialog,
     RunTJobModalComponent,
     GetIndexModalComponent,
-    ExecutionModalComponent
+    ExecutionModalComponent,
+    MonitoringConfigurationComponent
   ],
   bootstrap: [AppComponent],
 })
