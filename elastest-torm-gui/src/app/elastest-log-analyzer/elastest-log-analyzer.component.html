@@ -53,13 +53,13 @@
                   </div>
                 </div>
 
-                <!-- Components And Levels -->
+                <!-- Components/Streams And Levels -->
                 <div id="componentsLevels" layout="column" class="pad-top">
                   <div flex="50">
-                    <md-card-subtitle class="pad-left-none">Components</md-card-subtitle>
-                    <tree-root #componentsTree [nodes]="logAnalyzer.components.tree">
+                    <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
+                    <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <md-checkbox (change)="logAnalyzer.components.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                        <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
                           [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
                       </ng-template>
                     </tree-root>

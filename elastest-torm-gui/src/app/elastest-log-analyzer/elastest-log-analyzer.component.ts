@@ -3,7 +3,7 @@ import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
-import { ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
+import { ESQueryModel, ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
@@ -158,10 +158,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.showClearData = show;
   }
 
-  updateTrees() {
-    this.logAnalyzer.setComponents(this.logRows);
-    this.componentsTree.treeModel.update();
-
+  updateTrees(): void {
     this.logAnalyzer.setLevels(this.logRows);
     this.levelsTree.treeModel.update();
   }
@@ -224,6 +221,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             if (data.fromDate) {
               this.setFromDate(data.fromDate);
             }
+            this.loadComponentStreams();
           } else {
             this.elastestESService.popupService.openSnackBar('No execution was selected. Selected all by default');
           }
@@ -231,6 +229,20 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         } else { }
       },
     );
+  }
+
+  loadComponentStreams(): void {
+    let componentStreamQuery: ESQueryModel = new ESQueryModel();
+    componentStreamQuery.bool.must.termList.push(this.streamTypeTerm);
+
+    this.elastestESService.getIndexComponentStreamList(
+      this.logAnalyzer.selectedIndicesToString(), componentStreamQuery.convertToESFormat()
+    ).subscribe(
+      (componentsStreams: any[]) => {
+        this.logAnalyzer.setComponentsStreams(componentsStreams);
+        this.componentsTree.treeModel.update();
+      }
+      );
   }
 
 
@@ -241,7 +253,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   removePattern(position: number): void {
-    if (position < this.patterns.length - 1) { //Not last pattern
+    if (position < this.patterns.length - 1) { // Not last pattern
       this.patterns.splice(position, 1);
       if (this.patterns.length === 0) {
         this.addPattern();
@@ -249,7 +261,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.searchByPatterns();
       }
     } else if (position === this.patterns.length - 1
-      && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { //Last pattern with search message and not searched
+      && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { // Last pattern with search message and not searched
       this.patterns.splice(position, 1);
       this.addPattern();
     }

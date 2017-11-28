@@ -8,7 +8,7 @@ export class LogAnalyzerModel {
     tail: boolean;
 
     // Filters
-    components: AgTreeCheckModel;
+    componentsStreams: AgTreeCheckModel;
     levels: AgTreeCheckModel;
     messageFilter: string;
 
@@ -19,7 +19,7 @@ export class LogAnalyzerModel {
         this.maxResults = 800;
         this.tail = false;
 
-        this.components = new AgTreeCheckModel();
+        this.componentsStreams = new AgTreeCheckModel();
         this.levels = new AgTreeCheckModel();
         this.messageFilter = '';
     }
@@ -36,22 +36,9 @@ export class LogAnalyzerModel {
         return this.selectedIndices.join(',');
     }
 
-    public setComponents(rows: any[]): void {
-        const components: string[] = Array.from(
-            new Set(
-                rows.map(
-                    (item: any) => item.component,
-                ),
-            )
-        );
-
-        this.components = new AgTreeCheckModel();
-        for (let component of components) {
-            let treeComponent: TreeCheckElementModel = new TreeCheckElementModel();
-            treeComponent.name = component;
-            treeComponent.checked = true;
-            this.components.tree.push(treeComponent);
-        }
+    public setComponentsStreams(componentsStreams: any[]): void {
+        this.componentsStreams.setByObjArray(componentsStreams);
+        this.componentsStreams.setCheckedToAll(true);
     }
 
     public setLevels(rows: any[]): void {

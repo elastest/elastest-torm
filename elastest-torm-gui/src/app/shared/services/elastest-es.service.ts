@@ -1,3 +1,4 @@
+import { ESAggsModel } from '../elasticsearch-model';
 import { AllMetricsFields } from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
@@ -57,7 +58,7 @@ export class ElastestESService {
 
     searchAllLogs(index: string, stream: string, component: string, theQuery?: any) {
         let _logs: Subject<string[]> = new Subject<string[]>();
-        let logs = _logs.asObservable();
+        let logs: Observable<string[]> = _logs.asObservable();
 
         let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
         this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe(
@@ -516,5 +517,59 @@ export class ElastestESService {
         }
 
         return filters;
+    }
+
+    getIndexComponentStreamList(index: string, query?: any): Observable<any[]> {
+        let _components: Subject<any[]> = new Subject<any[]>();
+        let components: Observable<any[]> = _components.asObservable();
+
+        let url: string = this.esUrl + index + '/_search?ignore_unavailable';
+        let componentAggs: ESAggsModel = new ESAggsModel();
+        componentAggs.name = 'components';
+        componentAggs.field = 'component';
+
+        let streamAggs: ESAggsModel = new ESAggsModel();
+        streamAggs.name = 'streams';
+        streamAggs.field = 'stream';
+
+        componentAggs.aggs = streamAggs;
+        let aggsObj: any = componentAggs.convertToESFormat();
+        aggsObj.size = 0;
+        if (query) {
+            aggsObj.query = query;
+        }
+
+        this.elasticsearchService.internalSearch(url, aggsObj)
+            .subscribe(
+            (data: any) => {
+                if (data.aggregations && data.aggregations.components && data.aggregations.components.buckets) {
+                    let buckets: any[] = data.aggregations.components.buckets;
+
+
+                    let componentsStreamList: any[] = [];
+                    for (let componentBucket of buckets) {
+                        if (componentBucket.streams && componentBucket.streams.buckets) {
+                            let componentStream: any = {};
+                            componentStream.name = componentBucket.key;
+                            componentStream.children = [];
+                            for (let streamBucket of componentBucket.streams.buckets) {
+                                let streamObj: any = {};
+                                streamObj.name = streamBucket.key;
+                                componentStream.children.push(streamObj);
+                            }
+                            componentsStreamList.push(componentStream);
+                        }
+                    }
+                    // componentsStreamList => [ {name: component, children: [stream1, stream2,...]}, {...} ]
+                    _components.next(componentsStreamList);
+                } else {
+                    _components.next([]);
+                }
+
+            },
+            (error) => console.log(error),
+        );
+
+        return components;
     }
 }

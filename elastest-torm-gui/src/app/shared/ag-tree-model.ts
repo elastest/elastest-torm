@@ -1,51 +1,26 @@
-// Basic
+// Interface
 
-export class TreeElementModel {
+export interface ITreeElementModel {
     name: string;
-    children: TreeElementModel[];
+    children: ITreeElementModel[];
+    setByObj(elem: any): void;
+}
+
+export interface IAgTreeModel {
+    tree: ITreeElementModel[];
+    setByObjArray(elemArray: any[]): void;
+}
+
+// Implementations
+
+export class TreeCheckElementModel implements ITreeElementModel {
+    name: string;
+    children: TreeCheckElementModel[];
+    checked: boolean;
 
     constructor() {
         this.name = '';
         this.children = [];
-    }
-
-    setByObj(elem: any): void {
-        if (elem.name) {
-            this.name = elem.name;
-        }
-        if (elem.children) {
-            for (let child of elem.children) {
-                let newChild: TreeElementModel = new TreeElementModel();
-                newChild.setByObj(child);
-                this.children.push(newChild);
-            }
-        }
-    }
-}
-
-export class AgTreeModel {
-    tree: TreeElementModel[];
-
-    constructor() {
-        this.tree = [];
-    }
-
-    public setByObjArray(elemArray: any[]): void {
-        for (let elem of elemArray) {
-            let newElem: TreeElementModel = new TreeElementModel();
-            newElem.setByObj(elem);
-            this.tree.push(newElem);
-        }
-    }
-}
-
-// Heritage
-
-export class TreeCheckElementModel extends TreeElementModel {
-    checked: boolean;
-
-    constructor() {
-        super();
         this.checked = false;
     }
 
@@ -64,13 +39,26 @@ export class TreeCheckElementModel extends TreeElementModel {
             this.checked = elem.checked;
         }
     }
+
+    setCheckedToAll(checked: boolean): void {
+        this.checked = checked;
+        for (let child of this.children) {
+            child.setCheckedToAll(checked);
+        }
+    }
 }
 
-export class AgTreeCheckModel {
+export class AgTreeCheckModel implements IAgTreeModel {
     tree: TreeCheckElementModel[];
 
     constructor() {
         this.tree = [];
+    }
+
+    public setCheckedToAll(checked: boolean): void {
+        for (let child of this.tree) {
+            child.setCheckedToAll(checked);
+        }
     }
 
     public check(node, checked): void {

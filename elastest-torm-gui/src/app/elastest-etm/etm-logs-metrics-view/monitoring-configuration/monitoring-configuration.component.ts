@@ -14,29 +14,38 @@ export class MonitoringConfigurationComponent implements OnInit {
     {
       name: 'sut',
       children: [
-        { name: 'default_log', checked: true },
+        { name: 'log', checked: true },
         {
-          name: 'et_dockbeat',
+          name: 'metrics',
           children: [
-            { name: 'cpu.totalUsage', checked: true, }
+            {
+              name: 'cpu', checked: true,
+              children: [
+                { name: 'totalUsage', checked: true },
+              ],
+            }
           ],
           checked: true,
         },
-        { name: 'default_log', checked: true },
       ],
       checked: true,
     },
     {
       name: 'test',
       children: [
-        { name: 'default_log', checked: true },
+        { name: 'log', checked: true },
         {
-          name: 'et_dockbeat',
+          name: 'metrics',
           children: [
-            { name: 'cpu.totalUsage', checked: true, }
+            {
+              name: 'cpu', checked: true,
+              children: [
+                { name: 'totalUsage', checked: true },
+              ],
+            }
           ],
           checked: true,
-        }
+        },
       ],
       checked: true,
     },

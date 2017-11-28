@@ -1,3 +1,32 @@
+export class ESAggsModel {
+    name: string;
+    field: string;
+    aggs: ESAggsModel;
+
+    constructor() {
+        this.name = '';
+        this.field = '';
+        this.aggs = undefined;
+    }
+
+    empty(): boolean {
+        return (this.name === '' || this.field === '');
+    }
+
+    convertToESFormat(): any {
+        let formatted: any = {};
+        if (!this.empty()) {
+            formatted = { aggs: {} };
+            formatted.aggs[this.name] = { terms: {} };
+            formatted.aggs[this.name].terms.field = this.field;
+            if (this.aggs && !this.aggs.empty()) {
+                formatted.aggs[this.name].aggs = this.aggs.convertToESFormat().aggs;
+            }
+        }
+        return formatted;
+    }
+}
+
 export type SortValues = 'asc' | 'desc';
 
 export class ESSortModel {

@@ -102,7 +102,7 @@ public class TJobExecOrchestratorService {
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
         createESIndex(tJobExec);
-        
+
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
@@ -630,23 +630,30 @@ public class TJobExecOrchestratorService {
             // Create Index
             String url = elasticsearchHost + "/" + index;
 
-            String body = "{" + "\"mappings\": {" + "\"components\": {"
-                    + "\"properties\": {" + "\"component\": {"
-                    + "\"type\": \"text\"," + "\"fields\": {" + "\"keyword\": {"
-                    + "\"type\": \"keyword\"" + "}" + "}" + "}" + "}" + "}"
-                    + "}" + "}";
+            String body = "{ \"mappings\": {"
+                    + "\"components\": { \"properties\": { \"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
+                    + "\"streams\": { \"properties\": { \"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
+                    + "\"levels\": { \"properties\": { \"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } }"
+                    + "} }";
 
             elasticSearchPutCall(url, body);
 
-            // Enable Fielddata
-            url = url + "/_mapping/components";
+            // Enable Fielddata for components, streams and levels
+            enableESFieldData(url, "component");
+            enableESFieldData(url, "stream");
+            enableESFieldData(url, "level");
 
-            body = "{" + "\"properties\": {" + "\"component\": {"
-                    + "\"type\": \"text\", \"fielddata\": true" + "}" + "}"
-                    + "}";
-
-            elasticSearchPutCall(url, body);
         }
+    }
+
+    public void enableESFieldData(String url, String field) {
+        String group = field + 's';
+        url = url + "/_mapping/" + group;
+
+        String body = "{" + "\"properties\": {" + "\"" + field + "\": {"
+                + "\"type\": \"text\", \"fielddata\": true" + "}" + "}" + "}";
+
+        elasticSearchPutCall(url, body);
     }
 
     public void elasticSearchPutCall(String url, String body) {

@@ -3,7 +3,6 @@ import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
-import { ElasticSearchService } from '../../shared/services/elasticsearch.service';
 import { Router } from '@angular/router';
 import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
@@ -44,7 +43,6 @@ export class GetIndexModalComponent implements OnInit {
   constructor(
     // @Inject(MD_DIALOG_DATA) public tJob: TJobModel,
     private projectService: ProjectService, private tJobService: TJobService, private tJobExecService: TJobExecService,
-    private router: Router, public elasticSearchService: ElasticSearchService,
     private dialogRef: MdDialogRef<GetIndexModalComponent>,
   ) {
     this.loadProjects();

@@ -87,6 +87,10 @@ md-card-content a {
    visibility: hidden; 
 }
 
+.mat-dialog-container{
+    max-width: 100% !important;
+}
+
 .boxShadowNone{
     box-shadow: none !important;
 }
