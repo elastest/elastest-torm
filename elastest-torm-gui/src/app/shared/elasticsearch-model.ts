@@ -149,15 +149,17 @@ export class ESBoolClausesModel {
     range: ESRangeModel;
     termList: ESTermModel[];
     termsList: ESTermsModel[];
+    boolList: ESBoolModel[];
 
     constructor() {
         this.range = new ESRangeModel();
         this.termList = [];
         this.termsList = [];
+        this.boolList = [];
     }
 
     empty(): boolean {
-        return this.range.empty() && this.termList.length === 0 && this.termsList.length === 0;
+        return this.range.empty() && this.termList.length === 0 && this.termsList.length === 0 && this.boolList.length === 0;
     }
 
     convertToESFormat(): any[] {
@@ -174,12 +176,26 @@ export class ESBoolClausesModel {
             for (let terms of this.termsList) {
                 formatted.push(terms.convertToESFormat());
             }
+
+            for (let bool of this.boolList) {
+                let boolObj: any = {};
+                boolObj.bool = bool.convertToESFormat();
+                formatted.push(boolObj);
+            }
         }
         return formatted;
     }
 
     addTermListToTermList(moreTermList: ESTermModel[]): void {
         this.termList = this.termList.concat(moreTermList);
+    }
+
+    addTermsListToTermsList(moreTermsList: ESTermsModel[]): void {
+        this.termsList = this.termsList.concat(moreTermsList);
+    }
+
+    addBoolListToBoolList(moreBoolList: ESBoolModel[]): void {
+        this.boolList = this.boolList.concat(moreBoolList);
     }
 
 }

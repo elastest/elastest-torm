@@ -146,7 +146,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   setTerms(): void {
     if (!this.logAnalyzer.componentsStreams.empty()) {
-
+      this.esSearchModel.body.query.bool.must.boolList.push(this.logAnalyzer.getComponentsStreamsBool());
     }
 
     if (!this.logAnalyzer.levels.empty()) {

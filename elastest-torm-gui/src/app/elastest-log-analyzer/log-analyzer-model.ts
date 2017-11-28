@@ -1,4 +1,4 @@
-import { ESTermModel } from '../shared/elasticsearch-model';
+import { ESBoolModel, ESTermModel } from '../shared/elasticsearch-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
 export class LogAnalyzerModel {
     // Basic
@@ -58,6 +58,30 @@ export class LogAnalyzerModel {
             }
         }
         return levelsTerm;
+    }
+
+    public getComponentsStreamsBool(): ESBoolModel {
+        let boolParent: ESBoolModel = new ESBoolModel();
+        let boolList: ESBoolModel[] = [];
+        for (let componentStream of this.componentsStreams.tree) {
+            let component: string = componentStream.name;
+            let termComponent: ESTermModel = new ESTermModel();
+            termComponent.name = 'component';
+            termComponent.value = component;
+            for (let stream of componentStream.children) {
+                if (stream.checked) {
+                    let bool: ESBoolModel = new ESBoolModel();
+                    let termStream: ESTermModel = new ESTermModel();
+                    termStream.name = 'stream';
+                    termStream.value = stream.name;
+                    bool.must.termList.push(termComponent, termStream);
+                    boolList.push(bool);
+                }
+            }
+        }
+        boolParent.should.addBoolListToBoolList(boolList);
+
+        return boolParent;
     }
 
 }
