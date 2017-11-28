@@ -42,6 +42,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
@@ -313,7 +314,8 @@ public class DockerService2 {
                 envList.add(envVar);
             }
 
-            if (dockerExec.isWithSut()) {
+            if (dockerExec.isWithSut() && InstrumentedByEnum.ADMIN != dockerExec
+                    .gettJobexec().getTjob().getSut().getInstrumentedBy()) {
                 envList.add("APP_IP=" + dockerExec.getSutExec().getUrl());
                 envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
             }
