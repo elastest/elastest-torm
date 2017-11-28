@@ -572,4 +572,46 @@ export class ElastestESService {
 
         return components;
     }
+
+    getIndexLevel(index: string, query?: any): Observable<any[]> {
+        let _levels: Subject<any[]> = new Subject<any[]>();
+        let levels: Observable<any[]> = _levels.asObservable();
+
+        let url: string = this.esUrl + index + '/_search?ignore_unavailable';
+        let levelAggs: ESAggsModel = new ESAggsModel();
+        levelAggs.name = 'levels';
+        levelAggs.field = 'level';
+
+        let aggsObj: any = levelAggs.convertToESFormat();
+        aggsObj.size = 0;
+        if (query) {
+            aggsObj.query = query;
+        }
+
+        this.elasticsearchService.internalSearch(url, aggsObj)
+            .subscribe(
+            (data: any) => {
+                if (data.aggregations && data.aggregations.levels && data.aggregations.levels.buckets) {
+                    let buckets: any[] = data.aggregations.levels.buckets;
+
+
+                    let levelsList: any[] = [];
+                    for (let levelBucket of buckets) {
+                        let level: any = {};
+                        level.name = levelBucket.key;
+                        level.children = [];
+                        levelsList.push(level);
+                    }
+                    // componentsStreamList => [ {name: component, children: [stream1, stream2,...]}, {...} ]
+                    _levels.next(levelsList);
+                } else {
+                    _levels.next([]);
+                }
+
+            },
+            (error) => console.log(error),
+        );
+
+        return levels;
+    }
 }

@@ -9,6 +9,7 @@ export interface ITreeElementModel {
 export interface IAgTreeModel {
     tree: ITreeElementModel[];
     setByObjArray(elemArray: any[]): void;
+    empty(): boolean;
 }
 
 // Implementations
@@ -107,6 +108,10 @@ export class AgTreeCheckModel implements IAgTreeModel {
             newElem.setByObj(elem);
             this.tree.push(newElem);
         }
+    }
+
+    public empty(): boolean {
+        return this.tree.length === 0;
     }
 
 }

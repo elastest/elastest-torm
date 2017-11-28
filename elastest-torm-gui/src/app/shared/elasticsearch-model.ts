@@ -178,6 +178,10 @@ export class ESBoolClausesModel {
         return formatted;
     }
 
+    addTermListToTermList(moreTermList: ESTermModel[]): void {
+        this.termList = this.termList.concat(moreTermList);
+    }
+
 }
 export class ESBoolModel {
     must: ESBoolClausesModel;

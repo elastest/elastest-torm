@@ -1,3 +1,4 @@
+import { ESTermModel } from '../shared/elasticsearch-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
 export class LogAnalyzerModel {
     // Basic
@@ -41,24 +42,22 @@ export class LogAnalyzerModel {
         this.componentsStreams.setCheckedToAll(true);
     }
 
-    public setLevels(rows: any[]): void {
-        const levels: string[] = Array.from(
-            new Set(
-                rows.map(
-                    (item: any) => item.level,
-                ),
-            )
-        );
+    public setLevels(levels: any[]): void {
+        this.levels.setByObjArray(levels);
+        this.levels.setCheckedToAll(false);
+    }
 
-        this.levels = new AgTreeCheckModel();
-        for (let level of levels) {
-            if (level && level !== '') {
-                let treeLevel: TreeCheckElementModel = new TreeCheckElementModel();
-                treeLevel.name = level;
-                treeLevel.checked = true;
-                this.levels.tree.push(treeLevel);
+    public getLevelsTermList(): ESTermModel[] {
+        let levelsTerm: ESTermModel[] = [];
+        for (let level of this.levels.tree) {
+            if (level.checked) {
+                let levelTerm: ESTermModel = new ESTermModel();
+                levelTerm.name = 'level';
+                levelTerm.value = level.name;
+                levelsTerm.push(levelTerm);
             }
         }
+        return levelsTerm;
     }
 
 }

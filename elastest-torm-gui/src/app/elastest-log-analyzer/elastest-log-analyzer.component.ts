@@ -96,6 +96,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   /***** Load Log *****/
 
   prepareLoadLog(): void {
+    this.initESModel();
+
     this.logAnalyzer.fromDate = this.getFromDate();
     this.logAnalyzer.toDate = this.getToDate();
 
@@ -103,6 +105,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
     this.esSearchModel.body.size = this.logAnalyzer.maxResults;
     this.setRange();
+
+    this.setTerms();
   }
 
   loadLog(): void {
@@ -126,7 +130,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
-          this.updateTrees();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
@@ -139,6 +142,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
     this.esSearchModel.body.query.bool.must.range.gte = this.getFromDate();
     this.esSearchModel.body.query.bool.must.range.lte = this.getToDate();
+  }
+
+  setTerms(): void {
+    if (!this.logAnalyzer.componentsStreams.empty()) {
+
+    }
+
+    if (!this.logAnalyzer.levels.empty()) {
+      this.esSearchModel.body.query.bool.must.addTermListToTermList(this.logAnalyzer.getLevelsTermList());
+
+    }
   }
 
   setTableHeader(): void {
@@ -156,11 +170,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   updateButtons(show: boolean): void {
     this.showLoadMore = show;
     this.showClearData = show;
-  }
-
-  updateTrees(): void {
-    this.logAnalyzer.setLevels(this.logRows);
-    this.levelsTree.treeModel.update();
   }
 
   /***** Dates *****/
@@ -222,6 +231,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
               this.setFromDate(data.fromDate);
             }
             this.loadComponentStreams();
+            this.loadLevels();
           } else {
             this.elastestESService.popupService.openSnackBar('No execution was selected. Selected all by default');
           }
@@ -241,6 +251,20 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       (componentsStreams: any[]) => {
         this.logAnalyzer.setComponentsStreams(componentsStreams);
         this.componentsTree.treeModel.update();
+      }
+      );
+  }
+
+  loadLevels(): void {
+    let levelsQuery: ESQueryModel = new ESQueryModel();
+    levelsQuery.bool.must.termList.push(this.streamTypeTerm);
+
+    this.elastestESService.getIndexLevel(
+      this.logAnalyzer.selectedIndicesToString(), levelsQuery.convertToESFormat()
+    ).subscribe(
+      (levels: any[]) => {
+        this.logAnalyzer.setLevels(levels);
+        this.levelsTree.treeModel.update();
       }
       );
   }

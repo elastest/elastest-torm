@@ -47,7 +47,7 @@
                       <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
                     </md-input-container>
                   </div>
-                  <div layout="column" class="push-top">
+                  <div layout="column">
                     <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" flex-offset-gt-lg="5"
                       style="line-height: 4;">Tail</md-checkbox>
                   </div>
