@@ -86,25 +86,23 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     if (!this.isNested) {
       this.titlesService.setHeadAndTopTitle('Web Browsers');
     }
-    if ((this.configurationService.configModel.eusServiceUrl && !this.standalone)
-      || !this.configurationService.configModel.eusServiceUrl && this.standalone) {
-      console.log("Uses default or passed arguments.");
-      this.eusService.setEusUrl(this.eusUrl);
-      this.eusService.setEusHost(this.eusHost);
-    } else {
+    if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
       console.log("Uses data from backend.");
       this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
       this.eusService.setEusHost(this.configurationService.configModel.eusHost);
       this.eusPort = +this.configurationService.configModel.eusPort;
       this.eusHost = this.configurationService.configModel.eusHost;
+    } else {
+      console.log("Uses default or passed arguments.");
+      this.eusService.setEusUrl(this.eusUrl);
+      this.eusService.setEusHost(this.eusHost);
     }
 
     if (!this.websocket) {
-      if ((this.configurationService.configModel.eusServiceUrl && !this.standalone)
-        || !this.configurationService.configModel.eusServiceUrl && this.standalone) {
-        this.websocket = new WebSocket("ws://" + this.eusHost + ":" + this.eusPort + "/eus/v1/eus-ws");
-      } else {
+      if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
         this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
+      } else {
+        this.websocket = new WebSocket("ws://" + this.eusHost + ":" + this.eusPort + "/eus/v1/eus-ws");
       }
 
       this.websocket.onopen = () => this.websocket.send("getSessions");
