@@ -21,7 +21,7 @@ export class ConfigurationService {
     return new Promise((resolve, reject) => {
       this.getServicesInfo(hostApi)
         .subscribe((servicesInfo) => {
-          let eusUrl = new URL(servicesInfo.eusSSInstance !== undefined ? servicesInfo.eusSSInstance.urls.api
+          let eusUrl = new URL(servicesInfo.eusSSInstance !== null ? servicesInfo.eusSSInstance.urls.api
             : 'http://' + environment.eus + '/eus/v1/');
           this.configModel = {
             'hostName': window.location.hostname,
