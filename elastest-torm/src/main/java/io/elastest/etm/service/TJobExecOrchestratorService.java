@@ -140,15 +140,6 @@ public class TJobExecOrchestratorService {
             logger.info("Ending Execution...");
             // End and purge services
             endAllExecs(dockerExec);
-            if (tJobServices != null && tJobServices != "") {
-                try {
-                    deprovideServices(tJobExec);
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                    throw new Exception("end error"); // TODO Customize
-                                                      // Exception
-                }
-            }
 
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
@@ -166,6 +157,15 @@ public class TJobExecOrchestratorService {
                 }
             } else {
                 saveFinishStatus(tJobExec, dockerExec);
+            }
+        } finally {
+            if (tJobServices != null && tJobServices != "") {
+                try {
+                    deprovideServices(tJobExec);
+                } catch (Exception e) {
+                    logger.error("Exception deprovisino TSS: {}", e.getMessage());
+                    // TODO Customize Exception
+                }
             }
         }
 
