@@ -1,0 +1,102 @@
+md-sidenav-container {
+    min-height: 100%;
+}
+
+:host /deep/ .mat-sidenav-content{
+    padding: 8px;
+}
+
+#logCard{
+    width: 100%;
+    height: 98%;
+}
+#logCard md-card-title{
+    height: 3%;
+}
+
+#logCard md-card-content{
+    height: 100%; //93% with card title
+}
+
+:host /deep/ .mat-tab-label {
+    min-width: 110px !important;
+}
+
+:host /deep/ ag-grid-angular{
+    height: 99% !important; //96% with card title
+}
+
+:host /deep/ .ag-header-cell{
+    line-height: 45px;
+}
+
+:host /deep/ .ag-header-cell, :host /deep/ .ag-cell{
+    padding-right: 8px;
+    padding-left: 10px;
+}
+
+:host /deep/ .ag-cell{
+    font-family: monospace !important;
+    line-height: 20px;
+}
+
+:host /deep/ .ag-theme-material .ag-header-cell-label{
+    width: calc(100%) !important;
+}
+
+#logSidenav, #logSidenav md-tab-group, #logManagerForm{
+    height: 100%;
+    margin: 0;
+}
+
+#logSidenav md-card-content{
+    height: 99%;
+    padding-top: 4px;
+    padding-bottom: 0;
+}
+
+:host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper{
+    height: 93% !important;
+}
+
+#filtersTop{
+    height: 82%;
+    max-height: 82%;
+    overflow: auto;
+}
+
+#filtersBottom{
+    height: 16%;
+}
+
+
+:host /deep/ #logDate{
+    max-height: 26% !important;
+}
+
+#componentsLevels{
+    max-height: 56% !important;
+    overflow: auto;
+}
+
+#componentsLevels > div {
+    max-height: initial;
+}
+
+:host /deep/ #componentsLevels .angular-tree-component{
+    overflow: hidden;
+}
+
+// Patterns
+
+.patternColor input[type="color"] {
+	-webkit-appearance: none;
+	border: none;
+	width: 32px;
+}
+.patternColor input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+.patternColor input[type="color"]::-webkit-color-swatch {
+	border: none;
+}

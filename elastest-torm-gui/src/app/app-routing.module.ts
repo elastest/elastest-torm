@@ -1,3 +1,4 @@
+import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
 import {
     TJobExecsManagerComponent,
 } from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
@@ -216,6 +217,10 @@ const routes: Routes = [
             {
                 path: 'logmanager',
                 component: ElastestLogManagerComponent,
+            },
+            {
+                path: 'loganalyzer',
+                component: ElastestLogAnalyzerComponent,
             },
             {
                 path: 'vnc',
