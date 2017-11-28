@@ -13,9 +13,13 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -73,26 +77,6 @@ public class TJobExecOrchestratorService {
         this.dockerComposeService = dockerComposeService;
     }
 
-    // @Async
-    // public Future<Void> executeExternalJob(TJobExecution tJobExec) {
-    // dbmanager.bindSession();
-    // tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
-    //
-    // String resultMsg = "Initializing";
-    // tJobExec.setResultMsg(resultMsg);
-    // tJobExecRepositoryImpl.save(tJobExec);
-    //
-    // initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-    // setTJobExecEnvVars(tJobExec);
-    //
-    // // Start Test
-    // resultMsg = "Executing Test";
-    // updateTJobExecResultStatus(tJobExec,
-    // TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-    //
-    // return new AsyncResult<Void>(null);
-    // }
-
     public TJobExecution executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
@@ -117,6 +101,8 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
+        createESIndex(tJobExec);
+        
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
@@ -516,11 +502,11 @@ public class TJobExecOrchestratorService {
             String containerId = dockerService
                     .getContainerIdByName(container.getName(), dockerExec);
 
-            try{
-            // Insert into ElasTest network
+            try {
+                // Insert into ElasTest network
                 dockerService.insertIntoNetwork(dockerExec.getNetwork(),
-                    containerId);
-            }catch (Exception e) {
+                        containerId);
+            } catch (Exception e) {
                 logger.warn("Cannot insert container {} into network {}",
                         containerId, dockerExec.getNetwork(), e);
             }
@@ -635,5 +621,42 @@ public class TJobExecOrchestratorService {
             testSuiteRepo.save(tSuite);
             tJobExec.setTestSuite(tSuite);
         }
+    }
+
+    public void createESIndex(TJobExecution tJobExec) {
+        String[] indicesList = tJobExec.getLogIndicesList();
+        for (String index : indicesList) {
+
+            // Create Index
+            String url = elasticsearchHost + "/" + index;
+
+            String body = "{" + "\"mappings\": {" + "\"components\": {"
+                    + "\"properties\": {" + "\"component\": {"
+                    + "\"type\": \"text\"," + "\"fields\": {" + "\"keyword\": {"
+                    + "\"type\": \"keyword\"" + "}" + "}" + "}" + "}" + "}"
+                    + "}" + "}";
+
+            elasticSearchPutCall(url, body);
+
+            // Enable Fielddata
+            url = url + "/_mapping/components";
+
+            body = "{" + "\"properties\": {" + "\"component\": {"
+                    + "\"type\": \"text\", \"fielddata\": true" + "}" + "}"
+                    + "}";
+
+            elasticSearchPutCall(url, body);
+        }
+    }
+
+    public void elasticSearchPutCall(String url, String body) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<String>(body, headers);
+
+        restTemplate.put(url, request);
     }
 }

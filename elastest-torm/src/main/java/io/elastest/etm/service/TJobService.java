@@ -94,10 +94,6 @@ public class TJobService {
         tJobExec.generateLogIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
-        // TODO Future<Void> asyncExec = tjob.isExternal()
-        // ? tJobExecOrchestratorService.executeTJob(tJobExec,
-        // tjob.getSelectedServices())
-        // : tJobExecOrchestratorService.executeExternalJob(tJobExec);
         if (!tJob.isExternal()) {
             Future<Void> asyncExec = tJobExecOrchestratorService
                     .executeTJob(tJobExec, tJob.getSelectedServices());

@@ -431,4 +431,8 @@ public class TJobExecution {
         }
         this.setLogIndex(logIndex);
     }
+
+    public String[] getLogIndicesList() {
+        return this.getLogIndex().split(",");
+    }
 }
