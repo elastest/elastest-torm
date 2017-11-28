@@ -10,12 +10,12 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 
 @Component({
-  selector: 'get-index-modal',
-  templateUrl: './get-index-modal.component.html',
-  styleUrls: ['./get-index-modal.component.scss']
+  selector: 'app-execution-modal',
+  templateUrl: './execution-modal.component.html',
+  styleUrls: ['./execution-modal.component.scss']
 })
+export class ExecutionModalComponent implements OnInit {
 
-export class GetIndexModalComponent implements OnInit {
   public projects: ProjectModel[] = [];
   public selectedProject: ProjectModel;
 
@@ -43,7 +43,7 @@ export class GetIndexModalComponent implements OnInit {
     // @Inject(MD_DIALOG_DATA) public tJob: TJobModel,
     private projectService: ProjectService, private tJobService: TJobService, private tJobExecService: TJobExecService,
     private router: Router, public elasticSearchService: ElasticSearchService,
-    private dialogRef: MdDialogRef<GetIndexModalComponent>,
+    private dialogRef: MdDialogRef<ExecutionModalComponent>,
   ) {
     this.loadProjects();
   }

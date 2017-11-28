@@ -1,4 +1,4 @@
-import { GetIndexModalComponent } from './get-index-modal/get-index-modal.component';
+import { ExecutionModalComponent } from './execution-modal/execution-modal.component';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Element } from '@angular/compiler';
@@ -967,7 +967,7 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   openSelectExecutions(): void {
-    let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
+    let dialogRef: MdDialogRef<ExecutionModalComponent> = this.dialog.open(ExecutionModalComponent, {
       height: '80%',
       width: '90%',
     });

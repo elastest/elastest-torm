@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GetIndexModalComponent } from './get-index-modal.component';
+import { ExecutionModalComponent } from './execution-modal.component';
 
-describe('GetIndexModalComponent', () => {
-  let component: GetIndexModalComponent;
-  let fixture: ComponentFixture<GetIndexModalComponent>;
+describe('ExecutionModalComponent', () => {
+  let component: ExecutionModalComponent;
+  let fixture: ComponentFixture<ExecutionModalComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GetIndexModalComponent ]
+      declarations: [ ExecutionModalComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(GetIndexModalComponent);
+    fixture = TestBed.createComponent(ExecutionModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
