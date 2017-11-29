@@ -56,7 +56,7 @@ node('TESTDOCKER'){
 
         stage "Publish etm docker image"
             echo ("Publish elastest/etm image")
-            def myimage = docker.image('elastest/etm:0.5.0')
+            def myimage = docker.image('elastest/etm')
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'

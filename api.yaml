@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: REST API description of the ElasTest TORM Module.
-  version: 0.5.0
+  version: 0.5.1-SNAPSHOT
   title: ElasTest Torm REST API
   contact: {}
   license:
