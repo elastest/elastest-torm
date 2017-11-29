@@ -6,49 +6,55 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
-        
+
         <div *ngIf="standaloneService">
-        <md-list>
-          <md-list-item>
-            <strong class="push-right-xs">Instance Id:</strong> {{serviceInstance.id}}
-          </md-list-item>
-
-          <div *ngIf="serviceInstance.urls != undefined">
-            <md-list-item *ngFor="let key of serviceInstance.urlsKeys">
-              <strong class="push-right-xs">URL {{key}}:</strong><a [attr.href]="serviceInstance.urls[key]" target="_blank">{{serviceInstance.urls[key]}}</a>
+          <md-list>
+            <md-list-item>
+              <strong class="push-right-xs">Instance Id:</strong> {{serviceInstance.id}}
             </md-list-item>
-          </div>
 
-          <div *ngIf="serviceInstance.endpointsOtherData">
-            <div *ngFor="let key of serviceInstance.endpointsDataKeys">
-              <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
-                <div class="md-padding">
-                  <md-list>
-                    <md-list-item>
-                      <div><strong class="push-right-xs">Protocol:</strong> {{serviceInstance.endpointsOtherData[key].protocol}}</div>
-                    </md-list-item>
-                    <md-list-item>
-                      <div><strong class="push-right-xs">Port:</strong>{{serviceInstance.endpointsOtherData[key].port}}</div>
-                    </md-list-item>
-                  </md-list>
-                </div>
-              </td-expansion-panel>
-            </div>
-          </div>
-        </md-list>
-        <md-divider></md-divider>
-        <td-expansion-panel label="Environment Variables" expand="false" class="push-bottom">
-          <div class="md-padding">
-            <md-list>
-              <md-list-item *ngFor="let envVarKey of serviceInstance.tssEnvVariablesKeys">
-                <span class="push-right"><strong>{{envVarKey}}:</strong></span><span>{{serviceInstance.tssEnvVariables[envVarKey]}}</span>
+            <div *ngIf="serviceInstance.urls != undefined">
+              <md-list-item *ngFor="let key of serviceInstance.urlsKeys">
+                <strong class="push-right-xs">URL {{key}}:</strong>
+                <a [attr.href]="serviceInstance.urls[key]" target="_blank">{{serviceInstance.urls[key]}}</a>
               </md-list-item>
-            </md-list>
-          </div>
+            </div>
 
-        </td-expansion-panel>
-		</div>
-		
+            <div *ngIf="serviceInstance.endpointsOtherData">
+              <div *ngFor="let key of serviceInstance.endpointsDataKeys">
+                <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
+                  <div class="md-padding">
+                    <md-list>
+                      <md-list-item>
+                        <div>
+                          <strong class="push-right-xs">Protocol:</strong> {{serviceInstance.endpointsOtherData[key].protocol}}</div>
+                      </md-list-item>
+                      <md-list-item>
+                        <div>
+                          <strong class="push-right-xs">Port:</strong>{{serviceInstance.endpointsOtherData[key].port}}</div>
+                      </md-list-item>
+                    </md-list>
+                  </div>
+                </td-expansion-panel>
+              </div>
+            </div>
+          </md-list>
+          <md-divider></md-divider>
+          <td-expansion-panel label="Environment Variables" expand="false" class="push-bottom">
+            <div class="md-padding">
+              <md-list>
+                <md-list-item *ngFor="let envVarKey of serviceInstance.tssEnvVariablesKeys">
+                  <span class="push-right">
+                    <strong>{{envVarKey}}:</strong>
+                  </span>
+                  <span>{{serviceInstance.tssEnvVariables[envVarKey]}}</span>
+                </md-list-item>
+              </md-list>
+            </div>
+
+          </td-expansion-panel>
+        </div>
+
         <div *ngIf="serviceInstance.uiUrl">
           <md-divider></md-divider>
           <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
@@ -56,55 +62,61 @@
 
         <div *ngIf="serviceInstance.serviceName == 'elastest-eus'">
           <md-divider></md-divider>
-          <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" 
-          [standalone]="standaloneService" [isNested]="true"></app-elastest-eus>
+          <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standaloneService"
+            [isNested]="true"></app-elastest-eus>
         </div>
       </md-card-content>
     </md-card>
 
-	<div *ngIf="standaloneService">
-    <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
+    <div *ngIf="standaloneService">
+      <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
         <md-card-title>
           {{subService.serviceName}}
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content class="push-bottom-none">
           <md-list>
-          <div *ngIf="subService.urls != undefined">
-            <md-list-item *ngFor="let key of subService.urlsKeys">
-              <strong class="push-right-xs">URL {{key}}:</strong><a [attr.href]="subService.urls[key]" target="_blank">{{subService.urls[key]}}</a>
-            </md-list-item>
-          </div>
-          <div *ngIf="subService.endpointsOtherData">
-            <div *ngFor="let key of subService.endpointsDataKeys">
-              <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
-                <div class="md-padding">
-                  <md-list>
-                    <md-list-item>
-                      <div><strong class="push-right-xs">Protocol:</strong> {{subService.endpointsOtherData[key].protocol}}</div>
-                    </md-list-item>
-                    <md-list-item>
-                      <div><strong class="push-right-xs">Port:</strong>{{subService.endpointsOtherData[key].port}}</div>
-                    </md-list-item>
-                  </md-list>
-                </div>
-              </td-expansion-panel>
+            <div *ngIf="subService.urls != undefined">
+              <md-list-item *ngFor="let key of subService.urlsKeys">
+                <strong class="push-right-xs">URL {{key}}:</strong>
+                <a [attr.href]="subService.urls[key]" target="_blank">{{subService.urls[key]}}</a>
+              </md-list-item>
             </div>
-          </div>
+            <div *ngIf="subService.endpointsOtherData">
+              <div *ngFor="let key of subService.endpointsDataKeys">
+                <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
+                  <div class="md-padding">
+                    <md-list>
+                      <md-list-item>
+                        <div>
+                          <strong class="push-right-xs">Protocol:</strong> {{subService.endpointsOtherData[key].protocol}}</div>
+                      </md-list-item>
+                      <md-list-item>
+                        <div>
+                          <strong class="push-right-xs">Port:</strong>{{subService.endpointsOtherData[key].port}}</div>
+                      </md-list-item>
+                    </md-list>
+                  </div>
+                </td-expansion-panel>
+              </div>
+            </div>
           </md-list>
-          
+
           <md-divider></md-divider>
           <td-expansion-panel label="Environment Variables" expand="false" class="push-bottom">
             <div class="md-padding">
               <md-list>
                 <md-list-item *ngFor="let envVarKey of subService.tssEnvVariablesKeys">
-                  <span class="push-right"><strong>{{envVarKey}}:</strong></span><span>{{subService.tssEnvVariables[envVarKey]}}</span>
+                  <span class="push-right">
+                    <strong>{{envVarKey}}:</strong>
+                  </span>
+                  <span>{{subService.tssEnvVariables[envVarKey]}}</span>
                 </md-list-item>
               </md-list>
             </div>
-  
+
           </td-expansion-panel>
-  
+
           <div *ngIf="subService.uiUrl">
             <md-divider></md-divider>
             <esm-service-gui [serviceUrl]='subService.uiUrl'></esm-service-gui>
@@ -112,7 +124,7 @@
         </md-card-content>
         <md-divider></md-divider>
       </md-card>
-	</div>
+    </div>
 
   </div>
 </div>
