@@ -13,13 +13,10 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,6 +35,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.service.ElasticsearchService.IndexAlreadyExistException;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
@@ -60,12 +58,14 @@ public class TJobExecOrchestratorService {
     private DatabaseSessionManager dbmanager;
     private final EsmService esmService;
     private SutService sutService;
+    private ElasticsearchService elasticsearchService;
 
     public TJobExecOrchestratorService(DockerService2 dockerService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
-            SutService sutService, DockerComposeService dockerComposeService) {
+            SutService sutService, DockerComposeService dockerComposeService,
+            ElasticsearchService elasticsearchService) {
         super();
         this.dockerService = dockerService;
         this.testSuiteRepo = testSuiteRepo;
@@ -75,6 +75,7 @@ public class TJobExecOrchestratorService {
         this.esmService = esmService;
         this.sutService = sutService;
         this.dockerComposeService = dockerComposeService;
+        this.elasticsearchService = elasticsearchService;
     }
 
     public TJobExecution executeExternalJob(TJobExecution tJobExec) {
@@ -101,7 +102,7 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
-        //createESIndex(tJobExec);
+        createESIndex(tJobExec);
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
@@ -163,7 +164,8 @@ public class TJobExecOrchestratorService {
                 try {
                     deprovideServices(tJobExec);
                 } catch (Exception e) {
-                    logger.error("Exception deprovisino TSS: {}", e.getMessage());
+                    logger.error("Exception deprovisino TSS: {}",
+                            e.getMessage());
                     // TODO Customize Exception
                 }
             }
@@ -624,11 +626,12 @@ public class TJobExecOrchestratorService {
     }
 
     public void createESIndex(TJobExecution tJobExec) {
+        logger.info("Creating ES indices...");
         String[] indicesList = tJobExec.getLogIndicesList();
         for (String index : indicesList) {
-
             // Create Index
             String url = elasticsearchHost + "/" + index;
+            logger.info("Creating index: {}", index);
 
             String body = "{ \"mappings\": {"
                     + "\"components\": { \"properties\": { \"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
@@ -636,34 +639,25 @@ public class TJobExecOrchestratorService {
                     + "\"levels\": { \"properties\": { \"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } }"
                     + "} }";
 
-            elasticSearchPutCall(url, body);
-
-            // Enable Fielddata for components, streams and levels
-            enableESFieldData(url, "component");
-            enableESFieldData(url, "stream");
-            enableESFieldData(url, "level");
-
+            try {
+                elasticsearchService.putCall(url, body);
+            } catch (IndexAlreadyExistException e) {
+                logger.error("Index {} already exist", index, e);
+            } catch (RestClientException e) {
+                logger.error("Error creating index {}", index, e);
+            } finally {
+                // Enable Fielddata for components, streams and levels
+                enableESFieldData(index, url, "component");
+                enableESFieldData(index, url, "stream");
+                enableESFieldData(index, url, "level");
+            }
+            logger.info("Index {} created", index);
         }
+        logger.info("ES indices created!");
     }
 
-    public void enableESFieldData(String url, String field) {
-        String group = field + 's';
-        url = url + "/_mapping/" + group;
-
-        String body = "{" + "\"properties\": {" + "\"" + field + "\": {"
-                + "\"type\": \"text\", \"fielddata\": true" + "}" + "}" + "}";
-
-        elasticSearchPutCall(url, body);
-    }
-
-    public void elasticSearchPutCall(String url, String body) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> request = new HttpEntity<String>(body, headers);
-
-        restTemplate.put(url, request);
+    public void enableESFieldData(String index, String url, String field) {
+        logger.info("Enabling FieldData for {} in index {}", field, index);
+        elasticsearchService.enableFieldData(url, field);
     }
 }
