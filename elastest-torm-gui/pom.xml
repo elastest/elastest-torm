@@ -5,7 +5,7 @@
 
 	<groupId>io.elastest.etm</groupId>
 	<artifactId>elastest-torm-gui</artifactId>
-	<version>0.5.0-alpha2-SNAPSHOT</version>
+	<version>0.5.0</version>
 	<packaging>jar</packaging>
 		
 	 <build>

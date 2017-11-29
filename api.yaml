@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: REST API description of the ElasTest TORM Module.
-  version: 0.1.1
+  version: 0.5.0
   title: ElasTest Torm REST API
   contact: {}
   license:
@@ -10,10 +10,10 @@ info:
 host: 'localhost:8091'
 basePath: /
 tags:
+  - name: etm-context-api-controller
+    description: Etm Context Api Controller
   - name: test-engines-api-controller
     description: Test Engines Api Controller
-  - name: etm-service-discovery-api-controller
-    description: Etm Service Discovery Api Controller
   - name: project-api-controller
     description: Project Api Controller
   - name: tjob-api-controller
@@ -49,6 +49,74 @@ paths:
           description: Forbidden
         '404':
           description: Resource not found
+  /api/context/logstash/info:
+    get:
+      tags:
+        - CONTEXT
+      summary: Returns the logstash info
+      description: Returns the logstash info.
+      operationId: getLogstashInfoUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/context/logstash/ip:
+    get:
+      tags:
+        - CONTEXT
+      summary: Returns the Logstash ip
+      description: Returns the Logstash ip.
+      operationId: getLogstashIpUsingGET
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/context/services/info:
+    get:
+      tags:
+        - CONTEXT
+      summary: Return relevant information about the ElasTest services
+      description: Return relevant information about the ElasTest services.
+      operationId: getContextInfoUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/ContextInfo'
+        '400':
+          description: TJob not found.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   '/api/context/tss/{tSSInstanceId}':
     get:
       tags:
@@ -71,6 +139,28 @@ paths:
           description: Successful operation
           schema:
             type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Resource not found
+  /api/context/ws-host:
+    get:
+      tags:
+        - CONTEXT
+      summary: Returns the Rabbit Host
+      description: Returns the Rabbit Host.
+      operationId: getRabbitHostUsingGET
+      consumes:
+        - application/json
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
         '401':
           description: Unauthorized
         '403':
@@ -461,7 +551,7 @@ paths:
         - External
       summary: Create new TJob associated with an external Job
       description: 'The association is based on the name of the external Job received. The Project and the TJob that will be created will have the same name as the one received as a parameter. If a Project or Job already exists with the received name, a new one will not be created.'
-      operationId: createExternalTJobUsingPOST
+      operationId: executeExternalTJobUsingPOST
       consumes:
         - application/json
       produces:
@@ -1063,6 +1153,30 @@ paths:
           description: Invalid input
           schema:
             $ref: '#/definitions/TJob'
+  /api/tjob/execs:
+    get:
+      tags:
+        - TJob Execution
+      summary: Returns all TJob Executions
+      description: Returns all TJob Executions
+      operationId: getAllTJobExecutionsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TJobExecution'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: TJobs Executions not found
   '/api/tjob/{tJobId}':
     get:
       tags:
@@ -1180,12 +1294,10 @@ paths:
           format: int64
         - in: body
           name: parameters
-          description: Parameters
-          required: true
+          description: Execution Parameters
+          required: false
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Parameter'
+            $ref: '#/definitions/ExecParams'
       responses:
         '200':
           description: Successful operation
@@ -1278,6 +1390,119 @@ paths:
           schema:
             type: integer
             format: int64
+  '/api/tjob/{tJobId}/exec/{tJobExecId}/files':
+    get:
+      tags:
+        - TJob Execution
+      summary: Returns all files associated to a TJob Execution.
+      description: 'Returns all files associated to a TJob Execution, for a given TJob execution id.'
+      operationId: getTJobExecutionFilesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tJobExecId
+          in: path
+          description: TJobExec Id.
+          required: true
+          type: integer
+          format: int64
+        - name: tJobId
+          in: path
+          description: TJob Id.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TJobExecution'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: TJob Executions files not found
+  '/api/tjob/{tJobId}/exec/{tJobExecId}/result':
+    get:
+      tags:
+        - TJob Execution
+      summary: Returns the current result and result message of a TJob Execution
+      description: Returns the current result and result message of a TJob Execution.
+      operationId: getTJobExecResultStatusUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tJobId
+          in: path
+          description: TJob Id.
+          required: true
+          type: integer
+          format: int64
+        - name: tJobExecId
+          in: path
+          description: TJob Execution Id.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Result status not found
+  '/api/tjob/{tJobId}/exec/{tJobExecId}/stop':
+    delete:
+      tags:
+        - TJob Execution
+      summary: Stops a TJob Execution
+      description: Stops the TJob Execution for a given id.
+      operationId: stopTJobExecutionUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tJobId
+          in: path
+          description: Id of a TJob.
+          required: true
+          type: integer
+          format: int64
+        - name: tJobExecId
+          in: path
+          description: TJob Execution Id associatd for a given TJob Id.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: integer
+            format: int64
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: TJob Execution not found
+          schema:
+            type: integer
+            format: int64
 definitions:
   SupportService:
     type: object
@@ -1295,6 +1520,15 @@ definitions:
         example: EUS
         description: The short name of the TSS.
     description: Entity that represents an ElasTest Test Support Service
+  TestSupportServices:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      selected:
+        type: boolean
   SupportServiceInstance:
     type: object
     properties:
@@ -1391,6 +1625,10 @@ definitions:
         format: int64
       logIndex:
         type: string
+      logIndicesList:
+        type: array
+        items:
+          type: string
       parameters:
         type: array
         items:
@@ -1398,14 +1636,26 @@ definitions:
       result:
         type: string
         enum:
-          - FINISHED
-          - FAILURE
+          - SUCCESS
+          - FAIL
+          - ERROR
+          - STOPPED
           - IN PROGRESS
           - WAITING
+          - STARTING TSS
+          - EXECUTING SUT
+          - WAITING SUT
+          - EXECUTING TEST
+          - WAITING TSS
+      resultMsg:
+        type: string
       servicesInstances:
         type: array
         items:
           type: string
+      startDate:
+        type: string
+        format: date-time
       sutExecution:
         $ref: '#/definitions/SutExecution'
       tJob:
@@ -1481,6 +1731,9 @@ definitions:
       - project
       - specification
     properties:
+      currentSutExec:
+        type: integer
+        format: int64
       description:
         type: string
         example: My Web Application
@@ -1492,10 +1745,31 @@ definitions:
         type: integer
         format: int64
         description: Value that identifies the SUT Specification.
+      instrumentalize:
+        type: boolean
+      instrumentedBy:
+        type: string
+        enum:
+          - WITHOUT
+          - ELASTEST
+          - ADMIN
+      mainService:
+        type: string
+      managedDockerType:
+        type: string
+        enum:
+          - IMAGE
+          - COMPOSE
       name:
         type: string
         example: sut definition 1
         description: Name of the SUT.
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/Parameter'
+      port:
+        type: string
       project:
         example: '{ id:"1" }'
         description: Project to which the SUT is associated
@@ -1512,9 +1786,9 @@ definitions:
       sutType:
         type: string
         enum:
-          - IMAGENAME
+          - MANAGED
           - REPOSITORY
-          - EXTERNAL
+          - DEPLOYED
       tjobs:
         type: array
         description: List of TJobs associated to a SUT Specification
@@ -1606,14 +1880,17 @@ definitions:
     type: object
     properties:
       agentId:
-        type: integer
-        format: int64
+        type: string
       id:
         type: integer
         format: int64
-      instrumentalized:
-        type: boolean
       ip:
+        type: string
+      logstashBeatsPort:
+        type: string
+      logstashHttpPort:
+        type: string
+      logstashIp:
         type: string
       privateKey:
         type: string
@@ -1630,6 +1907,20 @@ definitions:
       failures:
         type: integer
         format: int32
+      finalStatus:
+        type: string
+        enum:
+          - SUCCESS
+          - FAIL
+          - ERROR
+          - STOPPED
+          - IN PROGRESS
+          - WAITING
+          - STARTING TSS
+          - EXECUTING SUT
+          - WAITING SUT
+          - EXECUTING TEST
+          - WAITING TSS
       flakes:
         type: integer
         format: int32
@@ -1654,6 +1945,16 @@ definitions:
         type: number
         format: double
     description: Object that contains the information of a test suit results.
+  TJobExecutionFile:
+    type: object
+    properties:
+      name:
+        type: string
+      serviceName:
+        type: string
+      url:
+        type: string
+    description: Entity that represents a file generated during a TJob execution.
   TestCase:
     type: object
     properties:
@@ -1678,8 +1979,6 @@ definitions:
     description: Object that contains the information of the test results.
   SutExecution:
     type: object
-    required:
-      - url
     properties:
       deployStatus:
         type: string
@@ -1696,6 +1995,14 @@ definitions:
         format: int64
         example: 12345678
         description: Value that identifies a SUT Execution.
+      ip:
+        type: string
+        example: 192.168.0.1
+        description: SUT IP.
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/Parameter'
       sutSpecification:
         example: MySut
         description: SUT deployed
@@ -1705,6 +2012,17 @@ definitions:
         example: 'http://www.myapp.io:8090'
         description: URL to access the SUT.
     description: Data generated by the execution of a SUT.
+  ExecParams:
+    type: object
+    properties:
+      sutParams:
+        type: array
+        items:
+          $ref: '#/definitions/Parameter'
+      tJobParams:
+        type: array
+        items:
+          $ref: '#/definitions/Parameter'
   Parameter:
     type: object
     properties:
@@ -1738,6 +2056,9 @@ definitions:
         type: string
         example: '9200'
         description: Port where the Logstash service is listening.
+      result:
+        type: integer
+        format: int32
       servicesIp:
         type: string
         example: 192.168.99.100
@@ -1747,4 +2068,32 @@ definitions:
         format: int64
         example: 0
         description: Id of the TJobExecution created.
+      tSSEnvVars:
+        type: object
+        additionalProperties:
+          type: string
+      tSServices:
+        type: array
+        items:
+          $ref: '#/definitions/TestSupportServices'
+      tssenvVars:
+        type: object
+        additionalProperties:
+          type: string
+      tsservices:
+        type: array
+        items:
+          $ref: '#/definitions/TestSupportServices'
     description: Object that contains the exchange information between Jenkins and ElasTest.
+  ContextInfo:
+    type: object
+    properties:
+      elasTestExecMode:
+        type: string
+      elasticSearchUrl:
+        type: string
+      eusSSInstance:
+        $ref: '#/definitions/SupportServiceInstance'
+      rabbitPath:
+        type: string
+    description: Object that stores the relevant information of the services to be used by third parties.
