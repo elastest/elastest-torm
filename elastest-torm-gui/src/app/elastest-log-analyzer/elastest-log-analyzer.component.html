@@ -75,7 +75,7 @@
                   </div>
                 </div>
 
-                <div clas="push-top-sm">
+                <div clas="push-top-sm" *ngIf="!hideFunctionality">
                   <md-input-container flex="100">
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Message">
                   </md-input-container>
@@ -105,7 +105,7 @@
                 </div>
                 <div layout="row" class="push-top-sm">
                   <div flex="30">
-                    <button md-button *ngIf="showLoadMore !showPauseTail" (click)="search(from.value, to.value, true)" class="pad-left-none">
+                    <button md-button *ngIf="!hideFunctionality && showLoadMore && !showPauseTail" (click)="search(from.value, to.value, true)" class="pad-left-none">
                       <md-icon>vertical_align_bottom</md-icon> Add from last
                     </button>
                   </div>
@@ -121,7 +121,7 @@
             </form>
           </md-tab>
           <!-- Mark (Patterns) -->
-          <md-tab label="Mark">
+          <md-tab label="Mark" *ngIf="!hideFunctionality">
             <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
               <md-list-item flex-gt-xs="100">
                 <div layout="row" layout-align="center center">
