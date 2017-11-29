@@ -252,11 +252,13 @@ export class ESSearchBodyModel {
     size: number;
     query: ESQueryModel;
     sort: ESSortModel;
+    searchAfter: string[];
 
     constructor() {
         this.size = -1;
         this.query = new ESQueryModel();
         this.sort = new ESSortModel();
+        this.searchAfter = [];
     }
 
     empty(): boolean {
@@ -269,6 +271,9 @@ export class ESSearchBodyModel {
             formatted.size = this.size;
             formatted.query = this.query.convertToESFormat();
             formatted.sort = this.sort.convertToESFormat();
+            if (this.searchAfter.length > 0) {
+                formatted['search_after'] = this.searchAfter;
+            }
         }
         return formatted;
     }
@@ -337,7 +342,7 @@ export class ESSearchModel {
     }
 
     // Utils
-    getSourcesListFromRaw(raw: any): any[] {
+    getContentListFromRaw(raw: any): any[] {
         let data: any[] = [];
         if (raw && raw.hits && raw.hits.hits) {
             data = raw.hits.hits;
@@ -345,10 +350,17 @@ export class ESSearchModel {
         return data;
     }
 
-    getDataListFromRaw(raw: any): any[] {
+    getDataListFromRaw(raw: any, onlySource: boolean = true): any[] {
         let data: any[] = [];
-        let sourcesList: any[] = this.getSourcesListFromRaw(raw);
+        let sourcesList: any[] = this.getContentListFromRaw(raw);
         for (let elem of sourcesList) {
+            if (!onlySource) {
+                for (let key in elem) {
+                    if (key !== '_source') {
+                        elem._source[key] = elem[key]; // Add key and value into source
+                    }
+                }
+            }
             data.push(elem._source);
         }
 

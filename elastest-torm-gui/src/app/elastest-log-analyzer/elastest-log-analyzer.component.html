@@ -105,7 +105,8 @@
                 </div>
                 <div layout="row" class="push-top-sm">
                   <div flex="30">
-                    <button md-button *ngIf="!hideFunctionality && showLoadMore && !showPauseTail" (click)="search(from.value, to.value, true)" class="pad-left-none">
+                    <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="disableLoadMore"
+                      class="pad-left-none" title="Add more traces from last">
                       <md-icon>vertical_align_bottom</md-icon> Add from last
                     </button>
                   </div>

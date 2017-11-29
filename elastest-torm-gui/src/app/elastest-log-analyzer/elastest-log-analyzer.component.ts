@@ -7,7 +7,7 @@ import { ESQueryModel, ESSearchModel, ESTermModel } from '../shared/elasticsearc
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
-import { ColumnApi, GridApi, GridOptions } from 'ag-grid/main';
+import { CellClickedEvent, ColumnApi, GridApi, GridOptions } from 'ag-grid/main';
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
 
@@ -31,7 +31,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public gridOptions: GridOptions = {
     rowHeight: 22,
     headerHeight: 42,
+    rowSelection: 'single',
     suppressRowClickSelection: true,
+    suppressCellSelection: true,
+    suppressChangeDetection: true,
+    rowModelType: 'inMemory',
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -39,6 +43,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   // Buttons
   public showLoadMore: boolean = false;
+  public disableLoadMore: boolean = false;
+
   public showPauseTail: boolean = false;
   public showClearData: boolean = false;
 
@@ -95,6 +101,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
 
+  /***** Grid *****/
+
+
   /***** Load Log *****/
 
   prepareLoadLog(): void {
@@ -119,7 +128,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.elastestESService.search(searchUrl, searchBody)
       .subscribe(
       (data: any) => {
-        this.logRows = this.esSearchModel.getDataListFromRaw(data);
+        this.logRows = this.esSearchModel.getDataListFromRaw(data, false);
         // let rows: any[] = this.esSearchModel.getDataListFromRaw(data);
         // if (this.logRows.length === 0) {
         //   this.logRows = rows;
@@ -163,15 +172,43 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     for (let field of this.esSearchModel.filterPathList) {
       if (field !== 'stream_type' && field !== 'type') { // stream_type is always log
         this.logColumns.push(
-          { headerName: field, field: field, width: 260, suppressSizeToFit: false, },
+          {
+            headerName: field, field: field, width: 260, suppressSizeToFit: false,
+          },
         );
       }
     }
   }
 
-  updateButtons(show: boolean): void {
+  updateButtons(show: boolean = true): void {
     this.showLoadMore = show;
+    this.disableLoadMore = !show;
     this.showClearData = show;
+  }
+
+  loadMore(): void {
+    this.prepareLoadLog();
+    let lastTrace: any = this.logRows[this.logRows.length - 1];
+    this.esSearchModel.body.searchAfter = [lastTrace.sort[0]];
+
+    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+    let searchBody: string = this.esSearchModel.getSearchBody();
+
+    this.elastestESService.search(searchUrl, searchBody)
+      .subscribe(
+      (data: any) => {
+        let moreRows: any[] = this.esSearchModel.getDataListFromRaw(data, false);
+        if (moreRows.length > 0) {
+          this.logRows = this.logRows.concat(moreRows);
+          this.elastestESService.popupService.openSnackBar('Loaded more logs');
+          this.setTableHeader();
+          this.updateButtons();
+        } else {
+          this.elastestESService.popupService.openSnackBar('There aren\'t more logs to load', 'OK');
+          this.disableLoadMore = true;
+        }
+      }
+      );
   }
 
   /***** Dates *****/
@@ -399,7 +436,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       for (let result of this.patterns[index].results) {
         if (rows[result]) {
           rows[result].style.color = this.patterns[index].color;
-          console.log(rows[result], rows[result].style.color)
+          console.log(rows[result], rows[result].style.color, rows[result].style)
         }
       }
     }
@@ -486,7 +523,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       Array.from(table.getElementsByClassName('ag-row')).forEach(
         (node: Element) => rows.push(node as HTMLElement)
       );
-      console.log(rows);
       return rows;
     } else {
       return undefined;
@@ -496,4 +532,5 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   openColorPicker(i: number) {
     document.getElementById('pattern' + i + 'Color').click();
   }
+
 }
