@@ -511,6 +511,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   cleanRowsColor(): void {
     for (let row of this.logRows) {
       row.marked = undefined;
+      row.focused = false;
     }
     this.refreshView();
   }
