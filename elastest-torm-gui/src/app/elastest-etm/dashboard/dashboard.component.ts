@@ -1,3 +1,4 @@
+import { ConfigurationService } from '../../config/configuration-service.service';
 import { TitlesService } from '../../shared/services/titles.service';
 import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../elastest-esm/esm-service.service';
@@ -49,6 +50,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private route: ActivatedRoute, private router: Router,
     private elastestESService: ElastestESService,
     private esmService: EsmService,
+    private configurationService: ConfigurationService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(

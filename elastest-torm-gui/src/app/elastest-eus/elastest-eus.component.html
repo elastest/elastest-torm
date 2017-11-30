@@ -33,7 +33,7 @@
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>{{ !standalone ? "Automated tests" : "WebDriver Web Browsers" }}</md-card-title>
-            <md-card-subtitle>Remote Web Driver URL: <a href="http://192.168.99.100:53000/eus/v1/">{{configurationService.configModel.eusServiceUrl}}</a></md-card-subtitle>
+            <md-card-subtitle>Remote Web Driver URL: <strong>{{configurationService.configModel.eusServiceUrl}}</strong></md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
