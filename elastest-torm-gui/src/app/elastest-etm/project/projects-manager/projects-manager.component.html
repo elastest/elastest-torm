@@ -5,7 +5,7 @@
                 <md-card-title>Projects</md-card-title>               
                 
                 <md-card-content class="push-bottom-none">
-                    <td-data-table #projectsTable class="scroll_table" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
+                    <td-data-table #projectsTable [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
                         [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" [style.height.px]="200">
                         <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>

@@ -1,3 +1,7 @@
 ::ng-deep .scroll_table > div{
     max-height: 30vh !important;
 }
+
+::ng-deep .without_scroll_table > div{
+    max-height: 100vh !important;
+}

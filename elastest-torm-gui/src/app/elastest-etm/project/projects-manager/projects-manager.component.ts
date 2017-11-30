@@ -24,6 +24,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   @Input()
   isNested: boolean = false;
+  tableStyle: string = "without_scroll_table";
 
   // Project data
   projectColumns: any[] = [
@@ -50,7 +51,11 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     if (!this.isNested) {
       this.titlesService.setHeadAndTopTitle('Projects');
+      this.tableStyle = "without_scroll_table";
+    } else {
+      this.tableStyle = "scroll_table";
     }
+
     this.loadProjects();
   }
 
