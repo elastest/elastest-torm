@@ -32,7 +32,7 @@
 
 <!-- Esm Services Instances -->
 <div *ngIf="this.configurationService.configModel.elasTestExecMode === 'normal' && serviceInstances.length > 0; else ts_services">
-    <app-elastest-eus [eusUrl]="serviceInstance[0].urls.api" [eusHost]="serviceInstance[0].ip" [eusPort]="serviceInstance[0].port" [standalone]="false" [isNested]="true"></app-elastest-eus>
+    <app-elastest-eus [eusUrl]="serviceInstances[0].urls.api" [eusHost]="serviceInstances[0].ip" [eusPort]="serviceInstances[0].port" [standalone]="false" [isNested]="true"></app-elastest-eus>
 </div>
 <ng-template #ts_services *ngFor="let serviceInstance of serviceInstances ">
   <esm-service-detail [serviceInstance]="serviceInstance " [standaloneService]="false"></esm-service-detail>
