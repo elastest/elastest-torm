@@ -37,6 +37,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressCellSelection: true,
     suppressChangeDetection: true,
     rowModelType: 'inMemory',
+    suppressDragLeaveHidesColumns: true,
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -140,10 +141,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   setRange(): void {
-    this.setRangeByGiven(this.getFromDate(), this.getToDate());
+    this.setRangeByGiven();
   }
 
-  setRangeByGiven(from: Date, to: Date, includedFrom: boolean = true, includedTo: boolean = true): void {
+  setRangeByGiven(from: Date = this.getFromDate(), includedFrom: boolean = true, to: Date = this.getToDate(), includedTo: boolean = true): void {
     this.esSearchModel.body.query.bool.must.range = new ESRangeModel();
     this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
 
@@ -224,7 +225,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.prepareLoadLog();
         let from: Date = this.logRows[selected]['@timestamp'];
         let to: Date = this.logRows[selected + 1]['@timestamp'];
-        this.setRangeByGiven(from, to, true, false);
+        this.setRangeByGiven(from, true, to, false);
 
         this.esSearchModel.body.searchAfter = [this.logRows[selected].sort[0]];
         let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
