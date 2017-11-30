@@ -31,11 +31,13 @@
 <etm-logs-metrics-view #logsAndMetrics [live]="true "></etm-logs-metrics-view>
 
 <!-- Esm Services Instances -->
-<div *ngIf="this.configurationService.configModel.elasTestExecMode === 'normal' && serviceInstances.length > 0; else ts_services">
+<div *ngIf="this.configurationService.configModel.elasTestExecMode === 'normal' && serviceInstances.length > 0; else tSServices">
     <app-elastest-eus [eusUrl]="serviceInstances[0].urls.api" [eusHost]="serviceInstances[0].ip" [eusPort]="serviceInstances[0].port" [standalone]="false" [isNested]="true"></app-elastest-eus>
 </div>
-<ng-template #ts_services *ngFor="let serviceInstance of serviceInstances ">
-  <esm-service-detail [serviceInstance]="serviceInstance " [standaloneService]="false"></esm-service-detail>
+<ng-template #tSServices>
+  <div *ngFor="let serviceInstance of serviceInstances">
+    <esm-service-detail [serviceInstance]="serviceInstance " [standaloneService]="false"></esm-service-detail>
+  </div>
 </ng-template>
 
 <!-- Execution files -->
