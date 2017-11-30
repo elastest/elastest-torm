@@ -4,13 +4,14 @@ export class SearchPatternModel {
     results: number[];
     position: number;
     found: number;
-
+    foundButHidden: boolean;
     constructor() {
         this.color = this.generateRandomColor();
         this.searchValue = '';
         this.results = [];
         this.position = -1;
         this.found = -1;
+        this.foundButHidden = false;
     }
 
     generateRandomColor() {

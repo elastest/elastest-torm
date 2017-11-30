@@ -38,6 +38,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressChangeDetection: true,
     rowModelType: 'inMemory',
     suppressDragLeaveHidesColumns: true,
+    enableCellChangeFlash: true,
+    getRowStyle: function (params) {
+      if (params.data.marked) {
+        return { color: params.data.marked };
+      } else {
+        return;
+      }
+    }
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -59,7 +67,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   currentRowSelected: number = -1;
   currentPos: number = -1;
 
-  hideFunctionality: boolean = true;
+  hideFunctionality: boolean = false;
 
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
@@ -389,6 +397,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       pattern.searchValue = '';
       pattern.results = [];
       pattern.found = -1;
+      pattern.foundButHidden = false;
     }
     this.currentPos = -1;
     this.currentRowSelected = -1;
@@ -403,40 +412,28 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.addPattern();
   }
 
-  cleanRowsColor(rows?: HTMLElement[]): void {
-    if (!rows) {
-      rows = this.getSearchTableRows();
+  cleanRowsColor(): void {
+    for (let row of this.logRows) {
+      row.marked = undefined;
     }
-    if (rows !== undefined && rows !== null) {
-      let i: number = 0;
-      while (rows[i] !== undefined && rows[i] !== null) {
-        rows[i].removeAttribute('style');
-        i++;
-      }
-    }
+    this.gridApi.redrawRows();
   }
 
   markOrClean(index: number): void {
     let pattern: SearchPatternModel = this.patterns[index];
-    if (pattern.found < 1) {
+    if (pattern.found < 0 || (pattern.found >= 0 && pattern.foundButHidden)) { // If is unmarked, search this pattern to mark
+      pattern.foundButHidden = false;
       this.searchByPattern(index);
     } else {
-      pattern.found = -1;
-      pattern.position = -1;
-      pattern.results = [];
-      let searchValue: string = pattern.searchValue;
-      pattern.searchValue = '';
+      pattern.foundButHidden = true;
+      // pattern.position = -1;
       this.searchByPatterns();
-      pattern.searchValue = searchValue;
     }
   }
 
-  searchByPatterns(rows?: HTMLElement[]): void {
-    if (!rows) {
-      rows = this.getSearchTableRows();
-    }
+  searchByPatterns(): void {
     this.currentPos = -1;
-    this.cleanRowsColor(rows);
+    this.cleanRowsColor();
     let i: number = 0;
     this.logRows
       .map(
@@ -460,8 +457,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         pattern.found = pattern.results.length;
       }
       if (pattern.results.length > 0) {
-        this.next(j, rows);
-        this.paintResults(j, rows);
+        this.next(j);
+        this.paintResults(j);
       }
       j++;
     }
@@ -469,11 +466,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   searchByPattern(position: number): void {
     if (this.patterns[position].searchValue !== '') {
-      let rows: HTMLElement[] = this.getSearchTableRows();
-      this.searchByPatterns(rows);
+      this.searchByPatterns();
       this.currentPos = -1;
-      this.next(position, rows);
-      this.paintResults(position, rows);
+      this.next(position);
+      this.paintResults(position);
       if (position === this.patterns.length - 1) {
         this.addPattern();
       }
@@ -482,68 +478,67 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  paintResults(index: number, rows?: HTMLElement[]): void {
-    if (!rows) {
-      rows = this.getSearchTableRows();
-    }
-    if (rows !== undefined && rows !== null) {
+  paintResults(index: number): void {
+    if (this.logRows && this.logRows.length > 0) {
       for (let result of this.patterns[index].results) {
-        if (rows[result]) {
-          rows[result].style.color = this.patterns[index].color;
-          console.log(rows[result], rows[result].style.color, rows[result].style)
+        if (this.logRows[result] && !this.patterns[index].foundButHidden) {
+          this.logRows[result].marked = this.patterns[index].color;
+        } else {
+          this.logRows[result].marked = undefined;
         }
       }
+      this.gridApi.redrawRows();
     }
   }
 
-  next(index: number, rows?: HTMLElement[]): void {
-    let pattern: SearchPatternModel = this.patterns[index];
-    if (pattern.results.length > 0) {
-      pattern.results.sort(this.sorted);
+  next(index: number): void {
+    // let pattern: SearchPatternModel = this.patterns[index];
+    // if (pattern.results.length > 0) {
+    //   pattern.results.sort(this.sorted);
 
-      if (this.currentPos === -1) {
-        pattern.position = 0;
-      } else {
-        pattern.position = this.getNextPosition(this.currentPos, pattern.results);
-        if (pattern.position === -1) {
-          pattern.position = 0;
-        }
-      }
-      this.focusRow(pattern.results[pattern.position], rows);
-    }
+    //   if (this.currentPos === -1) {
+    //     pattern.position = 0;
+    //   } else {
+    //     pattern.position = this.getNextPosition(this.currentPos, pattern.results);
+    //     if (pattern.position === -1) {
+    //       pattern.position = 0;
+    //     }
+    //   }
+    //   this.focusRow(pattern.results[pattern.position], rows);
+    // }
   }
 
 
-  prev(index: number, rows?: HTMLElement[]): void {
-    let pattern: SearchPatternModel = this.patterns[index];
-    if (pattern.results.length > 0) {
-      pattern.results.sort(this.sorted);
+  prev(index: number): void {
+    // let pattern: SearchPatternModel = this.patterns[index];
+    // if (pattern.results.length > 0) {
+    //   pattern.results.sort(this.sorted);
 
-      if (this.currentPos === -1) {
-        pattern.position = pattern.results.length - 1;
-      } else {
-        pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
-        if (pattern.position === -1) {
-          pattern.position = pattern.results.length - 1;
-        }
-      }
-      this.focusRow(pattern.results[pattern.position], rows);
-    }
+    //   if (this.currentPos === -1) {
+    //     pattern.position = pattern.results.length - 1;
+    //   } else {
+    //     pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
+    //     if (pattern.position === -1) {
+    //       pattern.position = pattern.results.length - 1;
+    //     }
+    //   }
+    //   this.focusRow(pattern.results[pattern.position], rows);
+    // }
   }
 
-  focusRow(newPos: number, rows?: HTMLElement[]): void {
-    let previousPos: number = this.currentPos;
-    this.currentPos = newPos;
-    if (!rows) {
-      rows = this.getSearchTableRows();
-    }
-    if (rows !== undefined && rows !== null) {
-      if (previousPos >= 0) {
-        rows[previousPos].style.removeProperty('background-color');
-      }
-      rows[this.currentPos].style.backgroundColor = '#e0e0e0';
-      rows[this.currentPos].focus();
-    }
+  focusRow(newPos: number): void {
+    // let previousPos: number = this.currentPos;
+    // this.currentPos = newPos;
+    // if (!rows) {
+    //   rows = this.getSearchTableRows();
+    // }
+    // if (rows !== undefined && rows !== null) {
+    //   if (previousPos >= 0) {
+    //     rows[previousPos].style.removeProperty('background-color');
+    //   }
+    //   rows[this.currentPos].style.backgroundColor = '#e0e0e0';
+    //   rows[this.currentPos].focus();
+    // }
   }
 
   getNextPosition(element: number, array: number[]): number {
@@ -568,19 +563,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   sorted(a: number, b: number): number {
     return a - b;
-  }
-
-  getSearchTableRows(): HTMLElement[] {
-    let table: HTMLElement = document.getElementById('logsGrid');
-    let rows: HTMLElement[] = [];
-    if (table !== null && table !== undefined) {
-      Array.from(table.getElementsByClassName('ag-row')).forEach(
-        (node: Element) => rows.push(node as HTMLElement)
-      );
-      return rows;
-    } else {
-      return undefined;
-    }
   }
 
   openColorPicker(i: number): void {
