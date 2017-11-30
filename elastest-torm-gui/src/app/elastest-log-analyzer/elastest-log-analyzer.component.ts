@@ -1,9 +1,10 @@
+import { RowClickedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
-import { ESQueryModel, ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
+import { ESQueryModel, ESRangeModel, ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
@@ -32,7 +33,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     rowHeight: 22,
     headerHeight: 42,
     rowSelection: 'single',
-    suppressRowClickSelection: true,
+    suppressRowClickSelection: false,
     suppressCellSelection: true,
     suppressChangeDetection: true,
     rowModelType: 'inMemory',
@@ -46,7 +47,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public disableLoadMore: boolean = false;
 
   public showPauseTail: boolean = false;
-  public showClearData: boolean = false;
 
   // Filters
   @ViewChild('componentsTree') componentsTree: TreeComponent;
@@ -100,10 +100,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
   }
 
-
-  /***** Grid *****/
-
-
   /***** Load Log *****/
 
   prepareLoadLog(): void {
@@ -121,6 +117,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadLog(): void {
+    this.logAnalyzer.selectedRow = undefined;
     this.prepareLoadLog();
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
     let searchBody: string = this.esSearchModel.getSearchBody();
@@ -129,13 +126,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       .subscribe(
       (data: any) => {
         this.logRows = this.esSearchModel.getDataListFromRaw(data, false);
-        // let rows: any[] = this.esSearchModel.getDataListFromRaw(data);
-        // if (this.logRows.length === 0) {
-        //   this.logRows = rows;
-        // } else if (this.gridApi !== undefined) { // TODO Make working...
-        //   this.gridApi.redrawRows({ rowNodes: rows });
-        //   this.gridApi.sizeColumnsToFit();
-        // }
 
         let logsLoaded: boolean = this.logRows.length > 0;
         if (logsLoaded) {
@@ -150,9 +140,24 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   setRange(): void {
+    this.setRangeByGiven(this.getFromDate(), this.getToDate());
+  }
+
+  setRangeByGiven(from: Date, to: Date, includedFrom: boolean = true, includedTo: boolean = true): void {
+    this.esSearchModel.body.query.bool.must.range = new ESRangeModel();
     this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
-    this.esSearchModel.body.query.bool.must.range.gte = this.getFromDate();
-    this.esSearchModel.body.query.bool.must.range.lte = this.getToDate();
+
+    if (includedFrom) {
+      this.esSearchModel.body.query.bool.must.range.gte = from;
+    } else {
+      this.esSearchModel.body.query.bool.must.range.gt = from;
+    }
+
+    if (includedTo) {
+      this.esSearchModel.body.query.bool.must.range.lte = to;
+    } else {
+      this.esSearchModel.body.query.bool.must.range.lt = to;
+    }
   }
 
   setTerms(): void {
@@ -183,7 +188,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   updateButtons(show: boolean = true): void {
     this.showLoadMore = show;
     this.disableLoadMore = !show;
-    this.showClearData = show;
   }
 
   loadMore(): void {
@@ -209,6 +213,56 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         }
       }
       );
+  }
+
+  moreFromSelected(): void {
+    if (this.logAnalyzer.hasSelectedRow()) {
+      let selected: number = this.logAnalyzer.selectedRow;
+      if (selected === this.logRows.length - 1) { // If selected is last
+        this.loadMore();
+      } else {
+        this.prepareLoadLog();
+        let from: Date = this.logRows[selected]['@timestamp'];
+        let to: Date = this.logRows[selected + 1]['@timestamp'];
+        this.setRangeByGiven(from, to, true, false);
+
+        this.esSearchModel.body.searchAfter = [this.logRows[selected].sort[0]];
+        let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+        let searchBody: string = this.esSearchModel.getSearchBody();
+        this.elastestESService.search(searchUrl, searchBody)
+          .subscribe(
+          (data: any) => {
+            let moreRows: any[] = this.esSearchModel.getDataListFromRaw(data, false);
+
+            if (moreRows.length > 0) {
+              this.insertRowsFromPosition(selected, moreRows);
+
+              this.elastestESService.popupService.openSnackBar('Loaded more logs from selected trace');
+              this.setTableHeader();
+              this.updateButtons();
+            } else {
+              this.elastestESService.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK');
+            }
+          }
+          );
+      }
+    } else {
+      this.elastestESService.popupService.openSnackBar('There isn\'t trace selected. Please, do click on a row', 'OK');
+    }
+  }
+
+  insertRowsFromPosition(pos: number, rows: any[]) {
+    let firstHalf: any[] = this.logRows.slice(0, pos + 1);
+    let secondHalf: any[] = this.logRows.slice(pos + 1);
+
+    this.logRows = (firstHalf.concat(rows)).concat(secondHalf);
+  }
+
+
+
+  /***** Events *****/
+  public selectTrace($event: RowClickedEvent): void {
+    this.logAnalyzer.selectedRow = $event.rowIndex;
   }
 
   /***** Dates *****/
@@ -248,7 +302,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     // this.tailInterval = undefined;
     this.showLoadMore = false;
     this.showPauseTail = false;
-    this.showClearData = false;
     // this.removeAllPatterns();
     // this.dataForAdding = undefined;
   }
@@ -492,7 +545,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getNextPosition(element: number, array: Array<number>): number {
+  getNextPosition(element: number, array: number[]): number {
     let i: number;
     for (i = 0; i < array.length; i++) {
       if (element < array[i]) {
@@ -502,7 +555,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     return -1;
   }
 
-  getPrevPosition(element: number, array: Array<number>): number {
+  getPrevPosition(element: number, array: number[]): number {
     let i: number;
     for (i = array.length; i >= 0; i--) {
       if (element > array[i]) {
@@ -529,7 +582,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  openColorPicker(i: number) {
+  openColorPicker(i: number): void {
     document.getElementById('pattern' + i + 'Color').click();
   }
 

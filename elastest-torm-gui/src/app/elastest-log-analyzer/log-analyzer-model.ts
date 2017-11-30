@@ -7,6 +7,7 @@ export class LogAnalyzerModel {
     toDate: Date;
     maxResults: number;
     tail: boolean;
+    selectedRow: number;
 
     // Filters
     componentsStreams: AgTreeCheckModel;
@@ -23,6 +24,7 @@ export class LogAnalyzerModel {
         this.componentsStreams = new AgTreeCheckModel();
         this.levels = new AgTreeCheckModel();
         this.messageFilter = '';
+        this.selectedRow = undefined;
     }
 
     public getDefaultFromDate(): Date {
@@ -38,11 +40,13 @@ export class LogAnalyzerModel {
     }
 
     public setComponentsStreams(componentsStreams: any[]): void {
+        this.componentsStreams = new AgTreeCheckModel();
         this.componentsStreams.setByObjArray(componentsStreams);
         this.componentsStreams.setCheckedToAll(true);
     }
 
     public setLevels(levels: any[]): void {
+        this.levels = new AgTreeCheckModel();
         this.levels.setByObjArray(levels);
         this.levels.setCheckedToAll(false);
     }
@@ -82,6 +86,10 @@ export class LogAnalyzerModel {
         boolParent.should.addBoolListToBoolList(boolList);
 
         return boolParent;
+    }
+
+    hasSelectedRow(): boolean {
+        return this.selectedRow !== undefined;
     }
 
 }

@@ -50,6 +50,13 @@ md-sidenav-container {
     width: calc(100%) !important;
 }
 
+:host /deep/ .ag-row-selected {
+    background-color: #ffac2f !important;
+}
+
+
+
+
 #logSidenav, #logSidenav md-tab-group, #logManagerForm{
     height: 100%;
     margin: 0;
