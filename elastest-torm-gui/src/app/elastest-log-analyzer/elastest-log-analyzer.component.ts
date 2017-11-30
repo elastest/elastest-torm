@@ -39,13 +39,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     rowModelType: 'inMemory',
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
-    getRowStyle: function (params) {
-      if (params.data.marked) {
-        return { color: params.data.marked };
-      } else {
-        return;
-      }
-    }
+    getRowStyle: this.setRowsStyle,
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -269,7 +263,28 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
 
 
-  /***** Events *****/
+  /***** Grid and Events *****/
+
+  public setRowsStyle(params: any): any {
+    let style: any;
+    let init: boolean = false;
+    if (params.data.marked) {
+      if (!init) {
+        init = true;
+        style = {};
+      }
+      style.color = params.data.marked;
+    }
+    if (params.data.focused) {
+      if (!init) {
+        init = true;
+        style = {};
+      }
+      style.background = '#e0e0e0';
+    }
+    return style;
+  }
+
   public selectTrace($event: RowClickedEvent): void {
     this.logAnalyzer.selectedRow = $event.rowIndex;
   }
@@ -412,13 +427,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.addPattern();
   }
 
-  cleanRowsColor(): void {
-    for (let row of this.logRows) {
-      row.marked = undefined;
-    }
-    this.gridApi.redrawRows();
-  }
-
   markOrClean(index: number): void {
     let pattern: SearchPatternModel = this.patterns[index];
     if (pattern.found < 0 || (pattern.found >= 0 && pattern.foundButHidden)) { // If is unmarked, search this pattern to mark
@@ -491,54 +499,58 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  next(index: number): void {
-    // let pattern: SearchPatternModel = this.patterns[index];
-    // if (pattern.results.length > 0) {
-    //   pattern.results.sort(this.sorted);
-
-    //   if (this.currentPos === -1) {
-    //     pattern.position = 0;
-    //   } else {
-    //     pattern.position = this.getNextPosition(this.currentPos, pattern.results);
-    //     if (pattern.position === -1) {
-    //       pattern.position = 0;
-    //     }
-    //   }
-    //   this.focusRow(pattern.results[pattern.position], rows);
-    // }
+  cleanRowsColor(): void {
+    for (let row of this.logRows) {
+      row.marked = undefined;
+    }
+    this.gridApi.redrawRows();
   }
 
+  next(index: number): void {
+    let pattern: SearchPatternModel = this.patterns[index];
+    if (pattern.results.length > 0) {
+      pattern.results.sort(this.sorted);
+
+      if (this.currentPos === -1) {
+        pattern.position = 0;
+      } else {
+        pattern.position = this.getNextPosition(this.currentPos, pattern.results);
+        if (pattern.position === -1) {
+          pattern.position = 0;
+        }
+      }
+      this.focusRow(pattern.results[pattern.position]);
+    }
+  }
 
   prev(index: number): void {
-    // let pattern: SearchPatternModel = this.patterns[index];
-    // if (pattern.results.length > 0) {
-    //   pattern.results.sort(this.sorted);
+    let pattern: SearchPatternModel = this.patterns[index];
+    if (pattern.results.length > 0) {
+      pattern.results.sort(this.sorted);
 
-    //   if (this.currentPos === -1) {
-    //     pattern.position = pattern.results.length - 1;
-    //   } else {
-    //     pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
-    //     if (pattern.position === -1) {
-    //       pattern.position = pattern.results.length - 1;
-    //     }
-    //   }
-    //   this.focusRow(pattern.results[pattern.position], rows);
-    // }
+      if (this.currentPos === -1) {
+        pattern.position = pattern.results.length - 1;
+      } else {
+        pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
+        if (pattern.position === -1) {
+          pattern.position = pattern.results.length - 1;
+        }
+      }
+      this.focusRow(pattern.results[pattern.position]);
+    }
   }
 
   focusRow(newPos: number): void {
-    // let previousPos: number = this.currentPos;
-    // this.currentPos = newPos;
-    // if (!rows) {
-    //   rows = this.getSearchTableRows();
-    // }
-    // if (rows !== undefined && rows !== null) {
-    //   if (previousPos >= 0) {
-    //     rows[previousPos].style.removeProperty('background-color');
-    //   }
-    //   rows[this.currentPos].style.backgroundColor = '#e0e0e0';
-    //   rows[this.currentPos].focus();
-    // }
+    let previousPos: number = this.currentPos;
+    this.currentPos = newPos;
+    if (this.logRows.length > 0) {
+      if (previousPos >= 0) {
+        this.logRows[previousPos].focused = false;
+      }
+      this.logRows[this.currentPos].focused = true;
+      this.gridApi.redrawRows();
+      // this.logRows[this.currentPos].focus(); TODO
+    }
   }
 
   getNextPosition(element: number, array: number[]): number {
