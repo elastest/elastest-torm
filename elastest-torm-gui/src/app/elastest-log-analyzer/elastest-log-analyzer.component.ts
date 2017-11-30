@@ -134,6 +134,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
+          this.searchByPatterns();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
@@ -210,9 +211,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.elastestESService.popupService.openSnackBar('Loaded more logs');
           this.setTableHeader();
           this.updateButtons();
+          this.searchByPatterns();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t more logs to load', 'OK');
-          this.disableLoadMore = true;
+          this.disableLoadMore = true; // removed from html temporally
         }
       }
       );
@@ -243,6 +245,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
               this.elastestESService.popupService.openSnackBar('Loaded more logs from selected trace');
               this.setTableHeader();
               this.updateButtons();
+              this.searchByPatterns();
             } else {
               this.elastestESService.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK');
             }
@@ -287,6 +290,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public selectTrace($event: RowClickedEvent): void {
     this.logAnalyzer.selectedRow = $event.rowIndex;
+  }
+
+  public refreshView(): void {
+    if (this.gridApi) {
+      this.gridApi.redrawRows();
+    }
   }
 
   /***** Dates *****/
@@ -495,7 +504,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.logRows[result].marked = undefined;
         }
       }
-      this.gridApi.redrawRows();
+      this.refreshView();
     }
   }
 
@@ -503,7 +512,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     for (let row of this.logRows) {
       row.marked = undefined;
     }
-    this.gridApi.redrawRows();
+    this.refreshView();
   }
 
   next(index: number): void {
@@ -548,7 +557,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.logRows[previousPos].focused = false;
       }
       this.logRows[this.currentPos].focused = true;
-      this.gridApi.redrawRows();
+      this.refreshView();
       // this.logRows[this.currentPos].focus(); TODO
     }
   }
