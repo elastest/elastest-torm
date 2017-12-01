@@ -3,8 +3,8 @@
     <md-card id="logCard" class="push-none">
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (rowSelected)="switchRowSelection($event)"
-          style="width: 100%; height: 80%;">
+          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
+          (rowSelected)="switchRowSelection($event)" style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
     </md-card>
@@ -105,11 +105,9 @@
                   </div>
                 </div>
                 <div layout="row" class="push-top-sm">
-                  <div flex="30">
-                    <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="1==0" class="pad-left-none" title="Add more traces from last">
-                      <md-icon>vertical_align_bottom</md-icon> Add from last
-                    </button>
-                  </div>
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="1==0" class="pad-left-none" title="Add more traces from last">
+                    <md-icon>vertical_align_bottom</md-icon> Add from last
+                  </button>
                   <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined"
                     title="Add more from selected trace">
                     <md-icon>vertical_align_center</md-icon> Add from selected
@@ -117,7 +115,8 @@
                   <!-- <button md-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
                   <md-icon>link</md-icon> Share link
                 </button>  -->
-                  <md-checkbox #pauseTail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="tailSearch(!pauseTail.checked)">Pause Tail</md-checkbox>
+                  <md-checkbox #pauseTail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                    title="Pause Tail">Pause Tail</md-checkbox>
                 </div>
               </div>
             </form>

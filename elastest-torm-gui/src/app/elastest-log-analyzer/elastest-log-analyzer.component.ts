@@ -1,4 +1,5 @@
-import { RowClickedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
+import { Observable, Subscription } from 'rxjs/Rx';
+import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
@@ -8,7 +9,15 @@ import { ESQueryModel, ESRangeModel, ESSearchModel, ESTermModel } from '../share
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
-import { CellClickedEvent, ColumnApi, GridApi, GridOptions, RowNode } from 'ag-grid/main';
+import {
+  CellClickedEvent,
+  ColumnApi,
+  ComponentStateChangedEvent,
+  GridApi,
+  GridOptions,
+  GridReadyEvent,
+  RowNode,
+} from 'ag-grid/main';
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
 
@@ -48,7 +57,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   // Buttons
   public showLoadMore: boolean = false;
   public disableLoadMore: boolean = false;
-
   public showPauseTail: boolean = false;
 
   // Filters
@@ -80,10 +88,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.toDate.nativeElement.value = this.getDefaultToValue();
   }
 
+  ngOnDestroy() {
+    this.logAnalyzer.stopTail();
+  }
+
   /***** INIT *****/
 
   // Function to init some parameters of ag-grid
-  onGridReady(params): void {
+  onGridReady(params: GridReadyEvent | ComponentStateChangedEvent): void {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
@@ -103,7 +115,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
   }
 
-  /***** Load Log *****/
+  /**********************/
+  /***** Load Utils *****/
+  /**********************/
+
+  popup(msg: string, buttonMsg: string = 'OK'): void {
+    let popupDuration: number = this.logAnalyzer.usingTail ? 1 : undefined;
+    let popupCss: any[] = this.logAnalyzer.usingTail ? ['snackBarHidden'] : [];
+
+    this.elastestESService.popupService.openSnackBar(msg, buttonMsg, popupDuration, popupCss);
+  }
+
 
   prepareLoadLog(): void {
     this.initESModel();
@@ -119,35 +141,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.setTerms();
   }
 
-  loadLog(): void {
-    this.logAnalyzer.selectedRow = undefined;
-    this.prepareLoadLog();
-    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: string = this.esSearchModel.getSearchBody();
-
-    this.elastestESService.search(searchUrl, searchBody)
-      .subscribe(
-      (data: any) => {
-        this.logRows = this.esSearchModel.getDataListFromRaw(data, false);
-
-        let logsLoaded: boolean = this.logRows.length > 0;
-        if (logsLoaded) {
-          this.elastestESService.popupService.openSnackBar('Logs has been loaded');
-          this.setTableHeader();
-          this.removeAllPatterns();
-        } else {
-          this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
-        }
-        this.updateButtons(logsLoaded);
-      }
-      );
-  }
-
   setRange(): void {
     this.setRangeByGiven();
   }
 
-  setRangeByGiven(from: Date = this.getFromDate(), includedFrom: boolean = true, to: Date = this.getToDate(), includedTo: boolean = true): void {
+  setRangeByGiven(
+    from: Date | string = this.getFromDate(), to: Date | string = this.getToDate(), includedFrom: boolean = true, includedTo: boolean = true
+  ): void {
     this.esSearchModel.body.query.bool.must.range = new ESRangeModel();
     this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
 
@@ -192,12 +192,64 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   updateButtons(show: boolean = true): void {
     this.showLoadMore = show;
     this.disableLoadMore = !show;
+    this.showPauseTail = !show;
   }
 
-  loadMore(): void {
+  /**************************/
+  /***** Load functions *****/
+  /**************************/
+
+  loadLog(): void {
+    this.logAnalyzer.usingTail = this.logAnalyzer.tail;
+    this.logAnalyzer.stopTail();
+
+    this.logAnalyzer.selectedRow = undefined;
+    this.prepareLoadLog();
+
+    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+    let searchBody: string = this.esSearchModel.getSearchBody();
+
+    this.elastestESService.search(searchUrl, searchBody)
+      .subscribe(
+      (data: any) => {
+        this.logRows = this.esSearchModel.getDataListFromRaw(data, false);
+
+        let logsLoaded: boolean = this.logRows.length > 0;
+        if (logsLoaded) {
+          this.setTableHeader();
+          this.removeAllPatterns();
+          this.popup('Logs has been loaded');
+        } else {
+          this.popup('There aren\'t logs to load', 'OK');
+        }
+        this.updateButtons(logsLoaded);
+        if (this.logAnalyzer.usingTail) {
+          this.loadTailLog(!logsLoaded);
+        }
+      }
+      );
+  }
+
+  loadTailLog(notLoadedPrevious: boolean = false): void {
+    let timer: Observable<number>;
+    this.updateButtons(false);
+
+    timer = Observable.interval(3500);
+    this.logAnalyzer.tailSubscription = timer.subscribe(() => {
+      if (!this.logAnalyzer.pauseTail) {
+        this.loadMore(true);
+      }
+    });
+  }
+
+  loadMore(fromTail: boolean = false): void {
     this.prepareLoadLog();
     let lastTrace: any = this.logRows[this.logRows.length - 1];
     this.esSearchModel.body.searchAfter = [lastTrace.sort[0]];
+    if (fromTail) {
+      this.setRangeByGiven(lastTrace['@timestamp'], 'now');
+      this.esSearchModel.body.size = 100;
+    }
 
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
     let searchBody: string = this.esSearchModel.getSearchBody();
@@ -208,12 +260,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         let moreRows: any[] = this.esSearchModel.getDataListFromRaw(data, false);
         if (moreRows.length > 0) {
           this.logRows = this.logRows.concat(moreRows);
-          this.elastestESService.popupService.openSnackBar('Loaded more logs');
+          this.popup('Loaded more logs');
           this.setTableHeader();
-          this.updateButtons();
+          this.updateButtons(!fromTail);
           this.searchByPatterns();
         } else {
-          this.elastestESService.popupService.openSnackBar('There aren\'t more logs to load', 'OK');
+          this.popup('There aren\'t more logs to load', 'OK');
           this.disableLoadMore = true; // removed from html temporally
         }
       }
@@ -229,7 +281,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.prepareLoadLog();
         let from: Date = this.logRows[selected]['@timestamp'];
         let to: Date = this.logRows[selected + 1]['@timestamp'];
-        this.setRangeByGiven(from, true, to, false);
+        this.setRangeByGiven(from, to, true, false);
 
         this.esSearchModel.body.searchAfter = [this.logRows[selected].sort[0]];
         let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
@@ -242,18 +294,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             if (moreRows.length > 0) {
               this.insertRowsFromPosition(selected, moreRows);
 
-              this.elastestESService.popupService.openSnackBar('Loaded more logs from selected trace');
+              this.popup('Loaded more logs from selected trace');
               this.setTableHeader();
               this.updateButtons();
               this.searchByPatterns();
             } else {
-              this.elastestESService.popupService.openSnackBar('There aren\'t logs to load or you don\'t change filters', 'OK');
+              this.popup('There aren\'t logs to load or you don\'t change filters', 'OK');
             }
           }
           );
       }
     } else {
-      this.elastestESService.popupService.openSnackBar('There isn\'t trace selected. Please, do click on a row', 'OK');
+      this.popup('There isn\'t trace selected. Please, do click on a row', 'OK');
     }
   }
 
@@ -264,9 +316,16 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logRows = (firstHalf.concat(rows)).concat(secondHalf);
   }
 
-
-
+  /***************************/
   /***** Grid and Events *****/
+  /***************************/
+
+  public componentStateChanged($event: ComponentStateChangedEvent): void { // On changes detected
+    this.onGridReady($event);
+    if (this.logAnalyzer.usingTail) {
+      $event.api.ensureIndexVisible(this.logRows.length - 1)
+    }
+  }
 
   public setRowsStyle(params: any): any {
     let style: any;
@@ -305,7 +364,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /***** Dates *****/
+  /**********************/
+  /***** Date utils *****/
+  /**********************/
 
   public getDefaultFromValue(): string {
     return dateToInputLiteral(this.logAnalyzer.getDefaultFromDate());
@@ -335,17 +396,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logAnalyzer.tail = tail;
   }
 
-  public clearData(): void {
-    this.logRows = [];
-    this.logColumns = [];
-    // clearInterval(this.tailInterval);
-    // this.tailInterval = undefined;
-    this.showLoadMore = false;
-    this.showPauseTail = false;
-    // this.removeAllPatterns();
-    // this.dataForAdding = undefined;
-  }
-
 
   /**** Modal ****/
   public openSelectExecutions(): void {
@@ -365,7 +415,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             this.loadComponentStreams();
             this.loadLevels();
           } else {
-            this.elastestESService.popupService.openSnackBar('No execution was selected. Selected all by default');
+            this.popup('No execution was selected. Selected all by default');
           }
           this.loadLog();
         } else { }
@@ -401,9 +451,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       );
   }
 
-
+  /****************/
   /***** Mark *****/
-  // Filter results functions
+  /****************/
+
   addPattern(): void {
     this.patterns.push(new SearchPatternModel());
   }
@@ -502,7 +553,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.addPattern();
       }
     } else {
-      this.elastestESService.popupService.openSnackBar('Search value can not be empty', 'OK');
+      this.popup('Search value can not be empty', 'OK');
     }
   }
 

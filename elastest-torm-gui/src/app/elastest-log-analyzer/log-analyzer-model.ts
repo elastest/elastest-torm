@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs/Rx';
 import { ESBoolModel, ESTermModel } from '../shared/elasticsearch-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
 export class LogAnalyzerModel {
@@ -7,6 +8,10 @@ export class LogAnalyzerModel {
     toDate: Date;
     maxResults: number;
     tail: boolean;
+    tailSubscription: Subscription;
+    pauseTail: boolean;
+    usingTail: boolean;
+
     selectedRow: number;
 
     // Filters
@@ -20,6 +25,9 @@ export class LogAnalyzerModel {
         this.toDate = this.getDefaultToDate();
         this.maxResults = 800;
         this.tail = false;
+        this.tailSubscription = undefined;
+        this.pauseTail = false;
+        this.usingTail = false;
 
         this.componentsStreams = new AgTreeCheckModel();
         this.levels = new AgTreeCheckModel();
@@ -88,8 +96,19 @@ export class LogAnalyzerModel {
         return boolParent;
     }
 
-    hasSelectedRow(): boolean {
+    public hasSelectedRow(): boolean {
         return this.selectedRow !== undefined;
+    }
+
+    public switchPauseTail(pause: boolean): void {
+        this.pauseTail = pause;
+    }
+
+    public stopTail(): void {
+        if (this.tailSubscription) {
+            this.tailSubscription.unsubscribe();
+        }
+        this.tailSubscription = undefined;
     }
 
 }
