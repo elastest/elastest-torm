@@ -61,7 +61,6 @@
         </div>
 
         <div *ngIf="serviceInstance.serviceName == 'elastest-eus'">
-          <md-divider></md-divider>
           <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standaloneService"
             [isNested]="true"></app-elastest-eus>
         </div>
