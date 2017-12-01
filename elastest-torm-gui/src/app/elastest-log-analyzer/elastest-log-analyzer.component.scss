@@ -1,27 +1,6 @@
-md-sidenav-container {
-    min-height: 100%;
-}
-
-:host /deep/ .mat-sidenav-content{
-    padding: 8px;
-}
-
-#logCard{
-    width: 100%;
-    height: 98%;
-}
-#logCard md-card-title{
-    height: 3%;
-}
-
-#logCard md-card-content{
-    height: 100%; //93% with card title
-}
-
-:host /deep/ .mat-tab-label {
-    min-width: 110px !important;
-}
-
+/******************************/
+/********** AG GRID ***********/
+/******************************/
 :host /deep/ ag-grid-angular{
     height: 99% !important; //96% with card title
 }
@@ -54,7 +33,38 @@ md-sidenav-container {
     background-color: #ffac2f !important;
 }
 
+:host /deep/ .ag-cell:focus{
+    border: 1px solid #ffac2f !important;
+}
 
+
+/*******************************/
+/*********** OTHERS ************/
+/*******************************/
+
+md-sidenav-container {
+    min-height: 100%;
+}
+
+:host /deep/ .mat-sidenav-content{
+    padding: 8px;
+}
+
+#logCard{
+    width: 100%;
+    height: 98%;
+}
+#logCard md-card-title{
+    height: 3%;
+}
+
+#logCard md-card-content{
+    height: 100%; //93% with card title
+}
+
+:host /deep/ .mat-tab-label {
+    min-width: 110px !important;
+}
 
 
 #logSidenav, #logSidenav md-tab-group, #logManagerForm{

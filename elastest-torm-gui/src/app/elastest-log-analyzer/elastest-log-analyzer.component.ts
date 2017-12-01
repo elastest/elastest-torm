@@ -34,13 +34,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     headerHeight: 42,
     rowSelection: 'single',
     suppressRowClickSelection: false,
-    suppressCellSelection: true,
+    suppressCellSelection: false, // Only supress key navigation and focus
     suppressChangeDetection: true,
     rowModelType: 'inMemory',
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
-    getRowClass: this.setRowClass,
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -287,13 +286,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       style.background = '#e0e0e0';
     }
     return style;
-  }
-
-  public setRowClass(params: any): any {
-    if (params.data.focused) {
-      return 'ag-row-focus';
-    }
-    return;
   }
 
   public switchRowSelection($event: RowSelectedEvent): void {
@@ -574,21 +566,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       }
       this.logRows[this.currentPos].focused = true;
       this.refreshView();
-      let rowNode: RowNode;
-
-      this.gridApi.forEachNode(
-        (node: RowNode) => {
-          if (node.rowIndex === this.currentPos) {
-            rowNode = node;
-          } else {
-            // node.selectThisNode(false);
-          }
-        }
-      );
-
-      // rowNode.selectThisNode(true);
-      this.gridApi.setFocusedCell(rowNode.rowIndex, 'message');
-      // this.logRows[this.currentPos].focus(); TODO
+      this.gridApi.setFocusedCell(this.currentPos, 'message');
     }
   }
 

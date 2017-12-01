@@ -123,7 +123,7 @@
             </form>
           </md-tab>
           <!-- Mark (Patterns) -->
-          <md-tab label="Mark">
+          <md-tab label="Mark" [disabled]="logRows.length === 0">
             <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
               <md-list-item flex-gt-xs="100">
                 <div layout="row" layout-align="center center">
