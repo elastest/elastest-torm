@@ -69,7 +69,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   currentRowSelected: number = -1;
   currentPos: number = -1;
 
-  hideFunctionality: boolean = false;
+  hideFunctionality: boolean = true;
 
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
