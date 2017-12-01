@@ -47,9 +47,6 @@ public class EsmService {
     private static final Logger logger = LoggerFactory
             .getLogger(EsmService.class);
 
-    public static final String ET_SOCAT_IMAGE = "elastest/etm-socat";
-    public static final String EUS_TSS_ID = "29216b91-497c-43b7-a5c4-6613f13fa0e9";
-
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
     @Value("${et.shared.folder}")
@@ -103,6 +100,8 @@ public class EsmService {
     
     @Value("${exec.mode}")
     public String execMode;
+    @Value("${et.socat.image}")
+    public String etSocatImage;
 
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
@@ -110,6 +109,8 @@ public class EsmService {
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
     private Map<Long, List<String>> tSSIByTJobExecAssociated;
+    private List<String> tSSIdLoadedOnInit;
+    private List<String> tSSNameLoadedOnInit;
 
     public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
             DockerService2 dockerService) {
@@ -120,6 +121,9 @@ public class EsmService {
         this.tJobServicesInstances = new HashMap<>();
         this.tSSIByTJobExecAssociated = new HashMap<>();
         this.dockerService = dockerService;
+        this.tSSIdLoadedOnInit = new ArrayList<>();
+        this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
+        
     }
 
     @PostConstruct
@@ -128,8 +132,11 @@ public class EsmService {
         try {
             registerElastestServices();
             if (execMode.equals("normal")){
-                provisionServiceInstanceSync(EUS_TSS_ID, null);
-                logger.debug("EUS is started from ElasTest in normal mode");
+                tSSIdLoadedOnInit.forEach((serviceId) -> {
+                    provisionServiceInstanceSync(serviceId, null);
+                    logger.debug("EUS is started from ElasTest in normal mode");
+                });
+                
             }
         } catch (Exception e) {
             logger.warn("Error during the services registry. ");
@@ -191,9 +198,12 @@ public class EsmService {
                     ObjectNode.class);
             
             if (execMode.equals("normal")){
-                if (serviceDefJson.get("register").get("id").toString()
-                        .replaceAll("\"", "").equals(EUS_TSS_ID)){
+                logger.debug("TSS file {}",serviceFile.getName());
+                if (tSSNameLoadedOnInit.contains(serviceFile.getName().split("-")[0].toUpperCase())){
+                    logger.debug("TSS {} will be registered in normal mode.",serviceFile.getName().split("-")[0].toUpperCase());
                     registerElasTestService(serviceDefJson);
+                    tSSIdLoadedOnInit.add(serviceDefJson.get("register").get("id").toString()
+                            .replaceAll("\"", ""));
                 }
             } else {
                 registerElasTestService(serviceDefJson);
@@ -549,7 +559,7 @@ public class EsmService {
 
             serviceInstance.getPortBindingContainers()
                     .add(dockerService.runDockerContainer(dockerClient,
-                            ET_SOCAT_IMAGE, envVariables,
+                            etSocatImage, envVariables,
                             "container" + listenPort, containerName,
                             networkName, portBindings, listenPort));
         } catch (Exception e) {
@@ -686,10 +696,13 @@ public class EsmService {
 
     public List<SupportServiceInstance> getTSSInstByTJobExecId(
             Long tJobExecId) {
+        logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+            logger.debug("Check the TSS {} for TJob {}", tSSInstance.getServiceName(), tSSInstance.gettJobExecId());
             if (tSSInstance.gettJobExecId() == tJobExecId
                     && checkInstanceUrlIsUp(tSSInstance)) {
+                logger.debug("TSS {} ready.", tSSInstance.getServiceName());
                 tSSInstanceList.add(tSSInstance);
             }
         });
