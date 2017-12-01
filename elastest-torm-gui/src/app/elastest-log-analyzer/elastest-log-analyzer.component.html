@@ -3,7 +3,7 @@
     <md-card id="logCard" class="push-none">
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (rowClicked)="selectTrace($event)"
+          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)"  (rowSelected)="switchRowSelection($event)"
           style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>

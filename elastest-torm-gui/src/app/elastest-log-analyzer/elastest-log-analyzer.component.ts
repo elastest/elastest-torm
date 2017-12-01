@@ -1,4 +1,4 @@
-import { RowClickedEvent } from 'ag-grid/dist/lib/events';
+import { RowClickedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
@@ -8,7 +8,7 @@ import { ESQueryModel, ESRangeModel, ESSearchModel, ESTermModel } from '../share
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
-import { CellClickedEvent, ColumnApi, GridApi, GridOptions } from 'ag-grid/main';
+import { CellClickedEvent, ColumnApi, GridApi, GridOptions, RowNode } from 'ag-grid/main';
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
 
@@ -40,6 +40,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
+    getRowClass: this.setRowClass,
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -134,7 +135,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (logsLoaded) {
           this.elastestESService.popupService.openSnackBar('Logs has been loaded');
           this.setTableHeader();
-          this.searchByPatterns();
+          this.removeAllPatterns();
         } else {
           this.elastestESService.popupService.openSnackBar('There aren\'t logs to load', 'OK');
         }
@@ -288,8 +289,22 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     return style;
   }
 
-  public selectTrace($event: RowClickedEvent): void {
-    this.logAnalyzer.selectedRow = $event.rowIndex;
+  public setRowClass(params: any): any {
+    if (params.data.focused) {
+      return 'ag-row-focus';
+    }
+    return;
+  }
+
+  public switchRowSelection($event: RowSelectedEvent): void {
+    let row: RowNode = $event.node;
+    if (row.isSelected()) {
+      this.logAnalyzer.selectedRow = $event.rowIndex;
+    } else {
+      if (this.logAnalyzer.selectedRow === $event.rowIndex) {
+        this.logAnalyzer.selectedRow = undefined;
+      }
+    }
   }
 
   public refreshView(): void {
@@ -559,6 +574,20 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       }
       this.logRows[this.currentPos].focused = true;
       this.refreshView();
+      let rowNode: RowNode;
+
+      this.gridApi.forEachNode(
+        (node: RowNode) => {
+          if (node.rowIndex === this.currentPos) {
+            rowNode = node;
+          } else {
+            // node.selectThisNode(false);
+          }
+        }
+      );
+
+      // rowNode.selectThisNode(true);
+      this.gridApi.setFocusedCell(rowNode.rowIndex, 'message');
       // this.logRows[this.currentPos].focus(); TODO
     }
   }
