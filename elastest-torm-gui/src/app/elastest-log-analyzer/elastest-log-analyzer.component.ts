@@ -481,20 +481,24 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         pattern.found = pattern.results.length;
       }
       if (pattern.results.length > 0) {
-        this.next(j);
         this.paintResults(j);
+        this.next(j);
       }
       j++;
     }
   }
 
-  searchByPattern(position: number): void {
-    if (this.patterns[position].searchValue !== '') {
+  searchByPattern(patternId: number): void {
+    if (this.patterns[patternId].searchValue !== '') {
       this.searchByPatterns();
+
+      this.clearFocusedRow();
       this.currentPos = -1;
-      this.next(position);
-      this.paintResults(position);
-      if (position === this.patterns.length - 1) {
+
+      // Repaint and focus this search
+      this.paintResults(patternId);
+      this.next(patternId);
+      if (patternId === this.patterns.length - 1) {
         this.addPattern();
       }
     } else {
@@ -502,11 +506,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  paintResults(index: number): void {
+  paintResults(patternId: number): void {
     if (this.logRows && this.logRows.length > 0) {
-      for (let result of this.patterns[index].results) {
-        if (this.logRows[result] && !this.patterns[index].foundButHidden) {
-          this.logRows[result].marked = this.patterns[index].color;
+      for (let result of this.patterns[patternId].results) {
+        if (this.logRows[result] && !this.patterns[patternId].foundButHidden) {
+          this.logRows[result].marked = this.patterns[patternId].color;
         } else {
           this.logRows[result].marked = undefined;
         }
@@ -523,8 +527,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.refreshView();
   }
 
-  next(index: number): void {
-    let pattern: SearchPatternModel = this.patterns[index];
+  next(patternId: number): void {
+    let pattern: SearchPatternModel = this.patterns[patternId];
     if (pattern.results.length > 0) {
       pattern.results.sort(this.sorted);
 
@@ -540,8 +544,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  prev(index: number): void {
-    let pattern: SearchPatternModel = this.patterns[index];
+  prev(patternId: number): void {
+    let pattern: SearchPatternModel = this.patterns[patternId];
     if (pattern.results.length > 0) {
       pattern.results.sort(this.sorted);
 
@@ -558,15 +562,20 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   focusRow(newPos: number): void {
-    let previousPos: number = this.currentPos;
+    this.clearFocusedRow();
     this.currentPos = newPos;
     if (this.logRows.length > 0) {
-      if (previousPos >= 0) {
-        this.logRows[previousPos].focused = false;
-      }
       this.logRows[this.currentPos].focused = true;
       this.refreshView();
-      this.gridApi.setFocusedCell(this.currentPos, 'message');
+      this.gridApi.ensureIndexVisible(this.currentPos); // Make scroll if it's necessary
+      this.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
+    }
+  }
+
+  clearFocusedRow(): void {
+    if (this.currentPos >= 0) {
+      this.logRows[this.currentPos].focused = false;
+      this.gridApi.clearFocusedCell();
     }
   }
 

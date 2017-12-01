@@ -3,7 +3,7 @@
     <md-card id="logCard" class="push-none">
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)"  (rowSelected)="switchRowSelection($event)"
+          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (rowSelected)="switchRowSelection($event)"
           style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
@@ -145,10 +145,10 @@
                   <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm">
                     <md-icon>delete</md-icon>
                   </button>
-                  <button md-button (click)="prev(i)" title="Previous" class="iconBtn push-top-sm">
+                  <button md-button (click)="prev(i)" [disabled]="pattern.found <= 0" title="Previous" class="iconBtn push-top-sm">
                     <md-icon>navigate_before</md-icon>
                   </button>
-                  <button md-button (click)="next(i)" title="Next" class="iconBtn push-top-sm">
+                  <button md-button (click)="next(i)" [disabled]="pattern.found <= 0" title="Next" class="iconBtn push-top-sm">
                     <md-icon>navigate_next</md-icon>
                   </button>
                 </div>
