@@ -1,3 +1,4 @@
+import { AgGridColumn } from 'ag-grid-angular/main';
 import { Router } from '@angular/router';
 import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es-query-model';
 import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
@@ -38,6 +39,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public logAnalyzer: LogAnalyzerModel;
   public streamType: string = 'log';
   public streamTypeTerm: ESTermModel = new ESTermModel();
+
+  public filters: string[] = ['@timestamp', 'message', 'level', 'type', 'component', 'stream', 'stream_type', 'exec'];
 
   public logRows: any[] = [];
   public logColumns: any[] = [];
@@ -147,7 +150,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logAnalyzer.toDate = this.getToDate();
 
     this.esSearchModel.indices = this.logAnalyzer.selectedIndices;
-    this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
+    this.esSearchModel.filterPathList = this.filters;
     this.esSearchModel.body.size = this.logAnalyzer.maxResults;
     this.setRange();
     this.setTerms();
@@ -203,11 +206,36 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     for (let field of this.esSearchModel.filterPathList) {
       if (field !== 'stream_type' && field !== 'type') { // stream_type is always log
-        this.logColumns.push(
-          {
-            headerName: field, field: field, width: 260, suppressSizeToFit: false,
-          },
-        );
+        let columnObj: AgGridColumn = new AgGridColumn();
+        columnObj.headerName = field;
+        columnObj.field = field;
+        columnObj.width = 240;
+        columnObj.suppressSizeToFit = false;
+
+
+        switch (field) {
+          case '@timestamp':
+            columnObj.maxWidth = 232;
+            break;
+          case 'message':
+            break;
+          case 'level':
+            columnObj.maxWidth = 100;
+            break;
+          case 'component':
+            columnObj.maxWidth = 260;
+            break;
+          case 'stream':
+            columnObj.maxWidth = 188;
+            break;
+          case 'exec':
+            columnObj.maxWidth = 60;
+            break;
+          default:
+            break;
+        }
+
+        this.logColumns.push(columnObj);
       }
     }
   }
