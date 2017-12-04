@@ -1,5 +1,6 @@
+import { ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Subscription } from 'rxjs/Rx';
-import { ESBoolModel, ESTermModel } from '../shared/elasticsearch-model';
+import { ESBoolModel } from '../shared/elasticsearch-model/es-bool-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
 export class LogAnalyzerModel {
     // Basic
@@ -11,13 +12,13 @@ export class LogAnalyzerModel {
     tailSubscription: Subscription;
     pauseTail: boolean;
     usingTail: boolean;
+    messageFilter: string;
 
     selectedRow: number;
 
     // Filters
     componentsStreams: AgTreeCheckModel;
     levels: AgTreeCheckModel;
-    messageFilter: string;
 
     constructor() {
         this.selectedIndices = ['*'];
@@ -28,6 +29,7 @@ export class LogAnalyzerModel {
         this.tailSubscription = undefined;
         this.pauseTail = false;
         this.usingTail = false;
+        this.messageFilter = '';
 
         this.componentsStreams = new AgTreeCheckModel();
         this.levels = new AgTreeCheckModel();

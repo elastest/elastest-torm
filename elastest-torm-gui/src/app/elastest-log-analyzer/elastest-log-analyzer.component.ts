@@ -1,3 +1,5 @@
+import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es-query-model';
+import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
@@ -5,7 +7,7 @@ import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
-import { ESQueryModel, ESRangeModel, ESSearchModel, ESTermModel } from '../shared/elasticsearch-model';
+import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { dateToInputLiteral } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
@@ -69,8 +71,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   currentRowSelected: number = -1;
   currentPos: number = -1;
 
-  hideFunctionality: boolean = true;
-
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
   ) {
@@ -111,7 +111,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel = new ESSearchModel();
 
     // Add term stream_type === 'log'
-    this.esSearchModel.body.query.bool.must.termList.push(this.streamTypeTerm);
+    this.esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
     this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
   }
 
@@ -137,8 +137,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.filterPathList = this.elastestESService.getBasicFilterFields(this.streamType);
     this.esSearchModel.body.size = this.logAnalyzer.maxResults;
     this.setRange();
-
     this.setTerms();
+    this.setMatch();
   }
 
   setRange(): void {
@@ -148,30 +148,40 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   setRangeByGiven(
     from: Date | string = this.getFromDate(), to: Date | string = this.getToDate(), includedFrom: boolean = true, includedTo: boolean = true
   ): void {
-    this.esSearchModel.body.query.bool.must.range = new ESRangeModel();
-    this.esSearchModel.body.query.bool.must.range.field = '@timestamp';
+    this.esSearchModel.body.boolQuery.bool.must.range = new ESRangeModel();
+    this.esSearchModel.body.boolQuery.bool.must.range.field = '@timestamp';
 
     if (includedFrom) {
-      this.esSearchModel.body.query.bool.must.range.gte = from;
+      this.esSearchModel.body.boolQuery.bool.must.range.gte = from;
     } else {
-      this.esSearchModel.body.query.bool.must.range.gt = from;
+      this.esSearchModel.body.boolQuery.bool.must.range.gt = from;
     }
 
     if (includedTo) {
-      this.esSearchModel.body.query.bool.must.range.lte = to;
+      this.esSearchModel.body.boolQuery.bool.must.range.lte = to;
     } else {
-      this.esSearchModel.body.query.bool.must.range.lt = to;
+      this.esSearchModel.body.boolQuery.bool.must.range.lt = to;
     }
   }
 
   setTerms(): void {
     if (!this.logAnalyzer.componentsStreams.empty()) {
-      this.esSearchModel.body.query.bool.must.boolList.push(this.logAnalyzer.getComponentsStreamsBool());
+      this.esSearchModel.body.boolQuery.bool.must.boolList.push(this.logAnalyzer.getComponentsStreamsBool());
     }
 
     if (!this.logAnalyzer.levels.empty()) {
-      this.esSearchModel.body.query.bool.must.addTermListToTermList(this.logAnalyzer.getLevelsTermList());
+      this.esSearchModel.body.boolQuery.bool.must.addTermListToTermList(this.logAnalyzer.getLevelsTermList());
 
+    }
+  }
+
+  setMatch(): void {
+    if (this.logAnalyzer.messageFilter !== '') {
+      let messageMatch: ESMatchModel = new ESMatchModel();
+      messageMatch.field = 'message';
+      messageMatch.query = this.logAnalyzer.messageFilter;
+      messageMatch.type = 'phrase';
+      this.esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
     }
   }
 
@@ -424,7 +434,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadComponentStreams(): void {
-    let componentStreamQuery: ESQueryModel = new ESQueryModel();
+    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
     componentStreamQuery.bool.must.termList.push(this.streamTypeTerm);
 
     this.elastestESService.getIndexComponentStreamList(
@@ -438,7 +448,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadLevels(): void {
-    let levelsQuery: ESQueryModel = new ESQueryModel();
+    let levelsQuery: ESBoolQueryModel = new ESBoolQueryModel();
     levelsQuery.bool.must.termList.push(this.streamTypeTerm);
 
     this.elastestESService.getIndexLevel(

@@ -75,9 +75,9 @@
                   </div>
                 </div>
 
-                <div clas="push-top-sm" *ngIf="!hideFunctionality">
+                <div clas="push-top-sm">
                   <md-input-container flex="100">
-                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="message" placeholder="Message">
+                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message">
                   </md-input-container>
                 </div>
               </div>

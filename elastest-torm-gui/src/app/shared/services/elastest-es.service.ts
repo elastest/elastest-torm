@@ -1,4 +1,4 @@
-import { ESAggsModel } from '../elasticsearch-model';
+import { ESAggsModel } from '../elasticsearch-model/elasticsearch-model';
 import { AllMetricsFields } from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
