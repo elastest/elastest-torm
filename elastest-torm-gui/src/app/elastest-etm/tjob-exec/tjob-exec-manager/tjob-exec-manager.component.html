@@ -14,26 +14,35 @@
             <md-divider></md-divider>
             <md-card-content>
                 <div layout="row">
-                    <span flex-gt-xs="25">
+                    <span flex-gt-xs="20">
                         <md-card-subtitle>Result</md-card-subtitle>
                         <h4 [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
-                    <span flex-gt-xs="25">
+                    <span flex-gt-xs="20">
                         <md-card-subtitle>Start Date</md-card-subtitle>
                         <h4>{{ tJobExec.startDate }}</h4>
                     </span>
-                    <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
-                        <md-card-subtitle>Sut Execution</md-card-subtitle>
-                        <h4>None</h4>
-                    </span>
-                    <span flex-gt-xs="25" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
-                        <md-card-subtitle>Sut Execution</md-card-subtitle>
-                        <h4>{{tJobExec.sutExec.id}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
+                    <ng-container>
+                        <span flex-gt-xs="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
+                            <md-card-subtitle>Sut Execution</md-card-subtitle>
+                            <h4>None</h4>
+                        </span>
+                        <span flex-gt-xs="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
+                            <md-card-subtitle>Sut Execution</md-card-subtitle>
+                            <h4>{{tJobExec.sutExec.id}}</h4>
+                        </span>
+                    </ng-container>
+                    <span flex-gt-xs="20">
                         <md-card-subtitle>Log Index</md-card-subtitle>
                         <h4>{{tJobExec.logIndex}}</h4>
                     </span>
+                    <span flex-gt-xs="20">
+                        <md-card-subtitle>View in Log Analyzer</md-card-subtitle>
+                        <button md-button (click)="viewInLogAnalyzer()" class="iconBtn-lg" title="View in Log Analyzer">
+                            <md-icon>library_books</md-icon>
+                        </button>
+                    </span>
+
                 </div>
                 <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
                     <td-data-table [data]="tJobExec.parameters"></td-data-table>
@@ -85,8 +94,8 @@
                     <md-card-subtitle>Test Cases</md-card-subtitle>
                 </div>
 
-                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases" [columns]="testCaseColumns"
-                    [selectable]="false" [clickable]="false" [sortable]="false">
+                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases"
+                    [columns]="testCaseColumns" [selectable]="false" [clickable]="false" [sortable]="false">
                 </td-data-table>
             </md-card-content>
         </md-card>

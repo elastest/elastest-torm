@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es-query-model';
 import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Observable, Subscription } from 'rxjs/Rx';
@@ -51,6 +52,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
+    // getRowHeight: function (params) {
+    //   return 18 * (Math.floor(params.data.message.length / 45) + 1);
+    // },
   };
 
   @ViewChild('fromDate') fromDate: ElementRef;
@@ -73,8 +77,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   constructor(
     public dialog: MdDialog, private elastestESService: ElastestESService,
+    public router: Router,
   ) {
-    this.openSelectExecutions();
+    let params: any = router.parseUrl(router.url).queryParams;
+    let fromExec: any;
+    if (params.tjob && params.exec) {
+      fromExec = {
+        tJob: params.tjob,
+        exec: params.exec
+      };
+    }
+
+    this.openSelectExecutions(fromExec);
   }
 
   ngOnInit() {
@@ -125,7 +139,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     this.elastestESService.popupService.openSnackBar(msg, buttonMsg, popupDuration, popupCss);
   }
-
 
   prepareLoadLog(): void {
     this.initESModel();
@@ -408,8 +421,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
 
   /**** Modal ****/
-  public openSelectExecutions(): void {
+  public openSelectExecutions(fromExec?: any): void {
     let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
+      data: fromExec,
       height: '80%',
       width: '90%',
     });

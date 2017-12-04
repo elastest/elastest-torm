@@ -6,7 +6,7 @@ import { ProjectModel } from '../../elastest-etm/project/project-model';
 import { Router } from '@angular/router';
 import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 import { dateToInputLiteral } from '../utils/Utils';
 
@@ -43,11 +43,15 @@ export class GetIndexModalComponent implements OnInit {
   ];
 
   constructor(
-    // @Inject(MD_DIALOG_DATA) public tJob: TJobModel,
     private projectService: ProjectService, private tJobService: TJobService, private tJobExecService: TJobExecService,
     private dialogRef: MdDialogRef<GetIndexModalComponent>,
+    @Optional() @Inject(MD_DIALOG_DATA) public fromExec: any,
   ) {
-    this.loadProjects();
+    if (fromExec) {
+      this.loadByGivenExec();
+    } else {
+      this.loadProjects();
+    }
   }
 
   ngOnInit() { }
@@ -99,6 +103,17 @@ export class GetIndexModalComponent implements OnInit {
       this.selectedTJobExecs.delete(key);
     }
 
+  }
+
+  loadByGivenExec(): void {
+    this.tJobExecService.getTJobExecutionByTJobId(this.fromExec.tJob, this.fromExec.exec)
+      .subscribe(
+      (tJobExec: TJobExecModel) => {
+        this.checkTJobExec(true, tJobExec);
+        this.saveIndices();
+      },
+      (error: Error) => this.loadProjects(),
+    );
   }
 
   // On press OK

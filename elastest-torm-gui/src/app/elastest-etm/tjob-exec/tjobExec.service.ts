@@ -56,11 +56,11 @@ export class TJobExecService {
   }*/
 
   // Get a specific TJob Execution
-  public getTJobExecution(tJob: TJobModel, idTJobExecution: number) {
+  public getTJobExecution(tJob: TJobModel, idTJobExecution: number): Observable<TJobExecModel> {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
-  public getAllTJobExecs() {
+  public getAllTJobExecs(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs';
     return this.http.get(url)
       .map(
@@ -73,7 +73,7 @@ export class TJobExecService {
         }
       });
   }
-  public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number) {
+  public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url)
       .map(
@@ -87,7 +87,7 @@ export class TJobExecService {
       });
   }
 
-  public stopTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel) {
+  public stopTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/stop';
     return this.http.delete(url)
       .map((response) => {

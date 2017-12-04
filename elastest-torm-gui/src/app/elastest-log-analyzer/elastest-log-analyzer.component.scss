@@ -23,6 +23,10 @@
     -khtml-user-select: text !important;
     -moz-user-select: text !important;
     -ms-user-select: text !important;
+
+    // white-space: normal !important;
+    // overflow: initial !important;
+    // text-overflow: initial !important;
 }
 
 :host /deep/ .ag-theme-material .ag-header-cell-label{

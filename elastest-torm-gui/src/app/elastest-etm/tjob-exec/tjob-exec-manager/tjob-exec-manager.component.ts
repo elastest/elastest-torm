@@ -31,16 +31,16 @@ export class TjobExecManagerComponent implements OnInit {
     color: '',
   };
 
-    // TJob Data
-    testCaseColumns: any[] = [
-      { name: 'id', label: 'Id' },
-      { name: 'name', label: 'Name' },
-      { name: 'time', label: 'Time' },
-      { name: 'failureMessage', label: 'Failure Msg' },
-      { name: 'failureType', label: 'Failure Type' },
-      { name: 'failureErrorLine', label: 'Failure Error Line' },
-      { name: 'failureDetail', label: 'Failure Detail' },
-    ];
+  // TJob Data
+  testCaseColumns: any[] = [
+    { name: 'id', label: 'Id' },
+    { name: 'name', label: 'Name' },
+    { name: 'time', label: 'Time' },
+    { name: 'failureMessage', label: 'Failure Msg' },
+    { name: 'failureType', label: 'Failure Type' },
+    { name: 'failureErrorLine', label: 'Failure Error Line' },
+    { name: 'failureDetail', label: 'Failure Detail' },
+  ];
 
   constructor(
     private titlesService: TitlesService,
@@ -64,7 +64,7 @@ export class TjobExecManagerComponent implements OnInit {
     this.loadTJobExec();
   }
 
-  loadTJobExec() {
+  loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
       .subscribe((tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
@@ -89,9 +89,16 @@ export class TjobExecManagerComponent implements OnInit {
       });
   }
 
-  viewTJob() {
+  viewTJob(): void {
     this.router.navigate(
       ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
+    );
+  }
+
+  viewInLogAnalyzer(): void {
+    this.router.navigate(
+      ['/loganalyzer'],
+      { queryParams: { tjob: this.tJob.id, exec: this.tJobExec.id } }
     );
   }
 }
