@@ -28,7 +28,8 @@ import { SutService } from './elastest-etm/sut/sut.service';
 import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { ElasticSearchService } from './shared/services/elasticsearch.service';
-import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule, MdSidenavModule } from '@angular/material';
+import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule, MdSidenavModule, MdProgressSpinnerModule }
+  from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
@@ -62,6 +63,7 @@ import { AgGridModule } from 'ag-grid-angular/main';
 import { TreeModule } from 'angular-tree-component';
 import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/execution-modal.component';
 import { MonitoringConfigurationComponent } from './elastest-etm/etm-logs-metrics-view/monitoring-configuration/monitoring-configuration.component';
+
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -109,6 +111,7 @@ const httpInterceptorProviders: Type<any>[] = [
     MdButtonToggleModule,
     MdDialogModule,
     MdSidenavModule,
+    MdProgressSpinnerModule,
     AgGridModule.withComponents([]),
     TreeModule,
     CovalentExpansionPanelModule,

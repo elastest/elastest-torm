@@ -32,6 +32,8 @@ export class GetIndexModalComponent implements OnInit {
 
   public selectAll: boolean = false;
 
+  public loadingExecs: boolean = false;
+
   // TJob Exec Data
   tJobExecColumns: any[] = [
     { name: 'select', label: 'Select' },
@@ -63,10 +65,13 @@ export class GetIndexModalComponent implements OnInit {
   }
 
   loadTJobExecs(tJob: TJobModel): void {
+    this.loadingExecs = true;
     this.tJobExecService.getTJobsExecutions(tJob).subscribe(
       (execs: TJobExecModel[]) => {
         this.tJobExecs = execs.reverse();
+        this.loadingExecs = false;
       },
+      (error: Error) => this.loadingExecs = false,
     );
   }
 
