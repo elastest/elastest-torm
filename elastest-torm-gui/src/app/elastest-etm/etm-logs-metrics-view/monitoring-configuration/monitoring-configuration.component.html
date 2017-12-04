@@ -5,12 +5,18 @@
     <div flex-gt-sm="100">
       <h3>Monitoring Cards</h3>
       <div layout="column" class="push-bottom">
-        <tree-root #componentsTree [nodes]="nodes.tree">
+        <tree-root #logsTree [nodes]="componentsStreams.tree">
           <ng-template #treeNodeTemplate let-node="node" let-index="index">
             <md-checkbox (change)="nodes.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate" [checked]="node.data.checked">
               {{ node.data.name }}</md-checkbox>
           </ng-template>
         </tree-root>
+        <!-- <tree-root #metricsTree [nodes]="nodes.tree">
+          <ng-template #treeNodeTemplate let-node="node" let-index="index">
+            <md-checkbox (change)="nodes.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate" [checked]="node.data.checked">
+              {{ node.data.name }}</md-checkbox>
+          </ng-template>
+        </tree-root> -->
       </div>
     </div>
   </div>

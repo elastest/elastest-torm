@@ -21,10 +21,10 @@
           <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
             <md-option [value]="sutEmpty">None</md-option>
             <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
-              {{sut.id}}
+              {{sut.name}}
             </md-option>
           </md-select>
-          <span class="push-left">Current SuT: {{currentSut}}</span>
+          <span class="push-left"><strong>Current SuT: </strong>{{currentSut}}</span>
         </div>
       </div>
 

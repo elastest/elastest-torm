@@ -49,7 +49,7 @@ export class TJobFormComponent implements OnInit {
               .subscribe((tJob: TJobModel) => {
                 this.tJob = tJob;
                 this.titlesService.setTopTitle(this.tJob.getRouteString());
-                this.currentSut = tJob.sut.id > 0 ? tJob.sut.id.toString() : 'None';
+                this.currentSut = tJob.sut.id > 0 ? tJob.sut.name : 'None';
                 this.useImageCommand = !this.tJob.withCommands();
                 for (let esmService of this.tJob.esmServices) {
                   for (let esmServiceToSelect of this.esmServicesCatalog) {

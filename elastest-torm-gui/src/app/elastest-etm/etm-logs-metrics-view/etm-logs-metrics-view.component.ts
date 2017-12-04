@@ -105,6 +105,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   public openMonitoringConfig(): void {
     let dialogRef: MdDialogRef<MonitoringConfigurationComponent> = this.dialog.open(MonitoringConfigurationComponent, {
+      data: this.tJobExec,
       height: '80%',
       width: '90%',
     });

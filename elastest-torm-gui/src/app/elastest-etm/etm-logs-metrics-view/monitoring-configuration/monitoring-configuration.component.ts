@@ -1,5 +1,9 @@
+import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { ElastestESService } from '../../../shared/services/elastest-es.service';
+import { ESBoolQueryModel, ESTermModel } from '../../../shared/elasticsearch-model/es-query-model';
 import { AgTreeCheckModel } from '../../../shared/ag-tree-model';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 
 @Component({
@@ -8,63 +12,68 @@ import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
   styleUrls: ['./monitoring-configuration.component.scss']
 })
 export class MonitoringConfigurationComponent implements OnInit {
+  @ViewChild('logsTree') logsTree: TreeComponent;
+  // @ViewChild('MetricsTree') MetricsTree: TreeComponent;
+  componentsStreams: AgTreeCheckModel;
 
-  nodes: AgTreeCheckModel = new AgTreeCheckModel();
-  nodesArray: any[] = [
-    {
-      name: 'sut',
-      children: [
-        { name: 'log', checked: true },
-        {
-          name: 'metrics',
-          children: [
-            {
-              name: 'cpu', checked: true,
-              children: [
-                { name: 'totalUsage', checked: true },
-              ],
-            }
-          ],
-          checked: true,
-        },
-      ],
-      checked: true,
-    },
-    {
-      name: 'test',
-      children: [
-        { name: 'log', checked: true },
-        {
-          name: 'metrics',
-          children: [
-            {
-              name: 'cpu', checked: true,
-              children: [
-                { name: 'totalUsage', checked: true },
-              ],
-            }
-          ],
-          checked: true,
-        },
-      ],
-      checked: true,
-    },
-    {
-      name: 'browser',
-      children: [
-        { name: 'console', checked: true },
-      ],
-      checked: true,
-    }
-  ];
 
   constructor(
     private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
-  ) { }
+    private elastestESService: ElastestESService,
+    @Optional() @Inject(MD_DIALOG_DATA) public tJobExec: TJobExecModel,
+
+  ) {
+    this.componentsStreams = new AgTreeCheckModel();
+
+  }
 
   ngOnInit() {
-    this.nodes = new AgTreeCheckModel();
-    this.nodes.setByObjArray(this.nodesArray);
+    this.loadLogsTree();
+    // this.loadMetricsTree();
+  }
+
+  loadLogsTree(): void {
+    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
+    let streamTypeTerm: ESTermModel = new ESTermModel();
+    streamTypeTerm.name = 'stream_type';
+    streamTypeTerm.value = 'log';
+    componentStreamQuery.bool.must.termList.push(streamTypeTerm);
+
+    this.elastestESService.getIndexComponentStreamList(
+      this.tJobExec.logIndex, componentStreamQuery.convertToESFormat()
+    ).subscribe(
+      (componentsStreams: any[]) => {
+        this.componentsStreams.setByObjArray(componentsStreams);
+
+        // Init checks
+        for (let logCard of this.tJobExec.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+          for (let componentStream of this.componentsStreams.tree) {
+            if (logCard.component === componentStream.name) {
+              for (let stream of componentStream.children) {
+                if (logCard.stream === stream.name) {
+                  stream.checked = logCard.activated;
+                }
+              }
+            }
+          }
+        }
+
+        this.logsTree.treeModel.update();
+      }
+      );
+  }
+
+
+
+  applyAndSave(): void {
+    //
+    this.apply();
+  }
+
+  apply(): void {
+
+    let response: any = {};
+    this.dialogRef.close(response);
   }
 
 }
