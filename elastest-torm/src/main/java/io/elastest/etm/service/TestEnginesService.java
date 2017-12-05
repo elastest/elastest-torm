@@ -117,7 +117,7 @@ public class TestEnginesService {
 																				// ece_ece_1
 				if (container.getName().equals(containerName)) {
 				    String ip = etPublicHost;
-					String port = container.getPorts().entrySet().iterator().next().getKey().split("/")[0];
+					String port = container.getPorts().entrySet().iterator().next().getValue().get(0).getHostPort();
 					url = "http://" + ip + ":" + port;
 					
 					if (serviceName.equals("ere")) {
