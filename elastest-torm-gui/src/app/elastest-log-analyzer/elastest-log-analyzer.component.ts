@@ -11,7 +11,7 @@ import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal
 import { ElastestESService } from '../shared/services/elastest-es.service';
 import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { dateToInputLiteral } from './utils/Utils';
+import { dateToInputLiteral, invertColor } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import {
   CellClickedEvent,
@@ -391,7 +391,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         init = true;
         style = {};
       }
-      style.color = params.data.marked;
+      style.background = params.data.marked;
+      style.color = invertColor(params.data.marked, true);
     }
     if (params.data.focused) {
       if (!init) {
@@ -399,6 +400,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         style = {};
       }
       style.background = '#e0e0e0';
+      style.color = invertColor(style.background, true);
     }
     return style;
   }
