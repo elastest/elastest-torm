@@ -20,6 +20,9 @@ export class LogAnalyzerModel {
     componentsStreams: AgTreeCheckModel;
     levels: AgTreeCheckModel;
 
+    // Grid Config
+    columnState: any;
+
     constructor() {
         this.selectedIndices = ['*'];
         this.fromDate = this.getDefaultFromDate();
@@ -35,6 +38,8 @@ export class LogAnalyzerModel {
         this.levels = new AgTreeCheckModel();
         this.messageFilter = '';
         this.selectedRow = undefined;
+
+        this.columnState = undefined;
     }
 
     public getDefaultFromDate(): Date {

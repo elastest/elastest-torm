@@ -116,7 +116,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    this.gridApi.sizeColumnsToFit();
+    if (this.logAnalyzer.columnState) {
+      this.getColumnsConfig(false);
+    } else {
+      this.gridApi.sizeColumnsToFit(); // State is saved automatically
+    }
   }
 
   initStreamTypeTerm(): void {
@@ -277,8 +281,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (this.logAnalyzer.usingTail) {
           this.loadTailLog(!logsLoaded);
         }
-      }
-      );
+      },
+      (error) => console.log(),
+    );
   }
 
   loadTailLog(notLoadedPrevious: boolean = false): void {
@@ -413,6 +418,27 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     if (this.gridApi) {
       this.gridApi.redrawRows();
     }
+  }
+
+  public saveColumnsConfig(showPopup: boolean = true): void {
+    this.logAnalyzer.columnState = this.gridColumnApi.getColumnState();
+    if (showPopup) {
+      this.popup('Columns configuration has been saved');
+    }
+  }
+
+  public getColumnsConfig(showPopup: boolean = true): void {
+    if (this.logAnalyzer.columnState) {
+      this.gridColumnApi.setColumnState(this.logAnalyzer.columnState);
+      if (showPopup) {
+        this.popup('Saved columns configuration has been loaded');
+      }
+    }
+  }
+
+  public loadDefaultColumnsConfig(): void {
+    this.setTableHeader();
+    this.popup('Default columns configuration has been loaded');
   }
 
   /**********************/

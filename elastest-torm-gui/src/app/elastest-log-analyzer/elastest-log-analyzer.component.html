@@ -4,7 +4,8 @@
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
           [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
-          (rowSelected)="switchRowSelection($event)" style="width: 100%; height: 80%;">
+          (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig(false)" (columnMoved)="saveColumnsConfig(false)"
+          style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
     </md-card>
@@ -77,7 +78,8 @@
 
                 <div clas="push-top-sm">
                   <md-input-container flex="100">
-                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message">
+                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
+                      placeholder="Message">
                   </md-input-container>
                 </div>
               </div>
@@ -151,6 +153,20 @@
                   </button>
                 </div>
               </md-list-item>
+            </div>
+          </md-tab>
+          <md-tab label="Config" [disabled]="logRows.length === 0" *ngIf="1==0">
+            <div layout="column" class="push-top-sm">
+              <md-card-subtitle>Columns Configuration</md-card-subtitle>
+              <button md-raised-button color="accent" (click)="saveColumnsConfig()" title="Save Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>save</md-icon> Save
+              </button>
+              <button md-raised-button color="accent" (click)="getColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>settings_backup_restore</md-icon> Load
+              </button>
+              <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>restore</md-icon> Load Default
+              </button>
             </div>
           </md-tab>
         </md-tab-group>
