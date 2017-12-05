@@ -379,7 +379,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public componentStateChanged($event: ComponentStateChangedEvent): void { // On changes detected
     this.onGridReady($event);
     if (this.logAnalyzer.usingTail) {
-      $event.api.ensureIndexVisible(this.logRows.length - 1)
+      $event.api.ensureIndexVisible(this.logRows.length - 1, 'undefined');
     }
   }
 
@@ -698,7 +698,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     if (this.logRows.length > 0) {
       this.logRows[this.currentPos].focused = true;
       this.refreshView();
-      this.gridApi.ensureIndexVisible(this.currentPos); // Make scroll if it's necessary
+      this.gridApi.ensureIndexVisible(this.currentPos, 'undefined'); // Make scroll if it's necessary
       this.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
     }
   }
