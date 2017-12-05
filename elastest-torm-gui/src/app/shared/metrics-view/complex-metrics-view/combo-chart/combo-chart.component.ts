@@ -369,9 +369,9 @@ export class ComboChartComponent extends BaseChartComponent {
     let values: any[] = [];
 
     for (const results of chart) {
-      for (const d of results.series) {
-        if (d && !values.includes(d.name)) {
-          values.push(d.name);
+      for (const singleMetricModel of results.series) {
+        if (singleMetricModel && !values.includes(singleMetricModel.name)) {
+          values.push(singleMetricModel.name);
         }
       }
     }
@@ -417,18 +417,18 @@ export class ComboChartComponent extends BaseChartComponent {
     const domain: any[] = [];
 
     for (const results of chart) {
-      for (const d of results.series) {
-        if (domain.indexOf(d.value) < 0) {
-          domain.push(d.value);
+      for (const singleMetricModel of results.series) {
+        if (domain.indexOf(singleMetricModel.value) < 0) {
+          domain.push(singleMetricModel.value);
         }
-        if (d.min !== undefined) {
-          if (domain.indexOf(d.min) < 0) {
-            domain.push(d.min);
+        if (singleMetricModel.min !== undefined) {
+          if (domain.indexOf(singleMetricModel.min) < 0) {
+            domain.push(singleMetricModel.min);
           }
         }
-        if (d.max !== undefined) {
-          if (domain.indexOf(d.max) < 0) {
-            domain.push(d.max);
+        if (singleMetricModel.max !== undefined) {
+          if (domain.indexOf(singleMetricModel.max) < 0) {
+            domain.push(singleMetricModel.max);
           }
         }
       }
@@ -496,9 +496,9 @@ export class ComboChartComponent extends BaseChartComponent {
     let min: number;
 
     for (const result of this.leftChart.slice(0)) {
-      values = result.series.map(d => {
-        if (d) {
-          d.value;
+      values = result.series.map((singleMetricModel) => {
+        if (singleMetricModel) {
+          return singleMetricModel.value;
         }
       });
       const resultMin: number = Math.min(0, ...values);

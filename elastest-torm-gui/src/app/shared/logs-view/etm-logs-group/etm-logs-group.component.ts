@@ -49,7 +49,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  initObservables() {
+  initObservables(): void {
     // Get default Rabbit queues 
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
@@ -60,7 +60,7 @@ export class EtmLogsGroupComponent implements OnInit {
     });
   }
 
-  initLogsView(tJob: TJobModel, tJobExec: TJobExecModel) {
+  initLogsView(tJob: TJobModel, tJobExec: TJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -87,7 +87,7 @@ export class EtmLogsGroupComponent implements OnInit {
     this.createGroupedLogsList();
   }
 
-  addMoreLogs(obj: any) {
+  addMoreLogs(obj: any): void {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';
     individualLogs.type = obj.type;
@@ -96,7 +96,7 @@ export class EtmLogsGroupComponent implements OnInit {
     individualLogs.hidePrevBtn = !this.live;
     individualLogs.logIndex = obj.logIndex;
     individualLogs.traces = obj.data;
-    if (!this.alreadyExist(individualLogs.name)) {
+    if (!this.alreadyExist(individualLogs)) {
       this.logsList.push(individualLogs);
       this.createGroupedLogsList();
       let logField: LogFieldModel = new LogFieldModel(individualLogs.component, individualLogs.stream);
@@ -110,7 +110,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  createSubjectAndSubscribe(component: string, stream: string, streamType: string) {
+  createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
     this.elastestRabbitmqService.createSubject(streamType, component, stream);
     let index: string = this.tJobExec.getCurrentESIndex(component);
     this.elastestRabbitmqService.createAndSubscribeToTopic(index, streamType, component, stream)
@@ -119,21 +119,21 @@ export class EtmLogsGroupComponent implements OnInit {
       );
   }
 
-  alreadyExist(name: string) {
+  alreadyExist(newLog: ESRabLogModel): boolean {
     for (let log of this.logsList) {
-      if (log.name === name) {
+      if (log.component === newLog.component && log.stream === newLog.stream) {
         return true;
       }
     }
     return false;
   }
 
-  createGroupedLogsList() {
+  createGroupedLogsList(): void {
     let defaultGroupNum: number = 2;
     this.groupedLogsList = this.createGroupedArray(this.logsList, defaultGroupNum);
   }
 
-  createGroupedArray(arr, chunkSize) {
+  createGroupedArray(arr, chunkSize): any {
     let groups = [], i;
     for (i = 0; i < arr.length; i += chunkSize) {
       groups.push(arr.slice(i, i + chunkSize));
@@ -141,14 +141,14 @@ export class EtmLogsGroupComponent implements OnInit {
     return groups;
   }
 
-  capitalize(value: any) {
+  capitalize(value: any): any {
     if (value) {
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
     return value;
   }
 
-  updateLogsData(data: any, component: string, stream: string = defaultStreamMap.log) {
+  updateLogsData(data: any, component: string, stream: string = defaultStreamMap.log): void {
     let found: boolean = false;
     for (let group of this.groupedLogsList) {
       for (let log of group) {
@@ -165,7 +165,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  selectTimeRange(domain) {
+  selectTimeRange(domain): void {
     for (let group of this.groupedLogsList) {
       for (let log of group) {
         log.selectTimeRange(domain);
@@ -173,7 +173,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  unselectTimeRange() {
+  unselectTimeRange(): void {
     for (let group of this.groupedLogsList) {
       for (let log of group) {
         log.unselectTimeRange();
@@ -181,7 +181,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  selectTracesByTime(time) {
+  selectTracesByTime(time): void {
     this.unselectTraces();
     let logPos: number = 0;
     for (let group of this.groupedLogsList) {
@@ -192,7 +192,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  selectTrace(logPos: number, tracePos: number) {
+  selectTrace(logPos: number, tracePos: number): void {
     if (tracePos >= 0) {
       if (this.logsViewComponents.toArray() && this.logsViewComponents.toArray().length > 0) {
         let logsView: LogsViewComponent = this.logsViewComponents.toArray()[logPos];
@@ -204,7 +204,7 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
-  unselectTraces() {
+  unselectTraces(): void {
     if (this.selectedTraces.length > 0 && this.logsViewComponents.toArray() && this.logsViewComponents.toArray().length > 0) {
       let logsViewList: LogsViewComponent[] = this.logsViewComponents.toArray();
 
@@ -218,7 +218,7 @@ export class EtmLogsGroupComponent implements OnInit {
     this.selectedTraces = [];
   }
 
-  removeAndUnsubscribe(pos: number) {
+  removeAndUnsubscribe(pos: number): void {
     let component: string = this.logsList[pos].component;
     let stream: string = this.logsList[pos].stream;
     let name: string = this.logsList[pos].name;
@@ -235,11 +235,11 @@ export class EtmLogsGroupComponent implements OnInit {
     this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
   }
 
-  isDefault(log: ESRabLogModel) {
+  isDefault(log: ESRabLogModel): boolean {
     return components.indexOf(log.component) > -1 && log.stream === defaultStreamMap.log;
   }
 
-  loadLastTraces() {
+  loadLastTraces(): void {
     for (let log of this.logsList) {
       log.loadLastTraces();
     }
