@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
-import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
 
 @Service
@@ -36,6 +35,9 @@ public class TestEnginesService {
 	
 	@Value("${exec.mode")
 	public String execmode;
+	
+	@Value("${et.public.host}")
+	public String etPublicHost;
 
 	public TestEnginesService(DockerComposeService dockerComposeService, DockerService2 dockerService2) {
 		this.dockerComposeService = dockerComposeService;
@@ -114,7 +116,7 @@ public class TestEnginesService {
 				String containerName = serviceName + "_" + serviceName + "_1"; // example:
 																				// ece_ece_1
 				if (container.getName().equals(containerName)) {
-					String ip = dockerService2.getContainerIpByNetwork(container.getName(), network);
+				    String ip = etPublicHost;
 					String port = container.getPorts().entrySet().iterator().next().getKey().split("/")[0];
 					url = "http://" + ip + ":" + port;
 					
