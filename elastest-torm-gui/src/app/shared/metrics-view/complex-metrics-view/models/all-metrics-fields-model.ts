@@ -10,6 +10,14 @@ export class MetricFieldGroupModel {
         this.type = type;
         this.subtypes = subtypes.slice(0);
     }
+
+    getSubtypesList(): string[] {
+        let subtypesList: string[] = [];
+        for (let subtype of this.subtypes) {
+            subtypesList.push(subtype.subtype);
+        }
+        return subtypesList;
+    }
 }
 
 export type Units = 'percent' | 'bytes' | 'amount/sec';

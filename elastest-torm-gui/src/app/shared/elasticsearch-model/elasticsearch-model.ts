@@ -26,6 +26,29 @@ export class ESAggsModel {
         }
         return formatted;
     }
+
+    initNestedByFieldsList(orderedFieldsList: string[]): void {
+        let aggModel: ESAggsModel = this.createNestedAggs(orderedFieldsList);
+        if (aggModel) {
+            this.name = aggModel.name;
+            this.field = aggModel.field;
+            this.aggs = aggModel.aggs;
+        }
+    }
+
+    createNestedAggs(orderedFieldsList: string[]): ESAggsModel {
+        let aggModel: ESAggsModel;
+        if (orderedFieldsList.length > 0) {
+            aggModel = new ESAggsModel();
+            let field: string = orderedFieldsList[0];
+            aggModel.name = field + 's';
+            aggModel.field = field;
+
+            aggModel.aggs = this.createNestedAggs(orderedFieldsList.slice(1));
+
+        }
+        return aggModel;
+    }
 }
 
 export type SortValues = 'asc' | 'desc';

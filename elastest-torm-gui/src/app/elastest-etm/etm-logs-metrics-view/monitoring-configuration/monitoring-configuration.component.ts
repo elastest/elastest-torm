@@ -1,10 +1,13 @@
+import { metricFieldGroupList } from '../../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
+import { EtmLogsGroupComponent } from '../../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { ESBoolQueryModel, ESTermModel } from '../../../shared/elasticsearch-model/es-query-model';
-import { AgTreeCheckModel } from '../../../shared/ag-tree-model';
+import { AgTreeCheckModel, TreeCheckElementModel } from '../../../shared/ag-tree-model';
 import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
+import { EtmComplexMetricsGroupComponent } from '../../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
 
 @Component({
   selector: 'app-monitoring-configuration',
@@ -12,24 +15,34 @@ import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
   styleUrls: ['./monitoring-configuration.component.scss']
 })
 export class MonitoringConfigurationComponent implements OnInit {
-  @ViewChild('logsTree') logsTree: TreeComponent;
-  // @ViewChild('MetricsTree') MetricsTree: TreeComponent;
-  componentsStreams: AgTreeCheckModel;
+  @ViewChild('logsTree') logsTreeComponent: TreeComponent;
+  @ViewChild('metricsTree') metricsTreeComponent: TreeComponent;
+
+  logTree: AgTreeCheckModel;
+  metricTree: AgTreeCheckModel;
+
+  tJobExec: TJobExecModel;
+  logCards: EtmLogsGroupComponent;
+  metricCards: EtmComplexMetricsGroupComponent;
 
 
   constructor(
     private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
     private elastestESService: ElastestESService,
-    @Optional() @Inject(MD_DIALOG_DATA) public tJobExec: TJobExecModel,
+    @Optional() @Inject(MD_DIALOG_DATA) public inputObj: any,
 
   ) {
-    this.componentsStreams = new AgTreeCheckModel();
+    this.tJobExec = inputObj.exec;
+    this.logCards = inputObj.logCards;
+    this.metricCards = inputObj.metricCards;
 
+    this.logTree = new AgTreeCheckModel();
+    this.metricTree = new AgTreeCheckModel();
   }
 
   ngOnInit() {
     this.loadLogsTree();
-    // this.loadMetricsTree();
+    this.loadMetricsTree();
   }
 
   loadLogsTree(): void {
@@ -39,40 +52,142 @@ export class MonitoringConfigurationComponent implements OnInit {
     streamTypeTerm.value = 'log';
     componentStreamQuery.bool.must.termList.push(streamTypeTerm);
 
-    this.elastestESService.getIndexComponentStreamList(
-      this.tJobExec.logIndex, componentStreamQuery.convertToESFormat()
-    ).subscribe(
-      (componentsStreams: any[]) => {
-        this.componentsStreams.setByObjArray(componentsStreams);
+    let fieldsList: string[] = ['component', 'stream'];
 
-        // Init checks
-        for (let logCard of this.tJobExec.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
-          for (let componentStream of this.componentsStreams.tree) {
+    this.elastestESService.getAggTreeOfIndex(
+      this.tJobExec.logIndex, fieldsList, componentStreamQuery.convertToESFormat()
+    ).subscribe(
+      (logTree: any[]) => {
+        this.logTree.setByObjArray(logTree);
+
+        // If exist card, init checks
+        for (let logCard of this.logCards.logsList) {
+          for (let componentStream of this.logTree.tree) {
             if (logCard.component === componentStream.name) {
               for (let stream of componentStream.children) {
                 if (logCard.stream === stream.name) {
-                  stream.checked = logCard.activated;
+                  stream.checked = true;
                 }
               }
+              break;
             }
           }
         }
-
-        this.logsTree.treeModel.update();
+        this.logsTreeComponent.treeModel.update();
+        this.logsTreeComponent.treeModel.expandAll();
       }
       );
   }
 
+  loadMetricsTree(): void {
+    let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
+    let notStreamTypeTerm: ESTermModel = new ESTermModel();
+    notStreamTypeTerm.name = 'stream_type';
+    notStreamTypeTerm.value = 'log'; // Must NOT
+    componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
 
-
-  applyAndSave(): void {
-    //
-    this.apply();
+    let fieldsList: string[] = ['component', 'stream', 'type'];
+    this.elastestESService.getAggTreeOfIndex(
+      this.tJobExec.logIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
+    ).subscribe(
+      (metricTree: any[]) => {
+        this.metricTree.setByObjArray(metricTree);
+        this.loadSubtypesAndInitMetricTree();
+        this.metricsTreeComponent.treeModel.update();
+        this.metricsTreeComponent.treeModel.expandAll();
+      }
+      );
   }
 
-  apply(): void {
+  loadSubtypesAndInitMetricTree(): void {
+    for (let componentStreamType of this.metricTree.tree) {
+      let component: string = componentStreamType.name;
+      for (let streamType of componentStreamType.children) {
+        let stream: string = streamType.name;
+        for (let typeTree of streamType.children) {
+          let type: string = typeTree.name;
+          for (let metricFieldGroup of metricFieldGroupList) {
+            if (metricFieldGroup.type === type) {
+              for (let subtype of metricFieldGroup.subtypes) {
+                let subtypeTree: TreeCheckElementModel = new TreeCheckElementModel();
+                subtypeTree.name = subtype.subtype;
 
-    let response: any = {};
+                // If exist card, init checks
+                let metricCardName: string = this.metricCards.createName(component, stream, type, subtypeTree.name);
+                if (this.metricCards.alreadyExist(metricCardName)) {
+                  subtypeTree.checked = true;
+                }
+
+                typeTree.children.push(subtypeTree);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  getLogsList(): any[] {
+    let logsList: any[] = [];
+    for (let componentStream of this.logTree.tree) {
+      for (let stream of componentStream.children) {
+        let log: any = {
+          component: componentStream.name,
+          stream: stream.name,
+          activated: stream.checked,
+        };
+        logsList.push(log);
+      }
+    }
+    return logsList;
+  }
+
+  getMetricsList(): any {
+    let metricsList: any[] = [];
+    for (let componentStreamTypeSubtype of this.metricTree.tree) {
+      let component: string = componentStreamTypeSubtype.name;
+      for (let streamTypeSubtype of componentStreamTypeSubtype.children) {
+        let stream: string = streamTypeSubtype.name;
+        for (let typeSubtype of streamTypeSubtype.children) {
+          let type: string = typeSubtype.name;
+          if (typeSubtype.children.length > 0) {
+            for (let subtype of typeSubtype.children) {
+              let metric: any = {
+                component: component,
+                stream: stream,
+                metricName: type + '.' + subtype.name,
+                activated: subtype.checked,
+              };
+              metricsList.push(metric);
+            }
+          } else {
+            let metric: any = {
+              component: component,
+              stream: stream,
+              metricName: type,
+              activated: typeSubtype.checked,
+            };
+            metricsList.push(metric);
+          }
+        }
+      }
+    }
+    return metricsList;
+  }
+
+  applyAndSave(): void {
+    this.applyConfig(true);
+  }
+
+  applyConfig(withSave: boolean = false): void {
+    let logsList: any[] = this.getLogsList();
+    let metricsList: any[] = this.getMetricsList();
+    let response: any = {
+      logsList: logsList,
+      metricsList: metricsList,
+      withSave: withSave,
+    };
     this.dialogRef.close(response);
   }
 

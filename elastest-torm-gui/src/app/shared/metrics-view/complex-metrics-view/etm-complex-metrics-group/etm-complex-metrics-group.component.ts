@@ -97,6 +97,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
+        console.log(metric)
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.metricsIndex = this.tJobExec.logIndex;
         if (metric.component === '') { // If no component, is a default metric
@@ -154,7 +155,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return pos;
   }
 
-  addMoreMetrics(obj: any) {
+  addMoreMetrics(obj: any): void {
     let metric: MetricsFieldModel = obj.metricFieldModel;
     let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
@@ -180,7 +181,11 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   createName(component: string, stream: string, type: string, subtype: string): string {
-    return component + ' ' + stream + ' ' + type + ' ' + subtype;
+    return this.createNameWithoutSubtype(component, stream, type) + ' ' + subtype;
+  }
+
+  createNameWithoutSubtype(component: string, stream: string, type: string): string {
+    return component + ' ' + stream + ' ' + type;
   }
 
   alreadyExist(name: string): boolean {
@@ -192,7 +197,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return false;
   }
 
-  createGroupedMetricList() {
+  createGroupedMetricList(): void {
     let defaultGroupNum: number = 2;
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, defaultGroupNum);
   }
@@ -205,7 +210,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return groups;
   }
 
-  updateMetricsData(data: any) {
+  updateMetricsData(data: any): void {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
         if (metric.isDefault()) {
@@ -225,7 +230,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
-  subscribeToEvents() {
+  subscribeToEvents(): void {
     this.loaded = this.complexMetricsViewComponents.toArray() && this.complexMetricsViewComponents.toArray().length > 0;
     if (this.loaded) {
       this.complexMetricsViewComponents.forEach(
@@ -324,7 +329,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
-  loadLastTraces(){
+  loadLastTraces() {
     for (let chart of this.metricsList) {
       chart.loadLastTraces();
     }

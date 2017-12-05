@@ -105,14 +105,72 @@ export class EtmLogsMetricsViewComponent implements OnInit {
 
   public openMonitoringConfig(): void {
     let dialogRef: MdDialogRef<MonitoringConfigurationComponent> = this.dialog.open(MonitoringConfigurationComponent, {
-      data: this.tJobExec,
+      data: { exec: this.tJobExec, logCards: this.logsGroup, metricCards: this.metricsGroup },
       height: '80%',
       width: '90%',
     });
     dialogRef.afterClosed()
       .subscribe(
       (data: any) => {
+        if (data) {
+          if (data.logsList) {
+            this.updateLogsFromList(data.logsList);
+          }
+          if (data.metricsList) {
+            this.updateMetricsFromList(data.metricsList);
+          }
+          if (data.withSave) {
+            this.saveMonitoringConfig();
+          }
+        }
       },
     );
+  }
+
+  updateLogsFromList(logsList: any[]): void {
+    for (let log of logsList) {
+      if (log.activated) {
+        this.component = log.component;
+        this.stream = log.stream;
+        this.metricName = '';
+        this.addMore();
+      } else { // Remove
+        this.removeLogCard(log);
+      }
+    }
+  }
+
+  removeLogCard(log: any): void {
+    let position: number = 0;
+    for (let logCard of this.logsGroup.logsList) {
+      if (logCard.component === log.component && logCard.stream === log.stream) {
+        this.logsGroup.removeAndUnsubscribe(position);
+        break;
+      }
+      position++;
+    }
+  }
+  updateMetricsFromList(metricsList: any[]): void {
+    for (let metric of metricsList) {
+      if (metric.activated) {
+        this.component = metric.component;
+        this.stream = metric.stream;
+        this.metricName = metric.metricName;
+        this.addMore();
+      } else { // Remove
+        this.removeMetricCard(metric);
+      }
+    }
+  }
+
+  removeMetricCard(metric: any): void {
+    let position: number = 0;
+    for (let metricCard of this.metricsGroup.metricsList) {
+      if (metricCard.component === metric.component && metricCard.stream === metric.stream) {
+        this.metricsGroup.removeAndUnsubscribe(position);
+        break;
+      }
+      position++;
+    }
   }
 }

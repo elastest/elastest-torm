@@ -5,7 +5,6 @@ import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-quer
 import { Observable, Subscription } from 'rxjs/Rx';
 import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
-import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
@@ -507,8 +506,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
     componentStreamQuery.bool.must.termList.push(this.streamTypeTerm);
 
-    this.elastestESService.getIndexComponentStreamList(
-      this.logAnalyzer.selectedIndicesToString(), componentStreamQuery.convertToESFormat()
+    let fieldsList: string[] = ['component', 'stream'];
+    this.elastestESService.getAggTreeOfIndex(
+      this.logAnalyzer.selectedIndicesToString(), fieldsList, componentStreamQuery.convertToESFormat()
     ).subscribe(
       (componentsStreams: any[]) => {
         this.logAnalyzer.setComponentsStreams(componentsStreams);
@@ -521,8 +521,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let levelsQuery: ESBoolQueryModel = new ESBoolQueryModel();
     levelsQuery.bool.must.termList.push(this.streamTypeTerm);
 
-    this.elastestESService.getIndexLevel(
-      this.logAnalyzer.selectedIndicesToString(), levelsQuery.convertToESFormat()
+    this.elastestESService.getAggTreeOfIndex(
+      this.logAnalyzer.selectedIndicesToString(), ['level'], levelsQuery.convertToESFormat()
     ).subscribe(
       (levels: any[]) => {
         this.logAnalyzer.setLevels(levels);

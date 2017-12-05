@@ -636,7 +636,8 @@ public class TJobExecOrchestratorService {
             String body = "{ \"mappings\": {"
                     + "\"components\": { \"properties\": { \"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
                     + "\"streams\": { \"properties\": { \"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
-                    + "\"levels\": { \"properties\": { \"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } }"
+                    + "\"levels\": { \"properties\": { \"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
+                    + "\"types\": { \"properties\": { \"type\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } }"
                     + "} }";
 
             try {
@@ -650,6 +651,7 @@ public class TJobExecOrchestratorService {
                 enableESFieldData(index, url, "component");
                 enableESFieldData(index, url, "stream");
                 enableESFieldData(index, url, "level");
+                enableESFieldData(index, url, "type");
             }
             logger.info("Index {} created", index);
         }

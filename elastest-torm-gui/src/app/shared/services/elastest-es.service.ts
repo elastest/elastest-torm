@@ -519,70 +519,35 @@ export class ElastestESService {
         return filters;
     }
 
-    getIndexComponentStreamList(index: string, query?: any): Observable<any[]> {
-        let _components: Subject<any[]> = new Subject<any[]>();
-        let components: Observable<any[]> = _components.asObservable();
+    // TODO Refactor:
 
-        let url: string = this.esUrl + index + '/_search?ignore_unavailable';
-        let componentAggs: ESAggsModel = new ESAggsModel();
-        componentAggs.name = 'components';
-        componentAggs.field = 'component';
-
-        let streamAggs: ESAggsModel = new ESAggsModel();
-        streamAggs.name = 'streams';
-        streamAggs.field = 'stream';
-
-        componentAggs.aggs = streamAggs;
-        let aggsObj: any = componentAggs.convertToESFormat();
-        aggsObj.size = 0;
-        if (query) {
-            aggsObj.query = query;
-        }
-
-        this.elasticsearchService.internalSearch(url, aggsObj)
-            .subscribe(
-            (data: any) => {
-                if (data.aggregations && data.aggregations.components && data.aggregations.components.buckets) {
-                    let buckets: any[] = data.aggregations.components.buckets;
-
-
-                    let componentsStreamList: any[] = [];
-                    for (let componentBucket of buckets) {
-                        if (componentBucket.streams && componentBucket.streams.buckets) {
-                            let componentStream: any = {};
-                            componentStream.name = componentBucket.key;
-                            componentStream.children = [];
-                            for (let streamBucket of componentBucket.streams.buckets) {
-                                let streamObj: any = {};
-                                streamObj.name = streamBucket.key;
-                                componentStream.children.push(streamObj);
-                            }
-                            componentsStreamList.push(componentStream);
-                        }
-                    }
-                    // componentsStreamList => [ {name: component, children: [stream1, stream2,...]}, {...} ]
-                    _components.next(componentsStreamList);
-                } else {
-                    _components.next([]);
+    getAggTreeList(agg: any, fields: string[]): any[] {
+        let aggTreeList: any[] = [];
+        if (fields.length > 0) {
+            let field: string = fields[0] + 's';
+            if (agg[field] && agg[field].buckets) {
+                let buckets: any[] = agg[field].buckets;
+                for (let bucket of buckets) {
+                    let aggObj: any = {};
+                    aggObj.name = bucket.key;
+                    aggObj.children = this.getAggTreeList(bucket, fields.slice(1));
+                    aggTreeList.push(aggObj);
                 }
-
-            },
-            (error) => console.log(error),
-        );
-
-        return components;
+            }
+        }
+        return aggTreeList;
     }
 
-    getIndexLevel(index: string, query?: any): Observable<any[]> {
-        let _levels: Subject<any[]> = new Subject<any[]>();
-        let levels: Observable<any[]> = _levels.asObservable();
+
+    getAggTreeOfIndex(index: string, fieldsList: string[], query?: any): Observable<any[]> {
+        let _aggTreeSub: Subject<any[]> = new Subject<any[]>();
+        let aggTreeObs: Observable<any[]> = _aggTreeSub.asObservable();
 
         let url: string = this.esUrl + index + '/_search?ignore_unavailable';
-        let levelAggs: ESAggsModel = new ESAggsModel();
-        levelAggs.name = 'levels';
-        levelAggs.field = 'level';
+        let aggsModel: ESAggsModel = new ESAggsModel();
+        aggsModel.initNestedByFieldsList(fieldsList);
 
-        let aggsObj: any = levelAggs.convertToESFormat();
+        let aggsObj: any = aggsModel.convertToESFormat();
         aggsObj.size = 0;
         if (query) {
             aggsObj.query = query;
@@ -591,27 +556,17 @@ export class ElastestESService {
         this.elasticsearchService.internalSearch(url, aggsObj)
             .subscribe(
             (data: any) => {
-                if (data.aggregations && data.aggregations.levels && data.aggregations.levels.buckets) {
-                    let buckets: any[] = data.aggregations.levels.buckets;
-
-
-                    let levelsList: any[] = [];
-                    for (let levelBucket of buckets) {
-                        let level: any = {};
-                        level.name = levelBucket.key;
-                        level.children = [];
-                        levelsList.push(level);
-                    }
-                    // componentsStreamList => [ {name: component, children: [stream1, stream2,...]}, {...} ]
-                    _levels.next(levelsList);
+                if (data.aggregations) {
+                    let aggTreeList: any[] = this.getAggTreeList(data.aggregations, fieldsList);
+                    _aggTreeSub.next(aggTreeList);
                 } else {
-                    _levels.next([]);
+                    _aggTreeSub.next([]);
                 }
 
             },
             (error) => console.log(error),
         );
 
-        return levels;
+        return aggTreeObs;
     }
 }
