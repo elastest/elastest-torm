@@ -87,7 +87,7 @@ export class EtmLogsGroupComponent implements OnInit {
     this.createGroupedLogsList();
   }
 
-  addMoreLogs(obj: any): void {
+  addMoreLogs(obj: any): boolean {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';
     individualLogs.type = obj.type;
@@ -101,12 +101,12 @@ export class EtmLogsGroupComponent implements OnInit {
       this.createGroupedLogsList();
       let logField: LogFieldModel = new LogFieldModel(individualLogs.component, individualLogs.stream);
       this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
-      this.elastestESService.popupService.openSnackBar('Log added', 'OK');
       if (this.live) {
         this.createSubjectAndSubscribe(individualLogs.component, obj.stream, obj.streamType);
       }
+      return true;
     } else {
-      this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+      return false;
     }
   }
 

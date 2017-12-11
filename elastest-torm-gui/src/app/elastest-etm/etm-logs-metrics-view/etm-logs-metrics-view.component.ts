@@ -66,31 +66,39 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     this.logsGroup.unselectTraces();
   }
 
-  addMore(withSave: boolean = false): void {
+  addMore(withSave: boolean = false, showPopup: boolean = true): void {
     this.addMoreSubscribe()
       .subscribe(
       (obj: any) => {
-        this.addMoreFromObj(obj);
+        let added: boolean = this.addMoreFromObj(obj);
+        if (showPopup) {
+          if (added) {
+            this.elastestESService.popupService.openSnackBar('Added succesfully!', 'OK');
+          } else {
+            this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+          }
+        }
         if (withSave) {
-          this.saveMonitoringConfig();
+          this.saveMonitoringConfig(showPopup);
         }
       },
       (error) => console.log(error),
     );
   }
 
-  addMoreFromObj(obj: any): void {
+  addMoreFromObj(obj: any): boolean {
+    let added: boolean = false;
     if (obj.streamType === 'log') {
-      this.logsGroup.addMoreLogs(obj);
-    } else if (obj.streamType === 'composed_metrics') {
-      this.metricsGroup.addMoreMetrics(obj);
-    } else if (obj.streamType === 'atomic_metric') {
-      this.metricsGroup.addMoreMetrics(obj);
+      added = this.logsGroup.addMoreLogs(obj);
+    } else if (obj.streamType === 'composed_metrics' || obj.streamType === 'atomic_metric') {
+      added = this.metricsGroup.addMoreMetrics(obj);
     }
 
     this.component = '';
     this.stream = '';
     this.metricName = '';
+
+    return added;
   }
 
   addMoreSubscribe(): Observable<any> {
@@ -117,9 +125,13 @@ export class EtmLogsMetricsViewComponent implements OnInit {
     return this.tJobExec !== undefined;
   }
 
-  saveMonitoringConfig(): void {
+  saveMonitoringConfig(showPopup: boolean = true): void {
     this.tJobService.modifyTJob(this.tJob).subscribe(
-      (data) => this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK'),
+      (data) => {
+        if (showPopup) {
+          this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
+        }
+      },
       (error) => console.log(error)
     );
   }
@@ -140,8 +152,10 @@ export class EtmLogsMetricsViewComponent implements OnInit {
       (data: any) => {
         if (data) {
           let withSave: boolean = false;
+          let msg: string = 'Monitoring changes has been applied';
           if (data.withSave) {
             withSave = data.withSave;
+            msg += ' and saved';
           }
           if (data.logsList) {
             this.updateLogsFromList(data.logsList, withSave);
@@ -149,6 +163,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
           if (data.metricsList) {
             this.updateMetricsFromList(data.metricsList, withSave);
           }
+          this.elastestESService.popupService.openSnackBar(msg);
         }
       },
     );
@@ -160,14 +175,17 @@ export class EtmLogsMetricsViewComponent implements OnInit {
         this.component = log.component;
         this.stream = log.stream;
         this.metricName = '';
-        this.addMore(withSave);
+        this.addMore(withSave, false);
       } else { // Remove
-        this.removeLogCard(log, withSave);
+        this.removeLogCard(log);
+        if (withSave) {
+          this.saveMonitoringConfig(false);
+        }
       }
     }
   }
 
-  removeLogCard(log: any, withSave: boolean = false): void {
+  removeLogCard(log: any): void {
     let position: number = 0;
     for (let logCard of this.logsGroup.logsList) {
       if (logCard.component === log.component && logCard.stream === log.stream) {
@@ -176,9 +194,6 @@ export class EtmLogsMetricsViewComponent implements OnInit {
       }
       position++;
     }
-    if (withSave) {
-      this.saveMonitoringConfig();
-    }
   }
   updateMetricsFromList(metricsList: any[], withSave: boolean): void {
     for (let metric of metricsList) {
@@ -186,14 +201,17 @@ export class EtmLogsMetricsViewComponent implements OnInit {
         this.component = metric.component;
         this.stream = metric.stream;
         this.metricName = metric.metricName;
-        this.addMore(withSave);
+        this.addMore(withSave, false);
       } else { // Remove
-        this.removeMetricCard(metric, withSave);
+        this.removeMetricCard(metric);
+        if (withSave) {
+          this.saveMonitoringConfig(false);
+        }
       }
     }
   }
 
-  removeMetricCard(metric: any, withSave: boolean = false): void {
+  removeMetricCard(metric: any): void {
     let position: number = 0;
     for (let metricCard of this.metricsGroup.metricsList) {
       if (metricCard.component === metric.component && metricCard.stream === metric.stream) {
@@ -201,9 +219,6 @@ export class EtmLogsMetricsViewComponent implements OnInit {
         break;
       }
       position++;
-    }
-    if (withSave) {
-      this.saveMonitoringConfig();
     }
   }
 }

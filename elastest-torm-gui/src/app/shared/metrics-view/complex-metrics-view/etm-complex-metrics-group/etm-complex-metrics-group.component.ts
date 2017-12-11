@@ -154,7 +154,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return pos;
   }
 
-  addMoreMetrics(obj: any): void {
+  addMoreMetrics(obj: any): boolean {
     let metric: MetricsFieldModel = obj.metricFieldModel;
     let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
@@ -162,10 +162,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       individualMetrics.addSimpleMetricTraces(obj.data);
       individualMetrics.metricsIndex = this.tJobExec.logIndex;
       this.initCustomMetric(metric, individualMetrics);
-      this.elastestESService.popupService.openSnackBar('Metric added', 'OK');
-
+      return true;
     } else {
-      this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+      return false;
     }
   }
 
