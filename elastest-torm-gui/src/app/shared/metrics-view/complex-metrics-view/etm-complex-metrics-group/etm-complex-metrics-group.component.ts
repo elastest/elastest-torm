@@ -59,7 +59,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
-  initObservables() {
+  initObservables(): void {
     // Get default Rabbit queues 
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
@@ -74,7 +74,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     return this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
   }
 
-  initAIO() {
+  initAIO(): void {
     let ignoreComponent: string = this.getIgnoreComponent();
     this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
     this.allInOneMetrics.name = 'All Metrics';
@@ -87,7 +87,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
-  initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel) {
+  initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -97,7 +97,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
-        console.log(metric)
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.metricsIndex = this.tJobExec.logIndex;
         if (metric.component === '') { // If no component, is a default metric

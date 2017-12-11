@@ -86,12 +86,18 @@ export class MonitoringConfigurationComponent implements OnInit {
     notStreamTypeTerm.value = 'log'; // Must NOT
     componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
 
+    let notContainerMetric: ESTermModel = new ESTermModel();
+    notContainerMetric.name = 'type';
+    notContainerMetric.value = 'container';
+    componentStreamTypeQuery.bool.mustNot.termList.push(notContainerMetric);
+
     let fieldsList: string[] = ['component', 'stream', 'type'];
     this.elastestESService.getAggTreeOfIndex(
       this.tJobExec.logIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
     ).subscribe(
       (metricTree: any[]) => {
         this.metricTree.setByObjArray(metricTree);
+
         this.loadSubtypesAndInitMetricTree();
         this.metricsTreeComponent.treeModel.update();
         this.metricsTreeComponent.treeModel.expandAll();
