@@ -76,6 +76,7 @@ export class MonitoringConfigurationComponent implements OnInit {
         this.logTree.setByObjArray(logTree);
         if (this.logTree.tree.length === 0) {
           this.noLogs = true;
+          this.loadingLogs = false;
         } else {
           // If exist card, init checks
           for (let logCard of this.logCards.logsList) {
@@ -124,6 +125,7 @@ export class MonitoringConfigurationComponent implements OnInit {
         this.metricTree.setByObjArray(metricTree);
         if (this.metricTree.tree.length === 0) {
           this.noMetrics = true;
+          this.loadingMetrics = false;
         } else {
           this.loadSubtypesAndInitMetricTree();
 
