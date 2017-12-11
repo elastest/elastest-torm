@@ -576,7 +576,9 @@ export class ElastestESService {
                 }
 
             },
-            (error) => console.log(error),
+            (error) => {
+                _aggTreeSub.error(error);
+            },
         );
 
         return aggTreeObs;

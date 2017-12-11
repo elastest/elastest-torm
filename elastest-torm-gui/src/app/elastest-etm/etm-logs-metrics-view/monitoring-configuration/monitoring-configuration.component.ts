@@ -25,6 +25,11 @@ export class MonitoringConfigurationComponent implements OnInit {
   logCards: EtmLogsGroupComponent;
   metricCards: EtmComplexMetricsGroupComponent;
 
+  loadingLogs: boolean;
+  loadingMetrics: boolean;
+
+  noLogs: boolean = false;
+  noMetrics: boolean = false;
 
   constructor(
     private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
@@ -35,12 +40,22 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.tJobExec = inputObj.exec;
     this.logCards = inputObj.logCards;
     this.metricCards = inputObj.metricCards;
-
-    this.logTree = new AgTreeCheckModel();
-    this.metricTree = new AgTreeCheckModel();
   }
 
   ngOnInit() {
+    this.loadTrees();
+  }
+
+  loadTrees(): void {
+    this.loadingLogs = true;
+    this.loadingMetrics = true;
+
+    this.noLogs = false;
+    this.noMetrics = false;
+
+    this.logTree = new AgTreeCheckModel();
+    this.metricTree = new AgTreeCheckModel();
+
     this.loadLogsTree();
     this.loadMetricsTree();
   }
@@ -59,22 +74,32 @@ export class MonitoringConfigurationComponent implements OnInit {
     ).subscribe(
       (logTree: any[]) => {
         this.logTree.setByObjArray(logTree);
-
-        // If exist card, init checks
-        for (let logCard of this.logCards.logsList) {
-          for (let componentStream of this.logTree.tree) {
-            if (logCard.component === componentStream.name) {
-              for (let stream of componentStream.children) {
-                if (logCard.stream === stream.name) {
-                  stream.checked = true;
+        if (this.logTree.tree.length === 0) {
+          this.noLogs = true;
+        } else {
+          // If exist card, init checks
+          for (let logCard of this.logCards.logsList) {
+            for (let componentStream of this.logTree.tree) {
+              if (logCard.component === componentStream.name) {
+                for (let stream of componentStream.children) {
+                  if (logCard.stream === stream.name) {
+                    stream.checked = true;
+                  }
                 }
+                break;
               }
-              break;
             }
           }
+          this.loadingLogs = false;
+
+          this.logsTreeComponent.treeModel.update();
+          this.logsTreeComponent.treeModel.expandAll();
+          this.logTree.updateCheckboxes(this.logsTreeComponent.treeModel.roots);
         }
-        this.logsTreeComponent.treeModel.update();
-        this.logsTreeComponent.treeModel.expandAll();
+      },
+      (error) => {
+        this.loadingLogs = false;
+        this.noLogs = true;
       }
       );
   }
@@ -97,11 +122,22 @@ export class MonitoringConfigurationComponent implements OnInit {
     ).subscribe(
       (metricTree: any[]) => {
         this.metricTree.setByObjArray(metricTree);
+        if (this.metricTree.tree.length === 0) {
+          this.noMetrics = true;
+        } else {
+          this.loadSubtypesAndInitMetricTree();
 
-        this.loadSubtypesAndInitMetricTree();
-        this.metricsTreeComponent.treeModel.update();
-        this.metricsTreeComponent.treeModel.expandAll();
+          this.loadingMetrics = false;
+          this.metricsTreeComponent.treeModel.update();
+          this.metricsTreeComponent.treeModel.expandAll();
+          this.metricTree.updateCheckboxes(this.metricsTreeComponent.treeModel.roots);
+        }
+      },
+      (error) => {
+        this.loadingMetrics = false;
+        this.noMetrics = true;
       }
+
       );
   }
 

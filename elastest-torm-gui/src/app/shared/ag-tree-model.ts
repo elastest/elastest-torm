@@ -1,4 +1,5 @@
 // Interface
+import { TreeNode } from 'angular-tree-component/dist/models/tree-node.model';
 
 export interface ITreeElementModel {
     name: string;
@@ -62,17 +63,17 @@ export class AgTreeCheckModel implements IAgTreeModel {
         }
     }
 
-    public check(node, checked): void {
+    public check(node: TreeNode, checked: boolean): void {
         this.updateChildNodeCheckbox(node, checked);
         this.updateParentNodeCheckbox(node.realParent);
     }
-    public updateChildNodeCheckbox(node, checked): void {
+    public updateChildNodeCheckbox(node: TreeNode, checked: boolean): void {
         node.data.checked = checked;
         if (node.children) {
             node.children.forEach((child) => this.updateChildNodeCheckbox(child, checked));
         }
     }
-    public updateParentNodeCheckbox(node): void {
+    public updateParentNodeCheckbox(node: TreeNode): void {
         if (!node) {
             return;
         }
@@ -100,6 +101,16 @@ export class AgTreeCheckModel implements IAgTreeModel {
             node.data.indeterminate = true;
         }
         this.updateParentNodeCheckbox(node.parent);
+    }
+
+    updateCheckboxes(nodes: TreeNode[]): void {
+        for (let node of nodes) {
+            if (node.children.length > 0) {
+                this.updateCheckboxes(node.children);
+            } else {
+                this.check(node, node.data.checked);
+            }
+        }
     }
 
     public setByObjArray(elemArray: any[]): void {
