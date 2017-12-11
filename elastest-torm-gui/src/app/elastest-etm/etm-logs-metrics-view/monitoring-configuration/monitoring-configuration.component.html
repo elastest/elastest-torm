@@ -1,13 +1,13 @@
-<h2 md-dialog-title>Monitoring Configuration</h2>
+<span md-dialog-title class="md-headline">Monitoring Configuration</span>
 
 <md-dialog-content>
   <div layout="column" layout-gt-sm="row" class="pad-right pad-bottom">
     <div flex-gt-sm="100">
-      <h3>Monitoring Cards
+      <span class="md-title">Monitoring Cards
         <button md-icon-button color="accent" title="Refresh" (click)="loadTrees()" [disabled]="loadingLogs || loadingMetrics">
           <md-icon>autorenew</md-icon>
         </button>
-      </h3>
+      </span>
 
       <div layout="column" layout-gt-sm="row" class="push-bottom">
         <!-- Logs Tree -->
