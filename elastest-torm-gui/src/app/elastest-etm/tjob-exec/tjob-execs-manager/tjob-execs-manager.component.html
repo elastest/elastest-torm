@@ -40,7 +40,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row">
+            <div layout="row" class="optionsColumn">
               <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution" class="iconBtn-lg">
                 <md-icon>delete</md-icon>
               </button>
@@ -74,7 +74,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row">
+            <div layout="row" class="optionsColumn">
               <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution" class="iconBtn-lg">
                 <md-icon>delete</md-icon>
               </button>

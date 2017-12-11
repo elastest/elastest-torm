@@ -8,7 +8,7 @@
           <td-data-table #filesTable class="scroll_table" [data]="executionFiles" [columns]="filesColumns" [selectable]="false" [clickable]="true"
             [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)">
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div layout="row">
+              <div layout="row" class="optionsColumn">
                 <!--button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
                   id="download_file"-->
                   <a md-raised-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn-lg" target="_blank"><md-icon>file_download</md-icon></a>

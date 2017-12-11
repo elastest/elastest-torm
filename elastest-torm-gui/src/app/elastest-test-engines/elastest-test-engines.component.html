@@ -11,7 +11,7 @@
           {{row.started}}
         </ng-template>
         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-          <div layout="row">
+          <div layout="row" class="optionsColumn">
             <ng-container #waitServiceReady *ngIf="(row.started && !row.ready) || (starting[row.name]!== undefined && starting[row.name] || stopping[row.name]!== undefined && stopping[row.name])">
               <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
             </ng-container>

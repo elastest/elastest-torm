@@ -118,6 +118,7 @@ export class TjobManagerComponent implements OnInit {
   editTJob(): void {
     this.router.navigate(['/projects', this.tJob.project.id, 'tjob', 'edit', this.tJob.id]);
   }
+
   deleteTJob(): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob ' + this.tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
@@ -135,5 +136,12 @@ export class TjobManagerComponent implements OnInit {
         );
       }
     });
+  }
+
+  viewInLogAnalyzer(tJobExec: TJobExecModel): void {
+    this.router.navigate(
+      ['/loganalyzer'],
+      { queryParams: { tjob: this.tJob.id, exec: tJobExec.id } }
+    );
   }
 }

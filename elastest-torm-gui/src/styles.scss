@@ -56,6 +56,12 @@ md-card-content a {
     overflow-y: auto !important;
 }
 
+.optionsColumn{
+    :first-child{
+         padding-left: 0px !important;
+    }
+}
+
 .hiddenElement{
     position: absolute;
     margin-left:-50000px

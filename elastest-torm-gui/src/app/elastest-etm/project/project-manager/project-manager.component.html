@@ -13,12 +13,14 @@
           </span>
           <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
-            <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
-              <md-icon>mode_edit</md-icon>
-            </button>
-            <button md-button (click)="deleteProject()" class="iconBtn-lg" title="Delete Project">
-              <md-icon>delete</md-icon>
-            </button>
+            <div class="optionsColumn" layout="column" layout-gt-xs="row">
+              <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <button md-button (click)="deleteProject()" class="iconBtn-lg" title="Delete Project">
+                <md-icon>delete</md-icon>
+              </button>
+            </div>
           </span>
         </div>
       </md-card-content>
@@ -49,7 +51,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row">
+            <div layout="row" class="optionsColumn">
               <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
                 <md-icon>play_circle_outline</md-icon>
               </button>
@@ -75,10 +77,10 @@
           <button md-raised-button color="accent" (click)="newSut()">New SuT</button>
         </div>
         <md-divider></md-divider>
-        <td-data-table #sutsTable id="sutsTable" class="scroll_table" [data]="project.suts" [columns]="sutColumns" [selectable]="false" [clickable]="false"
-          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <td-data-table #sutsTable id="sutsTable" class="scroll_table" [data]="project.suts" [columns]="sutColumns" [selectable]="false"
+          [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="sutOptions">
+            <div layout="row" class="sutOptions optionsColumn">
               <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT">
                 <md-icon>mode_edit</md-icon>
               </button>
