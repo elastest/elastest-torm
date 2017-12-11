@@ -398,7 +398,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         init = true;
         style = {};
       }
-      style.background = '#e0e0e0';
+      style.background = '#666666';
       style.color = invertColor(style.background, true);
     }
     return style;
