@@ -26,6 +26,7 @@ import org.xml.sax.SAXException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -555,6 +556,45 @@ public class DockerService2 {
             }
         }
         return id;
+    }
+    
+    public boolean existsContainer(String containerName,
+            DockerClient dockerClient) {
+        boolean exists = true;
+        try {
+            dockerClient.inspectContainerCmd(containerName)
+                    .exec();
+        } catch (NotFoundException e) {
+            exists = false;
+        }
+        return exists;
+    }
+    
+    public InspectContainerResponse getContainerInfoByName(String containerName){
+        InspectContainerResponse response = null;
+        DockerClient dockerClient = getDockerClient();
+        if (existsContainer(containerName, dockerClient)) {
+            try {
+                response = dockerClient.inspectContainerCmd(containerName).exec();
+            } catch (Exception e) {
+
+            }
+        }
+        return  response;
+    }
+    
+    public InspectImageResponse getImageInfoByName(String imageName){
+        InspectImageResponse response = null;
+        DockerClient dockerClient = getDockerClient();
+        if (imageExistsLocally(imageName, dockerClient)) {
+            try {
+                response = dockerClient.inspectImageCmd(imageName).exec();
+            } catch (Exception e) {
+                logger.error("Error loading image \"{}\" information.", imageName);
+                throw e;
+            }
+        }
+        return  response;
     }
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {

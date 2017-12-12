@@ -72,12 +72,17 @@ export class ConfigurationService {
             .map((response) => response['_body']);
     }
 
-
     public getLogstashInfo() {
         let hostApi: string = this.configModel.hostApi;
         let url: string = hostApi + '/context/logstash/info';
         return this.http.get(url)
             .map((response) => response.json());
+    }
+
+    public getHelpInfo() {
+        let url: string = this.configModel.hostApi + '/context/help/info';
+        return this.http.get(url)
+        .map((response) => response.json());
     }
 
 }

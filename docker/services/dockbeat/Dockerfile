@@ -22,6 +22,15 @@ COPY entrypoint.sh /etc/dockbeat
 
 RUN ["chmod", "+x", "/etc/dockbeat/entrypoint.sh"]
 
+ARG GIT_COMMIT=unspecified
+LABEL git_commit=$GIT_COMMIT
+
+ARG COMMIT_DATE=unspecified
+LABEL commit_date=$COMMIT_DATE
+
+ARG VERSION=unspecified
+LABEL version=$VERSION
+
 WORKDIR /etc/dockbeat 
 
 ENTRYPOINT ["/etc/dockbeat/entrypoint.sh"]

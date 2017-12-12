@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
 
@@ -75,4 +76,10 @@ public class EtmContextApiController
         return new ResponseEntity<Map<String, String>>(logstashInfo,
                 HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<HelpInfo> getHelpInfo() {
+        return new ResponseEntity<HelpInfo>(etmContextService.getHelpInfo(),HttpStatus.OK);
+    }
+    
 }

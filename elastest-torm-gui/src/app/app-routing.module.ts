@@ -1,3 +1,4 @@
+import { HelpComponent } from './elastest-etm/help/help.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
 import {
     TJobExecsManagerComponent,
@@ -234,6 +235,10 @@ const routes: Routes = [
                 path: 'refresh',
                 component: RefreshComponent,
             },
+            {
+                path: 'help',
+                component: HelpComponent,
+            },
 
         ]
     },
@@ -255,7 +260,7 @@ export const routedComponents: any[] = [
     TJobsManagerComponent, ProjectsManagerComponent,
     SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
     TjobManagerComponent, TJobFormComponent, TjobExecManagerComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
-    InstancesManagerComponent, ServiceGuiComponent, ServiceDetailComponent,
+    InstancesManagerComponent, ServiceGuiComponent, ServiceDetailComponent, HelpComponent,
 ];
 
 export const appRoutes: any = RouterModule.forRoot(routes, { useHash: true });

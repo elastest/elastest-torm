@@ -1,0 +1,22 @@
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+  <div flex-gt-sm="100">
+    <md-card>
+      <md-card-title>
+        <md-icon md-list-icon style="vertical-align: middle;padding-right: 10px;">info</md-icon><span style="vertical-align: middle;">ElasTest Modules Version</span>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div *ngIf="versionsInfo">
+          <md-nav-list>
+            <md-list-item *ngFor="let versionInfo of elastestModulesNames">
+              <span flex="30">Image Name: <span flex="30" class="md-caption tc-grey-600">{{versionInfo}}</span></span>
+              <span flex="30">Date: <span flex="30" class="md-caption tc-grey-600">{{versionsInfo[versionInfo].date}}</span></span>
+              <span flex="30">Commit: <span flex="30" class="md-caption tc-grey-600">{{versionsInfo[versionInfo].commitId}}</span></span>
+              <md-divider></md-divider>
+            </md-list-item>
+          </md-nav-list>          
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

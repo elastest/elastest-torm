@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.model.ContextInfo;
-import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.HelpInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -66,8 +66,17 @@ public interface EtmContextApi extends EtmApiRoot {
             "CONTEXT", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ContextInfo.class),
-            @ApiResponse(code = 400, message = "TJob not found.") })
+            @ApiResponse(code = 400, message = "Information not found.") })
     @RequestMapping(value = "/context/services/info", produces = {
             "application/json" }, method = RequestMethod.GET)
-    public ResponseEntity<ContextInfo> getContextInfo();    
+    public ResponseEntity<ContextInfo> getContextInfo();
+    
+    @ApiOperation(value = "Return help information about ElasTest", notes = "Return information such as the version of ElasTest components.", response = HelpInfo.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = HelpInfo.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/help/info", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    public ResponseEntity<HelpInfo> getHelpInfo();
 }
