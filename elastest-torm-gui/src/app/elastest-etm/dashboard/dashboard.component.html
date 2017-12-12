@@ -10,16 +10,23 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content>
-        <div *ngIf="tJobExec">
-          <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
-            title="Executing TJob">
-          <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
-          <span style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
-          <span flex></span>
-          <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution" [disabled]="disableStopBtn">
-            <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
-            <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
-          </button>
+        <div *ngIf="tJobExec" layout="row" layout-align="space-between end">
+          <span>
+            <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
+              title="Executing TJob">
+            <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+            <span style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
+            <span flex></span>
+            <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution" [disabled]="disableStopBtn">
+              <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
+              <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
+            </button>
+          </span>
+          <span>
+            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+              <md-icon>settings</md-icon>
+            </button>
+          </span>
         </div>
       </md-card-content>
     </md-card>
@@ -28,11 +35,12 @@
 
 
 <!-- logs & Metrics -->
-<etm-logs-metrics-view #logsAndMetrics [live]="true "></etm-logs-metrics-view>
+<etm-logs-metrics-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-logs-metrics-view>
 
 <!-- TSS Services Instances -->
 <div *ngIf="this.configurationService.configModel.elasTestExecMode === 'normal' && serviceInstances.length > 0; else tSServices">
-    <app-elastest-eus [eusUrl]="serviceInstances[0].urls.api" [eusHost]="serviceInstances[0].ip" [eusPort]="serviceInstances[0].port" [standalone]="false" [isNested]="true"></app-elastest-eus>
+  <app-elastest-eus [eusUrl]="serviceInstances[0].urls.api" [eusHost]="serviceInstances[0].ip" [eusPort]="serviceInstances[0].port"
+    [standalone]="false" [isNested]="true"></app-elastest-eus>
 </div>
 <ng-template #tSServices>
   <div *ngFor="let serviceInstance of serviceInstances">

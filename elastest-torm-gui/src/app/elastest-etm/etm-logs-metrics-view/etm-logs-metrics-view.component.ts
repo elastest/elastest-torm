@@ -23,6 +23,9 @@ export class EtmLogsMetricsViewComponent implements OnInit {
   @Input()
   public live: boolean;
 
+  @Input()
+  public showConfigBtn: boolean;
+
   tJob: TJobModel;
   tJobExec: TJobExecModel;
 

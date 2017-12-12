@@ -23,26 +23,32 @@
                         <h4>{{ tJobExec.startDate }}</h4>
                     </span>
                     <ng-container>
-                        <span flex-gt-xs="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
+                        <span flex-gt-xs="15" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>None</h4>
                         </span>
-                        <span flex-gt-xs="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
+                        <span flex-gt-xs="15" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>{{tJobExec.sutExec.id}}</h4>
                         </span>
                     </ng-container>
-                    <span flex-gt-xs="20">
+                    <span flex-gt-xs="15">
                         <md-card-subtitle>Log Index</md-card-subtitle>
                         <h4>{{tJobExec.logIndex}}</h4>
                     </span>
-                    <span flex-gt-xs="20">
+                    <span flex-gt-xs="15">
                         <md-card-subtitle>View in Log Analyzer</md-card-subtitle>
-                        <button md-button (click)="viewInLogAnalyzer()" class="iconBtn-lg" title="View in Log Analyzer">
+                        <button md-button (click)="viewInLogAnalyzer()" title="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
                     </span>
 
+                    <span flex-gt-xs="15">
+                        <md-card-subtitle>Monitoring Config</md-card-subtitle>
+                        <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+                            <md-icon>settings</md-icon>
+                        </button>
+                    </span>
                 </div>
                 <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
                     <td-data-table [data]="tJobExec.parameters"></td-data-table>
@@ -103,7 +109,7 @@
 </div>
 
 <!-- logs & Metrics -->
-<etm-logs-metrics-view #logsAndMetrics [live]="false"></etm-logs-metrics-view>
+<etm-logs-metrics-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-logs-metrics-view>
 
 <!-- Execution files -->
 <etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager>
