@@ -49,6 +49,16 @@ ENV MAVEN_HOME /opt/maven
 
 EXPOSE 22
 
+# Set Image Labels
+ARG GIT_COMMIT=unspecified
+LABEL git_commit=$GIT_COMMIT
+
+ARG COMMIT_DATE=unspecified
+LABEL commit_date=$COMMIT_DATE
+
+ARG VERSION=unspecified
+LABEL version=$VERSION 
+
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod 777 entrypoint.sh

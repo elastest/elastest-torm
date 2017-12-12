@@ -13,7 +13,7 @@ node('docker'){
               "Create logstash docker image"
             
                 echo ("Creating elastest/etm-logstash image..")                
-                sh 'cd ./docker/services/logstash; docker build -t elastest/etm-logstash:latest .'
+                sh 'cd ./docker/services/logstash; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-logstash:latest .'
     
             stage "Publish Logstash docker image"
     
@@ -31,7 +31,7 @@ node('docker'){
               "Create rabbitmq docker image"
             
                 echo ("Creating elastest/etm-rabbitmq image..")                
-                sh 'cd ./docker/services/rabbitmq; docker build -t elastest/etm-rabbitmq:latest .'
+                sh 'cd ./docker/services/rabbitmq; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-rabbitmq:latest .'
     
             stage "Publish RabbitMQ docker image"
     
@@ -49,7 +49,7 @@ node('docker'){
               "Create elasticsearch docker image"
             
                 echo ("Creating elastest/etm-elasticsearch image..")                
-                sh 'cd ./docker/services/elasticsearch; docker build -t elastest/etm-elasticsearch:latest .'
+                sh 'cd ./docker/services/elasticsearch; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-elasticsearch:latest .'
     
             stage "Publish Elasticsearch docker image"
     
@@ -67,7 +67,7 @@ node('docker'){
               "Create dockbeat docker image"
             
                 echo ("Creating elastest/etm-dockbeat image..")                
-                sh 'cd ./docker/services/dockbeat; docker build -t elastest/etm-dockbeat:latest .'
+                sh 'cd ./docker/services/dockbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockbeat:latest .'
     
             stage "Publish Dockbeat docker image"
     
@@ -85,7 +85,7 @@ node('docker'){
               "Create check-service-up docker image"
             
                 echo ("Creating elastest/etm-check-service-up image..")                
-                sh 'cd ./docker/services/check-service-up; docker build -t elastest/etm-check-service-up:latest .'
+                sh 'cd ./docker/services/check-service-up; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-check-service-up:latest .'
     
             stage "Publish Check Service Up docker image"
     
@@ -103,7 +103,7 @@ node('docker'){
               "Create Nginx Proxy docker image"
             
                 echo ("Creating elastest/etm-proxy image..")                
-                sh 'cd ./docker/services/nginx; docker build -t elastest/etm-proxy:latest .'
+                sh 'cd ./docker/services/nginx; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-proxy:latest .'
     
             stage "Publish Nginx docker image"
     
@@ -121,7 +121,7 @@ node('docker'){
               "Create socat docker image"
             
                 echo ("Creating elastest/etm-socat image..")                
-                sh 'cd ./docker/services/socat; docker build -t elastest/etm-socat:latest .'
+                sh 'cd ./docker/services/socat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-socat:latest .'
     
             stage "Publish Socat docker image"
     
@@ -139,7 +139,7 @@ node('docker'){
               "Create etm-dockpcap docker image"
             
                 echo ("Creating elastest/etm-dockpcap image..")                
-                sh 'cd ./docker/services/dockpcap; docker build -t elastest/etm-dockpcap:latest .'
+                sh 'cd ./docker/services/dockpcap; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockpcap:latest .'
     
             stage "Publish dockpcap docker image"
     
@@ -157,7 +157,7 @@ node('docker'){
               "Create test-etm-test1 docker image"
             
                 echo ("Creating elastest/test-etm-test1 image..")                
-                sh 'cd ./docker/services/examples/test-etm-test1; docker build -t elastest/test-etm-test1:latest .'
+                sh 'cd ./docker/services/examples/test-etm-test1; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-test1:latest .'
     
             stage "Publish Test-etm-test1 docker image"
     
@@ -175,7 +175,7 @@ node('docker'){
               "Create test-etm-test2 docker image"
             
                 echo ("Creating elastest/test-etm-test2 image..")                
-                sh 'cd ./docker/services/examples/test-etm-test2; docker build -t elastest/test-etm-test2:latest .'
+                sh 'cd ./docker/services/examples/test-etm-test2; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-test2:latest .'
     
             stage "Publish Test-etm-test2 docker image"
     
@@ -193,7 +193,7 @@ node('docker'){
               "Create test-etm-test3-sut docker image"
             
                 echo ("Creating elastest/test-etm-test3-sut image..")                
-                sh 'cd ./docker/services/examples/test-etm-test3-sut; docker build -t elastest/test-etm-test3-sut:latest .'
+                sh 'cd ./docker/services/examples/test-etm-test3-sut; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-test3-sut:latest .'
     
             stage "Publish Test-etm-test3-sut docker image"
     
@@ -211,7 +211,7 @@ node('docker'){
               "Create test-etm-sut3 docker image"
             
                 echo ("Creating elastest/test-etm-sut3 image..")                
-                sh 'cd ./docker/services/examples/test-etm-sut3; docker build -t elastest/test-etm-sut3:latest .'
+                sh 'cd ./docker/services/examples/test-etm-sut3; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-sut3:latest .'
     
             stage "Publish Test-etm-sut3 docker image"
     
@@ -229,7 +229,7 @@ node('docker'){
               "Create test-etm-sut3-eim docker image"
             
                 echo ("Creating elastest/test-etm-sut3-eim image..")                
-                sh 'cd ./docker/services/examples/test-etm-sut3-eim; docker build -t elastest/test-etm-sut3-eim:latest .'
+                sh 'cd ./docker/services/examples/test-etm-sut3-eim; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-sut3-eim:latest .'
     
             stage "Publish Test-etm-sut3-eim docker image"
     
@@ -248,7 +248,7 @@ node('docker'){
               "Create test-etm-alpinegitjava docker image"
             
                 echo ("Creating elastest/test-etm-alpinegitjava image..")                
-                sh 'cd ./docker/services/examples/test-etm-alpinegitjava; docker build -t elastest/test-etm-alpinegitjava:latest .'
+                sh 'cd ./docker/services/examples/test-etm-alpinegitjava; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitjava:latest .'
     
             stage "Publish Test-etm-alpinegitjava docker image"
     
@@ -266,7 +266,7 @@ node('docker'){
               "Create Test-etm-javasutrepo docker image"
             
                 echo ("Creating elastest/test-etm-javasutrepo image..")                
-                sh 'cd ./docker/services/examples/test-etm-javasutrepo; docker build -t elastest/test-etm-javasutrepo:latest .'
+                sh 'cd ./docker/services/examples/test-etm-javasutrepo; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-javasutrepo:latest .'
     
             stage "Publish Test-etm-javasutrepo docker image"
     
