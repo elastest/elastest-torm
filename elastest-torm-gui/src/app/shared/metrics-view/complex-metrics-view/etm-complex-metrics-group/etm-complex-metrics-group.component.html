@@ -1,12 +1,12 @@
 <!-- Metrics -->
-<div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+<div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs" >
   <div flex-gt-sm="100">
     <complex-metrics-view #allInOne [model]="allInOneMetrics" [showConfig]="true" [remove]="removeAndUnsubscribeAIO.bind(this)"></complex-metrics-view>
   </div>
 </div>
 <ng-container *ngIf="metricsList.length > 0">
   <div *ngFor="let group of groupedMetricsList" layout-xs="column" layout-gt-xs="column" layout-gt-md="row" tdMediaToggle="gt-xs"
-    [mediaClasses]="['push-sm']">
+    >
     <div *ngFor="let metric of group; let i = index; let f=first; let l=last;" [attr.flex-gt-md]="f && l ? 100 : 50">
       <complex-metrics-view #individual{{i}} [model]="metric" [showConfig]="false" [remove]="removeAndUnsubscribe.bind(this, i)"></complex-metrics-view>
     </div>

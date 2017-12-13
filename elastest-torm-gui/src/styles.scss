@@ -21,6 +21,9 @@ td-layout-manage-list .mat-toolbar {
     font-weight: 400;
 }
 
+// html .mat-card {
+//     margin: 6px !important;
+// }
 
 md-card-content a {
     color: #ffac2f;
@@ -117,6 +120,22 @@ md-card-content a {
     margin-left: 0px !important;
 }
 
+.push-xs{
+    margin: 4px !important;
+}
+.push-top-xs{
+    margin-top: 4px !important;
+}
+.push-right-xs{
+    margin-right: 4px !important;
+}
+.push-bottom-xs{
+    margin-bottom: 4px !important;
+}
+.push-left-xs{
+    margin-left: 4px !important;
+}
+
 
 .pad-none{
     padding: 0px !important;
@@ -132,6 +151,22 @@ md-card-content a {
 }
 .pad-left-none{
     padding-left: 0px !important;
+}
+
+.pad-xs{
+    padding: 4px !important;
+}
+.pad-top-xs{
+    padding-top: 4px !important;
+}
+.pad-right-xs{
+    padding-right: 4px !important;
+}
+.pad-bottom-xs{
+    padding-bottom: 4px !important;
+}
+.pad-left-xs{
+    padding-left: 4px !important;
 }
 
 

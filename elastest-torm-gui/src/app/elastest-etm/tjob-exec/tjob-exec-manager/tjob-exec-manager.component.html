@@ -1,4 +1,4 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" >
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
@@ -58,7 +58,7 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']" *ngIf="tJobExec.testSuite !== undefined && tJobExec.testSuite !== null && tJobExec.testSuite.testCases != undefined && tJobExec.testSuite.testCases != null">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs"  *ngIf="tJobExec.testSuite !== undefined && tJobExec.testSuite !== null && tJobExec.testSuite.testCases != undefined && tJobExec.testSuite.testCases != null">
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
