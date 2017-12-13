@@ -40,7 +40,7 @@
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <!-- Other columns -->
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'select'" class="hover-pointer">
+            <div *ngIf="column.name !== 'select'" (click)="checkTJobExec(!row['selected'], row)" class="hover-pointer">
               <span>
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
