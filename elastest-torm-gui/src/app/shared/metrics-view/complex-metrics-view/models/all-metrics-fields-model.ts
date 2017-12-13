@@ -32,7 +32,6 @@ export class SubtypesObjectModel {
     }
 }
 
-
 // Subtypes
 export let cpuSubtypes: SubtypesObjectModel[] = [
     new SubtypesObjectModel('totalUsage', 'percent'),
@@ -80,8 +79,9 @@ export class AllMetricsFields {
         }
     }
 
-    addMetricsFieldToList(metricsFieldModel: MetricsFieldModel, component: string, stream: string, streamType?: string, activated: boolean = false
-    ) {
+    addMetricsFieldToList(
+        metricsFieldModel: MetricsFieldModel, component: string, stream: string, streamType?: string, activated: boolean = false
+    ): void {
         let alreadySaved: boolean = false;
         for (let metricsField of this.fieldsList) {
             if (metricsField.name === metricsFieldModel.name) {
@@ -96,7 +96,7 @@ export class AllMetricsFields {
         }
     }
 
-    createFieldsListByComponent(component: string) {
+    createFieldsListByComponent(component: string): MetricsFieldModel[] {
         let list: MetricsFieldModel[] = [];
         for (let metricFieldGroup of metricFieldGroupList) { // Foreach type for this component
             list = list.concat(this.createFieldsListBySublist(metricFieldGroup, component));
@@ -106,7 +106,7 @@ export class AllMetricsFields {
 
     createFieldsListBySublist(
         metricFieldGroup: MetricFieldGroupModel, component: string, stream?: string, streamType?: string, activated: boolean = false
-    ) {
+    ): MetricsFieldModel[] {
         let list: MetricsFieldModel[] = [];
 
         for (let subtype of metricFieldGroup.subtypes) { // Foreach subtype of this type and this component
@@ -118,7 +118,7 @@ export class AllMetricsFields {
     addFieldToFieldList(
         list: MetricsFieldModel[], type: string, subtype: SubtypesObjectModel,
         component: string, stream?: string, streamType?: string, activated: boolean = false
-    ) {
+    ): MetricsFieldModel[] {
         let newField: MetricsFieldModel = new MetricsFieldModel(
             type, subtype.subtype, subtype.unit, component, stream, streamType, activated
         );
@@ -126,11 +126,11 @@ export class AllMetricsFields {
         return list;
     }
 
-    disableMetricField(name: string, component: string, stream: string) {
+    disableMetricField(name: string, component: string, stream: string): void {
         // this.addFieldToFieldList(this.fieldsList, name, component, stream, false);
     }
 
-    disableMetricFieldByTitleName(name: string) {
+    disableMetricFieldByTitleName(name: string): void {
         name = name.replace(/^\s/, ''); // repair if starts with white space
         name = name.replace(/\s/g, '_');
         for (let metricsField of this.fieldsList) {
@@ -141,11 +141,11 @@ export class AllMetricsFields {
         }
     }
 
-    getFieldListWithoutComponent() {
+    getFieldListWithoutComponent(): MetricsFieldModel[] {
         return this.createFieldsListByComponent('');
     }
 
-    getPositionsList(type: string, component: string, stream?: string) {
+    getPositionsList(type: string, component: string, stream?: string): number[] {
         let namePrefix: string = component + '_' + type;
         if (stream) {
             namePrefix = component + '_' + stream + '_' + type;
@@ -161,7 +161,7 @@ export class AllMetricsFields {
         return positionsList;
     }
 
-    getPositionByName(name: string) {
+    getPositionByName(name: string): number {
         let position: number;
         let counter: number = 0;
         for (let metric of this.fieldsList) {
@@ -177,7 +177,7 @@ export class AllMetricsFields {
         return position;
     }
 
-    getDefaultUnitBySubtype(subtypeName: string) {
+    getDefaultUnitBySubtype(subtypeName: string): Units | string {
         for (let type of metricFieldGroupList) {
             for (let subtype of type.subtypes) {
                 if (subtypeName === subtype.subtype) {

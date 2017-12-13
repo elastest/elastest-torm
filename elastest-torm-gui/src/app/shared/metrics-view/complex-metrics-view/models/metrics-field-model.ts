@@ -1,7 +1,6 @@
 import { DefaultESFieldModel } from '../../../defaultESData-model';
 import { Units } from './all-metrics-fields-model';
 
-
 export class MetricsFieldModel extends DefaultESFieldModel {
     type: string;
     subtype: string;

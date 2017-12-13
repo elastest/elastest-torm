@@ -8,7 +8,7 @@ export let defaultStreamMap: any = {
     log: 'default_log',
     composed_metrics: 'et_dockbeat',
     atomic_metric: 'et_dockbeat',
-}
+};
 
 export class DefaultESFieldModel {
     component: string;
