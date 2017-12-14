@@ -64,7 +64,7 @@ export let metricFieldGroupList: MetricFieldGroupModel[] = [
 
 // Main classes
 export class AllMetricsFields {
-    fieldsList: MetricsFieldModel[];
+    fieldsList: MetricsFieldModel[]; // Do not make push never!! use addMetricsFieldToList
 
     constructor(withComponent: boolean = true, ignoreComponent: string = '') {
         this.fieldsList = [];
@@ -81,18 +81,21 @@ export class AllMetricsFields {
 
     addMetricsFieldToList(
         metricsFieldModel: MetricsFieldModel, component: string, stream: string, streamType?: string, activated: boolean = false
-    ): void {
+    ): number {
         let alreadySaved: boolean = false;
+        let position: number = 0;
         for (let metricsField of this.fieldsList) {
             if (metricsField.name === metricsFieldModel.name) {
                 alreadySaved = true;
                 metricsField.activated = activated;
-                break;
+                return position;
             }
+            position++;
         }
         if (!alreadySaved) {
             let subtypeObj: SubtypesObjectModel = new SubtypesObjectModel(metricsFieldModel.subtype, metricsFieldModel.unit);
             this.addFieldToFieldList(this.fieldsList, metricsFieldModel.type, subtypeObj, component, stream, streamType, activated);
+            return this.fieldsList.length - 1;
         }
     }
 

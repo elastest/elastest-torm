@@ -131,6 +131,39 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         }
     }
 
+    initLineChartByGivenListName(listName: 'left' | 'rightOne' | 'rightTwo', name: string): void {
+        let newLineChart: LineChartMetricModel = new LineChartMetricModel();
+        newLineChart.name = name;
+        switch (listName) {
+            case 'left':
+                this.leftChart.push(newLineChart);
+                break;
+
+            case 'rightOne':
+                this.rightChartOne.push(newLineChart);
+                break;
+
+            case 'rightTwo':
+                this.rightChartTwo.push(newLineChart);
+                break;
+            default:
+                break;
+        }
+    }
+
+    initLineChartByGivenList(list: LineChartMetricModel[], name: string): LineChartMetricModel[] {
+        let newLineChart: LineChartMetricModel = new LineChartMetricModel();
+        newLineChart.name = name;
+        list.push(newLineChart);
+        return list;
+    }
+
+    // Simple Metric (Not default metric)
+
+    initSimpleMetricLineChart(name: string) {
+        this.initLineChartByGivenListName('left', name);
+    }
+
     addDataToSimpleMetric(metric: MetricsFieldModel, newData: SingleMetricModel[]): void {
         this.leftChart = this.addDataToGivenList(this.leftChart, metric, newData);
     }
@@ -138,9 +171,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     addDataToGivenList(list: LineChartMetricModel[], metric: MetricsFieldModel, newData: SingleMetricModel[]): LineChartMetricModel[] {
         let lineChartPosition: number = this.getPosition(list, metric.name);
         if (lineChartPosition === undefined) {
-            let newLineChart: LineChartMetricModel = new LineChartMetricModel();
-            newLineChart.name = metric.name;
-            list.push(newLineChart);
+            list = this.initLineChartByGivenList(list, metric.name);
             lineChartPosition = list.length - 1;
         }
         list[lineChartPosition].series = list[lineChartPosition].series.concat(newData);
@@ -159,6 +190,8 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         }
         return position;
     }
+
+    // END Simple Metric (Not default metric)
 
     loadPrevious(): void {
         let compareTrace: any = this.getOldTrace();
@@ -310,8 +343,15 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
 
     isDefault(): boolean {
-        return (components.indexOf(this.component) > -1 || this.component === '') // Default metrics has empty component
-            && (this.stream === defaultStreamMap.composed_metrics || this.stream === defaultStreamMap.atomic_metric || this.stream === ''); // AIO Chart has empty component and stream
+        let isDefault: boolean = false;
+
+        if (this.component === '' && (this.stream === defaultStreamMap.composed_metrics || this.stream === defaultStreamMap.atomic_metric)) {
+            isDefault = true; // Is normal chart with 1 or more components
+        }
+        if (this.component === '' && this.stream === '') {
+            isDefault = true; // Is All-In-One (loadPrevious)
+        }
+        return isDefault;
     }
 
     loadLastTraces(size: number = 10): void {

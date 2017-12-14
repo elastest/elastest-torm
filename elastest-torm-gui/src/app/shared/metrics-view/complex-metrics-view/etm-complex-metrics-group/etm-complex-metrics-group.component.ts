@@ -129,7 +129,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.metricsList.push(individualMetrics);
     this.createGroupedMetricList();
 
-    individualMetrics.allMetricsFields.fieldsList.push(metric);
+    individualMetrics.allMetricsFields.addMetricsFieldToList(
+      metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
+    );
     this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
       metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
     );
@@ -139,13 +141,19 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     if (this.live) {
       this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
       let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
-
+      this.metricsList[pos].initSimpleMetricLineChart(metric.name);
       this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
         .subscribe(
-        (data) => {
-          let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
-          if (this.metricsList[pos]) {
-            this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+        (data: any) => {
+          if (data.type === metric.type && data.component === metric.component) {
+            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
+            if (parsedData === undefined) {
+              console.error('Undefined data received, not added to ' + metric.name);
+            } else {
+              if (this.metricsList[pos]) {
+                this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+              }
+            }
           }
         },
         (error) => console.log(error)
@@ -211,7 +219,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   updateMetricsData(data: any): void {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
-        if (metric.isDefault()) {
+        if (metric.isDefault()) { // Only update default metrics
           metric.updateData(data);
         }
       }

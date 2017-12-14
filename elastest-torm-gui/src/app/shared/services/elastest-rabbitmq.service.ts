@@ -6,36 +6,36 @@ import { DefaultESFieldModel, components, defaultStreamMap } from '../defaultESD
 
 @Injectable()
 export class ElastestRabbitmqService {
-    public subjectMap: Map<string, Subject<string>>;
+    public subjectMap: Map<string, Subject<any>>;
 
     constructor(private stompWSManager: StompWSManager) {
-        this.subjectMap = new Map<string, Subject<string>>();
+        this.subjectMap = new Map<string, Subject<any>>();
         this.initDefaultSubjects();
     }
 
-    configWSConnection() { this.stompWSManager.configWSConnection(); }
-    startWsConnection() { this.stompWSManager.startWsConnection(); }
+    public configWSConnection(): void { this.stompWSManager.configWSConnection(); }
+    public startWsConnection(): void { this.stompWSManager.startWsConnection(); }
 
-    unsubscribeWSDestination() {
+    public unsubscribeWSDestination(): void {
         this.stompWSManager.unsubscribeWSDestination();
     }
 
     // Create Subjects
 
-    public initDefaultSubjects() {
+    public initDefaultSubjects(): void {
         for (let type in defaultStreamMap) {
             this.createSubject(type, 'test', defaultStreamMap[type])
             this.createSubject(type, 'sut', defaultStreamMap[type])
         }
     }
 
-    public createSubject(streamType: string, component: string, stream: string) {
+    public createSubject(streamType: string, component: string, stream: string): Subject<any> {
         let name: string = this.getSubjectName(component, stream, streamType);
         if (this.existObs(name)) {
             return this.getSubjectByName(name);
         }
 
-        let _dynamicObs: Subject<string> = new Subject<string>();
+        let _dynamicObs: Subject<any> = new Subject<any>();
         this.subjectMap.set(name, _dynamicObs);
 
         return _dynamicObs;
@@ -43,7 +43,7 @@ export class ElastestRabbitmqService {
 
     // Create and Subscribe
 
-    public subscribeToDefaultTopics(tjobExecution: TJobExecModel) {
+    public subscribeToDefaultTopics(tjobExecution: TJobExecModel): void {
         let withSut: boolean = tjobExecution.tJob.hasSut();
         let testIndex: string = tjobExecution.getTJobIndex();
         for (let type in defaultStreamMap) {
@@ -56,7 +56,7 @@ export class ElastestRabbitmqService {
         }
     }
 
-    public createAndSubscribeToTopic(exec: string, streamType: string, component: string, stream: string) {
+    public createAndSubscribeToTopic(exec: string, streamType: string, component: string, stream: string): Subject<any> {
         let topicPrefix: string = component + '.' + stream;
         this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + exec + '.' + streamType, this.dynamicObsResponse);
 
@@ -64,7 +64,7 @@ export class ElastestRabbitmqService {
         return this.subjectMap.get(obsName);
     }
 
-    public unsuscribeFromTopic(exec: string, streamType: string, component: string, stream: string) {
+    public unsuscribeFromTopic(exec: string, streamType: string, component: string, stream: string): void {
         let topicPrefix: string = component + '.' + stream;
         let destination: string = topicPrefix + '.' + exec + '.' + streamType;
         this.stompWSManager.unsubscribeSpecificWSDestination(destination);
@@ -73,7 +73,7 @@ export class ElastestRabbitmqService {
 
     // Response
     public dynamicObsResponse = (data) => {
-        let obs: Subject<string> = this.getSubjectFromData(data);
+        let obs: Subject<any> = this.getSubjectFromData(data);
         let trace: any = this.adaptToStreamType(data);
         if (trace !== undefined) {
             obs.next(trace);
@@ -82,11 +82,11 @@ export class ElastestRabbitmqService {
 
     // Other functions
 
-    getSubjectNameFromData(data: any) {
+    getSubjectNameFromData(data: any): string {
         return this.getSubjectName(data['component'], data['stream'], data['stream_type']);
     }
 
-    getSubjectName(component: string, stream: string, streamType: string) {
+    getSubjectName(component: string, stream: string, streamType: string): string {
         return component + '.' + stream + '.' + streamType;
     }
 
@@ -95,7 +95,7 @@ export class ElastestRabbitmqService {
         return this.subjectMap.get(name);
     }
 
-    getSubjectByName(name: string) {
+    getSubjectByName(name: string): Subject<any> {
         if (this.existObs(name)) {
             return this.subjectMap.get(name);
         }
@@ -106,7 +106,7 @@ export class ElastestRabbitmqService {
         return this.subjectMap.has(name);
     }
 
-    adaptToStreamType(data: any) {
+    adaptToStreamType(data: any): any {
         let trace: any;
         if (data['stream_type'] === 'log' && data.message !== undefined) {
             trace = {
@@ -119,7 +119,7 @@ export class ElastestRabbitmqService {
         return trace;
     }
 
-    getDataFromSubjectName(name: string) {
+    getDataFromSubjectName(name: string): any {
         let splited: string[] = name.split('.');
         let data: any = {
             component: splited[0],
