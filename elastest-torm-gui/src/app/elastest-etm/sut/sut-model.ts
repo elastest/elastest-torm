@@ -49,4 +49,8 @@ export class SutModel {
     public isByDockerCompose(): boolean {
         return this.isManaged && this.managedDockerType === 'COMPOSE';
     }
+
+    public getSutESIndex(): string {
+        return 's' + this.id + '_e' + this.currentSutExec;
+    }
 }
