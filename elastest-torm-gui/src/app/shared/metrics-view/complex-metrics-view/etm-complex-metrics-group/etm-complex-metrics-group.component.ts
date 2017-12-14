@@ -141,7 +141,6 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     if (this.live) {
       this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
       let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
-      this.metricsList[pos].initSimpleMetricLineChart(metric.name);
       this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
         .subscribe(
         (data: any) => {
