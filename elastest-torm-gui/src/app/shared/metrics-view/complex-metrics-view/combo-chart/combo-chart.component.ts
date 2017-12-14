@@ -331,7 +331,13 @@ export class ComboChartComponent extends BaseChartComponent {
   // Legend
   getSeriesDomain(): any[] {
     this.combinedSeries = this.rightChartOne.concat(this.leftChart).concat(this.rightChartTwo).slice(0);
-    return this.combinedSeries.map(d => d.name);
+    let seriesNamesList: any[] = [];
+    for (let singleMetricModel of this.combinedSeries) {
+      if (singleMetricModel !== undefined && singleMetricModel !== null) {
+        seriesNamesList.push(singleMetricModel.name);
+      }
+    }
+    return seriesNamesList;
   }
 
   isDate(value): boolean {
@@ -491,16 +497,16 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   getYDomain(): number[] {
-    let values: any;
+    let values: number[] = [];
     let max: number;
     let min: number;
 
     for (const result of this.leftChart.slice(0)) {
-      values = result.series.map((singleMetricModel) => {
-        if (singleMetricModel) {
-          return singleMetricModel.value;
+      for (let singleMetricModel of result.series) {
+        if (singleMetricModel !== undefined && singleMetricModel !== null) {
+          values.push(singleMetricModel.value);
         }
-      });
+      }
       const resultMin: number = Math.min(0, ...values);
       if (min === undefined) {
         min = resultMin;
