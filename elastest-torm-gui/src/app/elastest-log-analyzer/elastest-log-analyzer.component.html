@@ -92,11 +92,11 @@
                   <div flex="25">
                     <md-input-container class="noMarginInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                        name="max_results" placeholder="Nº Entries">
+                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel" required>
                     </md-input-container>
                   </div>
                   <div flex="40" flex-offset="5">
-                    <button md-raised-button color="accent" (click)="loadLog()">
+                    <button md-raised-button color="accent" (click)="loadLog()" [disabled]="!logManagerForm.valid">
                       <md-icon>search</md-icon>
                       <span *ngIf="logRows.length > 0; else loadLogText">Reload log</span>
                       <ng-template #loadLogText>

@@ -31,14 +31,14 @@
 
         <!-- Deployed types -->
         <div layout="row" class="push-top" *ngIf="deployedChecked">
-          <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (elastestIns.checked ? 'elastestIns' : 'adminIns'))">
+          <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : 'elastestIns'))">
             <md-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
               Without Instrumentation
             </md-radio-button>
 
-            <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right">
+            <!-- <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right">
               Instrumented by ElasTest
-            </md-radio-button>
+            </md-radio-button> -->
 
             <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck">
               Instrumented by SuT Admin
@@ -91,16 +91,16 @@
         </div>
 
         <!-- Deployed: Instrumented By Elastest fields -->
-        <div layout="row" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
+        <!-- <div layout="row" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
             <input mdInput type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
           </md-input-container>
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
             <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
-          </md-input-container>
+          </md-input-container> -->
 
           <!-- Instrumentalize? -->
-          <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+          <!-- <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
             <md-list-item *ngIf="!instrumentalized">
               <div>
                 <h3>Not Instrumentalized</h3>
@@ -118,7 +118,7 @@
               </div>
             </md-list-item>
           </md-list>
-        </div>
+        </div> -->
 
         <!-- Deployed: Instrumented By SuT Admin Info -->
         <div layout="row" class="push-top" *ngIf="deployedChecked && adminInsCheck">
