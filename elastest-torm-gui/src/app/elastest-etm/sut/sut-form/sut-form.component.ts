@@ -1,3 +1,4 @@
+import { ConfigurationService } from '../../../config/configuration-service.service';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
@@ -34,14 +35,18 @@ export class SutFormComponent implements OnInit {
 
   instrumentalized: boolean = false;
 
+  elasTestExecMode: string;
+
   constructor(
     private titlesService: TitlesService,
     private sutService: SutService, private route: ActivatedRoute,
     private projectService: ProjectService,
+    private configurationService: ConfigurationService,
   ) { }
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit SuT');
+    this.elasTestExecMode = this.configurationService.configModel.elasTestExecMode;
     this.sut = new SutModel();
     this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
