@@ -134,12 +134,12 @@
             <md-list-item *ngIf="sut.eimConfig.logstashHttpPort">
               <strong>HTTP Port:&nbsp;</strong> {{sut.eimConfig.logstashHttpPort}}</md-list-item>
             <md-list-item *ngIf="sut.currentSutExec">
-              <strong>Execution ID:&nbsp;</strong> {{sut.getSutESIndex()}}</md-list-item>
+              <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</md-list-item>
           </md-list>
         </div>
 
         <!-- Parameters -->
-        <td-expansion-panel expand="true" class="push-bottom">
+        <td-expansion-panel expand="true" class="push-bottom push-top">
           <ng-template td-expansion-panel-label>
             <span>Parameters</span>
           </ng-template>

@@ -16,6 +16,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 export class SutFormComponent implements OnInit {
 
   sut: SutModel;
+  sutExecIndex: string = '';
   editMode: boolean = false;
   currentPath: string = '';
 
@@ -59,6 +60,7 @@ export class SutFormComponent implements OnInit {
             this.initInstrumentedBy();
             this.initInstrumentalized();
             this.dockerCompose = this.sut.isByDockerCompose();
+            this.sutExecIndex = this.sut.getSutESIndex();
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
@@ -88,11 +90,11 @@ export class SutFormComponent implements OnInit {
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
   }
 
-  initInstrumentalized() {
+  initInstrumentalized(): void {
     this.instrumentalized = this.sut.instrumentalize;
   }
 
-  sutBy(selected: string) {
+  sutBy(selected: string): void {
     // Reset
     this.managedChecked = false;
     this.repoNameChecked = false;
@@ -117,15 +119,14 @@ export class SutFormComponent implements OnInit {
     window.history.back();
   }
 
-  preSave(exit: boolean = true) {
+  preSave(exit: boolean = true): void {
     if (this.sut.sutType === 'DEPLOYED') {
       this.sutService.getLogstashInfo().subscribe(
-        (data) => {
+        (data: any) => {
           this.sut.eimConfig.ip = this.sut.specification;
           this.sut.eimConfig.logstashIp = data.logstashIp;
           this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
           this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
-
           this.save(exit);
         },
         (error) => console.log(error),
@@ -136,34 +137,36 @@ export class SutFormComponent implements OnInit {
     }
   }
 
-  save(exit: boolean = true) {
+  save(exit: boolean = true): void {
     this.sutService.createSut(this.sut)
       .subscribe(
-      (sut) => this.postSave(sut, exit),
+      (sut: SutModel) => this.postSave(sut, exit),
       (error) => console.log(error)
       );
   }
 
-  postSave(sut: any, exit: boolean = true) {
+  postSave(sut: SutModel, exit: boolean = true): void {
     this.sut = sut;
+    this.sutExecIndex = this.sut.getSutESIndex();
+
     if (exit) {
       window.history.back();
     }
   }
 
-  cancel() {
+  cancel(): void {
     window.history.back();
   }
 
-  instrumentalize($event) {
+  instrumentalize($event): void {
     this.sut.instrumentalize = $event.checked;
   }
 
-  deinstrumentalize($event) {
+  deinstrumentalize($event): void {
     this.sut.instrumentalize = !$event.checked;
   }
 
-  deployedType(selected: string) {
+  deployedType(selected: string): void {
     // Reset
     this.withoutInsCheck = false;
     this.elastestInsCheck = false;
@@ -183,7 +186,7 @@ export class SutFormComponent implements OnInit {
     }
   }
 
-  showGetInfoBtn() {
+  showGetInfoBtn(): boolean {
     return (
       !this.sut.eimConfig.logstashIp && !this.sut.eimConfig.logstashBeatsPort && !this.sut.eimConfig.logstashHttpPort && !this.sut.currentSutExec
     );
