@@ -15,6 +15,7 @@ public class HelloWorldLoader {
     private ProjectService projectService;
     private TJobService tJobService;
     private String initialProject = "Hello World";
+    private String myFirstTJob = "My first TJob";
 
     public HelloWorldLoader(ProjectService projectService,
             TJobService tJobService) {
@@ -34,7 +35,7 @@ public class HelloWorldLoader {
             // Create Hello World TJob associated with the Hellow project
             TJob tJob = new TJob();
             tJob.setProject(project);
-            tJob.setName(initialProject);
+            tJob.setName(myFirstTJob);
             tJob.setResultsPath(
                     "/demo-projects/unit-java-test/target/surefire-reports/TEST-io.elastest.demo.unit.CalcTest.xml");
             tJob.setImageName("elastest/test-etm-alpinegitjava");
