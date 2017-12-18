@@ -1,25 +1,25 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" >
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
     <md-card>
       <md-card-title>
-        <md-icon  style="vertical-align: middle;padding-right: 10px;">info</md-icon><span style="vertical-align: middle;">ElasTest Components</span>
-      </md-card-title>
-      
-      <md-card-content>
-        <div *ngIf="versionsInfo">
-          <md-nav-list>
-              <md-list-item class="md-caption tc-grey-600" style="font-size: 12px; font-weight: bold">
-                  <span flex="30">Image Name:</span><span flex="30">Date:</span><span flex="30">Commit:</span>                    
-              </md-list-item>
-              <md-divider></md-divider>
-            <md-list-item *ngFor="let versionInfo of elastestModulesNames" style="font-size: 14px">
-              <span flex="30" >{{versionInfo}}</span>
-              <span flex="30" >{{versionsInfo[versionInfo].date}}</span>
-              <span flex="30" >{{versionsInfo[versionInfo].commitId}}</span>
-              <md-divider></md-divider>
-            </md-list-item>
-          </md-nav-list>          
+        <div layout="row">
+          <span>
+            <md-icon style="vertical-align: middle;padding-right: 10px;">info</md-icon>
+            <span style="vertical-align: middle;">About ElasTest</span>
+          </span>
+          <span flex></span>
+          <span *ngIf="etCurrentVersion" class="md-subhead tc-grey-600 pad-right-sm">
+            <span>ElasTest version: {{etCurrentVersion}}</span>
+          </span>
         </div>
+        <!-- <md-divider></md-divider> -->
+      </md-card-title>
+
+      <md-card-content>
+        <div class="md-title">ElasTest Component</div>
+        <td-data-table #versionsInfo id="versionsInfo" class="scroll_table" [data]="versionsInfoDataTable" [columns]="versionsInfoColumns"
+          [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        </td-data-table>
       </md-card-content>
     </md-card>
   </div>
