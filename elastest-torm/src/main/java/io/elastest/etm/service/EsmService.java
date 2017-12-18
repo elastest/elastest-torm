@@ -775,6 +775,15 @@ public class EsmService {
 
     private void fillEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance, TJobExecution tJobExec) {
+        
+        if (execMode.equals("normal")) {
+            String fileSeparator = "/";
+            supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                    etSharedFolder + fileSeparator
+                            + supportServiceInstance.getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
+        
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId =  tJobExec.getTjob().getId();
             Long tJobExecId =  tJobExec.getId();
