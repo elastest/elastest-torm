@@ -354,14 +354,14 @@ export class ElastestESService {
                 let subtypeValueObj: any = trace[trace.type][metricsField.subtype];
                 switch (typeArr[1]) {
                     case 'cpu':
-                        if (subtypeValueObj && subtypeValueObj.pct) {
+                        if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
                             parsedData = this.getBasicSingleMetric(trace);
                             parsedData.value = subtypeValueObj.pct;
                         }
                         break;
                     case 'memory':
                     // case 'network':
-                        if (subtypeValueObj && subtypeValueObj.pct) {
+                        if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
                             parsedData = this.getBasicSingleMetric(trace);
                             parsedData.value = subtypeValueObj.pct;
                         } else {
@@ -369,7 +369,7 @@ export class ElastestESService {
                             if (nestedSubtype.length === 2) {
                                 let nestedSubtypeObj: any = trace[trace.type][nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
                                 let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
-                                if (nestedSubtypeObj && nestedSubtypeValueObj) {
+                                if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
                                     parsedData = this.getBasicSingleMetric(trace);
                                     parsedData.value = nestedSubtypeValueObj;
                                 }
