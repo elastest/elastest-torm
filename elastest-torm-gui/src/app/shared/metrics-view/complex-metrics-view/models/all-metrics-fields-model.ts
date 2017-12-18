@@ -32,6 +32,10 @@ export class SubtypesObjectModel {
     }
 }
 
+/********************/
+/***** Dockbeat *****/
+/********************/
+
 // Subtypes
 export let cpuSubtypes: SubtypesObjectModel[] = [
     new SubtypesObjectModel('totalUsage', 'percent'),
@@ -62,7 +66,75 @@ export let metricFieldGroupList: MetricFieldGroupModel[] = [
     new MetricFieldGroupModel('net', netSubtypes),
 ];
 
-// Main classes
+/**********************/
+/***** Metricbeat *****/
+/**********************/
+export let metricbeatCpuSubtypes: SubtypesObjectModel[] = [
+    new SubtypesObjectModel('system', 'percent'),
+    new SubtypesObjectModel('user', 'percent'),
+    new SubtypesObjectModel('total', 'percent'),
+    new SubtypesObjectModel('steal', 'percent'),
+    new SubtypesObjectModel('softirq', 'percent'),
+    new SubtypesObjectModel('nice', 'percent'),
+    new SubtypesObjectModel('irq', 'percent'),
+    new SubtypesObjectModel('iowait', 'percent'),
+    new SubtypesObjectModel('idle', 'percent'),
+
+];
+
+export let metricbeatMemorySubtypes: SubtypesObjectModel[] = [
+    new SubtypesObjectModel('used_bytes', 'bytes'),
+    new SubtypesObjectModel('used_pct', 'percent'),
+];
+
+
+export function getMetricbeatNetworkSubtypes(): SubtypesObjectModel[] {
+    let subtypeList: string[] = ['in', 'out'];
+    let netSubtypes: SubtypesObjectModel[] = [];
+    for (let subtype of subtypeList) {
+        netSubtypes.push(new SubtypesObjectModel(subtype + '_bytes', 'bytes'));
+        netSubtypes.push(new SubtypesObjectModel(subtype + '_dropped', 'amount'));
+        netSubtypes.push(new SubtypesObjectModel(subtype + '_packets', 'amount'));
+        netSubtypes.push(new SubtypesObjectModel(subtype + '_errors', 'amount'));
+    }
+    return netSubtypes;
+}
+
+
+export enum MetricbeatType {
+    system,
+}
+
+export function getMetricBeatFieldGroupList(): MetricFieldGroupModel[] {
+    let list: MetricFieldGroupModel[] = [];
+    for (let type in MetricbeatType) {
+        if (isNaN(parseInt(type))) { // enums returns position and value
+            list.push(new MetricFieldGroupModel(type + '_cpu', metricbeatCpuSubtypes));
+            list.push(new MetricFieldGroupModel(type + '_memory', metricbeatMemorySubtypes));
+            // list.push(new MetricFieldGroupModel(type + '_network', getMetricbeatNetworkSubtypes())); //Disabled (traces with same millisecond)
+        }
+    }
+    return list;
+}
+
+export function getMetricbeatFieldGroupIfItsMetricbeatType(type: string): MetricFieldGroupModel[] {
+    let metricBeatFieldGroupList: MetricFieldGroupModel[] = getMetricBeatFieldGroupList();
+    return isMetricFieldGroup(type, metricBeatFieldGroupList) ? metricBeatFieldGroupList : undefined;
+}
+
+
+export function isMetricFieldGroup(type: string, givenMetricFieldGroupList: MetricFieldGroupModel[]): boolean {
+    for (let metricFieldGroup of givenMetricFieldGroupList) {
+        if (type === metricFieldGroup.type) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/************************/
+/***** Main classes *****/
+/************************/
 export class AllMetricsFields {
     fieldsList: MetricsFieldModel[]; // Do not make push never!! use addMetricsFieldToList
 
@@ -182,6 +254,23 @@ export class AllMetricsFields {
 
     getDefaultUnitBySubtype(subtypeName: string): Units | string {
         for (let type of metricFieldGroupList) {
+            for (let subtype of type.subtypes) {
+                if (subtypeName === subtype.subtype) {
+                    return subtype.unit;
+                }
+            }
+        }
+        return '';
+    }
+
+
+
+    getDefaultUnitByTypeAndSubtype(typeName: string, subtypeName: string): Units | string {
+        let currentMetricFieldGroupList: MetricFieldGroupModel[] = getMetricbeatFieldGroupIfItsMetricbeatType(typeName);
+        if (currentMetricFieldGroupList === undefined) { // If is not Metricbeat type, it's dockbeat
+            currentMetricFieldGroupList = metricFieldGroupList;
+        }
+        for (let type of currentMetricFieldGroupList) {
             for (let subtype of type.subtypes) {
                 if (subtypeName === subtype.subtype) {
                     return subtype.unit;

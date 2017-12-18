@@ -1,5 +1,11 @@
 import { ESAggsModel } from '../elasticsearch-model/elasticsearch-model';
-import { AllMetricsFields } from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
+import {
+    AllMetricsFields,
+    getMetricbeatFieldGroupIfItsMetricbeatType,
+    getMetricBeatFieldGroupList,
+    isMetricFieldGroup,
+    MetricFieldGroupModel,
+} from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
@@ -11,16 +17,21 @@ import { componentFactoryName } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { PopupService } from './popup.service';
 import { Observable, Subject } from 'rxjs/Rx';
+import { defaultStreamMap } from '../defaultESData-model';
 
 @Injectable()
 export class ElastestESService {
     allMetricsFields: AllMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
     esUrl: string;
+
+    metricbeatFieldGroupList: MetricFieldGroupModel[];
+
     constructor(
         private elasticsearchService: ElasticSearchService,
         public popupService: PopupService,
     ) {
         this.esUrl = this.elasticsearchService.esUrl;
+        this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
     }
 
     search(url: string, searchBody: any) {
@@ -193,16 +204,26 @@ export class ElastestESService {
 
     convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
         let parsedData: any = undefined;
-        if (trace.type === 'cpu' && metricsField.type === 'cpu') {
-            parsedData = this.convertToCpuData(trace, metricsField);
-        } else if (trace.type === 'memory' && metricsField.type === 'memory') {
-            parsedData = this.convertToMemoryData(trace, metricsField);
-        } else if (trace.type === 'blkio' && metricsField.type === 'blkio') {
-            parsedData = this.convertToDiskData(trace, metricsField);
-        } else if (trace.type === 'net' && metricsField.type === 'net') {
-            parsedData = this.convertToNetData(trace, metricsField);
-        } else if (trace.type === metricsField.type) {
-            parsedData = this.convertToGenericMetricsData(trace, metricsField);
+        // If it's a ElasTest default metric (dockbeat)
+        if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
+            if (trace.type === 'cpu' && metricsField.type === 'cpu') {
+                parsedData = this.convertToCpuData(trace, metricsField);
+            } else if (trace.type === 'memory' && metricsField.type === 'memory') {
+                parsedData = this.convertToMemoryData(trace, metricsField);
+            } else if (trace.type === 'blkio' && metricsField.type === 'blkio') {
+                parsedData = this.convertToDiskData(trace, metricsField);
+            } else if (trace.type === 'net' && metricsField.type === 'net') {
+                parsedData = this.convertToNetData(trace, metricsField);
+            } else if (trace.type === metricsField.type) {
+                parsedData = this.convertToGenericMetricsData(trace, metricsField);
+            }
+        } else {
+            if (isMetricFieldGroup(trace.type, this.metricbeatFieldGroupList)) { // metricbeat
+                parsedData = this.convertMetricbeatTrace(trace, metricsField);
+
+            } else if (trace.type === metricsField.type) {
+                parsedData = this.convertToGenericMetricsData(trace, metricsField);
+            }
         }
         return parsedData;
     }
@@ -322,6 +343,65 @@ export class ElastestESService {
         return parsedData;
     }
 
+    /*****************************/
+    /***** Metricbeat traces *****/
+    /*****************************/
+    convertMetricbeatTrace(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
+        let parsedData: SingleMetricModel = undefined;
+        let typeArr: string = trace.type.split('_');
+        if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
+            if (typeArr[0] === 'system') {
+                let subtypeValueObj: any = trace[trace.type][metricsField.subtype];
+                switch (typeArr[1]) {
+                    case 'cpu':
+                        if (subtypeValueObj && subtypeValueObj.pct) {
+                            parsedData = this.getBasicSingleMetric(trace);
+                            parsedData.value = subtypeValueObj.pct;
+                        }
+                        break;
+                    case 'memory':
+                    // case 'network':
+                        if (subtypeValueObj && subtypeValueObj.pct) {
+                            parsedData = this.getBasicSingleMetric(trace);
+                            parsedData.value = subtypeValueObj.pct;
+                        } else {
+                            let nestedSubtype: string[] = metricsField.subtype.split('_');
+                            if (nestedSubtype.length === 2) {
+                                let nestedSubtypeObj: any = trace[trace.type][nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
+                                let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
+                                if (nestedSubtypeObj && nestedSubtypeValueObj) {
+                                    parsedData = this.getBasicSingleMetric(trace);
+                                    parsedData.value = nestedSubtypeValueObj;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return parsedData;
+    }
+
+    // convertMetricbeatCpuTrace(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
+    //     let parsedData: SingleMetricModel = undefined;
+    //     switch (metricsField.subtype) {
+    //         case 'cpu':
+    //             parsedData = this.getBasicSingleMetric(trace);
+    //             parsedData.value = trace.cpu.totalUsage * 100;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    //     return parsedData;
+    // }
+
+
+    /***********************************/
+    /***** Common metric functions *****/
+    /***********************************/
+
     getBasicSingleMetric(trace: any): SingleMetricModel {
         let parsedData: SingleMetricModel = new SingleMetricModel();
         parsedData.name = new Date('' + trace['@timestamp']);
@@ -377,8 +457,6 @@ export class ElastestESService {
         return metrics;
     }
 
-
-
     initTestLog(log: ESRabLogModel): void {
         log.name = 'Test Logs';
         log.type = 'testlogs';
@@ -393,8 +471,9 @@ export class ElastestESService {
         log.component = 'sut';
     }
 
-
-    // Dynamic
+    /*******************/
+    /***** Dynamic *****/
+    /*******************/
     getDynamicTerms(stream: string, component: string): any[] {
         let terms: any[];
         terms = [
@@ -492,7 +571,7 @@ export class ElastestESService {
         } else if (firstSource.unit) {
             unit = firstSource.unit;
         } else {
-            unit = this.allMetricsFields.getDefaultUnitBySubtype(metricName);
+            unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(obj.type, metricName);
         }
 
         let metricsField: MetricsFieldModel

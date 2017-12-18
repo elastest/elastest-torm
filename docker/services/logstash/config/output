@@ -1,0 +1,19 @@
+output {
+	if [exec] {
+		elasticsearch {
+		    hosts => "ELASTICHOST:9200"
+		    index => "%{[exec]}"
+		}
+		rabbitmq {
+		    exchange => "amq.topic"
+		    exchange_type => "topic"
+		    key => "%{[component]}.%{[stream]}.%{[exec]}.%{[stream_type]}"
+		    user => "RABBITUSER"
+		    password => "RABBITPASS"
+		    host => "RABBITHOST"
+		    port => 5672
+		    vhost => "/elastest-etm"
+		}
+		
+	}
+}
