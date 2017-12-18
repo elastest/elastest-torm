@@ -1,7 +1,6 @@
 import { TitlesService } from '../../shared/services/titles.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { Component, OnInit } from '@angular/core';
-import { version } from 'punycode';
 
 @Component({
   selector: 'etm-help',
