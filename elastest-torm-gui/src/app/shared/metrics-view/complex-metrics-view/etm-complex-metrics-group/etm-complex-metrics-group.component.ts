@@ -44,6 +44,8 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   @Output()
   leaveObs = new EventEmitter<any>();
 
+  chartsEventsSubscriptionsObs: Subscription[] = [];
+
 
   constructor(
     private elastestESService: ElastestESService,
@@ -54,6 +56,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
+    this.complexMetricsViewComponents.changes.subscribe(
+      (data) => this.subscribeAllToEvents(),
+    );
     if (this.live) {
       this.initObservables();
     }
@@ -169,6 +174,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
       individualMetrics.addSimpleMetricTraces(obj.data);
       individualMetrics.metricsIndex = this.tJobExec.logIndex;
       this.initCustomMetric(metric, individualMetrics);
+
       return true;
     } else {
       return false;
@@ -207,8 +213,9 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, defaultGroupNum);
   }
 
-  createGroupedArray(arr, chunkSize) {
-    let groups = [], i;
+  createGroupedArray(arr, chunkSize): any[] {
+    let groups: any[] = [];
+    let i: number;
     for (i = 0; i < arr.length; i += chunkSize) {
       groups.push(arr.slice(i, i + chunkSize));
     }
@@ -231,38 +238,57 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   ngAfterViewChecked() {
     if (!this.loaded) {
-      this.subscribeToEvents();
+      this.subscribeAllToEvents();
     }
   }
 
-  subscribeToEvents(): void {
+  subscribeAllToEvents(): void {
+    this.unsubscribeAllEvents();
     this.loaded = this.complexMetricsViewComponents.toArray() && this.complexMetricsViewComponents.toArray().length > 0;
     if (this.loaded) {
       this.complexMetricsViewComponents.forEach(
-        (element) => {
-          element.getTimelineSubscription().subscribe(
-            (data) => {
-              this.updateTimeline(data);
-              this.timelineObs.next(data);
-            }
-          );
-
-          element.getHoverSubscription().subscribe(
-            (data) => {
-              this.hoverCharts(data);
-              this.hoverObs.next(data.value);
-            }
-          )
-
-          element.getLeaveSubscription().subscribe(
-            (data) => {
-              this.leaveCharts();
-              this.leaveObs.next();
-            }
-          )
+        (element: ComplexMetricsViewComponent) => {
+          this.subscribeToEvents(element);
         }
       );
     }
+  }
+
+  unsubscribeAllEvents(): void {
+    for (let subscription of this.chartsEventsSubscriptionsObs) {
+      subscription.unsubscribe();
+    }
+    this.chartsEventsSubscriptionsObs = [];
+  }
+
+  subscribeToEvents(element: ComplexMetricsViewComponent): void {
+    let eventSubscription: Subscription;
+    eventSubscription = element.getTimelineSubscription().subscribe(
+      (data) => {
+        this.updateTimeline(data);
+        this.timelineObs.next(data);
+      }
+    );
+
+    this.chartsEventsSubscriptionsObs.push(eventSubscription);
+
+    eventSubscription = element.getHoverSubscription().subscribe(
+      (data) => {
+        this.hoverCharts(data);
+        this.hoverObs.next(data.value);
+      }
+    );
+
+    this.chartsEventsSubscriptionsObs.push(eventSubscription);
+
+    eventSubscription = element.getLeaveSubscription().subscribe(
+      (data) => {
+        this.leaveCharts();
+        this.leaveObs.next();
+      }
+    );
+
+    this.chartsEventsSubscriptionsObs.push(eventSubscription);
   }
 
   updateTimeline(domain) {
@@ -289,7 +315,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     );
   }
 
-  removeAndUnsubscribe(pos: number) {
+  removeAndUnsubscribe(pos: number): void {
     let lastMetric: boolean = false;
     if (this.metricsList.length === 1) {
       lastMetric = true;
@@ -309,14 +335,14 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.tJob.execDashboardConfigModel.allMetricsFields.disableMetricFieldByTitleName(name);
   }
 
-  removeAndUnsubscribeAIO() {
+  removeAndUnsubscribeAIO(): void {
     if (this.live && this.metricsList.length === 0) {
       this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
   }
 
-  unsubscribe(component: string, stream: string) {
+  unsubscribe(component: string, stream: string): void {
     let streamType: string = 'composed_metrics';
 
     if (!stream || stream === '') {
@@ -334,7 +360,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     }
   }
 
-  loadLastTraces() {
+  loadLastTraces(): void {
     for (let chart of this.metricsList) {
       chart.loadLastTraces();
     }

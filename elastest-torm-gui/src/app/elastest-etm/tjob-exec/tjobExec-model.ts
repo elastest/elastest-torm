@@ -46,6 +46,8 @@ export class TJobExecModel {
             if (!sutIndex) {
                 sutIndex = this.getTJobIndex();
             }
+        } else {
+            sutIndex = this.getTJobIndex();
         }
         return sutIndex;
     }
