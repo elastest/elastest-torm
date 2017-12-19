@@ -39,17 +39,17 @@ export class HelpComponent implements OnInit {
 
   initDataTable(): void {
     if (this.versionsInfo && this.elastestModulesNames) {
-      for (let versionInfo of this.elastestModulesNames) {
+      for (let fullImageName of this.elastestModulesNames) {
         let obj: any = {
-          imageName: versionInfo,
-          date: this.versionsInfo[versionInfo].date,
-          commitId: this.versionsInfo[versionInfo].commitId,
-          version: this.versionsInfo[versionInfo].name,
+          imageName: fullImageName.split(':')[0],
+          date: this.versionsInfo[fullImageName].date,
+          commitId: this.versionsInfo[fullImageName].commitId,
+          version: fullImageName.split(':')[1],
         };
         this.versionsInfoDataTable.push(obj);
 
-        if (versionInfo.startsWith('elastest/platform')) {
-          this.etCurrentVersion = versionInfo.split(':')[1];
+        if (fullImageName.startsWith('elastest/platform')) {
+          this.etCurrentVersion = fullImageName.split(':')[1];
           if (this.etCurrentVersion === undefined || this.etCurrentVersion === 'latest') {
             this.etCurrentVersion = 'Latest Stable';
           }
