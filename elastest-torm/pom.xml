@@ -237,6 +237,12 @@
 			<artifactId>pojo-tester</artifactId>
 			<version>0.7.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.9.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>

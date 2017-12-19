@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,8 +19,11 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
@@ -470,11 +474,9 @@ public class TJobExecOrchestratorService {
         String containerPrefix = composeProjectName.replaceAll("_", "");
 
         // TMP replace sut exec and logstash sut tcp
-        String dockerComposeYml = sut.getSpecification()
-                .replaceAll("ETSUTREPLACE", composeProjectName)
-                .replaceAll("LOGSTASHSUTTCP", "tcp://"
-                        + dockerService.getLogstashHost(dockerExec) + ":5001");
-
+        String dockerComposeYml = sut.getSpecification();
+        dockerComposeYml = setLoggingToDockerComposeYml(dockerComposeYml,
+                composeProjectName, dockerExec);
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
         String envVar;
@@ -528,6 +530,55 @@ public class TJobExecOrchestratorService {
                     "Main Sut service from docker compose not started");
         }
 
+    }
+
+    public String setLoggingToDockerComposeYml(String dockerComposeYml,
+            String composeProjectName, DockerExecution dockerExec)
+            throws Exception {
+        YAMLFactory yf = new YAMLFactory();
+        ObjectMapper mapper = new ObjectMapper(yf);
+        Object object;
+        try {
+            object = mapper.readValue(dockerComposeYml, Object.class);
+
+            Map<String, HashMap<String, HashMap<String, HashMap>>> dockerComposeMap = (HashMap) object;
+            Map<String, HashMap<String, HashMap>> servicesMap = dockerComposeMap
+                    .get("services");
+            for (HashMap.Entry<String, HashMap<String, HashMap>> service : servicesMap
+                    .entrySet()) {
+
+                HashMap<String, HashMap> serviceContent = service.getValue();
+                String loggingKey = "logging";
+                if (serviceContent.containsKey(loggingKey)) {
+                    serviceContent.remove(loggingKey);
+                }
+                HashMap<String, Object> loggingContent = new HashMap<String, Object>();
+                loggingContent.put("driver", "syslog");
+
+                HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
+                loggingOptionsContent.put("syslog-address", "tcp://"
+                        + dockerService.getLogstashHost(dockerExec) + ":5001");
+                loggingOptionsContent.put("tag",
+                        composeProjectName + "_" + service.getKey() + "_exec");
+
+                loggingContent.put("options", loggingOptionsContent);
+
+                serviceContent.put(loggingKey, loggingContent);
+            }
+
+            StringWriter writer = new StringWriter();
+
+            yf.createGenerator(writer).writeObject(object);
+            dockerComposeYml = writer.toString();
+
+            writer.close();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new Exception(
+                    "Error on setting logging into docker compose yml");
+        }
+
+        return dockerComposeYml;
     }
 
     public void endSutExec(DockerExecution dockerExec) throws Exception {
