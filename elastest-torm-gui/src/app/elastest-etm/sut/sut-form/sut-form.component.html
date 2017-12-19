@@ -21,11 +21,11 @@
         <!-- SuT Type -->
         <md-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
           <md-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
-            Dockerized SuT
+            Deployed by ElasTest
           </md-radio-button>
 
           <md-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
-            Deployed SuT
+            Deployed outside ElasTest
           </md-radio-button>
         </md-radio-group>
 
@@ -33,7 +33,7 @@
         <div layout="row" class="push-top" *ngIf="deployedChecked">
           <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : 'elastestIns'))">
             <md-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
-              Without Instrumentation
+              No Instrumentation
             </md-radio-button>
 
             <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right" *ngIf="elasTestExecMode !== 'normal'">
@@ -41,7 +41,7 @@
             </md-radio-button>
 
             <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck">
-              Instrumented by SuT Admin
+              Manual Instrumentation
             </md-radio-button>
           </md-radio-group>
         </div>
