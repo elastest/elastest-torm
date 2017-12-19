@@ -44,12 +44,12 @@ export class HelpComponent implements OnInit {
           imageName: fullImageName.split(':')[0],
           date: this.versionsInfo[fullImageName].date,
           commitId: this.versionsInfo[fullImageName].commitId,
-          version: fullImageName.split(':')[1],
+          version: fullImageName.includes('platform') ? this.versionsInfo[fullImageName].commitId : fullImageName.split(':')[1],
         };
         this.versionsInfoDataTable.push(obj);
-
+        
         if (fullImageName.startsWith('elastest/platform')) {
-          this.etCurrentVersion = fullImageName.split(':')[1];
+          this.etCurrentVersion = this.versionsInfo[fullImageName].name;//fullImageName.split(':')[1];
           if (this.etCurrentVersion === undefined || this.etCurrentVersion === 'latest') {
             this.etCurrentVersion = 'Latest Stable';
           }
