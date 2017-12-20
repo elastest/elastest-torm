@@ -64,7 +64,7 @@
 
 
         <!-- SuT Specification -->
-        <div layout="column" class="push-top" *ngIf="!adminInsCheck">
+        <div layout="column" class="push-top">
           <md-input-container flex="100" *ngIf="!dockerCompose; else dockerComposeSpec">
             <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
               [(ngModel)]="sut.specification" name="specification" required>

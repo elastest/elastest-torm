@@ -315,8 +315,7 @@ public class DockerService2 {
                 envList.add(envVar);
             }
 
-            if (dockerExec.isWithSut() && InstrumentedByEnum.ADMIN != dockerExec
-                    .gettJobexec().getTjob().getSut().getInstrumentedBy()) {
+            if (dockerExec.isWithSut()) {
                 envList.add("APP_IP=" + dockerExec.getSutExec().getUrl());
                 envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
             }

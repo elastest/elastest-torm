@@ -43,9 +43,9 @@ public class SutService {
 			if (!savedSut.isinstrumentalize() && sut.isinstrumentalize()) { // Instrumentalize
 				SutExecution sutExec = createSutExecutionBySut(sut);
 				sut.setCurrentSutExec(sutExec.getId());
-				if (sut.getInstrumentedBy() != InstrumentedByEnum.ADMIN) {
+//				if (sut.getInstrumentedBy() != InstrumentedByEnum.ADMIN) {
 					sutExec.setUrl(sut.getSpecification());
-				}
+//				}
 				this.eimService.instrumentSut(sut.getEimConfig());
 			} else if (savedSut.isinstrumentalize() && !sut.isinstrumentalize()) { // Deinstrumentalize
 				this.eimService.deinstrumentSut(sut.getEimConfig());

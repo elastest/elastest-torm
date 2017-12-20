@@ -29,10 +29,6 @@ import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-man
 import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
-import { DashboardTemplateComponent } from './templates/dashboard/dashboard.component';
-import { EditorTemplateComponent } from './templates/editor/editor.component';
-import { EmailTemplateComponent } from './templates/email/email.component';
-import { TemplatesComponent } from './templates/templates.component';
 import { UsersFormComponent } from './users/form/form.component';
 import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
 import { RefreshComponent } from './shared/refresh/refresh.component';
@@ -255,7 +251,6 @@ const routes: Routes = [
 export class AppRoutingModule { }
 export const routedComponents: any[] = [
     LoginComponent,
-    TemplatesComponent, EditorTemplateComponent, EmailTemplateComponent, DashboardTemplateComponent,
     UsersComponent, UsersFormComponent,
     TJobsManagerComponent, ProjectsManagerComponent,
     SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
