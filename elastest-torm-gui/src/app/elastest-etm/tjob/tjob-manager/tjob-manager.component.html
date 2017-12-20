@@ -32,7 +32,7 @@
               <button md-button (click)="editTJob()" class="iconBtn-lg" title="Edit TJob">
                 <md-icon>mode_edit</md-icon>
               </button>
-              <button md-button (click)="deleteTJob()" class="iconBtn-lg" title="Delete TJob">
+              <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
                 <md-icon>delete</md-icon>
               </button>
             </div>
@@ -84,7 +84,7 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="deleteTJobExec(row)" stopRowClick title="Delete TJob Execution" class="iconBtn-lg">
+              <button md-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution" class="iconBtn-lg">
                 <md-icon>delete</md-icon>
               </button>
               <button md-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">

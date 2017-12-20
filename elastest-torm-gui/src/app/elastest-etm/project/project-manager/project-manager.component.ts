@@ -21,6 +21,7 @@ import { RunTJobModalComponent } from '../../tjob/run-tjob-modal/run-tjob-modal.
 })
 export class ProjectManagerComponent implements OnInit {
   project: ProjectModel;
+  deletingInProgress: boolean = false;
 
   // SuT Data
   sutColumns: any[] = [
@@ -81,10 +82,16 @@ export class ProjectManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.projectService.deleteProject(this.project).subscribe(
-          (project) => this.router.navigate(['/projects'])
-          ,
-          (error) => console.log(error)
+          (project) => {
+            this.deletingInProgress = false;
+            this.router.navigate(['/projects']);
+          },
+          (error) => {
+            this.deletingInProgress = false;
+            console.log(error);
+          }
         );
       }
     });
@@ -126,9 +133,16 @@ export class ProjectManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.tJobService.deleteTJob(tJob).subscribe(
-          (tJob) => this.loadProject(),
-          (error) => console.log(error)
+          (tJob) => {
+            this.deletingInProgress = false;
+            this.loadProject();
+          },
+          (error) => {
+            this.deletingInProgress = false;
+            console.log(error);
+          }
         );
       }
     });
@@ -152,7 +166,7 @@ export class ProjectManagerComponent implements OnInit {
   deleteSut(sut: SutModel) {
     let iConfirmConfig: IConfirmConfig = {
       message: 'Sut ' + sut.id
-      + ' will be deleted with all SuT Executions, do you want to continue? (SuT only will be deleted if hasn\'t associated TJobs)',
+        + ' will be deleted with all SuT Executions, do you want to continue? (SuT only will be deleted if hasn\'t associated TJobs)',
       disableClose: false,
       viewContainerRef: this._viewContainerRef,
       title: 'Confirm',
@@ -161,9 +175,16 @@ export class ProjectManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.sutService.deleteSut(sut).subscribe(
-          (sut) => this.loadProject(),
-          (error) => console.log(error)
+          (sut) => {
+            this.deletingInProgress = false;
+            this.loadProject();
+          },
+          (error) => {
+            this.deletingInProgress = false;
+            console.log(error);
+          }
         );
       }
     });

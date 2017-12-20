@@ -22,6 +22,7 @@ export class TjobManagerComponent implements OnInit {
   editMode: boolean = false;
 
   sutEmpty: SutModel = new SutModel();
+  deletingInProgress: boolean = false;
 
   tjobColumns: any[] = [
     { name: 'id', label: 'Id' },
@@ -85,12 +86,18 @@ export class TjobManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.tJobExecService.deleteTJobExecution(this.tJob, tJobExec).subscribe(
           (exec) => {
+            this.deletingInProgress = false;
             this.tJobExecService.popupService.openSnackBar('TJob Execution Nº' + tJobExec.id + ' has been removed successfully!');
             this.reloadTJob();
           },
-          (error) => this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted'));
+          (error) => {
+            this.deletingInProgress = true;
+            this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
+          }
+        );
       }
     });
   }
@@ -130,9 +137,16 @@ export class TjobManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.tJobService.deleteTJob(this.tJob).subscribe(
-          (tJob) => this.router.navigate(['/projects']),
-          (error) => console.log(error)
+          (tJob) => {
+            this.deletingInProgress = true;
+            this.router.navigate(['/projects']);
+          },
+          (error) => {
+            this.deletingInProgress = true;
+            console.log(error);
+          }
         );
       }
     });

@@ -17,7 +17,7 @@
               <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
                 <md-icon>mode_edit</md-icon>
               </button>
-              <button md-button (click)="deleteProject()" class="iconBtn-lg" title="Delete Project">
+              <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Project">
                 <md-icon>delete</md-icon>
               </button>
             </div>
@@ -58,7 +58,7 @@
               <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
                 <md-icon>mode_edit</md-icon>
               </button>
-              <button md-button (click)="deleteTJob(row)" class="iconBtn-lg" title="Delete TJob">
+              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
                 <md-icon>delete</md-icon>
               </button>
             </div>
@@ -84,7 +84,7 @@
               <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT">
                 <md-icon>mode_edit</md-icon>
               </button>
-              <button md-button (click)="deleteSut(row)" class="iconBtn-lg" title="Delete SuT">
+              <button md-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete SuT">
                 <md-icon>delete</md-icon>
               </button>
             </div>

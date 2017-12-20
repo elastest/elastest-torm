@@ -41,6 +41,8 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   projectChildsActived: boolean = false;
   projectSelected: ProjectModel = undefined;
 
+  deletingInProgress: boolean = false;
+
   constructor(
     private titlesService: TitlesService,
     private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
@@ -86,9 +88,16 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.projectService.deleteProject(project).subscribe(
-          (project) => this.loadProjects(),
-          (error) => console.log(error)
+          (project) => {
+            this.loadProjects();
+            this.deletingInProgress = false;
+          },
+          (error) => {
+            this.deletingInProgress = false;
+            console.log(error)
+          }
         );
       }
     });

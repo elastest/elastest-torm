@@ -20,6 +20,7 @@ export class TJobExecsManagerComponent implements OnInit {
 
   defaultRefreshText: string = 'Refresh';
   refreshText: string = this.defaultRefreshText;
+  deletingInProgress: boolean = false;
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
@@ -80,12 +81,17 @@ export class TJobExecsManagerComponent implements OnInit {
     };
     this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
       if (accept) {
+        this.deletingInProgress = true;
         this.tJobExecService.deleteTJobExecution(tJobExec.tJob, tJobExec).subscribe(
           (exec: TJobExecModel) => {
+            this.deletingInProgress = false;
             this.tJobExecService.popupService.openSnackBar('TJob Execution Nº' + tJobExec.id + ' has been removed successfully!');
             this.loadTJobExecs();
           },
-          (error) => this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted')
+          (error) => {
+            this.deletingInProgress = true;
+            this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
+          }
         );
       }
     });

@@ -19,7 +19,7 @@
                                 <button md-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
                                     <md-icon>mode_edit</md-icon>
                                 </button>
-                                <button md-button (click)="deleteProject(row)" stopRowClick class="iconBtn-lg" title="Delete Project">
+                                <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
                                     <md-icon>delete</md-icon>
                                 </button>
                             </div>
