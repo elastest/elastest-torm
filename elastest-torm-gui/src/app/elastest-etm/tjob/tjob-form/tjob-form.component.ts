@@ -7,15 +7,17 @@ import { SutModel } from '../../sut/sut-model';
 import { TJobModel } from '../tjob-model';
 import { TJobService } from '../tjob.service';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'etm-tjob-form',
   templateUrl: './tjob-form.component.html',
   styleUrls: ['./tjob-form.component.scss']
 })
-export class TJobFormComponent implements OnInit {
+export class TJobFormComponent implements OnInit, AfterViewInit {
+  @ViewChild('tjobNameInput') tjobNameInput: ElementRef;
 
   tJob: TJobModel;
   editMode: boolean = false;
@@ -70,6 +72,10 @@ export class TJobFormComponent implements OnInit {
           }
         });
     }
+  }
+
+  ngAfterViewInit() {
+    this.tjobNameInput.nativeElement.focus();
   }
 
   goBack(): void {

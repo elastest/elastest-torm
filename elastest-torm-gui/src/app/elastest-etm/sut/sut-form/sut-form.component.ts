@@ -5,15 +5,17 @@ import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
 import { SutService } from '../sut.service';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'etm-sut-form',
   templateUrl: './sut-form.component.html',
   styleUrls: ['./sut-form.component.scss']
 })
-export class SutFormComponent implements OnInit {
+export class SutFormComponent implements OnInit, AfterViewInit {
+  @ViewChild('sutNameInput') sutNameInput: ElementRef;
 
   sut: SutModel;
   sutExecIndex: string = '';
@@ -76,6 +78,10 @@ export class SutFormComponent implements OnInit {
         );
       }
     }
+  }
+
+  ngAfterViewInit() {
+    this.sutNameInput.nativeElement.focus();
   }
 
   initSutType(): void {
