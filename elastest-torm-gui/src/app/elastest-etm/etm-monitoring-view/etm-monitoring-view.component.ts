@@ -12,11 +12,11 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MdDialog, MdDialogRef } from '@angular/material';
 
 @Component({
-  selector: 'etm-logs-metrics-view',
-  templateUrl: './etm-logs-metrics-view.component.html',
-  styleUrls: ['./etm-logs-metrics-view.component.scss']
+  selector: 'etm-monitoring-view',
+  templateUrl: './etm-monitoring-view.component.html',
+  styleUrls: ['./etm-monitoring-view.component.scss']
 })
-export class EtmLogsMetricsViewComponent implements OnInit {
+export class EtmMonitoringViewComponent implements OnInit {
   @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
   @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
 
@@ -118,7 +118,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
         ,
       );
     } else {
-      _addMoreSubject.error('Could not load more. EtmLogsMetricsView has not been init yet')
+      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet')
     }
 
     return addMoreObs;
