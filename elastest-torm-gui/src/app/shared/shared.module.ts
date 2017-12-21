@@ -1,3 +1,7 @@
+import { EtmLogsGroupComponent } from '../elastest-etm/etm-monitoring-view/etm-logs-group/etm-logs-group.component';
+import {
+    EtmChartGroupComponent,
+} from '../elastest-etm/etm-monitoring-view/etm-chart-group/etm-chart-group.component';
 import { NgModule, } from '@angular/core';
 import { CommonModule, } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, } from '@angular/forms';
@@ -23,10 +27,8 @@ import { ParametersViewComponent } from './parameters-view/parameters-view.compo
 import { MetricsChartCardComponent } from './metrics-view/metrics-chart-card/metrics-chart-card.component';
 import { ComboChartComponent } from './metrics-view/metrics-chart-card/combo-chart/combo-chart.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
-import { EtmComplexMetricsGroupComponent } from './metrics-view/metrics-chart-card/etm-complex-metrics-group/etm-complex-metrics-group.component';
 import { TooltipAreaComponent } from './metrics-view/metrics-chart-card/combo-chart/components/tooltip-area.component';
 import { TimelineComponent } from './metrics-view/metrics-chart-card/combo-chart/components/timeline.component';
-import { EtmLogsGroupComponent } from './logs-view/etm-logs-group/etm-logs-group.component';
 import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
 import { RefreshComponent } from './refresh/refresh.component';
@@ -76,7 +78,7 @@ const CHART_MODULES: any[] = [
     ParametersViewComponent,
     MetricsChartCardComponent,
     ComboChartComponent,
-    EtmComplexMetricsGroupComponent,
+    EtmChartGroupComponent,
     TooltipAreaComponent,
     TimelineComponent,
     EtmLogsGroupComponent,
@@ -96,7 +98,7 @@ const CHART_MODULES: any[] = [
     LoadPreviousViewComponent,
     ParametersViewComponent,
     ComboChartComponent,
-    EtmComplexMetricsGroupComponent,
+    EtmChartGroupComponent,
     EtmLogsGroupComponent,
     TooltipAreaComponent,
     TimelineComponent,

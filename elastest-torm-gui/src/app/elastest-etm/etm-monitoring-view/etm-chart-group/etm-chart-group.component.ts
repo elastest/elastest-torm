@@ -1,23 +1,25 @@
-import { MetricsFieldModel } from '../models/metrics-field-model';
-import { TJobService } from '../../../../elastest-etm/tjob/tjob.service';
-import { SingleMetricModel } from '../../models/single-metric-model';
-import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
+import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import {
+  ESRabComplexMetricsModel,
+} from '../../../shared/metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
+import { ElastestESService } from '../../../shared/services/elastest-es.service';
+import { TJobModel } from '../../tjob/tjob-model';
+import { MetricsChartCardComponent } from '../../../shared/metrics-view/metrics-chart-card/metrics-chart-card.component';
+import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
+import { SingleMetricModel } from '../../../shared/metrics-view/models/single-metric-model';
+import { TJobService } from '../../tjob/tjob.service';
+import { MetricsFieldModel } from '../../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 import { Subject, Observable } from 'rxjs/Rx';
-import { MetricsChartCardComponent } from '../metrics-chart-card.component';
-import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
-import { ElastestESService } from '../../../services/elastest-es.service';
-import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
-import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
-import { components, defaultStreamMap } from '../../../defaultESData-model';
 
 @Component({
-  selector: 'etm-complex-metrics-group',
-  templateUrl: './etm-complex-metrics-group.component.html',
-  styleUrls: ['./etm-complex-metrics-group.component.scss']
+  selector: 'etm-chart-group',
+  templateUrl: './etm-chart-group.component.html',
+  styleUrls: ['./etm-chart-group.component.scss']
 })
-export class EtmComplexMetricsGroupComponent implements OnInit {
+export class EtmChartGroupComponent implements OnInit {
   @ViewChildren(MetricsChartCardComponent) MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
   @Input()

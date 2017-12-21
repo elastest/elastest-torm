@@ -1,3 +1,4 @@
+import { EtmLogsGroupComponent } from '../etm-logs-group/etm-logs-group.component';
 import {
   MetricbeatType,
   metricFieldGroupList,
@@ -6,7 +7,6 @@ import {
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
 } from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
-import { EtmLogsGroupComponent } from '../../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
@@ -14,11 +14,11 @@ import { ESBoolQueryModel, ESTermModel } from '../../../shared/elasticsearch-mod
 import { AgTreeCheckModel, TreeCheckElementModel } from '../../../shared/ag-tree-model';
 import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
-import { EtmComplexMetricsGroupComponent } from '../../../shared/metrics-view/metrics-chart-card/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { EtmChartGroupComponent } from '../etm-chart-group/etm-chart-group.component';
 import { defaultStreamMap } from '../../../shared/defaultESData-model';
 
 @Component({
-  selector: 'app-monitoring-configuration',
+  selector: 'monitoring-configuration',
   templateUrl: './monitoring-configuration.component.html',
   styleUrls: ['./monitoring-configuration.component.scss']
 })
@@ -31,7 +31,7 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   tJobExec: TJobExecModel;
   logCards: EtmLogsGroupComponent;
-  metricCards: EtmComplexMetricsGroupComponent;
+  metricCards: EtmChartGroupComponent;
 
   loadingLogs: boolean;
   loadingMetrics: boolean;
