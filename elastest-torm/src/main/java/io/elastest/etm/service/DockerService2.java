@@ -177,6 +177,13 @@ public class DockerService2 {
         ArrayList<String> envList = new ArrayList<>();
         String envVar;
 
+        // Get TestSupportService Env Vars
+        for (Map.Entry<String, String> entry : dockerExec.gettJobexec()
+                .getTssEnvVars().entrySet()) {
+            envVar = entry.getKey() + "=" + entry.getValue();
+            envList.add(envVar);
+        }
+        
         // Get Parameters and insert into Env Vars
         for (Parameter parameter : sut.getParameters()) {
             envVar = parameter.getName() + "=" + parameter.getValue();

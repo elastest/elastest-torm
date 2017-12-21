@@ -80,6 +80,27 @@ node('docker'){
                     dockbeatimage.push()
                 }
 
+
+
+            stage "Metricbeat image build"
+    
+              "Create etm-metricbeat docker image"
+            
+                echo ("Creating elastest/etm-metricbeat image..")                
+                sh 'cd ./docker/services/metricbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-metricbeat:latest .'
+    
+            stage "Publish Metricbeat docker image"
+    
+                echo ("Publish elastest/etm-metricbeat image")
+                def metricbeatimage = docker.image('elastest/etm-metricbeat:latest')
+                //this is work arround as withDockerRegistry is not working properly 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    metricbeatimage.push()
+                }
+
+
             stage "Check Service Up image build"
     
               "Create check-service-up docker image"
