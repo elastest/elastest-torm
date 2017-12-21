@@ -5,7 +5,7 @@ import {
   getMetricbeatFieldGroupIfItsMetricbeatType,
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
-} from '../../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
+} from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { EtmLogsGroupComponent } from '../../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
@@ -14,7 +14,7 @@ import { ESBoolQueryModel, ESTermModel } from '../../../shared/elasticsearch-mod
 import { AgTreeCheckModel, TreeCheckElementModel } from '../../../shared/ag-tree-model';
 import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
-import { EtmComplexMetricsGroupComponent } from '../../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { EtmComplexMetricsGroupComponent } from '../../../shared/metrics-view/metrics-chart-card/etm-complex-metrics-group/etm-complex-metrics-group.component';
 import { defaultStreamMap } from '../../../shared/defaultESData-model';
 
 @Component({

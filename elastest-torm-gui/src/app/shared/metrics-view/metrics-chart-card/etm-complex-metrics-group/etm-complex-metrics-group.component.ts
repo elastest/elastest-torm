@@ -3,7 +3,7 @@ import { TJobService } from '../../../../elastest-etm/tjob/tjob.service';
 import { SingleMetricModel } from '../../models/single-metric-model';
 import { ElastestRabbitmqService } from '../../../services/elastest-rabbitmq.service';
 import { Subject, Observable } from 'rxjs/Rx';
-import { ComplexMetricsViewComponent } from '../complex-metrics-view.component';
+import { MetricsChartCardComponent } from '../metrics-chart-card.component';
 import { TJobModel } from '../../../../elastest-etm/tjob/tjob-model';
 import { ElastestESService } from '../../../services/elastest-es.service';
 import { ESRabComplexMetricsModel } from '../models/es-rab-complex-metrics-model';
@@ -18,7 +18,7 @@ import { components, defaultStreamMap } from '../../../defaultESData-model';
   styleUrls: ['./etm-complex-metrics-group.component.scss']
 })
 export class EtmComplexMetricsGroupComponent implements OnInit {
-  @ViewChildren(ComplexMetricsViewComponent) complexMetricsViewComponents: QueryList<ComplexMetricsViewComponent>;
+  @ViewChildren(MetricsChartCardComponent) MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
   @Input()
   public live: boolean;
@@ -56,7 +56,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.complexMetricsViewComponents.changes.subscribe(
+    this.MetricsChartCardComponents.changes.subscribe(
       (data) => this.subscribeAllToEvents(),
     );
     if (this.live) {
@@ -244,10 +244,10 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
 
   subscribeAllToEvents(): void {
     this.unsubscribeAllEvents();
-    this.loaded = this.complexMetricsViewComponents.toArray() && this.complexMetricsViewComponents.toArray().length > 0;
+    this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
     if (this.loaded) {
-      this.complexMetricsViewComponents.forEach(
-        (element: ComplexMetricsViewComponent) => {
+      this.MetricsChartCardComponents.forEach(
+        (element: MetricsChartCardComponent) => {
           this.subscribeToEvents(element);
         }
       );
@@ -261,7 +261,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
     this.chartsEventsSubscriptionsObs = [];
   }
 
-  subscribeToEvents(element: ComplexMetricsViewComponent): void {
+  subscribeToEvents(element: MetricsChartCardComponent): void {
     let eventSubscription: Subscription;
     eventSubscription = element.getTimelineSubscription().subscribe(
       (data) => {
@@ -292,7 +292,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   updateTimeline(domain) {
-    this.complexMetricsViewComponents.forEach(
+    this.MetricsChartCardComponents.forEach(
       (element) => {
         element.updateDomain(domain);
       }
@@ -300,7 +300,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   hoverCharts(item) {
-    this.complexMetricsViewComponents.forEach(
+    this.MetricsChartCardComponents.forEach(
       (element) => {
         element.hoverCharts(item);
       }
@@ -308,7 +308,7 @@ export class EtmComplexMetricsGroupComponent implements OnInit {
   }
 
   leaveCharts() {
-    this.complexMetricsViewComponents.forEach(
+    this.MetricsChartCardComponents.forEach(
       (element) => {
         element.leaveCharts();
       }

@@ -20,12 +20,12 @@ import { LogsViewComponent } from './logs-view/logs-view.component';
 import { MetricsViewComponent } from './metrics-view/metrics-view.component';
 import { LoadPreviousViewComponent } from './load-previous-view/load-previous-view.component';
 import { ParametersViewComponent } from './parameters-view/parameters-view.component';
-import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view/complex-metrics-view.component';
-import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
+import { MetricsChartCardComponent } from './metrics-view/metrics-chart-card/metrics-chart-card.component';
+import { ComboChartComponent } from './metrics-view/metrics-chart-card/combo-chart/combo-chart.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
-import { EtmComplexMetricsGroupComponent } from './metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
-import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/components/tooltip-area.component';
-import { TimelineComponent } from './metrics-view/complex-metrics-view/combo-chart/components/timeline.component';
+import { EtmComplexMetricsGroupComponent } from './metrics-view/metrics-chart-card/etm-complex-metrics-group/etm-complex-metrics-group.component';
+import { TooltipAreaComponent } from './metrics-view/metrics-chart-card/combo-chart/components/tooltip-area.component';
+import { TimelineComponent } from './metrics-view/metrics-chart-card/combo-chart/components/timeline.component';
 import { EtmLogsGroupComponent } from './logs-view/etm-logs-group/etm-logs-group.component';
 import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
@@ -74,7 +74,7 @@ const CHART_MODULES: any[] = [
     MetricsViewComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
-    ComplexMetricsViewComponent,
+    MetricsChartCardComponent,
     ComboChartComponent,
     EtmComplexMetricsGroupComponent,
     TooltipAreaComponent,
@@ -92,7 +92,7 @@ const CHART_MODULES: any[] = [
     FLEX_LAYOUT_MODULES,
     LogsViewComponent,
     MetricsViewComponent,
-    ComplexMetricsViewComponent,
+    MetricsChartCardComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
     ComboChartComponent,

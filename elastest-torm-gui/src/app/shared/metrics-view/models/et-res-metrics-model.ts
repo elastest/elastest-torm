@@ -1,4 +1,4 @@
-import { MetricsFieldModel } from '../complex-metrics-view/models/metrics-field-model';
+import { MetricsFieldModel } from '../metrics-chart-card/models/metrics-field-model';
 import { TdDigitsPipe } from '@covalent/core/common/pipes/digits/digits.pipe';
 import { single } from 'rxjs/operator/single';
 import { ColorSchemeModel } from './color-scheme-model';

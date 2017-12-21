@@ -7,7 +7,7 @@ import { TJobModel } from '../tjob/tjob-model';
 import { EtmLogsGroupComponent } from '../../shared/logs-view/etm-logs-group/etm-logs-group.component';
 import {
   EtmComplexMetricsGroupComponent,
-} from '../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+} from '../../shared/metrics-view/metrics-chart-card/etm-complex-metrics-group/etm-complex-metrics-group.component';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MdDialog, MdDialogRef } from '@angular/material';
 

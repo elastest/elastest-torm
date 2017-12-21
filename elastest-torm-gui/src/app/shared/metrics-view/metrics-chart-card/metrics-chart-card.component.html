@@ -17,9 +17,9 @@
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content>
-    <td-expansion-panel *ngIf="showConfig" label="Chart configuration" expand="false" class="push-bottom">
+    <td-expansion-panel *ngIf="showConfig && fieldsList !== undefined" label="Chart configuration" expand="false" class="push-bottom">
       <div class="pad">
-        <span class="push-right" *ngFor="let metric of model.allMetricsFields.fieldsList; let i = index">
+        <span class="push-right" *ngFor="let metric of fieldsList; let i = index">
           <md-checkbox #metric{{i}} [checked]="metric.activated" (change)="metric.changeActive($event)">{{metric.name}}</md-checkbox>
         </span>
       </div>

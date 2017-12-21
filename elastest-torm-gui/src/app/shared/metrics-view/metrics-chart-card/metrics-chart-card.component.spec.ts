@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ComplexMetricsViewComponent } from './complex-metrics-view.component';
+import { MetricsChartCardComponent } from './metrics-chart-card.component';
 
-describe('ComplexMetricsViewComponent', () => {
-  let component: ComplexMetricsViewComponent;
-  let fixture: ComponentFixture<ComplexMetricsViewComponent>;
+describe('MetricsChartCardComponent', () => {
+  let component: MetricsChartCardComponent;
+  let fixture: ComponentFixture<MetricsChartCardComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ComplexMetricsViewComponent ]
+      declarations: [ MetricsChartCardComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ComplexMetricsViewComponent);
+    fixture = TestBed.createComponent(MetricsChartCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
