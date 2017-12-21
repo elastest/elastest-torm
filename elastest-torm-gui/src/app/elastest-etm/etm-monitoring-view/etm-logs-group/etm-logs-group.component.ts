@@ -1,12 +1,12 @@
-import { LogFieldModel } from '../models/log-field-model';
-import { TJobService } from '../../../elastest-etm/tjob/tjob.service';
-import { DefaultESFieldModel, defaultStreamMap, components } from '../../defaultESData-model';
-import { ElastestRabbitmqService } from '../../services/elastest-rabbitmq.service';
+import { LogsViewComponent } from '../../../shared/logs-view/logs-view.component';
+import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
+import { ElastestESService } from '../../../shared/services/elastest-es.service';
+import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
+import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
+import { TJobService } from '../../tjob/tjob.service';
+import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
 import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
-import { TJobModel } from '../../../elastest-etm/tjob/tjob-model';
-import { ElastestESService } from '../../services/elastest-es.service';
-import { ESRabLogModel } from '../models/es-rab-log-model';
-import { LogsViewComponent } from '../logs-view.component';
+import { TJobModel } from '../../tjob/tjob-model';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
 

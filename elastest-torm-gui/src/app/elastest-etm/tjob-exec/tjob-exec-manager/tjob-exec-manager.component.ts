@@ -1,5 +1,5 @@
 import { TitlesService } from '../../../shared/services/titles.service';
-import { EtmLogsMetricsViewComponent } from '../../etm-logs-metrics-view/etm-logs-metrics-view.component';
+import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
@@ -18,7 +18,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./tjob-exec-manager.component.scss']
 })
 export class TjobExecManagerComponent implements OnInit {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmLogsMetricsViewComponent;
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
 
 
   tJobId: number;

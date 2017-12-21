@@ -16,8 +16,8 @@
 </div>
 
 <!-- Metrics -->
-<etm-complex-metrics-group #metricsGroup [live]="live" (timelineObs)="timelineEvent($event)" (hoverObs)="hoverEvent($event)"
-    (leaveObs)="leaveEvent()"></etm-complex-metrics-group>
+<etm-chart-group #metricsGroup [live]="live" (timelineObs)="timelineEvent($event)" (hoverObs)="hoverEvent($event)"
+    (leaveObs)="leaveEvent()"></etm-chart-group>
 
 <!-- Logs -->
 <etm-logs-group #logsGroup [live]="live"></etm-logs-group>

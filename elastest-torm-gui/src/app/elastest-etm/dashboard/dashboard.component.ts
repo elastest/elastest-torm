@@ -2,7 +2,7 @@ import { ConfigurationService } from '../../config/configuration-service.service
 import { TitlesService } from '../../shared/services/titles.service';
 import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../elastest-esm/esm-service.service';
-import { EtmLogsMetricsViewComponent } from '../etm-logs-metrics-view/etm-logs-metrics-view.component';
+import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitoring-view.component';
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -23,7 +23,7 @@ import { TJobService } from '../tjob/tjob.service';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmLogsMetricsViewComponent;
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
 
   tJobId: number;
   tJob: TJobModel;

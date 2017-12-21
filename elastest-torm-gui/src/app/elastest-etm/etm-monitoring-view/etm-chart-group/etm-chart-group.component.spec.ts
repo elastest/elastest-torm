@@ -1,20 +1,20 @@
+import { EtmChartGroupComponent } from './etm-chart-group.component';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ComplexMetricsViewComponent } from './complex-metrics-view.component';
 
-describe('ComplexMetricsViewComponent', () => {
-  let component: ComplexMetricsViewComponent;
-  let fixture: ComponentFixture<ComplexMetricsViewComponent>;
+describe('EtmChartGroupComponent', () => {
+  let component: EtmChartGroupComponent;
+  let fixture: ComponentFixture<EtmChartGroupComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ComplexMetricsViewComponent ]
+      declarations: [ EtmChartGroupComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ComplexMetricsViewComponent);
+    fixture = TestBed.createComponent(EtmChartGroupComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

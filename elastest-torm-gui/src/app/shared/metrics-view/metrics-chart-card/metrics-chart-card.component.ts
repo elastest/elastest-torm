@@ -1,3 +1,4 @@
+import { MetricsFieldModel } from './models/metrics-field-model';
 import { Observable } from 'rxjs/Rx';
 import { LineChartComponent } from '@swimlane/ngx-charts/release';
 import { ComboChartComponent } from './combo-chart/combo-chart.component';
@@ -6,13 +7,17 @@ import { ComplexMetricsModel } from './models/complex-metrics-model';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
 @Component({
-    selector: 'complex-metrics-view',
-    templateUrl: './complex-metrics-view.component.html',
-    styleUrls: ['./complex-metrics-view.component.scss']
+    selector: 'metrics-chart-card',
+    templateUrl: './metrics-chart-card.component.html',
+    styleUrls: ['./metrics-chart-card.component.scss']
 })
-export class ComplexMetricsViewComponent implements OnInit {
+export class MetricsChartCardComponent implements OnInit {
     @Input()
     public model: ESRabComplexMetricsModel;
+
+    @Input()
+    public fieldsList?: MetricsFieldModel[];
+
     @Input()
     public showConfig: boolean;
 

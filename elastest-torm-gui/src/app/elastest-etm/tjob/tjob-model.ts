@@ -1,7 +1,7 @@
 import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
 import { selectContext } from 'webdriver-js-extender/built/lib/command_definitions';
 import { DashboardConfigModel } from './dashboard-config-model';
-import { AllMetricsFields } from '../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
+import { AllMetricsFields } from '../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { ParameterModel } from '../parameter/parameter-model';
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';

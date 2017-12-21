@@ -1,8 +1,8 @@
 import { LogFieldModel } from '../../shared/logs-view/models/log-field-model';
 import { ESRabLogModel } from '../../shared/logs-view/models/es-rab-log-model';
 import { AllLogsTypesModel } from '../../shared/logs-view/models/all-logs-types';
-import { MetricsFieldModel } from '../../shared/metrics-view/complex-metrics-view/models/metrics-field-model';
-import { AllMetricsFields } from '../../shared/metrics-view/complex-metrics-view/models/all-metrics-fields-model';
+import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
+import { AllMetricsFields } from '../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 export class DashboardConfigModel {
     showComplexMetrics: boolean;
     allMetricsFields: AllMetricsFields;

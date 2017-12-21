@@ -35,7 +35,7 @@
 
 
 <!-- logs & Metrics -->
-<etm-logs-metrics-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-logs-metrics-view>
+<etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- TSS Services Instances -->
 <div *ngIf="this.configurationService.configModel.elasTestExecMode === 'normal' && serviceInstances.length > 0; else tSServices">

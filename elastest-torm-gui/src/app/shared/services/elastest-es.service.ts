@@ -5,8 +5,8 @@ import {
     getMetricBeatFieldGroupList,
     isMetricFieldGroup,
     MetricFieldGroupModel,
-} from '../metrics-view/complex-metrics-view/models/all-metrics-fields-model';
-import { MetricsFieldModel } from '../metrics-view/complex-metrics-view/models/metrics-field-model';
+} from '../metrics-view/metrics-chart-card/models/all-metrics-fields-model';
+import { MetricsFieldModel } from '../metrics-view/metrics-chart-card/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
 import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';

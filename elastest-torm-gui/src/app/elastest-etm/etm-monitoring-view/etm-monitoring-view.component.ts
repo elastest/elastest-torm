@@ -1,23 +1,22 @@
-import { Observable, Subject } from 'rxjs/Rx';
+import { EtmLogsGroupComponent } from './etm-logs-group/etm-logs-group.component';
 import { MonitoringConfigurationComponent } from './monitoring-configuration/monitoring-configuration.component';
+import { EtmChartGroupComponent } from './etm-chart-group/etm-chart-group.component';
+import { Observable, Subject } from 'rxjs/Rx';
 import { TJobService } from '../tjob/tjob.service';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobModel } from '../tjob/tjob-model';
-import { EtmLogsGroupComponent } from '../../shared/logs-view/etm-logs-group/etm-logs-group.component';
-import {
-  EtmComplexMetricsGroupComponent,
-} from '../../shared/metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
+
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MdDialog, MdDialogRef } from '@angular/material';
 
 @Component({
-  selector: 'etm-logs-metrics-view',
-  templateUrl: './etm-logs-metrics-view.component.html',
-  styleUrls: ['./etm-logs-metrics-view.component.scss']
+  selector: 'etm-monitoring-view',
+  templateUrl: './etm-monitoring-view.component.html',
+  styleUrls: ['./etm-monitoring-view.component.scss']
 })
-export class EtmLogsMetricsViewComponent implements OnInit {
-  @ViewChild('metricsGroup') metricsGroup: EtmComplexMetricsGroupComponent;
+export class EtmMonitoringViewComponent implements OnInit {
+  @ViewChild('metricsGroup') metricsGroup: EtmChartGroupComponent;
   @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
 
   @Input()
@@ -118,7 +117,7 @@ export class EtmLogsMetricsViewComponent implements OnInit {
         ,
       );
     } else {
-      _addMoreSubject.error('Could not load more. EtmLogsMetricsView has not been init yet')
+      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet')
     }
 
     return addMoreObs;

@@ -1,3 +1,7 @@
+import {
+    MonitoringConfigurationComponent,
+} from './elastest-etm/etm-monitoring-view/monitoring-configuration/monitoring-configuration.component';
+import { EtmMonitoringViewComponent } from './elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
 import { TitlesService } from './shared/services/titles.service';
 import { TestEnginesService } from './elastest-test-engines/test-engines.service';
@@ -45,7 +49,7 @@ import { SafePipe } from './elastest-eus/safe-pipe';
 import { ElastestEusDialog } from './elastest-eus/elastest-eus.dialog';
 import { ElastestEusDialogService } from './elastest-eus/elastest-eus.dialog.service';
 import { RunTJobModalComponent } from './elastest-etm/tjob/run-tjob-modal/run-tjob-modal.component';
-import { EtmLogsMetricsViewComponent } from './elastest-etm/etm-logs-metrics-view/etm-logs-metrics-view.component';
+
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { ServiceDetailComponent } from './elastest-esm/support-services/service-detail/service-detail.component';
@@ -62,7 +66,7 @@ import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-l
 import { AgGridModule } from 'ag-grid-angular/main';
 import { TreeModule } from 'angular-tree-component';
 import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/execution-modal.component';
-import { MonitoringConfigurationComponent } from './elastest-etm/etm-logs-metrics-view/monitoring-configuration/monitoring-configuration.component';
+
 import { HelpComponent } from './elastest-etm/help/help.component';
 
 
@@ -81,7 +85,7 @@ const httpInterceptorProviders: Type<any>[] = [
     SafePipe,
     ElastestEusDialog,
     RunTJobModalComponent,
-    EtmLogsMetricsViewComponent,
+    EtmMonitoringViewComponent,
     InstancesManagerComponent,
     ServiceGuiComponent,
     ServiceDetailComponent,

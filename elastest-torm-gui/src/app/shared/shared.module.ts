@@ -1,3 +1,7 @@
+import { EtmLogsGroupComponent } from '../elastest-etm/etm-monitoring-view/etm-logs-group/etm-logs-group.component';
+import {
+    EtmChartGroupComponent,
+} from '../elastest-etm/etm-monitoring-view/etm-chart-group/etm-chart-group.component';
 import { NgModule, } from '@angular/core';
 import { CommonModule, } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, } from '@angular/forms';
@@ -20,13 +24,11 @@ import { LogsViewComponent } from './logs-view/logs-view.component';
 import { MetricsViewComponent } from './metrics-view/metrics-view.component';
 import { LoadPreviousViewComponent } from './load-previous-view/load-previous-view.component';
 import { ParametersViewComponent } from './parameters-view/parameters-view.component';
-import { ComplexMetricsViewComponent } from './metrics-view/complex-metrics-view/complex-metrics-view.component';
-import { ComboChartComponent } from './metrics-view/complex-metrics-view/combo-chart/combo-chart.component';
+import { MetricsChartCardComponent } from './metrics-view/metrics-chart-card/metrics-chart-card.component';
+import { ComboChartComponent } from './metrics-view/metrics-chart-card/combo-chart/combo-chart.component';
 import { CovalentExpansionPanelModule } from '@covalent/core';
-import { EtmComplexMetricsGroupComponent } from './metrics-view/complex-metrics-view/etm-complex-metrics-group/etm-complex-metrics-group.component';
-import { TooltipAreaComponent } from './metrics-view/complex-metrics-view/combo-chart/components/tooltip-area.component';
-import { TimelineComponent } from './metrics-view/complex-metrics-view/combo-chart/components/timeline.component';
-import { EtmLogsGroupComponent } from './logs-view/etm-logs-group/etm-logs-group.component';
+import { TooltipAreaComponent } from './metrics-view/metrics-chart-card/combo-chart/components/tooltip-area.component';
+import { TimelineComponent } from './metrics-view/metrics-chart-card/combo-chart/components/timeline.component';
 import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
 import { RefreshComponent } from './refresh/refresh.component';
@@ -74,9 +76,9 @@ const CHART_MODULES: any[] = [
     MetricsViewComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
-    ComplexMetricsViewComponent,
+    MetricsChartCardComponent,
     ComboChartComponent,
-    EtmComplexMetricsGroupComponent,
+    EtmChartGroupComponent,
     TooltipAreaComponent,
     TimelineComponent,
     EtmLogsGroupComponent,
@@ -92,11 +94,11 @@ const CHART_MODULES: any[] = [
     FLEX_LAYOUT_MODULES,
     LogsViewComponent,
     MetricsViewComponent,
-    ComplexMetricsViewComponent,
+    MetricsChartCardComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
     ComboChartComponent,
-    EtmComplexMetricsGroupComponent,
+    EtmChartGroupComponent,
     EtmLogsGroupComponent,
     TooltipAreaComponent,
     TimelineComponent,
