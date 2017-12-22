@@ -322,7 +322,6 @@ public class DockerService2 {
             }
 
             if (dockerExec.isWithSut()) {
-                envList.add("APP_IP=" + dockerExec.getSutExec().getUrl());
                 envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
             }
 
