@@ -15,40 +15,41 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Object that contains the exchange information between Jenkins and ElasTest.")
 public class ExternalJob {
-	
-	@JsonProperty("jobName")
-	private String jobName;
 
-	@JsonProperty("executionUrl")
-	private String executionUrl;
-	
-	@JsonProperty("analyzerUrl")
-	private String logAnalyzerUrl;
-	
-	@JsonProperty("tJobExecId")
-	private Long tJobExecId;	
-	
-	@JsonProperty("logstashPort")	
-	private String logstashPort;
-	
-	@JsonProperty("servicesIp")	
-	private String servicesIp;
-	
-	@JsonProperty("tSServices")
+    @JsonProperty("jobName")
+    private String jobName;
+
+    @JsonProperty("executionUrl")
+    private String executionUrl;
+
+    @JsonProperty("analyzerUrl")
+    private String logAnalyzerUrl;
+
+    @JsonProperty("tJobExecId")
+    private Long tJobExecId;
+
+    @JsonProperty("logstashPort")
+    private String logstashPort;
+
+    @JsonProperty("servicesIp")
+    private String servicesIp;
+
+    @JsonProperty("tSServices")
     private List<TestSupportServices> tSServices;
-	
-	@JsonProperty("tSSEnvVars")
-	private Map<String, String> tSSEnvVars;
-	
-	@JsonProperty("result")
-	private int result;
-	
-	public ExternalJob(){}
-	
+
+    @JsonProperty("tSSEnvVars")
+    private Map<String, String> envVars;
+
+    @JsonProperty("result")
+    private int result;
+
+    public ExternalJob() {
+    }
+
     public ExternalJob(String jobName, String executionUrl,
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
-            Map<String, String> tSSEnvVars, int result) {
+            Map<String, String> envVars, int result) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -57,65 +58,66 @@ public class ExternalJob {
         this.logstashPort = logstashPort;
         this.servicesIp = servicesIp;
         this.tSServices = tSServices;
-        this.tSSEnvVars = tSSEnvVars;
+        this.envVars = envVars;
         this.result = result;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
-	@NotNull
-	public String getJobName() {
-		return jobName;
-	}
-	
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
-	}
+    @NotNull
+    public String getJobName() {
+        return jobName;
+    }
 
-	@ApiModelProperty(example = "http://192.168.99.100:8091/#/projects/2/tjob/8", value = "URL to acces to TJob execution in ElasTest.")	
-	public String getExecutionUrl() {
-		return executionUrl;
-	}
-	public void setExecutionUrl(String executionUrl) {
-		this.executionUrl = executionUrl;
-	}
-	
-	@ApiModelProperty(example = "http://localhost:4200#/logmanager?indexName=8", value = "URL to acces to Log Analyzer in ElasTest.")	
-	public String getLogAnalyzerUrl() {
-		return logAnalyzerUrl;
-	}
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
 
-	public void setLogAnalyzerUrl(String logAnalyzerUrl) {
-		this.logAnalyzerUrl = logAnalyzerUrl;
-	}
+    @ApiModelProperty(example = "http://192.168.99.100:8091/#/projects/2/tjob/8", value = "URL to acces to TJob execution in ElasTest.")
+    public String getExecutionUrl() {
+        return executionUrl;
+    }
 
-	@ApiModelProperty(example = "0", value = "Id of the TJobExecution created.")
-	public Long gettJobExecId() {
-		return tJobExecId;
-	}
+    public void setExecutionUrl(String executionUrl) {
+        this.executionUrl = executionUrl;
+    }
 
-	public void settJobExecId(Long tJobExecId) {
-		this.tJobExecId = tJobExecId;
-	}	
+    @ApiModelProperty(example = "http://localhost:4200#/logmanager?indexName=8", value = "URL to acces to Log Analyzer in ElasTest.")
+    public String getLogAnalyzerUrl() {
+        return logAnalyzerUrl;
+    }
 
-	@ApiModelProperty(example = "9200", value = "Port where the Logstash service is listening.")
-	public String getLogstashPort() {
-		return logstashPort;
-	}
+    public void setLogAnalyzerUrl(String logAnalyzerUrl) {
+        this.logAnalyzerUrl = logAnalyzerUrl;
+    }
 
-	public void setLogstashPort(String logstashPort) {
-		this.logstashPort = logstashPort;
-	}
+    @ApiModelProperty(example = "0", value = "Id of the TJobExecution created.")
+    public Long gettJobExecId() {
+        return tJobExecId;
+    }
 
-	@ApiModelProperty(example = "192.168.99.100", value = "IP where ElasTest services are located.")
-	public String getServicesIp() {
-		return servicesIp;
-	}
+    public void settJobExecId(Long tJobExecId) {
+        this.tJobExecId = tJobExecId;
+    }
 
-	public void setServicesIp(String servicesIp) {
-		this.servicesIp = servicesIp;
-	}
-	
-	public List<TestSupportServices> getTSServices() {
+    @ApiModelProperty(example = "9200", value = "Port where the Logstash service is listening.")
+    public String getLogstashPort() {
+        return logstashPort;
+    }
+
+    public void setLogstashPort(String logstashPort) {
+        this.logstashPort = logstashPort;
+    }
+
+    @ApiModelProperty(example = "192.168.99.100", value = "IP where ElasTest services are located.")
+    public String getServicesIp() {
+        return servicesIp;
+    }
+
+    public void setServicesIp(String servicesIp) {
+        this.servicesIp = servicesIp;
+    }
+
+    public List<TestSupportServices> getTSServices() {
         return tSServices;
     }
 
@@ -123,12 +125,12 @@ public class ExternalJob {
         this.tSServices = tSServices;
     }
 
-	public Map<String, String> getTSSEnvVars() {
-        return tSSEnvVars;
+    public Map<String, String> getEnvVars() {
+        return envVars;
     }
 
-    public void setTSSEnvVars(Map<String, String> tSSEnvVars) {
-        this.tSSEnvVars = tSSEnvVars;
+    public void setEnvVars(Map<String, String> envVars) {
+        this.envVars = envVars;
     }
 
     public int getResult() {
@@ -140,46 +142,56 @@ public class ExternalJob {
     }
 
     @Override
-	public boolean equals(java.lang.Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		ExternalJob externalJob = (ExternalJob) o;
-		return Objects.equals(this.jobName, externalJob.jobName)
-				&& Objects.equals(this.executionUrl, externalJob.executionUrl)
-				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
-				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
-				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
-				&& Objects.equals(this.servicesIp, externalJob.servicesIp)
-				&& Objects.equals(this.tSServices, externalJob.tSServices)
-				&& Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars)
-				&& Objects.equals(this.result, externalJob.result);
-	}
+    public boolean equals(java.lang.Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ExternalJob externalJob = (ExternalJob) o;
+        return Objects.equals(this.jobName, externalJob.jobName)
+                && Objects.equals(this.executionUrl, externalJob.executionUrl)
+                && Objects.equals(this.logAnalyzerUrl,
+                        externalJob.logAnalyzerUrl)
+                && Objects.equals(this.tJobExecId, externalJob.tJobExecId)
+                && Objects.equals(this.logstashPort, externalJob.logstashPort)
+                && Objects.equals(this.servicesIp, externalJob.servicesIp)
+                && Objects.equals(this.tSServices, externalJob.tSServices)
+                && Objects.equals(this.envVars, externalJob.envVars)
+                && Objects.equals(this.result, externalJob.result);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp, tSServices, tSSEnvVars, result);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
+                logstashPort, servicesIp, tSServices, envVars, result);
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("class DeployConfig {\n");
-		sb.append("    jobName: ").append(toIndentedString(jobName)).append("\n");
-		sb.append("    executionUrl: ").append(toIndentedString(executionUrl)).append("\n");
-		sb.append("    logAnalyzerUrl: ").append(toIndentedString(logAnalyzerUrl)).append("\n");
-		sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId)).append("\n");
-		sb.append("    logstashPort: ").append(toIndentedString(logstashPort)).append("\n");
-		sb.append("    servicesIp: ").append(toIndentedString(servicesIp)).append("\n");
-		sb.append("    tSServices: ").append(toIndentedString(tSServices)).append("\n");
-		sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars)).append("\n");
-		sb.append("    result: ").append(toIndentedString(result)).append("\n");
-		sb.append("}");
-		
-		return sb.toString();
-	}
-	
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class DeployConfig {\n");
+        sb.append("    jobName: ").append(toIndentedString(jobName))
+                .append("\n");
+        sb.append("    executionUrl: ").append(toIndentedString(executionUrl))
+                .append("\n");
+        sb.append("    logAnalyzerUrl: ")
+                .append(toIndentedString(logAnalyzerUrl)).append("\n");
+        sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId))
+                .append("\n");
+        sb.append("    logstashPort: ").append(toIndentedString(logstashPort))
+                .append("\n");
+        sb.append("    servicesIp: ").append(toIndentedString(servicesIp))
+                .append("\n");
+        sb.append("    tSServices: ").append(toIndentedString(tSServices))
+                .append("\n");
+        sb.append("    envVars: ").append(toIndentedString(envVars))
+                .append("\n");
+        sb.append("    result: ").append(toIndentedString(result)).append("\n");
+        sb.append("}");
+
+        return sb.toString();
+    }
+
 }

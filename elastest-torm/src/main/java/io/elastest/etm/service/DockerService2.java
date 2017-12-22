@@ -43,7 +43,6 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.utils.UtilTools;
 
@@ -177,9 +176,9 @@ public class DockerService2 {
         ArrayList<String> envList = new ArrayList<>();
         String envVar;
 
-        // Get TestSupportService Env Vars
+        // Get TJob Exec Env Vars
         for (Map.Entry<String, String> entry : dockerExec.gettJobexec()
-                .getTssEnvVars().entrySet()) {
+                .getEnvVars().entrySet()) {
             envVar = entry.getKey() + "=" + entry.getValue();
             envList.add(envVar);
         }
@@ -308,9 +307,9 @@ public class DockerService2 {
             ArrayList<String> envList = new ArrayList<>();
             String envVar;
 
-            // Get TestSupportService Env Vars
+            // Get TJob Exec Env Vars
             for (Map.Entry<String, String> entry : dockerExec.gettJobexec()
-                    .getTssEnvVars().entrySet()) {
+                    .getEnvVars().entrySet()) {
                 envVar = entry.getKey() + "=" + entry.getValue();
                 envList.add(envVar);
             }

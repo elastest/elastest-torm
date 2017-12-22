@@ -19,8 +19,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -64,12 +62,15 @@ public class TJobExecOrchestratorService {
     private SutService sutService;
     private ElasticsearchService elasticsearchService;
 
+    private EtmContextService etmContextService;
+
     public TJobExecOrchestratorService(DockerService2 dockerService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
-            ElasticsearchService elasticsearchService) {
+            ElasticsearchService elasticsearchService,
+            EtmContextService etmContextService) {
         super();
         this.dockerService = dockerService;
         this.testSuiteRepo = testSuiteRepo;
@@ -80,6 +81,7 @@ public class TJobExecOrchestratorService {
         this.sutService = sutService;
         this.dockerComposeService = dockerComposeService;
         this.elasticsearchService = elasticsearchService;
+        this.etmContextService = etmContextService;
     }
 
     public TJobExecution executeExternalJob(TJobExecution tJobExec) {
@@ -319,12 +321,17 @@ public class TJobExecOrchestratorService {
     }
 
     private void setTJobExecEnvVars(TJobExecution tJobExec) {
+        // Get TSS Env Vars
         for (String tSSInstanceId : tJobExec.getServicesInstances()) {
             SupportServiceInstance ssi = esmService.gettJobServicesInstances()
                     .get(tSSInstanceId);
-            tJobExec.getTssEnvVars()
+            tJobExec.getEnvVars()
                     .putAll(esmService.getTSSInstanceEnvVars(ssi, false));
         }
+
+        // Get monitoring Env Vars
+        tJobExec.getEnvVars()
+                .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
     }
 
     /**

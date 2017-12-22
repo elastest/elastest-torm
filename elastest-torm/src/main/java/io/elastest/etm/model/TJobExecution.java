@@ -114,7 +114,7 @@ public class TJobExecution {
     private List<String> servicesInstances;
 
     @Transient
-    private Map<String, String> tssEnvVars;
+    private Map<String, String> envVars;
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
@@ -132,7 +132,7 @@ public class TJobExecution {
         this.duration = (long) 0;
         this.result = ResultEnum.IN_PROGRESS;
         this.servicesInstances = new ArrayList<>();
-        this.tssEnvVars = new HashMap<>();
+        this.envVars = new HashMap<>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -140,7 +140,7 @@ public class TJobExecution {
         this.duration = duration == null ? 0 : duration;
         this.result = result;
         this.servicesInstances = new ArrayList<>();
-        this.tssEnvVars = new HashMap<>();
+        this.envVars = new HashMap<>();
 
     }
 
@@ -326,15 +326,15 @@ public class TJobExecution {
     }
 
     /*
-     * getTssEnvVars get/set
+     * getEnvVars get/set
      */
 
-    public Map<String, String> getTssEnvVars() {
-        return tssEnvVars;
+    public Map<String, String> getEnvVars() {
+        return envVars;
     }
 
-    public void setTssEnvVars(Map<String, String> tssEnvVars) {
-        this.tssEnvVars = tssEnvVars;
+    public void setEnvVars(Map<String, String> envVars) {
+        this.envVars = envVars;
     }
 
     public TJobExecution addLogsItem(Parameter parameter) {

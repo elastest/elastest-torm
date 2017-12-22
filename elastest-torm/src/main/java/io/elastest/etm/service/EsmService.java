@@ -793,7 +793,7 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
                     tJobExecId.toString());
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    tJobExecId.toString());
+                    tJobExecId.toString());// TODO refactor -> Use etmcontextService.getMonitoringEnvVars
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder + fileSeparator + "tjobs" + fileSeparator
@@ -805,7 +805,7 @@ public class EsmService {
         }
 
         supportServiceInstance.getParameters().put("ET_MON_LSHTTP_API",
-                etEtmLshttpApi);
+                etEtmLshttpApi); // TODO refactor -> Use etmcontextService.getMonitoringEnvVars
         supportServiceInstance.getParameters().put("ET_LSBEATS_HOST",
                 etEtmLsbeatsHost);
         supportServiceInstance.getParameters().put("ET_LSBEATS_PORT",

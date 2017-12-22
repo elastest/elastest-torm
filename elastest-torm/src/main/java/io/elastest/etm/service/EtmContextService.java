@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
 
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 
 @Service
@@ -41,6 +42,59 @@ public class EtmContextService {
     String execMode;
     @Value("${et.images}")
     String etImages;
+
+    @Value("${et.esm.ss.desc.files.path}")
+    public String etEsmSsDescFilesPath;
+    @Value("${et.shared.folder}")
+    public String etSharedFolder;
+    @Value("${et.public.host}")
+    public String etPublicHost;
+    @Value("${server.port}")
+    public String serverPort;
+    @Value("${elastest.docker.network}")
+    private String etDockerNetwork;
+    @Value("${et.edm.alluxio.api}")
+    public String etEdmAlluxioApi;
+    @Value("${et.edm.mysql.host}")
+    public String etEdmMysqlHost;
+    @Value("${et.edm.mysql.port}")
+    public String etEdmMysqlPort;
+    @Value("${et.edm.elasticsearch.api}")
+    public String etEdmElasticsearchApi;
+    @Value("${et.edm.api}")
+    public String etEdmApi;
+    @Value("${et.epm.api}")
+    public String etEpmApi;
+    @Value("${et.etm.api}")
+    public String etEtmApi;
+    @Value("${et.esm.api}")
+    public String etEsmApi;
+    @Value("${et.eim.api}")
+    public String etEimApi;
+    @Value("${et.etm.lsbeats.host}")
+    public String etEtmLsbeatsHost;
+    @Value("${et.etm.lsbeats.port}")
+    public String etEtmLsbeatsPort;
+    @Value("${et.etm.lshttp.api}")
+    public String etEtmLshttpApi;
+    @Value("${et.etm.rabbit.host}")
+    public String etEtmRabbitHost;
+    @Value("${et.etm.rabbit.port}")
+    public String etEtmRabbitPort;
+    @Value("${et.emp.api}")
+    public String etEmpApi;
+    @Value("${et.emp.influxdb.api}")
+    public String etEmpInfluxdbApi;
+    @Value("${et.emp.influxdb.host}")
+    public String etEmpInfluxdbHost;
+    @Value("${et.emp.influxdb.graphite.port}")
+    public String etEmpInfluxdbGraphitePort;
+    @Value("${et.etm.lstcp.host}")
+    public String etEtmLstcpHost;
+    @Value("${et.etm.lstcp.port}")
+    public String etEtmLstcpPort;
+    @Value("${et.socat.image}")
+    public String etSocatImage;
 
     HelpInfo helpInfo;
 
@@ -76,27 +130,45 @@ public class EtmContextService {
     }
 
     private void loadHelpInfoFromImages() {
-        List<String> imagesNames = Arrays
-                .asList(etImages.split(","));
+        List<String> imagesNames = Arrays.asList(etImages.split(","));
         helpInfo = new HelpInfo();
 
         imagesNames.forEach((imageName) -> {
-            try{
+            try {
                 logger.info("Image name {}.", imageName);
                 InspectImageResponse imageInfo = dockerService
                         .getImageInfoByName(imageName);
-                logger.info("Image commit {}.", imageInfo.getConfig().getLabels().get("git_commit"));
-                logger.info("Commit date {}.", imageInfo.getConfig().getLabels().get("commit_date"));
-                logger.info("Version name {}.", imageInfo.getConfig().getLabels().get("version"));
+                logger.info("Image commit {}.",
+                        imageInfo.getConfig().getLabels().get("git_commit"));
+                logger.info("Commit date {}.",
+                        imageInfo.getConfig().getLabels().get("commit_date"));
+                logger.info("Version name {}.",
+                        imageInfo.getConfig().getLabels().get("version"));
                 VersionInfo imageVersionInfo = new VersionInfo(
                         imageInfo.getConfig().getLabels().get("git_commit"),
                         imageInfo.getConfig().getLabels().get("commit_date"),
                         imageInfo.getConfig().getLabels().get("version"));
                 helpInfo.getVersionsInfo().put(imageName, imageVersionInfo);
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Unable to retrieve ElasTest Help Information.");
             }
         });
+    }
+
+    public Map<String, String> getMonitoringEnvVars(TJobExecution tJobExec) {
+        Map<String, String> monEnvs = new HashMap<String, String>();
+
+        if (tJobExec != null) {
+            monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
+        }
+
+        monEnvs.put("ET_MON_LSHTTP_API", etEtmLshttpApi);
+        monEnvs.put("ET_MON_LSBEATS_HOST", etEtmLsbeatsHost);
+        monEnvs.put("ET_MON_LSBEATS_PORT", etEtmLsbeatsPort);
+        monEnvs.put("ET_MON_LSTCP_HOST", etEtmLstcpHost);
+        monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
+
+        return monEnvs;
     }
 
 }
