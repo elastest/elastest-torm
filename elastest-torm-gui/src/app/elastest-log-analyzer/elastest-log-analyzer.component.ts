@@ -253,6 +253,15 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   /***** Load functions *****/
   /**************************/
 
+  verifyAndLoadLog($event, loadLog: boolean) {
+    $event.preventDefault(); // On enter key pressed always opens modal. Prevent this
+    if (loadLog) {
+      this.loadLog();
+    } else {
+      this.popup('The search can not be performed. Please complete all required fields');
+    }
+  }
+
   loadLog(): void {
     this.logAnalyzer.usingTail = this.logAnalyzer.tail;
     this.logAnalyzer.stopTail();

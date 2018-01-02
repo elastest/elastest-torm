@@ -38,8 +38,8 @@
                 </div>
 
                 <!-- Date -->
-                <div id="logDate" layout="column" class="margin-top-gt-xs">
-                  <div layout="row">
+                <div id="logDate" layout="column" class="push-top push-bottom-sm">
+                  <div layout="row" class="push-top-sm">
                     <md-input-container flex="90" class="oveflowHidden">
                       <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
                     </md-input-container>
@@ -55,7 +55,7 @@
                 </div>
 
                 <!-- Components/Streams And Levels -->
-                <div id="componentsLevels" layout="column" class="pad-top">
+                <div id="componentsLevels" layout="column" class="pad-top push-bottom-sm">
                   <div flex="50">
                     <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
@@ -76,10 +76,10 @@
                   </div>
                 </div>
 
-                <div clas="push-top-sm">
-                  <md-input-container flex="100">
+                <div clas="push-top-sm" layout="column">
+                  <md-input-container>
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
-                      placeholder="Message">
+                      placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
                   </md-input-container>
                 </div>
               </div>

@@ -77,6 +77,10 @@ md-sidenav-container {
     margin: 0;
 }
 
+#logManagerForm{
+    position: absolute;
+}
+
 #logSidenav md-card-content{
     height: 99%;
     padding-top: 4px;
@@ -97,9 +101,8 @@ md-sidenav-container {
     height: 16%;
 }
 
-
 :host /deep/ #logDate{
-    max-height: 26% !important;
+    //max-height: 26% !important;
 }
 
 #componentsLevels{
@@ -127,4 +130,10 @@ md-sidenav-container {
 }
 .patternColor input[type="color"]::-webkit-color-swatch {
 	border: none;
+}
+
+@media (min-width : 1400px) { //TODO not working
+    :host /deep/ .mat-tab-body-content:has(> #logManagerForm){
+        overflow-x: hidden !important;
+    }
 }
