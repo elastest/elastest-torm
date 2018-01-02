@@ -198,8 +198,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     if (this.logAnalyzer.messageFilter !== '') {
       let messageMatch: ESMatchModel = new ESMatchModel();
       messageMatch.field = 'message';
-      messageMatch.query = this.logAnalyzer.messageFilter;
-      messageMatch.type = 'phrase';
+      messageMatch.query = '*' + this.logAnalyzer.messageFilter + '*';
+      messageMatch.type = 'phrase_prefix';
       this.esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
     }
   }

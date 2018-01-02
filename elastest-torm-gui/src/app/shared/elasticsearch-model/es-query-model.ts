@@ -99,7 +99,8 @@ export class ESRangeModel {
 
 export type MatchOperators = 'and' | 'or';
 export type MatchZeroTermsQuery = 'all' | 'match_all';
-export type MatchType = 'phrase' ;
+export type MultiMatchType = 'phrase' | 'phrase_prefix' | 'best_fields' | 'most_fields' | 'cross_fields';
+export type MatchType = 'boolean' | 'phrase' | 'phrase_prefix';
 export class ESMatchModel {
     field: string;
     query: string;
