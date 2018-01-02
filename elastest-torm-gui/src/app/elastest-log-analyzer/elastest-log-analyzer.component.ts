@@ -134,6 +134,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     // Add term stream_type === 'log'
     this.esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
     this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
+    this.esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
   }
 
   /**********************/
@@ -310,7 +311,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   loadMore(fromTail: boolean = false): void {
     this.prepareLoadLog();
     let lastTrace: any = this.logRows[this.logRows.length - 1];
-    this.esSearchModel.body.searchAfter = [lastTrace.sort[0]];
+    this.esSearchModel.body.searchAfter = lastTrace.sort;
     if (fromTail) {
       this.setRangeByGiven(lastTrace['@timestamp'], 'now');
       this.esSearchModel.body.size = 100;
@@ -348,7 +349,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         let to: Date = this.logRows[selected + 1]['@timestamp'];
         this.setRangeByGiven(from, to, true, false);
 
-        this.esSearchModel.body.searchAfter = [this.logRows[selected].sort[0]];
+        this.esSearchModel.body.searchAfter = this.logRows[selected].sort;
         let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
         let searchBody: string = this.esSearchModel.getSearchBody();
         this.elastestESService.search(searchUrl, searchBody)

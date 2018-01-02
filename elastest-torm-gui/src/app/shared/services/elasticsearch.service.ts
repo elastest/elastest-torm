@@ -110,8 +110,8 @@ export class ElasticSearchService {
           let dataReceived: number = data.hits.hits.length;
           if (dataReceived > 0) {
             let lastReceivedPos: number = dataReceived - 1;
-            let sortId: number = data.hits.hits[lastReceivedPos].sort[0];
-            theQuery['search_after'] = [sortId];
+            let sortIdList: any[] = data.hits.hits[lastReceivedPos].sort;
+            theQuery['search_after'] = sortIdList;
 
             this.searchAllByTerm(index, terms, theQuery, filterPath).subscribe(
               (result) => {
@@ -164,12 +164,13 @@ export class ElasticSearchService {
   inverseSearch(index: string, terms: any[], data: any, _logs: Subject<string[]>) {
     let dataReceived: number = data.hits.hits.length;
     if (dataReceived > 0) {
-      let sortId: number = data.hits.hits[0].sort[0];
+      let sortIdList: any[] = data.hits.hits[0].sort;
 
       let newQuery: any = {
-        search_after: [sortId],
+        search_after: sortIdList,
         sort: [
-          { '@timestamp': 'desc' }
+          { '@timestamp': 'desc' },
+          { '_uid': 'desc' }
         ],
         query: {
           bool: {
@@ -217,7 +218,8 @@ export class ElasticSearchService {
     if (theQuery === undefined || theQuery === null) {
       theQuery = {
         sort: [
-          { '@timestamp': 'desc' }
+          { '@timestamp': 'desc' },
+          { '_uid': 'desc' }
         ],
         query: {
           bool: {
@@ -399,7 +401,8 @@ export class ElasticSearchService {
   getDefaultQuery(must: any) {
     let theQuery: any = {
       sort: [
-        { '@timestamp': 'asc' }
+        { '@timestamp': 'asc' },
+        { '_uid': 'asc' }
       ],
       query: {
         bool: {
