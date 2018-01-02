@@ -68,6 +68,7 @@ import { TreeModule } from 'angular-tree-component';
 import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/execution-modal.component';
 
 import { HelpComponent } from './elastest-etm/help/help.component';
+import { ShowMessageModalComponent } from './elastest-log-analyzer/show-message-modal/show-message-modal.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -102,6 +103,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ExecutionModalComponent,
     MonitoringConfigurationComponent,
     HelpComponent,
+    ShowMessageModalComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -159,6 +161,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialog,
     RunTJobModalComponent,
     GetIndexModalComponent,
+    ShowMessageModalComponent,
     ExecutionModalComponent,
     MonitoringConfigurationComponent
   ],

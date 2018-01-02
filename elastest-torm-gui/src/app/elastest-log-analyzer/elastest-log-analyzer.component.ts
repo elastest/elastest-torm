@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es-query-model';
 import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent } from 'ag-grid/dist/lib/events';
+import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid/dist/lib/events';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
@@ -23,6 +23,7 @@ import {
 } from 'ag-grid/main';
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
+import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
 
 
 @Component({
@@ -422,6 +423,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.logAnalyzer.selectedRow = undefined;
       }
     }
+  }
+  public openMessageModal($event: RowDoubleClickedEvent): void {
+    let dialogRef: MdDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
+      data: { row: $event.data, columns: this.logColumns },
+      height: '80%',
+      width: '90%',
+    });
   }
 
   public refreshView(): void {

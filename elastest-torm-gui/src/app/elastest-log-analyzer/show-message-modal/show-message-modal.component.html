@@ -1,0 +1,28 @@
+<h2 md-dialog-title>Log entry</h2>
+
+<md-dialog-content>
+  <div layout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
+    <div layout="column">
+      <md-card-subtitle>
+        Message
+      </md-card-subtitle>
+      <md-input-container flex="100">
+        <textarea [(ngModel)]="row.message" mdInput rows="12" [style.width.%]="99" id="message" class="monospaced" readonly></textarea>
+      </md-input-container>
+    </div>
+    <ng-container *ngFor="let column of columns">
+      <ng-container *ngIf="column.field !== 'message'">
+        <div class="push-top" layout="column">
+          <md-card-subtitle>
+            {{column.field}}
+          </md-card-subtitle>
+          <span class="monospaced">{{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}</span>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</md-dialog-content>
+
+<md-dialog-actions>
+  <button md-raised-button color="accent" md-dialog-close>Close</button>
+</md-dialog-actions>
