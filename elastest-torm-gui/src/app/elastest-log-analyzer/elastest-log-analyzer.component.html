@@ -23,14 +23,14 @@
                 <!-- Indices and Select Buttons -->
                 <div layout="column">
                   <!-- Indices  -->
-                  <div flex="50">
-                    <md-input-container class="noMarginInput">
+                  <div layout="row">
+                    <md-input-container class="noMarginInput" flex="95">
                       <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
                         name="selectedIndices" placeholder="Executions" required [disabled]="true">
                     </md-input-container>
                   </div>
                   <!-- Select indices (MODAL) -->
-                  <div flex="50">
+                  <div>
                     <button md-raised-button color="accent" (click)="openSelectExecutions()">
                       Select Executions
                     </button>

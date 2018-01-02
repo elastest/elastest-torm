@@ -214,7 +214,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         columnObj.field = field;
         columnObj.width = 240;
         columnObj.suppressSizeToFit = false;
-
+        columnObj.tooltipField = field;
 
         switch (field) {
           case '@timestamp':
