@@ -92,7 +92,7 @@
                   <div flex="25">
                     <md-input-container class="noMarginInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel" required>
+                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
                     </md-input-container>
                   </div>
                   <div flex="40" flex-offset="5">
