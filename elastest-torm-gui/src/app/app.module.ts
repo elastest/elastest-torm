@@ -1,3 +1,4 @@
+import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
 import {
     MonitoringConfigurationComponent,
 } from './elastest-etm/etm-monitoring-view/monitoring-configuration/monitoring-configuration.component';
@@ -156,6 +157,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ElastestEusDialogService,
     EsmService,
     TestEnginesService,
+    LogAnalyzerService,
   ],
   entryComponents: [
     ElastestEusDialog,

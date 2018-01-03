@@ -1,3 +1,4 @@
+import { LogAnalyzerService } from './log-analyzer.service';
 import { AgGridColumn } from 'ag-grid-angular/main';
 import { Router } from '@angular/router';
 import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es-query-model';
@@ -24,6 +25,7 @@ import {
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
+import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
 
 
 @Component({
@@ -79,8 +81,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   currentPos: number = -1;
 
   constructor(
-    public dialog: MdDialog, private elastestESService: ElastestESService,
+    public dialog: MdDialog,
     public router: Router,
+    private elastestESService: ElastestESService,
+    private logAnalyzerService: LogAnalyzerService,
   ) {
     let params: any = router.parseUrl(router.url).queryParams;
     let fromExec: any;
@@ -96,6 +100,15 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.logAnalyzer = new LogAnalyzerModel();
+    this.logAnalyzerService.getLogAnalyzerConfig()
+      .subscribe(
+      (logAnalyzerConfig: LogAnalyzerConfigModel) => {
+        if (logAnalyzerConfig !== undefined) {
+          this.logAnalyzer.laConfig = logAnalyzerConfig;
+        }
+      },
+      (error) => console.log(error),
+    );
     this.initStreamTypeTerm();
     this.initESModel();
   }
@@ -116,8 +129,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    if (this.logAnalyzer.columnState) {
-      this.getColumnsConfig(false);
+    if (this.logAnalyzer.laConfig.columnsState) {
+      this.loadColumnsConfig(false);
     } else {
       this.gridApi.sizeColumnsToFit(); // State is saved automatically
     }
@@ -439,23 +452,54 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public saveColumnsConfig(showPopup: boolean = true): void {
-    this.logAnalyzer.columnState = this.gridColumnApi.getColumnState();
+  public saveColumnsConfig(showPopup: boolean = true, persist: boolean = false): void {
+    this.logAnalyzer.laConfig.columnsState = this.gridColumnApi.getColumnState();
+    if (persist) {
+      this.logAnalyzerService.saveLogAnalyzerConfig(this.logAnalyzer.laConfig)
+        .subscribe(
+        (logAnalyzerConfig: LogAnalyzerConfigModel) => {
+          this.logAnalyzer.laConfig = logAnalyzerConfig;
+        },
+        (error) => {
+          this.popup('An error occurred while trying to save the configuration');
+          console.log('Error on save LogAnalyzer column configuration:', error);
+        },
+      );
+    }
     if (showPopup) {
       this.popup('Columns configuration has been saved');
     }
   }
 
-  public getColumnsConfig(showPopup: boolean = true): void {
-    if (this.logAnalyzer.columnState) {
-      this.gridColumnApi.setColumnState(this.logAnalyzer.columnState);
+  public loadColumnsConfig(showPopup: boolean = true): void {
+    if (this.logAnalyzer.laConfig.columnsState) {
+      this.gridColumnApi.setColumnState(this.logAnalyzer.laConfig.columnsState);
       if (showPopup) {
         this.popup('Saved columns configuration has been loaded');
       }
     }
   }
 
+  public loadSavedColumnsConfig(): void {
+    this.logAnalyzerService.getLogAnalyzerConfig()
+      .subscribe(
+      (logAnalyzerConfig: LogAnalyzerConfigModel) => {
+        if (logAnalyzerConfig !== undefined) {
+          this.logAnalyzer.laConfig = logAnalyzerConfig;
+          this.loadColumnsConfig(false);
+        } else {
+          this.popup('There is not any saved configuration to load');
+        }
+      },
+      (error) => {
+        this.popup('Error on load saved configuration');
+        console.log(error);
+      }
+      );
+  }
+
   public loadDefaultColumnsConfig(): void {
+    this.logAnalyzer.laConfig = new LogAnalyzerConfigModel();
     this.setTableHeader();
     this.popup('Default columns configuration has been loaded');
   }

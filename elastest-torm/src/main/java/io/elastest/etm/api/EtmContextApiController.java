@@ -3,21 +3,28 @@ package io.elastest.etm.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
+import io.elastest.etm.model.LogAnalyzerConfig;
+import io.elastest.etm.model.LogAnalyzerConfig.BasicAttLogAnalyzerConfig;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
+import io.swagger.annotations.ApiParam;
 
 @Controller
-public class EtmContextApiController
-        implements EtmContextApi {
+public class EtmContextApiController implements EtmContextApi {
 
     @Autowired
     EsmService esmService;
@@ -25,7 +32,6 @@ public class EtmContextApiController
     EtmContextService etmContextService;
     @Value("${et.public.host}")
     public String publicHost;
-   
 
     @Override
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
@@ -43,7 +49,8 @@ public class EtmContextApiController
 
     @Override
     public ResponseEntity<ContextInfo> getContextInfo() {
-        return new ResponseEntity<ContextInfo>(etmContextService.getContextInfo(), HttpStatus.OK);
+        return new ResponseEntity<ContextInfo>(
+                etmContextService.getContextInfo(), HttpStatus.OK);
     }
 
     @Override
@@ -79,7 +86,26 @@ public class EtmContextApiController
 
     @Override
     public ResponseEntity<HelpInfo> getHelpInfo() {
-        return new ResponseEntity<HelpInfo>(etmContextService.getHelpInfo(),HttpStatus.OK);
+        return new ResponseEntity<HelpInfo>(etmContextService.getHelpInfo(),
+                HttpStatus.OK);
     }
-    
+
+    @JsonView(BasicAttLogAnalyzerConfig.class)
+    public ResponseEntity<LogAnalyzerConfig> saveLogAnalyzerConfig(
+            @ApiParam(value = "Data to create a LogAnalizerConfig", required = true) @Valid @RequestBody LogAnalyzerConfig body) {
+
+        LogAnalyzerConfig logAnalyzerConfig = this.etmContextService
+                .saveLogAnalyzerConfig(body);
+        return new ResponseEntity<LogAnalyzerConfig>(logAnalyzerConfig,
+                HttpStatus.OK);
+    }
+
+    @JsonView(BasicAttLogAnalyzerConfig.class)
+    public ResponseEntity<LogAnalyzerConfig> getLogAnalyzerConfig() {
+        LogAnalyzerConfig logAnalyzerConfig = this.etmContextService
+                .getLogAnalyzerConfig();
+        return new ResponseEntity<LogAnalyzerConfig>(logAnalyzerConfig,
+                HttpStatus.OK);
+    }
+
 }

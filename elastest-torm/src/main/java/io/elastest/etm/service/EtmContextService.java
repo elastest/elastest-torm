@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.command.InspectImageResponse;
 
+import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
+import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
@@ -24,6 +26,7 @@ public class EtmContextService {
     public static final String EUS_TSS_ID = "29216b91-497c-43b7-a5c4-6613f13fa0e9";
     private static final Logger logger = LoggerFactory
             .getLogger(EtmContextService.class);
+    private final LogAnalyzerRepository logAnalyzerRepository;
 
     @Autowired
     EsmService esmService;
@@ -98,6 +101,10 @@ public class EtmContextService {
 
     HelpInfo helpInfo;
 
+    public EtmContextService(LogAnalyzerRepository logAnalyzerRepository) {
+        this.logAnalyzerRepository = logAnalyzerRepository;
+    }
+
     public ContextInfo getContextInfo() {
         ContextInfo contextInfo = new ContextInfo();
         contextInfo.setElasticSearchUrl(
@@ -169,6 +176,19 @@ public class EtmContextService {
         monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
 
         return monEnvs;
+    }
+
+    public LogAnalyzerConfig saveLogAnalyzerConfig(
+            LogAnalyzerConfig logAnalizerConfig) {
+        if (logAnalizerConfig.getId() == 0) {
+            logAnalizerConfig.setId(new Long(1));
+        }
+
+        return this.logAnalyzerRepository.save(logAnalizerConfig);
+    }
+
+    public LogAnalyzerConfig getLogAnalyzerConfig() {
+        return this.logAnalyzerRepository.findOne(new Long(1));
     }
 
 }

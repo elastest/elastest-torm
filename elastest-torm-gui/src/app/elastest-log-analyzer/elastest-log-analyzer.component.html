@@ -19,7 +19,7 @@
           <md-tab label="Filter">
             <form #logManagerForm="ngForm" id="logManagerForm">
               <!-- Top Content -->
-              <div id="filtersTop" class="pad-sm pad-top" layout="column">
+              <div id="filtersTop" class="pad-sm pad-top-sm" layout="column">
                 <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-sm">
                   <div>
                     <!-- Indices and Select Buttons -->
@@ -160,14 +160,14 @@
               </md-list-item>
             </div>
           </md-tab>
-          <md-tab label="Config" [disabled]="logRows.length === 0" *ngIf="1==0">
+          <md-tab label="Config" [disabled]="logRows.length === 0">
             <div layout="column" class="push-top-sm">
               <md-card-subtitle>Columns Configuration</md-card-subtitle>
-              <button md-raised-button color="accent" (click)="saveColumnsConfig()" title="Save Columns Configuration" class="iconBtn push-top-sm">
+              <button md-raised-button color="accent" (click)="saveColumnsConfig(true,true)" title="Save Columns Configuration" class="iconBtn push-top-sm">
                 <md-icon>save</md-icon> Save
               </button>
-              <button md-raised-button color="accent" (click)="getColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
-                <md-icon>settings_backup_restore</md-icon> Load
+              <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>settings_backup_restore</md-icon> Load Saved
               </button>
               <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
                 <md-icon>restore</md-icon> Load Default

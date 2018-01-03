@@ -7,6 +7,7 @@ import { SutModel } from '../../elastest-etm/sut/sut-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { Injectable } from '@angular/core';
+import { LogAnalyzerConfigModel } from '../../elastest-log-analyzer/log-analyzer-config-model';
 @Injectable()
 export class ETModelsTransformServices {
 
@@ -169,7 +170,7 @@ export class ETModelsTransformServices {
     }
 
     /***** SutExec *****/
-    jsonToSutExecsList(sutExecs: any[]) {
+    jsonToSutExecsList(sutExecs: any[]): SutExecModel[] {
         let sutExecsList: SutExecModel[] = [];
         for (let sutExec of sutExecs) {
             sutExecsList.push(this.jsonToSutExecModel(sutExec));
@@ -177,7 +178,7 @@ export class ETModelsTransformServices {
         return sutExecsList;
     }
 
-    jsonToSutExecModel(sutExec: any) {
+    jsonToSutExecModel(sutExec: any): SutExecModel {
         let newSutExec: SutExecModel;
 
         newSutExec = new SutExecModel();
@@ -190,4 +191,16 @@ export class ETModelsTransformServices {
         return newSutExec;
     }
 
+    /**** LogAnalyzerConfig ****/
+
+    jsonToLogAnalyzerConfigModel(logAnalyzerConfig: any): LogAnalyzerConfigModel {
+        let logAnalyzerConfigModel: LogAnalyzerConfigModel = new LogAnalyzerConfigModel();
+        if (logAnalyzerConfig !== undefined && logAnalyzerConfig !== null) {
+            logAnalyzerConfigModel.id = logAnalyzerConfig.id;
+            logAnalyzerConfigModel.columnsConfig = logAnalyzerConfig.columnsConfig;
+            logAnalyzerConfigModel.columnsState = JSON.parse(logAnalyzerConfigModel.columnsConfig)
+        }
+
+        return logAnalyzerConfigModel;
+    }
 }

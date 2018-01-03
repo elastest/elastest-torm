@@ -2,6 +2,7 @@ import { ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Subscription } from 'rxjs/Rx';
 import { ESBoolModel } from '../shared/elasticsearch-model/es-bool-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
+import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
 export class LogAnalyzerModel {
     // Basic
     selectedIndices: string[];
@@ -21,7 +22,7 @@ export class LogAnalyzerModel {
     levels: AgTreeCheckModel;
 
     // Grid Config
-    columnState: any;
+    laConfig: LogAnalyzerConfigModel;
 
     constructor() {
         this.selectedIndices = ['*'];
@@ -39,7 +40,7 @@ export class LogAnalyzerModel {
         this.messageFilter = '';
         this.selectedRow = undefined;
 
-        this.columnState = undefined;
+        this.laConfig = new LogAnalyzerConfigModel();
     }
 
     public getDefaultFromDate(): Date {
