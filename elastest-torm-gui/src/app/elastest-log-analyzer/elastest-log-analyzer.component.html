@@ -4,8 +4,8 @@
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
           [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
-          (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig(false)" (columnMoved)="saveColumnsConfig(false)" (rowDoubleClicked)="openMessageModal($event)"
-          style="width: 100%; height: 80%;">
+          (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig(false)" (columnMoved)="saveColumnsConfig(false)"
+          (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
     </md-card>
@@ -20,42 +20,46 @@
             <form #logManagerForm="ngForm" id="logManagerForm">
               <!-- Top Content -->
               <div id="filtersTop" class="pad-sm pad-top" layout="column">
-                <!-- Indices and Select Buttons -->
-                <div layout="column">
-                  <!-- Indices  -->
-                  <div layout="row">
-                    <md-input-container class="noMarginInput" flex="95">
-                      <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
-                        name="selectedIndices" placeholder="Executions" required [disabled]="true">
-                    </md-input-container>
-                  </div>
-                  <!-- Select indices (MODAL) -->
+                <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-sm">
                   <div>
-                    <button md-raised-button color="accent" (click)="openSelectExecutions()">
-                      Select Executions
-                    </button>
-                  </div>
-                </div>
+                    <!-- Indices and Select Buttons -->
+                    <div layout="column">
+                      <!-- Indices  -->
+                      <div layout="row">
+                        <md-input-container class="noMarginInput" flex="95">
+                          <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
+                            name="selectedIndices" placeholder="Executions" required [disabled]="true">
+                        </md-input-container>
+                      </div>
+                      <!-- Select indices (MODAL) -->
+                      <div>
+                        <button md-raised-button color="accent" (click)="openSelectExecutions()">
+                          Select Executions
+                        </button>
+                      </div>
+                    </div>
 
-                <!-- Date -->
-                <div id="logDate" layout="column" class="push-top push-bottom-sm">
-                  <div layout="row" class="push-top-sm">
-                    <md-input-container flex="90" class="oveflowHidden">
-                      <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
-                    </md-input-container>
-                  </div>
-                  <div layout="row" class="push-top-sm">
-                    <md-input-container flex="90" class="overflowHidden">
-                      <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
-                    </md-input-container>
-                  </div>
-                  <div layout="column">
-                    <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" style="line-height: 4;">Tail</md-checkbox>
+                    <!-- Date -->
+                    <div id="logDate" layout="column" class="push-top push-bottom-sm">
+                      <div layout="row" class="push-top-sm">
+                        <md-input-container flex="90" class="oveflowHidden">
+                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
+                        </md-input-container>
+                      </div>
+                      <div layout="row" class="push-top-sm">
+                        <md-input-container flex="90" class="overflowHidden">
+                          <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
+                        </md-input-container>
+                      </div>
+                      <div layout="column">
+                        <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" style="line-height: 4;">Tail</md-checkbox>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <!-- Components/Streams And Levels -->
-                <div id="componentsLevels" layout="column" class="pad-top push-bottom-sm">
+                <div id="componentsLevels" layout="column" class="pad-top-sm push-bottom-sm">
                   <div flex="50">
                     <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
@@ -92,7 +96,8 @@
                   <div flex="25">
                     <md-input-container class="noMarginInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
+                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel"
+                        (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
                     </md-input-container>
                   </div>
                   <div flex="40" flex-offset="5">

@@ -105,12 +105,17 @@ md-sidenav-container {
     //max-height: 26% !important;
 }
 
-#componentsLevels{
-    max-height: 56% !important;
+#indicesDate{
+    max-height: 49% !important;
     overflow: auto;
 }
 
-#componentsLevels > div {
+#componentsLevels{
+    max-height: 49% !important;
+    overflow: auto;
+}
+
+#componentsLevels > div, #indicesDate > div {
     max-height: initial;
 }
 
