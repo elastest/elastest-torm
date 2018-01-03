@@ -1,181 +1,152 @@
 <md-sidenav-container fullscreen>
-    <div id="content" layout-fill>
-      <md-card id="logCard" class="push-none">
-        <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
-          <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-            [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
-            (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig(false)" (columnMoved)="saveColumnsConfig(false)"
-            (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
-          </ag-grid-angular>
-        </md-card-content>
-      </md-card>
-    </div>
-  
-    <!-- SIDENAV -->
-    <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="20">
-      <md-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
-        <md-card-content class="push-bottom-none">
-          <md-tab-group>
-            <md-tab label="Filter">
-              <form #logManagerForm="ngForm" id="logManagerForm">
-                <!-- Top Content -->
-                <div id="filtersTop" class="pad-sm pad-top-sm" layout="column">
-                  <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-sm">
-                    <div>
-                      <!-- Indices and Select Buttons -->
+  <div id="content" layout-fill>
+    <md-card id="logCard" class="push-none">
+      <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
+        <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
+          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
+          (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig(false)" (columnMoved)="saveColumnsConfig(false)"
+          (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
+        </ag-grid-angular>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <!-- SIDENAV -->
+  <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="20">
+    <md-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
+      <md-card-content class="push-bottom-none">
+        <md-tab-group>
+          <md-tab label="Filter">
+            <form #logManagerForm="ngForm" id="logManagerForm">
+              <!-- Top Content -->
+              <div id="filtersTop" class="pad-xs pad-top-sm" layout="column">
+                <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-xs">
+                  <div>
+                    <!-- Indices and Select Buttons -->
+                    <div layout="column">
+                      <!-- Indices  -->
+                      <div layout="row">
+                        <md-input-container class="noMarginInput" flex="95">
+                          <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
+                            name="selectedIndices" placeholder="Executions" required [disabled]="true">
+                        </md-input-container>
+                      </div>
+                      <!-- Select indices (MODAL) -->
+                      <div>
+                        <button md-raised-button color="accent" (click)="openSelectExecutions()">
+                          Select Executions
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div id="logDate" layout="column" class="push-top push-bottom-sm">
+                      <div layout="row" class="push-top-sm">
+                        <md-input-container flex="90" class="oveflowHidden">
+                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
+                        </md-input-container>
+                      </div>
+                      <div layout="row" class="push-top-sm">
+                        <md-input-container flex="90" class="overflowHidden">
+                          <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
+                        </md-input-container>
+                      </div>
                       <div layout="column">
-                        <!-- Indices  -->
-                        <div layout="row">
-                          <md-input-container class="noMarginInput" flex="95">
-                            <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
-                              name="selectedIndices" placeholder="Executions" required [disabled]="true">
-                          </md-input-container>
-                        </div>
-                        <!-- Select indices (MODAL) -->
-                        <div>
-                          <button md-raised-button color="accent" (click)="openSelectExecutions()">
-                            Select Executions
-                          </button>
-                        </div>
-                      </div>
-  
-                      <!-- Date -->
-                      <div id="logDate" layout="column" class="push-top push-bottom-sm">
-                        <div layout="row" class="push-top-sm">
-                          <md-input-container flex="90" class="oveflowHidden">
-                            <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
-                          </md-input-container>
-                        </div>
-                        <div layout="row" class="push-top-sm">
-                          <md-input-container flex="90" class="overflowHidden">
-                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
-                          </md-input-container>
-                        </div>
-                        <div layout="column">
-                          <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" style="line-height: 4;">Tail</md-checkbox>
-                        </div>
+                        <md-checkbox #tail [checked]="logAnalyzer.tail" id="tail" name="tail" (change)="setUseTail(tail.checked)" style="line-height: 4;">Tail</md-checkbox>
                       </div>
                     </div>
                   </div>
-  
-                  <!-- Components/Streams And Levels -->
-                  <div id="componentsLevels" layout="column" class="pad-top-sm push-bottom-sm">
-                    <div flex="50">
-                      <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
-                      <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
-                        <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                          <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                            [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
-                        </ng-template>
-                      </tree-root>
-                    </div>
-                    <div flex="45" class="push-top-sm">
-                      <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
-                      <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
-                        <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                          <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                            [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
-                        </ng-template>
-                      </tree-root>
-                    </div>
+                </div>
+
+                <!-- Components/Streams And Levels -->
+                <div id="componentsLevels" layout="column" class="pad-top-xs push-bottom-sm">
+                  <div flex="50">
+                    <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
+                    <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
+                      <ng-template #treeNodeTemplate let-node="node" let-index="index">
+                        <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                      </ng-template>
+                    </tree-root>
                   </div>
-  
-                  <div clas="push-top-sm" layout="column">
-                    <md-input-container>
-                      <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
-                        placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
-                    </md-input-container>
+                  <div flex="45" class="push-top-sm">
+                    <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
+                    <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
+                      <ng-template #treeNodeTemplate let-node="node" let-index="index">
+                        <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                      </ng-template>
+                    </tree-root>
                   </div>
                 </div>
-  
-                <md-divider></md-divider>
-  
-                <!-- Bottom Content (Buttons, ...) -->
-                <div id="filtersBottom" layout="column" class="push-top-sm">
-                  <div layout="row">
-                    <div flex="25">
-                      <md-input-container class="noMarginInput">
-                        <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                          name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel"
-                          (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
-                      </md-input-container>
-                    </div>
-                    <div flex="40" flex-offset="5">
-                      <button md-raised-button color="accent" (click)="loadLog()" [disabled]="!logManagerForm.valid">
-                        <md-icon>search</md-icon>
-                        <span *ngIf="logRows.length > 0; else loadLogText">Reload log</span>
-                        <ng-template #loadLogText>
-                          <span>Load log</span>
-                        </ng-template>
-                      </button>
-                    </div>
-                  </div>
-                  <div layout="row" class="push-top-sm">
-                    <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="1==0" class="pad-left-none" title="Add more traces from last">
-                      <md-icon>vertical_align_bottom</md-icon> Add from last
-                    </button>
-                    <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined"
-                      title="Add more from selected trace">
-                      <md-icon>vertical_align_center</md-icon> Add from selected
-                    </button>
-                    <!-- <button md-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
-                    <md-icon>link</md-icon> Share link
-                  </button>  -->
-                    <md-checkbox #pauseTail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
-                      title="Pause Tail">Pause Tail</md-checkbox>
-                  </div>
+
+                <div clas="push-top-sm" layout="column">
+                  <md-input-container class="noMarginInput">
+                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
+                      placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
+                  </md-input-container>
                 </div>
-              </form>
-            </md-tab>
-            <!-- Mark (Patterns) -->
-            <md-tab label="Mark" [disabled]="logRows.length === 0">
-              <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
-                <md-list-item flex-gt-xs="100">
-                  <div layout="row" layout-align="center center">
-                    <md-input-container>
-                      <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}"
-                        (keydown.enter)="searchByPattern(i)">
+              </div>
+
+              <md-divider></md-divider>
+
+              <!-- Bottom Content (Buttons, ...) -->
+              <div id="filtersBottom" layout="column" class="push-top-sm">
+                <div layout="row">
+                  <div flex="25">
+                    <md-input-container class="noMarginInput noPaddingInput">
+                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
+                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel"
+                        (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
                     </md-input-container>
                   </div>
-                  <div layout-gt-md="row" layout="column" layout-align="center center">
-                    <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
-                      class="hiddenElement" required>
-                    <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">
-                      <md-icon [style.color]="pattern.color">color_lens</md-icon>
-                    </button>
-                    <button md-button (click)="markOrClean(i)" class="push-top-sm iconBtn">
-                      <md-icon *ngIf="pattern.found < 0 || pattern.foundButHidden" color="accent" title="Mark rows">invert_colors</md-icon>
-                      <md-icon *ngIf="pattern.found >= 0 && !pattern.foundButHidden" title="Clean rows">invert_colors_off</md-icon>
-                    </button>
-                    <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm">
-                      <md-icon>delete</md-icon>
-                    </button>
-                    <button md-button (click)="prev(i)" [disabled]="pattern.found <= 0" title="Previous" class="iconBtn push-top-sm">
-                      <md-icon>navigate_before</md-icon>
-                    </button>
-                    <button md-button (click)="next(i)" [disabled]="pattern.found <= 0" title="Next" class="iconBtn push-top-sm">
-                      <md-icon>navigate_next</md-icon>
+                  <div flex="40" flex-offset="5">
+                    <button md-raised-button color="accent" (click)="loadLog()" [disabled]="!logManagerForm.valid">
+                      <md-icon>search</md-icon>
+                      <span *ngIf="logRows.length > 0; else loadLogText">Reload log</span>
+                      <ng-template #loadLogText>
+                        <span>Load log</span>
+                      </ng-template>
                     </button>
                   </div>
-                </md-list-item>
+                </div>
+                <div layout="row" class="push-top-sm">
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="1==0" class="pad-left-none" title="Add more traces from last">
+                    <md-icon>vertical_align_bottom</md-icon> Add from last
+                  </button>
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined"
+                    title="Add more from selected trace">
+                    <md-icon>vertical_align_center</md-icon> Add from selected
+                  </button>
+                  <!-- <button md-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
+                  <md-icon>link</md-icon> Share link
+                </button>  -->
+                  <md-checkbox #pauseTail *ngIf="showPauseTail" id="pauseTail" name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                    title="Pause Tail">Pause Tail</md-checkbox>
+                </div>
               </div>
-            </md-tab>
-            <md-tab label="Config" [disabled]="logRows.length === 0">
-              <div layout="column" class="push-top-sm">
-                <md-card-subtitle>Columns Configuration</md-card-subtitle>
-                <button md-raised-button color="accent" (click)="saveColumnsConfig(true,true)" title="Save Columns Configuration" class="iconBtn push-top-sm">
-                  <md-icon>save</md-icon> Save
-                </button>
-                <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
-                  <md-icon>settings_backup_restore</md-icon> Load Saved
-                </button>
-                <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
-                  <md-icon>restore</md-icon> Load Default
-                </button>
-              </div>
-            </md-tab>
-          </md-tab-group>
-        </md-card-content>
-      </md-card>
-    </md-sidenav>
-  </md-sidenav-container>
+            </form>
+          </md-tab>
+          <!-- Mark (Patterns) -->
+          <md-tab label="Mark" [disabled]="logRows.length === 0">
+            <mark-component #mark [model]="this"></mark-component>
+          </md-tab>
+          <md-tab label="Config" [disabled]="logRows.length === 0">
+            <div layout="column" class="push-top-sm">
+              <md-card-subtitle>Columns Configuration</md-card-subtitle>
+              <button md-raised-button color="accent" (click)="saveColumnsConfig(true,true)" title="Save Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>save</md-icon> Save
+              </button>
+              <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>settings_backup_restore</md-icon> Load Saved
+              </button>
+              <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
+                <md-icon>restore</md-icon> Load Default
+              </button>
+            </div>
+          </md-tab>
+        </md-tab-group>
+      </md-card-content>
+    </md-card>
+  </md-sidenav>
+</md-sidenav-container>

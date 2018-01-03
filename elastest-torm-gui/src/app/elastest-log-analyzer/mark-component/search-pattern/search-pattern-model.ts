@@ -16,7 +16,7 @@ export class SearchPatternModel {
 
     generateRandomColor() {
         let color: string = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        if (color === '#000000' || color === '#ffffff') {
+        if (color === '#000000' || color === '#ffffff' || color.length !== 7) {
             return this.generateRandomColor();
         }
         return color;

@@ -2,14 +2,13 @@ import { ElastestLogAnalyzerComponent } from '../elastest-log-analyzer.component
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { PopupService } from '../../shared/services/popup.service';
-import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'mark-component',
   templateUrl: './mark.component.html',
   styleUrls: ['./mark.component.scss']
 })
-export class MarkComponent implements OnInit, OnChanges {
+export class MarkComponent implements OnInit {
 
   @Input()
   public model: ElastestLogAnalyzerComponent;
@@ -24,12 +23,6 @@ export class MarkComponent implements OnInit, OnChanges {
   constructor(private popupService: PopupService) { }
 
   ngOnInit() {
-  }
-
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
-
   }
 
   addPattern(): void {
@@ -168,7 +161,9 @@ export class MarkComponent implements OnInit, OnChanges {
           pattern.position = 0;
         }
       }
-      this.focusRow(pattern.results[pattern.position]);
+      if (!this.patterns[patternId].foundButHidden) {
+        this.focusRow(pattern.results[pattern.position]);
+      }
     }
   }
 
@@ -185,7 +180,9 @@ export class MarkComponent implements OnInit, OnChanges {
           pattern.position = pattern.results.length - 1;
         }
       }
-      this.focusRow(pattern.results[pattern.position]);
+      if (!this.patterns[patternId].foundButHidden) {
+        this.focusRow(pattern.results[pattern.position]);
+      }
     }
   }
 
