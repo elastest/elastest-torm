@@ -16,6 +16,14 @@ a[md-icon-button] {
   text-transform: capitalize;
 }
 
+:host /deep/ .noMarginInput > .mat-input-wrapper{
+    margin: 0 !important;
+}
+
+:host /deep/ .noPaddingInput > .mat-input-wrapper{
+    padding: 0 !important;
+}
+
 // Lighter font weight in sub-toolbars
 td-layout-manage-list .mat-toolbar {
     font-weight: 400;

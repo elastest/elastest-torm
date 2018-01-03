@@ -5,12 +5,11 @@ import { ESBoolQueryModel, ESMatchModel } from '../shared/elasticsearch-model/es
 import { ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid/dist/lib/events';
-import { SearchPatternModel } from './search-pattern/search-pattern-model';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
 import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import {
@@ -26,7 +25,7 @@ import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
-
+import { MarkComponent } from './mark-component/mark.component';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -34,8 +33,8 @@ import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
   styleUrls: ['./elastest-log-analyzer.component.scss']
 })
 export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
-  private gridApi: GridApi;
-  private gridColumnApi: ColumnApi;
+  public gridApi: GridApi;
+  public gridColumnApi: ColumnApi;
 
   public esSearchModel: ESSearchModel;
   public logAnalyzer: LogAnalyzerModel;
@@ -64,6 +63,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   @ViewChild('fromDate') fromDate: ElementRef;
   @ViewChild('toDate') toDate: ElementRef;
+  @ViewChild('mark') mark: MarkComponent;
+
 
   // Buttons
   public showLoadMore: boolean = false;
@@ -73,12 +74,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   // Filters
   @ViewChild('componentsTree') componentsTree: TreeComponent;
   @ViewChild('levelsTree') levelsTree: TreeComponent;
-
-  // Mark
-  patternDefault: SearchPatternModel = new SearchPatternModel();
-  patterns: SearchPatternModel[] = [this.patternDefault];
-  currentRowSelected: number = -1;
-  currentPos: number = -1;
 
   constructor(
     public dialog: MdDialog,
@@ -295,7 +290,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         let logsLoaded: boolean = this.logRows.length > 0;
         if (logsLoaded) {
           this.setTableHeader();
-          this.removeAllPatterns();
+          this.mark.removeAllPatterns();
           this.popup('Logs has been loaded');
         } else {
           this.popup('There aren\'t logs to load', 'OK');
@@ -342,7 +337,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.popup('Loaded more logs');
           this.setTableHeader();
           this.updateButtons(!fromTail);
-          this.searchByPatterns();
+          this.mark.searchByPatterns();
         } else {
           this.popup('There aren\'t more logs to load', 'OK');
           this.disableLoadMore = true; // removed from html temporally
@@ -376,7 +371,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
               this.popup('Loaded more logs from selected trace');
               this.setTableHeader();
               this.updateButtons();
-              this.searchByPatterns();
+              this.mark.searchByPatterns();
             } else {
               this.popup('There aren\'t logs to load or you don\'t change filters', 'OK');
             }
@@ -401,6 +396,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public componentStateChanged($event: ComponentStateChangedEvent): void { // On changes detected
     this.onGridReady($event);
+    this.mark.model = this;
     if (this.logAnalyzer.usingTail) {
       $event.api.ensureIndexVisible(this.logRows.length - 1, 'undefined');
     }
@@ -591,213 +587,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.levelsTree.treeModel.update();
       }
       );
-  }
-
-  /****************/
-  /***** Mark *****/
-  /****************/
-
-  addPattern(): void {
-    this.patterns.push(new SearchPatternModel());
-  }
-
-  removePattern(position: number): void {
-    if (position < this.patterns.length - 1) { // Not last pattern
-      this.patterns.splice(position, 1);
-      if (this.patterns.length === 0) {
-        this.addPattern();
-      } else {
-        this.searchByPatterns();
-      }
-    } else if (position === this.patterns.length - 1
-      && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { // Last pattern with search message and not searched
-      this.patterns.splice(position, 1);
-      this.addPattern();
-    }
-  }
-
-  clearPatterns(): void {
-    for (let pattern of this.patterns) {
-      pattern.searchValue = '';
-      pattern.results = [];
-      pattern.found = -1;
-      pattern.foundButHidden = false;
-    }
-    this.currentPos = -1;
-    this.currentRowSelected = -1;
-    this.cleanRowsColor();
-  }
-
-  removeAllPatterns(): void {
-    this.patterns = [];
-    this.currentPos = -1;
-    this.currentRowSelected = -1;
-    this.cleanRowsColor();
-    this.addPattern();
-  }
-
-  markOrClean(index: number): void {
-    let pattern: SearchPatternModel = this.patterns[index];
-    if (pattern.found < 0 || (pattern.found >= 0 && pattern.foundButHidden)) { // If is unmarked, search this pattern to mark
-      pattern.foundButHidden = false;
-      this.searchByPattern(index);
-    } else {
-      pattern.foundButHidden = true;
-      // pattern.position = -1;
-      this.searchByPatterns();
-    }
-  }
-
-  searchByPatterns(): void {
-    this.currentPos = -1;
-    this.cleanRowsColor();
-    let i: number = 0;
-    this.logRows
-      .map(
-      (row: any) => {
-        for (let pattern of this.patterns) {
-          if (i === 0) { // First iteration of map
-            pattern.results = []; // Initialize results to empty
-          }
-          if ((pattern.searchValue !== '') && (row.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
-            if (pattern.results.indexOf(i) === -1) {
-              pattern.results.push(i);
-            }
-          }
-        }
-        i++;
-      });
-
-    let j: number = 0;
-    for (let pattern of this.patterns) {
-      if (pattern.searchValue !== '') {
-        pattern.found = pattern.results.length;
-      }
-      if (pattern.results.length > 0) {
-        this.paintResults(j);
-        this.next(j);
-      }
-      j++;
-    }
-  }
-
-  searchByPattern(patternId: number): void {
-    if (this.patterns[patternId].searchValue !== '') {
-      this.searchByPatterns();
-
-      this.clearFocusedRow();
-      this.currentPos = -1;
-
-      // Repaint and focus this search
-      this.paintResults(patternId);
-      this.next(patternId);
-      if (patternId === this.patterns.length - 1) {
-        this.addPattern();
-      }
-    } else {
-      this.popup('Search value can not be empty', 'OK');
-    }
-  }
-
-  paintResults(patternId: number): void {
-    if (this.logRows && this.logRows.length > 0) {
-      for (let result of this.patterns[patternId].results) {
-        if (this.logRows[result] && !this.patterns[patternId].foundButHidden) {
-          this.logRows[result].marked = this.patterns[patternId].color;
-        } else {
-          this.logRows[result].marked = undefined;
-        }
-      }
-      this.refreshView();
-    }
-  }
-
-  cleanRowsColor(): void {
-    for (let row of this.logRows) {
-      row.marked = undefined;
-      row.focused = false;
-    }
-    this.refreshView();
-  }
-
-  next(patternId: number): void {
-    let pattern: SearchPatternModel = this.patterns[patternId];
-    if (pattern.results.length > 0) {
-      pattern.results.sort(this.sorted);
-
-      if (this.currentPos === -1) {
-        pattern.position = 0;
-      } else {
-        pattern.position = this.getNextPosition(this.currentPos, pattern.results);
-        if (pattern.position === -1) {
-          pattern.position = 0;
-        }
-      }
-      this.focusRow(pattern.results[pattern.position]);
-    }
-  }
-
-  prev(patternId: number): void {
-    let pattern: SearchPatternModel = this.patterns[patternId];
-    if (pattern.results.length > 0) {
-      pattern.results.sort(this.sorted);
-
-      if (this.currentPos === -1) {
-        pattern.position = pattern.results.length - 1;
-      } else {
-        pattern.position = this.getPrevPosition(this.currentPos, pattern.results);
-        if (pattern.position === -1) {
-          pattern.position = pattern.results.length - 1;
-        }
-      }
-      this.focusRow(pattern.results[pattern.position]);
-    }
-  }
-
-  focusRow(newPos: number): void {
-    this.clearFocusedRow();
-    this.currentPos = newPos;
-    if (this.logRows.length > 0) {
-      this.logRows[this.currentPos].focused = true;
-      this.refreshView();
-      this.gridApi.ensureIndexVisible(this.currentPos, 'undefined'); // Make scroll if it's necessary
-      this.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
-    }
-  }
-
-  clearFocusedRow(): void {
-    if (this.currentPos >= 0) {
-      this.logRows[this.currentPos].focused = false;
-      this.gridApi.clearFocusedCell();
-    }
-  }
-
-  getNextPosition(element: number, array: number[]): number {
-    let i: number;
-    for (i = 0; i < array.length; i++) {
-      if (element < array[i]) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  getPrevPosition(element: number, array: number[]): number {
-    let i: number;
-    for (i = array.length; i >= 0; i--) {
-      if (element > array[i]) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  sorted(a: number, b: number): number {
-    return a - b;
-  }
-
-  openColorPicker(i: number): void {
-    document.getElementById('pattern' + i + 'Color').click();
   }
 
 }

@@ -19,8 +19,8 @@
           <md-tab label="Filter">
             <form #logManagerForm="ngForm" id="logManagerForm">
               <!-- Top Content -->
-              <div id="filtersTop" class="pad-sm pad-top-sm" layout="column">
-                <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-sm">
+              <div id="filtersTop" class="pad-xs pad-top-sm" layout="column">
+                <div id="indicesDate" layout="column" class="pad-top-sm push-bottom-xs">
                   <div>
                     <!-- Indices and Select Buttons -->
                     <div layout="column">
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Components/Streams And Levels -->
-                <div id="componentsLevels" layout="column" class="pad-top-sm push-bottom-sm">
+                <div id="componentsLevels" layout="column" class="pad-top-xs push-bottom-sm">
                   <div flex="50">
                     <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
@@ -81,7 +81,7 @@
                 </div>
 
                 <div clas="push-top-sm" layout="column">
-                  <md-input-container>
+                  <md-input-container class="noMarginInput">
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
                       placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
                   </md-input-container>
@@ -94,7 +94,7 @@
               <div id="filtersBottom" layout="column" class="push-top-sm">
                 <div layout="row">
                   <div flex="25">
-                    <md-input-container class="noMarginInput">
+                    <md-input-container class="noMarginInput noPaddingInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
                         name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel"
                         (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
@@ -129,36 +129,7 @@
           </md-tab>
           <!-- Mark (Patterns) -->
           <md-tab label="Mark" [disabled]="logRows.length === 0">
-            <div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
-              <md-list-item flex-gt-xs="100">
-                <div layout="row" layout-align="center center">
-                  <md-input-container>
-                    <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}"
-                      (keydown.enter)="searchByPattern(i)">
-                  </md-input-container>
-                </div>
-                <div layout-gt-md="row" layout="column" layout-align="center center">
-                  <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
-                    class="hiddenElement" required>
-                  <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">
-                    <md-icon [style.color]="pattern.color">color_lens</md-icon>
-                  </button>
-                  <button md-button (click)="markOrClean(i)" class="push-top-sm iconBtn">
-                    <md-icon *ngIf="pattern.found < 0 || pattern.foundButHidden" color="accent" title="Mark rows">invert_colors</md-icon>
-                    <md-icon *ngIf="pattern.found >= 0 && !pattern.foundButHidden" title="Clean rows">invert_colors_off</md-icon>
-                  </button>
-                  <button md-button (click)="removePattern(i)" aria-label="close" title="Delete pattern" class="iconBtn push-top-sm">
-                    <md-icon>delete</md-icon>
-                  </button>
-                  <button md-button (click)="prev(i)" [disabled]="pattern.found <= 0" title="Previous" class="iconBtn push-top-sm">
-                    <md-icon>navigate_before</md-icon>
-                  </button>
-                  <button md-button (click)="next(i)" [disabled]="pattern.found <= 0" title="Next" class="iconBtn push-top-sm">
-                    <md-icon>navigate_next</md-icon>
-                  </button>
-                </div>
-              </md-list-item>
-            </div>
+            <mark-component #mark [model]="this"></mark-component>
           </md-tab>
           <md-tab label="Config" [disabled]="logRows.length === 0">
             <div layout="column" class="push-top-sm">
