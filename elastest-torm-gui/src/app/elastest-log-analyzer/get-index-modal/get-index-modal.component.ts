@@ -1,4 +1,4 @@
-import { minDate } from '../../elastest-log-manager/utils/Utils';
+import { minDate, maxDate } from '../../elastest-log-manager/utils/Utils';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
@@ -39,6 +39,7 @@ export class GetIndexModalComponent implements OnInit {
     { name: 'select', label: 'Select' },
     { name: 'id', label: 'Id' },
     { name: 'startDate', label: 'Start Date' },
+    { name: 'endDate', label: 'End Date' },
     { name: 'result', label: 'Result' },
   ];
 
@@ -120,16 +121,24 @@ export class GetIndexModalComponent implements OnInit {
   saveIndices(): void {
     let selectedIndices: string[] = [];
     let fromDate: Date = new Date();
-    let auxDate: Date = fromDate;
+    let auxFromDate: Date = fromDate;
+
+    let toDate: Date = new Date();
+    let auxToDate: Date = undefined;
+
     this.selectedTJobExecs.forEach((tJobExec: TJobExecModel, key: number) => {
       selectedIndices.push(tJobExec.logIndex);
-      auxDate = minDate(auxDate, tJobExec.startDate);
+      auxFromDate = minDate(auxFromDate, tJobExec.startDate);
+      auxToDate = maxDate(auxToDate, tJobExec.endDate);
     });
 
-    auxDate === fromDate ? fromDate = undefined : fromDate = auxDate;
+    auxFromDate === fromDate ? fromDate = undefined : fromDate = auxFromDate;
+
+    auxToDate === toDate ? toDate = undefined : toDate = auxToDate;
 
     let response: any = { selectedIndices: selectedIndices };
     response.fromDate = fromDate;
+    response.toDate = toDate;
     this.dialogRef.close(response);
   }
 }

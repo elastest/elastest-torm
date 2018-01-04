@@ -22,28 +22,32 @@
                         <md-card-subtitle>Start Date</md-card-subtitle>
                         <h4>{{ tJobExec.startDate }}</h4>
                     </span>
+                    <span flex-gt-xs="20">
+                        <md-card-subtitle>End Date</md-card-subtitle>
+                        <h4>{{ tJobExec.endDate }}</h4>
+                    </span>
                     <ng-container>
-                        <span flex-gt-xs="15" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
+                        <span flex-gt-xs="10" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>None</h4>
                         </span>
-                        <span flex-gt-xs="15" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
+                        <span flex-gt-xs="10" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>{{tJobExec.sutExec.id}}</h4>
                         </span>
                     </ng-container>
-                    <span flex-gt-xs="15">
+                    <span flex-gt-xs="10">
                         <md-card-subtitle>Log Index</md-card-subtitle>
                         <h4>{{tJobExec.logIndex}}</h4>
                     </span>
-                    <span flex-gt-xs="15">
+                    <span flex-gt-xs="10">
                         <md-card-subtitle>View in Log Analyzer</md-card-subtitle>
                         <button md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn" title="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
                     </span>
 
-                    <span flex-gt-xs="15">
+                    <span flex-gt-xs="10">
                         <md-card-subtitle>Monitoring Config</md-card-subtitle>
                         <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn" title="Open Monitoring Config">
                             <md-icon>settings</md-icon>

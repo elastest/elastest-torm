@@ -549,6 +549,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             if (data.fromDate) {
               this.setFromDate(data.fromDate);
             }
+            if (data.toDate) {
+              this.setToDate(data.toDate);
+            }
             this.loadComponentStreams();
             this.loadLevels();
           } else {

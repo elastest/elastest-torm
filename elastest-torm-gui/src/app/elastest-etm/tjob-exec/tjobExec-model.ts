@@ -15,6 +15,7 @@ export class TJobExecModel {
     parameters: any[];
     resultMsg: string;
     startDate: Date;
+    endDate: Date;
 
     constructor() {
         this.id = 0;
@@ -28,6 +29,7 @@ export class TJobExecModel {
         this.parameters = [];
         this.resultMsg = '';
         this.startDate = undefined;
+        this.endDate = undefined;
     }
 
     public hasSutExec(): boolean {

@@ -126,6 +126,11 @@ public class TJobExecution {
     @Column(name = "startDate")
     private Date startDate = null;
 
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "endDate")
+    private Date endDate = null;
+
     // Constructors
     public TJobExecution() {
         this.id = (long) 0;
@@ -369,6 +374,18 @@ public class TJobExecution {
         this.startDate = startDate;
     }
 
+    /*
+     * endDate get/set
+     */
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
     // Others
     @Override
     public boolean equals(java.lang.Object o) {
@@ -388,13 +405,14 @@ public class TJobExecution {
                 && Objects.equals(this.testSuite, tjobExecution.testSuite)
                 && Objects.equals(this.parameters, tjobExecution.parameters)
                 && Objects.equals(this.resultMsg, tjobExecution.resultMsg)
-                && Objects.equals(this.startDate, tjobExecution.startDate);
+                && Objects.equals(this.startDate, tjobExecution.startDate)
+                && Objects.equals(this.endDate, tjobExecution.endDate);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
-                testSuite, parameters, resultMsg, startDate);
+                testSuite, parameters, resultMsg, startDate, endDate);
     }
 
     @Override
@@ -418,6 +436,8 @@ public class TJobExecution {
         sb.append("    resultMsg: ").append(toIndentedString(resultMsg))
                 .append("\n");
         sb.append("    startDate: ").append(toIndentedString(startDate))
+                .append("\n");
+        sb.append("    endDate: ").append(toIndentedString(endDate))
                 .append("\n");
         sb.append("}");
         return sb.toString();

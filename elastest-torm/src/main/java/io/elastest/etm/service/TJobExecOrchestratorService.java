@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +145,8 @@ public class TJobExecOrchestratorService {
                     TJobExecution.ResultEnum.WAITING, resultMsg);
             saveTestResults(testSuites, tJobExec);
 
+            tJobExec.setEndDate(new Date());
+
             logger.info("Ending Execution...");
             // End and purge services
             endAllExecs(dockerExec);
@@ -157,6 +160,8 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Error";
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.ERROR, resultMsg);
+
+                tJobExec.setEndDate(new Date());
                 try {
                     endAllExecs(dockerExec);
                 } catch (Exception e1) {

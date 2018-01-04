@@ -37,6 +37,7 @@ export class TjobManagerComponent implements OnInit {
     { name: 'result', label: 'Result' },
     // { name: 'duration', label: 'Duration' },
     { name: 'startDate', label: 'Start Date' },
+    { name: 'endDate', label: 'End Date' },
     { name: 'sutExecution', label: 'Sut Execution' },
     // { name: 'error', label: 'Error' },
     { name: 'logIndex', label: 'Log Index' },
