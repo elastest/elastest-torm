@@ -6,7 +6,7 @@
           (keydown.enter)="searchByPattern(i)">
       </md-input-container>
     </div>
-    <div layout-gt-md="row" layout="column" layout-align="center center">
+    <div id="patternBtnsDiv" layout-gt-md="row" layout="column" layout-align="center center">
       <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
         class="hiddenElement" required>
       <button md-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">

@@ -1,12 +1,15 @@
-<div class="md-content" >
+<div class="md-content">
     <div layout="column" layout-gt-sm="row">
         <div flex-gt-sm="100">
             <md-card>
-                <md-card-title>Projects</md-card-title>
-                <md-divider></md-divider>
-                <div class="push" layout="row">
-                    <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
-                </div>
+                <md-card-title>
+                    <div layout="row">
+                        <span>Projects</span>
+                        <span flex></span>
+                        <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
+                    </div>
+                </md-card-title>
+                <!-- <md-divider></md-divider> -->
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">
                     <td-data-table #projectsTable [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
@@ -25,7 +28,7 @@
                             </div>
                         </ng-template>
                     </td-data-table>
-                   
+
                 </md-card-content>
             </md-card>
         </div>

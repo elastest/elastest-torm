@@ -51,6 +51,14 @@ md-card-content a {
     cursor: pointer;
 }
 
+thead > tr.td-data-table-row {
+    height: 36px !important;
+}
+
+tbody > tr.td-data-table-row {
+    height: 42px !important;
+}
+
 .td-data-table-cell, .td-data-table-column{
     padding: 0 15px 0 15px !important;
 }
