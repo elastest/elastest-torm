@@ -101,7 +101,7 @@
                     </md-input-container>
                   </div>
                   <div flex="40" flex-offset="5">
-                    <button md-raised-button color="accent" (click)="loadLog()" [disabled]="!logManagerForm.valid">
+                    <button md-raised-button color="accent" (click)="loadLog()" [disabled]="!logManagerForm.valid || disableBtns">
                       <md-icon>search</md-icon>
                       <span *ngIf="logRows.length > 0; else loadLogText">Reload log</span>
                       <ng-template #loadLogText>
@@ -111,10 +111,10 @@
                   </div>
                 </div>
                 <div layout="row" class="push-top-sm">
-                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="1==0" class="pad-left-none" title="Add more traces from last">
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
                     <md-icon>vertical_align_bottom</md-icon> Add from last
                   </button>
-                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined"
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
                     title="Add more from selected trace">
                     <md-icon>vertical_align_center</md-icon> Add from selected
                   </button>
@@ -133,7 +133,7 @@
           </md-tab>
           <md-tab label="Config" [disabled]="logRows.length === 0">
             <div layout="column" class="push-top-sm">
-              <md-card-subtitle>Columns Configuration</md-card-subtitle>
+              <md-card-subtitle class="push-bottom-xs">Columns Configuration</md-card-subtitle>
               <button md-raised-button color="accent" (click)="saveColumnsConfig(true,true)" title="Save Columns Configuration" class="iconBtn push-top-sm">
                 <md-icon>save</md-icon> Save
               </button>

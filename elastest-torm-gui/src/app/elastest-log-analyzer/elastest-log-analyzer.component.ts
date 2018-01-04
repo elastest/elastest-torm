@@ -71,6 +71,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public disableLoadMore: boolean = false;
   public showPauseTail: boolean = false;
 
+  disableBtns: boolean = false;
+
   // Filters
   @ViewChild('componentsTree') componentsTree: TreeComponent;
   @ViewChild('levelsTree') levelsTree: TreeComponent;
@@ -157,6 +159,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   prepareLoadLog(): void {
+    this.disableBtns = true;
     this.initESModel();
 
     this.logAnalyzer.fromDate = this.getFromDate();
@@ -299,8 +302,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         if (this.logAnalyzer.usingTail) {
           this.loadTailLog(!logsLoaded);
         }
+        this.disableBtns = false;
       },
-      (error) => console.log(),
+      (error) => {
+        this.disableBtns = false;
+      },
     );
   }
 
@@ -342,6 +348,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.popup('There aren\'t more logs to load', 'OK');
           this.disableLoadMore = true; // removed from html temporally
         }
+        this.disableBtns = false;
+      },
+      (error) => {
+        this.disableBtns = false;
       }
       );
   }
@@ -375,6 +385,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             } else {
               this.popup('There aren\'t logs to load or you don\'t change filters', 'OK');
             }
+            this.disableBtns = false;
+          },
+          (error) => {
+            this.disableBtns = false;
           }
           );
       }
