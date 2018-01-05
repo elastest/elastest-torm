@@ -1,11 +1,19 @@
 #!/bin/sh
 
 # Create Default RabbitMQ setup
-( sleep 30 ; \
-
+( 
 # Create users
 # rabbitmqctl add_user <username> <password>
 rabbitmqctl add_user elastest-etm elastest-etm ; \
+CREATED=$?; \
+
+while [ $CREATED -ne 0 ]; do 
+	echo "RabbitMQ is not ready yet. Sleeping for 2s" ; \
+	sleep 2; \
+	echo "Retrying to create user" ; \
+        rabbitmqctl add_user elastest-etm elastest-etm ; \
+        CREATED=$?; \
+done 
 
 # Set user rights
 # rabbitmqctl set_user_tags <username> <tag>
@@ -19,6 +27,6 @@ rabbitmqctl add_vhost /elastest-etm ; \
 # rabbitmqctl set_permissions -p <vhostname> <username> ".*" ".*" ".*"
 rabbitmqctl set_permissions -p /elastest-etm elastest-etm ".*" ".*" ".*" ; \
 
-rabbitmq-plugins enable rabbitmq_stomp; \ 	
-) &    
+rabbitmq-plugins enable rabbitmq_stomp; \	
+) &   
 rabbitmq-server $@
