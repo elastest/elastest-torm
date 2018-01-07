@@ -926,7 +926,17 @@ public class EsmService {
                 String envNamePort = prefix + "_PORT";
 
                 String envValuePort = "";
-                envValuePort = entry.getValue().get("port").toString();
+                if (etPublicHost.equals("localhost")) {
+                    envValuePort = entry.getValue().get("port").toString();
+                } else {
+                    for (Map.Entry<String, String> endpointBindingPort : ssi
+                            .getEndpointsBindingsPorts().entrySet()) {
+                        if (endpointBindingPort.getValue().equals(
+                                entry.getValue().get("port").toString())) {
+                            envValuePort = endpointBindingPort.getKey();
+                        }
+                    }
+                }
 
                 String protocol = entry.getValue().findValue("protocol")
                         .toString().toLowerCase().replaceAll("\"", "");
