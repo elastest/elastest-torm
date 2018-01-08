@@ -516,10 +516,11 @@ public class EsmService {
                     }
                 }
 
+                ((ObjectNode) node).put("port", auxPort);
+                
                 if (node.get("protocol") != null
                         && (node.get("protocol").toString().contains("http"))
                         || node.get("protocol").toString().contains("ws")) {
-                    ((ObjectNode) node).put("port", auxPort);
                     serviceInstance.setServicePort(auxPort);
                     serviceInstance.getUrls().put(nodeName,
                             createServiceInstanceUrl(node,
@@ -931,6 +932,9 @@ public class EsmService {
                 } else {
                     for (Map.Entry<String, String> endpointBindingPort : ssi
                             .getEndpointsBindingsPorts().entrySet()) {
+                        logger.debug("Binding port Key: {}", endpointBindingPort.getKey());
+                        logger.debug("Binding port value: {}", endpointBindingPort.getValue());
+                        logger.debug("Node port: {}", entry.getValue().get("port").toString());
                         if (endpointBindingPort.getValue().equals(
                                 entry.getValue().get("port").toString())) {
                             envValuePort = endpointBindingPort.getKey();
