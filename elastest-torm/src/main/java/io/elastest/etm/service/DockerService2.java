@@ -43,7 +43,8 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.SutSpecification.SutTypeEnum;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -52,8 +53,7 @@ public class DockerService2 {
     private static final Logger logger = LoggerFactory
             .getLogger(DockerService2.class);
 
-    private static String appImage = "elastest/test-etm-javasutrepo",
-            checkImage = "elastest/etm-check-service-up";
+    private static String checkImage = "elastest/etm-check-service-up";
     private static final Map<String, String> createdContainers = new HashMap<>();
 
     @Value("${logstash.host:#{null}}")
@@ -159,18 +159,34 @@ public class DockerService2 {
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
-    /****************************/
-    /***** Starting Methods *****/
-    /****************************/
+    public CreateContainerResponse createContainer(DockerExecution dockerExec,
+            String type) throws TJobStoppedException {
+        TJobExecution tJobExec = dockerExec.gettJobexec();
+        TJob tJob = tJobExec.getTjob();
+        SutSpecification sut = tJob.getSut();
 
-    public String getSutName(DockerExecution dockerExec) {
-        return "sut_" + dockerExec.getExecutionId();
-    }
+        String image = "";
+        String commands = null;
+        List<Parameter> parametersList = new ArrayList<Parameter>();
+        String prefix = "";
+        String containerName = "";
 
-    public void createSutContainer(DockerExecution dockerExec)
-            throws TJobStoppedException {
-        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
-        String sutImage = appImage;
+        int logPort = 5003;
+        if ("sut".equals(type.toLowerCase())) {
+            parametersList = sut.getParameters();
+            commands = sut.getCommands();
+            image = sut.getSpecification();
+            prefix = "sut_";
+            logPort = 5001;
+            containerName = getSutName(dockerExec);
+        } else if ("tjob".equals(type.toLowerCase())) {
+            parametersList = tJob.getParameters();
+            commands = tJob.getCommands();
+            image = tJob.getImageName();
+            prefix = "test_";
+            logPort = 5000;
+            containerName = getTestName(dockerExec);
+        }
 
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
@@ -184,22 +200,13 @@ public class DockerService2 {
         }
 
         // Get Parameters and insert into Env Vars
-        for (Parameter parameter : sut.getParameters()) {
+        for (Parameter parameter : parametersList) {
             envVar = parameter.getName() + "=" + parameter.getValue();
             envList.add(envVar);
         }
 
-        if (sut.getSutType() == SutTypeEnum.MANAGED) {
-            sutImage = sut.getSpecification();
-            envVar = "REPO_URL=none";
-        } else {
-            envVar = "REPO_URL=" + sut.getSpecification();
-        }
-        envList.add(envVar);
-
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
-        String commands = dockerExec.gettJobexec().getTjob().getSut().getCommands();
         if (commands != null && !commands.isEmpty()) {
             cmdList.add("sh");
             cmdList.add("-c");
@@ -207,33 +214,45 @@ public class DockerService2 {
         }
 
         // Load Log Config
-        logger.info(
-                "Sut " + dockerExec.getExecutionId() + " image: " + sutImage);
-        String sutName = getSutName(dockerExec);
-        LogConfig logConfig = getLogConfig(5001, "sut_", dockerExec);
+        LogConfig logConfig = getLogConfig(logPort, prefix, dockerExec);
 
         // Pull Image
         try {
-            dockerExec.getDockerClient().pullImageCmd(sutImage)
+            dockerExec.getDockerClient().pullImageCmd(image)
                     .exec(new PullImageResultCallback()).awaitSuccess();
         } catch (InternalServerErrorException isee) {
-            if (imageExistsLocally(sutImage, dockerExec.getDockerClient())) {
+            if (imageExistsLocally(image, dockerExec.getDockerClient())) {
                 logger.info("Docker image exits locally.");
             } else {
                 logger.error("Error pulling the image: {}", isee.getMessage());
                 throw isee;
             }
         } catch (DockerClientException e) {
-            logger.info(
-                    "Error on Pulling SuT image. Probably because the user has stopped the execution");
+            logger.info("Error on Pulling " + type
+                    + " image. Probably because the user has stopped the execution");
             throw new TJobStoppedException();
         }
 
         // Create Container
-        dockerExec.setAppContainer(dockerExec.getDockerClient()
-                .createContainerCmd(sutImage).withEnv(envList)
-                .withLogConfig(logConfig).withName(sutName)
-                .withCmd(cmdList).withNetworkMode(dockerExec.getNetwork()).exec());
+        return dockerExec.getDockerClient().createContainerCmd(image)
+                .withEnv(envList).withLogConfig(logConfig)
+                .withName(containerName).withCmd(cmdList)
+                .withNetworkMode(dockerExec.getNetwork()).exec();
+
+    }
+
+    /****************************/
+    /***** Starting Methods *****/
+    /****************************/
+
+    public String getSutName(DockerExecution dockerExec) {
+        return "sut_" + dockerExec.getExecutionId();
+    }
+
+    public void createSutContainer(DockerExecution dockerExec)
+            throws TJobStoppedException {
+        // Create Container
+        dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
 
         String appContainerId = dockerExec.getAppContainer().getId();
         dockerExec.setAppContainerId(appContainerId);
@@ -306,68 +325,8 @@ public class DockerService2 {
     public void createTestContainer(DockerExecution dockerExec)
             throws TJobStoppedException {
         try {
-
-            logger.info("Starting test " + dockerExec.getExecutionId());
-            String testImage = dockerExec.gettJobexec().getTjob()
-                    .getImageName();
-            logger.info("host: " + getHostIp(dockerExec));
-
-            // Environment variables (optional)
-            ArrayList<String> envList = new ArrayList<>();
-            String envVar;
-
-            // Get TJob Exec Env Vars
-            for (Map.Entry<String, String> entry : dockerExec.gettJobexec()
-                    .getEnvVars().entrySet()) {
-                envVar = entry.getKey() + "=" + entry.getValue();
-                envList.add(envVar);
-            }
-
-            // Get Parameters and insert into Env Vars
-            for (Parameter parameter : dockerExec.gettJobexec()
-                    .getParameters()) {
-                envVar = parameter.getName() + "=" + parameter.getValue();
-                envList.add(envVar);
-            }
-
-            if (dockerExec.isWithSut()) {
-                envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
-            }
-
-            // Commands (optional)
-            ArrayList<String> cmdList = new ArrayList<>();
-            String commands = dockerExec.gettJobexec().getTjob().getCommands();
-            if (commands != null && !commands.isEmpty()) {
-                cmdList.add("sh");
-                cmdList.add("-c");
-                cmdList.add(commands);
-            }
-
-            LogConfig logConfig = getLogConfig(5000, "test_", dockerExec);
-
-            try {
-                dockerExec.getDockerClient().pullImageCmd(testImage)
-                        .exec(new PullImageResultCallback()).awaitSuccess();
-            } catch (InternalServerErrorException isee) {
-                if (imageExistsLocally(testImage,
-                        dockerExec.getDockerClient())) {
-                    logger.info("Docker image exits locally.");
-                } else {
-                    logger.info("Docker image does not exits locally.");
-                    throw isee;
-                }
-            } catch (DockerClientException e) {
-                logger.info(
-                        "Error on Pulling TJob image. Probably because the user has stopped the execution");
-                throw new TJobStoppedException();
-            }
-            String testName = getTestName(dockerExec);
-            CreateContainerResponse testContainer = dockerExec.getDockerClient()
-                    .createContainerCmd(testImage).withEnv(envList)
-                    .withLogConfig(logConfig).withName(testName)
-                    .withCmd(cmdList).withNetworkMode(dockerExec.getNetwork())
-                    .exec();
-
+            CreateContainerResponse testContainer = createContainer(dockerExec,
+                    "tjob");
             String testContainerId = testContainer.getId();
 
             dockerExec.setTestcontainer(testContainer);
