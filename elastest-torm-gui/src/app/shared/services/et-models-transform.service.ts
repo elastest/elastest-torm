@@ -168,6 +168,7 @@ export class ETModelsTransformServices {
         newSut.managedDockerType = sut.managedDockerType;
         newSut.mainService = sut.mainService;
         newSut.parameters = sut.parameters;
+        newSut.commands = sut.commands;
 
         return newSut;
     }

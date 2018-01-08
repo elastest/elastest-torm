@@ -16,6 +16,7 @@ export class SutModel {
     managedDockerType: string;
     mainService: string;
     parameters: any[];
+    commands: string;
 
     constructor() {
         this.id = 0;
@@ -32,6 +33,7 @@ export class SutModel {
         this.managedDockerType = '';
         this.mainService = '';
         this.parameters = [];
+        this.commands = '';
     }
 
     public getRouteString(): string {
@@ -52,5 +54,14 @@ export class SutModel {
 
     public getSutESIndex(): string {
         return 's' + this.id + '_e' + this.currentSutExec;
+    }
+
+    public withCommands() {
+        return this.commands !== undefined && this.commands !== null && this.commands !== '';
+    }
+
+    public arrayCommands(): string[] {
+        let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
+        return commandsArray;
     }
 }

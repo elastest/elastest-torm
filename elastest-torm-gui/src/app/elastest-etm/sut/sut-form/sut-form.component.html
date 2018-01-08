@@ -36,7 +36,8 @@
               No Instrumentation
             </md-radio-button>
 
-            <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right" *ngIf="elasTestExecMode !== 'normal'">
+            <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right"
+              *ngIf="elasTestExecMode !== 'normal'">
               Instrumented by ElasTest
             </md-radio-button>
 
@@ -65,10 +66,25 @@
 
         <!-- SuT Specification -->
         <div layout="column" class="push-top">
-          <md-input-container flex="100" *ngIf="!dockerCompose; else dockerComposeSpec">
-            <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
-              [(ngModel)]="sut.specification" name="specification" required>
-          </md-input-container>
+          
+          <!-- Docker Image -->
+          <ng-container *ngIf="!dockerCompose; else dockerComposeSpec">
+            <md-input-container flex="100">
+              <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+                [(ngModel)]="sut.specification" name="specification" required>
+            </md-input-container>
+
+            <!-- Commands -->
+            <div layout="column" class="push-top push-bottom pad-top" *ngIf="managedSut.checked">
+              <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
+              <div layout="column" *ngIf="!useImageCommand" class="push-top">
+                <md-input-container>
+                  <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands" [(ngModel)]="sut.commands"
+                    name="commands" required></textarea>
+                </md-input-container>
+              </div>
+            </div>
+          </ng-container>
 
           <ng-template #dockerComposeSpec>
             <ng-container *ngIf="managedSut.checked">

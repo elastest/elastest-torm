@@ -121,6 +121,11 @@ public class SutSpecification {
     @CollectionTable(name = "SutParameter", joinColumns = @JoinColumn(name = "SutSpecification"))
     private List<Parameter> parameters;
 
+    @JsonView({ SutView.class, BasicAttProject.class, BasicAttTJob.class })
+    @Column(name = "commands", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("commands")
+    private String commands;
+
     public SutSpecification() {
     }
 
@@ -491,6 +496,21 @@ public class SutSpecification {
         this.parameters = parameters;
     }
 
+    /**
+     * Get commands
+     * 
+     * @return commands
+     **/
+
+    @ApiModelProperty(value = "Commands to execute inside a Docker Container")
+    public String getCommands() {
+        return commands;
+    }
+
+    public void setCommands(String commands) {
+        this.commands = commands;
+    }
+
     // Other methods
 
     @Override
@@ -522,14 +542,15 @@ public class SutSpecification {
                         sutSpecification.managedDockerType)
                 && Objects.equals(this.mainService,
                         sutSpecification.mainService)
-                && Objects.equals(this.parameters, sutSpecification.parameters);
+                && Objects.equals(this.parameters, sutSpecification.parameters)
+                && Objects.equals(this.commands, sutSpecification.commands);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, instrumentedBy, port, managedDockerType,
-                mainService, parameters);
+                mainService, parameters, commands);
     }
 
     @Override
@@ -560,6 +581,8 @@ public class SutSpecification {
         sb.append("    mainService: ").append(toIndentedString(mainService))
                 .append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters))
+                .append("\n");
+        sb.append("    commands: ").append(toIndentedString(commands))
                 .append("\n");
         sb.append("}");
         return sb.toString();

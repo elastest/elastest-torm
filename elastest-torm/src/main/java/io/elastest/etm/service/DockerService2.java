@@ -182,7 +182,7 @@ public class DockerService2 {
             envVar = entry.getKey() + "=" + entry.getValue();
             envList.add(envVar);
         }
-        
+
         // Get Parameters and insert into Env Vars
         for (Parameter parameter : sut.getParameters()) {
             envVar = parameter.getName() + "=" + parameter.getValue();
@@ -196,6 +196,15 @@ public class DockerService2 {
             envVar = "REPO_URL=" + sut.getSpecification();
         }
         envList.add(envVar);
+
+        // Commands (optional)
+        ArrayList<String> cmdList = new ArrayList<>();
+        String commands = dockerExec.gettJobexec().getTjob().getSut().getCommands();
+        if (commands != null && !commands.isEmpty()) {
+            cmdList.add("sh");
+            cmdList.add("-c");
+            cmdList.add(commands);
+        }
 
         // Load Log Config
         logger.info(
@@ -224,7 +233,7 @@ public class DockerService2 {
         dockerExec.setAppContainer(dockerExec.getDockerClient()
                 .createContainerCmd(sutImage).withEnv(envList)
                 .withLogConfig(logConfig).withName(sutName)
-                .withNetworkMode(dockerExec.getNetwork()).exec());
+                .withCmd(cmdList).withNetworkMode(dockerExec.getNetwork()).exec());
 
         String appContainerId = dockerExec.getAppContainer().getId();
         dockerExec.setAppContainerId(appContainerId);
@@ -561,44 +570,46 @@ public class DockerService2 {
         }
         return id;
     }
-    
+
     public boolean existsContainer(String containerName,
             DockerClient dockerClient) {
         boolean exists = true;
         try {
-            dockerClient.inspectContainerCmd(containerName)
-                    .exec();
+            dockerClient.inspectContainerCmd(containerName).exec();
         } catch (NotFoundException e) {
             exists = false;
         }
         return exists;
     }
-    
-    public InspectContainerResponse getContainerInfoByName(String containerName){
+
+    public InspectContainerResponse getContainerInfoByName(
+            String containerName) {
         InspectContainerResponse response = null;
         DockerClient dockerClient = getDockerClient();
         if (existsContainer(containerName, dockerClient)) {
             try {
-                response = dockerClient.inspectContainerCmd(containerName).exec();
+                response = dockerClient.inspectContainerCmd(containerName)
+                        .exec();
             } catch (Exception e) {
 
             }
         }
-        return  response;
+        return response;
     }
-    
-    public InspectImageResponse getImageInfoByName(String imageName){
+
+    public InspectImageResponse getImageInfoByName(String imageName) {
         InspectImageResponse response = null;
         DockerClient dockerClient = getDockerClient();
         if (imageExistsLocally(imageName, dockerClient)) {
             try {
                 response = dockerClient.inspectImageCmd(imageName).exec();
             } catch (Exception e) {
-                logger.error("Error loading image \"{}\" information.", imageName);
+                logger.error("Error loading image \"{}\" information.",
+                        imageName);
                 throw e;
             }
         }
-        return  response;
+        return response;
     }
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {

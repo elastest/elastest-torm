@@ -39,6 +39,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   instrumentalized: boolean = false;
 
   elasTestExecMode: string;
+  useImageCommand: boolean = false;
 
   constructor(
     private titlesService: TitlesService,
@@ -63,6 +64,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
             this.initInstrumentalized();
             this.dockerCompose = this.sut.isByDockerCompose();
             this.sutExecIndex = this.sut.getSutESIndex();
+            this.useImageCommand = !this.sut.withCommands();
           });
       } else if (this.currentPath === 'new') {
         this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
@@ -144,6 +146,9 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   }
 
   save(exit: boolean = true): void {
+    if (this.useImageCommand || !this.managedChecked) {
+      this.sut.commands = '';
+    }
     this.sutService.createSut(this.sut)
       .subscribe(
       (sut: SutModel) => this.postSave(sut, exit),
