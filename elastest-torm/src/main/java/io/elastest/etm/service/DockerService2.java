@@ -176,6 +176,8 @@ public class DockerService2 {
         String containerName = "";
         int logPort = 5000;
 
+        String sutHost = null;
+
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -188,6 +190,9 @@ public class DockerService2 {
             image = tJob.getImageName();
             prefix = "test_";
             containerName = getTestName(dockerExec);
+            if (dockerExec.isWithSut()) {
+                sutHost = dockerExec.getSutExec().getIp();
+            }
         }
 
         // Environment variables (optional)
@@ -205,6 +210,9 @@ public class DockerService2 {
         for (Parameter parameter : parametersList) {
             envVar = parameter.getName() + "=" + parameter.getValue();
             envList.add(envVar);
+        }
+        if (sutHost != null) {
+            envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
         }
 
         // Commands (optional)
