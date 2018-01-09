@@ -470,12 +470,8 @@ export class ElastestLogManagerComponent implements OnInit {
 
   applyFilters(queries: any) {
     let types: Array<string> = [];
-    if (this.sutlogsType) {
-      types.push('sutlogs');
-    }
-
-    if (this.testlogsType) {
-      types.push('testlogs');
+    if (this.sutlogsType || this.testlogsType) {
+      types.push('et_logs');
     }
 
     let levels: Array<string> = [];

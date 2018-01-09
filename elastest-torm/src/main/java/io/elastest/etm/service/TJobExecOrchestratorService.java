@@ -50,6 +50,9 @@ public class TJobExecOrchestratorService {
 
     @Value("${et.edm.elasticsearch.api}")
     private String elasticsearchHost;
+    
+    @Value("${et.etm.lstcp.host}")
+    private String logstashHost;
 
     private final DockerService2 dockerService;
     private final DockerComposeService dockerComposeService;
@@ -569,7 +572,7 @@ public class TJobExecOrchestratorService {
 
                 HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
                 loggingOptionsContent.put("syslog-address", "tcp://"
-                        + dockerService.getLogstashHost(dockerExec) + ":5001");
+                        + logstashHost + ":5000");
                 loggingOptionsContent.put("tag",
                         composeProjectName + "_" + service.getKey() + "_exec");
 

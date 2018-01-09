@@ -459,14 +459,14 @@ export class ElastestESService {
 
     initTestLog(log: ESRabLogModel): void {
         log.name = 'Test Logs';
-        log.type = 'testlogs';
+        log.type = 'et_logs';
         log.stream = 'custom_log';
         log.component = 'test';
     }
 
     initSutLog(log: ESRabLogModel): void {
         log.name = 'SuT Logs';
-        log.type = 'sutlogs';
+        log.type = 'et_logs';
         log.stream = 'custom_log';
         log.component = 'sut';
     }

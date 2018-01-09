@@ -56,7 +56,7 @@ public class DockerService2 {
     private static String checkImage = "elastest/etm-check-service-up";
     private static final Map<String, String> createdContainers = new HashMap<>();
 
-    @Value("${logstash.host:#{null}}")
+    @Value("${et.etm.lstcp.host}")
     private String logstashHost;
 
     @Value("${elastest.docker.network}")
@@ -171,20 +171,18 @@ public class DockerService2 {
         String prefix = "";
         String containerName = "";
 
-        int logPort = 5003;
+        int logPort = 5000;
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
             image = sut.getSpecification();
             prefix = "sut_";
-            logPort = 5001;
             containerName = getSutName(dockerExec);
         } else if ("tjob".equals(type.toLowerCase())) {
             parametersList = tJob.getParameters();
             commands = tJob.getCommands();
             image = tJob.getImageName();
             prefix = "test_";
-            logPort = 5000;
             containerName = getTestName(dockerExec);
         }
 
@@ -238,7 +236,6 @@ public class DockerService2 {
                 .withEnv(envList).withLogConfig(logConfig)
                 .withName(containerName).withCmd(cmdList)
                 .withNetworkMode(dockerExec.getNetwork()).exec();
-
     }
 
     /****************************/
@@ -364,10 +361,9 @@ public class DockerService2 {
     public LogConfig getLogConfig(int port, String tagPrefix,
             DockerExecution dockerExec) {
 
-        logstashHost = getLogstashHost(dockerExec);
-
-        logger.info("Logstash IP to send logs from containers: {}",
-                logstashHost);
+        logger.info(
+                "Logstash Host to send logs from containers: {}. To port {}",
+                logstashHost, port);
 
         Map<String, String> configMap = new HashMap<String, String>();
         configMap.put("syslog-address", "tcp://" + logstashHost + ":" + port);
@@ -378,13 +374,6 @@ public class DockerService2 {
         logConfig.setConfig(configMap);
 
         return logConfig;
-    }
-
-    public String getLogstashHost(DockerExecution dockerExec) {
-        if (logstashHost == null) {
-            return getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
-        }
-        return logstashHost;
     }
 
     /*********************************/
