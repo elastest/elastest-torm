@@ -123,7 +123,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 				msg -> msg.contains("BUILD SUCCESS") || msg.contains("BUILD FAILURE"));
 
 		stompSession.subscribe(queueToSuscribe, handler);
-		handler.waitForCompletion(120, TimeUnit.SECONDS);
+		handler.waitForCompletion(180, TimeUnit.SECONDS);
 
 		assertAll("Validating TJobExecution Properties", () -> assertNotNull(response.getBody()),
 				() -> assertNotNull(response.getBody().getId()),

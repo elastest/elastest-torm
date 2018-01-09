@@ -82,6 +82,10 @@ public class DockerService2 {
             }
         }
     }
+    
+    /**************************/
+    /***** Config Methods *****/
+    /**************************/
 
     public void loadBasicServices(DockerExecution dockerExec) throws Exception {
         configureDocker(dockerExec);
@@ -99,16 +103,16 @@ public class DockerService2 {
         createdContainers.put(containerId, containerName);
     }
 
-    /**************************/
-    /***** Config Methods *****/
-    /**************************/
-
     public void configureDocker(DockerExecution dockerExec) {
         DockerClientConfig config = DefaultDockerClientConfig
                 .createDefaultConfigBuilder().build();
         dockerExec.setDockerClient(
                 DockerClientBuilder.getInstance(config).build());
     }
+    
+    /*****************************/
+    /***** Container Methods *****/
+    /*****************************/
 
     public String runDockerContainer(DockerClient dockerClient,
             String imageName, List<String> envs, String containerName,
@@ -170,8 +174,8 @@ public class DockerService2 {
         List<Parameter> parametersList = new ArrayList<Parameter>();
         String prefix = "";
         String containerName = "";
-
         int logPort = 5000;
+        
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -238,10 +242,10 @@ public class DockerService2 {
                 .withNetworkMode(dockerExec.getNetwork()).exec();
     }
 
-    /****************************/
-    /***** Starting Methods *****/
-    /****************************/
-
+    /***********************/
+    /***** Sut Methods *****/
+    /***********************/
+    
     public String getSutName(DockerExecution dockerExec) {
         return "sut_" + dockerExec.getExecutionId();
     }
@@ -480,6 +484,7 @@ public class DockerService2 {
     /***************************/
     /***** Get TestResults *****/
     /***************************/
+    
     public InputStream getFileFromContainer(String containerName,
             String fileName, DockerExecution dockerExec) {
         InputStream inputStream = null;
