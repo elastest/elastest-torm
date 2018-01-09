@@ -56,7 +56,7 @@ public class DockerService2 {
     private static String checkImage = "elastest/etm-check-service-up";
     private static final Map<String, String> createdContainers = new HashMap<>();
 
-    @Value("${et.etm.lstcp.host}")
+    @Value("${logstash.host:#{null}}")
     private String logstashHost;
 
     @Value("${elastest.docker.network}")
@@ -82,7 +82,7 @@ public class DockerService2 {
             }
         }
     }
-    
+
     /**************************/
     /***** Config Methods *****/
     /**************************/
@@ -109,7 +109,7 @@ public class DockerService2 {
         dockerExec.setDockerClient(
                 DockerClientBuilder.getInstance(config).build());
     }
-    
+
     /*****************************/
     /***** Container Methods *****/
     /*****************************/
@@ -175,7 +175,7 @@ public class DockerService2 {
         String prefix = "";
         String containerName = "";
         int logPort = 5000;
-        
+
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -245,7 +245,7 @@ public class DockerService2 {
     /***********************/
     /***** Sut Methods *****/
     /***********************/
-    
+
     public String getSutName(DockerExecution dockerExec) {
         return "sut_" + dockerExec.getExecutionId();
     }
@@ -365,6 +365,8 @@ public class DockerService2 {
     public LogConfig getLogConfig(int port, String tagPrefix,
             DockerExecution dockerExec) {
 
+        logstashHost = getLogstashHost(dockerExec);
+
         logger.info(
                 "Logstash Host to send logs from containers: {}. To port {}",
                 logstashHost, port);
@@ -481,10 +483,17 @@ public class DockerService2 {
                 .withContainerId(containerId).exec();
     }
 
+    public String getLogstashHost(DockerExecution dockerExec) {
+        if (logstashHost == null) {
+            return getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
+        }
+        return logstashHost;
+    }
+
     /***************************/
     /***** Get TestResults *****/
     /***************************/
-    
+
     public InputStream getFileFromContainer(String containerName,
             String fileName, DockerExecution dockerExec) {
         InputStream inputStream = null;

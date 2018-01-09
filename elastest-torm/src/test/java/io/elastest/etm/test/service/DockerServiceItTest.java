@@ -51,7 +51,7 @@ public class DockerServiceItTest {
 	@LocalServerPort
 	int serverPort;
 
-    @Value("${et.etm.lstcp.host}")
+    @Value("${logstash.host:#{null}}")
     private String logstashHost;
 
 	private DockerClient dockerClient;
