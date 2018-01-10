@@ -700,10 +700,8 @@ public class EsmService {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            logger.debug("Check the TSS {} for TJob {}", tSSInstance.getServiceName(), tSSInstance.gettJobExecId());
-            if (tSSInstance.gettJobExecId() == tJobExecId
+            if (tSSInstance.gettJobExecId().longValue() == tJobExecId.longValue()
                     && checkInstanceUrlIsUp(tSSInstance)) {
-                logger.debug("TSS {} ready.", tSSInstance.getServiceName());
                 tSSInstanceList.add(tSSInstance);
             }
         });
