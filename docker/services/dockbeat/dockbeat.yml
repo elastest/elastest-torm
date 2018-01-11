@@ -37,9 +37,9 @@ dockbeat:
     # Read only metrics of containers whose name matches this regex. 
     # If field not initialized, include all containers
     # (Regexp format -> without initial and end '/' character)
-    containers: ${FILTER_CONTAINERS:All}
+    containers: ${FILTER_CONTAINERS:"All"}
     # Exclude containers whose name matches this regex
-    exclude: ${FILTER_EXCLUDE}
+    exclude: ${FILTER_EXCLUDE:""}
 
 
 ###############################################################################
