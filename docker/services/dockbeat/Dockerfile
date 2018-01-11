@@ -9,7 +9,7 @@ RUN go get github.com/Masterminds/glide
 
 RUN mkdir -p $GOPATH/src/github.com/ingensi/ \
 		&& cd $GOPATH/src/github.com/ingensi \
-		&& git clone https://github.com/ingensi/dockbeat
+		&& git clone https://github.com/edujgurjc/dockbeat
 
 RUN cd $GOPATH/src/github.com/ingensi/dockbeat && make && make
 

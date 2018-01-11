@@ -31,6 +31,17 @@ dockbeat:
     memory: true
     blkio: true
     cpu: true
+
+  # Read metrics from specific containers
+  filter:
+    # Read only metrics of containers whose name matches this regex. 
+    # If field not initialized, include all containers
+    # (Regexp format -> without initial and end '/' character)
+    containers: ${FILTER_CONTAINERS:All}
+    # Exclude containers whose name matches this regex
+    exclude: ${FILTER_EXCLUDE}
+
+
 ###############################################################################
 ############################# Libbeat Config ##################################
 # Base config file used by all other beats for using libbeat features
@@ -144,7 +155,7 @@ output:
   ### Logstash as output
   logstash:
     # The Logstash hosts
-    hosts: ["LOGSTASHHOST:5037"]
+    hosts: ["${LOGSTASHHOST}:5037"]
 
     # Number of workers per Logstash host.
     #worker: 1
