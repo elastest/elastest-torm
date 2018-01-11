@@ -8,9 +8,9 @@ rabbitmqctl add_user elastest-etm elastest-etm ; \
 CREATED=$?; \
 
 while [ $CREATED -ne 0 ]; do 
-	echo "RabbitMQ is not ready yet. Sleeping for 2s" ; \
+	echo "ET_LOG: RabbitMQ is not ready yet. Sleeping for 2s" ; \
 	sleep 2; \
-	echo "Retrying to create user" ; \
+	echo "ET_LOG: Retrying to create user" ; \
         rabbitmqctl add_user elastest-etm elastest-etm ; \
         CREATED=$?; \
 done 
@@ -21,7 +21,17 @@ rabbitmqctl set_user_tags elastest-etm administrator ; \
 
 # Create vhosts
 # rabbitmqctl add_vhost <vhostname>
+echo "ET_LOG: Creating vhost" ; \
 rabbitmqctl add_vhost /elastest-etm ; \
+CREATED=$?; \
+
+while [ $CREATED -ne 0 ]; do 
+	echo "ET_LOG: Error on create vhost. Sleeping for 2s" ; \
+	sleep 2; \
+	echo "ET_LOG: Retrying to create vhost" ; \
+	rabbitmqctl add_vhost /elastest-etm ; \
+        CREATED=$?; \
+done 
 
 # Set vhost permissions
 # rabbitmqctl set_permissions -p <vhostname> <username> ".*" ".*" ".*"

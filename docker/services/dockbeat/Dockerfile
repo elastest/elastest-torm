@@ -1,9 +1,9 @@
-FROM golang:1.7
-MAINTAINER Ingensi labs <contact@ingensi.com>
+FROM golang:1.9
 
 # install pyyaml
 RUN cd /tmp && wget http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz && tar -zxvf PyYAML-3.11.tar.gz
 RUN cd /tmp/PyYAML-3.11 && python setup.py install
+
 # install glide
 RUN go get github.com/Masterminds/glide
 
@@ -35,4 +35,4 @@ WORKDIR /etc/dockbeat
 
 ENTRYPOINT ["/etc/dockbeat/entrypoint.sh"]
 
-CMD [ "-c", "dockbeat.yml", "-e" ]
+CMD [ "-c", "dockbeat.yml", "-e", "-v" ]
