@@ -2,7 +2,9 @@ package io.elastest.etm.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +24,10 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
@@ -353,6 +359,28 @@ public class TJob {
                 .append(toIndentedString(selectedServices)).append("\n");
         sb.append("}");
         return sb.toString();
+    }
+
+    public boolean isSelectedService(String serviceName) {
+        try {
+            List<ObjectNode> services = getSelectedServicesObj();
+            for (ObjectNode service : services) {
+                return (service.get("selected").asBoolean()
+                        && serviceName.toLowerCase().equals(
+                                service.get("name").asText().toLowerCase()));
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
+
+    public List<ObjectNode> getSelectedServicesObj()
+            throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        return Arrays
+                .asList(mapper.readValue(selectedServices, ObjectNode[].class));
     }
 
 }

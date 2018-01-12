@@ -6,7 +6,6 @@ services:
             - etm-rabbitmq
             - edm-elasticsearch
             - etm-logstash
-            - etm-beats
             - esm
         links:
             - etm-rabbitmq
@@ -25,7 +24,7 @@ services:
             - ET_ETM_API=http://etm:37006/
             - ET_ESM_API=http://esm:37005/
             - ET_EIM_API=http://eim:37004/
-            - ET_ETM_LSBEATS_HOST=etm-beats
+            - ET_ETM_LSBEATS_HOST=etm-logstash
             - ET_ETM_LSBEATS_PORT=5044
             - ET_ETM_LSHTTP_API=http://etm-logstash:5003/
             - ET_ETM_LSTCP_HOST=etm-logstash

@@ -1,16 +1,5 @@
 version: '3'
-services:
-    etm-beats:
-        image: elastest/etm-dockbeat
-        environment:
-            - LOGSTASHHOST=etm-logstash
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        depends_on:
-            - etm-logstash
-        networks:
-            - elastest
-        
+services:        
     etm-logstash:        
         image: elastest/etm-logstash
         ports:

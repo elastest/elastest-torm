@@ -125,6 +125,13 @@ public class TJobExecOrchestratorService {
             // Create queues and load basic services
             dockerService.loadBasicServices(dockerExec);
 
+            resultMsg = "Starting Dockbeat to get metrics...";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.IN_PROGRESS, resultMsg);
+
+            // Start Dockbeat
+            dockerService.startDockbeat(dockerExec);
+
             // Start SuT if it's necessary
             if (dockerExec.isWithSut()) {
                 initSut(dockerExec);
@@ -153,6 +160,7 @@ public class TJobExecOrchestratorService {
 
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
+            logger.debug("TJob Stopped");
             // Stop exception
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
@@ -175,7 +183,7 @@ public class TJobExecOrchestratorService {
                 try {
                     deprovideServices(tJobExec);
                 } catch (Exception e) {
-                    logger.error("Exception deprovisino TSS: {}",
+                    logger.error("Exception deprovision TSS: {}",
                             e.getMessage());
                     // TODO Customize Exception
                 }
@@ -248,6 +256,7 @@ public class TJobExecOrchestratorService {
             if (dockerExec.isWithSut()) {
                 endSutExec(dockerExec);
             }
+            endDockbeatExec(dockerExec);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("end error"); // TODO Customize Exception
@@ -419,7 +428,6 @@ public class TJobExecOrchestratorService {
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
         try {
-
             // By Docker Image
             if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
                 startSutByDockerImage(dockerExec);
@@ -632,6 +640,15 @@ public class TJobExecOrchestratorService {
     public void endCheckSutExec(DockerExecution dockerExec) {
         dockerService.endContainer(dockerExec,
                 dockerService.getCheckName(dockerExec));
+    }
+
+    /******************/
+    /**** Dockbeat ****/
+    /******************/
+
+    public void endDockbeatExec(DockerExecution dockerExec) {
+        dockerService.endContainer(dockerExec,
+                dockerService.getDockbeatContainerName(dockerExec));
     }
 
     /***************************/

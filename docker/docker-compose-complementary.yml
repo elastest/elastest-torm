@@ -1,16 +1,5 @@
 version: '3'
-services:
-    etm-beats:
-        image: elastest/etm-dockbeat
-        environment:
-            - LOGSTASHHOST=etm-logstash
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        depends_on:
-            - etm-logstash
-        networks:
-            - elastest
-        
+services:        
     etm-logstash:        
         image: elastest/etm-logstash
         expose:
@@ -87,7 +76,7 @@ services:
             - ET_ETM_API=http://etm:37006/
             - ET_ESM_API=http://esm:37005/
             - ET_EIM_API=http://eim:37004/
-            - ET_ETM_LSBEATS_HOST=etm-beats
+            - ET_ETM_LSBEATS_HOST=etm-logstash
             - ET_ETM_LSBEATS_PORT=5044
             - ET_ETM_LSHTTP_API=http://etm-logstash:5002/
             - ET_ETM_RABBIT_HOST=etm-rabbitmq
@@ -103,8 +92,6 @@ services:
 
 volumes:
     elasticsearch-data:
-      driver: local
-    beats-data:
       driver: local
     edm-mysql:
       driver: local

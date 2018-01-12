@@ -31,10 +31,12 @@ import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -61,6 +63,12 @@ public class DockerService2 {
 
     @Value("${elastest.docker.network}")
     private String elastestNetwork;
+
+    @Value("${et.dockbeat.image}")
+    private String dockbeatImage;
+
+    @Value("${docker.sock}")
+    private String dockerSock;
 
     @Autowired
     public UtilTools utilTools;
@@ -248,6 +256,86 @@ public class DockerService2 {
                 .withEnv(envList).withLogConfig(logConfig)
                 .withName(containerName).withCmd(cmdList)
                 .withNetworkMode(dockerExec.getNetwork()).exec();
+    }
+
+    /********************/
+    /***** Dockbeat *****/
+    /********************/
+
+    public String getDockbeatContainerName(DockerExecution dockerExec) {
+        return "elastest_dockbeat_" + dockerExec.getExecutionId();
+
+    }
+
+    public void startDockbeat(DockerExecution dockerExec)
+            throws TJobStoppedException {
+        TJobExecution tJobExec = dockerExec.gettJobexec();
+        TJob tJob = tJobExec.getTjob();
+        Long execution = dockerExec.getExecutionId();
+
+        String containerName = getDockbeatContainerName(dockerExec);
+
+        // Environment variables
+        ArrayList<String> envList = new ArrayList<>();
+        String envVar;
+
+        // Get Parameters and insert into Env Vars¡
+        String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashHost;
+        if (tJob.isSelectedService("ems")) {
+            envVar = "FILTER_CONTAINERS" + "=" + "\"^sut\\d*_.*_" + execution
+                    + "|^test\\d*_.*_" + execution + "\"";
+            envList.add(envVar);
+
+            // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
+            // envList.add(envVar);
+
+            envVar = "LOGSTASHPORT" + "="
+                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
+            envList.add(envVar);
+
+            lsHostEnvVar = "LOGSTASHHOST" + "="
+                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
+        }
+        envList.add(lsHostEnvVar);
+
+        // dockerSock
+        Volume volume1 = new Volume(dockerSock);
+
+        // Pull Image
+        try {
+            logger.debug("Try to Pulling Dockbeat Image ({})", dockbeatImage);
+            dockerExec.getDockerClient().pullImageCmd(dockbeatImage)
+                    .exec(new PullImageResultCallback()).awaitSuccess();
+        } catch (InternalServerErrorException isee) {
+            if (imageExistsLocally(dockbeatImage,
+                    dockerExec.getDockerClient())) {
+                logger.info("Docker image exits locally.");
+            } else {
+                logger.error("Error pulling the image: {}", isee.getMessage());
+                throw isee;
+            }
+        } catch (DockerClientException e) {
+            logger.info("Error on Pulling " + dockbeatImage
+                    + " image. Probably because the user has stopped the execution");
+            throw new TJobStoppedException();
+        }
+
+        // Create Container
+        logger.debug("Creating Dockbeat Container...");
+        CreateContainerResponse container = dockerExec.getDockerClient()
+                .createContainerCmd(dockbeatImage).withEnv(envList)
+                .withName(containerName)
+                .withBinds(new Bind(dockerSock, volume1))
+                .withNetworkMode(dockerExec.getNetwork()).exec();
+
+        dockerExec.getDockerClient().startContainerCmd(container.getId())
+                .exec();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        createdContainers.put(container.getId(), containerName);
+
     }
 
     /***********************/
