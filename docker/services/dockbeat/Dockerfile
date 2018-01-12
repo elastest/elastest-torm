@@ -18,10 +18,6 @@ RUN mkdir -p /etc/dockbeat/ \
 
 COPY dockbeat.yml /etc/dockbeat
 
-COPY entrypoint.sh /etc/dockbeat
-
-RUN ["chmod", "+x", "/etc/dockbeat/entrypoint.sh"]
-
 ARG GIT_COMMIT=unspecified
 LABEL git_commit=$GIT_COMMIT
 
@@ -33,6 +29,4 @@ LABEL version=$VERSION
 
 WORKDIR /etc/dockbeat 
 
-ENTRYPOINT ["/etc/dockbeat/entrypoint.sh"]
-
-CMD [ "-c", "dockbeat.yml", "-e", "-v" ]
+CMD cd /etc/dockbeat; exec dockbeat -c dockbeat.yml -e

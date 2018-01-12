@@ -155,7 +155,7 @@ output:
   ### Logstash as output
   logstash:
     # The Logstash hosts
-    hosts: ["${LOGSTASHHOST}:5037"]
+    hosts: ["${LOGSTASHHOST}:${LOGSTASHPORT:5037}"]
 
     # Number of workers per Logstash host.
     #worker: 1
