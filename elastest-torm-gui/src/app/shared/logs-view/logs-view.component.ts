@@ -1,7 +1,7 @@
 import { ElasticSearchService } from '../services/elasticsearch.service';
 import { LogViewModel } from './log-view-model';
 
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'logs-view',
@@ -37,22 +37,45 @@ export class LogsViewComponent implements OnInit {
     }
   }
 
-  scrollToElement(position: number) {
+  scrollToElement(position: number): void {
     let tracesList: NodeListOf<HTMLLIElement> = this.getElementsList();
     let offset: number = this.getElementOffsetTop(tracesList[position]);
     this.lockScroll = true;
     this.myScrollContainer.nativeElement.scrollTop = offset;
   }
 
-  getElementsList(){
+  getElementsList(): any {
     return this.myScrollContainer.nativeElement.getElementsByTagName('li');
   }
-  getElementOffsetTop(element: HTMLLIElement) {
+  getElementOffsetTop(element: HTMLLIElement): number {
     let offset: number = element.offsetTop - element.parentElement.offsetTop;
     return offset;
   }
 
-  lockLogScroll(){
-    this.lockScroll = !this.lockScroll;
+  lockLogScroll(switchLock: boolean): void {
+    if (switchLock !== undefined) {
+      this.lockScroll = switchLock;
+    } else {
+      this.lockScroll = !this.lockScroll;
+    }
+  }
+
+
+  @HostListener('scroll', ['$event'])
+  onScroll(event: Event | any): void {
+    // Do scroll
+    this.myScrollContainer.nativeElement.scrollTop = event.srcElement.scrollTop;
+    this.lockLogScroll(!this.scrollIsInBottom(event));
+  }
+
+  scrollIsInBottom(event: Event | any): boolean {
+    let pos: number = event.srcElement.scrollTop + event.srcElement.offsetHeight;
+    let max: number = event.srcElement.scrollHeight;
+
+    return pos === max;
+  }
+
+  scrollIsInTop(event: Event | any) {
+    return event.srcElement.scrollTop === 0;
   }
 }
