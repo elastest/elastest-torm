@@ -48,7 +48,6 @@ export class EtmChartGroupComponent implements OnInit {
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
 
-
   constructor(
     private elastestESService: ElastestESService,
     private elastestRabbitmqService: ElastestRabbitmqService,
@@ -245,14 +244,16 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   subscribeAllToEvents(): void {
-    this.unsubscribeAllEvents();
-    this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
-    if (this.loaded) {
-      this.MetricsChartCardComponents.forEach(
-        (element: MetricsChartCardComponent) => {
-          this.subscribeToEvents(element);
-        }
-      );
+    if (!this.live) { // If not is live, subscribe to events
+      this.unsubscribeAllEvents();
+      this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
+      if (this.loaded) {
+        this.MetricsChartCardComponents.forEach(
+          (element: MetricsChartCardComponent) => {
+            this.subscribeToEvents(element);
+          }
+        );
+      }
     }
   }
 

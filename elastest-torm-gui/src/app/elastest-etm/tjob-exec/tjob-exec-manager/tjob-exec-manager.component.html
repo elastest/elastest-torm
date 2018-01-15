@@ -1,4 +1,4 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" >
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>
@@ -14,7 +14,7 @@
             <md-divider></md-divider>
             <md-card-content>
                 <div layout="row">
-                    <span flex-gt-xs="20">
+                    <span flex-gt-xs="10">
                         <md-card-subtitle>Result</md-card-subtitle>
                         <h4 [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
@@ -53,6 +53,13 @@
                             <md-icon>settings</md-icon>
                         </button>
                     </span>
+
+                    <span flex-gt-xs="10">
+                        <md-card-subtitle>Delete Execution</md-card-subtitle>
+                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution" class="onlyIconBtn">
+                            <md-icon>delete</md-icon>
+                        </button>
+                    </span>
                 </div>
                 <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
                     <td-data-table [data]="tJobExec.parameters"></td-data-table>
@@ -62,7 +69,7 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs"  *ngIf="tJobExec.testSuite !== undefined && tJobExec.testSuite !== null && tJobExec.testSuite.testCases != undefined && tJobExec.testSuite.testCases != null">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuite !== undefined && tJobExec.testSuite !== null && tJobExec.testSuite.testCases != undefined && tJobExec.testSuite.testCases != null">
     <div flex-gt-sm="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>

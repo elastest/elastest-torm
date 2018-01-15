@@ -40,7 +40,7 @@ export class TjobManagerComponent implements OnInit {
     { name: 'endDate', label: 'End Date' },
     { name: 'sutExecution', label: 'Sut Execution' },
     // { name: 'error', label: 'Error' },
-    { name: 'logIndex', label: 'Log Index' },
+    // { name: 'logIndex', label: 'Log Index' },
     { name: 'options', label: 'Options' },
   ];
   tJobExecData: TJobExecModel[] = [];

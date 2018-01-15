@@ -1,3 +1,5 @@
+import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { IConfirmConfig } from '@covalent/core';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 
@@ -9,8 +11,9 @@ import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { MdDialog } from '@angular/material';
 
 @Component({
   selector: 'app-tjob-exec-manager',
@@ -47,6 +50,8 @@ export class TjobExecManagerComponent implements OnInit {
     private tJobExecService: TJobExecService, private tJobService: TJobService,
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router,
+    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    public dialog: MdDialog
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(
@@ -100,5 +105,29 @@ export class TjobExecManagerComponent implements OnInit {
       ['/loganalyzer'],
       { queryParams: { tjob: this.tJob.id, exec: this.tJobExec.id } }
     );
+  }
+
+  deleteTJobExec(): void {
+    let iConfirmConfig: IConfirmConfig = {
+      message: 'TJob Execution ' + this.tJobExec.id + ' will be deleted, do you want to continue?',
+      disableClose: false,
+      viewContainerRef: this._viewContainerRef,
+      title: 'Confirm',
+      cancelButton: 'Cancel',
+      acceptButton: 'Yes, delete',
+    };
+    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
+      if (accept) {
+        this.tJobExecService.deleteTJobExecution(this.tJob, this.tJobExec).subscribe(
+          (exec) => {
+            this.tJobExecService.popupService.openSnackBar('TJob Execution Nº' + this.tJobExec.id + ' has been removed successfully!');
+            this.viewTJob();
+          },
+          (error) => {
+            this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
+          }
+        );
+      }
+    });
   }
 }
