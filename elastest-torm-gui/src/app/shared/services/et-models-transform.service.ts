@@ -81,7 +81,7 @@ export class ETModelsTransformServices {
         newTJob.resultsPath = tjob.resultsPath;
         newTJob.execDashboardConfig = tjob.execDashboardConfig;
         newTJob.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
-        if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null) {
+        if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null && tjob.esmServicesString !== '') {
             for (let service of JSON.parse(tjob.esmServicesString)) {
                 newTJob.esmServices.push(new EsmServiceModel(service.id, service.name,
                     service.selected));
