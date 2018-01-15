@@ -1,4 +1,4 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" >
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
     <md-card>
       <md-card-title>
@@ -14,7 +14,9 @@
           <span>
             <img *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
               title="Executing TJob">
-            <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+            <button md-button *ngIf="tJobExec.finished()" (click)="navigateToResultPage()" class="onlyIconBtn" title="Navigate to result page">
+              <md-icon style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+            </button>
             <span style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
             <span flex></span>
             <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution" [disabled]="disableStopBtn">

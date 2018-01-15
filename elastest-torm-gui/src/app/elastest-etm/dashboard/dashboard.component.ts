@@ -83,8 +83,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
           (tJob: TJobModel) => {
             this.tJob = tJob;
             if (this.tJobExec.finished()) {
-              this.router.navigate(
-                ['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
+              this.navigateToResultPage();
             } else {
               this.checkResultStatus();
               this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
@@ -101,6 +100,12 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
             }
           });
       });
+  }
+
+
+  navigateToResultPage(): void {
+    this.router.navigate(
+      ['/projects', this.tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
   }
 
   getSupportServicesInstances(): void {
