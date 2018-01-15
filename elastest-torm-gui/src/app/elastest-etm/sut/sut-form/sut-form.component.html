@@ -10,10 +10,10 @@
       <!-- Common fields -->
       <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
         <md-input-container flex-gt-md="45" flex-md="45">
-          <input mdInput #sutNameInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName" required>
+          <input mdInput trim="blur" #sutNameInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName" required>
         </md-input-container>
         <md-input-container flex-gt-md="45" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
-          <input mdInput type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc" required>
+          <input mdInput trim="blur" type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc" required>
         </md-input-container>
       </div>
 
@@ -70,7 +70,7 @@
           <!-- Docker Image -->
           <ng-container *ngIf="!dockerCompose; else dockerComposeSpec">
             <md-input-container flex="100">
-              <input mdInput type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+              <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
                 [(ngModel)]="sut.specification" name="specification" required>
             </md-input-container>
 
@@ -96,20 +96,20 @@
 
               <!-- Main service name -->
               <md-input-container flex="100">
-                <input mdInput type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
+                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
               </md-input-container>
             </ng-container>
           </ng-template>
 
           <md-input-container flex="100" *ngIf="managedSut.checked">
-            <input mdInput type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">
+            <input mdInput trim="blur" type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">
           </md-input-container>
         </div>
 
         <!-- Deployed: Instrumented By Elastest fields -->
         <div layout="row" class="push-top" *ngIf="elasTestExecMode !== 'normal' && deployedChecked && elastestInsCheck">
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
-            <input mdInput type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
+            <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
           </md-input-container>
           <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
             <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>

@@ -71,6 +71,7 @@ import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/
 import { HelpComponent } from './elastest-etm/help/help.component';
 import { ShowMessageModalComponent } from './elastest-log-analyzer/show-message-modal/show-message-modal.component';
 import { MarkComponent } from './elastest-log-analyzer/mark-component/mark.component';
+import { InputTrimModule } from 'ng2-trim-directive';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -125,6 +126,7 @@ const httpInterceptorProviders: Type<any>[] = [
     MdProgressSpinnerModule,
     AgGridModule.withComponents([]),
     TreeModule,
+    InputTrimModule,
     CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
       interceptors: [{

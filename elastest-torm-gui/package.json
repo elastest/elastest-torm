@@ -58,7 +58,8 @@
     "zone.js": "^0.8.5",
     "ag-grid": "14.1.0",
     "ag-grid-angular": "14.1.0",
-    "angular-tree-component": "6.0.0"
+    "angular-tree-component": "6.0.0",
+    "ng2-trim-directive": "2.1.0"
   },
   "devDependencies": {
     "@angular/cli": "1.0.3",
