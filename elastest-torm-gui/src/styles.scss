@@ -33,6 +33,15 @@ html .mat-card {
     margin: 6px 7px !important;
 }
 
+html .mat-card md-card-title{
+    padding-top: 11px !important;
+    margin-bottom: 11px !important;
+}
+
+md-card-title > div{
+    align-items: center;
+}
+
 md-card-content a {
     color: #ffac2f;
     font-weight: bold;

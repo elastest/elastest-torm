@@ -8,7 +8,7 @@
                 </a>
                 <span>: Execution {{tJobExecId}}</span>
                 <span>
-                    <md-icon *ngIf="tJobExec.finished()" style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+                    <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color" title="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
                 </span>
             </md-card-title>
             <md-divider></md-divider>
