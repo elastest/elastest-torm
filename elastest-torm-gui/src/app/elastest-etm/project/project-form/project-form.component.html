@@ -2,15 +2,16 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        Project Form
+        <span *ngIf="project && project.id == 0">New Project</span>
+        <span *ngIf="project && project.id > 0">Edit Project "{{project.name}}"</span>
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content class="push-bottom-none">
         <form #projectForm="ngForm">
           <div layout="row">
             <md-input-container flex>
-              <input mdInput #projectNameInput #nameControl="ngModel" type="text" placeholder="Project Name" [(ngModel)]="project.name" name="project.name"
-                maxlength="20" required>
+              <input mdInput #projectNameInput #nameControl="ngModel" type="text" placeholder="Project Name" [(ngModel)]="project.name"
+                name="project.name" maxlength="20" required>
               <md-hint align="start">
                 <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>
               </md-hint>
