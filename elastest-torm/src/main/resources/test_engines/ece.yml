@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=elastestpassword
       - POSTGRES_DB=ece
   ece:
-    image: elastest/ece:0.5.0
+    image: elastest/ece:latest
     ports:
       - 8888:8888
     environment:
