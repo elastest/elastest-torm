@@ -12,7 +12,7 @@ services:
   ece:
     image: elastest/ece:latest
     ports:
-      - 8888:8888
+      - 37008:8888
     environment:
       - ELASTESTTORMAPI=http://etm:37006
       - ELASTESTESMAPI=http://esm:37005
