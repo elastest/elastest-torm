@@ -573,17 +573,13 @@ public class EsmService {
 
     private String createServiceInstanceUrl(JsonNode node, String ip) {
         String url = null;
-        try {
-            url = node.get("protocol").toString().replaceAll("\"", "") + "://"
-                    + ip + ":"
-                    + node.get("port").toString().replaceAll("\"", "")
-                    + (node.get("path") != null
-                            ? node.get("path").toString().replaceAll("\"", "")
-                            : "/");
-            logger.info("New url: " + url);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        url = node.get("protocol").toString().replaceAll("\"", "") + "://" + ip
+                + ":" + node.get("port").toString().replaceAll("\"", "")
+                + (node.get("path") != null
+                        ? node.get("path").toString().replaceAll("\"", "")
+                        : "/");
+        logger.info("New url: " + url);
         return url;
     }
 
