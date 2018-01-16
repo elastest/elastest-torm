@@ -243,6 +243,12 @@
 			<artifactId>jackson-dataformat-yaml</artifactId>
 			<version>2.9.3</version>
 		</dependency>
+
+		<dependency>
+			<groupId>br.eti.kinoshita</groupId>
+			<artifactId>testlink-java-api</artifactId>
+			<version>1.9.6-1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
