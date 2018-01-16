@@ -41,6 +41,8 @@ services:
             - ET_SHARED_FOLDER=/shared-data/
             - ET_PROXY_PORT=37000
             - ET_IN_PROD=true
+            - ET_ETM_TESTLINK_HOST=etm-testlink
+            - ET_ETM_TESTLINK_PORT=80
         entrypoint: /run.sh
         expose:
             - 8091

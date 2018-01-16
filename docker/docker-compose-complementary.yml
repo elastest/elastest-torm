@@ -94,7 +94,6 @@ services:
       image: 'bitnami/testlink:latest'
       depends_on:
             - edm-mysql
-#            - etm
       expose:
             - 80
             - 443
