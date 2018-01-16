@@ -57,51 +57,26 @@ public class TestLinkService {
         }
     }
 
-    /**
-     * @return the API info
-     */
     public String getTestLinkInfo() {
         return this.api.about();
     }
 
-    /**
-     * ping method is an alias for sayHello.
-     * 
-     * @return Hello message
-     */
     public String sayHello() {
         return this.api.ping();
     }
 
-    /*************************************************************************/
-    /***************************** Test Projects *****************************/
-    /*************************************************************************/
+    /* *********************************************************************** */
+    /* **************************** Test Projects **************************** */
+    /* *********************************************************************** */
 
-    /**
-     * Get All Test Projects
-     * 
-     * @return test projects
-     */
     public TestProject[] getProjects() {
         return this.api.getProjects();
     }
 
-    /**
-     * Get Test Project by Name
-     * 
-     * @param projectName
-     * @return test projects
-     */
     public TestProject getProjectByName(String projectName) {
         return this.api.getTestProjectByName(projectName);
     }
 
-    /**
-     * Create Test Project
-     * 
-     * @param TestProject
-     * @return TestProject
-     */
     public TestProject createProject(TestProject project) {
         return this.api.createTestProject(project.getName(),
                 project.getPrefix(), project.getNotes(),
@@ -114,32 +89,14 @@ public class TestLinkService {
     /****************************** Test Plans ******************************/
     /************************************************************************/
 
-    /**
-     * Get All Test Plans of a Test Project
-     * 
-     * @param projectId
-     * @return Project Test plans
-     */
     public TestPlan[] getProjectTestPlans(Integer projectId) {
         return this.api.getProjectTestPlans(projectId);
     }
 
-    /**
-     * Get Test Plan of a Test Project
-     * 
-     * @param projectId
-     * @return Project Test plans
-     */
     public TestPlan getTestPlanByName(String planName, String projectName) {
         return this.api.getTestPlanByName(planName, projectName);
     }
 
-    /**
-     * Create Test Plan
-     * 
-     * @param TestPlan
-     * @return TestPlan
-     */
     public TestPlan createTestPlan(TestPlan plan) {
         return this.api.createTestPlan(plan.getName(), plan.getProjectName(),
                 plan.getNotes(), plan.isActive(), plan.isPublic());
@@ -149,22 +106,10 @@ public class TestLinkService {
     /***************************** Plan Builds *****************************/
     /***********************************************************************/
 
-    /**
-     * Get all builds of a Test Plan
-     * 
-     * @param testPlanId
-     * @return Test plans builds
-     */
     public Build[] getTestPlansBuilds(Integer planId) {
         return this.api.getBuildsForTestPlan(planId);
     }
 
-    /**
-     * Get latest build of a Test Plan
-     * 
-     * @param testPlanId
-     * @return Test plan build
-     */
     public Build getLatestPlanBuild(Integer planId) {
         return this.api.getLatestBuildForTestPlan(planId);
     }
@@ -173,22 +118,10 @@ public class TestLinkService {
     /****************************** Test Suites ******************************/
     /*************************************************************************/
 
-    /**
-     * Get All Test Suites of a Test Plan
-     * 
-     * @param testPlanId
-     * @return TestSuite[]
-     */
     public TestSuite[] getTestSuitesForTestPlan(Integer testPlanId) {
         return this.api.getTestSuitesForTestPlan(testPlanId);
     }
 
-    /**
-     * Get a Test Suite By Id
-     * 
-     * @param suiteId
-     * @return TestSuite
-     */
     public TestSuite getTestSuiteById(Integer suiteId) {
         List<Integer> testSuitesIds = new ArrayList<>();
         testSuitesIds.add(suiteId);
@@ -200,12 +133,6 @@ public class TestLinkService {
         return null;
     }
 
-    /**
-     * Create a TestSuite
-     * 
-     * @param TestSuite
-     * @return TestSuite
-     */
     public TestSuite createTestSuite(TestSuite suite) {
         return this.api.createTestSuite(suite.getTestProjectId(),
                 suite.getName(), suite.getDetails(), suite.getParentId(),
@@ -217,25 +144,12 @@ public class TestLinkService {
     /****************************** Test Cases ******************************/
     /************************************************************************/
 
-    /**
-     * Get all Test Cases of a Test Plan
-     * 
-     * @param testPlanId
-     * @param buildId
-     * @return TestCase[]
-     */
     public TestCase[] getTestCasesForTestPlan(Integer testPlanId,
             Integer buildId) {
         return this.api.getTestCasesForTestPlan(testPlanId, null, buildId, null,
                 null, null, null, null, null, true, null);
     }
 
-    /**
-     * Get Test Case
-     * 
-     * @param testcase
-     * @return TestCase
-     */
     public TestCase getTestCaseById(Integer suiteId, Integer caseId) {
         TestCase foundTestCase = null;
         try {
@@ -264,17 +178,6 @@ public class TestLinkService {
                 testCase.getActionOnDuplicatedName());
     }
 
-    /**
-     * Execute a Test of Test Plan
-     * 
-     * @param testCaseId
-     * @param testPlanId
-     * @param buildId
-     * @param notes
-     * @param status
-     * 
-     *            Reports a TestCase result.
-     */
     public ReportTCResultResponse executeTest(Integer testCaseId,
             Integer testPlanId, Integer buildId, String notes,
             ExecutionStatus status) {
