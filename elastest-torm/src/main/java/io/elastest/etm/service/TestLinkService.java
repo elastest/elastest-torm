@@ -47,15 +47,14 @@ public class TestLinkService {
         try {
             testlinkURL = new URL(url);
         } catch (MalformedURLException mue) {
-            mue.printStackTrace(System.err);
+            mue.printStackTrace();
         }
 
         try {
             api = new TestLinkAPI(testlinkURL, devKey);
         } catch (TestLinkAPIException te) {
-            te.printStackTrace(System.err);
+            te.printStackTrace();
         }
-        System.out.println(api.ping());
     }
 
     /**
