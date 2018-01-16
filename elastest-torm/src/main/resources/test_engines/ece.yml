@@ -14,10 +14,7 @@ services:
     ports:
       - 37008:8888
     environment:
-      - ELASTESTTORMAPI=http://etm:37006
-      - ELASTESTESMAPI=http://esm:37005
-      - ELASTESTTORMTJOBENDPOINT=/api/tjob
-      - ELASTESTESMCATALOGENDPOINT=/v2/catalog
-      - ELASTESTESMINSTANCEENDPOINT=/v2/et/service_instances/
+      - ET_ETM_API=http://etm:37006/
+      - ET_ESM_API=http://esm:37005/
       - HIBERNATEURL=jdbc:postgresql://postgres/ece
       - ESTIMATIONRANGE=1,4,20,60
