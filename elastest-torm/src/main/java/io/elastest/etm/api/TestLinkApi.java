@@ -51,7 +51,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/testlink/project/{projectId}", method = RequestMethod.GET)
     ResponseEntity<TestProject> getProjectById(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectId") Integer projectId);
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId);
 
     @ApiOperation(value = "Creates a new Test Project", notes = "Creates a new Test Project", response = TestProject.class, tags = {
             "TestLink", })
@@ -92,7 +92,7 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/testlink/project/{projectId}/plan/", produces = {
+    @RequestMapping(value = "/testlink/project/{projectId}/plan", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestPlan> createPlan(
@@ -115,16 +115,16 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}/suite", method = RequestMethod.GET)
     ResponseEntity<TestSuite[]> getProjectTestSuites(
-            @ApiParam(value = "Id of Test Project.", required = true) @PathVariable("projectId") Integer projectId);
+            @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId);
 
     @ApiOperation(value = "Creates a new Test Suite", notes = "Creates a new Test Suite", response = TestSuite.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class),
             @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/", produces = {
+    @RequestMapping(value = "/testlink/project/{projectId}/suite", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestSuite> createSuite(

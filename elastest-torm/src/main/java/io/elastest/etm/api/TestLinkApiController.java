@@ -59,8 +59,9 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getProjectTestPlans(id), HttpStatus.OK);
     }
 
-    public ResponseEntity<TestPlan> getPlanByName(String projectName,
-            String planName) {
+    public ResponseEntity<TestPlan> getPlanByName(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
+            @ApiParam(value = "Name of the plan.", required = true) @PathVariable("planName") String planName) {
         return new ResponseEntity<TestPlan>(
                 testLinkService.getTestPlanByName(planName, projectName),
                 HttpStatus.OK);
@@ -80,12 +81,14 @@ public class TestLinkApiController implements TestLinkApi {
     /* ***************************** Test Suites ******************************/
     /* ************************************************************************/
 
-    public ResponseEntity<TestSuite> getTestSuiteById(Integer suiteId) {
+    public ResponseEntity<TestSuite> getTestSuiteById(
+            @ApiParam(value = "Id of Test suite.", required = true) @PathVariable("suiteId") Integer suiteId) {
         return new ResponseEntity<TestSuite>(
                 testLinkService.getTestSuiteById(suiteId), HttpStatus.OK);
     }
 
-    public ResponseEntity<TestSuite[]> getProjectTestSuites(Integer projectId) {
+    public ResponseEntity<TestSuite[]> getProjectTestSuites(
+            @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId) {
         return new ResponseEntity<TestSuite[]>(
                 testLinkService.getProjectTestSuites(projectId), HttpStatus.OK);
 
@@ -101,14 +104,16 @@ public class TestLinkApiController implements TestLinkApi {
     /* ***************************** Test Cases ******************************/
     /* ***********************************************************************/
 
-    public ResponseEntity<TestCase> getTestcase(Integer suiteId,
-            Integer caseId) {
+    public ResponseEntity<TestCase> getTestcase(
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
         return new ResponseEntity<TestCase>(
                 testLinkService.getTestCaseById(suiteId, caseId),
                 HttpStatus.OK);
     }
 
-    public ResponseEntity<TestCase[]> getSuiteTestCases(Integer suiteId) {
+    public ResponseEntity<TestCase[]> getSuiteTestCases(
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId) {
         return new ResponseEntity<TestCase[]>(
                 testLinkService.getSuiteTestCases(suiteId), HttpStatus.OK);
     }
