@@ -106,11 +106,15 @@ services:
             MARIADB_USER: root
       networks:
              - elastest
+      volumes:
+             - etm-testlink:/bitnami
 
 volumes:
     elasticsearch-data:
       driver: local
     edm-mysql:
+      driver: local
+    etm-testlink:
       driver: local
 networks:
     elastest:

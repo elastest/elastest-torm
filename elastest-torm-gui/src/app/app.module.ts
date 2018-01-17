@@ -72,6 +72,7 @@ import { HelpComponent } from './elastest-etm/help/help.component';
 import { ShowMessageModalComponent } from './elastest-log-analyzer/show-message-modal/show-message-modal.component';
 import { MarkComponent } from './elastest-log-analyzer/mark-component/mark.component';
 import { InputTrimModule } from 'ng2-trim-directive';
+import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -108,6 +109,7 @@ const httpInterceptorProviders: Type<any>[] = [
     HelpComponent,
     ShowMessageModalComponent,
     MarkComponent,
+    EtmTestlinkComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

@@ -32,6 +32,7 @@ import { LoginComponent } from './login/login.component';
 import { UsersFormComponent } from './users/form/form.component';
 import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
 import { RefreshComponent } from './shared/refresh/refresh.component';
+import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 
 const routes: Routes = [
     {
@@ -234,6 +235,10 @@ const routes: Routes = [
             {
                 path: 'help',
                 component: HelpComponent,
+            },
+            {
+                path: 'testlink',
+                component: EtmTestlinkComponent,
             },
 
         ]
