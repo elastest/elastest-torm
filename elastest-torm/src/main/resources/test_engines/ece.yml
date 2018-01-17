@@ -14,7 +14,7 @@ services:
     ports:
       - 37008:8888
     environment:
-      - ET_ETM_API=http://etm:37006/
-      - ET_ESM_API=http://esm:37005/
+      - ET_ETM_API=http://etm:8091/
+      - ET_ESM_API=http://esm:8080/
       - HIBERNATEURL=jdbc:postgresql://postgres/ece
       - ESTIMATIONRANGE=1,4,20,60
