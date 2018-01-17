@@ -1,3 +1,67 @@
-<p>
-  test-project works!
-</p>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Test Project {{testProject.name}}
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div layout="row">
+          <span flex-gt-xs="15">
+            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
+            <h4>{{testProject.name}}</h4>
+          </span>
+          <span flex-gt-xs="5">
+            <md-card-subtitle class="pad-left-none">Prefix</md-card-subtitle>
+            <h4>{{testProject.prefix}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Enable Requirements</md-card-subtitle>
+            <h4>{{testProject.enableRequirements}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Enable Test Priority</md-card-subtitle>
+            <h4>{{testProject.enableTestPriority}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Enable Automation</md-card-subtitle>
+            <h4>{{testProject.enableAutomation}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Enable Inventory</md-card-subtitle>
+            <h4>{{testProject.enableInventory}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Active</md-card-subtitle>
+            <h4>{{testProject.active}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Public</md-card-subtitle>
+            <h4>{{testProject.public}}</h4>
+          </span>
+          <span flex-gt-xs="25">
+            <md-card-subtitle>Options</md-card-subtitle>
+            <div class="optionsColumn" layout="column" layout-gt-xs="row">
+              <button md-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <!-- <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Project">
+                <md-icon>delete</md-icon>
+              </button> -->
+            </div>
+          </span>
+        </div>
+        <div layout="column" class="push-top">
+          <span flex-gt-xs="100">
+            <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
+            <div layout="column" class="push-top">
+              <md-input-container>
+                <textarea id="notes" rows="8" mdInput [(ngModel)]="testProject.notes" name="notes" disabled></textarea>
+              </md-input-container>
+            </div>
+          </span>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

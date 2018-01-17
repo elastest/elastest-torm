@@ -23,6 +23,7 @@ export class ETTestlinkModelsTransformService {
         newProject.id = project.id;
         newProject.name = project.name;
         newProject.prefix = project.prefix;
+        newProject.notes = project.notes;
         newProject.enableRequirements = project.enableRequirements;
         newProject.enableTestPriority = project.enableTestPriority;
         newProject.enableAutomation = project.enableAutomation;

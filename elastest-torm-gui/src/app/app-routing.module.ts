@@ -34,6 +34,7 @@ import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log
 import { RefreshComponent } from './shared/refresh/refresh.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
+import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
 
 const routes: Routes = [
     {
@@ -259,13 +260,15 @@ const routes: Routes = [
                                 path: 'edit',
                                 component: TestProjectFormComponent,
                             },
-                            // {
-                            //     path: ':projectId',
-                            //     children: [
-
-
-                            //     ]
-                            // },
+                            {
+                                path: ':projectId',
+                                children: [
+                                    {
+                                        path: '',
+                                        component: TestProjectComponent,
+                                    },
+                                ]
+                            },
 
                         ]
                     },
