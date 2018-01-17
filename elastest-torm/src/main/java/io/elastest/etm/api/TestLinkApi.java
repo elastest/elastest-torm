@@ -23,9 +23,9 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/testlink")
 public interface TestLinkApi extends EtmApiRoot {
 
-    /*************************************************************************/
-    /***************************** Test Projects *****************************/
-    /*************************************************************************/
+    /* ************************************************************************/
+    /* **************************** Test Projects *****************************/
+    /* ************************************************************************/
 
     @ApiOperation(value = "Returns all Test Projects", notes = "Returns the test projects.", response = TestProject.class, responseContainer = "List", tags = {
             "TestLink", })
@@ -55,9 +55,9 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestProject> createProject(
             @ApiParam(value = "Object with the test project data to create.", required = true) @Valid @RequestBody TestProject body);
 
-    /************************************************************************/
-    /****************************** Test Plans ******************************/
-    /************************************************************************/
+    /* ***********************************************************************/
+    /* ***************************** Test Plans ******************************/
+    /* ***********************************************************************/
 
     @ApiOperation(value = "Returns all test plans of a project", notes = "Returns all test plans of a project.", response = TestPlan.class, responseContainer = "List", tags = {
             "TestLink", })
@@ -89,9 +89,9 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestPlan> createPlan(
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody TestPlan body);
 
-    /*************************************************************************/
-    /****************************** Test Suites ******************************/
-    /*************************************************************************/
+    /* ************************************************************************/
+    /* ***************************** Test Suites ******************************/
+    /* ************************************************************************/
     @ApiOperation(value = "Returns a Test Suite", notes = "Returns a test suite.", response = TestSuite.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
@@ -112,9 +112,9 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestSuite> createSuite(
             @ApiParam(value = "Object with the Test Suite data to create.", required = true) @Valid @RequestBody TestSuite body);
 
-    /************************************************************************/
-    /****************************** Test Cases ******************************/
-    /************************************************************************/
+    /* ***********************************************************************/
+    /* ***************************** Test Cases ******************************/
+    /* ***********************************************************************/
 
     @ApiOperation(value = "Returns a Test Case", notes = "Returns a test case.", response = TestCase.class, tags = {
             "TestLink", })

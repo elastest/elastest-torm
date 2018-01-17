@@ -91,7 +91,7 @@ services:
             - elastest
 
     etm-testlink:
-      image: 'bitnami/testlink:latest'
+      image: 'elastest/etm-testlink'
       depends_on:
             - edm-mysql
       expose:
