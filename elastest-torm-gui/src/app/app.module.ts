@@ -1,9 +1,11 @@
+import { TestLinkService } from './etm-testlink/testlink.service';
 import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
 import {
-    MonitoringConfigurationComponent,
+  MonitoringConfigurationComponent,
 } from './elastest-etm/etm-monitoring-view/monitoring-configuration/monitoring-configuration.component';
 import { EtmMonitoringViewComponent } from './elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
+import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-models-transform.service';
 import { TitlesService } from './shared/services/titles.service';
 import { TestEnginesService } from './elastest-test-engines/test-engines.service';
 import { EsmService } from './elastest-esm/esm-service.service';
@@ -73,6 +75,7 @@ import { ShowMessageModalComponent } from './elastest-log-analyzer/show-message-
 import { MarkComponent } from './elastest-log-analyzer/mark-component/mark.component';
 import { InputTrimModule } from 'ng2-trim-directive';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
+import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -110,6 +113,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ShowMessageModalComponent,
     MarkComponent,
     EtmTestlinkComponent,
+    TestProjectComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -155,6 +159,8 @@ const httpInterceptorProviders: Type<any>[] = [
     PopupService,
     TitlesService,
     ETModelsTransformServices,
+    ETTestlinkModelsTransformService,
+    TestLinkService,
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true

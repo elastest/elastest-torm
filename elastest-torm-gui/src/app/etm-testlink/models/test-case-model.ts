@@ -51,6 +51,12 @@ export class ExecutionTypeModel {
     constructor() {
         this.value = 1;
     }
+
+    setValue(value: number): void {
+        if (value === 1 || value === 2) {
+            this.value = value;
+        }
+    }
 }
 
 export class TestImportanceModel {
@@ -58,6 +64,12 @@ export class TestImportanceModel {
 
     constructor() {
         this.value = 2;
+    }
+
+    setValue(value: number): void {
+        if (value === 1 || value === 2 || value === 3) {
+            this.value = value;
+        }
     }
 }
 
@@ -82,7 +94,6 @@ export class CustomFieldModel {
     value: string;
 
     constructor() {
-
     }
 }
 
@@ -90,6 +101,12 @@ export class ExecutionStatusModel {
     value: 'n' | 'p' | 'f' | 'b'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
     constructor() {
         this.value = 'n';
+    }
+
+    setValue(value: string): void {
+        if (value === 'n' || value === 'p' || value === 'f' || value === 'b') {
+            this.value = value;
+        }
     }
 }
 

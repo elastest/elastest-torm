@@ -7,8 +7,8 @@ export class TestProjectModel {
     enableTestPriority: boolean;
     enableAutomation: boolean;
     enableInventory: boolean;
-    isActive: boolean;
-    isPublic: boolean;
+    active: boolean;
+    public: boolean;
 
     constructor() {
 

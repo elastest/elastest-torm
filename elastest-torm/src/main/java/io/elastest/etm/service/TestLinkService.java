@@ -122,6 +122,10 @@ public class TestLinkService {
         return this.api.getTestSuitesForTestPlan(testPlanId);
     }
 
+    public TestSuite[] getProjectTestSuites(Integer projectId) {
+        return this.api.getFirstLevelTestSuitesForTestProject(projectId);
+    }
+
     public TestSuite getTestSuiteById(Integer suiteId) {
         List<Integer> testSuitesIds = new ArrayList<>();
         testSuitesIds.add(suiteId);
@@ -153,8 +157,7 @@ public class TestLinkService {
     public TestCase getTestCaseById(Integer suiteId, Integer caseId) {
         TestCase foundTestCase = null;
         try {
-            TestCase[] testCases = this.api.getTestCasesForTestSuite(suiteId,
-                    true, TestCaseDetails.FULL);
+            TestCase[] testCases = getSuiteTestCases(suiteId);
             for (TestCase testCase : testCases) {
                 if (testCase.getId() == caseId) {
                     foundTestCase = testCase;
@@ -165,6 +168,11 @@ public class TestLinkService {
         }
 
         return foundTestCase;
+    }
+
+    public TestCase[] getSuiteTestCases(Integer suiteId) {
+        return this.api.getTestCasesForTestSuite(suiteId, true,
+                TestCaseDetails.FULL);
     }
 
     public TestCase createTestCase(TestCase testCase) {

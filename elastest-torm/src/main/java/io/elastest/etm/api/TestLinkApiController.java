@@ -79,6 +79,12 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getTestSuiteById(suiteId), HttpStatus.OK);
     }
 
+    public ResponseEntity<TestSuite[]> getProjectTestSuites(Integer projectId) {
+        return new ResponseEntity<TestSuite[]>(
+                testLinkService.getProjectTestSuites(projectId), HttpStatus.OK);
+
+    }
+
     public ResponseEntity<TestSuite> createSuite(
             @ApiParam(value = "Object with the Test Suite data to create.", required = true) @Valid @RequestBody TestSuite body) {
         return new ResponseEntity<TestSuite>(
@@ -96,9 +102,15 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
+    public ResponseEntity<TestCase[]> getSuiteTestCases(Integer suiteId) {
+        return new ResponseEntity<TestCase[]>(
+                testLinkService.getSuiteTestCases(suiteId), HttpStatus.OK);
+    }
+
     public ResponseEntity<TestCase> createTestCase(
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body) {
         return new ResponseEntity<TestCase>(
                 testLinkService.createTestCase(body), HttpStatus.OK);
     }
+
 }

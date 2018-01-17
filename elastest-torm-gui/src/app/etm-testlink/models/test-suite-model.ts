@@ -19,4 +19,10 @@ export class ActionOnDuplicateModel {
     constructor() {
         this.value = 'block';
     }
+
+    setValue(value: string): void {
+        if (value === 'block' || value === 'generate_new' || value === 'create_new_version') {
+            this.value = value;
+        }
+    }
 }

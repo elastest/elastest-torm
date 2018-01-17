@@ -101,6 +101,15 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestSuite> getTestSuiteById(
             @ApiParam(value = "Id of Test suite.", required = true) @PathVariable("suiteId") Integer suiteId);
 
+    @ApiOperation(value = "Returns the Test Suites of a Test Project", notes = "Returns the Test Suites of a Test Project.", response = TestSuite.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectId}/suite/", method = RequestMethod.GET)
+    ResponseEntity<TestSuite[]> getProjectTestSuites(
+            @ApiParam(value = "Id of Test Project.", required = true) @PathVariable("projectId") Integer projectId);
+
     @ApiOperation(value = "Creates a new Test Suite", notes = "Creates a new Test Suite", response = TestSuite.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
@@ -125,6 +134,15 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase> getTestcase(
             @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    @ApiOperation(value = "Returns the Test Cases of a Test Suite", notes = "Returnsthe Test Cases of a Test Suite", response = TestCase.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteid}/case", method = RequestMethod.GET)
+    ResponseEntity<TestCase[]> getSuiteTestCases(
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId);
 
     @ApiOperation(value = "Creates a new Test Case", notes = "Creates a new Test Suite", response = TestSuite.class, tags = {
             "TestLink", })
