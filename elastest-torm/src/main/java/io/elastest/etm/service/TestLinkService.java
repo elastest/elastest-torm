@@ -77,6 +77,23 @@ public class TestLinkService {
         return this.api.getTestProjectByName(projectName);
     }
 
+    public TestProject getProjectById(Integer projectId) {
+        TestProject project = null;
+        for (TestProject currentProject : this.getProjects()) {
+            if (currentProject.getId() == projectId) {
+                project = currentProject;
+                break;
+            }
+        }
+
+        if (project == null) {
+            throw new TestLinkAPIException(
+                    "Test Project with id " + projectId + " not found");
+        } else {
+            return project;
+        }
+    }
+
     public TestProject createProject(TestProject project) {
         return this.api.createTestProject(project.getName(),
                 project.getPrefix(), project.getNotes(),

@@ -37,6 +37,12 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getProjectByName(projectName), HttpStatus.OK);
     }
 
+    public ResponseEntity<TestProject> getProjectById(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectId") Integer projectId) {
+        return new ResponseEntity<TestProject>(
+                testLinkService.getProjectById(projectId), HttpStatus.OK);
+    }
+
     public ResponseEntity<TestProject> createProject(
             @ApiParam(value = "Object with the test project data to create.", required = true) @Valid @RequestBody TestProject body) {
         return new ResponseEntity<TestProject>(

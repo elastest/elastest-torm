@@ -30,7 +30,13 @@ export class TestLinkService {
     }
 
     public getProjectByName(project: TestProjectModel): Observable<TestProjectModel> {
-        let url: string = this.hostApi + '/testlink/project/' + project.name;
+        let url: string = this.hostApi + '/testlink/project/name/' + project.name;
+        return this.http.get(url)
+            .map((response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
+    }
+
+    public getProjectById(projectId: number): Observable<TestProjectModel> {
+        let url: string = this.hostApi + '/testlink/project/' + projectId;
         return this.http.get(url)
             .map((response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
     }

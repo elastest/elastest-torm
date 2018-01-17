@@ -33,6 +33,7 @@ import { UsersFormComponent } from './users/form/form.component';
 import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
 import { RefreshComponent } from './shared/refresh/refresh.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
+import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 
 const routes: Routes = [
     {
@@ -238,7 +239,37 @@ const routes: Routes = [
             },
             {
                 path: 'testlink',
-                component: EtmTestlinkComponent,
+                children: [
+                    {
+                        component: EtmTestlinkComponent,
+                        path: '',
+                    },
+                    {
+                        path: 'projects',
+                        children: [
+                            {
+                                path: 'add',
+                                component: TestProjectFormComponent,
+                            },
+                            {
+                                path: 'edit/:projectId',
+                                component: TestProjectFormComponent,
+                            },
+                            {
+                                path: 'edit',
+                                component: TestProjectFormComponent,
+                            },
+                            // {
+                            //     path: ':projectId',
+                            //     children: [
+
+
+                            //     ]
+                            // },
+
+                        ]
+                    },
+                ]
             },
 
         ]

@@ -76,6 +76,7 @@ import { MarkComponent } from './elastest-log-analyzer/mark-component/mark.compo
 import { InputTrimModule } from 'ng2-trim-directive';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
+import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -114,6 +115,7 @@ const httpInterceptorProviders: Type<any>[] = [
     MarkComponent,
     EtmTestlinkComponent,
     TestProjectComponent,
+    TestProjectFormComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

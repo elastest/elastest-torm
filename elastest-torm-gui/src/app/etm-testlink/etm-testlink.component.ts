@@ -49,7 +49,7 @@ export class EtmTestlinkComponent implements OnInit {
     this.loadProjects();
   }
 
-  loadProjects() {
+  loadProjects(): void {
     this.testlinkService.getAllTestProjects()
       .subscribe(
       (projects: TestProjectModel[]) => {

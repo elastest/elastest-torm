@@ -35,14 +35,23 @@ public interface TestLinkApi extends EtmApiRoot {
     @RequestMapping(value = "/testlink/project", method = RequestMethod.GET)
     ResponseEntity<TestProject[]> getAllTestProjects();
 
-    @ApiOperation(value = "Returns a Test Project", notes = "Returns a test project.", response = TestProject.class, tags = {
+    @ApiOperation(value = "Returns a Test Project By Given Name", notes = "Returns a Test Project By Given Name.", response = TestProject.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/name/{projectName}", method = RequestMethod.GET)
     ResponseEntity<TestProject> getProjectByName(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName);
+
+    @ApiOperation(value = "Returns a Test Project By Given Id", notes = "Returns a Test Project By Given Id.", response = TestProject.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectId}", method = RequestMethod.GET)
+    ResponseEntity<TestProject> getProjectById(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectId") Integer projectId);
 
     @ApiOperation(value = "Creates a new Test Project", notes = "Creates a new Test Project", response = TestProject.class, tags = {
             "TestLink", })

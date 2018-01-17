@@ -6,22 +6,22 @@
                     <div layout="row">
                         <span>Test Projects</span>
                         <span flex></span>
-                        <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects/add']">New Test Project</button> -->
+                        <button md-raised-button color="accent" [routerLink]="['/testlink/projects/add']">New Test Project</button>
                     </div>
                 </md-card-title>
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">
-                    <td-data-table #projectsTable [class]="tableStyle" [data]="projectsList" [columns]="projectColumns" [selectable]="false" [clickable]="true"
-                        [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" [style.height.px]="200">
+                    <td-data-table #projectsTable [class]="tableStyle" [data]="projectsList" [columns]="projectColumns" [selectable]="false"
+                        [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" [style.height.px]="200">
                         <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>
                         </ng-template>
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                             <div layout="row" class="optionsColumn">
-                                <!-- <button md-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
+                                <button md-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
                                     <md-icon>mode_edit</md-icon>
                                 </button>
-                                <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
+                                <!-- <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
                                     <md-icon>delete</md-icon>
                                 </button> -->
                             </div>
