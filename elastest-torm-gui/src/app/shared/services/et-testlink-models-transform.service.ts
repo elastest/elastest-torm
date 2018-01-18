@@ -93,7 +93,9 @@ export class ETTestlinkModelsTransformService {
         newCase.summary = testCase.summary;
         newCase.steps = [];
         for (let step of testCase.steps) {
-            newCase.steps.push(this.jsonToTestCaseStep(testCase.steps));
+            if (step !== undefined && step !== null) {
+                newCase.steps.push(this.jsonToTestCaseStep(testCase.steps));
+            }
         }
 
         newCase.preconditions = testCase.preconditions;
@@ -132,51 +134,56 @@ export class ETTestlinkModelsTransformService {
     }
 
     jsonToCustomField(customField: any): CustomFieldModel {
-        let newCustomField: CustomFieldModel = new CustomFieldModel();
-        newCustomField.id = customField.id;
-        newCustomField.name = customField.name;
-        newCustomField.label = customField.label;
-        newCustomField.type = customField.type;
-        newCustomField.possibleValues = customField.possibleValues;
-        newCustomField.defaultValue = customField.defaultValue;
-        newCustomField.validRegexp = customField.validRegexp;
-        newCustomField.lengthMin = customField.lengthMin;
-        newCustomField.lengthMax = customField.lengthMax;
-        newCustomField.showOnDesign = customField.showOnDesign;
-        newCustomField.enableOnDesign = customField.enableOnDesign;
-        newCustomField.showOnExecution = customField.showOnExecution;
-        newCustomField.enableOnExecution = customField.enableOnExecution;
-        newCustomField.showOnTestPlanDesign = customField.showOnTestPlanDesign;
-        newCustomField.enableOnTestPlanDesign = customField.enableOnTestPlanDesign;
-        newCustomField.displayOrder = customField.displayOrder;
-        newCustomField.location = customField.location;
-        newCustomField.value = customField.value;
-
+        let newCustomField: CustomFieldModel;
+        if (customField !== undefined && customField !== null) {
+            newCustomField = new CustomFieldModel();
+            newCustomField.id = customField.id;
+            newCustomField.name = customField.name;
+            newCustomField.label = customField.label;
+            newCustomField.type = customField.type;
+            newCustomField.possibleValues = customField.possibleValues;
+            newCustomField.defaultValue = customField.defaultValue;
+            newCustomField.validRegexp = customField.validRegexp;
+            newCustomField.lengthMin = customField.lengthMin;
+            newCustomField.lengthMax = customField.lengthMax;
+            newCustomField.showOnDesign = customField.showOnDesign;
+            newCustomField.enableOnDesign = customField.enableOnDesign;
+            newCustomField.showOnExecution = customField.showOnExecution;
+            newCustomField.enableOnExecution = customField.enableOnExecution;
+            newCustomField.showOnTestPlanDesign = customField.showOnTestPlanDesign;
+            newCustomField.enableOnTestPlanDesign = customField.enableOnTestPlanDesign;
+            newCustomField.displayOrder = customField.displayOrder;
+            newCustomField.location = customField.location;
+            newCustomField.value = customField.value;
+        }
         return newCustomField;
     }
 
     jsonToTestCaseStep(step: any): TestCaseStepModel {
-        let newStep: TestCaseStepModel = new TestCaseStepModel();
-        newStep.id = step.id;
-        newStep.testCaseVersionId = step.testCaseVersionId;
-        newStep.number = step.number;
-        newStep.actions = step.actions;
-        newStep.expectedResults = step.expectedResults;
-        newStep.active = step.active;
+        let newStep: TestCaseStepModel;
+        if (step !== undefined && step !== null) {
+            newStep = new TestCaseStepModel();
+            newStep.id = step.id;
+            newStep.testCaseVersionId = step.testCaseVersionId;
+            newStep.number = step.number;
+            newStep.actions = step.actions;
+            newStep.expectedResults = step.expectedResults;
+            newStep.active = step.active;
 
-        newStep.executionType = new ExecutionTypeModel();
-        newStep.executionType.setValue(step.executionType);
-
+            newStep.executionType = new ExecutionTypeModel();
+            newStep.executionType.setValue(step.executionType);
+        }
         return newStep;
     }
 
     jsontToPlatform(platform: any): PlatformModel {
-        let newPlatform: PlatformModel = new PlatformModel();
-
-        newPlatform.id = platform.id;
-        newPlatform.name = platform.name;
-        newPlatform.notes = platform.notes;
-
+        let newPlatform: PlatformModel;
+        if (platform !== undefined && platform !== null) {
+            newPlatform = new PlatformModel();
+            newPlatform.id = platform.id;
+            newPlatform.name = platform.name;
+            newPlatform.notes = platform.notes;
+        }
         return newPlatform;
     }
 
