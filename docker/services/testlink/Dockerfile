@@ -11,6 +11,11 @@ RUN cd /opt/bitnami/testlink/install/sql/mysql \
 	&& rm -f testlink_create_default_data.sql \
 	&& rm -f testlink_create_tables.sql
 
+# Copy new entrypoint
+RUN rm -f app-entrypoint.sh
+COPY app-entrypoint.sh /
+RUN chmod 777 /app-entrypoint.sh
+
 # Copy tables and data files for DB with ET data
 COPY testlink_create_tables.sql /opt/bitnami/testlink/install/sql/mysql
 COPY testlink_create_default_data.sql /opt/bitnami/testlink/install/sql/mysql
