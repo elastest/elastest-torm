@@ -40,9 +40,6 @@
 #
 # ---------------------------------------------------------------------------------------
 
-#CREATE DATABASE IF NOT EXISTS ETMTESTLINK;
-
-#USE ETMTESTLINK
 
 CREATE TABLE /*prefix*/assignment_types (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -203,224 +200,7 @@ CREATE TABLE /*prefix*/events (
 CREATE TABLE /*prefix*/execution_bugs (
   `execution_id` int(10) unsigned NOT NULL default '0',
   `bug_id` varchar(64) NOT NULL default '0',
-  `tcstep_id` int(10) unsigned NOT NULL deftf8;
-) DEFAULT CHARSET=u1 (`parent_id`,`revision`)
-
-
-CREATE TABLE /*prefix*/tcsteps (  
-  id int(10) unsigned NOT NULL,
-  step_number INT NOT NULL DEFAULT '1',
-  actions TEXT,
-  expected_results TEXT,
-  active tinyint(1) NOT NULL default '1',
-  execution_type tinyint(1) NOT NULL default '1' COMMENT '1 -> manual, 2 -> automated',
-  PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/testplan_tcversions (
-  id int(10) unsigned NOT NULL auto_increment,
-  testplan_id int(10) unsigned NOT NULL default '0',
-  tcversion_id int(10) unsigned NOT NULL default '0',
-  node_order int(10) unsigned NOT NULL default '1',
-  urgency smallint(5) NOT NULL default '2',
-  platform_id int(10) unsigned NOT NULL default '0',
-  author_id int(10) unsigned default NULL,
-  creation_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY  (id),
-  UNIQUE KEY /*prefix*/testplan_tcversions_tplan_tcversion (testplan_id,tcversion_id,platform_id)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/testplans (
-  `id` int(10) unsigned NOT NULL,
-  `testproject_id` int(10) unsigned NOT NULL default '0',
-  `notes` text,
-  `active` tinyint(1) NOT NULL default '1',
-  `is_open` tinyint(1) NOT NULL default '1',
-  `is_public` tinyint(1) NOT NULL default '1',
-  `api_key` varchar(64) NOT NULL default '829a2ded3ed0829a2dedd8ab81dfa2c77e8235bc3ed0d8ab81dfa2c77e8235bc',
-  PRIMARY KEY  (`id`),
-  KEY /*prefix*/testplans_testproject_id_active (`testproject_id`,`active`),
-  UNIQUE KEY /*prefix*/testplans_api_key (`api_key`) 
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/testplan_platforms (
-  id int(10) unsigned NOT NULL auto_increment,
-  testplan_id int(10) unsigned NOT NULL,
-  platform_id int(10) unsigned NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY /*prefix*/idx_testplan_platforms(testplan_id,platform_id)
-) DEFAULT CHARSET=utf8 COMMENT='Connects a testplan with platforms';
-
-
-CREATE TABLE /*prefix*/testprojects (
-  `id` int(10) unsigned NOT NULL,
-  `notes` text,
-  `color` varchar(12) NOT NULL default '#9BD',
-  `active` tinyint(1) NOT NULL default '1',
-  `option_reqs` tinyint(1) NOT NULL default '0',
-  `option_priority` tinyint(1) NOT NULL default '0',
-  `option_automation` tinyint(1) NOT NULL default '0',  
-  `options` text,
-  `prefix` varchar(16) NOT NULL,
-  `tc_counter` int(10) unsigned NOT NULL default '0',
-  `is_public` tinyint(1) NOT NULL default '1',
-  `issue_tracker_enabled` tinyint(1) NOT NULL default '0',
-  `reqmgr_integration_enabled` tinyint(1) NOT NULL default '0',
-  `api_key` varchar(64) NOT NULL default '0d8ab81dfa2c77e8235bc829a2ded3edfa2c78235bc829a27eded3ed0d8ab81d',
-  PRIMARY KEY  (`id`),
-  KEY /*prefix*/testprojects_id_active (`id`,`active`),
-  UNIQUE KEY /*prefix*/testprojects_prefix (`prefix`),
-  UNIQUE KEY /*prefix*/testprojects_api_key (`api_key`) 
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/testsuites (
-  `id` int(10) unsigned NOT NULL,
-  `details` text,
-  PRIMARY KEY  (`id`)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/transactions (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `entry_point` varchar(45) NOT NULL default '',
-  `start_time` int(10) unsigned NOT NULL default '0',
-  `end_time` int(10) unsigned NOT NULL default '0',
-  `user_id` int(10) unsigned NOT NULL default '0',
-  `session_id` varchar(45) default NULL,
-  PRIMARY KEY  (`id`)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/user_assignments (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `type` int(10) unsigned NOT NULL default '1',
-  `feature_id` int(10) unsigned NOT NULL default '0',
-  `user_id` int(10) unsigned default '0',
-  `build_id` int(10) unsigned default '0',
-  `deadline_ts` datetime NULL,
-  `assigner_id`  int(10) unsigned default '0',
-  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` int(10) unsigned default '1',
-  PRIMARY KEY  (`id`),
-  KEY /*prefix*/user_assignments_feature_id (`feature_id`)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/users (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `login` varchar(100) NOT NULL default '',
-  `password` varchar(32) NOT NULL default '',
-  `role_id` int(10) unsigned NOT NULL default '0',
-  `email` varchar(100) NOT NULL default '',
-  `first` varchar(50) NOT NULL default '',
-  `last` varchar(50) NOT NULL default '',
-  `locale` varchar(10) NOT NULL default 'en_GB',
-  `default_testproject_id` int(10) default NULL,
-  `active` tinyint(1) NOT NULL default '1',
-  `script_key` varchar(32) NULL,
-  `cookie_string` varchar(64) NOT NULL default '',
-  `auth_method` varchar(10) NULL default '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY /*prefix*/users_login (`login`),
-  UNIQUE KEY /*prefix*/users_cookie_string (`cookie_string`)
-) DEFAULT CHARSET=utf8 COMMENT='User information';
-
-
-CREATE TABLE /*prefix*/user_testproject_roles (
-  `user_id` int(10) NOT NULL default '0',
-  `testproject_id` int(10) NOT NULL default '0',
-  `role_id` int(10) NOT NULL default '0',
-  PRIMARY KEY  (`user_id`,`testproject_id`)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/user_testplan_roles (
-  `user_id` int(10) NOT NULL default '0',
-  `testplan_id` int(10) NOT NULL default '0',
-  `role_id` int(10) NOT NULL default '0',
-  PRIMARY KEY  (`user_id`,`testplan_id`)
-) DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE /*prefix*/object_keywords (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `fk_id` int(10) unsigned NOT NULL default '0',
-  `fk_table` varchar(30) default '',
-  `keyword_id` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-) DEFAULT CHARSET=utf8; 
-
-
-# not used - group users for large companies 
-CREATE TABLE /*prefix*/user_group (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `title` varchar(100) NOT NULL,
-  `description` text,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY /*prefix*/idx_user_group (`title`)
-) DEFAULT CHARSET=utf8;
-
-
-# not used - group users for large companies 
-CREATE TABLE /*prefix*/user_group_assign (
-  `usergroup_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  UNIQUE KEY /*prefix*/idx_user_group_assign (`usergroup_id`,`user_id`)
-) DEFAULT CHARSET=utf8;
-
-
-
-
-# ----------------------------------------------------------------------------------
-# BUGID 4056
-# ----------------------------------------------------------------------------------
-CREATE TABLE /*prefix*/req_revisions (
-  `parent_id` int(10) unsigned NOT NULL,
-  `id` int(10) unsigned NOT NULL,
-  `revision` smallint(5) unsigned NOT NULL default '1',
-  `req_doc_id` varchar(64) NULL,   /* it's OK to allow a simple update query on code */
-  `name` varchar(100) NULL,
-  `scope` text,
-  `status` char(1) NOT NULL default 'V',
-  `type` char(1) default NULL,
-  `active` tinyint(1) NOT NULL default '1',
-  `is_open` tinyint(1) NOT NULL default '1',
-  `expected_coverage` int(10) NOT NULL default '1',
-  `log_message` text,
-  `author_id` int(10) unsigned default NULL,
-  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `modifier_id` int(10) unsigned default NULL,
-  `modification_ts` datetime NOT NULL default  CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY /*prefix*/req_revisions_uidx1 (`parent_id`,`revision`)
-) DEFAULT CHARSET=utf8;
-
-
-
-# ----------------------------------------------------------------------------------
-# TICKET 4661
-# ----------------------------------------------------------------------------------
-CREATE TABLE /*prefix*/req_specs_revisions (
-  `parent_id` int(10) unsigned NOT NULL,
-  `id` int(10) unsigned NOT NULL,
-  `revision` smallint(5) unsigned NOT NULL default '1',
-  `doc_id` varchar(64) NULL,   /* it's OK to allow a simple update query on code */
-  `name` varchar(100) NULL,
-  `scope` text,
-  `total_req` int(10) NOT NULL default '0',  
-  `status` int(10) unsigned default '1',
-  `type` char(1) default NULL,
-  `log_message` text,
-  `author_id` int(10) unsigned default NULL,
-  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `modifier_id` int(10) unsigned default NULL,
-  `modification_ts` datetime NOT NULL default  CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY /*prefix*/req_specs_revisions_uidxault '0',
+  `tcstep_id` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`execution_id`,`bug_id`,`tcstep_id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -639,6 +419,223 @@ CREATE TABLE /*prefix*/tcversions (
   `execution_type` tinyint(1) NOT NULL default '1' COMMENT '1 -> manual, 2 -> automated',
   `estimated_exec_duration` decimal(6,2) NULL COMMENT 'NULL will be considered as NO DATA Provided by user',
   PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/tcsteps (  
+  id int(10) unsigned NOT NULL,
+  step_number INT NOT NULL DEFAULT '1',
+  actions TEXT,
+  expected_results TEXT,
+  active tinyint(1) NOT NULL default '1',
+  execution_type tinyint(1) NOT NULL default '1' COMMENT '1 -> manual, 2 -> automated',
+  PRIMARY KEY (id)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/testplan_tcversions (
+  id int(10) unsigned NOT NULL auto_increment,
+  testplan_id int(10) unsigned NOT NULL default '0',
+  tcversion_id int(10) unsigned NOT NULL default '0',
+  node_order int(10) unsigned NOT NULL default '1',
+  urgency smallint(5) NOT NULL default '2',
+  platform_id int(10) unsigned NOT NULL default '0',
+  author_id int(10) unsigned default NULL,
+  creation_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY  (id),
+  UNIQUE KEY /*prefix*/testplan_tcversions_tplan_tcversion (testplan_id,tcversion_id,platform_id)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/testplans (
+  `id` int(10) unsigned NOT NULL,
+  `testproject_id` int(10) unsigned NOT NULL default '0',
+  `notes` text,
+  `active` tinyint(1) NOT NULL default '1',
+  `is_open` tinyint(1) NOT NULL default '1',
+  `is_public` tinyint(1) NOT NULL default '1',
+  `api_key` varchar(64) NOT NULL default '829a2ded3ed0829a2dedd8ab81dfa2c77e8235bc3ed0d8ab81dfa2c77e8235bc',
+  PRIMARY KEY  (`id`),
+  KEY /*prefix*/testplans_testproject_id_active (`testproject_id`,`active`),
+  UNIQUE KEY /*prefix*/testplans_api_key (`api_key`) 
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/testplan_platforms (
+  id int(10) unsigned NOT NULL auto_increment,
+  testplan_id int(10) unsigned NOT NULL,
+  platform_id int(10) unsigned NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY /*prefix*/idx_testplan_platforms(testplan_id,platform_id)
+) DEFAULT CHARSET=utf8 COMMENT='Connects a testplan with platforms';
+
+
+CREATE TABLE /*prefix*/testprojects (
+  `id` int(10) unsigned NOT NULL,
+  `notes` text,
+  `color` varchar(12) NOT NULL default '#9BD',
+  `active` tinyint(1) NOT NULL default '1',
+  `option_reqs` tinyint(1) NOT NULL default '0',
+  `option_priority` tinyint(1) NOT NULL default '0',
+  `option_automation` tinyint(1) NOT NULL default '0',  
+  `options` text,
+  `prefix` varchar(16) NOT NULL,
+  `tc_counter` int(10) unsigned NOT NULL default '0',
+  `is_public` tinyint(1) NOT NULL default '1',
+  `issue_tracker_enabled` tinyint(1) NOT NULL default '0',
+  `reqmgr_integration_enabled` tinyint(1) NOT NULL default '0',
+  `api_key` varchar(64) NOT NULL default '0d8ab81dfa2c77e8235bc829a2ded3edfa2c78235bc829a27eded3ed0d8ab81d',
+  PRIMARY KEY  (`id`),
+  KEY /*prefix*/testprojects_id_active (`id`,`active`),
+  UNIQUE KEY /*prefix*/testprojects_prefix (`prefix`),
+  UNIQUE KEY /*prefix*/testprojects_api_key (`api_key`) 
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/testsuites (
+  `id` int(10) unsigned NOT NULL,
+  `details` text,
+  PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/transactions (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `entry_point` varchar(45) NOT NULL default '',
+  `start_time` int(10) unsigned NOT NULL default '0',
+  `end_time` int(10) unsigned NOT NULL default '0',
+  `user_id` int(10) unsigned NOT NULL default '0',
+  `session_id` varchar(45) default NULL,
+  PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/user_assignments (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `type` int(10) unsigned NOT NULL default '1',
+  `feature_id` int(10) unsigned NOT NULL default '0',
+  `user_id` int(10) unsigned default '0',
+  `build_id` int(10) unsigned default '0',
+  `deadline_ts` datetime NULL,
+  `assigner_id`  int(10) unsigned default '0',
+  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` int(10) unsigned default '1',
+  PRIMARY KEY  (`id`),
+  KEY /*prefix*/user_assignments_feature_id (`feature_id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/users (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `login` varchar(100) NOT NULL default '',
+  `password` varchar(32) NOT NULL default '',
+  `role_id` int(10) unsigned NOT NULL default '0',
+  `email` varchar(100) NOT NULL default '',
+  `first` varchar(50) NOT NULL default '',
+  `last` varchar(50) NOT NULL default '',
+  `locale` varchar(10) NOT NULL default 'en_GB',
+  `default_testproject_id` int(10) default NULL,
+  `active` tinyint(1) NOT NULL default '1',
+  `script_key` varchar(32) NULL,
+  `cookie_string` varchar(64) NOT NULL default '',
+  `auth_method` varchar(10) NULL default '',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY /*prefix*/users_login (`login`),
+  UNIQUE KEY /*prefix*/users_cookie_string (`cookie_string`)
+) DEFAULT CHARSET=utf8 COMMENT='User information';
+
+
+CREATE TABLE /*prefix*/user_testproject_roles (
+  `user_id` int(10) NOT NULL default '0',
+  `testproject_id` int(10) NOT NULL default '0',
+  `role_id` int(10) NOT NULL default '0',
+  PRIMARY KEY  (`user_id`,`testproject_id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/user_testplan_roles (
+  `user_id` int(10) NOT NULL default '0',
+  `testplan_id` int(10) NOT NULL default '0',
+  `role_id` int(10) NOT NULL default '0',
+  PRIMARY KEY  (`user_id`,`testplan_id`)
+) DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE /*prefix*/object_keywords (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `fk_id` int(10) unsigned NOT NULL default '0',
+  `fk_table` varchar(30) default '',
+  `keyword_id` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8; 
+
+
+# not used - group users for large companies 
+CREATE TABLE /*prefix*/user_group (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `title` varchar(100) NOT NULL,
+  `description` text,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY /*prefix*/idx_user_group (`title`)
+) DEFAULT CHARSET=utf8;
+
+
+# not used - group users for large companies 
+CREATE TABLE /*prefix*/user_group_assign (
+  `usergroup_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  UNIQUE KEY /*prefix*/idx_user_group_assign (`usergroup_id`,`user_id`)
+) DEFAULT CHARSET=utf8;
+
+
+
+
+# ----------------------------------------------------------------------------------
+# BUGID 4056
+# ----------------------------------------------------------------------------------
+CREATE TABLE /*prefix*/req_revisions (
+  `parent_id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL,
+  `revision` smallint(5) unsigned NOT NULL default '1',
+  `req_doc_id` varchar(64) NULL,   /* it's OK to allow a simple update query on code */
+  `name` varchar(100) NULL,
+  `scope` text,
+  `status` char(1) NOT NULL default 'V',
+  `type` char(1) default NULL,
+  `active` tinyint(1) NOT NULL default '1',
+  `is_open` tinyint(1) NOT NULL default '1',
+  `expected_coverage` int(10) NOT NULL default '1',
+  `log_message` text,
+  `author_id` int(10) unsigned default NULL,
+  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modifier_id` int(10) unsigned default NULL,
+  `modification_ts` datetime NOT NULL default  CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY /*prefix*/req_revisions_uidx1 (`parent_id`,`revision`)
+) DEFAULT CHARSET=utf8;
+
+
+
+# ----------------------------------------------------------------------------------
+# TICKET 4661
+# ----------------------------------------------------------------------------------
+CREATE TABLE /*prefix*/req_specs_revisions (
+  `parent_id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL,
+  `revision` smallint(5) unsigned NOT NULL default '1',
+  `doc_id` varchar(64) NULL,   /* it's OK to allow a simple update query on code */
+  `name` varchar(100) NULL,
+  `scope` text,
+  `total_req` int(10) NOT NULL default '0',  
+  `status` int(10) unsigned default '1',
+  `type` char(1) default NULL,
+  `log_message` text,
+  `author_id` int(10) unsigned default NULL,
+  `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modifier_id` int(10) unsigned default NULL,
+  `modification_ts` datetime NOT NULL default  CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY /*prefix*/req_specs_revisions_uidx1 (`parent_id`,`revision`)
 ) DEFAULT CHARSET=utf8;
 
 
