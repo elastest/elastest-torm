@@ -1,8 +1,8 @@
 export class BuildModel {
     id: number;
     testPlanId: number;
-    buildName: string;
-    buildNotes: string;
+    name: string;
+    notes: string;
 
     constructor() {
         this.id = 0;

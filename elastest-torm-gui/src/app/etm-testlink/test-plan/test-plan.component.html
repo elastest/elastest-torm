@@ -23,8 +23,6 @@
             <md-card-subtitle class="pad-left-none">Public</md-card-subtitle>
             <h4>{{testPlan.public}}</h4>
           </span>
-
-
           <!-- <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
@@ -47,6 +45,40 @@
             </div>
           </span>
         </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>
+
+<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
+  <div flex-gt-lg="50" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        <div layout="row">
+          <span>Builds</span>
+          <span flex></span>
+          <!-- <button md-raised-button color="accent" (click)="newTJob()">New Build</button> -->
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest>
+        <td-data-table #buildTable class="scroll_table" [data]="builds" [columns]="buildColumns" [selectable]="false" [clickable]="true"
+          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+
+          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+            <div layout="row" class="optionsColumn">
+              <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
+                <md-icon>play_circle_outline</md-icon>
+              </button> -->
+              <!-- <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                <md-icon>delete</md-icon>
+              </button> -->
+            </div>
+          </ng-template>
+        </td-data-table>
       </md-card-content>
     </md-card>
   </div>

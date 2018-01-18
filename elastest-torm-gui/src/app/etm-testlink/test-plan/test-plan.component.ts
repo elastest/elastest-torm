@@ -1,3 +1,4 @@
+import { BuildModel } from '../models/build-model';
 import { TestPlanModel } from '../models/test-plan-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -15,6 +16,17 @@ import { MdDialog } from '@angular/material';
 })
 export class TestPlanComponent implements OnInit {
   testPlan: TestPlanModel;
+  builds: BuildModel[] = [];
+
+  // Build Data
+  buildColumns: any[] = [
+    { name: 'id', label: 'Id' },
+    { name: 'name', label: 'Name' },
+    { name: 'testPlanId', label: 'Test Plan ID' },
+    { name: 'notes', label: 'Notes' },
+
+    // { name: 'options', label: 'Options' },
+  ];
 
   constructor(private titlesService: TitlesService, private testLinkService: TestLinkService,
     private route: ActivatedRoute, private router: Router,
@@ -33,11 +45,20 @@ export class TestPlanComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.testLinkService.getTestPlanById(params['planId']))
         .subscribe((plan: TestPlanModel) => {
           this.testPlan = plan;
-
           this.titlesService.setTopTitle(this.testPlan.getRouteString());
-          // this.loadTestSuites();
-          // this.loadTestPlans();
+
+          this.loadBuilds();
         });
     }
+  }
+
+  loadBuilds(): void {
+    this.testLinkService.getPlanBuilds(this.testPlan)
+      .subscribe(
+      (builds: BuildModel[]) => {
+        this.builds = builds;
+      },
+      (error) => console.log(error),
+    );
   }
 }

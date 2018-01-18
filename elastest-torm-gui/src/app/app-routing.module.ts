@@ -287,19 +287,28 @@ const routes: Routes = [
                                                         path: '',
                                                         component: TestPlanComponent,
                                                     },
-                                                    // {
-                                                    //     path: 'plans',
-                                                    //     children: [
-                                                    //         {
-                                                    //             path: 'edit/:planId',
-                                                    //             component: TestPlanFormComponent,
-                                                    //         },
-                                                    //         {
-                                                    //             path: 'new',
-                                                    //             component: TestPlanFormComponent,
-                                                    //         }
-                                                    //     ]
-                                                    // }
+                                                    {
+                                                        path: 'builds',
+                                                        children: [
+                                                            {
+                                                                path: 'edit/:buildId',
+                                                                component: TestPlanFormComponent,
+                                                            },
+                                                            {
+                                                                path: 'new',
+                                                                component: TestPlanFormComponent,
+                                                            },
+                                                            {
+                                                                path: ':buildId',
+                                                                children: [
+                                                                    {
+                                                                        path: '',
+                                                                        component: TestPlanComponent,
+                                                                    }
+                                                                ]
+                                                            },
+                                                        ]
+                                                    }
                                                 ]
                                             },
                                         ]

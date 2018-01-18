@@ -211,11 +211,11 @@ export class ETTestlinkModelsTransformService {
     /**************************/
 
     jsonToBuildList(builds: any[]): BuildModel[] {
-        let plansList: BuildModel[] = [];
+        let buiildsList: BuildModel[] = [];
         for (let build of builds) {
-            plansList.push(this.jsonToBuildModel(build));
+            buiildsList.push(this.jsonToBuildModel(build));
         }
-        return plansList;
+        return buiildsList;
     }
 
 
@@ -224,8 +224,8 @@ export class ETTestlinkModelsTransformService {
         newPlan = new BuildModel();
         newPlan.id = build.id;
         newPlan.testPlanId = build.testPlanId;
-        newPlan.buildName = build.buildName;
-        newPlan.buildNotes = build.buildNotes;
+        newPlan.name = build.name;
+        newPlan.notes = build.notes;
 
         return newPlan;
     }

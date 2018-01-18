@@ -204,6 +204,7 @@ CREATE TABLE /*prefix*/execution_bugs (
   `execution_id` int(10) unsigned NOT NULL default '0',
   `bug_id` varchar(64) NOT NULL default '0',
   `tcstep_id` int(10) unsigned NOT NULL deftf8;
+) DEFAULT CHARSET=u1 (`parent_id`,`revision`)
 
 
 CREATE TABLE /*prefix*/tcsteps (  
