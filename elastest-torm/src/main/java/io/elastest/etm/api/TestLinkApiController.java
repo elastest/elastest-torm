@@ -131,6 +131,13 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
+    public ResponseEntity<TestPlan> getPlanById(
+            @ApiParam(value = "Id of the project.", required = true) @PathVariable("projectId") Integer projectId,
+            @ApiParam(value = "Id of the plan.", required = true) @PathVariable("planId") Integer planId) {
+        return new ResponseEntity<TestPlan>(
+                testLinkService.getTestPlanById(planId), HttpStatus.OK);
+    }
+
     public ResponseEntity<TestPlan> createPlan(
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody TestPlan body) {
         TestPlan plan = null;
@@ -172,5 +179,4 @@ public class TestLinkApiController implements TestLinkApi {
             return new ResponseEntity<Build>(build, HttpStatus.CONFLICT);
         }
     }
-
 }

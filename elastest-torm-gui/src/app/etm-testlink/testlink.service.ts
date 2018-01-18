@@ -105,7 +105,17 @@ export class TestLinkService {
     }
 
     public getTestPlan(plan: TestPlanModel): Observable<TestPlanModel> {
-        let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.name;
+        return this.getTestPlanByName(plan.name, plan.projectName);
+    }
+
+    public getTestPlanByName(planName: string, projectName: string): Observable<TestPlanModel> {
+        let url: string = this.hostApi + '/testlink/project/' + projectName + '/plan/name/' + planName;
+        return this.http.get(url)
+            .map((response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
+    }
+
+    public getTestPlanById(planId: number, projectId: number = 0): Observable<TestPlanModel> {
+        let url: string = this.hostApi + '/testlink/project/' + 0 + '/plan/' + planId;
         return this.http.get(url)
             .map((response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
     }

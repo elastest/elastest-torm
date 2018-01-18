@@ -152,10 +152,20 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/name/{planName}", method = RequestMethod.GET)
     ResponseEntity<TestPlan> getPlanByName(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "Name of the plan.", required = true) @PathVariable("planName") String planName);
+
+    @ApiOperation(value = "Returns a Test plan By Given Id", notes = "Returns a test plan by given id.", response = TestPlan.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectId}/plan/{planId}", method = RequestMethod.GET)
+    ResponseEntity<TestPlan> getPlanById(
+            @ApiParam(value = "Id of the project.", required = true) @PathVariable("projectId") Integer projectId,
+            @ApiParam(value = "Id of the plan.", required = true) @PathVariable("planId") Integer planId);
 
     @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = TestPlan.class, tags = {
             "TestLink", })
@@ -190,7 +200,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build/latest", method = RequestMethod.GET)
     ResponseEntity<Build> getLatestPlanBuild(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName")  String projectName,
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
 
     @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = Build.class, tags = {
@@ -203,7 +213,7 @@ public interface TestLinkApi extends EtmApiRoot {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<Build> createBuild(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName")  String projectName,
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body);
 

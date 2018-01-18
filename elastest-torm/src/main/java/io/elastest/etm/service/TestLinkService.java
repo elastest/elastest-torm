@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -250,6 +251,61 @@ public class TestLinkService {
     public TestPlan createTestPlan(TestPlan plan) {
         return this.api.createTestPlan(plan.getName(), plan.getProjectName(),
                 plan.getNotes(), plan.isActive(), plan.isPublic());
+    }
+
+    // Additional
+    public TestPlan[] getAllTestPlans() {
+        TestPlan[] plans = null;
+        try {
+            for (TestProject currentProject : this.getProjects()) {
+                TestPlan[] projectPlans = this
+                        .getProjectTestPlans(currentProject.getId());
+                if (projectPlans != null) {
+                    plans = (TestPlan[]) ArrayUtils.addAll(plans, projectPlans);
+
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return plans;
+    }
+
+    public TestPlan getTestPlanById(Integer planId) {
+        TestPlan plan = null;
+        try {
+            TestPlan[] plans = this.getAllTestPlans();
+            if (plans != null) {
+                for (TestPlan currentPlan : plans) {
+                    if (currentPlan.getId() == planId) {
+                        plan = currentPlan;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+        if (plan == null) {
+            logger.info("Test Plan with id {} does not exist", planId);
+        }
+        return plan;
+
+    }
+
+    public TestPlan getTestPlanByPlanIdAndProjectId(Integer planId,
+            Integer projectId) {
+        TestPlan plan = null;
+        try {
+            for (TestPlan currentPlan : this.getProjectTestPlans(projectId)) {
+                if (currentPlan.getId() == planId) {
+                    plan = currentPlan;
+                    break;
+                }
+            }
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return plan;
     }
 
     /* **********************************************************************/

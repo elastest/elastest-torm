@@ -9,4 +9,9 @@ export class TestPlanModel {
     constructor() {
         this.id = 0;
     }
+
+
+    public getRouteString(): string {
+        return 'TestLink ' + ' / TestSuite ' + this.name;
+    }
 }

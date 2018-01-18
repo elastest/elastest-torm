@@ -46,12 +46,11 @@ export class TestProjectComponent implements OnInit {
     private titlesService: TitlesService, private testLinkService: TestLinkService,
     private route: ActivatedRoute, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-
     public dialog: MdDialog,
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Project');
+    this.titlesService.setHeadTitle('Test Project');
     this.testProject = new TestProjectModel();
     this.loadProject();
   }

@@ -1,3 +1,4 @@
+import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
 import { HelpComponent } from './elastest-etm/help/help.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
 import {
@@ -278,7 +279,29 @@ const routes: Routes = [
                                             {
                                                 path: 'new',
                                                 component: TestPlanFormComponent,
-                                            }
+                                            },
+                                            {
+                                                path: ':planId',
+                                                children: [
+                                                    {
+                                                        path: '',
+                                                        component: TestPlanComponent,
+                                                    },
+                                                    // {
+                                                    //     path: 'plans',
+                                                    //     children: [
+                                                    //         {
+                                                    //             path: 'edit/:planId',
+                                                    //             component: TestPlanFormComponent,
+                                                    //         },
+                                                    //         {
+                                                    //             path: 'new',
+                                                    //             component: TestPlanFormComponent,
+                                                    //         }
+                                                    //     ]
+                                                    // }
+                                                ]
+                                            },
                                         ]
                                     }
                                 ]

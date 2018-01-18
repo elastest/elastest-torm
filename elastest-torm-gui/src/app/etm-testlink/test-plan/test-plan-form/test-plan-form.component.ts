@@ -16,7 +16,7 @@ export class TestPlanFormComponent implements OnInit {
   @ViewChild('planNameInput') planNameInput: ElementRef;
 
   testPlan: TestPlanModel;
-  testProjects: TestProjectModel[] = [];
+  testProject: TestProjectModel;
   currentPath: string = '';
 
   constructor(
@@ -28,7 +28,6 @@ export class TestPlanFormComponent implements OnInit {
     this.titlesService.setHeadTitle('Edit Test Plan');
     this.testPlan = new TestPlanModel();
     this.currentPath = this.route.snapshot.url[0].path;
-    this.loadTestProjects();
     if (this.route.params !== null || this.route.params !== undefined) {
       if (this.currentPath === 'edit') {
         // this.route.params.switchMap((params: Params) => this.testlinkService.getPlanById(params['planId']))
@@ -36,7 +35,12 @@ export class TestPlanFormComponent implements OnInit {
         //     this.testPlan = plan;
         //     this.titlesService.setTopTitle(this.testPlan.getRouteString());
         //   });
+      } else if (this.currentPath === 'new') {
+        this.loadTestProject();
       }
+
+    } else {
+      window.history.back();
     }
   }
 
@@ -44,11 +48,12 @@ export class TestPlanFormComponent implements OnInit {
     this.planNameInput.nativeElement.focus();
   }
 
-  loadTestProjects(): void {
-    this.testlinkService.getAllTestProjects()
+  loadTestProject(): void {
+    this.route.params.switchMap((params: Params) => this.testlinkService.getProjectById(params['projectId']))
       .subscribe(
-      (projects: TestProjectModel[]) => {
-        this.testProjects = projects;
+      (project: TestProjectModel) => {
+        this.testProject = project;
+        this.testPlan.projectName = this.testProject.name;
       },
       (error) => console.log(error)
       );

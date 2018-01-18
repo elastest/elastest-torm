@@ -15,13 +15,6 @@
                 name="testPlan.name" maxlength="50" required>
             </md-input-container>
 
-            <md-select [(ngModel)]="testPlan.projectName" placeholder="Select a Project" required name="Test Project" flex-gt-md="10"
-              flex-md="20" flex-offset-md="5" flex-offset-gt-md="5" required>
-              <md-option *ngFor="let project of testProjects" [value]="project.name">
-                {{project.name}}
-              </md-option>
-            </md-select>
-
             <md-slide-toggle [(ngModel)]="testPlan.active" name="active" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Active</md-slide-toggle>
             <md-slide-toggle [(ngModel)]="testPlan.public" name="public" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Public</md-slide-toggle>
           </div>

@@ -42,10 +42,6 @@
 
 #CREATE DATABASE IF NOT EXISTS ETMTESTLINK;
 
-GRANT ALL PRIVILEGES ON * . * TO 'elastest'@'%';
-
-FLUSH PRIVILEGES;
-
 #USE ETMTESTLINK
 
 CREATE TABLE /*prefix*/assignment_types (
@@ -732,4 +728,6 @@ CREATE TABLE /*prefix*/plugins_configuration (
   `creation_ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
+
+GRANT ALL PRIVILEGES ON * . * TO 'admin'@'%';
 
