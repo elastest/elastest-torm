@@ -1,3 +1,97 @@
-<p>
-  test-suite works!
-</p>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Test Suite {{testSuite.name}}
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div layout="row">
+          <span flex-gt-xs="15">
+            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
+            <h4>{{testSuite.name}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Project ID</md-card-subtitle>
+            <h4>{{testSuite.testProjectId}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Parent ID</md-card-subtitle>
+            <h4>{{testSuite.parentId}}</h4>
+          </span>
+          <span flex-gt-xs="5">
+            <md-card-subtitle class="pad-left-none">Order</md-card-subtitle>
+            <h4>{{testSuite.order}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Check Duplicated Name</md-card-subtitle>
+            <h4>{{testSuite.checkDuplicatedName}}</h4>
+          </span>
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Action On Duplicated Name</md-card-subtitle>
+            <span *ngIf="testSuite.actionOnDuplicatedName !== undefined; else noneAction">
+              <h4>{{testSuite.actionOnDuplicatedName.value}}</h4>
+            </span>
+            <ng-template #noneAction></ng-template>
+          </span>
+
+          <!-- <span flex-gt-xs="25">
+            <md-card-subtitle>Options</md-card-subtitle>
+            <div class="optionsColumn" layout="column" layout-gt-xs="row">
+              <button md-button [routerLink]="['/testlink/suites/edit', testSuite.id]" class="iconBtn-lg" title="Edit Test Suite">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <button md-button (click)="deleteSuite()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Suite">
+                <md-icon>delete</md-icon>
+              </button>
+            </div>
+          </span> -->
+        </div>
+        <div layout="column" class="push-top">
+          <span flex-gt-xs="100">
+            <md-card-subtitle class="pad-left-none">Details</md-card-subtitle>
+            <div layout="column" class="push-top">
+              <md-input-container>
+                <textarea id="details" rows="8" mdInput [(ngModel)]="testSuite.details" name="details" disabled></textarea>
+              </md-input-container>
+            </div>
+          </span>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>
+
+<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testSuite">
+  <div flex-gt-lg="50" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        <div layout="row">
+          <span>TestCases</span>
+          <span flex></span>
+          <!-- <button md-raised-button color="accent" (click)="newTJob()">New TestCase</button> -->
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest>
+        <td-data-table #testCaseTable class="scroll_table" [data]="testCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="true"
+          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+
+          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+            <div layout="row" class="optionsColumn">
+              <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
+                <md-icon>play_circle_outline</md-icon>
+              </button> -->
+              <!-- <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                <md-icon>delete</md-icon>
+              </button> -->
+            </div>
+          </ng-template>
+        </td-data-table>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

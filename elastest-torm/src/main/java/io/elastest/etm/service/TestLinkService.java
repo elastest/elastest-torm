@@ -20,6 +20,7 @@ import br.eti.kinoshita.testlinkjavaapi.constants.TestCaseDetails;
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCaseStep;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
@@ -219,9 +220,17 @@ public class TestLinkService {
         ReportTCResultResponse response = this.api.reportTCResult(testCaseId,
                 null, testPlanId, status, buildId, null, notes, null, null,
                 null, null, null, null);
-
         return response;
     }
+
+    /* ***********************************************************************/
+    /* ***************************** Test Steps ******************************/
+    /* ***********************************************************************/
+//    public TestCaseStep createStep(TestCaseStep step, TestCase testCase) {
+//        return this.api.createTestCaseSteps(testCase.getId(),
+//                testCase.getFullExternalId(), testCase.getVersion(), action,
+//                testCaseSteps);
+//    }
 
     /* ***********************************************************************/
     /* ***************************** Test Plans ******************************/

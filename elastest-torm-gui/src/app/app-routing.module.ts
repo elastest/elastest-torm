@@ -1,3 +1,7 @@
+import { TestCaseComponent } from './etm-testlink/test-case/test-case.component';
+import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
+import { TestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
+import { TestSuiteFormComponent } from './etm-testlink/test-suite/test-suite-form/test-suite-form.component';
 import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
 import { HelpComponent } from './elastest-etm/help/help.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
@@ -304,6 +308,50 @@ const routes: Routes = [
                                                                     {
                                                                         path: '',
                                                                         component: TestPlanComponent,
+                                                                    }
+                                                                ]
+                                                            },
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        path: 'suites',
+                                        children: [
+                                            {
+                                                path: 'edit/:suiteId',
+                                                component: TestSuiteFormComponent,
+                                            },
+                                            {
+                                                path: 'new',
+                                                component: TestSuiteFormComponent,
+                                            },
+                                            {
+                                                path: ':suiteId',
+                                                children: [
+                                                    {
+                                                        path: '',
+                                                        component: TestSuiteComponent,
+                                                    },
+                                                    {
+                                                        path: 'cases',
+                                                        children: [
+                                                            {
+                                                                path: 'edit/:caseId',
+                                                                component: TestCaseFormComponent,
+                                                            },
+                                                            {
+                                                                path: 'new',
+                                                                component: TestCaseFormComponent,
+                                                            },
+                                                            {
+                                                                path: ':caseId',
+                                                                children: [
+                                                                    {
+                                                                        path: '',
+                                                                        component: TestCaseComponent,
                                                                     }
                                                                 ]
                                                             },

@@ -61,7 +61,11 @@ export class TestLinkService {
     }
 
     public getTestSuite(suite: TestSuiteModel): Observable<TestSuiteModel> {
-        let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite/' + suite.id;
+        return this.getTestSuiteById(suite.id, suite.testProjectId);
+    }
+
+    public getTestSuiteById(suiteId: number, projectId: number): Observable<TestSuiteModel> {
+        let url: string = this.hostApi + '/testlink/project/' + projectId + '/suite/' + suiteId;
         return this.http.get(url)
             .map((response) => this.eTTestlinkModelsTransformService.jsonToTestSuiteModel(response.json()));
     }
