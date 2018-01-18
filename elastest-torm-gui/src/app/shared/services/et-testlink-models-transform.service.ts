@@ -2,12 +2,17 @@ import { CustomFieldModel, TestCaseModel, TestCaseStepModel, ExecutionTypeModel,
 import { Injectable } from '@angular/core';
 import { TestProjectModel } from '../../etm-testlink/models/test-project-model';
 import { TestSuiteModel, ActionOnDuplicateModel } from '../../etm-testlink/models/test-suite-model';
+import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
+import { BuildModel } from '../../etm-testlink/models/build-model';
 @Injectable()
 export class ETTestlinkModelsTransformService {
 
     constructor() { }
 
-    /***** Project *****/
+    /**************************/
+    /******** Projects ********/
+    /**************************/
+
     jsonToTestProjectsList(projects: any[]): TestProjectModel[] {
         let projectsList: TestProjectModel[] = [];
         for (let project of projects) {
@@ -35,7 +40,10 @@ export class ETTestlinkModelsTransformService {
     }
 
 
-    /***** Suite *****/
+    /**************************/
+    /********* Suites *********/
+    /**************************/
+
     jsonToTestSuiteList(suites: any[]): TestSuiteModel[] {
         let suitesList: TestSuiteModel[] = [];
         for (let suite of suites) {
@@ -62,7 +70,10 @@ export class ETTestlinkModelsTransformService {
         return newSuite;
     }
 
-    /***** Case *****/
+    /*************************/
+    /********* Cases *********/
+    /*************************/
+
     jsonToTestCasesList(cases: any[]): TestCaseModel[] {
         let casesList: TestCaseModel[] = [];
         for (let testCase of cases) {
@@ -167,5 +178,55 @@ export class ETTestlinkModelsTransformService {
         newPlatform.notes = platform.notes;
 
         return newPlatform;
+    }
+
+    /*************************/
+    /********* Plans *********/
+    /*************************/
+
+
+    jsonToTestPlanList(plans: any[]): TestPlanModel[] {
+        let plansList: TestPlanModel[] = [];
+        for (let plan of plans) {
+            plansList.push(this.jsonToTestPlanModel(plan));
+        }
+        return plansList;
+    }
+
+
+    jsonToTestPlanModel(plan: any): TestPlanModel {
+        let newSuite: TestPlanModel;
+        newSuite = new TestPlanModel();
+        newSuite.id = plan.id;
+        newSuite.name = plan.name;
+        newSuite.projectName = plan.projectName;
+        newSuite.notes = plan.notes;
+        newSuite.active = plan.active;
+        newSuite.public = plan.public;
+        return newSuite;
+    }
+
+    /**************************/
+    /********* Builds *********/
+    /**************************/
+
+    jsonToBuildList(builds: any[]): BuildModel[] {
+        let plansList: BuildModel[] = [];
+        for (let build of builds) {
+            plansList.push(this.jsonToBuildModel(build));
+        }
+        return plansList;
+    }
+
+
+    jsonToBuildModel(build: any): BuildModel {
+        let newPlan: BuildModel;
+        newPlan = new BuildModel();
+        newPlan.id = build.id;
+        newPlan.testPlanId = build.testPlanId;
+        newPlan.buildName = build.buildName;
+        newPlan.buildNotes = build.buildNotes;
+
+        return newPlan;
     }
 }

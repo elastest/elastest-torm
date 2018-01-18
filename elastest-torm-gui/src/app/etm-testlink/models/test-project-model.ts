@@ -12,7 +12,6 @@ export class TestProjectModel {
 
     constructor() {
         this.id = 0;
-
     }
 
 

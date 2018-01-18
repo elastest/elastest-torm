@@ -28,7 +28,7 @@ export class EtmTestlinkComponent implements OnInit {
     { name: 'enableInventory', label: 'Enable Inventory' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },
-    { name: 'options', label: 'Options' },
+    // { name: 'options', label: 'Options' },
   ];
 
   projectsList: TestProjectModel[] = [];

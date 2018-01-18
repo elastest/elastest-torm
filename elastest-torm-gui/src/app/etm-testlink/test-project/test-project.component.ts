@@ -18,7 +18,6 @@ export class TestProjectComponent implements OnInit {
   testSuites: TestSuiteModel[] = [];
   testPlans: TestPlanModel[] = [];
 
-
   // Test Suite Data
   suiteColumns: any[] = [
     { name: 'id', label: 'Id' },
@@ -29,7 +28,18 @@ export class TestProjectComponent implements OnInit {
     { name: 'order', label: 'Order' },
     { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
     { name: 'actionOnDuplicatedName', label: 'On Duplicated Name' },
-    { name: 'options', label: 'Options' },
+    // { name: 'options', label: 'Options' },
+  ];
+
+  // Test Plan Data
+  planColumns: any[] = [
+    { name: 'id', label: 'Id' },
+    { name: 'name', label: 'Name' },
+    { name: 'projectName', label: 'Test Project Name' },
+    { name: 'notes', label: 'Notes' },
+    { name: 'active', label: 'Active' },
+    { name: 'public', label: 'Public' },
+    // { name: 'options', label: 'Options' },
   ];
 
   constructor(
@@ -69,7 +79,13 @@ export class TestProjectComponent implements OnInit {
   }
 
   loadTestPlans(): void {
-
+    this.testLinkService.getProjectTestPlans(this.testProject)
+      .subscribe(
+      (plans: TestPlanModel[]) => {
+        this.testPlans = plans;
+      },
+      (error) => console.log(error),
+    );
   }
 
 }

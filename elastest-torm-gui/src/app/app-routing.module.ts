@@ -35,6 +35,7 @@ import { RefreshComponent } from './shared/refresh/refresh.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
+import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/test-plan-form.component';
 
 const routes: Routes = [
     {
@@ -249,7 +250,7 @@ const routes: Routes = [
                         path: 'projects',
                         children: [
                             {
-                                path: 'add',
+                                path: 'new',
                                 component: TestProjectFormComponent,
                             },
                             {
@@ -267,6 +268,19 @@ const routes: Routes = [
                                         path: '',
                                         component: TestProjectComponent,
                                     },
+                                    {
+                                        path: 'plans',
+                                        children: [
+                                            {
+                                                path: 'edit/:planId',
+                                                component: TestPlanFormComponent,
+                                            },
+                                            {
+                                                path: 'new',
+                                                component: TestPlanFormComponent,
+                                            }
+                                        ]
+                                    }
                                 ]
                             },
 

@@ -70,28 +70,42 @@ public class TestLinkService {
     /* ***********************************************************************/
 
     public TestProject[] getProjects() {
-        return this.api.getProjects();
+        TestProject[] projects = null;
+        try {
+            projects = this.api.getProjects();
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return projects;
     }
 
     public TestProject getProjectByName(String projectName) {
-        return this.api.getTestProjectByName(projectName);
+        TestProject project = null;
+        try {
+            project = this.api.getTestProjectByName(projectName);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return project;
+
     }
 
     public TestProject getProjectById(Integer projectId) {
         TestProject project = null;
-        for (TestProject currentProject : this.getProjects()) {
-            if (currentProject.getId() == projectId) {
-                project = currentProject;
-                break;
+        try {
+            for (TestProject currentProject : this.getProjects()) {
+                if (currentProject.getId() == projectId) {
+                    project = currentProject;
+                    break;
+                }
             }
+        } catch (Exception e) {
         }
 
         if (project == null) {
-            throw new TestLinkAPIException(
-                    "Test Project with id " + projectId + " not found");
-        } else {
-            return project;
+            logger.error("Test Project with id " + projectId + " not found");
         }
+        return project;
     }
 
     public TestProject createProject(TestProject project) {
@@ -102,45 +116,28 @@ public class TestLinkService {
                 project.isActive(), project.isPublic());
     }
 
-    /* ***********************************************************************/
-    /* ***************************** Test Plans ******************************/
-    /* ***********************************************************************/
-
-    public TestPlan[] getProjectTestPlans(Integer projectId) {
-        return this.api.getProjectTestPlans(projectId);
-    }
-
-    public TestPlan getTestPlanByName(String planName, String projectName) {
-        return this.api.getTestPlanByName(planName, projectName);
-    }
-
-    public TestPlan createTestPlan(TestPlan plan) {
-        return this.api.createTestPlan(plan.getName(), plan.getProjectName(),
-                plan.getNotes(), plan.isActive(), plan.isPublic());
-    }
-
-    /* **********************************************************************/
-    /* **************************** Plan Builds *****************************/
-    /* **********************************************************************/
-
-    public Build[] getTestPlansBuilds(Integer planId) {
-        return this.api.getBuildsForTestPlan(planId);
-    }
-
-    public Build getLatestPlanBuild(Integer planId) {
-        return this.api.getLatestBuildForTestPlan(planId);
-    }
-
     /* ************************************************************************/
     /* ***************************** Test Suites ******************************/
     /* ************************************************************************/
 
     public TestSuite[] getTestSuitesForTestPlan(Integer testPlanId) {
-        return this.api.getTestSuitesForTestPlan(testPlanId);
+        TestSuite[] suites = null;
+        try {
+            suites = this.api.getTestSuitesForTestPlan(testPlanId);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return suites;
     }
 
     public TestSuite[] getProjectTestSuites(Integer projectId) {
-        return this.api.getFirstLevelTestSuitesForTestProject(projectId);
+        TestSuite[] suites = null;
+        try {
+            suites = this.api.getFirstLevelTestSuitesForTestProject(projectId);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return suites;
     }
 
     public TestSuite getTestSuiteById(Integer suiteId) {
@@ -167,8 +164,14 @@ public class TestLinkService {
 
     public TestCase[] getTestCasesForTestPlan(Integer testPlanId,
             Integer buildId) {
-        return this.api.getTestCasesForTestPlan(testPlanId, null, buildId, null,
-                null, null, null, null, null, true, null);
+        TestCase[] cases = null;
+        try {
+            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
+                    null, null, null, null, null, null, true, null);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return cases;
     }
 
     public TestCase getTestCaseById(Integer suiteId, Integer caseId) {
@@ -188,8 +191,14 @@ public class TestLinkService {
     }
 
     public TestCase[] getSuiteTestCases(Integer suiteId) {
-        return this.api.getTestCasesForTestSuite(suiteId, true,
-                TestCaseDetails.FULL);
+        TestCase[] cases = null;
+        try {
+            cases = this.api.getTestCasesForTestSuite(suiteId, true,
+                    TestCaseDetails.FULL);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return cases;
     }
 
     public TestCase createTestCase(TestCase testCase) {
@@ -211,6 +220,65 @@ public class TestLinkService {
                 null, null, null, null);
 
         return response;
+    }
+
+    /* ***********************************************************************/
+    /* ***************************** Test Plans ******************************/
+    /* ***********************************************************************/
+
+    public TestPlan[] getProjectTestPlans(Integer projectId) {
+        TestPlan[] plans = null;
+
+        try {
+            plans = this.api.getProjectTestPlans(projectId);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return plans;
+    }
+
+    public TestPlan getTestPlanByName(String planName, String projectName) {
+        TestPlan plan = null;
+        try {
+            plan = this.api.getTestPlanByName(planName, projectName);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return plan;
+    }
+
+    public TestPlan createTestPlan(TestPlan plan) {
+        return this.api.createTestPlan(plan.getName(), plan.getProjectName(),
+                plan.getNotes(), plan.isActive(), plan.isPublic());
+    }
+
+    /* **********************************************************************/
+    /* **************************** Plan Builds *****************************/
+    /* **********************************************************************/
+
+    public Build[] getPlanBuilds(Integer planId) {
+        Build[] builds = null;
+        try {
+            builds = this.api.getBuildsForTestPlan(planId);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return builds;
+    }
+
+    public Build getLatestPlanBuild(Integer planId) {
+        Build build = null;
+        try {
+            build = this.api.getLatestBuildForTestPlan(planId);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return build;
+    }
+
+    public Build createBuild(Build build) {
+        return this.api.createBuild(build.getTestPlanId(), build.getName(),
+                build.getNotes());
     }
 
 }

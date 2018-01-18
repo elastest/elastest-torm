@@ -9,7 +9,7 @@ export class TestSuiteModel {
     actionOnDuplicatedName: ActionOnDuplicateModel;
 
     constructor() {
-
+        this.id = 0;
     }
 }
 

@@ -26,7 +26,7 @@ export class TestCaseModel {
     featureId: number;
 
     constructor() {
-
+        this.id = 0;
     }
 }
 
@@ -40,6 +40,7 @@ export class TestCaseStepModel {
     executionType: ExecutionTypeModel;
 
     constructor() {
+        this.id = 0;
         this.executionType = new ExecutionTypeModel();
     }
 
@@ -94,6 +95,7 @@ export class CustomFieldModel {
     value: string;
 
     constructor() {
+        this.id = 0;
     }
 }
 
@@ -116,6 +118,6 @@ export class PlatformModel {
     notes: string;
 
     constructor() {
-
+        this.id = 0;
     }
 }

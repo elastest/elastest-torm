@@ -1,0 +1,45 @@
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        <span *ngIf="testPlan && testPlan.id == 0">New Test Plan</span>
+        <span *ngIf="testPlan && testPlan.id > 0">Edit Test Plan "{{testPlan.name}}"</span>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content class="push-bottom-none">
+        <form #planForm="ngForm">
+
+          <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
+            <md-input-container flex-gt-md="20" flex-md="20">
+              <input mdInput #planNameInput #nameControl="ngModel" type="text" placeholder="Test Plan Name" [(ngModel)]="testPlan.name"
+                name="testPlan.name" maxlength="50" required>
+            </md-input-container>
+
+            <md-select [(ngModel)]="testPlan.projectName" placeholder="Select a Project" required name="Test Project" flex-gt-md="10"
+              flex-md="20" flex-offset-md="5" flex-offset-gt-md="5" required>
+              <md-option *ngFor="let project of testProjects" [value]="project.name">
+                {{project.name}}
+              </md-option>
+            </md-select>
+
+            <md-slide-toggle [(ngModel)]="testPlan.active" name="active" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Active</md-slide-toggle>
+            <md-slide-toggle [(ngModel)]="testPlan.public" name="public" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Public</md-slide-toggle>
+          </div>
+
+          <div layout="column" class="push-top">
+            <md-input-container>
+              <textarea id="notes" rows="10" mdInput #nameControl="ngModel" placeholder="Notes" [(ngModel)]="testPlan.notes" name="notes"></textarea>
+            </md-input-container>
+          </div>
+
+        </form>
+      </md-card-content>
+
+      <md-divider></md-divider>
+      <md-card-actions>
+        <button md-button [disabled]="!planForm.valid" color="primary" (click)="save()">SAVE</button>
+        <button md-button (click)="goBack()">CANCEL</button>
+      </md-card-actions>
+    </md-card>
+  </div>
+</div>

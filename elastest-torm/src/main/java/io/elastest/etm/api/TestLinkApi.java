@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -57,46 +58,13 @@ public interface TestLinkApi extends EtmApiRoot {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
     @RequestMapping(value = "/testlink/project", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestProject> createProject(
             @ApiParam(value = "Object with the test project data to create.", required = true) @Valid @RequestBody TestProject body);
-
-    /* ***********************************************************************/
-    /* ***************************** Test Plans ******************************/
-    /* ***********************************************************************/
-
-    @ApiOperation(value = "Returns all test plans of a project", notes = "Returns all test plans of a project.", response = TestPlan.class, responseContainer = "List", tags = {
-            "TestLink", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{id}/plan", method = RequestMethod.GET)
-    ResponseEntity<TestPlan[]> getProjectTestPlans(
-            @ApiParam(value = "ID of the project.", required = true) @PathVariable("id") Integer id);
-
-    @ApiOperation(value = "Returns a Test plan", notes = "Returns a test plan by given name and project name.", response = TestPlan.class, tags = {
-            "TestLink", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
-            @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planName}", method = RequestMethod.GET)
-    ResponseEntity<TestPlan> getPlanByName(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
-            @ApiParam(value = "Name of the plan.", required = true) @PathVariable("planName") String planName);
-
-    @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = TestPlan.class, tags = {
-            "TestLink", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/testlink/project/{projectId}/plan", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<TestPlan> createPlan(
-            @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody TestPlan body);
 
     /* ************************************************************************/
     /* ***************************** Test Suites ******************************/
@@ -123,7 +91,8 @@ public interface TestLinkApi extends EtmApiRoot {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
     @RequestMapping(value = "/testlink/project/{projectId}/suite", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
@@ -157,11 +126,85 @@ public interface TestLinkApi extends EtmApiRoot {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
     @RequestMapping(value = "/testlink/project/{projectId}/suite/case", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestCase> createTestCase(
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body);
+
+    /* ***********************************************************************/
+    /* ***************************** Test Plans ******************************/
+    /* ***********************************************************************/
+
+    @ApiOperation(value = "Returns all test plans of a project", notes = "Returns all test plans of a project.", response = TestPlan.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{id}/plan", method = RequestMethod.GET)
+    ResponseEntity<TestPlan[]> getProjectTestPlans(
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("id") Integer id);
+
+    @ApiOperation(value = "Returns a Test plan", notes = "Returns a test plan by given name and project name.", response = TestPlan.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planName}", method = RequestMethod.GET)
+    ResponseEntity<TestPlan> getPlanByName(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
+            @ApiParam(value = "Name of the plan.", required = true) @PathVariable("planName") String planName);
+
+    @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = TestPlan.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
+    @RequestMapping(value = "/testlink/project/{projectId}/plan", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<TestPlan> createPlan(
+            @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody TestPlan body);
+
+    /* *********************************************************************/
+    /* ****************************** Builds *******************************/
+    /* *********************************************************************/
+
+    @ApiOperation(value = "Returns all builds of a Test Plan", notes = "Returns all builds of a Test Plan.", response = Build.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Build.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", method = RequestMethod.GET)
+    ResponseEntity<Build[]> getPlanBuilds(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
+            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
+
+    @ApiOperation(value = "Returns last plan build", notes = "Returns last plan build.", response = Build.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build/latest", method = RequestMethod.GET)
+    ResponseEntity<Build> getLatestPlanBuild(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName")  String projectName,
+            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
+
+    @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = Build.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<Build> createBuild(
+            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName")  String projectName,
+            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body);
 
 }

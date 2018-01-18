@@ -7,6 +7,6 @@ export class TestPlanModel {
     public: string;
 
     constructor() {
-
+        this.id = 0;
     }
 }

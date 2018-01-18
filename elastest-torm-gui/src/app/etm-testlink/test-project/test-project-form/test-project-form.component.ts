@@ -47,9 +47,9 @@ export class TestProjectFormComponent implements OnInit {
   save(): void {
     this.testlinkService.createProject(this.testProject)
       .subscribe(
-      project => this.postSave(project),
-      error => console.log(error)
-      );
+      (project) => this.postSave(project),
+      (error) => this.testlinkService.popupService.openSnackBar('Error: Project with name ' + this.testProject.name + ' already exist'),
+    );
 
   }
 

@@ -77,6 +77,14 @@ import { InputTrimModule } from 'ng2-trim-directive';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
+import { TestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
+import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
+import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/test-plan-form.component';
+import { TestSuiteFormComponent } from './etm-testlink/test-suite/test-suite-form/test-suite-form.component';
+import { TestCaseComponent } from './etm-testlink/test-case/test-case.component';
+import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
+import { BuildComponent } from './etm-testlink/build/build.component';
+import { BuildFormComponent } from './etm-testlink/build/build-form/build-form.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -116,6 +124,14 @@ const httpInterceptorProviders: Type<any>[] = [
     EtmTestlinkComponent,
     TestProjectComponent,
     TestProjectFormComponent,
+    TestSuiteComponent,
+    TestPlanComponent,
+    TestPlanFormComponent,
+    TestSuiteFormComponent,
+    TestCaseComponent,
+    TestCaseFormComponent,
+    BuildComponent,
+    BuildFormComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
