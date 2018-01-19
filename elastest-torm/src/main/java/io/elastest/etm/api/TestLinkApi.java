@@ -129,10 +129,12 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/case", produces = {
+    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}/case", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestCase> createTestCase(
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId,
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body);
 
     /* ***********************************************************************/

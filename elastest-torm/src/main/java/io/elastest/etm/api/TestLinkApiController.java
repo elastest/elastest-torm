@@ -105,12 +105,15 @@ public class TestLinkApiController implements TestLinkApi {
     }
 
     public ResponseEntity<TestCase> createTestCase(
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId,
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body) {
         TestCase testCase = null;
         try {
             testCase = testLinkService.createTestCase(body);
             return new ResponseEntity<TestCase>(testCase, HttpStatus.OK);
         } catch (TestLinkAPIException e) {
+            e.printStackTrace();
             return new ResponseEntity<TestCase>(testCase, HttpStatus.CONFLICT);
         }
     }

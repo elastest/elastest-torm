@@ -27,7 +27,7 @@ export class TestProjectComponent implements OnInit {
     { name: 'parentId', label: 'Parent ID' },
     { name: 'order', label: 'Order' },
     { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
-    { name: 'actionOnDuplicatedName.value', label: 'On Duplicated Name' },
+    { name: 'actionOnDuplicatedName', label: 'On Duplicated Name' },
     // { name: 'options', label: 'Options' },
   ];
 

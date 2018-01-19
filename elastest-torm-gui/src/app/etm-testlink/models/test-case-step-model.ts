@@ -1,4 +1,4 @@
-import { ExecutionTypeModel } from './test-case-model';
+import { ExecTypeValue } from './test-case-model';
 
 export class TestCaseStepModel {
     id: number;
@@ -7,11 +7,11 @@ export class TestCaseStepModel {
     actions: string;
     expectedResults: string;
     active: boolean;
-    executionType: ExecutionTypeModel;
+    executionType: ExecTypeValue;
 
     constructor() {
         this.id = 0;
-        this.executionType = new ExecutionTypeModel();
+        this.executionType = 'MANUAL';
     }
 
 }

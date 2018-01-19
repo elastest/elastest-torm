@@ -27,7 +27,7 @@
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Test Importance</md-card-subtitle>
             <span *ngIf="testCase.testImportance !== undefined; else noneImportante">
-              <h4>{{testCase.testImportance.value}}</h4>
+              <h4>{{testCase.testImportance}}</h4>
             </span>
             <ng-template #noneImportante></ng-template>
           </span>
@@ -35,7 +35,7 @@
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Exec Type</md-card-subtitle>
             <span *ngIf="testCase.executionType !== undefined; else noneExecType">
-              <h4>{{testCase.executionType.value}}</h4>
+              <h4>{{testCase.executionType}}</h4>
             </span>
             <ng-template #noneExecType></ng-template>
           </span>
@@ -100,7 +100,7 @@
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Execution Status</md-card-subtitle>
             <span *ngIf="testCase.executionStatus !== undefined; else noneAction">
-              <h4>{{testCase.executionStatus.value}}</h4>
+              <h4>{{testCase.executionStatus}}</h4>
             </span>
             <ng-template #noneAction></ng-template>
           </span>
@@ -112,7 +112,7 @@
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Action On Duplicated Name</md-card-subtitle>
             <span *ngIf="testCase.actionOnDuplicatedName !== undefined; else noneAction">
-              <h4>{{testCase.actionOnDuplicatedName.value}}</h4>
+              <h4>{{testCase.actionOnDuplicatedName}}</h4>
             </span>
             <ng-template #noneAction></ng-template>
           </span>

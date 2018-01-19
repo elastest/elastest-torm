@@ -16,7 +16,7 @@ export class TestLinkService {
 
     constructor(
         private http: Http, private configurationService: ConfigurationService,
-        private eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
+        public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
         public popupService: PopupService,
     ) {
         this.hostApi = this.configurationService.configModel.hostApi;
@@ -96,7 +96,7 @@ export class TestLinkService {
             .map((response) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json()));
     }
 
-    public createTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
+    public createTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {       
         let url: string = this.hostApi + '/testlink/project/' + testCase.testProjectId + '/suite/' + testCase.testSuiteId + '/case';
         return this.http.post(url, testCase)
             .map((response) => response.json());

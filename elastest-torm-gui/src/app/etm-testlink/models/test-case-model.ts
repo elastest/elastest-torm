@@ -1,4 +1,3 @@
-import { ActionOnDuplicateModel } from './test-suite-model';
 import { TestCaseStepModel } from './test-case-step-model';
 
 export class TestCaseModel {
@@ -10,58 +9,61 @@ export class TestCaseModel {
     summary: string;
     steps: TestCaseStepModel[];
     preconditions: string;
-    testImportance: TestImportanceModel;
-    executionType: ExecutionTypeModel;
+    testImportance: TestImportanceValue;
+    executionType: ExecTypeValue;
     executionOrder: number;
     order: number;
     internalId: number;
     fullExternalId: string;
     checkDuplicatedName: boolean;
-    actionOnDuplicatedName: ActionOnDuplicateModel;
+    actionOnDuplicatedName: ActionOnDuplicateValue;
     versionId: number;
     version: number;
     parentId: number;
     customFields: CustomFieldModel[];
-    executionStatus: ExecutionStatusModel;
+    executionStatus: ExecStatusValue;
     platform: PlatformModel;
     featureId: number;
 
     constructor() {
         this.id = 0;
+        this.testImportance = 'MEDIUM';
+        this.executionStatus = 'NOT_RUN';
+        this.executionType = 'MANUAL';
+        this.actionOnDuplicatedName = 'BLOCK';
+        this.authorLogin = 'admin'; // TODO get author
+        this.summary = ' ';
+        this.preconditions = ' ';
     }
 
     public getRouteString(): string {
         return 'TestLink ' + ' / TestCase ' + this.name;
     }
+
+    getImportanceValues(): TestImportanceValue[] {
+        return ['LOW', 'MEDIUM', 'HIGH'];
+    }
+
+
+    getExecStatusValues(): ExecStatusValue[] {
+        return ['NOT_RUN', 'PASSED', 'FAILED', 'BLOCKED'];
+    }
+
+
+    getExecTypeValues(): ExecTypeValue[] {
+        return ['AUTOMATED', 'MANUAL'];
+    }
+
+    getActionOnDuplicatedNameValues(): ActionOnDuplicateValue[] {
+        return ['BLOCK', 'GENERATE_NEW', 'CREATE_NEW_VERSION'];
+    }
+
 }
 
-export class ExecutionTypeModel {
-    value: 'MANUAL' | 'AUTOMATED'; // 1 Manual, 2 Automated
-
-    constructor() {
-        this.value = 'MANUAL';
-    }
-
-    setValue(value: string): void {
-        if (value === 'MANUAL' || value === 'MANUAL') {
-            this.value = value;
-        }
-    }
-}
-
-export class TestImportanceModel {
-    value: 'LOW' | 'MEDIUM' | 'HIGH'; // LOW(1), MEDIUM(2), HIGH(3)
-
-    constructor() {
-        this.value = 'MEDIUM';
-    }
-
-    setValue(value: string): void {
-        if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH') {
-            this.value = value;
-        }
-    }
-}
+export type ActionOnDuplicateValue = 'BLOCK' | 'GENERATE_NEW' | 'CREATE_NEW_VERSION' | 'block' | 'generate_new' | 'create_new_version';
+export type ExecTypeValue = 'MANUAL' | 'AUTOMATED' | 1 | 2; // 1 Manual, 2 Automated
+export type TestImportanceValue = 'LOW' | 'MEDIUM' | 'HIGH' | 1 | 2 | 3; // LOW(1), MEDIUM(2), HIGH(3)
+export type ExecStatusValue = 'NOT_RUN' | 'PASSED' | 'FAILED' | 'BLOCKED' | 'n' | 'p' | 'f' | 'b'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
 
 export class CustomFieldModel {
     id: number;
@@ -85,19 +87,6 @@ export class CustomFieldModel {
 
     constructor() {
         this.id = 0;
-    }
-}
-
-export class ExecutionStatusModel {
-    value: 'NOT_RUN' | 'PASSED' | 'FAILED' | 'BLOCKED'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
-    constructor() {
-        this.value = 'NOT_RUN';
-    }
-
-    setValue(value: string): void {
-        if (value === 'NOT_RUN' || value === 'PASSED' || value === 'FAILED' || value === 'BLOCKED') {
-            this.value = value;
-        }
     }
 }
 

@@ -30,7 +30,7 @@
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Action On Duplicated Name</md-card-subtitle>
             <span *ngIf="testSuite.actionOnDuplicatedName !== undefined; else noneAction">
-              <h4>{{testSuite.actionOnDuplicatedName.value}}</h4>
+              <h4>{{testSuite.actionOnDuplicatedName}}</h4>
             </span>
             <ng-template #noneAction></ng-template>
           </span>
@@ -69,7 +69,7 @@
         <div layout="row">
           <span>TestCases</span>
           <span flex></span>
-          <!-- <button md-raised-button color="accent" (click)="newTJob()">New TestCase</button> -->
+          <button md-raised-button color="accent" [routerLink]="['/testlink/projects',projectId, 'suites',testSuite.id, 'cases','new']">New TestCase</button>
         </div>
       </md-card-title>
       <md-divider></md-divider>

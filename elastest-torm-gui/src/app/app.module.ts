@@ -85,6 +85,8 @@ import { TestCaseComponent } from './etm-testlink/test-case/test-case.component'
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
 import { BuildComponent } from './etm-testlink/build/build.component';
 import { BuildFormComponent } from './etm-testlink/build/build-form/build-form.component';
+import { TestCaseStepComponent } from './etm-testlink/test-case-step/test-case-step.component';
+import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-case-step-form/test-case-step-form.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -132,6 +134,8 @@ const httpInterceptorProviders: Type<any>[] = [
     TestCaseFormComponent,
     BuildComponent,
     BuildFormComponent,
+    TestCaseStepComponent,
+    TestCaseStepFormComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

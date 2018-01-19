@@ -27,7 +27,7 @@ export class TestCaseComponent implements OnInit {
     { name: 'actions', label: 'Actions' },
     { name: 'expectedResults', label: 'Expected Results' },
     { name: 'active', label: 'Active' },
-    { name: 'executionType.value', label: 'Exec Type' },
+    { name: 'executionType', label: 'Exec Type' },
 
     // { name: 'options', label: 'Options' },
   ];

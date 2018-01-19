@@ -41,6 +41,8 @@ import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
 import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/test-plan-form.component';
+import { TestCaseStepComponent } from './etm-testlink/test-case-step/test-case-step.component';
+import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-case-step-form/test-case-step-form.component';
 
 const routes: Routes = [
     {
@@ -351,7 +353,34 @@ const routes: Routes = [
                                                                 children: [
                                                                     {
                                                                         path: '',
-                                                                        component: TestCaseComponent,
+                                                                        children: [
+                                                                            {
+                                                                                path: '',
+                                                                                component: TestCaseComponent,
+                                                                            },
+                                                                            {
+                                                                                path: 'steps',
+                                                                                children: [
+                                                                                    {
+                                                                                        path: 'edit/:stepId',
+                                                                                        component: TestCaseStepFormComponent,
+                                                                                    },
+                                                                                    {
+                                                                                        path: 'new',
+                                                                                        component: TestCaseStepFormComponent,
+                                                                                    },
+                                                                                    {
+                                                                                        path: ':stepId',
+                                                                                        children: [
+                                                                                            {
+                                                                                                path: '',
+                                                                                                component: TestCaseStepComponent,
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                ]
+                                                                            }
+                                                                        ]
                                                                     }
                                                                 ]
                                                             },

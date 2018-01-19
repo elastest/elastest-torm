@@ -1,7 +1,7 @@
-import { CustomFieldModel, TestCaseModel, ExecutionTypeModel, TestImportanceModel, ExecutionStatusModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
+import { CustomFieldModel, TestCaseModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
 import { Injectable } from '@angular/core';
 import { TestProjectModel } from '../../etm-testlink/models/test-project-model';
-import { TestSuiteModel, ActionOnDuplicateModel } from '../../etm-testlink/models/test-suite-model';
+import { TestSuiteModel } from '../../etm-testlink/models/test-suite-model';
 import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
 import { BuildModel } from '../../etm-testlink/models/build-model';
 import { TestCaseStepModel } from '../../etm-testlink/models/test-case-step-model';
@@ -65,8 +65,7 @@ export class ETTestlinkModelsTransformService {
         newSuite.order = suite.order;
         newSuite.checkDuplicatedName = suite.checkDuplicatedName;
 
-        newSuite.actionOnDuplicatedName = new ActionOnDuplicateModel();
-        newSuite.actionOnDuplicatedName.setValue(suite.actionOnDuplicatedName);
+        newSuite.actionOnDuplicatedName = suite.actionOnDuplicatedName;
 
         return newSuite;
     }
@@ -95,11 +94,9 @@ export class ETTestlinkModelsTransformService {
         newCase.steps = this.jsonToTestStepsList(testCase.steps);
         newCase.preconditions = testCase.preconditions;
 
-        newCase.testImportance = new TestImportanceModel();
-        newCase.testImportance.setValue(testCase.testImportance);
+        newCase.testImportance = testCase.testImportance;
 
-        newCase.executionType = new ExecutionTypeModel();
-        newCase.executionType.setValue(testCase.executionType);
+        newCase.executionType = testCase.executionType;
 
         newCase.executionOrder = testCase.executionOrder;
         newCase.order = testCase.order;
@@ -107,24 +104,23 @@ export class ETTestlinkModelsTransformService {
         newCase.fullExternalId = testCase.fullExternalId;
         newCase.checkDuplicatedName = testCase.checkDuplicatedName;
 
-        newCase.actionOnDuplicatedName = new ActionOnDuplicateModel();
-        newCase.actionOnDuplicatedName.setValue(testCase.actionOnDuplicatedName);
+        newCase.actionOnDuplicatedName = testCase.actionOnDuplicatedName;
 
         newCase.versionId = testCase.versionId;
         newCase.version = testCase.version;
         newCase.parentId = testCase.parentId;
 
         newCase.customFields = [];
-        for (let customField of testCase.customFields) {
-            newCase.customFields.push(this.jsonToCustomField(customField));
+        if (testCase.customFields !== null && testCase.customField !== undefined) {
+            for (let customField of testCase.customFields) {
+                newCase.customFields.push(this.jsonToCustomField(customField));
+            }
         }
 
-        newCase.executionStatus = new ExecutionStatusModel();
-        newCase.executionStatus.setValue(testCase.executionStatus);
+        newCase.executionStatus = testCase.executionStatus;
 
         newCase.platform = this.jsontToPlatform(testCase.platform);
         newCase.featureId = testCase.featureId;
-
         return newCase;
     }
 
@@ -176,8 +172,7 @@ export class ETTestlinkModelsTransformService {
             newStep.expectedResults = step.expectedResults;
             newStep.active = step.active;
 
-            newStep.executionType = new ExecutionTypeModel();
-            newStep.executionType.setValue(step.executionType);
+            newStep.executionType = step.executionType;
         }
         return newStep;
     }
