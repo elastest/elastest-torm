@@ -104,6 +104,14 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getSuiteTestCases(suiteId), HttpStatus.OK);
     }
 
+    public ResponseEntity<TestCase[]> getPlanTestCases(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId) {
+        // return new ResponseEntity<TestCase[]>(
+        // testLinkService.getPlangetPlanTestCasesTestCases(planId),
+        // HttpStatus.OK);
+        return null;
+    }
+
     public ResponseEntity<TestCase> createTestCase(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
@@ -113,7 +121,6 @@ public class TestLinkApiController implements TestLinkApi {
             testCase = testLinkService.createTestCase(body);
             return new ResponseEntity<TestCase>(testCase, HttpStatus.OK);
         } catch (TestLinkAPIException e) {
-            e.printStackTrace();
             return new ResponseEntity<TestCase>(testCase, HttpStatus.CONFLICT);
         }
     }

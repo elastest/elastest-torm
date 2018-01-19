@@ -121,6 +121,7 @@ export class ETTestlinkModelsTransformService {
 
         newCase.platform = this.jsontToPlatform(testCase.platform);
         newCase.featureId = testCase.featureId;
+        newCase.testCaseStatus = testCase.testCaseStatus;
         return newCase;
     }
 

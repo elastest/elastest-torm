@@ -24,6 +24,7 @@ export class TestCaseModel {
     executionStatus: ExecStatusValue;
     platform: PlatformModel;
     featureId: number;
+    testCaseStatus: TestCaseStatusValue;
 
     constructor() {
         this.id = 0;
@@ -31,6 +32,7 @@ export class TestCaseModel {
         this.executionStatus = 'NOT_RUN';
         this.executionType = 'MANUAL';
         this.actionOnDuplicatedName = 'BLOCK';
+        this.testCaseStatus = 'DRAFT';
         this.authorLogin = 'admin'; // TODO get author
         this.summary = ' ';
         this.preconditions = ' ';
@@ -58,12 +60,18 @@ export class TestCaseModel {
         return ['BLOCK', 'GENERATE_NEW', 'CREATE_NEW_VERSION'];
     }
 
+    getTestCaseStatusValues(): TestCaseStatusValue[] {
+        return ['FINAL', 'FUTURE', 'OBSOLETE', 'REWORK', 'REVIEW_IN_PROGRESS', 'READY_FOR_REVIEW', 'DRAFT'];
+    }
 }
 
 export type ActionOnDuplicateValue = 'BLOCK' | 'GENERATE_NEW' | 'CREATE_NEW_VERSION' | 'block' | 'generate_new' | 'create_new_version';
 export type ExecTypeValue = 'MANUAL' | 'AUTOMATED' | 1 | 2; // 1 Manual, 2 Automated
 export type TestImportanceValue = 'LOW' | 'MEDIUM' | 'HIGH' | 1 | 2 | 3; // LOW(1), MEDIUM(2), HIGH(3)
-export type ExecStatusValue = 'NOT_RUN' | 'PASSED' | 'FAILED' | 'BLOCKED' | 'n' | 'p' | 'f' | 'b'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
+export type ExecStatusValue = 'NOT_RUN' | 'PASSED' | 'FAILED' | 'BLOCKED'
+    | 'n' | 'p' | 'f' | 'b'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
+export type TestCaseStatusValue = 'FINAL' | 'FUTURE' | 'OBSOLETE' | 'REWORK' | 'REVIEW_IN_PROGRESS' | 'READY_FOR_REVIEW' | 'DRAFT'
+    | 7 | 6 | 5 | 4 | 3 | 2 | 1; // FINAL(7), FUTURE(6), OBSOLETE(5), REWORK(4), REVIEW_IN_PROGRESS(3), READY_FOR_REVIEW(2), DRAFT(1);
 
 export class CustomFieldModel {
     id: number;

@@ -164,7 +164,7 @@ public class TestLinkService {
     /* ***************************** Test Cases ******************************/
     /* ***********************************************************************/
 
-    public TestCase[] getTestCasesForTestPlan(Integer testPlanId,
+    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
             Integer buildId) {
         TestCase[] cases = null;
         try {
@@ -208,9 +208,9 @@ public class TestLinkService {
                 testCase.getTestSuiteId(), testCase.getTestProjectId(),
                 testCase.getAuthorLogin(), testCase.getSummary(),
                 testCase.getSteps(), testCase.getPreconditions(),
-                testCase.getTestImportance(), testCase.getExecutionType(),
-                testCase.getOrder(), testCase.getInternalId(),
-                testCase.getCheckDuplicatedName(),
+                testCase.getTestCaseStatus(), testCase.getTestImportance(),
+                testCase.getExecutionType(), testCase.getOrder(),
+                testCase.getInternalId(), testCase.getCheckDuplicatedName(),
                 testCase.getActionOnDuplicatedName());
     }
 
@@ -226,11 +226,11 @@ public class TestLinkService {
     /* ***********************************************************************/
     /* ***************************** Test Steps ******************************/
     /* ***********************************************************************/
-//    public TestCaseStep createStep(TestCaseStep step, TestCase testCase) {
-//        return this.api.createTestCaseSteps(testCase.getId(),
-//                testCase.getFullExternalId(), testCase.getVersion(), action,
-//                testCaseSteps);
-//    }
+    // public TestCaseStep createStep(TestCaseStep step, TestCase testCase) {
+    // return this.api.createTestCaseSteps(testCase.getId(),
+    // testCase.getFullExternalId(), testCase.getVersion(), action,
+    // testCaseSteps);
+    // }
 
     /* ***********************************************************************/
     /* ***************************** Test Plans ******************************/

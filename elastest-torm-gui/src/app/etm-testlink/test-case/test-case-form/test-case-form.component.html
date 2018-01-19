@@ -15,6 +15,13 @@
                 name="testCase.name" maxlength="50" required>
             </md-input-container>
 
+            <md-select [(ngModel)]="testCase.testCaseStatus" placeholder="Select a Status" name="service" class="push-right" flex-gt-md="5"
+              flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+              <md-option *ngFor="let status of testCase.getTestCaseStatusValues()" [value]="status">
+                {{status}}
+              </md-option>
+            </md-select>
+
             <md-select [(ngModel)]="testCase.executionStatus" placeholder="Select a Exec Status" name="service" class="push-right" flex-gt-md="5"
               flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
               <md-option *ngFor="let execstatus of testCase.getExecStatusValues()" [value]="execstatus">

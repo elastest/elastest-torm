@@ -23,6 +23,7 @@ export class TestSuiteComponent implements OnInit {
   testCaseColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
+    { name: 'testCaseStatus', label: 'Status' },
     { name: 'testSuiteId', label: 'Suite ID' },
     { name: 'testProjectId', label: 'Project ID' },
     { name: 'authorLogin', label: 'Author Login' },
