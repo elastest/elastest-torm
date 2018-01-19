@@ -87,7 +87,11 @@ export class TestLinkService {
     }
 
     public getTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
-        let url: string = this.hostApi + '/testlink/project/' + testCase.testProjectId + '/suite/' + testCase.testSuiteId + '/case/' + testCase.id;
+        return this.getTestCaseById(testCase.id, testCase.testProjectId, testCase.testSuiteId);
+    }
+
+    public getTestCaseById(testCaseId: number, testProjectId: number, testSuiteId: number): Observable<TestCaseModel> {
+        let url: string = this.hostApi + '/testlink/project/' + testProjectId + '/suite/' + testSuiteId + '/case/' + testCaseId;
         return this.http.get(url)
             .map((response) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json()));
     }

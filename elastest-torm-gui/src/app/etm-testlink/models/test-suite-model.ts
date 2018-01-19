@@ -18,14 +18,14 @@ export class TestSuiteModel {
 }
 
 export class ActionOnDuplicateModel {
-    value: 'block' | 'generate_new' | 'create_new_version';
+    value: 'BLOCK' | 'GENERATE_NEW' | 'CREATE_NEW_VERSION';
 
     constructor() {
-        this.value = 'block';
+        this.value = 'BLOCK';
     }
 
     setValue(value: string): void {
-        if (value === 'block' || value === 'generate_new' || value === 'create_new_version') {
+        if (value === 'BLOCK' || value === 'GENERATE_NEW' || value === 'CREATE_NEW_VERSION') {
             this.value = value;
         }
     }

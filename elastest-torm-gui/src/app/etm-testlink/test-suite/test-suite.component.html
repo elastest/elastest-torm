@@ -50,9 +50,9 @@
         <div layout="column" class="push-top">
           <span flex-gt-xs="100">
             <md-card-subtitle class="pad-left-none">Details</md-card-subtitle>
-            <div layout="column" class="push-top">
+            <div layout="column" class="push-top-sm">
               <md-input-container>
-                <textarea id="details" rows="8" mdInput [(ngModel)]="testSuite.details" name="details" disabled></textarea>
+                <textarea id="details" rows="8" mdInput [(ngModel)]="testSuite.details" name="details" readonly></textarea>
               </md-input-container>
             </div>
           </span>
@@ -62,7 +62,7 @@
   </div>
 </div>
 
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testSuite">
+<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testSuite && projectId">
   <div flex-gt-lg="50" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
@@ -76,7 +76,10 @@
       <md-card-content #scrollMeTest>
         <td-data-table #testCaseTable class="scroll_table" [data]="testCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="true"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-
+          <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',projectId, 'suites', testSuite.id, 'cases', row.id]"
+              class="hover-pointer">{{value}}</div>
+          </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
               <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">

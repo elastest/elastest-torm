@@ -17,15 +17,33 @@ export class TestSuiteComponent implements OnInit {
 
   testSuite: TestSuiteModel;
   testCases: TestCaseModel[] = [];
+  projectId: number;
 
   // TestCase Data
   testCaseColumns: any[] = [
     { name: 'id', label: 'Id' },
-    { name: 'testCaseVersionId', label: 'Version ID' },
-    { name: 'actions', label: 'Actions' },
-    { name: 'expectedResults', label: 'Expected Results' },
-    { name: 'active', label: 'Active' },
-    { name: 'executionType', label: 'Execution Type' },
+    { name: 'testSuiteId', label: 'Suite ID' },
+    { name: 'testProjectId', label: 'Project ID' },
+    { name: 'authorLogin', label: 'Author Login' },
+    { name: 'summary', label: 'Summary' },
+    { name: 'preconditions', label: 'Preconditions' },
+    { name: 'testImportance.value', label: 'Importance' },
+    { name: 'executionType.value', label: 'Exec Type' },
+    { name: 'executionOrder', label: 'Exec Order' },
+    { name: 'order', label: 'Order' },
+    { name: 'internalId', label: 'Internal ID' },
+    { name: 'fullExternalId', label: 'External ID' },
+    { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
+    { name: 'actionOnDuplicatedName.value', label: 'Action On Duplicated Name' },
+    { name: 'versionId', label: 'Version ID' },
+    { name: 'version', label: 'Version' },
+    { name: 'parentId', label: 'Parent ID' },
+    { name: 'executionStatus.value', label: 'Execution Status' },
+    { name: 'platform', label: 'Platform' },
+    { name: 'featureId', label: 'Feature Id' },
+    // { name: 'customFields', label: 'Custom Fields' },
+    // steps: TestCaseStepModel[];
+
 
     // { name: 'options', label: 'Options' },
   ];
@@ -44,13 +62,14 @@ export class TestSuiteComponent implements OnInit {
 
   loadSuite(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId']))
-        .subscribe((suite: TestSuiteModel) => {
-          this.testSuite = suite;
-          this.titlesService.setTopTitle(this.testSuite.getRouteString());
-
-          this.loadTestCases();
-        });
+      this.route.params.switchMap((params: Params) => {
+        this.projectId = params['projectId'];
+        return this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId'])
+      }).subscribe((suite: TestSuiteModel) => {
+        this.testSuite = suite;
+        this.titlesService.setTopTitle(this.testSuite.getRouteString());
+        this.loadTestCases();
+      });
     }
   }
 

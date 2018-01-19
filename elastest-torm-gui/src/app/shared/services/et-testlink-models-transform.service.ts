@@ -1,9 +1,10 @@
-import { CustomFieldModel, TestCaseModel, TestCaseStepModel, ExecutionTypeModel, TestImportanceModel, ExecutionStatusModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
+import { CustomFieldModel, TestCaseModel, ExecutionTypeModel, TestImportanceModel, ExecutionStatusModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
 import { Injectable } from '@angular/core';
 import { TestProjectModel } from '../../etm-testlink/models/test-project-model';
 import { TestSuiteModel, ActionOnDuplicateModel } from '../../etm-testlink/models/test-suite-model';
 import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
 import { BuildModel } from '../../etm-testlink/models/build-model';
+import { TestCaseStepModel } from '../../etm-testlink/models/test-case-step-model';
 @Injectable()
 export class ETTestlinkModelsTransformService {
 
@@ -91,13 +92,7 @@ export class ETTestlinkModelsTransformService {
         newCase.testSuiteId = testCase.testSuiteId;
         newCase.authorLogin = testCase.authorLogin;
         newCase.summary = testCase.summary;
-        newCase.steps = [];
-        for (let step of testCase.steps) {
-            if (step !== undefined && step !== null) {
-                newCase.steps.push(this.jsonToTestCaseStep(testCase.steps));
-            }
-        }
-
+        newCase.steps = this.jsonToTestStepsList(testCase.steps);
         newCase.preconditions = testCase.preconditions;
 
         newCase.testImportance = new TestImportanceModel();
@@ -159,7 +154,18 @@ export class ETTestlinkModelsTransformService {
         return newCustomField;
     }
 
-    jsonToTestCaseStep(step: any): TestCaseStepModel {
+
+    jsonToTestStepsList(steps: any[]): TestCaseStepModel[] {
+        let stepsList: TestCaseStepModel[] = [];
+        for (let step of steps) {
+            if (step !== undefined && step !== null) {
+                stepsList.push(this.jsonToTestCaseStepModel(step));
+            }
+        }
+        return stepsList;
+    }
+
+    jsonToTestCaseStepModel(step: any): TestCaseStepModel {
         let newStep: TestCaseStepModel;
         if (step !== undefined && step !== null) {
             newStep = new TestCaseStepModel();

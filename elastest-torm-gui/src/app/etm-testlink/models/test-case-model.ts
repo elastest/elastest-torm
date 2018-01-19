@@ -1,4 +1,5 @@
 import { ActionOnDuplicateModel } from './test-suite-model';
+import { TestCaseStepModel } from './test-case-step-model';
 
 export class TestCaseModel {
     id: number;
@@ -28,47 +29,35 @@ export class TestCaseModel {
     constructor() {
         this.id = 0;
     }
-}
 
-export class TestCaseStepModel {
-    id: number;
-    testCaseVersionId: number;
-    number: number;
-    actions: string;
-    expectedResults: string;
-    active: boolean;
-    executionType: ExecutionTypeModel;
-
-    constructor() {
-        this.id = 0;
-        this.executionType = new ExecutionTypeModel();
+    public getRouteString(): string {
+        return 'TestLink ' + ' / TestCase ' + this.name;
     }
-
 }
 
 export class ExecutionTypeModel {
-    value: 1 | 2; // 1 Manual, 2 Automated
+    value: 'MANUAL' | 'AUTOMATED'; // 1 Manual, 2 Automated
 
     constructor() {
-        this.value = 1;
+        this.value = 'MANUAL';
     }
 
-    setValue(value: number): void {
-        if (value === 1 || value === 2) {
+    setValue(value: string): void {
+        if (value === 'MANUAL' || value === 'MANUAL') {
             this.value = value;
         }
     }
 }
 
 export class TestImportanceModel {
-    value: 1 | 2 | 3; // LOW(1), MEDIUM(2), HIGH(3)
+    value: 'LOW' | 'MEDIUM' | 'HIGH'; // LOW(1), MEDIUM(2), HIGH(3)
 
     constructor() {
-        this.value = 2;
+        this.value = 'MEDIUM';
     }
 
-    setValue(value: number): void {
-        if (value === 1 || value === 2 || value === 3) {
+    setValue(value: string): void {
+        if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH') {
             this.value = value;
         }
     }
@@ -100,13 +89,13 @@ export class CustomFieldModel {
 }
 
 export class ExecutionStatusModel {
-    value: 'n' | 'p' | 'f' | 'b'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
+    value: 'NOT_RUN' | 'PASSED' | 'FAILED' | 'BLOCKED'; // NOT_RUN('n'), PASSED('p'), FAILED('f'), BLOCKED('b')
     constructor() {
-        this.value = 'n';
+        this.value = 'NOT_RUN';
     }
 
     setValue(value: string): void {
-        if (value === 'n' || value === 'p' || value === 'f' || value === 'b') {
+        if (value === 'NOT_RUN' || value === 'PASSED' || value === 'FAILED' || value === 'BLOCKED') {
             this.value = value;
         }
     }
