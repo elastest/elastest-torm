@@ -938,7 +938,9 @@ public class EsmService {
                         logger.debug("Node port: {}", entry.getValue().get("port").toString());
                         if (endpointBindingPort.getValue().equals(
                                 entry.getValue().get("port").toString())) {
-                            envValuePort = endpointBindingPort.getKey();
+                            envValuePort = !publicEnvVars
+                                    ? endpointBindingPort.getKey()
+                                    : endpointBindingPort.getValue();
                         }
                     }
                 }
