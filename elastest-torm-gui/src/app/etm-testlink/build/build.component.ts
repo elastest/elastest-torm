@@ -73,7 +73,6 @@ export class BuildComponent implements OnInit {
       )
         .subscribe((build: BuildModel) => {
           this.build = build;
-          this.loadingCases = false;
           this.titlesService.setTopTitle(this.build.getRouteString());
 
           this.loadTestCases();
@@ -86,6 +85,7 @@ export class BuildComponent implements OnInit {
       .subscribe(
       (testCases: TestCaseModel[]) => {
         this.testCases = testCases;
+        this.loadingCases = false;
       },
       (error) => console.log(error),
     );

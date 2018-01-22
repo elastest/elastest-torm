@@ -358,21 +358,38 @@ public class TestLinkService {
     public TestCase[] getPlanBuildTestCases(Integer testPlanId,
             Integer buildId) {
         TestCase[] cases = null;
-        TestCase[] fullDetailedCases = null;
         try {
             cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
                     null, null, null, null, null, null, true,
                     TestCaseDetails.FULL);
 
-            for (TestCase currentCase : cases) {
-                fullDetailedCases = (TestCase[]) ArrayUtils.add(
-                        fullDetailedCases,
-                        this.api.getTestCaseByExternalId(
-                                currentCase.getFullExternalId(),
-                                currentCase.getVersion()));
+            cases = this.getFullDetailedTestCases(cases); // To get more info...
+
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return cases;
+    }
+
+    public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
+        TestCase[] fullDetailedCases = null;
+        try {
+            int pos = 0;
+            for (TestCase currentCase : testCases) {
+                TestCase testCase = this.api.getTestCaseByExternalId(
+                        currentCase.getFullExternalId(),
+                        currentCase.getVersion());
+                currentCase.setSummary(testCase.getSummary());
+                currentCase.setPreconditions(testCase.getPreconditions());
+                currentCase.setOrder(testCase.getOrder());
+                fullDetailedCases = (TestCase[]) ArrayUtils
+                        .add(fullDetailedCases, currentCase);
             }
         } catch (TestLinkAPIException e) {
             // EMPTY
+        }
+        if (fullDetailedCases == null) {
+            fullDetailedCases = testCases;
         }
         return fullDetailedCases;
     }
