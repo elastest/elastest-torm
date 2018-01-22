@@ -43,6 +43,7 @@ import { TestProjectComponent } from './etm-testlink/test-project/test-project.c
 import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/test-plan-form.component';
 import { TestCaseStepComponent } from './etm-testlink/test-case-step/test-case-step.component';
 import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-case-step-form/test-case-step-form.component';
+import { BuildComponent } from './etm-testlink/build/build.component';
 
 const routes: Routes = [
     {
@@ -309,7 +310,7 @@ const routes: Routes = [
                                                                 children: [
                                                                     {
                                                                         path: '',
-                                                                        component: TestPlanComponent,
+                                                                        component: BuildComponent,
                                                                     }
                                                                 ]
                                                             },

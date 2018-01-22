@@ -18,9 +18,9 @@ import br.eti.kinoshita.testlinkjavaapi.TestLinkAPI;
 import br.eti.kinoshita.testlinkjavaapi.constants.ExecutionStatus;
 import br.eti.kinoshita.testlinkjavaapi.constants.TestCaseDetails;
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.Execution;
 import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
-import br.eti.kinoshita.testlinkjavaapi.model.TestCaseStep;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
@@ -164,18 +164,6 @@ public class TestLinkService {
     /* ***************************** Test Cases ******************************/
     /* ***********************************************************************/
 
-    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
-            Integer buildId) {
-        TestCase[] cases = null;
-        try {
-            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
-                    null, null, null, null, null, null, true, null);
-        } catch (TestLinkAPIException e) {
-            // EMPTY
-        }
-        return cases;
-    }
-
     public TestCase getTestCaseById(Integer suiteId, Integer caseId) {
         TestCase foundTestCase = null;
         try {
@@ -214,6 +202,13 @@ public class TestLinkService {
                 testCase.getActionOnDuplicatedName());
     }
 
+    public ReportTCResultResponse saveExecution(Execution execution,
+            Integer testCaseId) {
+        return this.executeTest(testCaseId, execution.getTestPlanId(),
+                execution.getBuildId(), execution.getNotes(),
+                execution.getStatus());
+    }
+
     public ReportTCResultResponse executeTest(Integer testCaseId,
             Integer testPlanId, Integer buildId, String notes,
             ExecutionStatus status) {
@@ -222,15 +217,6 @@ public class TestLinkService {
                 null, null, null, null);
         return response;
     }
-
-    /* ***********************************************************************/
-    /* ***************************** Test Steps ******************************/
-    /* ***********************************************************************/
-    // public TestCaseStep createStep(TestCaseStep step, TestCase testCase) {
-    // return this.api.createTestCaseSteps(testCase.getId(),
-    // testCase.getFullExternalId(), testCase.getVersion(), action,
-    // testCaseSteps);
-    // }
 
     /* ***********************************************************************/
     /* ***************************** Test Plans ******************************/
@@ -344,6 +330,67 @@ public class TestLinkService {
     public Build createBuild(Build build) {
         return this.api.createBuild(build.getTestPlanId(), build.getName(),
                 build.getNotes());
+    }
+
+    public Build[] getAllBuilds() {
+        Build[] builds = null;
+
+        try {
+            for (TestPlan currentPlan : this.getAllTestPlans()) {
+                Build[] planBuilds = this.getPlanBuilds(currentPlan.getId());
+                if (planBuilds != null) {
+                    builds = (Build[]) ArrayUtils.addAll(builds, planBuilds);
+
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return builds;
+    }
+
+    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
+            Integer buildId) {
+        TestCase[] cases = null;
+        try {
+            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
+                    null, null, null, null, null, null, true, null);
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return cases;
+    }
+
+    public Build getBuildById(Integer buildId) {
+        Build build = null;
+        try {
+            Build[] builds = this.getAllBuilds();
+            if (builds != null) {
+                for (Build currentBuild : builds) {
+                    if (currentBuild.getId() == buildId) {
+                        build = currentBuild;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+        if (build == null) {
+            logger.info("Build with id {} does not exist", buildId);
+        }
+        return build;
+    }
+
+    public TestCase[] getBuildTestCases(Build build) {
+        if (build == null) {
+            return null;
+        }
+        return this.getPlanBuildTestCases(build.getTestPlanId(), build.getId());
+    }
+
+    public TestCase[] getBuildTestCasesById(Integer buildId) {
+        Build build = this.getBuildById(buildId);
+        return this.getBuildTestCases(build);
     }
 
 }

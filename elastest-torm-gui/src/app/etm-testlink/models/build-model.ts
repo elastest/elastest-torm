@@ -7,4 +7,9 @@ export class BuildModel {
     constructor() {
         this.id = 0;
     }
+
+
+    public getRouteString(): string {
+        return 'TestLink ' + ' / Build ' + this.name;
+    }
 }

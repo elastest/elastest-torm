@@ -46,11 +46,15 @@ export class TestCaseModel {
         return ['LOW', 'MEDIUM', 'HIGH'];
     }
 
+    getExecStatusValuesToExec(): ExecStatusValue[] {
+        let status: ExecStatusValue[] = this.getExecStatusValues();
+        status.shift();
+        return status;
+    }
 
     getExecStatusValues(): ExecStatusValue[] {
         return ['NOT_RUN', 'PASSED', 'FAILED', 'BLOCKED'];
     }
-
 
     getExecTypeValues(): ExecTypeValue[] {
         return ['AUTOMATED', 'MANUAL'];

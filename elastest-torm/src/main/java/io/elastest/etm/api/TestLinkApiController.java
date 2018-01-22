@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.Execution;
+import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -26,6 +28,7 @@ public class TestLinkApiController implements TestLinkApi {
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/
+
     // @JsonView()
     public ResponseEntity<TestProject[]> getAllTestProjects() {
 
@@ -143,7 +146,6 @@ public class TestLinkApiController implements TestLinkApi {
     }
 
     public ResponseEntity<TestPlan> getPlanById(
-            @ApiParam(value = "Id of the project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Id of the plan.", required = true) @PathVariable("planId") Integer planId) {
         return new ResponseEntity<TestPlan>(
                 testLinkService.getTestPlanById(planId), HttpStatus.OK);
@@ -190,4 +192,34 @@ public class TestLinkApiController implements TestLinkApi {
             return new ResponseEntity<Build>(build, HttpStatus.CONFLICT);
         }
     }
+
+    public ResponseEntity<TestCase[]> getBuildTestCases(
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId) {
+        return new ResponseEntity<TestCase[]>(
+                testLinkService.getBuildTestCasesById(buildId), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Build> getBuildById(
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId) {
+        return new ResponseEntity<Build>(testLinkService.getBuildById(buildId),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<ReportTCResultResponse> executeTestCase(
+            @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body) {
+        ReportTCResultResponse result = null;
+
+        try {
+            result = testLinkService.saveExecution(body, caseId);
+            return new ResponseEntity<ReportTCResultResponse>(result,
+                    HttpStatus.OK);
+        } catch (TestLinkAPIException e) {
+            System.out.println(e);
+            return new ResponseEntity<ReportTCResultResponse>(result,
+                    HttpStatus.CONFLICT);
+        }
+    }
+
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.Execution;
+import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -174,9 +176,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/plan/{planId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/{planId}", method = RequestMethod.GET)
     ResponseEntity<TestPlan> getPlanById(
-            @ApiParam(value = "Id of the project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Id of the plan.", required = true) @PathVariable("planId") Integer planId);
 
     @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = TestPlan.class, tags = {
@@ -215,7 +216,16 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
 
-    @ApiOperation(value = "Creates a new Test Plan", notes = "Creates a new Test Plan", response = Build.class, tags = {
+    @ApiOperation(value = "Returns build by ID", notes = "Returns build by ID.", response = Build.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}", method = RequestMethod.GET)
+    ResponseEntity<Build> getBuildById(
+            @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId);
+
+    @ApiOperation(value = "Creates a new Build", notes = "Creates a new Build", response = Build.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
@@ -228,5 +238,27 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body);
+
+    @ApiOperation(value = "Returns the Test Cases of a Build", notes = "Returnsthe Test Cases of a Build", response = TestCase.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case", method = RequestMethod.GET)
+    ResponseEntity<TestCase[]> getBuildTestCases(
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId);
+
+    @ApiOperation(value = "Execute Test Case", notes = "Execute Test Case", response = ReportTCResultResponse.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ReportTCResultResponse.class),
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
+    @RequestMapping(value = "/testlink/project/plan/build/case/{caseId}/exec", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<ReportTCResultResponse> executeTestCase(
+            @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body);
 
 }

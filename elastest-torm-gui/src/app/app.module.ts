@@ -87,6 +87,7 @@ import { BuildComponent } from './etm-testlink/build/build.component';
 import { BuildFormComponent } from './etm-testlink/build/build-form/build-form.component';
 import { TestCaseStepComponent } from './etm-testlink/test-case-step/test-case-step.component';
 import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-case-step-form/test-case-step-form.component';
+import { ExecuteCaseModalComponent } from './etm-testlink/build/execute-case-modal/execute-case-modal.component';
 
 
 const httpInterceptorProviders: Type<any>[] = [
@@ -136,6 +137,7 @@ const httpInterceptorProviders: Type<any>[] = [
     BuildFormComponent,
     TestCaseStepComponent,
     TestCaseStepFormComponent,
+    ExecuteCaseModalComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -199,6 +201,7 @@ const httpInterceptorProviders: Type<any>[] = [
     GetIndexModalComponent,
     ShowMessageModalComponent,
     ExecutionModalComponent,
+    ExecuteCaseModalComponent,
     MonitoringConfigurationComponent
   ],
   bootstrap: [AppComponent],
