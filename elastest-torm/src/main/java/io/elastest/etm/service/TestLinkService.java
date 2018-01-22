@@ -303,6 +303,12 @@ public class TestLinkService {
         return plan;
     }
 
+    public Execution getPlanLastExecution(Integer testPlanId,
+            Integer testCaseId, Integer testCaseExternalId) {
+        return this.api.getLastExecutionResult(testPlanId, testCaseId,
+                testCaseExternalId);
+    }
+
     /* **********************************************************************/
     /* **************************** Plan Builds *****************************/
     /* **********************************************************************/
@@ -352,13 +358,23 @@ public class TestLinkService {
     public TestCase[] getPlanBuildTestCases(Integer testPlanId,
             Integer buildId) {
         TestCase[] cases = null;
+        TestCase[] fullDetailedCases = null;
         try {
             cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
-                    null, null, null, null, null, null, true, null);
+                    null, null, null, null, null, null, true,
+                    TestCaseDetails.FULL);
+
+            for (TestCase currentCase : cases) {
+                fullDetailedCases = (TestCase[]) ArrayUtils.add(
+                        fullDetailedCases,
+                        this.api.getTestCaseByExternalId(
+                                currentCase.getFullExternalId(),
+                                currentCase.getVersion()));
+            }
         } catch (TestLinkAPIException e) {
             // EMPTY
         }
-        return cases;
+        return fullDetailedCases;
     }
 
     public Build getBuildById(Integer buildId) {

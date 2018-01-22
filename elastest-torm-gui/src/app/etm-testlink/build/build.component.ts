@@ -58,7 +58,7 @@ export class BuildComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Test Plan');
+    this.titlesService.setHeadTitle('Build');
     this.build = new BuildModel();
     this.loadBuild();
   }
@@ -108,9 +108,9 @@ export class BuildComponent implements OnInit {
     dialogRef.afterClosed()
       .subscribe(
       (data: any) => {
-        this.loadingCases = true;
         if (data) { // Ok Pressed
           if (data.saved) {
+            this.loadingCases = true;
             this.testLinkService.popupService.openSnackBar('Execution has been saved successfully');
             this.loadBuild();
           }

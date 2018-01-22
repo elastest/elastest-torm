@@ -1,16 +1,19 @@
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnInit, Optional, ViewChild, ElementRef } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 import { TestCaseModel, ExecStatusValue } from '../../models/test-case-model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TestLinkService } from '../../testlink.service';
+import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'testlink-execute-case-modal',
   templateUrl: './execute-case-modal.component.html',
   styleUrls: ['./execute-case-modal.component.scss']
 })
-export class ExecuteCaseModalComponent implements OnInit {
+export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
+  @ViewChild('notes') notes: ElementRef;
+
 
   // TestCaseSteps Data
   testCaseStepsColumns: any[] = [
@@ -45,6 +48,11 @@ export class ExecuteCaseModalComponent implements OnInit {
     this.tcExec.testPlanId = this.build.testPlanId;
     this.tcExec.buildId = this.build.id;
   }
+
+  ngAfterViewChecked() {
+    this.notes.nativeElement.focus();
+  }
+
 
   saveExecution(): void {
     this.testLinkService.saveExecution(this.tcExec, this.testCase.id)

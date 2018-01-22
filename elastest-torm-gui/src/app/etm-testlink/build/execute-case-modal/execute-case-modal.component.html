@@ -31,7 +31,7 @@
     <form #caseForm="ngForm" class="push-top-lg">
       <div layout="row">
         <md-input-container flex="45">
-          <textarea id="notes" rows="6" mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+          <textarea #notes id="notes" rows="6" mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
         </md-input-container>
 
         <div layout="column" flex="15" flex-offset="5">
