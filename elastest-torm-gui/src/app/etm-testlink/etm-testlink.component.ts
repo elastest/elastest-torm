@@ -15,6 +15,7 @@ import { MdDialog } from '@angular/material';
 export class EtmTestlinkComponent implements OnInit {
   @Input()
   isNested: boolean = false;
+  testLinkUrl: string;
 
   // Project data
   projectColumns: any[] = [
@@ -45,8 +46,17 @@ export class EtmTestlinkComponent implements OnInit {
     if (!this.isNested) {
       this.titlesService.setHeadAndTopTitle('Testlink Projects');
     }
-
+    this.loadTestLinkUrl();
     this.loadProjects();
+  }
+
+  loadTestLinkUrl(): void {
+    this.testlinkService.getTestlinkUrl()
+      .subscribe(
+      (url: string) => {
+        this.testLinkUrl = url;
+      },
+    );
   }
 
   loadProjects(): void {

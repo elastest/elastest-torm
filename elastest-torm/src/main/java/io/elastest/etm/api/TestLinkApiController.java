@@ -25,6 +25,11 @@ public class TestLinkApiController implements TestLinkApi {
     @Autowired
     TestLinkService testLinkService;
 
+    public ResponseEntity<String> getTestLinkUrl() {
+        return new ResponseEntity<String>(testLinkService.getTestLinkUrl(),
+                HttpStatus.OK);
+    }
+
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/

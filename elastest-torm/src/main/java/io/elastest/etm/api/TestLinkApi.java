@@ -26,6 +26,14 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/testlink")
 public interface TestLinkApi extends EtmApiRoot {
 
+    @ApiOperation(value = "Returns TestLink Ip/port", notes = "Returns TEstLink IP/Port.", response = String.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/url", method = RequestMethod.GET)
+    ResponseEntity<String> getTestLinkUrl();
+
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/

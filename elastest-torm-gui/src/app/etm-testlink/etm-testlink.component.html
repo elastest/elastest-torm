@@ -1,5 +1,17 @@
 <div class="md-content">
-    <div layout="column" layout-gt-sm="row">
+    <div layout="column" *ngIf="testLinkUrl">
+        <div flex-gt-sm="100">
+            <md-card>
+                <md-card-title>
+                    <span>TestLink Info</span>
+                </md-card-title>
+                <md-divider></md-divider>
+                <md-card-content class="push-bottom-none">
+                    <strong>Url: </strong>
+                    <a href="{{testLinkUrl}}" target="_blank">{{testLinkUrl}}</a>
+                </md-card-content>
+            </md-card>
+        </div>
         <div flex-gt-sm="100">
             <md-card>
                 <md-card-title>

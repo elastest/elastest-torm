@@ -43,8 +43,7 @@ public class TestLinkService {
 
     @PostConstruct
     public void init() {
-        String url = "http://" + etEtmTestLinkHost + ":" + etEtmTestLinkPort
-                + "/lib/api/xmlrpc/v1/xmlrpc.php";
+        String url = this.getTestLinkUrl() + "/lib/api/xmlrpc/v1/xmlrpc.php";
 
         try {
             testlinkURL = new URL(url);
@@ -65,6 +64,10 @@ public class TestLinkService {
 
     public String sayHello() {
         return this.api.ping();
+    }
+
+    public String getTestLinkUrl() {
+        return "http://" + etEtmTestLinkHost + ":" + etEtmTestLinkPort;
     }
 
     /* ***********************************************************************/
@@ -218,6 +221,56 @@ public class TestLinkService {
         return response;
     }
 
+    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
+            Integer buildId) {
+        TestCase[] cases = null;
+        try {
+            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
+                    null, null, null, null, null, null, true,
+                    TestCaseDetails.FULL);
+
+            cases = this.getFullDetailedTestCases(cases); // To get more info...
+
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        return cases;
+    }
+
+    public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
+        TestCase[] fullDetailedCases = null;
+        try {
+            for (TestCase currentCase : testCases) {
+                TestCase testCase = this.api.getTestCaseByExternalId(
+                        currentCase.getFullExternalId(),
+                        currentCase.getVersion());
+                currentCase.setSummary(testCase.getSummary());
+                currentCase.setPreconditions(testCase.getPreconditions());
+                currentCase.setOrder(testCase.getOrder());
+                fullDetailedCases = (TestCase[]) ArrayUtils
+                        .add(fullDetailedCases, currentCase);
+            }
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        if (fullDetailedCases == null) {
+            fullDetailedCases = testCases;
+        }
+        return fullDetailedCases;
+    }
+
+    public TestCase[] getBuildTestCases(Build build) {
+        if (build == null) {
+            return null;
+        }
+        return this.getPlanBuildTestCases(build.getTestPlanId(), build.getId());
+    }
+
+    public TestCase[] getBuildTestCasesById(Integer buildId) {
+        Build build = this.getBuildById(buildId);
+        return this.getBuildTestCases(build);
+    }
+
     /* ***********************************************************************/
     /* ***************************** Test Plans ******************************/
     /* ***********************************************************************/
@@ -355,45 +408,6 @@ public class TestLinkService {
         return builds;
     }
 
-    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
-            Integer buildId) {
-        TestCase[] cases = null;
-        try {
-            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
-                    null, null, null, null, null, null, true,
-                    TestCaseDetails.FULL);
-
-            cases = this.getFullDetailedTestCases(cases); // To get more info...
-
-        } catch (TestLinkAPIException e) {
-            // EMPTY
-        }
-        return cases;
-    }
-
-    public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
-        TestCase[] fullDetailedCases = null;
-        try {
-            int pos = 0;
-            for (TestCase currentCase : testCases) {
-                TestCase testCase = this.api.getTestCaseByExternalId(
-                        currentCase.getFullExternalId(),
-                        currentCase.getVersion());
-                currentCase.setSummary(testCase.getSummary());
-                currentCase.setPreconditions(testCase.getPreconditions());
-                currentCase.setOrder(testCase.getOrder());
-                fullDetailedCases = (TestCase[]) ArrayUtils
-                        .add(fullDetailedCases, currentCase);
-            }
-        } catch (TestLinkAPIException e) {
-            // EMPTY
-        }
-        if (fullDetailedCases == null) {
-            fullDetailedCases = testCases;
-        }
-        return fullDetailedCases;
-    }
-
     public Build getBuildById(Integer buildId) {
         Build build = null;
         try {
@@ -412,18 +426,6 @@ public class TestLinkService {
             logger.info("Build with id {} does not exist", buildId);
         }
         return build;
-    }
-
-    public TestCase[] getBuildTestCases(Build build) {
-        if (build == null) {
-            return null;
-        }
-        return this.getPlanBuildTestCases(build.getTestPlanId(), build.getId());
-    }
-
-    public TestCase[] getBuildTestCasesById(Integer buildId) {
-        Build build = this.getBuildById(buildId);
-        return this.getBuildTestCases(build);
     }
 
 }
