@@ -114,8 +114,8 @@ public class TestLinkDBService {
         return executions;
     }
 
-    public Execution[] getExecsByCase(Integer testPlanId, Integer buildId,
-            Integer testCaseId, Integer testCaseExternalId,
+    public Execution[] getExecsByCaseAndOthers(Integer testPlanId,
+            Integer buildId, Integer testCaseId, Integer testCaseExternalId,
             Integer platformId) {
         Execution[] executions = null;
         if (testCaseId != null) {
@@ -155,16 +155,23 @@ public class TestLinkDBService {
         return executions;
     }
 
-    public Execution[] getExecsByPlanCase(Integer testCaseId,
-            Integer testPlanId) {
-        Execution[] executions = this.getExecsByCase(testPlanId, null,
+    public Execution[] getExecsByCase(Integer testCaseId) {
+        Execution[] executions = this.getExecsByCaseAndOthers(null, null,
                 testCaseId, null, null);
         return executions;
     }
 
-    public Execution[] getExecsByBuildCase(Build build, Integer testCaseId) {
-        Execution[] executions = this.getExecsByCase(build.getTestPlanId(),
-                build.getId(), testCaseId, null, null);
+    public Execution[] getExecsByPlanCase(Integer testCaseId,
+            Integer testPlanId) {
+        Execution[] executions = this.getExecsByCaseAndOthers(testPlanId, null,
+                testCaseId, null, null);
+        return executions;
+    }
+
+    public Execution[] getExecsByBuildCase(Integer buildId,
+            Integer testCaseId) {
+        Execution[] executions = this.getExecsByCaseAndOthers(null, buildId,
+                testCaseId, null, null);
         return executions;
     }
 

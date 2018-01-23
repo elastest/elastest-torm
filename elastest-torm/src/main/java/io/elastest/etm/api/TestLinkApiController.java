@@ -99,11 +99,9 @@ public class TestLinkApiController implements TestLinkApi {
     /* ***********************************************************************/
 
     public ResponseEntity<TestCase> getTestcase(
-            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
         return new ResponseEntity<TestCase>(
-                testLinkService.getTestCaseById(suiteId, caseId),
-                HttpStatus.OK);
+                testLinkService.getTestCaseById(caseId), HttpStatus.OK);
     }
 
     public ResponseEntity<TestCase[]> getSuiteTestCases(
@@ -210,11 +208,10 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
-
     /* ***********************************************************************/
     /* ***************************** Executions ******************************/
     /* ***********************************************************************/
-    
+
     public ResponseEntity<ReportTCResultResponse> executeTestCase(
             @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
             @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body) {
@@ -229,6 +226,33 @@ public class TestLinkApiController implements TestLinkApi {
             return new ResponseEntity<ReportTCResultResponse>(result,
                     HttpStatus.CONFLICT);
         }
+    }
+
+    public ResponseEntity<Execution[]> getAllExecs() {
+        return new ResponseEntity<Execution[]>(testLinkService.getAllExecs(),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<Execution[]> getTestCaseExecs(
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
+        return new ResponseEntity<Execution[]>(
+                testLinkService.getTestCaseExecs(caseId), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Execution[]> getPlanTestCaseExecs(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
+        return new ResponseEntity<Execution[]>(
+                testLinkService.getPlanTestCaseExecs(planId, caseId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<Execution[]> getBuildTestCaseExecs(
+            @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId,
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
+        return new ResponseEntity<Execution[]>(
+                testLinkService.getBuildTestCaseExecs(buildId, caseId),
+                HttpStatus.OK);
     }
 
 }

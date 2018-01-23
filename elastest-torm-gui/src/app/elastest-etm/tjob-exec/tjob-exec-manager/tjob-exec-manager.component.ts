@@ -18,11 +18,10 @@ import { MdDialog } from '@angular/material';
 @Component({
   selector: 'app-tjob-exec-manager',
   templateUrl: './tjob-exec-manager.component.html',
-  styleUrls: ['./tjob-exec-manager.component.scss']
+  styleUrls: ['./tjob-exec-manager.component.scss'],
 })
 export class TjobExecManagerComponent implements OnInit {
   @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
-
 
   tJobId: number;
   tJobExecId: number;
@@ -51,7 +50,7 @@ export class TjobExecManagerComponent implements OnInit {
     private elastestESService: ElastestESService,
     private route: ActivatedRoute, private router: Router,
     private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog
+    public dialog: MdDialog,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe(

@@ -56,6 +56,10 @@
         <md-spinner strokeWidth="6" *ngIf="loadingCases" color="accent" class="push-top-sm"></md-spinner>
         <td-data-table *ngIf="!loadingCases" #buildTable class="scroll_table" [data]="testCases" [columns]="testCasesColumns" [selectable]="false"
           [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+          <ng-template *ngFor="let column of testCasesColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', build.testPlanId, 'builds', build.id, 'cases', row.id]"
+              class="hover-pointer">{{value}}</div>
+          </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
               <button md-button (click)="execTestCase(row)" class="iconBtn-lg" title="Execute Test Case">

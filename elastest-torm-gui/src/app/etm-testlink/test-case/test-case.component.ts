@@ -46,7 +46,7 @@ export class TestCaseComponent implements OnInit {
 
   loadCase(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.testLinkService.getTestCaseById(params['caseId'], params['projectId'], params['suiteId']))
+      this.route.params.switchMap((params: Params) => this.testLinkService.getTestCaseById(params['caseId']))
         .subscribe((testCase: TestCaseModel) => {
           this.testCase = testCase;
           this.titlesService.setTopTitle(this.testCase.getRouteString());

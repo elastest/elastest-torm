@@ -5,6 +5,7 @@ import { TestSuiteModel } from '../../etm-testlink/models/test-suite-model';
 import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
 import { BuildModel } from '../../etm-testlink/models/build-model';
 import { TestCaseStepModel } from '../../etm-testlink/models/test-case-step-model';
+import { TestCaseExecutionModel } from '../../etm-testlink/models/test-case-execution-model';
 @Injectable()
 export class ETTestlinkModelsTransformService {
 
@@ -237,5 +238,36 @@ export class ETTestlinkModelsTransformService {
         newPlan.notes = build.notes;
 
         return newPlan;
+    }
+
+    /***************************/
+    /********** Execs **********/
+    /***************************/
+
+    jsonToExecList(execs: any[]): TestCaseExecutionModel[] {
+        let execsList: TestCaseExecutionModel[] = [];
+        for (let exec of execs) {
+            execsList.push(this.jsonToExecModel(exec));
+        }
+        return execsList;
+    }
+
+
+    jsonToExecModel(exec: any): TestCaseExecutionModel {
+        let newExec: TestCaseExecutionModel;
+        newExec = new TestCaseExecutionModel();
+        newExec.id = exec.id;
+        newExec.buildId = exec.buildId;
+        newExec.testerId = exec.testerId;
+        newExec.executionTimeStamp = exec.executionTimeStamp;
+        newExec.status = exec.status;
+        newExec.testPlanId = exec.testPlanId;
+        newExec.testCaseVersionId = exec.testCaseVersionId;
+        newExec.testCaseVersionNumber = exec.testCaseVersionNumber;
+
+        newExec.executionType = exec.executionType;
+        newExec.notes = exec.notes;
+
+        return newExec;
     }
 }

@@ -44,11 +44,13 @@ import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/t
 import { TestCaseStepComponent } from './etm-testlink/test-case-step/test-case-step.component';
 import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-case-step-form/test-case-step-form.component';
 import { BuildComponent } from './etm-testlink/build/build.component';
+import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
+import { ExecutionComponent } from './etm-testlink/execution/execution.component';
 
 const routes: Routes = [
     {
         path: 'login',
-        component: LoginComponent
+        component: LoginComponent,
     },
     {
         path: '',
@@ -116,14 +118,14 @@ const routes: Routes = [
                                                             {
                                                                 path: 'dashboard',
                                                                 component: DashboardComponent,
-                                                            }
-                                                        ]
+                                                            },
+                                                        ],
                                                     },
-                                                ]
+                                                ],
                                             },
-                                        ]
+                                        ],
                                     },
-                                ]
+                                ],
                             },
                             {
                                 path: 'sut',
@@ -140,12 +142,11 @@ const routes: Routes = [
                                         path: 'new',
                                         component: SutFormComponent,
                                     },
-                                ]
+                                ],
                             },
-                        ]
+                        ],
                     },
-
-                ]
+                ],
             },
             {
                 path: 'tjobs',
@@ -154,7 +155,7 @@ const routes: Routes = [
                         path: '',
                         component: TJobsManagerComponent,
                     },
-                ]
+                ],
             },
             {
                 path: 'tjobexecs',
@@ -163,7 +164,7 @@ const routes: Routes = [
                         path: '',
                         component: TJobExecsManagerComponent,
                     },
-                ]
+                ],
             },
             {
                 path: 'suts',
@@ -180,7 +181,7 @@ const routes: Routes = [
                         path: 'edit',
                         component: SutFormComponent,
                     },
-                ]
+                ],
             },
             {
                 path: 'etm-app',
@@ -198,7 +199,7 @@ const routes: Routes = [
                         component: TestEngineViewComponent,
 
                     },
-                ]
+                ],
             },
             {
                 path: 'support-services',
@@ -215,8 +216,8 @@ const routes: Routes = [
                     {
                         path: 'service-gui',
                         component: ServiceGuiComponent,
-                    }
-                ]
+                    },
+                ],
             },
             {
                 path: 'service-gui',
@@ -311,14 +312,28 @@ const routes: Routes = [
                                                                     {
                                                                         path: '',
                                                                         component: BuildComponent,
-                                                                    }
-                                                                ]
+                                                                    },
+                                                                    {
+                                                                        path: 'cases',
+                                                                        children: [
+                                                                            {
+                                                                                path: ':caseId',
+                                                                                children: [
+                                                                                    {
+                                                                                        path: '',
+                                                                                        component: TestCaseExecsComponent,
+                                                                                    },
+                                                                                ],
+                                                                            },
+                                                                        ],
+                                                                    },
+                                                                ],
                                                             },
-                                                        ]
-                                                    }
-                                                ]
+                                                        ],
+                                                    },
+                                                ],
                                             },
-                                        ]
+                                        ],
                                     },
                                     {
                                         path: 'suites',
@@ -376,30 +391,28 @@ const routes: Routes = [
                                                                                             {
                                                                                                 path: '',
                                                                                                 component: TestCaseStepComponent,
-                                                                                            }
-                                                                                        ]
+                                                                                            },
+                                                                                        ],
                                                                                     },
-                                                                                ]
-                                                                            }
-                                                                        ]
-                                                                    }
-                                                                ]
+                                                                                ],
+                                                                            },
+                                                                        ],
+                                                                    },
+                                                                ],
                                                             },
-                                                        ]
-                                                    }
-                                                ]
+                                                        ],
+                                                    },
+                                                ],
                                             },
-                                        ]
-                                    }
-                                ]
+                                        ],
+                                    },
+                                ],
                             },
-
-                        ]
+                        ],
                     },
-                ]
+                ],
             },
-
-        ]
+        ],
     },
 ];
 

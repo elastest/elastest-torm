@@ -119,9 +119,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}/case/{caseId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/suite/case/{caseId}", method = RequestMethod.GET)
     ResponseEntity<TestCase> getTestcase(
-            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 
     @ApiOperation(value = "Returns the Test Cases of a Test Suite", notes = "Returnsthe Test Cases of a Test Suite", response = TestCase.class, responseContainer = "List", tags = {
@@ -256,11 +255,10 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase[]> getBuildTestCases(
             @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId);
 
-    
     /* ***********************************************************************/
     /* ***************************** Executions ******************************/
     /* ***********************************************************************/
-    
+
     @ApiOperation(value = "Execute Test Case", notes = "Execute Test Case", response = ReportTCResultResponse.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
@@ -274,4 +272,40 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
             @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body);
 
+    @ApiOperation(value = "Returns all execs", notes = "Returns all execs.", response = Execution.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/execs", method = RequestMethod.GET)
+    ResponseEntity<Execution[]> getAllExecs();
+
+    @ApiOperation(value = "Returns all execs of a Test Case", notes = "Returns all execs of a Test Case.", response = Execution.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/suite/case/{caseId}/execs", method = RequestMethod.GET)
+    ResponseEntity<Execution[]> getTestCaseExecs(
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    @ApiOperation(value = "Returns all execs of a Plan Test Case", notes = "Returns all execs of a Plan Test Case.", response = Execution.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/build/case/{caseId}/execs", method = RequestMethod.GET)
+    ResponseEntity<Execution[]> getPlanTestCaseExecs(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    @ApiOperation(value = "Returns all execs of a Build Test Case", notes = "Returns all execs of a Build Test Case.", response = Execution.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case/{caseId}/execs", method = RequestMethod.GET)
+    ResponseEntity<Execution[]> getBuildTestCaseExecs(
+            @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId,
+            @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 }

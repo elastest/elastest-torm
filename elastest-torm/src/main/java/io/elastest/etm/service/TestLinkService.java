@@ -171,7 +171,13 @@ public class TestLinkService {
     /* ***************************** Test Cases ******************************/
     /* ***********************************************************************/
 
-    public TestCase getTestCaseById(Integer suiteId, Integer caseId) {
+    public TestCase getTestCaseById(Integer caseId) {
+        TestCase testCase = this.api.getTestCase(caseId, null, null);
+        testCase = this.getSuiteTestCaseById(testCase.getTestSuiteId(), caseId);
+        return testCase;
+    }
+
+    public TestCase getSuiteTestCaseById(Integer suiteId, Integer caseId) {
         TestCase foundTestCase = null;
         try {
             TestCase[] testCases = getSuiteTestCases(suiteId);
@@ -183,7 +189,6 @@ public class TestLinkService {
         } catch (TestLinkAPIException e) {
             logger.error("Error during getting TestSuite: {}", e.getMessage());
         }
-
         return foundTestCase;
     }
 
@@ -242,13 +247,7 @@ public class TestLinkService {
         TestCase[] fullDetailedCases = null;
         try {
             for (TestCase currentCase : testCases) {
-                TestCase testCase = this.api.getTestCaseByExternalId(
-                        currentCase.getFullExternalId(),
-                        currentCase.getVersion());
-
-                currentCase.setSummary(testCase.getSummary());
-                currentCase.setPreconditions(testCase.getPreconditions());
-                currentCase.setOrder(testCase.getOrder());
+                currentCase = this.getFullDetailedTestCase(currentCase);
 
                 fullDetailedCases = (TestCase[]) ArrayUtils
                         .add(fullDetailedCases, currentCase);
@@ -260,6 +259,17 @@ public class TestLinkService {
             fullDetailedCases = testCases;
         }
         return fullDetailedCases;
+    }
+
+    public TestCase getFullDetailedTestCase(TestCase testCase) {
+        TestCase auxTestCase = this.api.getTestCaseByExternalId(
+                testCase.getFullExternalId(), testCase.getVersion());
+
+        testCase.setSummary(auxTestCase.getSummary());
+        testCase.setPreconditions(auxTestCase.getPreconditions());
+        testCase.setOrder(auxTestCase.getOrder());
+
+        return testCase;
     }
 
     /* ***********************************************************************/
@@ -285,6 +295,25 @@ public class TestLinkService {
     public Execution getLastExecutionOfPlan(Integer testPlanId,
             Integer testCaseId) {
         return this.api.getLastExecutionResult(testPlanId, testCaseId, null);
+    }
+
+    public Execution[] getAllExecs() {
+        return this.testLinkDBService.getAllExecs();
+    }
+
+    public Execution[] getTestCaseExecs(Integer testCaseId) {
+        return this.testLinkDBService.getExecsByCase(testCaseId);
+    }
+
+    public Execution[] getPlanTestCaseExecs(Integer testPlanId,
+            Integer testCaseId) {
+        return this.testLinkDBService.getExecsByPlanCase(testCaseId,
+                testPlanId);
+    }
+
+    public Execution[] getBuildTestCaseExecs(Integer buildId,
+            Integer testCaseId) {
+        return this.testLinkDBService.getExecsByBuildCase(buildId, testCaseId);
     }
 
     /* ***********************************************************************/
