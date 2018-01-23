@@ -136,7 +136,7 @@
             <md-card-subtitle class="pad-left-none">Summary</md-card-subtitle>
             <div layout="column" class="push-top-sm">
               <md-input-container>
-                <textarea id="summary" rows="8" mdInput [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
+                <textarea id="summary" autosize mdInput [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
               </md-input-container>
             </div>
           </span>
@@ -144,7 +144,7 @@
             <md-card-subtitle class="pad-left-none">Preconditions</md-card-subtitle>
             <div layout="column" class="push-top-sm">
               <md-input-container>
-                <textarea id="preconditions" rows="8" mdInput [(ngModel)]="testCase.preconditions" name="preconditions" readonly></textarea>
+                <textarea id="preconditions" autosize mdInput [(ngModel)]="testCase.preconditions" name="preconditions" readonly></textarea>
               </md-input-container>
             </div>
           </span>

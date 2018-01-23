@@ -90,7 +90,7 @@ import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-ca
 import { ExecuteCaseModalComponent } from './etm-testlink/build/execute-case-modal/execute-case-modal.component';
 import { ExecutionComponent } from './etm-testlink/execution/execution.component';
 import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
-
+import { Autosize } from 'angular2-autosize';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -142,6 +142,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ExecuteCaseModalComponent,
     ExecutionComponent,
     TestCaseExecsComponent,
+    Autosize,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

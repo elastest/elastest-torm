@@ -69,7 +69,7 @@ export class TestCaseExecsComponent implements OnInit {
     this.testLinkService.getBuildCaseExecs(this.testCase.id, this.buildId)
       .subscribe(
       (execs: TestCaseExecutionModel[]) => {
-        this.execs = execs;
+        this.execs = execs.reverse(); // To sort
       },
       (error) => console.log(error),
     );

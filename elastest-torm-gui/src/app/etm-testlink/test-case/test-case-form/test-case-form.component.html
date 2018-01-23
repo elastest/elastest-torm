@@ -53,14 +53,14 @@
 
           <div layout="column" class="push-top">
             <md-input-container>
-              <textarea id="summary" rows="10" mdInput #nameControl="ngModel" placeholder="Summary" [(ngModel)]="testCase.summary" name="summary"
+              <textarea id="summary" autosize mdInput #nameControl="ngModel" placeholder="Summary" [(ngModel)]="testCase.summary" name="summary"
                 required></textarea>
             </md-input-container>
           </div>
 
           <div layout="column" class="push-top">
             <md-input-container>
-              <textarea id="preconditions" rows="10" mdInput #nameControl="ngModel" placeholder="Preconditions" [(ngModel)]="testCase.preconditions"
+              <textarea id="preconditions" autosize mdInput #nameControl="ngModel" placeholder="Preconditions" [(ngModel)]="testCase.preconditions"
                 name="preconditions" required></textarea>
             </md-input-container>
           </div>

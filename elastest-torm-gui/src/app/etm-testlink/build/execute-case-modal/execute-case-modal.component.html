@@ -10,11 +10,11 @@
     </div>
     <div layout="row" class="push-top">
       <md-input-container flex="45">
-        <textarea id="summary" rows="6" mdInput placeholder="Summary" [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
+        <textarea id="summary" autosize mdInput placeholder="Summary" [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
       </md-input-container>
 
       <md-input-container flex="45" flex-offset="5">
-        <textarea id="preconditions" rows="6" mdInput placeholder="Preconditions" [(ngModel)]="testCase.preconditions" name="preconditions"
+        <textarea id="preconditions" autosize mdInput placeholder="Preconditions" [(ngModel)]="testCase.preconditions" name="preconditions"
           readonly></textarea>
       </md-input-container>
     </div>
@@ -31,7 +31,7 @@
     <form #caseForm="ngForm" class="push-top-lg">
       <div layout="row">
         <md-input-container flex="45">
-          <textarea #notes id="notes" rows="6" mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+          <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
         </md-input-container>
 
         <div layout="column" flex="15" flex-offset="5">
