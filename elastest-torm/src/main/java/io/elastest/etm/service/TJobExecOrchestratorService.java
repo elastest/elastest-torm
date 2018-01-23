@@ -94,7 +94,7 @@ public class TJobExecOrchestratorService {
         tJobExecRepositoryImpl.save(tJobExec);
 
         initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-        setTJobExecEnvVars(tJobExec, true);
+        setTJobExecEnvVars(tJobExec, true, true);
 
         // Start Test
         resultMsg = "Executing Test";
@@ -117,7 +117,7 @@ public class TJobExecOrchestratorService {
 
         initTSS(tJobExec, tJobServices);
 
-        setTJobExecEnvVars(tJobExec, false);
+        setTJobExecEnvVars(tJobExec, false, false);
 
         DockerExecution dockerExec = new DockerExecution(tJobExec);
 
@@ -334,18 +334,20 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private void setTJobExecEnvVars(TJobExecution tJobExec, boolean externalTJob) {
+    private void setTJobExecEnvVars(TJobExecution tJobExec, boolean externalTJob, boolean envVarWithServNamePrefix) {
         // Get TSS Env Vars
         for (String tSSInstanceId : tJobExec.getServicesInstances()) {
             SupportServiceInstance ssi = esmService.gettJobServicesInstances()
                     .get(tSSInstanceId);
             tJobExec.getEnvVars()
-                    .putAll(esmService.getTSSInstanceEnvVars(ssi, externalTJob));
+                    .putAll(esmService.getTSSInstanceEnvVars(ssi, externalTJob, envVarWithServNamePrefix));
         }
 
-        // Get monitoring Env Vars
-        tJobExec.getEnvVars()
-                .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
+        if (!externalTJob) {
+         // Get monitoring Env Vars
+            tJobExec.getEnvVars()
+                    .putAll(etmContextService.getMonitoringEnvVars(tJobExec));            
+        }        
     }
 
     /**

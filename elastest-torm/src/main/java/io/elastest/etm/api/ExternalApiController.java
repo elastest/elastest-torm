@@ -2,8 +2,6 @@ package io.elastest.etm.api;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,8 +27,7 @@ public class ExternalApiController implements ExternalApi {
 		
 		try {
             return externalService.executeExternalTJob(body);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {           
             e.printStackTrace();
             return null;
         }
