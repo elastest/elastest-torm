@@ -256,6 +256,11 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase[]> getBuildTestCases(
             @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId);
 
+    
+    /* ***********************************************************************/
+    /* ***************************** Executions ******************************/
+    /* ***********************************************************************/
+    
     @ApiOperation(value = "Execute Test Case", notes = "Execute Test Case", response = ReportTCResultResponse.class, tags = {
             "TestLink", })
     @ApiResponses(value = {

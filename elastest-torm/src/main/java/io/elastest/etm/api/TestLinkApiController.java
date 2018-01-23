@@ -210,7 +210,11 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
-    @Override
+
+    /* ***********************************************************************/
+    /* ***************************** Executions ******************************/
+    /* ***********************************************************************/
+    
     public ResponseEntity<ReportTCResultResponse> executeTestCase(
             @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
             @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body) {

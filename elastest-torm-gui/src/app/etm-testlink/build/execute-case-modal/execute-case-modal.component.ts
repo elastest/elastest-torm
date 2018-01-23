@@ -13,7 +13,7 @@ import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
 })
 export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
   @ViewChild('notes') notes: ElementRef;
-
+  alreadyFocused: boolean = false;
 
   // TestCaseSteps Data
   testCaseStepsColumns: any[] = [
@@ -50,9 +50,11 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked() {
-    this.notes.nativeElement.focus();
+    if (!this.alreadyFocused) {
+      this.notes.nativeElement.focus();
+      this.alreadyFocused = true;
+    }
   }
-
 
   saveExecution(): void {
     this.testLinkService.saveExecution(this.tcExec, this.testCase.id)

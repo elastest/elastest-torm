@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,9 @@ public class TestLinkService {
 
     @Value("${et.etm.testlink.port}")
     public String etEtmTestLinkPort;
+
+    @Autowired
+    TestLinkDBService testLinkDBService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -205,6 +209,63 @@ public class TestLinkService {
                 testCase.getActionOnDuplicatedName());
     }
 
+    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
+            Integer buildId) {
+        TestCase[] cases = null;
+        try {
+            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
+                    null, null, null, null, null, null, true,
+                    TestCaseDetails.FULL);
+
+            cases = this.getFullDetailedTestCases(cases); // To get more info...
+
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+
+        return cases;
+    }
+
+    public TestCase[] getBuildTestCases(Build build) {
+        if (build == null) {
+            return null;
+        }
+        return this.getPlanBuildTestCases(build.getTestPlanId(), build.getId());
+    }
+
+    public TestCase[] getBuildTestCasesById(Integer buildId) {
+        Build build = this.getBuildById(buildId);
+        return this.getBuildTestCases(build);
+    }
+
+    public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
+        TestCase[] fullDetailedCases = null;
+        try {
+            for (TestCase currentCase : testCases) {
+                TestCase testCase = this.api.getTestCaseByExternalId(
+                        currentCase.getFullExternalId(),
+                        currentCase.getVersion());
+
+                currentCase.setSummary(testCase.getSummary());
+                currentCase.setPreconditions(testCase.getPreconditions());
+                currentCase.setOrder(testCase.getOrder());
+
+                fullDetailedCases = (TestCase[]) ArrayUtils
+                        .add(fullDetailedCases, currentCase);
+            }
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+        if (fullDetailedCases == null) {
+            fullDetailedCases = testCases;
+        }
+        return fullDetailedCases;
+    }
+
+    /* ***********************************************************************/
+    /* ***************************** Executions ******************************/
+    /* ***********************************************************************/
+
     public ReportTCResultResponse saveExecution(Execution execution,
             Integer testCaseId) {
         return this.executeTest(testCaseId, execution.getTestPlanId(),
@@ -221,54 +282,9 @@ public class TestLinkService {
         return response;
     }
 
-    public TestCase[] getPlanBuildTestCases(Integer testPlanId,
-            Integer buildId) {
-        TestCase[] cases = null;
-        try {
-            cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
-                    null, null, null, null, null, null, true,
-                    TestCaseDetails.FULL);
-
-            cases = this.getFullDetailedTestCases(cases); // To get more info...
-
-        } catch (TestLinkAPIException e) {
-            // EMPTY
-        }
-        return cases;
-    }
-
-    public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
-        TestCase[] fullDetailedCases = null;
-        try {
-            for (TestCase currentCase : testCases) {
-                TestCase testCase = this.api.getTestCaseByExternalId(
-                        currentCase.getFullExternalId(),
-                        currentCase.getVersion());
-                currentCase.setSummary(testCase.getSummary());
-                currentCase.setPreconditions(testCase.getPreconditions());
-                currentCase.setOrder(testCase.getOrder());
-                fullDetailedCases = (TestCase[]) ArrayUtils
-                        .add(fullDetailedCases, currentCase);
-            }
-        } catch (TestLinkAPIException e) {
-            // EMPTY
-        }
-        if (fullDetailedCases == null) {
-            fullDetailedCases = testCases;
-        }
-        return fullDetailedCases;
-    }
-
-    public TestCase[] getBuildTestCases(Build build) {
-        if (build == null) {
-            return null;
-        }
-        return this.getPlanBuildTestCases(build.getTestPlanId(), build.getId());
-    }
-
-    public TestCase[] getBuildTestCasesById(Integer buildId) {
-        Build build = this.getBuildById(buildId);
-        return this.getBuildTestCases(build);
+    public Execution getLastExecutionOfPlan(Integer testPlanId,
+            Integer testCaseId) {
+        return this.api.getLastExecutionResult(testPlanId, testCaseId, null);
     }
 
     /* ***********************************************************************/
@@ -354,12 +370,6 @@ public class TestLinkService {
             // EMPTY
         }
         return plan;
-    }
-
-    public Execution getPlanLastExecution(Integer testPlanId,
-            Integer testCaseId, Integer testCaseExternalId) {
-        return this.api.getLastExecutionResult(testPlanId, testCaseId,
-                testCaseExternalId);
     }
 
     /* **********************************************************************/

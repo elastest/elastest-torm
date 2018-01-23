@@ -250,6 +250,13 @@
 			<version>1.9.16-1</version>
 		</dependency>
 
+		<!-- MySQL database driver -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>6.0.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
