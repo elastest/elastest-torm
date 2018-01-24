@@ -8,6 +8,8 @@ services:
       - 443:9443
     networks:
       - elastest
+    volumes:
+      - ~/ere-data:/ere-data:rw
 networks:
     elastest:
       driver: bridge
