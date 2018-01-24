@@ -91,6 +91,9 @@ import { ExecuteCaseModalComponent } from './etm-testlink/build/execute-case-mod
 import { ExecutionComponent } from './etm-testlink/execution/execution.component';
 import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
 import { Autosize } from 'angular2-autosize';
+import { ExternalProjectComponent } from './elastest-etm/external/external-project/external-project.component';
+import { ExternalTestCaseComponent } from './elastest-etm/external/external-test-case/external-test-case.component';
+import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -143,6 +146,9 @@ const httpInterceptorProviders: Type<any>[] = [
     ExecutionComponent,
     TestCaseExecsComponent,
     Autosize,
+    ExternalProjectComponent,
+    ExternalTestCaseComponent,
+    ExternalTestExecutionComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

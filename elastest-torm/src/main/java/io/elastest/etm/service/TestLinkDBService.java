@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -81,21 +82,61 @@ public class TestLinkDBService {
         return list;
     }
 
+    @SuppressWarnings("hiding")
+    public interface Callable<Object> {
+        public Object call(Map<String, Object> input);
+    }
+
+    public Object[] getObjectListFromResultList(
+            Callable<Object> conversionMethod,
+            List<HashMap<String, Object>> resultList) {
+        Object[] objects = null;
+
+        for (HashMap<String, Object> result : resultList) {
+            Object obj = conversionMethod.call(result);
+            objects = (Object[]) ArrayUtils.add(objects, obj);
+        }
+
+        return objects;
+    }
+
     public Execution[] getExecutionListFromResultList(
             List<HashMap<String, Object>> resultList) {
         Execution[] executions = null;
 
-        for (HashMap<String, Object> execution : resultList) {
-            Execution exec = Util.getExecution(execution);
-            executions = (Execution[]) ArrayUtils.add(executions, exec);
-        }
+        Callable<Object> getExecution = new Callable<Object>() {
+            @Override
+            public java.lang.Object call(Map<String, java.lang.Object> input) {
+                return Util.getExecution(input);
+            }
+        };
+        executions = (Execution[]) this
+                .getObjectListFromResultList(getExecution, resultList);
 
         return executions;
+    }
+
+    public Build[] getBuildListFromResultList(
+            List<HashMap<String, Object>> resultList) {
+        Build[] builds = null;
+
+        Callable<Object> getBuild = new Callable<Object>() {
+            @Override
+            public java.lang.Object call(Map<String, java.lang.Object> input) {
+                return Util.getBuild(input);
+            }
+        };
+        builds = (Build[]) this.getObjectListFromResultList(getBuild,
+                resultList);
+
+        return builds;
     }
 
     /* ************************************************************/
     /* *************************** Api ****************************/
     /* ************************************************************/
+
+    /* **** Execs **** */
 
     public Execution[] getAllExecs() {
         Execution[] executions = null;
@@ -103,8 +144,8 @@ public class TestLinkDBService {
             ResultSet rs = stmt.executeQuery("SELECT * FROM executions");
             List<HashMap<String, Object>> resultList = this
                     .convertResultSetToList(rs);
-
             executions = this.getExecutionListFromResultList(resultList);
+
         } catch (SQLException e) {
             logger.error(e.getMessage());
         } catch (Exception e) {
@@ -173,6 +214,24 @@ public class TestLinkDBService {
         Execution[] executions = this.getExecsByCaseAndOthers(null, buildId,
                 testCaseId, null, null);
         return executions;
+    }
+
+    /* **** Builds **** */
+
+    public Build[] getAllBuilds() {
+        Build[] builds = null;
+        String query = "SELECT * FROM builds";
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            List<HashMap<String, Object>> resultList;
+            resultList = this.convertResultSetToList(rs);
+            builds = this.getBuildListFromResultList(resultList);
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return builds;
     }
 
 }

@@ -22,7 +22,7 @@ export class TestCaseComponent implements OnInit {
   // TestCaseStep Data
   testCaseStepColumns: any[] = [
     { name: 'id', label: 'Id' },
-    { name: 'testCaseVersionId', label: 'Case Version ID' },
+    // { name: 'testCaseVersionId', label: 'Case Version ID' },
     { name: 'number', label: 'Number' },
     { name: 'actions', label: 'Actions' },
     { name: 'expectedResults', label: 'Expected Results' },

@@ -6,30 +6,40 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content>
-        <div layout="row" class="push-bottom-xs">
+        <div layout="row" class="push-bottom-sm">
           <span flex-gt-xs="15">
             <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
             <h4>{{testCase.name}}</h4>
           </span>
-          <span flex-gt-xs="5">
+
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Version</md-card-subtitle>
+            <h4>{{testCase.version}}</h4>
+          </span>
+
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Version Id</md-card-subtitle>
+            <h4>{{testCase.versionId}}</h4>
+          </span>
+          <!-- <span flex-gt-xs="5">
             <md-card-subtitle class="pad-left-none">Project ID</md-card-subtitle>
             <h4>{{testCase.testProjectId}}</h4>
           </span>
           <span flex-gt-xs="5">
             <md-card-subtitle class="pad-left-none">Suite ID</md-card-subtitle>
             <h4>{{testCase.testSuiteId}}</h4>
-          </span>
-          <span flex-gt-xs="5">
-            <md-card-subtitle class="pad-left-none">Author Login</md-card-subtitle>
-            <h4>{{testCase.authorLogin}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
+          </span> -->
+          <!-- <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Test Importance</md-card-subtitle>
             <span *ngIf="testCase.testImportance !== undefined; else noneImportante">
               <h4>{{testCase.testImportance}}</h4>
             </span>
             <ng-template #noneImportante></ng-template>
+          </span> -->
+
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Author Login</md-card-subtitle>
+            <h4>{{testCase.authorLogin}}</h4>
           </span>
 
           <span flex-gt-xs="10">
@@ -41,51 +51,9 @@
           </span>
 
           <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Execution Order</md-card-subtitle>
-            <h4>{{testCase.executionOrder}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Order</md-card-subtitle>
-            <h4>{{testCase.order}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Internal Id</md-card-subtitle>
-            <h4>{{testCase.internalId}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">External Id</md-card-subtitle>
             <h4>{{testCase.fullExternalId}}</h4>
           </span>
-
-          <!-- <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/testlink/cases/edit', testCase.id]" class="iconBtn-lg" title="Edit Test Case">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteCase()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Case">
-                <md-icon>delete</md-icon>
-              </button>
-            </div>
-          </span> -->
-        </div>
-
-        <md-divider></md-divider>
-
-        <div layout="row" class="push-bottom-xs push-top-sm">
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Version Id</md-card-subtitle>
-            <h4>{{testCase.versionId}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Version</md-card-subtitle>
-            <h4>{{testCase.version}}</h4>
-          </span>
-
 
           <span flex-gt-xs="10">
             <md-card-subtitle class="pad-left-none">Parent Id</md-card-subtitle>
@@ -104,34 +72,11 @@
             </span>
             <ng-template #noneAction></ng-template>
           </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Check Duplicated Name</md-card-subtitle>
-            <h4>{{testCase.checkDuplicatedName}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Action On Duplicated Name</md-card-subtitle>
-            <span *ngIf="testCase.actionOnDuplicatedName !== undefined; else noneAction">
-              <h4>{{testCase.actionOnDuplicatedName}}</h4>
-            </span>
-            <ng-template #noneAction></ng-template>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Platform</md-card-subtitle>
-            <h4>{{testCase.platform}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Feature Id</md-card-subtitle>
-            <h4>{{testCase.featureId}}</h4>
-          </span>
-
         </div>
 
         <md-divider></md-divider>
 
-        <div layout="row" class="push-top-sm">
+        <div layout="row" class="push-top-md">
           <span flex-gt-xs="45">
             <md-card-subtitle class="pad-left-none">Summary</md-card-subtitle>
             <div layout="column" class="push-top-sm">

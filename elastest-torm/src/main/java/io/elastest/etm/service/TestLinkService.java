@@ -243,6 +243,19 @@ public class TestLinkService {
         return this.getBuildTestCases(build);
     }
 
+    public TestCase[] getProjectTestCases(Integer projectId) {
+        TestCase[] testCase = null;
+        for (TestSuite currentSuite : this.getProjectTestSuites(projectId)) {
+            TestCase[] currentTestCases = this
+                    .getSuiteTestCases(currentSuite.getId());
+            if (currentTestCases != null) {
+                testCase = (TestCase[]) ArrayUtils.addAll(testCase,
+                        currentTestCases);
+            }
+        }
+        return testCase;
+    }
+
     public TestCase[] getFullDetailedTestCases(TestCase[] testCases) {
         TestCase[] fullDetailedCases = null;
         try {
@@ -431,20 +444,7 @@ public class TestLinkService {
     }
 
     public Build[] getAllBuilds() {
-        Build[] builds = null;
-
-        try {
-            for (TestPlan currentPlan : this.getAllTestPlans()) {
-                Build[] planBuilds = this.getPlanBuilds(currentPlan.getId());
-                if (planBuilds != null) {
-                    builds = (Build[]) ArrayUtils.addAll(builds, planBuilds);
-
-                }
-            }
-        } catch (Exception e) {
-        }
-
-        return builds;
+        return this.testLinkDBService.getAllBuilds();
     }
 
     public Build getBuildById(Integer buildId) {
@@ -463,6 +463,17 @@ public class TestLinkService {
         }
         if (build == null) {
             logger.info("Build with id {} does not exist", buildId);
+        }
+        return build;
+    }
+
+    public Build[] getProjectBuilds(Integer projectId) {
+        Build[] build = null;
+        for (TestPlan currentPlan : this.getProjectTestPlans(projectId)) {
+            Build[] currentBuilds = this.getPlanBuilds(currentPlan.getId());
+            if (currentBuilds != null) {
+                build = (Build[]) ArrayUtils.addAll(build, currentBuilds);
+            }
         }
         return build;
     }
