@@ -24,8 +24,18 @@ export class TestLinkService {
         this.hostApi = this.configurationService.configModel.hostApi;
     }
 
+    /***********************/
+    /******** Others *******/
+    /***********************/
+
     public getTestlinkUrl(): Observable<String> {
         let url: string = this.hostApi + '/testlink/url';
+        return this.http.get(url)
+            .map((response: Response) => response['_body']);
+    }
+
+    public syncTestlink(): Observable<Boolean> {
+        let url: string = this.hostApi + '/testlink/sync';
         return this.http.get(url)
             .map((response: Response) => response['_body']);
     }

@@ -42,6 +42,12 @@ public class ExternalTestExecution implements Serializable {
     @JsonProperty("fields")
     private String fields = null;
 
+    @JsonView({ BasicAttExternalTestExecution.class,
+            BasicAttExternalTestCase.class })
+    @Column(name = "result")
+    @JsonProperty("result")
+    private String result = null;
+
     // bi-directional many-to-one association to ExternalTestCase
     @JsonView({ BasicAttExternalTestExecution.class })
     @ManyToOne(fetch = FetchType.LAZY)
@@ -87,6 +93,14 @@ public class ExternalTestExecution implements Serializable {
 
     public void setFields(String fields) {
         this.fields = fields;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
     public ExternalTestCase getExTestCase() {
