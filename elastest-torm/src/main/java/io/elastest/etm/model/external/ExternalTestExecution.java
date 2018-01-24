@@ -3,12 +3,13 @@ package io.elastest.etm.model.external;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,25 +25,12 @@ public class ExternalTestExecution implements Serializable {
     public interface BasicAttExternalTestExecution {
     }
 
-    @Id
+    @EmbeddedId
+    @JsonView({ BasicAttExternalProject.class })
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class })
     @Column(name = "id")
     @JsonProperty("id")
-    private Long id = null;
-
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class })
-    @Column(name = "name")
-    @JsonProperty("name")
-    private String name = null;
-
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class })
-    @Column(name = "externalId")
-    @JsonProperty("externalId")
-    private String externalId;
+    private ExternalId id = null;
 
     @JsonView({ BasicAttExternalTestExecution.class,
             BasicAttExternalTestCase.class })
@@ -57,7 +45,9 @@ public class ExternalTestExecution implements Serializable {
     // bi-directional many-to-one association to ExternalTestCase
     @JsonView({ BasicAttExternalTestExecution.class })
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exTestCase")
+    @JoinColumns({
+            @JoinColumn(name = "tcExternalId", referencedColumnName = "externalId"),
+            @JoinColumn(name = "tcExternalSystemId", referencedColumnName = "externalSystemId") })
     private ExternalTestCase exTestCase;
 
     /* **************************/
@@ -67,36 +57,20 @@ public class ExternalTestExecution implements Serializable {
     public ExternalTestExecution() {
     }
 
-    public ExternalTestExecution(Long id) {
-        this.id = id == null ? 0 : id;
+    public ExternalTestExecution(ExternalId id) {
+        this.id = id;
     }
 
     /* *****************************/
     /* ***** Getters/Setters *******/
     /* *****************************/
 
-    public Long getId() {
+    public ExternalId getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id == null ? 0 : id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
+    public void setId(ExternalId id) {
+        this.id = id;
     }
 
     public String getEsIndex() {

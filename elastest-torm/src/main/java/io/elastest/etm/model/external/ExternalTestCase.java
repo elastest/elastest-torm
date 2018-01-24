@@ -5,12 +5,13 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -26,22 +27,17 @@ public class ExternalTestCase implements Serializable {
     public interface BasicAttExternalTestCase {
     }
 
-    @Id
+    @EmbeddedId
+    @JsonView({ BasicAttExternalProject.class })
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "id")
     @JsonProperty("id")
-    private Long id = null;
+    private ExternalId id = null;
 
     @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
-
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
-    @Column(name = "externalId")
-    @JsonProperty("externalId")
-    private String externalId;
 
     @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
@@ -51,7 +47,9 @@ public class ExternalTestCase implements Serializable {
     // bi-directional many-to-one association to ExternalProject
     @JsonView({ BasicAttExternalTestCase.class })
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exProject")
+    @JoinColumns({
+            @JoinColumn(name = "pjExternalId", referencedColumnName = "externalId"),
+            @JoinColumn(name = "pjExternalSystemId", referencedColumnName = "externalSystemId") })
     private ExternalProject exProject;
 
     // bi-directional many-to-one association to ExternalTestExecution
@@ -66,20 +64,20 @@ public class ExternalTestCase implements Serializable {
     public ExternalTestCase() {
     }
 
-    public ExternalTestCase(Long id) {
-        this.id = id == null ? 0 : id;
+    public ExternalTestCase(ExternalId id) {
+        this.id = id;
     }
 
     /* *****************************/
     /* ***** Getters/Setters *******/
     /* *****************************/
 
-    public Long getId() {
+    public ExternalId getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id == null ? 0 : id;
+    public void setId(ExternalId id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -88,14 +86,6 @@ public class ExternalTestCase implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
     }
 
     public String getFields() {

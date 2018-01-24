@@ -26,6 +26,15 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.TestLinkAPIException;
+import io.elastest.etm.dao.external.ExternalProjectRepository;
+import io.elastest.etm.dao.external.ExternalTestCaseRepository;
+import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
+import io.elastest.etm.model.external.ExternalId;
+import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution;
+import net.minidev.json.JSONObject;
+import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 
 @Service
 public class TestLinkService {
@@ -41,9 +50,21 @@ public class TestLinkService {
     @Autowired
     TestLinkDBService testLinkDBService;
 
+    private final ExternalProjectRepository externalProjectRepository;
+    private final ExternalTestCaseRepository externalTestCaseRepository;
+    private final ExternalTestExecutionRepository externalTestExecutionRepository;
+
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
     URL testlinkURL = null;
+
+    public TestLinkService(ExternalProjectRepository externalProjectRepository,
+            ExternalTestCaseRepository externalTestCaseRepository,
+            ExternalTestExecutionRepository externalTestExecutionRepository) {
+        this.externalProjectRepository = externalProjectRepository;
+        this.externalTestCaseRepository = externalTestCaseRepository;
+        this.externalTestExecutionRepository = externalTestExecutionRepository;
+    }
 
     @PostConstruct
     public void init() {
@@ -58,7 +79,7 @@ public class TestLinkService {
         try {
             api = new TestLinkAPI(testlinkURL, devKey);
         } catch (TestLinkAPIException te) {
-            te.printStackTrace();
+            logger.error(te.getMessage());
         }
     }
 
@@ -74,9 +95,9 @@ public class TestLinkService {
         return "http://" + etEtmTestLinkHost + ":" + etEtmTestLinkPort;
     }
 
-    /* ***********************************************************************/
-    /* **************************** Test Projects ****************************/
-    /* ***********************************************************************/
+    /* *****************************************************************/
+    /* ************************* Test Projects *************************/
+    /* *****************************************************************/
 
     public TestProject[] getProjects() {
         TestProject[] projects = null;
@@ -125,9 +146,9 @@ public class TestLinkService {
                 project.isActive(), project.isPublic());
     }
 
-    /* ************************************************************************/
-    /* ***************************** Test Suites ******************************/
-    /* ************************************************************************/
+    /* ******************************************************************/
+    /* ************************** Test Suites ***************************/
+    /* ******************************************************************/
 
     public TestSuite[] getTestSuitesForTestPlan(Integer testPlanId) {
         TestSuite[] suites = null;
@@ -167,9 +188,9 @@ public class TestLinkService {
                 suite.getActionOnDuplicatedName());
     }
 
-    /* ***********************************************************************/
-    /* ***************************** Test Cases ******************************/
-    /* ***********************************************************************/
+    /* *****************************************************************/
+    /* ************************** Test Cases ***************************/
+    /* *****************************************************************/
 
     public TestCase getTestCaseById(Integer caseId) {
         TestCase testCase = this.api.getTestCase(caseId, null, null);
@@ -285,9 +306,9 @@ public class TestLinkService {
         return testCase;
     }
 
-    /* ***********************************************************************/
-    /* ***************************** Executions ******************************/
-    /* ***********************************************************************/
+    /* *****************************************************************/
+    /* ************************** Executions ***************************/
+    /* *****************************************************************/
 
     public ReportTCResultResponse saveExecution(Execution execution,
             Integer testCaseId) {
@@ -329,9 +350,9 @@ public class TestLinkService {
         return this.testLinkDBService.getExecsByBuildCase(buildId, testCaseId);
     }
 
-    /* ***********************************************************************/
-    /* ***************************** Test Plans ******************************/
-    /* ***********************************************************************/
+    /* *****************************************************************/
+    /* ************************** Test Plans ***************************/
+    /* *****************************************************************/
 
     public TestPlan[] getProjectTestPlans(Integer projectId) {
         TestPlan[] plans = null;
@@ -414,9 +435,9 @@ public class TestLinkService {
         return plan;
     }
 
-    /* **********************************************************************/
-    /* **************************** Plan Builds *****************************/
-    /* **********************************************************************/
+    /* ****************************************************************/
+    /* ************************* Plan Builds **************************/
+    /* ****************************************************************/
 
     public Build[] getPlanBuilds(Integer planId) {
         Build[] builds = null;
@@ -476,6 +497,111 @@ public class TestLinkService {
             }
         }
         return build;
+    }
+
+    /* ****************************************************************/
+    /* ********************* External Conversion **********************/
+    /* ****************************************************************/
+
+    public String getSystemId() {
+        return this.devKey;
+    }
+
+    public boolean syncTestLink() {
+        this.syncProjects();
+        return true;
+
+    }
+
+    public void syncProjects() {
+        TestProject[] projectsList = this.getProjects();
+        if (projectsList != null) {
+            for (TestProject currentTestProject : projectsList) {
+                this.syncProject(currentTestProject);
+            }
+        }
+    }
+
+    public void syncProject(TestProject project) {
+        ExternalId pjId = new ExternalId(project.getId(), this.getSystemId());
+
+        ExternalProject externalProject = new ExternalProject(pjId);
+        externalProject.setName(project.getName());
+        externalProject.setType(TypeEnum.TESTLINK);
+
+        externalProjectRepository.save(externalProject);
+
+        this.syncProjectTestCases(project.getId(), externalProject);
+    }
+
+    public void syncProjectTestCases(Integer projectId,
+            ExternalProject externalProject) {
+        TestCase[] casesList = this.getProjectTestCases(projectId);
+        if (casesList != null) {
+            for (TestCase currentTestCase : casesList) {
+                this.syncProjectTestCase(currentTestCase, externalProject);
+            }
+        }
+    }
+
+    public void syncProjectTestCase(TestCase testCase,
+            ExternalProject externalProject) {
+        ExternalId caseId = new ExternalId(testCase.getId(),
+                this.getSystemId());
+
+        ExternalTestCase externalTestCase = new ExternalTestCase(caseId);
+        externalTestCase.setExProject(externalProject);
+        externalTestCase.setName(testCase.getName());
+        externalTestCase.setFields(this.getTestCaseFields(testCase));
+        this.externalTestCaseRepository.save(externalTestCase);
+
+        this.syncTestCaseExecs(testCase.getId(), externalTestCase);
+    }
+
+    public void syncTestCaseExecs(Integer testCaseId,
+            ExternalTestCase externalTestCase) {
+        Execution[] execsList = this.getTestCaseExecs(testCaseId);
+        if (execsList != null) {
+            for (Execution currentExec : execsList) {
+                this.syncTestCaseExec(currentExec, externalTestCase);
+            }
+        }
+    }
+
+    public void syncTestCaseExec(Execution exec,
+            ExternalTestCase externalTestCase) {
+        ExternalId execId = new ExternalId(exec.getId(), this.getSystemId());
+
+        ExternalTestExecution externalTestExec = new ExternalTestExecution(
+                execId);
+        externalTestExec.setExTestCase(externalTestCase);
+        // externalTestExec.setEsIndex(esIndex);
+        externalTestExec.setFields(this.getTestExecFields(exec));
+        this.externalTestExecutionRepository.save(externalTestExec);
+    }
+
+    /* *** Conversion utils *** */
+
+    public String getTestCaseFields(TestCase testCase) {
+        JSONObject fields = new JSONObject();
+        JSONObject suite = new JSONObject();
+        suite.put("id", testCase.getTestSuiteId());
+
+        fields.put("suite", suite);
+        return fields.toString();
+    }
+
+    public String getTestExecFields(Execution exec) {
+        JSONObject fields = new JSONObject();
+        JSONObject plan = new JSONObject();
+        JSONObject build = new JSONObject();
+
+        plan.put("id", exec.getTestPlanId());
+        build.put("id", exec.getBuildId());
+
+        fields.put("plan", plan);
+        fields.put("build", build);
+        return fields.toString();
     }
 
 }

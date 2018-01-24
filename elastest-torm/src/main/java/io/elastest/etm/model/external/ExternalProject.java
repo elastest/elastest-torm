@@ -5,19 +5,17 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.model.TJobExecution.ResultEnum;
 
 @Entity
 public class ExternalProject implements Serializable {
@@ -26,12 +24,12 @@ public class ExternalProject implements Serializable {
     public interface BasicAttExternalProject {
     }
 
+    @EmbeddedId
     @JsonView({ BasicAttExternalProject.class })
-    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
-    private Long id = null;
+    private ExternalId id = null;
 
     @JsonView({ BasicAttExternalProject.class })
     @Column(name = "name")
@@ -56,13 +54,11 @@ public class ExternalProject implements Serializable {
     public ExternalProject() {
     }
 
-    public ExternalProject(Long id) {
-        this.id = id == null ? 0 : id;
+    public ExternalProject(ExternalId id) {
+        this.id = id;
     }
 
     public enum TypeEnum {
-        /* FINISED STATUS */
-
         TESTLINK("TESTLINK");
 
         private String value;
@@ -92,16 +88,16 @@ public class ExternalProject implements Serializable {
     /* ***** Getters/Setters *******/
     /* *****************************/
 
-    public Long getId() {
+    public String getName() {
+        return name;
+    }
+
+    public ExternalId getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id == null ? 0 : id;
-    }
-
-    public String getName() {
-        return name;
+    public void setId(ExternalId id) {
+        this.id = id;
     }
 
     public void setName(String name) {

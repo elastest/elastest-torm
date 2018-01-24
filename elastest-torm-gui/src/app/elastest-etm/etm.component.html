@@ -8,7 +8,7 @@
     </div>
     <span flex></span>
     <button *ngIf="isReloadable()" md-icon-button mdTooltip="Refresh" (click)="refresh()">
-        <md-icon md-list-icon>refresh</md-icon>
+      <md-icon md-list-icon>refresh</md-icon>
     </button>
     <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/" target="_blank">
       <md-icon>chrome_reader_mode</md-icon>
@@ -42,22 +42,22 @@
         [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']" id="nav_projects">
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
-      </a>     
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/test-engines']" id="nav_test_engines">
+      </a>
+      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
+        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/test-engines']" id="nav_test_engines">
         <md-icon md-list-icon>battery_charging_full</md-icon>
         Test Engines
-      </a>    
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/support-services']" id="nav_support_services">
+      </a>
+      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
+        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/support-services']" id="nav_support_services">
         <md-icon md-list-icon>settings_input_component</md-icon>
         Test Support Services
       </a>
       <a *ngIf="configService.configModel.elasTestExecMode === 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/eus']" id="nav_support_services">
+        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/eus']" id="nav_support_services">
         <md-icon md-list-icon>open_in_browser</md-icon>
         Web Browsers
       </a>
@@ -66,6 +66,13 @@
         [routerLink]="['/loganalyzer']" id="nav_log_manager">
         <md-icon md-list-icon>library_books</md-icon>
         Log Analyzer
+      </a>
+
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/testlink']" id="nav_log_manager">
+        <md-icon md-list-icon>gps_not_fixed</md-icon>
+        TestLink
       </a>
       <!-- <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"

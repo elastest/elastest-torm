@@ -25,11 +25,6 @@ public class TestLinkApiController implements TestLinkApi {
     @Autowired
     TestLinkService testLinkService;
 
-    public ResponseEntity<String> getTestLinkUrl() {
-        return new ResponseEntity<String>(testLinkService.getTestLinkUrl(),
-                HttpStatus.OK);
-    }
-
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/
@@ -252,6 +247,20 @@ public class TestLinkApiController implements TestLinkApi {
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {
         return new ResponseEntity<Execution[]>(
                 testLinkService.getBuildTestCaseExecs(buildId, caseId),
+                HttpStatus.OK);
+    }
+
+    /* *********************************************************/
+    /* ************************ Others *************************/
+    /* *********************************************************/
+
+    public ResponseEntity<String> getTestLinkUrl() {
+        return new ResponseEntity<String>(testLinkService.getTestLinkUrl(),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<Boolean> syncTestLink() {
+        return new ResponseEntity<Boolean>(testLinkService.syncTestLink(),
                 HttpStatus.OK);
     }
 

@@ -26,14 +26,6 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/testlink")
 public interface TestLinkApi extends EtmApiRoot {
 
-    @ApiOperation(value = "Returns TestLink Ip/port", notes = "Returns TEstLink IP/Port.", response = String.class, tags = {
-            "TestLink", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
-            @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/url", method = RequestMethod.GET)
-    ResponseEntity<String> getTestLinkUrl();
-
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/
@@ -308,4 +300,25 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<Execution[]> getBuildTestCaseExecs(
             @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    /* *********************************************************/
+    /* ************************ Others *************************/
+    /* *********************************************************/
+
+    @ApiOperation(value = "Returns TestLink Ip/port", notes = "Returns TEstLink IP/Port.", response = String.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/url", method = RequestMethod.GET)
+    ResponseEntity<String> getTestLinkUrl();
+
+    @ApiOperation(value = "Synchronizes TestLink Data With Elastest Data", notes = "Synchronizes TestLink Data With Elastest Data.", response = Boolean.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/sync", method = RequestMethod.GET)
+    ResponseEntity<Boolean> syncTestLink();
+
 }
