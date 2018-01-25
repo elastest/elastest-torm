@@ -85,7 +85,8 @@ public class TJobExecOrchestratorService {
         this.etmContextService = etmContextService;
     }
 
-    public TJobExecution executeExternalJob(TJobExecution tJobExec) {
+    @Async
+    public Future<Void> executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
@@ -100,7 +101,7 @@ public class TJobExecOrchestratorService {
         resultMsg = "Executing Test";
         updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-        return tJobExec;
+        return new AsyncResult<Void>(null);
     }
 
     @Async
@@ -116,8 +117,8 @@ public class TJobExecOrchestratorService {
         tJobExecRepositoryImpl.save(tJobExec);
 
         initTSS(tJobExec, tJobServices);
-
         setTJobExecEnvVars(tJobExec, false, false);
+        tJobExecRepositoryImpl.save(tJobExec);
 
         DockerExecution dockerExec = new DockerExecution(tJobExec);
 
@@ -373,15 +374,15 @@ public class TJobExecOrchestratorService {
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
 
-        logger.info("Start the services check.");
-        while (!tJobExec.getServicesInstances().isEmpty()) {
-            for (String instanceId : instancesAux) {
-                if (!esmService.isInstanceUp(instanceId)) {
-                    tJobExec.getServicesInstances().remove(instanceId);
-                    logger.info("Service {} removed from TJob.", instanceId);
-                }
-            }
-        }
+//        logger.info("Start the services check.");
+//        while (!tJobExec.getServicesInstances().isEmpty()) {
+//            for (String instanceId : instancesAux) {
+//                if (!esmService.isInstanceUp(instanceId)) {
+//                    tJobExec.getServicesInstances().remove(instanceId);
+//                    logger.info("Service {} removed from TJob.", instanceId);
+//                }
+//            }
+//        }
     }
 
     /**********************/

@@ -42,6 +42,9 @@ public class ExternalJob {
 
     @JsonProperty("result")
     private int result;
+    
+    @JsonProperty("isReady")
+    private boolean isReady;
 
     public ExternalJob() {
     }
@@ -49,7 +52,7 @@ public class ExternalJob {
     public ExternalJob(String jobName, String executionUrl,
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
-            Map<String, String> envVars, int result) {
+            Map<String, String> envVars, int result, boolean isReady) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -60,6 +63,7 @@ public class ExternalJob {
         this.tSServices = tSServices;
         this.envVars = envVars;
         this.result = result;
+        this.isReady = isReady;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
@@ -141,6 +145,14 @@ public class ExternalJob {
         this.result = result;
     }
 
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setReady(boolean isReady) {
+        this.isReady = isReady;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -159,13 +171,14 @@ public class ExternalJob {
                 && Objects.equals(this.servicesIp, externalJob.servicesIp)
                 && Objects.equals(this.tSServices, externalJob.tSServices)
                 && Objects.equals(this.envVars, externalJob.envVars)
-                && Objects.equals(this.result, externalJob.result);
+                && this.result == externalJob.result
+                && this.isReady == externalJob.isReady;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
-                logstashPort, servicesIp, tSServices, envVars, result);
+                logstashPort, servicesIp, tSServices, envVars, result, isReady);
     }
 
     @Override
@@ -189,6 +202,8 @@ public class ExternalJob {
         sb.append("    envVars: ").append(toIndentedString(envVars))
                 .append("\n");
         sb.append("    result: ").append(toIndentedString(result)).append("\n");
+        sb.append("    isReady: ").append(toIndentedString(isReady))
+                .append("\n");
         sb.append("}");
 
         return sb.toString();

@@ -20,8 +20,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -110,10 +110,14 @@ public class TJobExecution {
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
-    @Transient
+
+    @ElementCollection
     private List<String> servicesInstances;
 
-    @Transient
+    @ElementCollection
+    @MapKeyColumn(name = "VAR_NAME", length = 200)
+    @Column(name = "value", length = 400)
+    @CollectionTable(name = "ENV_VARS", joinColumns = @JoinColumn(name = "TJOB_EXEC"))
     private Map<String, String> envVars;
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,

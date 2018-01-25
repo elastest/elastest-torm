@@ -23,30 +23,40 @@ import io.swagger.annotations.ApiParam;
 @RestController
 public class ExternalApiController implements ExternalApi {
 
-    private TJobService tJobService;
-    private ExternalService externalService;
+   	
+	private ExternalService externalService;
 
-    public ExternalApiController(TJobService tJobService,
-            ExternalService externalService) {
-        this.tJobService = tJobService;
-        this.externalService = externalService;
-    }
+	public ExternalApiController(ExternalService externalService) {
+		this.externalService = externalService;
+	}
 
-    public ExternalJob executeExternalTJob(
-            @ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
-
-        try {
+	@Override	
+	public ExternalJob execTJobFromExternalTJob(
+			@ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
+		
+		try {
             return externalService.executeExternalTJob(body);
-        } catch (Exception e) {
+        } catch (Exception e) {           
             e.printStackTrace();
             return null;
         }
-    }
+	}
 
-    public void finishExternalJob(
-            @ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
+	@Override	
+	public void finishExternalJob(
+			@ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
+		
+		try {
+		    externalService.endExtTJobExecution(body);
+		} catch (Exception e) {
+		    
+		}
+	}
 
-        tJobService.finishExternalTJobExecution(body);
+    @Override
+    public ExternalJob isReadyTJobForExternalExecution(
+            @ApiParam(value = "TJob Execution id." ,required=true )  @Valid @PathVariable Long tJobExecId) {
+        return externalService.isReadyTJobForExternalExecution(tJobExecId);
     }
 
     /* *************************************************/

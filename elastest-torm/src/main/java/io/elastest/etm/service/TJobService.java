@@ -94,13 +94,16 @@ public class TJobService {
         tJobExec.generateLogIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
+        Future<Void> asyncExec;
         if (!tJob.isExternal()) {
-            Future<Void> asyncExec = tJobExecOrchestratorService
+            asyncExec = tJobExecOrchestratorService
                     .executeTJob(tJobExec, tJob.getSelectedServices());
-            asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            tJobExecOrchestratorService.executeExternalJob(tJobExec);
+            asyncExec = tJobExecOrchestratorService
+                    .executeExternalJob(tJobExec);
         }
+        
+        asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         return tJobExec;
     }
 
@@ -133,15 +136,13 @@ public class TJobService {
         return tJobExec;
     }
 
-    public void finishExternalTJobExecution(ExternalJob externalJob) {
+    public void endExternalTJobExecution(long tJobExecId, int result) {
         logger.info("Finishing the external Job.");
-        TJobExecution tJobExec = tJobExecRepositoryImpl
-                .findOne(externalJob.gettJobExecId());
-
-        tJobExec.setResult(ResultEnum.values()[externalJob.getResult()]);
-        tJobExecOrchestratorService.forceEndExecution(tJobExec);
+        TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
+        tJobExec.setResult(ResultEnum.values()[result]);
         tJobExecRepositoryImpl.save(tJobExec);
-
+        stopTJobExec(tJobExec.getId());
+        
     }
 
     public void deleteTJobExec(Long tJobExecId) {
@@ -159,6 +160,10 @@ public class TJobService {
 
     public List<TJobExecution> getAllTJobExecs() {
         return tJobExecRepositoryImpl.findAll();
+    }
+    
+    public TJobExecution getTJobExecById(Long id) {
+        return tJobExecRepositoryImpl.findOne(id);
     }
 
     public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
