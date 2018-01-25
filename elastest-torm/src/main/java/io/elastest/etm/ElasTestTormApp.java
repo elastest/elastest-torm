@@ -14,10 +14,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
-import io.elastest.epm.client.service.DockerComposeService;
-import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.JsonService;
-import io.elastest.epm.client.service.ShellService;
 import io.elastest.etm.utils.UtilTools;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
