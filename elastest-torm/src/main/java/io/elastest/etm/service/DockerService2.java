@@ -129,11 +129,11 @@ public class DockerService2 {
         try {
             dockerClient.pullImageCmd(imageName)
                     .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException isee) {
+        } catch (InternalServerErrorException | NotFoundException ie) {
             if (imageExistsLocally(imageName, dockerClient)) {
                 logger.info("Docker image exits locally.");
             } else {
-                throw isee;
+                throw ie;
             }
         } catch (DockerClientException e) {
             logger.info("Error on Pulling " + imageName
@@ -238,12 +238,12 @@ public class DockerService2 {
         try {
             dockerExec.getDockerClient().pullImageCmd(image)
                     .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException isee) {
+        } catch (InternalServerErrorException | NotFoundException ie) {
             if (imageExistsLocally(image, dockerExec.getDockerClient())) {
                 logger.info("Docker image exits locally.");
             } else {
-                logger.error("Error pulling the image: {}", isee.getMessage());
-                throw isee;
+                logger.error("Error pulling the image: {}", ie.getMessage());
+                throw ie;
             }
         } catch (DockerClientException e) {
             logger.info("Error on Pulling " + type
@@ -306,13 +306,13 @@ public class DockerService2 {
             logger.debug("Try to Pulling Dockbeat Image ({})", dockbeatImage);
             dockerExec.getDockerClient().pullImageCmd(dockbeatImage)
                     .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException isee) {
+        } catch (InternalServerErrorException | NotFoundException ie) {
             if (imageExistsLocally(dockbeatImage,
                     dockerExec.getDockerClient())) {
                 logger.info("Docker image exits locally.");
             } else {
-                logger.error("Error pulling the image: {}", isee.getMessage());
-                throw isee;
+                logger.error("Error pulling the image: {}", ie.getMessage());
+                throw ie;
             }
         } catch (DockerClientException e) {
             logger.info("Error on Pulling " + dockbeatImage
@@ -378,12 +378,12 @@ public class DockerService2 {
         try {
             dockerExec.getDockerClient().pullImageCmd(checkImage)
                     .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException isee) {
+        } catch (InternalServerErrorException | NotFoundException ie) {
             if (imageExistsLocally(checkImage, dockerExec.getDockerClient())) {
                 logger.info("Docker image exits locally.");
             } else {
-                logger.error("Error pulling the image: {}", isee.getMessage());
-                throw isee;
+                logger.error("Error pulling the image: {}", ie.getMessage());
+                throw ie;
             }
         } catch (DockerClientException e) {
             logger.info(
