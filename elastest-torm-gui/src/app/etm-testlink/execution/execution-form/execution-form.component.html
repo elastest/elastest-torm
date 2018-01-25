@@ -1,0 +1,50 @@
+<div layout="column" id="testCaseDiv" class="pad-bottom-sm">
+  <md-card-subtitle>
+    Test Case :: Version {{testCase.version}} :: {{testCase.name}}
+  </md-card-subtitle>
+  <div>
+    Last Execution: {{testCase.executionStatus}}
+  </div>
+  <div layout="row" class="push-top">
+    <md-input-container flex="45">
+      <textarea id="summary" autosize mdInput placeholder="Summary" [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
+    </md-input-container>
+
+    <md-input-container flex="45" flex-offset="5">
+      <textarea id="preconditions" autosize mdInput placeholder="Preconditions" [(ngModel)]="testCase.preconditions" name="preconditions"
+        readonly></textarea>
+    </md-input-container>
+  </div>
+
+  <div layout="column" class="push-top">
+    <md-card-subtitle>
+      Test Case Steps
+    </md-card-subtitle>
+    <td-data-table #stepsTable class="scroll_table" [data]="testCase.steps" [columns]="testCaseStepsColumns" [selectable]="false"
+      [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+    </td-data-table>
+  </div>
+
+  <form #caseForm="ngForm" class="push-top-lg">
+    <div layout="row">
+      <md-input-container flex="45">
+        <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+      </md-input-container>
+
+      <div layout="column" flex="15" flex-offset="5">
+        <!-- <md-input-container class="noMarginInput noPaddingInput push-bottom-md">
+          <input mdInput type="number" class="form-control input-sm" id="duration" value="0" [(ngModel)]="tcExec.executionTimeStamp" name="duration"
+            placeholder="Exec duration (min)">
+        </md-input-container> -->
+        <md-select [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" #nameControl="ngModel" required>
+          <md-option *ngFor="let status of testCase.getExecStatusValuesToExec()" [value]="status ">
+            {{status}}
+          </md-option>
+        </md-select>
+      </div>
+    </div>
+  </form>
+
+  <!-- <button md-raised-button color="accent" [disabled]="!caseForm.valid" (click)="saveExecution()">Save execution</button> -->
+
+</div>

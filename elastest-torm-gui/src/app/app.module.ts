@@ -1,4 +1,5 @@
 import { TestLinkService } from './etm-testlink/testlink.service';
+import { ExternalService } from './elastest-etm/external/external.service'
 import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
 import {
   MonitoringConfigurationComponent,
@@ -94,6 +95,9 @@ import { Autosize } from 'angular2-autosize';
 import { ExternalProjectComponent } from './elastest-etm/external/external-project/external-project.component';
 import { ExternalTestCaseComponent } from './elastest-etm/external/external-test-case/external-test-case.component';
 import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
+import { ExecutionFormComponent } from './etm-testlink/execution/execution-form/execution-form.component';
+import { ExternalTestExecutionFormComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/external-test-execution-form.component';
+import { ExecutionViewComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/execution-view/execution-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -149,6 +153,9 @@ const httpInterceptorProviders: Type<any>[] = [
     ExternalProjectComponent,
     ExternalTestCaseComponent,
     ExternalTestExecutionComponent,
+    ExecutionFormComponent,
+    ExternalTestExecutionFormComponent,
+    ExecutionViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -196,6 +203,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ETModelsTransformServices,
     ETTestlinkModelsTransformService,
     TestLinkService,
+    ExternalService,
     ConfigurationService, {
       provide: APP_INITIALIZER, useFactory: configServiceFactory,
       deps: [ConfigurationService], multi: true

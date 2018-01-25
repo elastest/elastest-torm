@@ -46,6 +46,7 @@ import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-ca
 import { BuildComponent } from './etm-testlink/build/build.component';
 import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
 import { ExecutionComponent } from './etm-testlink/execution/execution.component';
+import { ExternalTestExecutionFormComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/external-test-execution-form.component';
 
 const routes: Routes = [
     {
@@ -410,6 +411,90 @@ const routes: Routes = [
                             },
                         ],
                     },
+                ],
+            },
+            {
+                path: 'external',
+                children: [
+                    {
+                        path: 'execute',
+                        component: ExternalTestExecutionFormComponent,
+                    },
+                    // {
+                    //     path: 'new',
+                    //     component: TestProjectFormComponent,
+                    // },
+                    // {
+                    //     path: 'edit/:projectId',
+                    //     component: TestProjectFormComponent,
+                    // },
+                    // {
+                    //     path: ':projectId',
+                    //     children: [
+                    //         {
+                    //             path: '',
+                    //             component: TestProjectComponent,
+                    //         },
+                    //         {
+                    //             path: 'plans',
+                    //             children: [
+                    //                 {
+                    //                     path: 'edit/:planId',
+                    //                     component: TestPlanFormComponent,
+                    //                 },
+                    //                 {
+                    //                     path: 'new',
+                    //                     component: TestPlanFormComponent,
+                    //                 },
+                    //                 {
+                    //                     path: ':planId',
+                    //                     children: [
+                    //                         {
+                    //                             path: '',
+                    //                             component: TestPlanComponent,
+                    //                         },
+                    //                         {
+                    //                             path: 'builds',
+                    //                             children: [
+                    //                                 {
+                    //                                     path: 'edit/:buildId',
+                    //                                     component: TestPlanFormComponent,
+                    //                                 },
+                    //                                 {
+                    //                                     path: 'new',
+                    //                                     component: TestPlanFormComponent,
+                    //                                 },
+                    //                                 {
+                    //                                     path: ':buildId',
+                    //                                     children: [
+                    //                                         {
+                    //                                             path: '',
+                    //                                             component: BuildComponent,
+                    //                                         },
+                    //                                         {
+                    //                                             path: 'cases',
+                    //                                             children: [
+                    //                                                 {
+                    //                                                     path: ':caseId',
+                    //                                                     children: [
+                    //                                                         {
+                    //                                                             path: '',
+                    //                                                             component: TestCaseExecsComponent,
+                    //                                                         },
+                    //                                                     ],
+                    //                                                 },
+                    //                                             ],
+                    //                                         },
+                    //                                     ],
+                    //                                 },
+                    //                             ],
+                    //                         },
+                    //                     ],
+                    //                 },
+                    //             ],
+                    //         },
+                    //     ],
+                    // },
                 ],
             },
         ],

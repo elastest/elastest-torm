@@ -1,0 +1,19 @@
+<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
+  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        <div layout="row">
+          <span>New Execution</span>
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest>
+        <etm-execution-view #externalExecution [model]="model"></etm-execution-view>
+        <button md-raised-button color="accent" [disabled]="caseForm && !caseForm.valid" (click)="saveExecution()">Save execution</button>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
+    
+  </div>
+</div>

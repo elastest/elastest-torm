@@ -1,0 +1,5 @@
+<ng-container *ngIf="service" [ngSwitch]="service">
+  <ng-container *ngSwitchCase="'TESTLINK'">
+    <testlink-execution-form #executionForm *ngIf="data" [data]="data"></testlink-execution-form>
+  </ng-container>
+</ng-container>

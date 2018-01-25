@@ -7,6 +7,7 @@ import { TestLinkService } from '../testlink.service';
 import { TestCaseModel } from '../models/test-case-model';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import { ExecuteCaseModalComponent } from './execute-case-modal/execute-case-modal.component';
+import { ServiceType } from '../../elastest-etm/external/models/external-project-model';
 
 @Component({
   selector: 'testlink-build',
@@ -93,6 +94,11 @@ export class BuildComponent implements OnInit {
 
   execTestCase(testCase: TestCaseModel): void {
     this.openSelectExecutions(testCase);
+  }
+
+  execTestCaseWithElastest(testCase: TestCaseModel): void {
+    let type: ServiceType = 'TESTLINK';
+    this.router.navigate(['/external/execute'], { queryParams: { serviceType: type, testCaseId: testCase.id, buildId: this.build.id } });
   }
 
   public openSelectExecutions(testCase: TestCaseModel): void {
