@@ -16,46 +16,45 @@ import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.service.ExternalService;
-import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
 @RestController
 public class ExternalApiController implements ExternalApi {
 
-   	
-	private ExternalService externalService;
+    private ExternalService externalService;
 
-	public ExternalApiController(ExternalService externalService) {
-		this.externalService = externalService;
-	}
+    public ExternalApiController(ExternalService externalService) {
+        this.externalService = externalService;
+    }
 
-	@Override	
-	public ExternalJob execTJobFromExternalTJob(
-			@ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
-		
-		try {
+    @Override
+    public ExternalJob execTJobFromExternalTJob(
+            @ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
+
+        try {
             return externalService.executeExternalTJob(body);
-        } catch (Exception e) {           
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-	}
+    }
 
-	@Override	
-	public void finishExternalJob(
-			@ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
-		
-		try {
-		    externalService.endExtTJobExecution(body);
-		} catch (Exception e) {
-		    
-		}
-	}
+    @Override
+    public void finishExternalJob(
+            @ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
+
+        try {
+            externalService.endExtTJobExecution(body);
+        } catch (Exception e) {
+
+        }
+    }
 
     @Override
     public ExternalJob isReadyTJobForExternalExecution(
-            @ApiParam(value = "TJob Execution id." ,required=true )  @Valid @PathVariable Long tJobExecId) {
+            @ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId) {
         return externalService.isReadyTJobForExternalExecution(tJobExecId);
     }
 
@@ -94,5 +93,28 @@ public class ExternalApiController implements ExternalApi {
             ExternalId id, Model model) {
         return new ResponseEntity<ExternalTestCase>(
                 externalService.getExternalTestCaseById(id), HttpStatus.OK);
+    }
+
+    /* *************************************************/
+    /* ************ ExternalTestExecution ************ */
+    /* *************************************************/
+
+    public ResponseEntity<List<ExternalTestExecution>> getAllExternalTestExecutions() {
+        return new ResponseEntity<List<ExternalTestExecution>>(
+                externalService.getAllExternalTestExecutions(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
+            ExternalId id, Model model) {
+        return new ResponseEntity<ExternalTestExecution>(
+                externalService.getExternalTestExecutionById(id),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTestExecution> createExternalTestExecution(
+            @ApiParam(value = "Object with the External Test Execution data to create.", required = true) @Valid @RequestBody ExternalTestExecution body) {
+        return new ResponseEntity<ExternalTestExecution>(
+                externalService.createExternalTestExecution(body),
+                HttpStatus.OK);
     }
 }

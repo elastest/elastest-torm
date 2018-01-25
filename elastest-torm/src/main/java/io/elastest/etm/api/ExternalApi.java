@@ -16,6 +16,7 @@ import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,42 +26,39 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "external")
 public interface ExternalApi extends EtmApiExternalRoot {
 
-	@ApiOperation(value = "Create new TJob associated with an external Job", notes = "The association is based on the "
-			+ "name of the external Job received. The Project and the TJob that will be created will have the same name "
-			+ "as the one received as a parameter. If a Project or Job already exists with the received name, a new one will not be created.",
-			response = ExternalJob.class, tags={ "External", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
-        @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })    
-    @RequestMapping(value = "/tjob",
-    	produces = { "application/json" },
-        consumes = { "application/json" },
-        method = RequestMethod.POST)
-    ExternalJob execTJobFromExternalTJob(@ApiParam(value = "Object with the external Job Data (the name)." ,required=true )  @Valid @RequestBody ExternalJob body);
-	
-	@ApiOperation(value = "Return an ExternalJob object with the necessary information to continue the external execution of the Job.",
-	        notes = "",
-            response = ExternalJob.class, tags={ "External", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
-        @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })    
-    @RequestMapping(value = "/tjob/{tJobExecId}",
-        produces = { "application/json" },
-        consumes = { "application/json" },
-        method = RequestMethod.GET)
-    ExternalJob isReadyTJobForExternalExecution(@ApiParam(value = "TJob Execution id." ,required=true )  @Valid @PathVariable Long tJobExecId);
-	
-	
-	@ApiOperation(value = "Receives the completion signal of an External Job", notes = "Sets the execution of TJob in the Completed state.", tags={ "External", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 405, message = "Invalid input") })    
-    @RequestMapping(value = "/tjob",
-    	produces = { "application/json" },
-        consumes = { "application/json" },
-        method = RequestMethod.PUT)
-    void finishExternalJob(@ApiParam(value = "Object with the id of the TJob to update the state." ,required=true )  @Valid @RequestBody ExternalJob body);
+    @ApiOperation(value = "Create new TJob associated with an external Job", notes = "The association is based on the "
+            + "name of the external Job received. The Project and the TJob that will be created will have the same name "
+            + "as the one received as a parameter. If a Project or Job already exists with the received name, a new one will not be created.", response = ExternalJob.class, tags = {
+                    "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
+            @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })
+    @RequestMapping(value = "/tjob", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ExternalJob execTJobFromExternalTJob(
+            @ApiParam(value = "Object with the external Job Data (the name).", required = true) @Valid @RequestBody ExternalJob body);
 
+    @ApiOperation(value = "Return an ExternalJob object with the necessary information to continue the external execution of the Job.", notes = "", response = ExternalJob.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
+            @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })
+    @RequestMapping(value = "/tjob/{tJobExecId}", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.GET)
+    ExternalJob isReadyTJobForExternalExecution(
+            @ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId);
+
+    @ApiOperation(value = "Receives the completion signal of an External Job", notes = "Sets the execution of TJob in the Completed state.", tags = {
+            "External", })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/tjob", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.PUT)
+    void finishExternalJob(
+            @ApiParam(value = "Object with the id of the TJob to update the state.", required = true) @Valid @RequestBody ExternalJob body);
 
     /* *************************************************/
     /* *************** ExternalProject *************** */
@@ -71,7 +69,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/extproject", method = RequestMethod.GET)
+    @RequestMapping(value = "project", method = RequestMethod.GET)
     ResponseEntity<List<ExternalProject>> getAllExternalProjects();
 
     @ApiOperation(value = "Returns all External Projects By Service Type", notes = "Returns all External Projects By Service Type.", response = ExternalProject.class, responseContainer = "List", tags = {
@@ -79,7 +77,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/extproject/type/{type}", method = RequestMethod.GET)
+    @RequestMapping(value = "project/type/{type}", method = RequestMethod.GET)
     ResponseEntity<List<ExternalProject>> getAllExternalProjectsByType(
             @ApiParam(value = "Type of the project.", required = true) @PathVariable("type") TypeEnum type);
 
@@ -88,7 +86,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/extproject/id", method = RequestMethod.GET)
+    @RequestMapping(value = "project/id", method = RequestMethod.GET)
     ResponseEntity<ExternalProject> getExternalProjectById(ExternalId id,
             Model model);
 
@@ -101,7 +99,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/exttestcase", method = RequestMethod.GET)
+    @RequestMapping(value = "testcase", method = RequestMethod.GET)
     ResponseEntity<List<ExternalTestCase>> getAllExternalTestCases();
 
     @ApiOperation(value = "Return an External Test Case By Id", notes = "Returns an External Test Case By Id.", response = ExternalTestCase.class, tags = {
@@ -109,8 +107,41 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/exttestcase/id", method = RequestMethod.GET)
+    @RequestMapping(value = "testcase/id", method = RequestMethod.GET)
     ResponseEntity<ExternalTestCase> getExternalTestCaseById(ExternalId id,
             Model model);
+
+    /* *************************************************/
+    /* ************ ExternalTestExecution ************ */
+    /* *************************************************/
+
+    @ApiOperation(value = "Returns all External Test Cases", notes = "Returns all External Test Cases.", response = ExternalTestExecution.class, responseContainer = "List", tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "testexec", method = RequestMethod.GET)
+    ResponseEntity<List<ExternalTestExecution>> getAllExternalTestExecutions();
+
+    @ApiOperation(value = "Return an External Test Case By Id", notes = "Returns an External Test Case By Id.", response = ExternalTestExecution.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "testexec/id", method = RequestMethod.GET)
+    ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
+            ExternalId id, Model model);
+
+    @ApiOperation(value = "Creates a new External Test Execution", notes = "Creates a new External Test Execution", response = ExternalTestExecution.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class),
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
+    @RequestMapping(value = "testexec", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<ExternalTestExecution> createExternalTestExecution(
+            @ApiParam(value = "Object with the External Test Execution data to create.", required = true) @Valid @RequestBody ExternalTestExecution body);
 
 }
