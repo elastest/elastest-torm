@@ -1,19 +1,25 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.api.model.TestSupportServices;
+import io.elastest.etm.dao.external.ExternalProjectRepository;
+import io.elastest.etm.dao.external.ExternalTestCaseRepository;
+import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.external.ExternalId;
+import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -53,22 +59,33 @@ public class ExternalService {
 
     @Value("${et.etm.dev.gui.port}")
     public String etEtmDevGuiPort;
-    
+
     public UtilTools utilTools;
 
+    private final ExternalProjectRepository externalProjectRepository;
+    private final ExternalTestCaseRepository externalTestCaseRepository;
+    private final ExternalTestExecutionRepository externalTestExecutionRepository;
+
     public ExternalService(ProjectService projectService,
-            TJobService tJobService, UtilTools utilTools) {
+            TJobService tJobService,
+            ExternalProjectRepository externalProjectRepository,
+            ExternalTestCaseRepository externalTestCaseRepository,
+            ExternalTestExecutionRepository externalTestExecutionRepository) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
+        this.externalProjectRepository = externalProjectRepository;
+        this.externalTestCaseRepository = externalTestCaseRepository;
+        this.externalTestExecutionRepository = externalTestExecutionRepository;
     }
 
-    public ExternalJob executeExternalTJob(ExternalJob externalJob) throws Exception {
+    public ExternalJob executeExternalTJob(ExternalJob externalJob)
+            throws Exception {
         logger.info("Executing TJob from external Job.");
         try {
             logger.debug("Creating TJob data structure.");
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
-            
+
             logger.debug("Creating TJobExecution.");
             TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
                     new ArrayList<>(), new ArrayList<>());
@@ -82,8 +99,7 @@ public class ExternalService {
             externalJob.setLogAnalyzerUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
-                            + "/#/logmanager?indexName="
-                            + tJobExec.getId());
+                            + "/#/logmanager?indexName=" + tJobExec.getId());
             externalJob.setEnvVars(tJobExec.getEnvVars());
             externalJob.setServicesIp(etPublicHost);
             externalJob
@@ -100,7 +116,8 @@ public class ExternalService {
         return externalJob;
     }
 
-    private TJob createElasTestEntitiesForExtJob(ExternalJob externalJob) throws Exception {
+    private TJob createElasTestEntitiesForExtJob(ExternalJob externalJob)
+            throws Exception {
         logger.info("Creating external job entities.");
 
         try {
@@ -123,11 +140,11 @@ public class ExternalService {
                 tJob.setProject(project);
                 tJob.setExternal(true);
             }
-            
+
             if (externalJob.getTSServices() != null
                     && externalJob.getTSServices().size() > 0) {
                 tJob.setSelectedServices("[");
-                
+
                 for (TestSupportServices tSService : externalJob
                         .getTSServices()) {
                     tJob.setSelectedServices(tJob.getSelectedServices()
@@ -143,6 +160,34 @@ public class ExternalService {
             logger.error("Error message: " + e.getMessage());
             throw e;
         }
+    }
+
+    /* *************************************************/
+    /* *************** ExternalProject *************** */
+    /* *************************************************/
+
+    public List<ExternalProject> getAllExternalProjects() {
+        return this.externalProjectRepository.findAll();
+    }
+
+    public List<ExternalProject> getAllExternalProjectsByType(TypeEnum type) {
+        return this.externalProjectRepository.findAllByType(type);
+    }
+
+    public ExternalProject getExternalProjectById(ExternalId id) {
+        return this.externalProjectRepository.findById(id);
+    }
+
+    /* **************************************************/
+    /* *************** ExternalTestCase *************** */
+    /* **************************************************/
+
+    public List<ExternalTestCase> getAllExternalTestCases() {
+        return this.externalTestCaseRepository.findAll();
+    }
+
+    public ExternalTestCase getExternalTestCaseById(ExternalId id) {
+        return this.externalTestCaseRepository.findById(id);
     }
 
 }

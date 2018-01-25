@@ -3,7 +3,13 @@
         <div flex-gt-sm="100">
             <md-card>
                 <md-card-title>
-                    <span>TestLink Info</span>
+                    <div layout="row">
+                        <span>TestLink Info</span>
+                        <span flex></span>
+                        <button md-icon-button color="accent" (click)="syncTestLink()" title="Sync data with ElasTest" [disabled]="disableBtns">
+                            <md-icon>sync</md-icon>
+                        </button>
+                    </div>
                 </md-card-title>
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">

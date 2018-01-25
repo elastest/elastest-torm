@@ -1,7 +1,5 @@
 package io.elastest.etm.model.external;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -12,38 +10,44 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
 
 @Entity
-public class ExternalTestExecution implements Serializable {
-    private static final long serialVersionUID = 1L;
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ExternalTestExecution {
 
     public interface BasicAttExternalTestExecution {
     }
 
     @EmbeddedId
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestExecution.class,
+            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     private ExternalId id = null;
 
     @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class })
+            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "esIndex")
     private String esIndex = null;
 
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestExecution.class,
+            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("fields")
     private String fields = null;
 
     @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class })
+            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
     @Column(name = "result")
     @JsonProperty("result")
     private String result = null;

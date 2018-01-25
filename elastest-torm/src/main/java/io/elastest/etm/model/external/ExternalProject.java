@@ -1,6 +1,5 @@
 package io.elastest.etm.model.external;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -13,30 +12,40 @@ import javax.persistence.GenerationType;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
 
 @Entity
-public class ExternalProject implements Serializable {
-    private static final long serialVersionUID = 1L;
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ExternalProject {
 
     public interface BasicAttExternalProject {
     }
 
     @EmbeddedId
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     private ExternalId id = null;
 
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "type")
     @JsonProperty("type")
     private TypeEnum type = null;

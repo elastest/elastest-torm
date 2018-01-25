@@ -1,6 +1,5 @@
 package io.elastest.etm.model.external;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -15,37 +14,45 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
+import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
 
 @Entity
-public class ExternalTestCase implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ExternalTestCase {
     public interface BasicAttExternalTestCase {
     }
 
     @EmbeddedId
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
+            BasicAttExternalTestExecution.class })
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     private ExternalId id = null;
 
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("fields")
     private String fields = null;
 
     // bi-directional many-to-one association to ExternalProject
-    @JsonView({ BasicAttExternalTestCase.class })
+    @JsonView({ BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "pjExternalId", referencedColumnName = "externalId"),

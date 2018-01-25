@@ -17,6 +17,8 @@ export class EtmTestlinkComponent implements OnInit {
   isNested: boolean = false;
   testLinkUrl: string;
 
+  disableBtns: boolean = false;
+
   // Project data
   projectColumns: any[] = [
     { name: 'id', label: 'Id' },
@@ -64,6 +66,21 @@ export class EtmTestlinkComponent implements OnInit {
       .subscribe(
       (projects: TestProjectModel[]) => {
         this.projectsList = projects;
+      },
+    );
+  }
+
+  syncTestLink(): void {
+    this.disableBtns = true;
+    this.testlinkService.syncTestlink()
+      .subscribe(
+      (sync: boolean) => {
+        this.testlinkService.popupService.openSnackBar('Successfully synchronized with Elastest!');
+        this.disableBtns = false;
+      },
+      (error) => {
+        this.disableBtns = false;
+        console.log(error);
       },
     );
   }

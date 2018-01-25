@@ -1,12 +1,15 @@
 package io.elastest.etm.model.external;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.ws.rs.WebApplicationException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
@@ -22,7 +25,8 @@ public class ExternalId implements Serializable {
     @JsonProperty("externalId")
     String externalId;
 
-    @JsonView({ BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     String externalSystemId;
@@ -92,4 +96,24 @@ public class ExternalId implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "ExternalId [externalId=" + externalId + ", externalSystemId="
+                + externalSystemId + "]";
+    }
+
+    /**
+     * Deserializes an Object of class ExternalId from its JSON representation
+     */
+    public static ExternalId fromString(String jsonRepresentation) {
+        ObjectMapper mapper = new ObjectMapper(); // Jackson's JSON marshaller
+        ExternalId o = null;
+        try {
+            System.out.println(jsonRepresentation);
+            o = mapper.readValue(jsonRepresentation, ExternalId.class);
+        } catch (IOException e) {
+            throw new WebApplicationException();
+        }
+        return o;
+    }
 }
