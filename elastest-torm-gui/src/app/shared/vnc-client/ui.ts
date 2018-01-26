@@ -10,8 +10,8 @@ import Display from '../../../assets/vnc-resources/core/display.js';
 import * as WebUtil from '../../../assets/vnc-resources/app/webutil.js';
 
 export class VncUI {
-    connected;
-    desktopName;
+    connected: boolean;
+    desktopName: string;
     resizeTimeout;
     statusTimeout;
     hideKeyboardTimeout;
@@ -28,7 +28,7 @@ export class VncUI {
     lastKeyboardinput;
     defaultKeyboardinputLen: number;
 
-    inhibit_reconnect;
+    inhibit_reconnect: boolean;
     reconnect_callback;
     reconnect_password;
 
@@ -148,7 +148,7 @@ export class VncUI {
         if (this.autoconnect) {
             this.connect();
         }
-        
+
         if (typeof callback === 'function') {
             callback(this.rfb);
         }
@@ -171,7 +171,7 @@ export class VncUI {
         }
     }
 
-    initSettings() {
+    initSettings(): void {
         let i;
 
         // Logging selection dropdown
@@ -196,7 +196,7 @@ export class VncUI {
         }
 
         /* Populate the controls if defaults are provided in the URL */
-        this.initSetting('host', window.location.hostname);
+        this.initSetting('host', this.host);
         this.initSetting('port', this.port);
         this.initSetting('encrypt', (window.location.protocol === 'https:'));
         this.initSetting('cursor', !isTouchDevice);
@@ -212,7 +212,7 @@ export class VncUI {
         this.setupSettingLabels();
     }
     // Adds a link to the label elements on the corresponding input elements
-    setupSettingLabels() {
+    setupSettingLabels(): void {
         let labels = document.getElementsByTagName('LABEL') as NodeListOf<HTMLLabelElement>;
         if (labels) {
             for (let i = 0; i < labels.length; i++) {
@@ -236,7 +236,7 @@ export class VncUI {
         }
     }
 
-    initRFB() {
+    initRFB(): boolean {
         try {
             this.rfb = new RFB({
                 'target': document.getElementById('vnc_canvas'),
@@ -1150,7 +1150,6 @@ export class VncUI {
 
         this.updateLocalCursor();
         this.updateViewOnly();
-
         this.rfb.connect(this.host, this.port, this.password, path);
     }
 
@@ -1212,13 +1211,17 @@ export class VncUI {
      * ------v------*/
 
     passwordRequired(rfb, msg) {
+        let psw_dlg = document.getElementById('noVNC_password_dlg');
+        if (psw_dlg && psw_dlg.classList !== undefined) {
+            psw_dlg.classList.add('noVNC_open');
+        }
 
-        document.getElementById('noVNC_password_dlg')
-            .classList.add('noVNC_open');
-
-        setTimeout(function () {
-            document.getElementById('noVNC_password_input').focus();
-        }, 100);
+        let psw_input = document.getElementById('noVNC_password_input');
+        if (psw_input) {
+            setTimeout(() => {
+                psw_input.focus();
+            }, 100);
+        }
 
         if (typeof msg === 'undefined') {
             msg = _('Password is required');
@@ -1228,14 +1231,23 @@ export class VncUI {
     }
 
     setPassword(e) {
-        let inputElem = document.getElementById('noVNC_password_input') as HTMLInputElement;
-        let password = inputElem.value;
-        // Clear the input after reading the password
-        inputElem.value = '';
-        this.rfb.sendPassword(password);
-        this.reconnect_password = password;
-        document.getElementById('noVNC_password_dlg')
-            .classList.remove('noVNC_open');
+        let inputElem: HTMLInputElement = document.getElementById('noVNC_password_input') as HTMLInputElement;
+        let password: string;
+        if (inputElem) {
+            password = inputElem.value;
+            // Clear the input after reading the password
+            inputElem.value = '';
+        } else {
+            password = this.password;
+        }
+        if (password) {
+            this.rfb.sendPassword(password);
+            this.reconnect_password = password;
+        }
+        let psw_dlg = document.getElementById('noVNC_password_dlg');
+        if (psw_dlg && psw_dlg.classList !== undefined) {
+            psw_dlg.classList.remove('noVNC_open');
+        }
         // Prevent actually submitting the form
         e.preventDefault();
     }

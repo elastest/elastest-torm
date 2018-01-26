@@ -37,11 +37,11 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     this.initVnc();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.disconnect();
   }
 
-  initVnc() {
+  initVnc(): void {
     if (this.host && this.port) {
       this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password);
       this.vncUi.init();
@@ -49,15 +49,15 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  connect() {
+  connect(): void {
     this.vncUi.connect();
   }
 
-  disconnect() {
+  disconnect(): void {
     this.vncUi.disconnect();
   }
 
-  suscribeToStatus() {
+  suscribeToStatus(): void {
     this.vncUi.statusObs.subscribe(
       (status) => {
         this.statusInfo = status;
@@ -77,7 +77,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
             this.statusIcon = 'warning';
           }
         }
-
       });
   }
 }
