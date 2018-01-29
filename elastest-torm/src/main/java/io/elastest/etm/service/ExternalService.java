@@ -18,7 +18,6 @@ import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTestCase;
@@ -216,7 +215,7 @@ public class ExternalService {
         return this.externalProjectRepository.findAllByType(type);
     }
 
-    public ExternalProject getExternalProjectById(ExternalId id) {
+    public ExternalProject getExternalProjectById(Long id) {
         return this.externalProjectRepository.findById(id);
     }
 
@@ -228,7 +227,7 @@ public class ExternalService {
         return this.externalTestCaseRepository.findAll();
     }
 
-    public ExternalTestCase getExternalTestCaseById(ExternalId id) {
+    public ExternalTestCase getExternalTestCaseById(Long id) {
         return this.externalTestCaseRepository.findById(id);
     }
 
@@ -240,7 +239,7 @@ public class ExternalService {
         return this.externalTestExecutionRepository.findAll();
     }
 
-    public ExternalTestExecution getExternalTestExecutionById(ExternalId id) {
+    public ExternalTestExecution getExternalTestExecutionById(Long id) {
         return this.externalTestExecutionRepository.findById(id);
     }
 

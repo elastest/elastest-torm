@@ -4,8 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import io.elastest.etm.model.external.ExternalId;
-import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 
 public interface ExternalTestCaseRepository
@@ -13,7 +12,10 @@ public interface ExternalTestCaseRepository
 
     public ExternalTestCase findByName(String name);
 
-    public List<ExternalTestCase> findByExProject(ExternalProject exProject);
+    public List<ExternalTestCase> findByExTJob(ExternalTJob exTJob);
 
-    public ExternalTestCase findById(ExternalId id);
+    public ExternalTestCase findById(Long id);
+    
+    public ExternalTestCase findByExternalIdAndExternalSystemId(
+            String externalId, String externalSystemId);
 }

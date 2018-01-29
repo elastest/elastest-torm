@@ -5,14 +5,12 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.api.model.ExternalJob;
-import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTestCase;
@@ -86,9 +84,9 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "project/id", method = RequestMethod.GET)
-    ResponseEntity<ExternalProject> getExternalProjectById(ExternalId id,
-            Model model);
+    @RequestMapping(value = "project/{projectId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalProject> getExternalProjectById(
+            @ApiParam(value = "Id of an External Project.", required = true) @PathVariable("projectId") Long projectId);
 
     /* **************************************************/
     /* *************** ExternalTestCase *************** */
@@ -107,15 +105,15 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "testcase/id", method = RequestMethod.GET)
-    ResponseEntity<ExternalTestCase> getExternalTestCaseById(ExternalId id,
-            Model model);
+    @RequestMapping(value = "testcase/{caseId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTestCase> getExternalTestCaseById(
+            @ApiParam(value = "Id of an External Test Case.", required = true) @PathVariable("caseId") Long caseId);
 
     /* *************************************************/
     /* ************ ExternalTestExecution ************ */
     /* *************************************************/
 
-    @ApiOperation(value = "Returns all External Test Cases", notes = "Returns all External Test Cases.", response = ExternalTestExecution.class, responseContainer = "List", tags = {
+    @ApiOperation(value = "Returns all External Test Executions", notes = "Returns all External Test Executions.", response = ExternalTestExecution.class, responseContainer = "List", tags = {
             "External", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class, responseContainer = "List"),
@@ -123,14 +121,14 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @RequestMapping(value = "testexec", method = RequestMethod.GET)
     ResponseEntity<List<ExternalTestExecution>> getAllExternalTestExecutions();
 
-    @ApiOperation(value = "Return an External Test Case By Id", notes = "Returns an External Test Case By Id.", response = ExternalTestExecution.class, tags = {
+    @ApiOperation(value = "Return an External Test Executions By Id", notes = "Returns an External Test Executions By Id.", response = ExternalTestExecution.class, tags = {
             "External", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "testexec/id", method = RequestMethod.GET)
+    @RequestMapping(value = "testexec/{execId}", method = RequestMethod.GET)
     ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
-            ExternalId id, Model model);
+            @ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("execId") Long execId);
 
     @ApiOperation(value = "Creates a new External Test Execution", notes = "Creates a new External Test Execution", response = ExternalTestExecution.class, tags = {
             "External", })

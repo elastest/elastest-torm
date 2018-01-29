@@ -10,17 +10,17 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.external.ExternalTJob.BasicAttExternalTJob;
+import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
 
@@ -28,89 +28,63 @@ import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTest
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
-public class ExternalProject implements Serializable {
+public class ExternalTJob implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface BasicAttExternalProject {
+    public interface BasicAttExternalTJob {
     }
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
-    private Long id = null;
+    Long id = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "name")
     @JsonProperty("name")
-    private String name = null;
+    String name = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
-    @Column(name = "type")
-    @JsonProperty("type")
-    private TypeEnum type = null;
-
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "externalId")
     @JsonProperty("externalId")
     private String externalId;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     private String externalSystemId;
 
-    @JsonView(BasicAttExternalProject.class)
-    @JsonProperty("exTJob")
-    @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<ExternalTJob> exTJob;
+    @JsonView({ BasicAttExternalTJob.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exProject")
+    private ExternalProject exProject;
+
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestExecution.class })
+    @JsonProperty("exTestCases")
+    @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<ExternalTestCase> exTestCases;
 
     /* **************************/
     /* ***** Constructors *******/
     /* **************************/
 
-    public ExternalProject() {
+    public ExternalTJob() {
     }
 
-    public ExternalProject(Long id) {
+    public ExternalTJob(Long id) {
         this.id = id == null ? 0 : id;
-    }
-
-    public enum TypeEnum {
-        TESTLINK("TESTLINK");
-
-        private String value;
-
-        TypeEnum(String value) {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
-
-        @JsonCreator
-        public static TypeEnum fromValue(String text) {
-            for (TypeEnum b : TypeEnum.values()) {
-                if (String.valueOf(b.value).equals(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
     }
 
     /* *****************************/
@@ -133,14 +107,6 @@ public class ExternalProject implements Serializable {
         this.name = name;
     }
 
-    public TypeEnum getType() {
-        return type;
-    }
-
-    public void setType(TypeEnum type) {
-        this.type = type;
-    }
-
     public String getExternalId() {
         return externalId;
     }
@@ -157,12 +123,20 @@ public class ExternalProject implements Serializable {
         this.externalSystemId = externalSystemId;
     }
 
-    public List<ExternalTJob> getExTJob() {
-        return exTJob;
+    public ExternalProject getExProject() {
+        return exProject;
     }
 
-    public void setExTJob(List<ExternalTJob> exTJob) {
-        this.exTJob = exTJob;
+    public void setExProject(ExternalProject exProject) {
+        this.exProject = exProject;
+    }
+
+    public List<ExternalTestCase> getExTestCases() {
+        return exTestCases;
+    }
+
+    public void setExTestCases(List<ExternalTestCase> exTestCases) {
+        this.exTestCases = exTestCases;
     }
 
 }

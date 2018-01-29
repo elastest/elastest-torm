@@ -1,63 +1,82 @@
 package io.elastest.etm.model.external;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
+import io.elastest.etm.model.external.ExternalTJob.BasicAttExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class ExternalTestExecution {
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
+public class ExternalTestExecution implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public interface BasicAttExternalTestExecution {
     }
 
-    @EmbeddedId
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
-    private ExternalId id = null;
+    private Long id = null;
 
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "esIndex")
     private String esIndex = null;
 
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("fields")
     private String fields = null;
 
-    @JsonView({ BasicAttExternalTestExecution.class,
-            BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "result")
     @JsonProperty("result")
     private String result = null;
 
-    // bi-directional many-to-one association to ExternalTestCase
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @Column(name = "externalId")
+    @JsonProperty("externalId")
+    private String externalId;
+
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @Column(name = "externalSystemId")
+    @JsonProperty("externalSystemId")
+    private String externalSystemId;
+
     @JsonView({ BasicAttExternalTestExecution.class })
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "tcExternalId", referencedColumnName = "externalId"),
-            @JoinColumn(name = "tcExternalSystemId", referencedColumnName = "externalSystemId") })
+    @JoinColumn(name = "exTestCase")
     private ExternalTestCase exTestCase;
 
     /* **************************/
@@ -67,20 +86,20 @@ public class ExternalTestExecution {
     public ExternalTestExecution() {
     }
 
-    public ExternalTestExecution(ExternalId id) {
-        this.id = id;
+    public ExternalTestExecution(Long id) {
+        this.id = id == null ? 0 : id;
     }
 
     /* *****************************/
     /* ***** Getters/Setters *******/
     /* *****************************/
 
-    public ExternalId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(ExternalId id) {
-        this.id = id;
+    public void setId(Long id) {
+        this.id = id == null ? 0 : id;
     }
 
     public String getEsIndex() {
@@ -105,6 +124,22 @@ public class ExternalTestExecution {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    public String getExternalSystemId() {
+        return externalSystemId;
+    }
+
+    public void setExternalSystemId(String externalSystemId) {
+        this.externalSystemId = externalSystemId;
     }
 
     public ExternalTestCase getExTestCase() {

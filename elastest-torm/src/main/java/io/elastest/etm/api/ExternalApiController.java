@@ -6,13 +6,11 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.elastest.etm.api.model.ExternalJob;
-import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTestCase;
@@ -74,10 +72,11 @@ public class ExternalApiController implements ExternalApi {
                 HttpStatus.OK);
     }
 
-    public ResponseEntity<ExternalProject> getExternalProjectById(ExternalId id,
-            Model model) {
+    public ResponseEntity<ExternalProject> getExternalProjectById(
+            @ApiParam(value = "Id of an External Project.", required = true) @PathVariable("projectId") Long projectId) {
         return new ResponseEntity<ExternalProject>(
-                externalService.getExternalProjectById(id), HttpStatus.OK);
+                externalService.getExternalProjectById(projectId),
+                HttpStatus.OK);
     }
 
     /* **************************************************/
@@ -90,9 +89,9 @@ public class ExternalApiController implements ExternalApi {
     }
 
     public ResponseEntity<ExternalTestCase> getExternalTestCaseById(
-            ExternalId id, Model model) {
+            @ApiParam(value = "Id of an External Test Case.", required = true) @PathVariable("caseId") Long caseId) {
         return new ResponseEntity<ExternalTestCase>(
-                externalService.getExternalTestCaseById(id), HttpStatus.OK);
+                externalService.getExternalTestCaseById(caseId), HttpStatus.OK);
     }
 
     /* *************************************************/
@@ -105,9 +104,9 @@ public class ExternalApiController implements ExternalApi {
     }
 
     public ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
-            ExternalId id, Model model) {
+            @ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("execId") Long execId) {
         return new ResponseEntity<ExternalTestExecution>(
-                externalService.getExternalTestExecutionById(id),
+                externalService.getExternalTestExecutionById(execId),
                 HttpStatus.OK);
     }
 

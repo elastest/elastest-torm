@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import br.eti.kinoshita.testlinkjavaapi.TestLinkAPI;
@@ -27,14 +28,15 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.TestLinkAPIException;
 import io.elastest.etm.dao.external.ExternalProjectRepository;
+import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
-import io.elastest.etm.model.external.ExternalId;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import net.minidev.json.JSONObject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJob;
 
 @Service
 public class TestLinkService {
@@ -53,6 +55,7 @@ public class TestLinkService {
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
+    private final ExternalTJobRepository externalTJobRepository;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -60,10 +63,12 @@ public class TestLinkService {
 
     public TestLinkService(ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
-            ExternalTestExecutionRepository externalTestExecutionRepository) {
+            ExternalTestExecutionRepository externalTestExecutionRepository,
+            ExternalTJobRepository externalTJobRepository) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
+        this.externalTJobRepository = externalTJobRepository;
     }
 
     @PostConstruct
@@ -220,6 +225,26 @@ public class TestLinkService {
                     TestCaseDetails.FULL);
         } catch (TestLinkAPIException e) {
             // EMPTY
+        }
+        return cases;
+    }
+
+    public TestCase[] getPlanTestCases(Integer planId) {
+        TestCase[] cases = null;
+        Build[] builds = this.getPlanBuilds(planId);
+        if (builds != null) {
+            for (Build currentBuild : builds) {
+                try {
+                    cases = (TestCase[]) ArrayUtils.addAll(cases,
+                            this.api.getTestCasesForTestPlan(planId, null,
+                                    currentBuild.getId(), null, null, null,
+                                    null, null, null, null,
+                                    TestCaseDetails.FULL));
+                } catch (TestLinkAPIException e) {
+                    // EMPTY
+                }
+
+            }
         }
         return cases;
     }
@@ -513,6 +538,7 @@ public class TestLinkService {
 
     }
 
+    /* ** Project ** */
     public void syncProjects() {
         TestProject[] projectsList = this.getProjects();
         if (projectsList != null) {
@@ -523,41 +549,95 @@ public class TestLinkService {
     }
 
     public void syncProject(TestProject project) {
-        ExternalId pjId = new ExternalId(project.getId(), this.getSystemId());
-
-        ExternalProject externalProject = new ExternalProject(pjId);
+        ExternalProject externalProject = new ExternalProject(new Long(0));
         externalProject.setName(project.getName());
         externalProject.setType(TypeEnum.TESTLINK);
+        externalProject.setExternalId(project.getId().toString());
+        externalProject.setExternalSystemId(this.getSystemId());
 
-        externalProjectRepository.save(externalProject);
+        try {
+            externalProject = externalProjectRepository.save(externalProject);
+        } catch (DataIntegrityViolationException existException) {
+            ExternalProject savedPj = externalProjectRepository
+                    .findByExternalIdAndExternalSystemId(
+                            externalProject.getExternalId(),
+                            externalProject.getExternalSystemId());
+            externalProject.setId(savedPj.getId());
+            externalProject = externalProjectRepository.save(externalProject);
+        }
 
-        this.syncProjectTestCases(project.getId(), externalProject);
+        this.syncProjectTestPlans(project.getId(), externalProject);
     }
 
-    public void syncProjectTestCases(Integer projectId,
+    /* ** Plan-TJob ** */
+
+    public void syncProjectTestPlans(Integer projectId,
             ExternalProject externalProject) {
-        TestCase[] casesList = this.getProjectTestCases(projectId);
+        TestPlan[] plansList = this.getProjectTestPlans(projectId);
+        if (plansList != null) {
+            for (TestPlan currentTestPlan : plansList) {
+                this.syncProjectTestPlan(currentTestPlan, externalProject);
+            }
+        }
+    }
+
+    public void syncProjectTestPlan(TestPlan testPlan,
+            ExternalProject externalProject) {
+        ExternalTJob externalTJob = new ExternalTJob(new Long(0));
+        externalTJob.setExProject(externalProject);
+        externalTJob.setName(testPlan.getName());
+        externalTJob.setExternalId(testPlan.getId().toString());
+        externalTJob.setExternalSystemId(this.getSystemId());
+
+        try {
+            externalTJob = externalTJobRepository.save(externalTJob);
+        } catch (DataIntegrityViolationException existException) {
+            ExternalTJob savedTJob = externalTJobRepository
+                    .findByExternalIdAndExternalSystemId(
+                            externalTJob.getExternalId(),
+                            externalTJob.getExternalSystemId());
+            externalTJob.setId(savedTJob.getId());
+            externalTJob = externalTJobRepository.save(externalTJob);
+        }
+        this.syncTestPlanCases(testPlan.getId(), externalTJob);
+    }
+
+    /* ** TestCase ** */
+
+    public void syncTestPlanCases(Integer planId, ExternalTJob externalTJob) {
+        TestCase[] casesList = this.getPlanTestCases(planId);
         if (casesList != null) {
             for (TestCase currentTestCase : casesList) {
-                this.syncProjectTestCase(currentTestCase, externalProject);
+                this.syncProjectTestCase(currentTestCase, externalTJob);
             }
         }
     }
 
     public void syncProjectTestCase(TestCase testCase,
-            ExternalProject externalProject) {
-        ExternalId caseId = new ExternalId(testCase.getId(),
-                this.getSystemId());
-
-        ExternalTestCase externalTestCase = new ExternalTestCase(caseId);
-        externalTestCase.setExProject(externalProject);
+            ExternalTJob externalTJob) {
+        ExternalTestCase externalTestCase = new ExternalTestCase(new Long(0));
+        externalTestCase.setExTJob(externalTJob);
         externalTestCase.setName(testCase.getName());
         externalTestCase.setFields(this.getTestCaseFields(testCase));
-        this.externalTestCaseRepository.save(externalTestCase);
+        externalTestCase.setExternalId(testCase.getId().toString());
+        externalTestCase.setExternalSystemId(this.getSystemId());
 
+        try {
+            externalTestCase = externalTestCaseRepository
+                    .save(externalTestCase);
+        } catch (DataIntegrityViolationException existException) {
+            ExternalTestCase savedTestCase = externalTestCaseRepository
+                    .findByExternalIdAndExternalSystemId(
+                            externalTestCase.getExternalId(),
+                            externalTestCase.getExternalSystemId());
+            externalTestCase.setId(savedTestCase.getId());
+            externalTestCase = externalTestCaseRepository
+                    .save(externalTestCase);
+        }
         this.syncTestCaseExecs(testCase.getId(), externalTestCase);
     }
 
+    /* ** Exec ** */
     public void syncTestCaseExecs(Integer testCaseId,
             ExternalTestCase externalTestCase) {
         Execution[] execsList = this.getTestCaseExecs(testCaseId);
@@ -570,15 +650,26 @@ public class TestLinkService {
 
     public void syncTestCaseExec(Execution exec,
             ExternalTestCase externalTestCase) {
-        ExternalId execId = new ExternalId(exec.getId(), this.getSystemId());
-
         ExternalTestExecution externalTestExec = new ExternalTestExecution(
-                execId);
+                new Long(0));
         externalTestExec.setExTestCase(externalTestCase);
         // externalTestExec.setEsIndex(esIndex);
         externalTestExec.setFields(this.getTestExecFields(exec));
         externalTestExec.setResult(exec.getStatus().name());
-        this.externalTestExecutionRepository.save(externalTestExec);
+        externalTestExec.setExternalId(exec.getId().toString());
+        externalTestExec.setExternalSystemId(this.getSystemId());
+        try {
+            externalTestExec = externalTestExecutionRepository
+                    .save(externalTestExec);
+        } catch (DataIntegrityViolationException existException) {
+            ExternalTestExecution savedTestExec = externalTestExecutionRepository
+                    .findByExternalIdAndExternalSystemId(
+                            externalTestExec.getExternalId(),
+                            externalTestExec.getExternalSystemId());
+            externalTestExec.setId(savedTestExec.getId());
+            externalTestExec = externalTestExecutionRepository
+                    .save(externalTestExec);
+        }
     }
 
     /* *** Conversion utils *** */
