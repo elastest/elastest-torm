@@ -7,7 +7,7 @@ import { TestLinkService } from '../testlink.service';
 import { TestCaseModel } from '../models/test-case-model';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import { ExecuteCaseModalComponent } from './execute-case-modal/execute-case-modal.component';
-import { ServiceType } from '../../elastest-etm/external/models/external-project-model';
+import { ServiceType } from '../../elastest-etm/external/external-project/external-project-model';
 
 @Component({
   selector: 'testlink-build',

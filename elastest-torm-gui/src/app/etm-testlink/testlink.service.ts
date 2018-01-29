@@ -10,6 +10,11 @@ import { Http, Response } from '@angular/http';
 import { TestProjectModel } from './models/test-project-model';
 import { BuildModel } from './models/build-model';
 import { TestCaseExecutionModel } from './models/test-case-execution-model';
+import { ExternalProjectModel } from '../elastest-etm/external/external-project/external-project-model';
+import { ETExternalModelsTransformService } from '../elastest-etm/external/et-external-models-transform.service';
+import { ExternalTJobModel } from '../elastest-etm/external/external-tjob/external-tjob-model';
+import { ExternalTestCaseModel } from '../elastest-etm/external/external-test-case/external-test-case-model';
+import { ExternalTestExecutionModel } from '../elastest-etm/external/external-test-execution/external-test-execution-model';
 
 @Injectable()
 export class TestLinkService {
@@ -19,6 +24,7 @@ export class TestLinkService {
     constructor(
         private http: Http, private configurationService: ConfigurationService,
         public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
+        public eTExternalModelsTransformService: ETExternalModelsTransformService,
         public popupService: PopupService,
     ) {
         this.hostApi = this.configurationService.configModel.hostApi;
@@ -221,5 +227,33 @@ export class TestLinkService {
         let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId + '/case/' + testCaseId + '/execs';
         return this.http.get(url)
             .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
+    }
+
+    /*************************/
+    /******** External *******/
+    /*************************/
+
+    public getExternalProjectByTestProjectId(projectId: number): Observable<ExternalProjectModel> {
+        let url: string = this.hostApi + '/testlink/external/project/' + projectId;
+        return this.http.get(url)
+            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
+    }
+
+    public getExternalTJobByTestPlanId(planId: number): Observable<ExternalTJobModel> {
+        let url: string = this.hostApi + '/testlink/external/tjob/' + planId;
+        return this.http.get(url)
+            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+    }
+
+    public getExternalTestCaseByTestCaseId(caseId: number): Observable<ExternalTestCaseModel> {
+        let url: string = this.hostApi + '/testlink/external/testcase/' + caseId;
+        return this.http.get(url)
+            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()));
+    }
+
+    public getExternalTestExecutionByExecutionId(execId: number): Observable<ExternalTestExecutionModel> {
+        let url: string = this.hostApi + '/testlink/external/testexec/' + execId;
+        return this.http.get(url)
+            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
     }
 }

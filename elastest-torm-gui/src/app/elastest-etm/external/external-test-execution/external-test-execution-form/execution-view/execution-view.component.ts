@@ -4,9 +4,9 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { TestLinkService } from '../../../../../etm-testlink/testlink.service';
 import { ExternalDataModel } from '../../../models/external-data-model';
-import { ServiceType } from '../../../models/external-project-model';
 import { TestCaseModel } from '../../../../../etm-testlink/models/test-case-model';
 import { BuildModel } from '../../../../../etm-testlink/models/build-model';
+import { ServiceType } from '../../../external-project/external-project-model';
 
 @Component({
   selector: 'etm-execution-view',

@@ -98,6 +98,9 @@ import { ExternalTestExecutionComponent } from './elastest-etm/external/external
 import { ExecutionFormComponent } from './etm-testlink/execution/execution-form/execution-form.component';
 import { ExternalTestExecutionFormComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/external-test-execution-form.component';
 import { ExecutionViewComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/execution-view/execution-view.component';
+import { ExternalTjobComponent } from './elastest-etm/external/external-tjob/external-tjob.component';
+import { ExternalTjobExecutionComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution.component';
+import { ETExternalModelsTransformService } from './elastest-etm/external/et-external-models-transform.service';
 
 const httpInterceptorProviders: Type<any>[] = [
   RequestInterceptor,
@@ -156,6 +159,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ExecutionFormComponent,
     ExternalTestExecutionFormComponent,
     ExecutionViewComponent,
+    ExternalTjobComponent,
+    ExternalTjobExecutionComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -202,6 +207,7 @@ const httpInterceptorProviders: Type<any>[] = [
     TitlesService,
     ETModelsTransformServices,
     ETTestlinkModelsTransformService,
+    ETExternalModelsTransformService,
     TestLinkService,
     ExternalService,
     ConfigurationService, {

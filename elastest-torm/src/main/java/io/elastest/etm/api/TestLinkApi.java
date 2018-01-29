@@ -15,6 +15,10 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
+import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -320,5 +324,41 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/testlink/sync", method = RequestMethod.GET)
     ResponseEntity<Boolean> syncTestLink();
+
+    @ApiOperation(value = "Returns an External Project By Given Test Project Id", notes = "Returns an External Project By Given Test Project Id.", response = ExternalProject.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/external/project/{projectId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalProject> getExternalProjectByTestProjectId(
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId);
+
+    @ApiOperation(value = "Returns an External TJob By Given Test Plan Id", notes = "Returns an External TJob By Given Test Plan Id.", response = ExternalTJob.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJob.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/external/tjob/{planId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTJob> getExternalTJobByTestPlanId(
+            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
+
+    @ApiOperation(value = "Returns an External Test Case By Given Test Case Id", notes = "Returns an External Case By Given Test Case Id.", response = ExternalTestCase.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestCase.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/external/testcase/{caseId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTestCase> getExternalTestCaseByTestCaseId(
+            @ApiParam(value = "ID of the Test Case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    @ApiOperation(value = "Returns an External Test Execution By Given Execution Id", notes = "Returns an External Case By Given Execution Id.", response = ExternalTestExecution.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/external/testexec/{execId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTestExecution> getExternalTestExecutionByExecutionId(
+            @ApiParam(value = "ID of the Execution.", required = true) @PathVariable("execId") Integer execId);
 
 }

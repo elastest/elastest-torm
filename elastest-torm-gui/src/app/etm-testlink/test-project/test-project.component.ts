@@ -22,12 +22,12 @@ export class TestProjectComponent implements OnInit {
   suiteColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
-    { name: 'testProjectId', label: 'Test Project ID' },
+    // { name: 'testProjectId', label: 'Test Project ID' },
     { name: 'details', label: 'Details' },
     { name: 'parentId', label: 'Parent ID' },
     { name: 'order', label: 'Order' },
-    { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
-    { name: 'actionOnDuplicatedName', label: 'On Duplicated Name' },
+    // { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
+    // { name: 'actionOnDuplicatedName', label: 'On Duplicated Name' },
     // { name: 'options', label: 'Options' },
   ];
 
@@ -35,7 +35,7 @@ export class TestProjectComponent implements OnInit {
   planColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
-    { name: 'projectName', label: 'Test Project Name' },
+    // { name: 'projectName', label: 'Test Project Name' },
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },

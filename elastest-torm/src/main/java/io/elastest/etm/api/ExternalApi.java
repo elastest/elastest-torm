@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.swagger.annotations.Api;
@@ -87,6 +89,46 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @RequestMapping(value = "project/{projectId}", method = RequestMethod.GET)
     ResponseEntity<ExternalProject> getExternalProjectById(
             @ApiParam(value = "Id of an External Project.", required = true) @PathVariable("projectId") Long projectId);
+
+    /* **************************************************/
+    /* ***************** ExternalTJob ***************** */
+    /* **************************************************/
+    @ApiOperation(value = "Returns all External TJobs", notes = "Returns all External TJobs.", response = ExternalTJob.class, responseContainer = "List", tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJob.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "extjob", method = RequestMethod.GET)
+    ResponseEntity<List<ExternalTJob>> getAllExternalTJobs();
+
+    @ApiOperation(value = "Return an External TJob By Id", notes = "Returns an External TJob By Id.", response = ExternalTJob.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJob.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "extjob/{tjobId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTJob> getExternalTJobById(
+            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId);
+
+    /* **************************************************/
+    /* *************** ExternalTJobExec *************** */
+    /* **************************************************/
+    @ApiOperation(value = "Returns all External TJob Executions", notes = "Returns all External TJob Executions.", response = ExternalTJobExecution.class, responseContainer = "List", tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "tjobexec", method = RequestMethod.GET)
+    ResponseEntity<List<ExternalTJobExecution>> getAllExternalTJobExecs();
+
+    @ApiOperation(value = "Return an External TJob Exec By Id", notes = "Returns an External TJob Exec By Id.", response = ExternalTJobExecution.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "tjobexec/{tJobExecId}", method = RequestMethod.GET)
+    ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
+            @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
     /* **************************************************/
     /* *************** ExternalTestCase *************** */

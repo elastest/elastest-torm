@@ -17,6 +17,10 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.TestLinkAPIException;
+import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTestCase;
+import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.service.TestLinkService;
 import io.swagger.annotations.ApiParam;
 
@@ -261,6 +265,33 @@ public class TestLinkApiController implements TestLinkApi {
 
     public ResponseEntity<Boolean> syncTestLink() {
         return new ResponseEntity<Boolean>(testLinkService.syncTestLink(),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalProject> getExternalProjectByTestProjectId(
+            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId) {
+        return new ResponseEntity<ExternalProject>(
+                testLinkService.getExternalProjectByTestProjectId(projectId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTJob> getExternalTJobByTestPlanId(
+            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId) {
+        return new ResponseEntity<ExternalTJob>(
+                testLinkService.getExternalTJobByPlanId(planId), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTestCase> getExternalTestCaseByTestCaseId(
+            @ApiParam(value = "ID of the Test Case.", required = true) @PathVariable("caseId") Integer caseId) {
+        return new ResponseEntity<ExternalTestCase>(
+                testLinkService.getExternalTestCaseByTestCaseId(caseId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTestExecution> getExternalTestExecutionByExecutionId(
+            @ApiParam(value = "ID of the Execution.", required = true) @PathVariable("execId") Integer execId) {
+        return new ResponseEntity<ExternalTestExecution>(
+                testLinkService.getExternalTestExecByExecutionId(execId),
                 HttpStatus.OK);
     }
 

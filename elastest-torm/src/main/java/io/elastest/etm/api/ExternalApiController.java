@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.service.ExternalService;
@@ -77,6 +79,36 @@ public class ExternalApiController implements ExternalApi {
         return new ResponseEntity<ExternalProject>(
                 externalService.getExternalProjectById(projectId),
                 HttpStatus.OK);
+    }
+
+    /* **************************************************/
+    /* ***************** ExternalTJob ***************** */
+    /* **************************************************/
+
+    public ResponseEntity<List<ExternalTJob>> getAllExternalTJobs() {
+        return new ResponseEntity<List<ExternalTJob>>(
+                externalService.getAllExternalTJobs(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTJob> getExternalTJobById(
+            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
+        return new ResponseEntity<ExternalTJob>(
+                externalService.getExternalTJobById(tjobId), HttpStatus.OK);
+    }
+
+    /* **************************************************/
+    /* *************** ExternalTJobExec *************** */
+    /* **************************************************/
+
+    public ResponseEntity<List<ExternalTJobExecution>> getAllExternalTJobExecs() {
+        return new ResponseEntity<List<ExternalTJobExecution>>(
+                externalService.getAllExternalTJobExecs(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
+            @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+        return new ResponseEntity<ExternalTJobExecution>(
+                externalService.getExternalTJobExecById(tJobExecId), HttpStatus.OK);
     }
 
     /* **************************************************/

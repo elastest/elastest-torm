@@ -524,6 +524,40 @@ public class TestLinkService {
         return build;
     }
 
+    /* ************************************************************/
+    /* ************************ External *************************/
+    /* ************************************************************/
+
+    public ExternalProject getExternalProjectByTestProjectId(
+            Integer projectId) {
+        String externalSystemId = this.getSystemId();
+        return this.externalProjectRepository
+                .findByExternalIdAndExternalSystemId(projectId.toString(),
+                        externalSystemId);
+    }
+
+    public ExternalTJob getExternalTJobByPlanId(Integer planId) {
+        String externalSystemId = this.getSystemId();
+        return this.externalTJobRepository.findByExternalIdAndExternalSystemId(
+                planId.toString(), externalSystemId);
+    }
+
+    public ExternalTestCase getExternalTestCaseByTestCaseId(
+            Integer testCaseId) {
+        String externalSystemId = this.getSystemId();
+        return this.externalTestCaseRepository
+                .findByExternalIdAndExternalSystemId(testCaseId.toString(),
+                        externalSystemId);
+    }
+
+    public ExternalTestExecution getExternalTestExecByExecutionId(
+            Integer execId) {
+        String externalSystemId = this.getSystemId();
+        return this.externalTestExecutionRepository
+                .findByExternalIdAndExternalSystemId(execId.toString(),
+                        externalSystemId);
+    }
+
     /* ****************************************************************/
     /* ********************* External Conversion **********************/
     /* ****************************************************************/

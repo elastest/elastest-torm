@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
@@ -70,11 +71,24 @@ public class ExternalTJob implements Serializable {
     @JoinColumn(name = "exProject")
     private ExternalProject exProject;
 
+    @JsonView({ BasicAttExternalTJob.class, BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @JsonProperty("exTJobExec")
+    @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<ExternalTJobExecution> exTJobExec;
+
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
             BasicAttExternalTestExecution.class })
     @JsonProperty("exTestCases")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ExternalTestCase> exTestCases;
+
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestExecution.class })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sut")
+    @JsonProperty("sut")
+    private SutSpecification sut = null;
 
     /* **************************/
     /* ***** Constructors *******/
@@ -129,6 +143,14 @@ public class ExternalTJob implements Serializable {
 
     public void setExProject(ExternalProject exProject) {
         this.exProject = exProject;
+    }
+
+    public List<ExternalTJobExecution> getExTJobExec() {
+        return exTJobExec;
+    }
+
+    public void setExTJobExec(List<ExternalTJobExecution> exTJobExec) {
+        this.exTJobExec = exTJobExec;
     }
 
     public List<ExternalTestCase> getExTestCases() {

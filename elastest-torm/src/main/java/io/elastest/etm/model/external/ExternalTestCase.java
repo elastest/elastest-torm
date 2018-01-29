@@ -44,25 +44,25 @@ public class ExternalTestCase implements Serializable {
     private Long id = null;
 
     @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
-            BasicAttExternalTestExecution.class })
+            BasicAttExternalTestExecution.class, BasicAttExternalTJob.class, })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
     @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
-            BasicAttExternalTestExecution.class })
+            BasicAttExternalTestExecution.class, BasicAttExternalTJob.class, })
     @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("fields")
     private String fields = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+            BasicAttExternalTestExecution.class, BasicAttExternalTJob.class, })
     @Column(name = "externalId")
     @JsonProperty("externalId")
     private String externalId;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+            BasicAttExternalTestExecution.class, BasicAttExternalTJob.class, })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     private String externalSystemId;
@@ -73,7 +73,8 @@ public class ExternalTestCase implements Serializable {
     @JoinColumn(name = "exTJob")
     private ExternalTJob exTJob;
 
-    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class })
+    @JsonView({ BasicAttExternalTestCase.class, BasicAttExternalProject.class,
+            BasicAttExternalTJob.class, })
     @OneToMany(mappedBy = "exTestCase", cascade = CascadeType.REMOVE)
     private List<ExternalTestExecution> exTestExecs;
 

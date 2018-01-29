@@ -1,4 +1,4 @@
-import { ServiceType } from './external-project-model';
+import { ServiceType } from "../external-project/external-project-model";
 
 export class ExternalDataModel {
     data: any;

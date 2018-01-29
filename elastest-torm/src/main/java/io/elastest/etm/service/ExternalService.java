@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.api.model.TestSupportServices;
 import io.elastest.etm.dao.external.ExternalProjectRepository;
+import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
+import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.Project;
@@ -20,6 +22,8 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.utils.UtilTools;
@@ -69,19 +73,25 @@ public class ExternalService {
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
+    private final ExternalTJobRepository externalTJobRepository;
+    private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
             ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
-            ExternalTestExecutionRepository externalTestExecutionRepository) {
+            ExternalTestExecutionRepository externalTestExecutionRepository,
+            ExternalTJobRepository externalTJobRepository,
+            ExternalTJobExecutionRepository externalTJobExecutionRepository) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
+        this.externalTJobRepository = externalTJobRepository;
         this.runningExternalJobs = new HashMap<>();
+        this.externalTJobExecutionRepository = externalTJobExecutionRepository;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob)
@@ -219,6 +229,43 @@ public class ExternalService {
         return this.externalProjectRepository.findById(id);
     }
 
+    public ExternalProject getExternalProjectByExternalIdAndSystemId(
+            String externalId, String externalSystemId) {
+        return this.externalProjectRepository
+                .findByExternalIdAndExternalSystemId(externalId,
+                        externalSystemId);
+    }
+
+    /* **************************************************/
+    /* ***************** ExternalTJob ***************** */
+    /* **************************************************/
+
+    public List<ExternalTJob> getAllExternalTJobs() {
+        return this.externalTJobRepository.findAll();
+    }
+
+    public ExternalTJob getExternalTJobById(Long tjobId) {
+        return this.externalTJobRepository.findById(tjobId);
+    }
+
+    public ExternalTJob getExternalTJobByExternalIdAndSystemId(
+            String externalId, String externalSystemId) {
+        return this.externalTJobRepository.findByExternalIdAndExternalSystemId(
+                externalId, externalSystemId);
+    }
+
+    /* **************************************************/
+    /* *************** ExternalTJobExec *************** */
+    /* **************************************************/
+
+    public List<ExternalTJobExecution> getAllExternalTJobExecs() {
+        return this.externalTJobExecutionRepository.findAll();
+    }
+
+    public ExternalTJobExecution getExternalTJobExecById(Long tJobExecId) {
+        return this.externalTJobExecutionRepository.findById(tJobExecId);
+    }
+
     /* **************************************************/
     /* *************** ExternalTestCase *************** */
     /* **************************************************/
@@ -229,6 +276,13 @@ public class ExternalService {
 
     public ExternalTestCase getExternalTestCaseById(Long id) {
         return this.externalTestCaseRepository.findById(id);
+    }
+
+    public ExternalTestCase getExternalTestCaseByExternalIdAndSystemId(
+            String externalId, String externalSystemId) {
+        return this.externalTestCaseRepository
+                .findByExternalIdAndExternalSystemId(externalId,
+                        externalSystemId);
     }
 
     /* *************************************************/
@@ -243,9 +297,15 @@ public class ExternalService {
         return this.externalTestExecutionRepository.findById(id);
     }
 
+    public ExternalTestExecution getExternalTestExecByExternalIdAndSystemId(
+            String externalId, String externalSystemId) {
+        return this.externalTestExecutionRepository
+                .findByExternalIdAndExternalSystemId(externalId,
+                        externalSystemId);
+    }
+
     public ExternalTestExecution createExternalTestExecution(
             ExternalTestExecution exec) {
         return this.externalTestExecutionRepository.save(exec);
     }
-
 }

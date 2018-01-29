@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalTJob.BasicAttExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
@@ -35,8 +36,8 @@ public class ExternalProject implements Serializable {
     }
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -44,37 +45,44 @@ public class ExternalProject implements Serializable {
     private Long id = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "type")
     @JsonProperty("type")
     private TypeEnum type = null;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "externalId")
     @JsonProperty("externalId")
     private String externalId;
 
     @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-        BasicAttExternalTestCase.class,
-        BasicAttExternalTestExecution.class })
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     private String externalSystemId;
 
-    @JsonView(BasicAttExternalProject.class)
+    @JsonView({ BasicAttExternalProject.class })
     @JsonProperty("exTJob")
     @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ExternalTJob> exTJob;
+
+    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
+            BasicAttExternalTestCase.class,
+            BasicAttExternalTestExecution.class })
+    @JsonProperty("suts")
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<SutSpecification> suts;
 
     /* **************************/
     /* ***** Constructors *******/
@@ -165,4 +173,11 @@ public class ExternalProject implements Serializable {
         this.exTJob = exTJob;
     }
 
+    public List<SutSpecification> getSuts() {
+        return suts;
+    }
+
+    public void setSuts(List<SutSpecification> suts) {
+        this.suts = suts;
+    }
 }
