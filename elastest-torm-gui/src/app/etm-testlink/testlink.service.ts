@@ -18,242 +18,256 @@ import { ExternalTestExecutionModel } from '../elastest-etm/external/external-te
 
 @Injectable()
 export class TestLinkService {
+  hostApi: string;
 
-    hostApi: string;
+  constructor(
+    private http: Http,
+    private configurationService: ConfigurationService,
+    public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
+    public eTExternalModelsTransformService: ETExternalModelsTransformService,
+    public popupService: PopupService,
+  ) {
+    this.hostApi = this.configurationService.configModel.hostApi;
+  }
 
-    constructor(
-        private http: Http, private configurationService: ConfigurationService,
-        public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
-        public eTExternalModelsTransformService: ETExternalModelsTransformService,
-        public popupService: PopupService,
-    ) {
-        this.hostApi = this.configurationService.configModel.hostApi;
-    }
+  /***********************/
+  /******** Others *******/
+  /***********************/
 
-    /***********************/
-    /******** Others *******/
-    /***********************/
+  public getTestlinkUrl(): Observable<String> {
+    let url: string = this.hostApi + '/testlink/url';
+    return this.http.get(url).map((response: Response) => response['_body']);
+  }
 
-    public getTestlinkUrl(): Observable<String> {
-        let url: string = this.hostApi + '/testlink/url';
-        return this.http.get(url)
-            .map((response: Response) => response['_body']);
-    }
+  public syncTestlink(): Observable<Boolean> {
+    let url: string = this.hostApi + '/testlink/sync';
+    return this.http.get(url).map((response: Response) => response['_body']);
+  }
 
-    public syncTestlink(): Observable<Boolean> {
-        let url: string = this.hostApi + '/testlink/sync';
-        return this.http.get(url)
-            .map((response: Response) => response['_body']);
-    }
+  /*************************/
+  /******** Projects *******/
+  /*************************/
 
-    /*************************/
-    /******** Projects *******/
-    /*************************/
+  public getAllTestProjects(): Observable<TestProjectModel[]> {
+    let url: string = this.hostApi + '/testlink/project';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectsList(response.json()));
+  }
 
-    public getAllTestProjects(): Observable<TestProjectModel[]> {
-        let url: string = this.hostApi + '/testlink/project';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectsList(response.json()));
-    }
+  public getProjectByName(project: TestProjectModel): Observable<TestProjectModel> {
+    let url: string = this.hostApi + '/testlink/project/name/' + project.name;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
+  }
 
-    public getProjectByName(project: TestProjectModel): Observable<TestProjectModel> {
-        let url: string = this.hostApi + '/testlink/project/name/' + project.name;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
-    }
+  public getProjectById(projectId: number): Observable<TestProjectModel> {
+    let url: string = this.hostApi + '/testlink/project/' + projectId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
+  }
 
-    public getProjectById(projectId: number): Observable<TestProjectModel> {
-        let url: string = this.hostApi + '/testlink/project/' + projectId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectModel(response.json()));
-    }
+  public createProject(project: TestProjectModel): Observable<TestProjectModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/testlink/project';
+    return this.http.post(url, project).map((response: Response) => response.json());
+  }
 
-    public createProject(project: TestProjectModel): Observable<TestProjectModel> {
-        let url: string = this.configurationService.configModel.hostApi + '/testlink/project';
-        return this.http.post(url, project)
-            .map((response: Response) => response.json());
-    }
+  /***********************/
+  /******** Suites *******/
+  /***********************/
 
-    /***********************/
-    /******** Suites *******/
-    /***********************/
+  public getProjecTestSuites(project: TestProjectModel): Observable<TestSuiteModel[]> {
+    let url: string = this.hostApi + '/testlink/project/' + project.id + '/suite';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestSuiteList(response.json()));
+  }
 
-    public getProjecTestSuites(project: TestProjectModel): Observable<TestSuiteModel[]> {
-        let url: string = this.hostApi + '/testlink/project/' + project.id + '/suite';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestSuiteList(response.json()));
-    }
+  public getTestSuite(suite: TestSuiteModel): Observable<TestSuiteModel> {
+    return this.getTestSuiteById(suite.id, suite.testProjectId);
+  }
 
-    public getTestSuite(suite: TestSuiteModel): Observable<TestSuiteModel> {
-        return this.getTestSuiteById(suite.id, suite.testProjectId);
-    }
+  public getTestSuiteById(suiteId: number, projectId: number): Observable<TestSuiteModel> {
+    let url: string = this.hostApi + '/testlink/project/' + projectId + '/suite/' + suiteId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestSuiteModel(response.json()));
+  }
 
-    public getTestSuiteById(suiteId: number, projectId: number): Observable<TestSuiteModel> {
-        let url: string = this.hostApi + '/testlink/project/' + projectId + '/suite/' + suiteId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestSuiteModel(response.json()));
-    }
+  public createTestSuite(suite: TestSuiteModel): Observable<TestSuiteModel> {
+    let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite';
+    return this.http.post(url, suite).map((response: Response) => response.json());
+  }
 
-    public createTestSuite(suite: TestSuiteModel): Observable<TestSuiteModel> {
-        let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite';
-        return this.http.post(url, suite)
-            .map((response: Response) => response.json());
-    }
+  /*************************/
+  /********* Cases *********/
+  /*************************/
 
-    /*************************/
-    /********* Cases *********/
-    /*************************/
+  public getSuiteTestCases(suite: TestSuiteModel): Observable<TestCaseModel[]> {
+    let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite/' + suite.id + '/case';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(response.json()));
+  }
 
-    public getSuiteTestCases(suite: TestSuiteModel): Observable<TestCaseModel[]> {
-        let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite/' + suite.id + '/case';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(response.json()));
-    }
+  public getTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
+    return this.getTestCaseById(testCase.id);
+  }
 
-    public getTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
-        return this.getTestCaseById(testCase.id);
-    }
+  public getTestCaseById(testCaseId: number): Observable<TestCaseModel> {
+    let url: string = this.hostApi + '/testlink/project/suite/case/' + testCaseId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json()));
+  }
 
-    public getTestCaseById(testCaseId: number): Observable<TestCaseModel> {
-        let url: string = this.hostApi + '/testlink/project/suite/case/' + testCaseId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json()));
-    }
+  public createTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
+    let url: string =
+      this.hostApi + '/testlink/project/' + testCase.testProjectId + '/suite/' + testCase.testSuiteId + '/case';
+    return this.http.post(url, testCase).map((response: Response) => response.json());
+  }
 
-    public createTestCase(testCase: TestCaseModel): Observable<TestCaseModel> {
-        let url: string = this.hostApi + '/testlink/project/' + testCase.testProjectId + '/suite/' + testCase.testSuiteId + '/case';
-        return this.http.post(url, testCase)
-            .map((response: Response) => response.json());
-    }
+  /***********************/
+  /******** Plans ********/
+  /***********************/
 
-    /***********************/
-    /******** Plans ********/
-    /***********************/
+  public getProjectTestPlans(project: TestProjectModel): Observable<TestPlanModel[]> {
+    let url: string = this.hostApi + '/testlink/project/' + project.id + '/plan';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanList(response.json()));
+  }
 
-    public getProjectTestPlans(project: TestProjectModel): Observable<TestPlanModel[]> {
-        let url: string = this.hostApi + '/testlink/project/' + project.id + '/plan';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanList(response.json()));
-    }
+  public getTestPlan(plan: TestPlanModel): Observable<TestPlanModel> {
+    return this.getTestPlanByName(plan.name, plan.projectName);
+  }
 
-    public getTestPlan(plan: TestPlanModel): Observable<TestPlanModel> {
-        return this.getTestPlanByName(plan.name, plan.projectName);
-    }
+  public getTestPlanByName(planName: string, projectName: string): Observable<TestPlanModel> {
+    let url: string = this.hostApi + '/testlink/project/' + projectName + '/plan/name/' + planName;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
+  }
 
-    public getTestPlanByName(planName: string, projectName: string): Observable<TestPlanModel> {
-        let url: string = this.hostApi + '/testlink/project/' + projectName + '/plan/name/' + planName;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
-    }
+  public getTestPlanById(planId: number): Observable<TestPlanModel> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
+  }
 
-    public getTestPlanById(planId: number): Observable<TestPlanModel> {
-        let url: string = this.hostApi + '/testlink/project/plan/' + planId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestPlanModel(response.json()));
-    }
+  public createTestPlan(plan: TestPlanModel): Observable<TestCaseModel> {
+    let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan';
+    return this.http.post(url, plan).map((response: Response) => response.json());
+  }
 
-    public createTestPlan(plan: TestPlanModel): Observable<TestCaseModel> {
-        let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan';
-        return this.http.post(url, plan)
-            .map((response: Response) => response.json());
-    }
+  /************************/
+  /******** Builds ********/
+  /************************/
 
+  public getPlanBuilds(plan: TestPlanModel): Observable<BuildModel[]> {
+    let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildList(response.json()));
+  }
 
-    /************************/
-    /******** Builds ********/
-    /************************/
+  public getLatestPlanBuild(plan: TestPlanModel): Observable<BuildModel> {
+    let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build/latestF';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildModel(response.json()));
+  }
 
-    public getPlanBuilds(plan: TestPlanModel): Observable<BuildModel[]> {
-        let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildList(response.json()));
-    }
+  public getBuildById(buildId: number): Observable<BuildModel> {
+    let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildModel(response.json()));
+  }
 
-    public getLatestPlanBuild(plan: TestPlanModel): Observable<BuildModel> {
-        let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build/latestF';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildModel(response.json()));
-    }
+  public createBuild(build: BuildModel): Observable<TestCaseModel> {
+    let url: string = this.hostApi + '/testlink/project/' + 'dummyprojectId' + '/plan/' + build.testPlanId + '/build';
+    return this.http.post(url, build).map((response: Response) => response.json());
+  }
 
-    public getBuildById(buildId: number): Observable<BuildModel> {
-        let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildModel(response.json()));
-    }
+  public getBuildTestCases(build: BuildModel): Observable<TestCaseModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan/build/' + build.id + '/case';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(response.json()));
+  }
 
-    public createBuild(build: BuildModel): Observable<TestCaseModel> {
-        let url: string = this.hostApi + '/testlink/project/' + 'dummyprojectId' + '/plan/' + build.testPlanId + '/build';
-        return this.http.post(url, build)
-            .map((response: Response) => response.json());
-    }
+  /***********************/
+  /******** Execs ********/
+  /***********************/
 
-    public getBuildTestCases(build: BuildModel): Observable<TestCaseModel[]> {
-        let url: string = this.hostApi + '/testlink/project/plan/build/' + build.id + '/case';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(response.json()));
-    }
+  public saveExecution(execution: TestCaseExecutionModel, testCaseId: number) {
+    let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
+    return this.http.post(url, execution).map((response: Response) => response.json());
+  }
 
+  public getAllExecs(): Observable<TestCaseExecutionModel[]> {
+    let url: string = this.hostApi + '/testlink/execs';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
+  }
 
-    /***********************/
-    /******** Execs ********/
-    /***********************/
+  public getTestCaseExecs(testCaseId: number): Observable<TestCaseExecutionModel[]> {
+    let url: string = this.hostApi + '/testlink/project/suite/case/' + testCaseId + '/execs';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
+  }
 
-    public saveExecution(execution: TestCaseExecutionModel, testCaseId: number) {
-        let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
-        return this.http.post(url, execution)
-            .map((response: Response) => response.json());
-    }
+  public getPlanCaseExecs(testCaseId: number, testPlanId: number): Observable<TestCaseExecutionModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + testPlanId + '/build/case/' + testCaseId + '/execs';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
+  }
 
-    public getAllExecs(): Observable<TestCaseExecutionModel[]> {
-        let url: string = this.hostApi + '/testlink/execs';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
-    }
+  public getBuildCaseExecs(testCaseId: number, buildId: number): Observable<TestCaseExecutionModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId + '/case/' + testCaseId + '/execs';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
+  }
 
-    public getTestCaseExecs(testCaseId: number): Observable<TestCaseExecutionModel[]> {
-        let url: string = this.hostApi + '/testlink/project/suite/case/' + testCaseId + '/execs';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
-    }
+  /*************************/
+  /******** External *******/
+  /*************************/
 
-    public getPlanCaseExecs(testCaseId: number, testPlanId: number): Observable<TestCaseExecutionModel[]> {
-        let url: string = this.hostApi + '/testlink/project/plan/' + testPlanId + '/build/case/' + testCaseId + '/execs';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
-    }
+  public getExternalProjectByTestProjectId(projectId: number): Observable<ExternalProjectModel> {
+    let url: string = this.hostApi + '/testlink/external/project/' + projectId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
+  }
 
+  public getExternalTJobByTestPlanId(planId: number): Observable<ExternalTJobModel> {
+    let url: string = this.hostApi + '/testlink/external/tjob/' + planId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+  }
 
-    public getBuildCaseExecs(testCaseId: number, buildId: number): Observable<TestCaseExecutionModel[]> {
-        let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId + '/case/' + testCaseId + '/execs';
-        return this.http.get(url)
-            .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecList(response.json()));
-    }
+  public getExternalTestCaseByTestCaseId(caseId: number): Observable<ExternalTestCaseModel> {
+    let url: string = this.hostApi + '/testlink/external/testcase/' + caseId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()));
+  }
 
-    /*************************/
-    /******** External *******/
-    /*************************/
-
-    public getExternalProjectByTestProjectId(projectId: number): Observable<ExternalProjectModel> {
-        let url: string = this.hostApi + '/testlink/external/project/' + projectId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
-    }
-
-    public getExternalTJobByTestPlanId(planId: number): Observable<ExternalTJobModel> {
-        let url: string = this.hostApi + '/testlink/external/tjob/' + planId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
-    }
-
-    public getExternalTestCaseByTestCaseId(caseId: number): Observable<ExternalTestCaseModel> {
-        let url: string = this.hostApi + '/testlink/external/testcase/' + caseId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()));
-    }
-
-    public getExternalTestExecutionByExecutionId(execId: number): Observable<ExternalTestExecutionModel> {
-        let url: string = this.hostApi + '/testlink/external/testexec/' + execId;
-        return this.http.get(url)
-            .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
-    }
+  public getExternalTestExecutionByExecutionId(execId: number): Observable<ExternalTestExecutionModel> {
+    let url: string = this.hostApi + '/testlink/external/testexec/' + execId;
+    return this.http
+      .get(url)
+      .map((response: Response) =>
+        this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()),
+      );
+  }
 }

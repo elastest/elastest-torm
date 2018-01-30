@@ -15,38 +15,38 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
-import io.elastest.etm.model.external.ExternalTJob.BasicAttExternalTJob;
-import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
-import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
+import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
+import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
+import io.elastest.etm.model.external.ExternalTestCase.ExternalTestCaseView;
+import io.elastest.etm.model.external.ExternalTestExecution.ExternalTestExecutionView;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ExternalTJobExecution implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface BasicAttExternalTJobExecution {
+    public interface ExternalTJobExecutionView {
     }
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTJobExecution.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicAttExternalProject.class,
-            BasicAttExternalTJobExecution.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exTJob")
+    @JsonIgnoreProperties(value = "exTJobExecs")
     private ExternalTJob exTJob;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTJobExecution.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @Column(name = "esIndex")
     private String esIndex = null;
 

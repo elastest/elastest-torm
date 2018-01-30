@@ -39,7 +39,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestProject[]> getAllTestProjects();
 
     @ApiOperation(value = "Returns a Test Project By Given Name", notes = "Returns a Test Project By Given Name.", response = TestProject.class, tags = {
@@ -47,7 +48,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/name/{projectName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/name/{projectName}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestProject> getProjectByName(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName);
 
@@ -56,7 +58,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestProject.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestProject> getProjectById(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId);
 
@@ -80,7 +83,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestSuite> getTestSuiteById(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Id of Test suite.", required = true) @PathVariable("suiteId") Integer suiteId);
@@ -90,7 +94,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}/suite", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestSuite[]> getProjectTestSuites(
             @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId);
 
@@ -115,7 +120,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/suite/case/{caseId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/suite/case/{caseId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestCase> getTestcase(
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 
@@ -124,7 +130,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}/case", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}/case", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestCase[]> getSuiteTestCases(
             @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId);
 
@@ -133,7 +140,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectId}/plan/{planId}/case", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectId}/plan/{planId}/case", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestCase[]> getPlanTestCases(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId);
 
@@ -160,7 +168,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{id}/plan", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{id}/plan", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestPlan[]> getProjectTestPlans(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("id") Integer id);
 
@@ -169,7 +178,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/name/{planName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/name/{planName}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestPlan> getPlanByName(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "Name of the plan.", required = true) @PathVariable("planName") String planName);
@@ -179,7 +189,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/{planId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/{planId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestPlan> getPlanById(
             @ApiParam(value = "Id of the plan.", required = true) @PathVariable("planId") Integer planId);
 
@@ -204,7 +215,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Build[]> getPlanBuilds(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
@@ -214,7 +226,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build/latest", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build/latest", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Build> getLatestPlanBuild(
             @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
@@ -224,7 +237,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/build/{buildId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Build> getBuildById(
             @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId);
 
@@ -247,7 +261,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestCase[]> getBuildTestCases(
             @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId);
 
@@ -273,7 +288,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/execs", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/execs", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Execution[]> getAllExecs();
 
     @ApiOperation(value = "Returns all execs of a Test Case", notes = "Returns all execs of a Test Case.", response = Execution.class, responseContainer = "List", tags = {
@@ -281,7 +297,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/suite/case/{caseId}/execs", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/suite/case/{caseId}/execs", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Execution[]> getTestCaseExecs(
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 
@@ -290,7 +307,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/{planId}/build/case/{caseId}/execs", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/{planId}/build/case/{caseId}/execs", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Execution[]> getPlanTestCaseExecs(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
@@ -300,7 +318,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Execution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case/{caseId}/execs", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/project/plan/build/{buildId}/case/{caseId}/execs", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Execution[]> getBuildTestCaseExecs(
             @ApiParam(value = "ID of the build.", required = true) @PathVariable("buildId") Integer buildId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
@@ -314,7 +333,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = String.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/url", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/url", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<String> getTestLinkUrl();
 
     @ApiOperation(value = "Synchronizes TestLink Data With Elastest Data", notes = "Synchronizes TestLink Data With Elastest Data.", response = Boolean.class, tags = {
@@ -322,7 +342,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/sync", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/sync", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Boolean> syncTestLink();
 
     @ApiOperation(value = "Returns an External Project By Given Test Project Id", notes = "Returns an External Project By Given Test Project Id.", response = ExternalProject.class, tags = {
@@ -330,7 +351,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalProject.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/external/project/{projectId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/external/project/{projectId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<ExternalProject> getExternalProjectByTestProjectId(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId);
 
@@ -339,7 +361,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJob.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/external/tjob/{planId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/external/tjob/{planId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<ExternalTJob> getExternalTJobByTestPlanId(
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
 
@@ -348,7 +371,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestCase.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/external/testcase/{caseId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/external/testcase/{caseId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<ExternalTestCase> getExternalTestCaseByTestCaseId(
             @ApiParam(value = "ID of the Test Case.", required = true) @PathVariable("caseId") Integer caseId);
 
@@ -357,7 +381,8 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/external/testexec/{execId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/testlink/external/testexec/{execId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
     ResponseEntity<ExternalTestExecution> getExternalTestExecutionByExecutionId(
             @ApiParam(value = "ID of the Execution.", required = true) @PathVariable("execId") Integer execId);
 

@@ -23,17 +23,21 @@
             <md-card-subtitle class="pad-left-none">Public</md-card-subtitle>
             <h4>{{testPlan.public}}</h4>
           </span>
-          <!-- <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
+          <span flex-gt-xs="25" *ngIf="externalTJob != undefined">
+            <md-card-subtitle class="pad-left-none">Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/testlink/plans/edit', testPlan.id]" class="iconBtn-lg" title="Edit Test Plan">
+              <button md-button [routerLink]="['/external/project/', externalTJob.exProject.id ,'tjob', externalTJob.id, 'exec','new']"
+                class="iconBtn-lg" title="Run Test Plan">
+                <md-icon>play_circle_outline</md-icon>
+              </button>
+              <!-- <button md-button [routerLink]="['/testlink/plans/edit', testPlan.id]" class="iconBtn-lg" title="Edit Test Plan">
                 <md-icon>mode_edit</md-icon>
               </button>
               <button md-button (click)="deletePlan()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Plan">
                 <md-icon>delete</md-icon>
-              </button>
+              </button> -->
             </div>
-          </span> -->
+          </span>
         </div>
         <div layout="column" class="push-top">
           <span flex-gt-xs="100">

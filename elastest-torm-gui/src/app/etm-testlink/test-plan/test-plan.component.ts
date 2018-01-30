@@ -6,6 +6,7 @@ import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
 import { MdDialog } from '@angular/material';
+import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 
 
 @Component({
@@ -17,6 +18,8 @@ export class TestPlanComponent implements OnInit {
   testPlan: TestPlanModel;
   builds: BuildModel[] = [];
   testProjectId: number;
+
+  externalTJob: ExternalTJobModel;
 
   // Build Data
   buildColumns: any[] = [
@@ -53,6 +56,7 @@ export class TestPlanComponent implements OnInit {
           this.titlesService.setTopTitle(this.testPlan.getRouteString());
 
           this.loadBuilds();
+          this.loadExternalTJob();
         });
     }
   }
@@ -62,6 +66,16 @@ export class TestPlanComponent implements OnInit {
       .subscribe(
       (builds: BuildModel[]) => {
         this.builds = builds;
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  loadExternalTJob(): void {
+    this.testLinkService.getExternalTJobByTestPlanId(this.testPlan.id)
+      .subscribe(
+      (tJob: ExternalTJobModel) => {
+        this.externalTJob = tJob;
       },
       (error) => console.log(error),
     );

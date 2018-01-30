@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-external-tjob-execution',
+  selector: 'etm-external-tjob-execution',
   templateUrl: './external-tjob-execution.component.html',
   styleUrls: ['./external-tjob-execution.component.scss']
 })

@@ -5,9 +5,7 @@ import { TestSuiteFormComponent } from './etm-testlink/test-suite/test-suite-for
 import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
 import { HelpComponent } from './elastest-etm/help/help.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
-import {
-    TJobExecsManagerComponent,
-} from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
+import { TJobExecsManagerComponent } from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
 import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
 import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
@@ -47,476 +45,495 @@ import { BuildComponent } from './etm-testlink/build/build.component';
 import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
 import { ExecutionComponent } from './etm-testlink/execution/execution.component';
 import { ExternalTestExecutionFormComponent } from './elastest-etm/external/external-test-execution/external-test-execution-form/external-test-execution-form.component';
+import { ExternalTjobComponent } from './elastest-etm/external/external-tjob/external-tjob.component';
+import { ExternalTjobExecutionComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution.component';
+import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/external-tjob-execution-new.component';
 
 const routes: Routes = [
-    {
-        path: 'login',
-        component: LoginComponent,
-    },
-    {
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
+    path: '',
+    component: EtmComponent,
+    children: [
+      {
+        component: ProjectsManagerComponent,
         path: '',
-        component: EtmComponent,
+      },
+      {
+        path: 'projects',
         children: [
-            {
-                component: ProjectsManagerComponent,
+          {
+            path: '',
+            component: ProjectsManagerComponent,
+          },
+          {
+            path: 'add',
+            component: ProjectFormComponent,
+          },
+          {
+            path: 'edit/:projectId',
+            component: ProjectFormComponent,
+          },
+          {
+            path: 'edit',
+            component: ProjectFormComponent,
+          },
+          {
+            path: ':projectId',
+            children: [
+              {
                 path: '',
-            },
-            {
-                path: 'projects',
+                component: ProjectManagerComponent,
+              },
+              {
+                path: 'tjob',
                 children: [
-                    {
+                  {
+                    path: 'edit/:tJobId',
+                    component: TJobFormComponent,
+                  },
+                  {
+                    path: 'new',
+                    component: TJobFormComponent,
+                  },
+                  {
+                    path: ':tJobId',
+                    children: [
+                      {
                         path: '',
-                        component: ProjectsManagerComponent,
-                    },
-                    {
-                        path: 'add',
-                        component: ProjectFormComponent,
-                    },
-                    {
-                        path: 'edit/:projectId',
-                        component: ProjectFormComponent,
-                    },
-                    {
-                        path: 'edit',
-                        component: ProjectFormComponent,
-                    },
-                    {
-                        path: ':projectId',
+                        component: TjobManagerComponent,
+                      },
+                      {
+                        path: 'tjob-exec',
                         children: [
-                            {
+                          {
+                            path: ':tJobExecId',
+                            children: [
+                              {
                                 path: '',
-                                component: ProjectManagerComponent,
-                            },
-                            {
-                                path: 'tjob',
-                                children: [
-                                    {
-                                        path: 'edit/:tJobId',
-                                        component: TJobFormComponent,
-                                    },
-                                    {
-                                        path: 'new',
-                                        component: TJobFormComponent,
-                                    },
-                                    {
-                                        path: ':tJobId',
-                                        children: [
-                                            {
-                                                path: '',
-                                                component: TjobManagerComponent,
-
-                                            },
-                                            {
-                                                path: 'tjob-exec',
-                                                children: [
-                                                    {
-                                                        path: ':tJobExecId',
-                                                        children: [
-                                                            {
-                                                                path: '',
-                                                                component: TjobExecManagerComponent,
-                                                            },
-                                                            {
-                                                                path: 'dashboard',
-                                                                component: DashboardComponent,
-                                                            },
-                                                        ],
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                            {
-                                path: 'sut',
-                                children: [
-                                    {
-                                        path: '',
-                                        component: SutManagerComponent,
-                                    },
-                                    {
-                                        path: 'edit/:sutId',
-                                        component: SutFormComponent,
-                                    },
-                                    {
-                                        path: 'new',
-                                        component: SutFormComponent,
-                                    },
-                                ],
-                            },
+                                component: TjobExecManagerComponent,
+                              },
+                              {
+                                path: 'dashboard',
+                                component: DashboardComponent,
+                              },
+                            ],
+                          },
                         ],
-                    },
+                      },
+                    ],
+                  },
                 ],
-            },
-            {
-                path: 'tjobs',
+              },
+              {
+                path: 'sut',
                 children: [
-                    {
-                        path: '',
-                        component: TJobsManagerComponent,
-                    },
+                  {
+                    path: '',
+                    component: SutManagerComponent,
+                  },
+                  {
+                    path: 'edit/:sutId',
+                    component: SutFormComponent,
+                  },
+                  {
+                    path: 'new',
+                    component: SutFormComponent,
+                  },
                 ],
-            },
-            {
-                path: 'tjobexecs',
-                children: [
-                    {
-                        path: '',
-                        component: TJobExecsManagerComponent,
-                    },
-                ],
-            },
-            {
-                path: 'suts',
-                children: [
-                    {
-                        path: '',
-                        component: SutsManagerComponent,
-                    },
-                    {
-                        path: 'edit/:id',
-                        component: SutFormComponent,
-                    },
-                    {
-                        path: 'edit',
-                        component: SutFormComponent,
-                    },
-                ],
-            },
-            {
-                path: 'etm-app',
-                component: EtmComponent,
-            },
-            {
-                path: 'test-engines',
-                children: [
-                    {
-                        path: '',
-                        component: ElastestTestEnginesComponent,
-                    },
-                    {
-                        path: ':name',
-                        component: TestEngineViewComponent,
-
-                    },
-                ],
-            },
-            {
-                path: 'support-services',
-                children: [
-                    {
-                        path: '',
-                        component: InstancesManagerComponent,
-                    },
-                    {
-                        path: 'service-detail/:id',
-                        component: ServiceDetailComponent,
-
-                    },
-                    {
-                        path: 'service-gui',
-                        component: ServiceGuiComponent,
-                    },
-                ],
-            },
-            {
-                path: 'service-gui',
-                component: ServiceGuiComponent,
-
-            },
-            {
-                path: 'logmanager',
-                component: ElastestLogManagerComponent,
-            },
-            {
-                path: 'loganalyzer',
-                component: ElastestLogAnalyzerComponent,
-            },
-            {
-                path: 'vnc',
-                component: TestVncComponent,
-            },
-            {
-                path: 'eus',
-                component: ElastestEusComponent,
-            },
-            {
-                path: 'refresh',
-                component: RefreshComponent,
-            },
-            {
-                path: 'help',
-                component: HelpComponent,
-            },
-            {
-                path: 'testlink',
-                children: [
-                    {
-                        component: EtmTestlinkComponent,
-                        path: '',
-                    },
-                    {
-                        path: 'projects',
-                        children: [
-                            {
-                                path: 'new',
-                                component: TestProjectFormComponent,
-                            },
-                            {
-                                path: 'edit/:projectId',
-                                component: TestProjectFormComponent,
-                            },
-                            {
-                                path: 'edit',
-                                component: TestProjectFormComponent,
-                            },
-                            {
-                                path: ':projectId',
-                                children: [
-                                    {
-                                        path: '',
-                                        component: TestProjectComponent,
-                                    },
-                                    {
-                                        path: 'plans',
-                                        children: [
-                                            {
-                                                path: 'edit/:planId',
-                                                component: TestPlanFormComponent,
-                                            },
-                                            {
-                                                path: 'new',
-                                                component: TestPlanFormComponent,
-                                            },
-                                            {
-                                                path: ':planId',
-                                                children: [
-                                                    {
-                                                        path: '',
-                                                        component: TestPlanComponent,
-                                                    },
-                                                    {
-                                                        path: 'builds',
-                                                        children: [
-                                                            {
-                                                                path: 'edit/:buildId',
-                                                                component: TestPlanFormComponent,
-                                                            },
-                                                            {
-                                                                path: 'new',
-                                                                component: TestPlanFormComponent,
-                                                            },
-                                                            {
-                                                                path: ':buildId',
-                                                                children: [
-                                                                    {
-                                                                        path: '',
-                                                                        component: BuildComponent,
-                                                                    },
-                                                                    {
-                                                                        path: 'cases',
-                                                                        children: [
-                                                                            {
-                                                                                path: ':caseId',
-                                                                                children: [
-                                                                                    {
-                                                                                        path: '',
-                                                                                        component: TestCaseExecsComponent,
-                                                                                    },
-                                                                                ],
-                                                                            },
-                                                                        ],
-                                                                    },
-                                                                ],
-                                                            },
-                                                        ],
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        path: 'suites',
-                                        children: [
-                                            {
-                                                path: 'edit/:suiteId',
-                                                component: TestSuiteFormComponent,
-                                            },
-                                            {
-                                                path: 'new',
-                                                component: TestSuiteFormComponent,
-                                            },
-                                            {
-                                                path: ':suiteId',
-                                                children: [
-                                                    {
-                                                        path: '',
-                                                        component: TestSuiteComponent,
-                                                    },
-                                                    {
-                                                        path: 'cases',
-                                                        children: [
-                                                            {
-                                                                path: 'edit/:caseId',
-                                                                component: TestCaseFormComponent,
-                                                            },
-                                                            {
-                                                                path: 'new',
-                                                                component: TestCaseFormComponent,
-                                                            },
-                                                            {
-                                                                path: ':caseId',
-                                                                children: [
-                                                                    {
-                                                                        path: '',
-                                                                        children: [
-                                                                            {
-                                                                                path: '',
-                                                                                component: TestCaseComponent,
-                                                                            },
-                                                                            {
-                                                                                path: 'steps',
-                                                                                children: [
-                                                                                    {
-                                                                                        path: 'edit/:stepId',
-                                                                                        component: TestCaseStepFormComponent,
-                                                                                    },
-                                                                                    {
-                                                                                        path: 'new',
-                                                                                        component: TestCaseStepFormComponent,
-                                                                                    },
-                                                                                    {
-                                                                                        path: ':stepId',
-                                                                                        children: [
-                                                                                            {
-                                                                                                path: '',
-                                                                                                component: TestCaseStepComponent,
-                                                                                            },
-                                                                                        ],
-                                                                                    },
-                                                                                ],
-                                                                            },
-                                                                        ],
-                                                                    },
-                                                                ],
-                                                            },
-                                                        ],
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                path: 'external',
-                children: [
-                    {
-                        path: 'execute',
-                        component: ExternalTestExecutionFormComponent,
-                    },
-                    // {
-                    //     path: 'new',
-                    //     component: TestProjectFormComponent,
-                    // },
-                    // {
-                    //     path: 'edit/:projectId',
-                    //     component: TestProjectFormComponent,
-                    // },
-                    // {
-                    //     path: ':projectId',
-                    //     children: [
-                    //         {
-                    //             path: '',
-                    //             component: TestProjectComponent,
-                    //         },
-                    //         {
-                    //             path: 'plans',
-                    //             children: [
-                    //                 {
-                    //                     path: 'edit/:planId',
-                    //                     component: TestPlanFormComponent,
-                    //                 },
-                    //                 {
-                    //                     path: 'new',
-                    //                     component: TestPlanFormComponent,
-                    //                 },
-                    //                 {
-                    //                     path: ':planId',
-                    //                     children: [
-                    //                         {
-                    //                             path: '',
-                    //                             component: TestPlanComponent,
-                    //                         },
-                    //                         {
-                    //                             path: 'builds',
-                    //                             children: [
-                    //                                 {
-                    //                                     path: 'edit/:buildId',
-                    //                                     component: TestPlanFormComponent,
-                    //                                 },
-                    //                                 {
-                    //                                     path: 'new',
-                    //                                     component: TestPlanFormComponent,
-                    //                                 },
-                    //                                 {
-                    //                                     path: ':buildId',
-                    //                                     children: [
-                    //                                         {
-                    //                                             path: '',
-                    //                                             component: BuildComponent,
-                    //                                         },
-                    //                                         {
-                    //                                             path: 'cases',
-                    //                                             children: [
-                    //                                                 {
-                    //                                                     path: ':caseId',
-                    //                                                     children: [
-                    //                                                         {
-                    //                                                             path: '',
-                    //                                                             component: TestCaseExecsComponent,
-                    //                                                         },
-                    //                                                     ],
-                    //                                                 },
-                    //                                             ],
-                    //                                         },
-                    //                                     ],
-                    //                                 },
-                    //                             ],
-                    //                         },
-                    //                     ],
-                    //                 },
-                    //             ],
-                    //         },
-                    //     ],
-                    // },
-                ],
-            },
+              },
+            ],
+          },
         ],
-    },
+      },
+      {
+        path: 'tjobs',
+        children: [
+          {
+            path: '',
+            component: TJobsManagerComponent,
+          },
+        ],
+      },
+      {
+        path: 'tjobexecs',
+        children: [
+          {
+            path: '',
+            component: TJobExecsManagerComponent,
+          },
+        ],
+      },
+      {
+        path: 'suts',
+        children: [
+          {
+            path: '',
+            component: SutsManagerComponent,
+          },
+          {
+            path: 'edit/:id',
+            component: SutFormComponent,
+          },
+          {
+            path: 'edit',
+            component: SutFormComponent,
+          },
+        ],
+      },
+      {
+        path: 'etm-app',
+        component: EtmComponent,
+      },
+      {
+        path: 'test-engines',
+        children: [
+          {
+            path: '',
+            component: ElastestTestEnginesComponent,
+          },
+          {
+            path: ':name',
+            component: TestEngineViewComponent,
+          },
+        ],
+      },
+      {
+        path: 'support-services',
+        children: [
+          {
+            path: '',
+            component: InstancesManagerComponent,
+          },
+          {
+            path: 'service-detail/:id',
+            component: ServiceDetailComponent,
+          },
+          {
+            path: 'service-gui',
+            component: ServiceGuiComponent,
+          },
+        ],
+      },
+      {
+        path: 'service-gui',
+        component: ServiceGuiComponent,
+      },
+      {
+        path: 'logmanager',
+        component: ElastestLogManagerComponent,
+      },
+      {
+        path: 'loganalyzer',
+        component: ElastestLogAnalyzerComponent,
+      },
+      {
+        path: 'vnc',
+        component: TestVncComponent,
+      },
+      {
+        path: 'eus',
+        component: ElastestEusComponent,
+      },
+      {
+        path: 'refresh',
+        component: RefreshComponent,
+      },
+      {
+        path: 'help',
+        component: HelpComponent,
+      },
+      {
+        path: 'testlink',
+        children: [
+          {
+            component: EtmTestlinkComponent,
+            path: '',
+          },
+          {
+            path: 'projects',
+            children: [
+              {
+                path: 'new',
+                component: TestProjectFormComponent,
+              },
+              {
+                path: 'edit/:projectId',
+                component: TestProjectFormComponent,
+              },
+              {
+                path: 'edit',
+                component: TestProjectFormComponent,
+              },
+              {
+                path: ':projectId',
+                children: [
+                  {
+                    path: '',
+                    component: TestProjectComponent,
+                  },
+                  {
+                    path: 'plans',
+                    children: [
+                      {
+                        path: 'edit/:planId',
+                        component: TestPlanFormComponent,
+                      },
+                      {
+                        path: 'new',
+                        component: TestPlanFormComponent,
+                      },
+                      {
+                        path: ':planId',
+                        children: [
+                          {
+                            path: '',
+                            component: TestPlanComponent,
+                          },
+                          {
+                            path: 'builds',
+                            children: [
+                              {
+                                path: 'edit/:buildId',
+                                component: TestPlanFormComponent,
+                              },
+                              {
+                                path: 'new',
+                                component: TestPlanFormComponent,
+                              },
+                              {
+                                path: ':buildId',
+                                children: [
+                                  {
+                                    path: '',
+                                    component: BuildComponent,
+                                  },
+                                  {
+                                    path: 'cases',
+                                    children: [
+                                      {
+                                        path: ':caseId',
+                                        children: [
+                                          {
+                                            path: '',
+                                            component: TestCaseExecsComponent,
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: 'suites',
+                    children: [
+                      {
+                        path: 'edit/:suiteId',
+                        component: TestSuiteFormComponent,
+                      },
+                      {
+                        path: 'new',
+                        component: TestSuiteFormComponent,
+                      },
+                      {
+                        path: ':suiteId',
+                        children: [
+                          {
+                            path: '',
+                            component: TestSuiteComponent,
+                          },
+                          {
+                            path: 'cases',
+                            children: [
+                              {
+                                path: 'edit/:caseId',
+                                component: TestCaseFormComponent,
+                              },
+                              {
+                                path: 'new',
+                                component: TestCaseFormComponent,
+                              },
+                              {
+                                path: ':caseId',
+                                children: [
+                                  {
+                                    path: '',
+                                    children: [
+                                      {
+                                        path: '',
+                                        component: TestCaseComponent,
+                                      },
+                                      {
+                                        path: 'steps',
+                                        children: [
+                                          {
+                                            path: 'edit/:stepId',
+                                            component: TestCaseStepFormComponent,
+                                          },
+                                          {
+                                            path: 'new',
+                                            component: TestCaseStepFormComponent,
+                                          },
+                                          {
+                                            path: ':stepId',
+                                            children: [
+                                              {
+                                                path: '',
+                                                component: TestCaseStepComponent,
+                                              },
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'external',
+        children: [
+          {
+            path: 'execute',
+            component: ExternalTestExecutionFormComponent,
+          },
+          // {
+          //     path: 'new',
+          //     component: TestProjectFormComponent,
+          // },
+          // {
+          //     path: 'edit/:projectId',
+          //     component: TestProjectFormComponent,
+          // },
+
+          {
+            path: 'project',
+            children: [
+              // {
+              //     path: '',
+              //     component: TestProjectComponent,
+              // },
+              {
+                path: ':projectId',
+                children: [
+                  // {
+                  //     path: '',
+                  //     component: TestProjectComponent,
+                  // },
+                  {
+                    path: 'tjob',
+                    children: [
+                      //   {
+                      //     path: '',
+                      //     component: ExternalTJ,
+                      //   },
+                      {
+                        path: ':tJobId',
+                        children: [
+                          {
+                            path: '',
+                            component: ExternalTjobComponent,
+                          },
+                          {
+                            path: 'exec',
+                            children: [
+                              //   {
+                              //     path: '',
+                              //     component: ExternalTJ,
+                              //   },
+                              {
+                                path: 'new',
+                                component: ExternalTjobExecutionNewComponent,
+                              },
+                              {
+                                path: ':execId',
+                                children: [
+                                  {
+                                    path: '',
+                                    component: ExternalTjobExecutionComponent,
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: 'sut',
+                    children: [
+                      {
+                        path: '',
+                        component: SutManagerComponent,
+                      },
+                      {
+                        path: 'edit/:sutId',
+                        component: SutFormComponent,
+                      },
+                      {
+                        path: 'new',
+                        component: SutFormComponent,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 @NgModule({
-    imports: [
-        RouterModule.forRoot(routes, { useHash: true }),
-    ],
-    exports: [
-        RouterModule,
-    ],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
 export const routedComponents: any[] = [
-    LoginComponent,
-    UsersComponent, UsersFormComponent,
-    TJobsManagerComponent, ProjectsManagerComponent,
-    SutManagerComponent, SutsManagerComponent, EtmComponent, TOJobManagerComponent, DashboardComponent, ProjectFormComponent,
-    TjobManagerComponent, TJobFormComponent, TjobExecManagerComponent, SutFormComponent, ElastestEusComponent, ElastestLogManagerComponent,
-    InstancesManagerComponent, ServiceGuiComponent, ServiceDetailComponent, HelpComponent,
+  LoginComponent,
+  UsersComponent,
+  UsersFormComponent,
+  TJobsManagerComponent,
+  ProjectsManagerComponent,
+  SutManagerComponent,
+  SutsManagerComponent,
+  EtmComponent,
+  TOJobManagerComponent,
+  DashboardComponent,
+  ProjectFormComponent,
+  TjobManagerComponent,
+  TJobFormComponent,
+  TjobExecManagerComponent,
+  SutFormComponent,
+  ElastestEusComponent,
+  ElastestLogManagerComponent,
+  InstancesManagerComponent,
+  ServiceGuiComponent,
+  ServiceDetailComponent,
+  HelpComponent,
 ];
 
 export const appRoutes: any = RouterModule.forRoot(routes, { useHash: true });

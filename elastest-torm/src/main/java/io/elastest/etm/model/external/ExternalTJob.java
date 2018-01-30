@@ -21,9 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.external.ExternalProject.BasicAttExternalProject;
-import io.elastest.etm.model.external.ExternalTestCase.BasicAttExternalTestCase;
-import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTestExecution;
+import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
+import io.elastest.etm.model.external.ExternalTJobExecution.ExternalTJobExecutionView;
+import io.elastest.etm.model.external.ExternalTestCase.ExternalTestCaseView;
+import io.elastest.etm.model.external.ExternalTestExecution.ExternalTestExecutionView;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -32,59 +33,57 @@ import io.elastest.etm.model.external.ExternalTestExecution.BasicAttExternalTest
 public class ExternalTJob implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface BasicAttExternalTJob {
+    public interface ExternalTJobView {
     }
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     Long id = null;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @Column(name = "name")
     @JsonProperty("name")
     String name = null;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @Column(name = "externalId")
     @JsonProperty("externalId")
     private String externalId;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     private String externalSystemId;
 
-    @JsonView({ BasicAttExternalTJob.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalTJobView.class, ExternalTJobExecutionView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exProject")
+    @JsonIgnoreProperties(value = "exTJobs")
     private ExternalProject exProject;
 
-    @JsonView({ BasicAttExternalTJob.class, BasicAttExternalTestCase.class,
-            BasicAttExternalTestExecution.class })
-    @JsonProperty("exTJobExec")
+    @JsonView({ ExternalTJobView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @JsonProperty("exTJobExecs")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<ExternalTJobExecution> exTJobExec;
+    private List<ExternalTJobExecution> exTJobExecs;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestExecutionView.class })
     @JsonProperty("exTestCases")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ExternalTestCase> exTestCases;
 
-    @JsonView({ BasicAttExternalProject.class, BasicAttExternalTJob.class,
-            BasicAttExternalTestExecution.class })
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
@@ -145,12 +144,12 @@ public class ExternalTJob implements Serializable {
         this.exProject = exProject;
     }
 
-    public List<ExternalTJobExecution> getExTJobExec() {
-        return exTJobExec;
+    public List<ExternalTJobExecution> getExTJobExecs() {
+        return exTJobExecs;
     }
 
-    public void setExTJobExec(List<ExternalTJobExecution> exTJobExec) {
-        this.exTJobExec = exTJobExec;
+    public void setExTJobExecs(List<ExternalTJobExecution> exTJobExecs) {
+        this.exTJobExecs = exTJobExecs;
     }
 
     public List<ExternalTestCase> getExTestCases() {

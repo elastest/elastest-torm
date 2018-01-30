@@ -1,9 +1,7 @@
 import { TestLinkService } from './etm-testlink/testlink.service';
-import { ExternalService } from './elastest-etm/external/external.service'
+import { ExternalService } from './elastest-etm/external/external.service';
 import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
-import {
-  MonitoringConfigurationComponent,
-} from './elastest-etm/etm-monitoring-view/monitoring-configuration/monitoring-configuration.component';
+import { MonitoringConfigurationComponent } from './elastest-etm/etm-monitoring-view/monitoring-configuration/monitoring-configuration.component';
 import { EtmMonitoringViewComponent } from './elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
 import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-models-transform.service';
@@ -36,8 +34,15 @@ import { SutService } from './elastest-etm/sut/sut.service';
 import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { ElasticSearchService } from './shared/services/elasticsearch.service';
-import { MdDatepickerModule, MdNativeDateModule, MdRadioModule, MdButtonToggleModule, MdDialogModule, MdSidenavModule, MdProgressSpinnerModule }
-  from '@angular/material';
+import {
+  MdDatepickerModule,
+  MdNativeDateModule,
+  MdRadioModule,
+  MdButtonToggleModule,
+  MdDialogModule,
+  MdSidenavModule,
+  MdProgressSpinnerModule,
+} from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
@@ -101,10 +106,9 @@ import { ExecutionViewComponent } from './elastest-etm/external/external-test-ex
 import { ExternalTjobComponent } from './elastest-etm/external/external-tjob/external-tjob.component';
 import { ExternalTjobExecutionComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution.component';
 import { ETExternalModelsTransformService } from './elastest-etm/external/et-external-models-transform.service';
+import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/external-tjob-execution-new.component';
 
-const httpInterceptorProviders: Type<any>[] = [
-  RequestInterceptor,
-];
+const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
 @NgModule({
   declarations: [
@@ -161,6 +165,7 @@ const httpInterceptorProviders: Type<any>[] = [
     ExecutionViewComponent,
     ExternalTjobComponent,
     ExternalTjobExecutionComponent,
+    ExternalTjobExecutionNewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -182,9 +187,12 @@ const httpInterceptorProviders: Type<any>[] = [
     InputTrimModule,
     CovalentExpansionPanelModule,
     CovalentHttpModule.forRoot({
-      interceptors: [{
-        interceptor: RequestInterceptor, paths: ['**'],
-      }],
+      interceptors: [
+        {
+          interceptor: RequestInterceptor,
+          paths: ['**'],
+        },
+      ],
     }),
     CovalentHighlightModule,
     CovalentMarkdownModule,
@@ -210,9 +218,12 @@ const httpInterceptorProviders: Type<any>[] = [
     ETExternalModelsTransformService,
     TestLinkService,
     ExternalService,
-    ConfigurationService, {
-      provide: APP_INITIALIZER, useFactory: configServiceFactory,
-      deps: [ConfigurationService], multi: true
+    ConfigurationService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: configServiceFactory,
+      deps: [ConfigurationService],
+      multi: true,
     },
     EusService,
     ElastestEusDialogService,
@@ -227,8 +238,8 @@ const httpInterceptorProviders: Type<any>[] = [
     ShowMessageModalComponent,
     ExecutionModalComponent,
     ExecuteCaseModalComponent,
-    MonitoringConfigurationComponent
+    MonitoringConfigurationComponent,
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
