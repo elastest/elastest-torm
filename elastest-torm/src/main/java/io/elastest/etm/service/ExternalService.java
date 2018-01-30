@@ -266,6 +266,20 @@ public class ExternalService {
         return this.externalTJobExecutionRepository.findById(tJobExecId);
     }
 
+    public ExternalTJobExecution createExternalTJobExecution(
+            ExternalTJobExecution exec) {
+        exec = this.externalTJobExecutionRepository.save(exec);
+        if (exec.getEsIndex().isEmpty() || "".equals(exec.getEsIndex())) {
+            exec.setEsIndex(this.getExternalTJobExecESIndex(exec));
+            exec = this.externalTJobExecutionRepository.save(exec);
+        }
+        return exec;
+    }
+
+    public String getExternalTJobExecESIndex(ExternalTJobExecution exec) {
+        return "ext" + exec.getExTJob().getId() + "_e" + exec.getId();
+    }
+
     /* **************************************************/
     /* *************** ExternalTestCase *************** */
     /* **************************************************/

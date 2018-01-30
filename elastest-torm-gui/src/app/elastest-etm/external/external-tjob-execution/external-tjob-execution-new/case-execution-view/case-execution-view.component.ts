@@ -18,7 +18,7 @@ import { ExternalTestCaseModel } from '../../../external-test-case/external-test
 export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   @ViewChild('executionForm') executionForm: IExternalExecution;
 
-  @Input() externalTJob: ExternalTJobModel;
+  @Input() exTJob: ExternalTJobModel;
   serviceType: ServiceType;
   externalTestCases: ExternalTestCaseModel[] = [];
 
@@ -32,7 +32,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   constructor(private externalService: ExternalService, private testLinkService: TestLinkService) {}
   ngOnInit() {
-    this.serviceType = this.externalTJob.getServiceType();
+    this.serviceType = this.exTJob.getServiceType();
     this.initExecutionView();
   }
 
@@ -51,7 +51,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   /**********************/
 
   initTestLinkData(): void {
-    this.testLinkService.getPlanBuildsById(this.externalTJob.externalId).subscribe(
+    this.testLinkService.getPlanBuildsById(this.exTJob.externalId).subscribe(
       (builds: BuildModel[]) => {
         this.testLinkBuilds = builds;
       },
@@ -61,7 +61,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   selectTestLinkBuild(): void {
     this.showTestLinkExec = true;
-    this.externalTestCases = this.externalTJob.exTestCases;
+    this.externalTestCases = this.exTJob.exTestCases;
     this.loadNextTestLinkCase();
   }
 

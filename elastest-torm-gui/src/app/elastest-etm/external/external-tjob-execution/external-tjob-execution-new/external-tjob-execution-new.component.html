@@ -1,18 +1,18 @@
 <div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
-  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="externalTJob">
+  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row">
-          <span>Execute External TJob "{{externalTJob.name}}"</span>
+          <span>Execute External TJob "{{exTJob.name}}"</span>
         </div>
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content #scrollMeTest *ngIf="externalTJob">
-        <etm-case-execution-view [externalTJob]="externalTJob"></etm-case-execution-view>
+      <md-card-content #scrollMeTest *ngIf="exTJob">
+        <etm-case-execution-view [exTJob]="exTJob"></etm-case-execution-view>
       </md-card-content>
     </md-card>
   </div>
-  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="externalTJob">
+  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row">

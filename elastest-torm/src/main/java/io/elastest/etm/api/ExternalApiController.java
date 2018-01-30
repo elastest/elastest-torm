@@ -108,7 +108,15 @@ public class ExternalApiController implements ExternalApi {
     public ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
             @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
         return new ResponseEntity<ExternalTJobExecution>(
-                externalService.getExternalTJobExecById(tJobExecId), HttpStatus.OK);
+                externalService.getExternalTJobExecById(tJobExecId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
+            @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
+        return new ResponseEntity<ExternalTJobExecution>(
+                externalService.createExternalTJobExecution(body),
+                HttpStatus.OK);
     }
 
     /* **************************************************/

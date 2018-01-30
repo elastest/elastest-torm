@@ -39,7 +39,7 @@ export class ETExternalModelsTransformService {
       newProject.suts = this.eTModelsTransformService.jsonToSutsList(project.suts, true);
     }
     if (!withoutTJobs) {
-      newProject.externalTJobs = this.jsonToExternalTJobsList(project.externalTJobs, true);
+      newProject.exTJobs = this.jsonToExternalTJobsList(project.exTJobs, true);
     }
 
     return newProject;
@@ -94,7 +94,10 @@ export class ETExternalModelsTransformService {
   /********* TJobExecs *********/
   /*****************************/
 
-  jsonToExternalTJobExecsList(tjobexecs: any[], fromTJob: boolean = false): ExternalTJobExecModel[] {
+  jsonToExternalTJobExecsList(
+    tjobexecs: any[],
+    fromTJob: boolean = false,
+  ): ExternalTJobExecModel[] {
     let tjobexecsList: ExternalTJobExecModel[] = [];
     for (let tjobexec of tjobexecs) {
       tjobexecsList.push(this.jsonToExternalTJobExecModel(tjobexec, fromTJob));
@@ -108,14 +111,18 @@ export class ETExternalModelsTransformService {
     newTJobExec.id = tjobexec.id;
     newTJobExec.esIndex = tjobexec.esIndex;
 
-    if (tjobexec.tJob !== undefined && tjobexec.tJob !== null) {
+    if (tjobexec.exTJob !== undefined && tjobexec.exTJob !== null) {
       if (!fromTJob) {
-        newTJobExec.externalTJob = this.jsonToExternalTJobModel(tjobexec.externalTJob);
+        newTJobExec.exTJob = this.jsonToExternalTJobModel(tjobexec.exTJob, false, false, true);
       } else {
-        newTJobExec.externalTJob = tjobexec.externalTJob;
+        newTJobExec.exTJob = tjobexec.exTJob;
       }
     } else {
-      newTJobExec.externalTJob = new ExternalTJobModel();
+      if (!fromTJob) {
+        newTJobExec.exTJob = new ExternalTJobModel();
+      } else {
+        newTJobExec.exTJob = undefined;
+      }
     }
 
     return newTJobExec;
@@ -133,7 +140,11 @@ export class ETExternalModelsTransformService {
     return casesList;
   }
 
-  jsonToExternalTestCaseModel(testCase: any, fromTJob: boolean = false): ExternalTestCaseModel {
+  jsonToExternalTestCaseModel(
+    testCase: any,
+    fromTJob: boolean = false,
+    withoutTestExecs: boolean = false,
+  ): ExternalTestCaseModel {
     let newCase: ExternalTestCaseModel;
     newCase = new ExternalTestCaseModel();
     newCase.id = testCase.id;
@@ -142,15 +153,21 @@ export class ETExternalModelsTransformService {
     newCase.externalSystemId = testCase.externalSystemId;
 
     newCase.fields = testCase.fields;
-    newCase.externalTestExecs = testCase.externalTestExecs;
-    if (testCase.tJob !== undefined && testCase.tJob !== null) {
+    if (!withoutTestExecs) {
+      newCase.exTestExecs = this.jsonToExternalTestExecsList(testCase.exTestExecs, true);
+    }
+    if (testCase.exTJob !== undefined && testCase.exTJob !== null) {
       if (!fromTJob) {
-        newCase.externalTJob = this.jsonToExternalTJobModel(testCase.externalTJob);
+        newCase.exTJob = this.jsonToExternalTJobModel(testCase.exTJob, false, true, false);
       } else {
-        newCase.externalTJob = testCase.externalTJob;
+        newCase.exTJob = testCase.exTJob;
       }
     } else {
-      newCase.externalTJob = new ExternalTJobModel();
+      if (!fromTJob) {
+        newCase.exTJob = new ExternalTJobModel();
+      } else {
+        newCase.exTJob = undefined;
+      }
     }
 
     return newCase;
@@ -160,15 +177,21 @@ export class ETExternalModelsTransformService {
   /********* TestExecs *********/
   /*****************************/
 
-  jsonToExternalTestExecsList(testExecs: any[]): ExternalTestExecutionModel[] {
+  jsonToExternalTestExecsList(
+    testExecs: any[],
+    fromTestCase: boolean = false,
+  ): ExternalTestExecutionModel[] {
     let testExecsList: ExternalTestExecutionModel[] = [];
     for (let testExec of testExecs) {
-      testExecsList.push(this.jsonToExternalTestExecutionModel(testExec));
+      testExecsList.push(this.jsonToExternalTestExecutionModel(testExec, fromTestCase));
     }
     return testExecsList;
   }
 
-  jsonToExternalTestExecutionModel(testExec: any): ExternalTestExecutionModel {
+  jsonToExternalTestExecutionModel(
+    testExec: any,
+    fromTestCase: boolean = false,
+  ): ExternalTestExecutionModel {
     let newTestExec: ExternalTestExecutionModel;
     newTestExec = new ExternalTestExecutionModel();
     newTestExec.id = testExec.id;
@@ -178,10 +201,18 @@ export class ETExternalModelsTransformService {
     newTestExec.externalId = testExec.externalId;
     newTestExec.externalSystemId = testExec.externalSystemId;
 
-    if (testExec.tJob !== undefined && testExec.tJob !== null) {
-      newTestExec.exTestCase = this.jsonToExternalTestCaseModel(testExec.exTestCase);
+    if (testExec.exTestCase !== undefined && testExec.exTestCase !== null) {
+      if (!fromTestCase) {
+        newTestExec.exTestCase = this.jsonToExternalTestCaseModel(testExec.exTestCase, false, true);
+      } else {
+        newTestExec.exTestCase = testExec.exTestCase;
+      }
     } else {
-      newTestExec.exTestCase = new ExternalTestCaseModel();
+      if (!fromTestCase) {
+        newTestExec.exTestCase = new ExternalTestCaseModel();
+      } else {
+        newTestExec.exTestCase = undefined;
+      }
     }
 
     return newTestExec;

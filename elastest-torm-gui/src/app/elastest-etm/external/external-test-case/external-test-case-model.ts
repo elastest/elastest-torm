@@ -7,14 +7,14 @@ export class ExternalTestCaseModel {
     fields: any;
     externalId: string;
     externalSystemId: string;
-    externalTJob: ExternalTJobModel;
-    externalTestExecs: ExternalTestExecutionModel[];
+    exTJob: ExternalTJobModel;
+    exTestExecs: ExternalTestExecutionModel[];
 
     constructor() {
         this.id = 0;
         this.name = '';
         this.fields = undefined;
-        this.externalTJob = undefined;
-        this.externalTestExecs = [];
+        this.exTJob = undefined;
+        this.exTestExecs = [];
     }
 }

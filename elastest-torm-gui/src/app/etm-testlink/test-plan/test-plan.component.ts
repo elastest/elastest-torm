@@ -19,7 +19,7 @@ export class TestPlanComponent implements OnInit {
   builds: BuildModel[] = [];
   testProjectId: number;
 
-  externalTJob: ExternalTJobModel;
+  exTJob: ExternalTJobModel;
 
   // Build Data
   buildColumns: any[] = [
@@ -75,7 +75,7 @@ export class TestPlanComponent implements OnInit {
     this.testLinkService.getExternalTJobByTestPlanId(this.testPlan.id)
       .subscribe(
       (tJob: ExternalTJobModel) => {
-        this.externalTJob = tJob;
+        this.exTJob = tJob;
       },
       (error) => console.log(error),
     );

@@ -130,6 +130,18 @@ public interface ExternalApi extends EtmApiExternalRoot {
     ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
             @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
+    @ApiOperation(value = "Creates a new External TJob Execution", notes = "Creates a new External TJob Execution", response = ExternalTJobExecution.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJobExecution.class),
+            @ApiResponse(code = 405, message = "Invalid input"),
+            @ApiResponse(code = 409, message = "Already exist") })
+    @RequestMapping(value = "tjobexec", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
+            @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body);
+
     /* **************************************************/
     /* *************** ExternalTestCase *************** */
     /* **************************************************/

@@ -37,8 +37,7 @@ public class ExternalTJobExecution implements Serializable {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ ExternalTJobExecutionView.class, ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
+    @JsonView({ ExternalTJobExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exTJob")
     @JsonIgnoreProperties(value = "exTJobExecs")

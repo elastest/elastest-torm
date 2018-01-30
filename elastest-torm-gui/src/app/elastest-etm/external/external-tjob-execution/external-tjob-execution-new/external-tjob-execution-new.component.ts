@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalDataModel } from '../../models/external-data-model';
 import { EusService } from '../../../../elastest-eus/elastest-eus.service';
@@ -8,6 +8,7 @@ import { IExternalExecution } from '../../models/external-execution-interface';
 import { ExternalTJobModel } from '../../external-tjob/external-tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ServiceType } from '../../external-project/external-project-model';
+import { ExternalTJobExecModel } from '../external-tjob-execution-model';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -15,8 +16,10 @@ import { ServiceType } from '../../external-project/external-project-model';
   styleUrls: ['./external-tjob-execution-new.component.scss'],
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
-  externalTJob: ExternalTJobModel;
-  
+  exTJob: ExternalTJobModel;
+  exTJobExec: ExternalTJobExecModel;
+  ready: boolean = false;
+
   // Browser
   sessionId: string;
 
@@ -44,14 +47,25 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   loadExternalTJob(id: number): void {
     this.externalService.getExternalTJobById(id).subscribe(
-      (externalTJob: ExternalTJobModel) => {
-        this.externalTJob = externalTJob;
-        // this.model.data = params;
-
-        // this.loadChromeBrowser();
+      (exTJob: ExternalTJobModel) => {
+        this.exTJob = exTJob;
+        this.createTJobExecution();
       },
       (error) => console.log(error),
     );
+  }
+
+  createTJobExecution(): void {
+    this.exTJobExec = new ExternalTJobExecModel();
+    this.exTJobExec.exTJob = new ExternalTJobModel();
+    this.exTJobExec.exTJob.id = this.exTJob.id;
+    this.externalService
+      .createExternalTJobExecution(this.exTJobExec)
+      .subscribe((exTJobExec: ExternalTJobExecModel) => {
+        this.exTJobExec = exTJobExec;
+        this.ready = true;
+        // this.loadChromeBrowser();
+      });
   }
 
   loadChromeBrowser(): void {
@@ -73,6 +87,16 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.removeBrowser();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.removeBrowser();
+  }
+
+  removeBrowser(): void {
     if (this.sessionId !== undefined) {
       this.eusService
         .stopSession(this.sessionId)

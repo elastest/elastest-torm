@@ -35,8 +35,7 @@ public class ExternalTestCase implements Serializable {
     }
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -67,11 +66,10 @@ public class ExternalTestCase implements Serializable {
     @JsonProperty("externalSystemId")
     private String externalSystemId;
 
-    @JsonView({ ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
+    @JsonView({ ExternalTestCaseView.class, ExternalTestExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exTJob")
-    @JsonIgnoreProperties(value = "exTestCases")
+    @JsonIgnoreProperties(value = { "exTestCases", "exTJobExecs" })
     private ExternalTJob exTJob;
 
     @JsonView({ ExternalTestCaseView.class, ExternalProjectView.class,

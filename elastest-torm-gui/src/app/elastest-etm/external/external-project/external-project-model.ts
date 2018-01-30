@@ -9,7 +9,7 @@ export class ExternalProjectModel {
     externalId: string;
     externalSystemId: string;
 
-    externalTJobs: ExternalTJobModel[];
+    exTJobs: ExternalTJobModel[];
     suts: SutModel[];
 
     constructor() {
@@ -19,7 +19,7 @@ export class ExternalProjectModel {
         this.externalId = undefined;
         this.externalSystemId = undefined;
 
-        this.externalTJobs = [];
+        this.exTJobs = [];
         this.suts = [];
 
     }

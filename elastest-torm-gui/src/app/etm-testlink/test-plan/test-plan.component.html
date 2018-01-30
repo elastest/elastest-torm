@@ -23,10 +23,10 @@
             <md-card-subtitle class="pad-left-none">Public</md-card-subtitle>
             <h4>{{testPlan.public}}</h4>
           </span>
-          <span flex-gt-xs="25" *ngIf="externalTJob != undefined">
+          <span flex-gt-xs="25" *ngIf="exTJob != undefined">
             <md-card-subtitle class="pad-left-none">Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/external/project/', externalTJob.exProject.id ,'tjob', externalTJob.id, 'exec','new']"
+              <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', exTJob.id, 'exec','new']"
                 class="iconBtn-lg" title="Run Test Plan">
                 <md-icon>play_circle_outline</md-icon>
               </button>

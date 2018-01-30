@@ -14,8 +14,9 @@
                 <span>Executing Build: {{testLinkSelectedBuild.name}}</span>
             </div>
         </ng-template>
-
-        <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data" [data]="data"></testlink-execution-form>
+        <div id="testLinkExec">
+            <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data" [data]="data"></testlink-execution-form>
+        </div>
         <div layout="row">
             <button md-raised-button color="accent" [disabled]="disableTLNextBtn || caseForm != undefined && !caseForm.valid" (click)="saveTLCaseExecution()">Save & Next</button>
         </div>
