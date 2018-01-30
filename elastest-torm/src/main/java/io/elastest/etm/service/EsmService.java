@@ -191,22 +191,32 @@ public class EsmService {
     public void registerElastestService(File serviceFile) throws IOException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String content = new String(
-                    Files.readAllBytes(serviceFile.toPath()));
+            String content = "";
 
-            ObjectNode serviceDefJson = mapper.readValue(content,
-                    ObjectNode.class);
-            
-            if (execMode.equals("normal")){
-                logger.debug("TSS file {}",serviceFile.getName());
-                if (tSSNameLoadedOnInit.contains(serviceFile.getName().split("-")[0].toUpperCase())){
-                    logger.debug("TSS {} will be registered in normal mode.",serviceFile.getName().split("-")[0].toUpperCase());
+            if (!serviceFile.isDirectory()) {
+                content = new String(Files.readAllBytes(serviceFile.toPath()));
+            }
+
+            if (!content.equals("")) {
+                ObjectNode serviceDefJson = mapper.readValue(content,
+                        ObjectNode.class);
+
+                if (execMode.equals("normal")) {
+                    logger.debug("TSS file {}", serviceFile.getName());
+                    if (tSSNameLoadedOnInit
+                            .contains(serviceFile.getName().split("-")[0]
+                                    .toUpperCase())) {
+                        logger.debug(
+                                "TSS {} will be registered in normal mode.",
+                                serviceFile.getName().split("-")[0]
+                                        .toUpperCase());
+                        registerElasTestService(serviceDefJson);
+                        tSSIdLoadedOnInit.add(serviceDefJson.get("register")
+                                .get("id").toString().replaceAll("\"", ""));
+                    }
+                } else {
                     registerElasTestService(serviceDefJson);
-                    tSSIdLoadedOnInit.add(serviceDefJson.get("register").get("id").toString()
-                            .replaceAll("\"", ""));
                 }
-            } else {
-                registerElasTestService(serviceDefJson);
             }
             
         } catch (IOException e) {
