@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # fix permissions (wrong if docker mounted volume)
-chown -R elasticsearch:elasticsearch /var/lib/elasticsearch
+chown -R elasticsearch:elasticsearch /usr/share/elasticsearch
 
 CONF_FILE=/usr/share/elasticsearch/config/elasticsearch.yml 
 LOG_DIR=/usr/share/elasticsearch/logs
