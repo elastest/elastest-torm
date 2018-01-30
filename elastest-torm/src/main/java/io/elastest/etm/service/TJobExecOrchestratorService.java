@@ -95,7 +95,7 @@ public class TJobExecOrchestratorService {
         tJobExecRepositoryImpl.save(tJobExec);
 
         initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-        setTJobExecEnvVars(tJobExec, true, false);
+        setTJobExecEnvVars(tJobExec, true, true);
 
         // Start Test
         resultMsg = "Executing Test";
@@ -335,21 +335,20 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private void setTJobExecEnvVars(TJobExecution tJobExec,
-            boolean externalTJob, boolean withPublicPrefix) {
+    private void setTJobExecEnvVars(TJobExecution tJobExec, boolean externalTJob, boolean envVarWithServNamePrefix) {
         // Get TSS Env Vars
         for (String tSSInstanceId : tJobExec.getServicesInstances()) {
             SupportServiceInstance ssi = esmService.gettJobServicesInstances()
                     .get(tSSInstanceId);
-            tJobExec.getEnvVars().putAll(esmService.getTSSInstanceEnvVars(ssi,
-                    externalTJob, withPublicPrefix));
+            tJobExec.getEnvVars()
+                    .putAll(esmService.getTSSInstanceEnvVars(ssi, externalTJob, envVarWithServNamePrefix));
         }
 
         if (!externalTJob) {
-            // Get monitoring Env Vars
+         // Get monitoring Env Vars
             tJobExec.getEnvVars()
-                    .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
-        }
+                    .putAll(etmContextService.getMonitoringEnvVars(tJobExec));            
+        }        
     }
 
     /**
@@ -375,15 +374,15 @@ public class TJobExecOrchestratorService {
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
 
-        // logger.info("Start the services check.");
-        // while (!tJobExec.getServicesInstances().isEmpty()) {
-        // for (String instanceId : instancesAux) {
-        // if (!esmService.isInstanceUp(instanceId)) {
-        // tJobExec.getServicesInstances().remove(instanceId);
-        // logger.info("Service {} removed from TJob.", instanceId);
-        // }
-        // }
-        // }
+//        logger.info("Start the services check.");
+//        while (!tJobExec.getServicesInstances().isEmpty()) {
+//            for (String instanceId : instancesAux) {
+//                if (!esmService.isInstanceUp(instanceId)) {
+//                    tJobExec.getServicesInstances().remove(instanceId);
+//                    logger.info("Service {} removed from TJob.", instanceId);
+//                }
+//            }
+//        }
     }
 
     /**********************/

@@ -873,7 +873,7 @@ public class EsmService {
     }
 
     public Map<String, String> getTSSInstanceContext(String tSSInstanceId,
-            boolean publicEnvVars, boolean withPublicPrefix) {
+            boolean publicEnvVars, boolean envVarWithServNamePrefix) {
         Map<String, String> tSSInstanceContextMap = new HashMap<>();
         SupportServiceInstance ssi = null;
         if (servicesInstances.get(tSSInstanceId) != null) {
@@ -884,22 +884,22 @@ public class EsmService {
             return null;
         }
 
-        tSSInstanceContextMap.putAll(getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix));
+        tSSInstanceContextMap.putAll(getTSSInstanceEnvVars(ssi, true, false));
         tSSInstanceContextMap.putAll(ssi.getParameters());
 
         return tSSInstanceContextMap;
     }
 
     public Map<String, String> getTSSInstanceEnvVars(SupportServiceInstance ssi,
-            boolean publicEnvVars, boolean withPublicPrefix) {
+            boolean publicEnvVars, boolean envVarWithServNamePrefix) {
         Map<String, String> envVars = new HashMap<String, String>();
         String servicePrefix = ssi.getServiceName().toUpperCase()
                 .replaceAll("-", "_");
-        String envVarNamePrefix = withPublicPrefix ? "ET_PUBLIC" : "ET";
+        String envVarNamePrefix = publicEnvVars ? "ET_PUBLIC" : "ET";
 
         for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData()
                 .entrySet()) {
-            String prefix = withPublicPrefix
+            String prefix = envVarNamePrefix.contains("ET_PUBLIC") && !envVarWithServNamePrefix
                     ? envVarNamePrefix : envVarNamePrefix + "_" + servicePrefix;
             envVars.putAll(
                     setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
