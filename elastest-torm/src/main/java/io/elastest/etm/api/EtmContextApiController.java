@@ -37,10 +37,9 @@ public class EtmContextApiController implements EtmContextApi {
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
             @PathVariable("tSSInstanceId") String tSSInstanceId) {
         Map<String, String> tSSInstanceContextMap = esmService
-                .getTSSInstanceContext(tSSInstanceId, true, false);
+                .getTSSInstanceContext(tSSInstanceId, true, true);
         if (tSSInstanceContextMap != null) {
-            return new ResponseEntity<Map<String, String>>(esmService
-                    .getTSSInstanceContext(tSSInstanceId, true, false),
+            return new ResponseEntity<Map<String, String>>(tSSInstanceContextMap,
                     HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
