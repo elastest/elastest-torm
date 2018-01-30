@@ -3,17 +3,22 @@ import { TestLinkService } from '../../testlink.service';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TestCaseModel } from '../../models/test-case-model';
-import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
+import {
+  AfterViewChecked,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core/src/metadata/lifecycle_hooks';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
-ElementRef
+ElementRef;
 @Component({
   selector: 'testlink-execution-form',
   templateUrl: './execution-form.component.html',
-  styleUrls: ['./execution-form.component.scss']
+  styleUrls: ['./execution-form.component.scss'],
 })
-export class ExecutionFormComponent implements OnInit, AfterViewChecked, IExternalExecution {
+export class ExecutionFormComponent
+  implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
   @Input() data: any;
 
   @ViewChild('notes') notes: ElementRef;
@@ -35,10 +40,13 @@ export class ExecutionFormComponent implements OnInit, AfterViewChecked, IExtern
 
   tcExec: TestCaseExecutionModel;
 
-  constructor(
-    private testLinkService: TestLinkService,
-  ) {
+  constructor(private testLinkService: TestLinkService) {}
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.data) {
+      this.ngOnInit();
+      this.alreadyFocused = false;
+    }
   }
 
   ngOnInit() {
@@ -63,15 +71,12 @@ export class ExecutionFormComponent implements OnInit, AfterViewChecked, IExtern
   saveExecution(): Observable<boolean> {
     let _obs: Subject<boolean> = new Subject<boolean>();
     let obs: Observable<boolean> = _obs.asObservable();
-    this.testLinkService.saveExecution(this.tcExec, this.testCase.id)
-      .subscribe(
+    this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
       (data) => {
         _obs.next(true);
       },
-      (error) => _obs.error(error)
-      );
+      (error) => _obs.error(error),
+    );
     return obs;
   }
-
-
 }

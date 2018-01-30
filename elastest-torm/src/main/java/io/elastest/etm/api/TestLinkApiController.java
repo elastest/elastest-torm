@@ -169,7 +169,6 @@ public class TestLinkApiController implements TestLinkApi {
     /* **********************************************************************/
 
     public ResponseEntity<Build[]> getPlanBuilds(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId) {
         return new ResponseEntity<Build[]>(
                 testLinkService.getPlanBuilds(planId), HttpStatus.OK);

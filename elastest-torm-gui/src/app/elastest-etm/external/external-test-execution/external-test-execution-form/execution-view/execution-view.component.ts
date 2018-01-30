@@ -7,14 +7,14 @@ import { ExternalDataModel } from '../../../models/external-data-model';
 import { TestCaseModel } from '../../../../../etm-testlink/models/test-case-model';
 import { BuildModel } from '../../../../../etm-testlink/models/build-model';
 import { ServiceType } from '../../../external-project/external-project-model';
+import { TestPlanModel } from '../../../../../etm-testlink/models/test-plan-model';
 
 @Component({
   selector: 'etm-execution-view',
   templateUrl: './execution-view.component.html',
-  styleUrls: ['./execution-view.component.scss']
+  styleUrls: ['./execution-view.component.scss'],
 })
 export class ExecutionViewComponent implements OnInit, IExternalExecution {
-
   @Input() model: ExternalDataModel;
 
   @ViewChild('executionForm') executionForm: IExternalExecution;
@@ -23,9 +23,7 @@ export class ExecutionViewComponent implements OnInit, IExternalExecution {
 
   service: ServiceType;
 
-  constructor(
-    private testLinkService: TestLinkService,
-  ) { }
+  constructor(private testLinkService: TestLinkService) {}
 
   ngOnInit() {
     this.service = this.model.serviceType;
@@ -44,27 +42,35 @@ export class ExecutionViewComponent implements OnInit, IExternalExecution {
   }
 
   initTestLinkData(): void {
-    this.testLinkService.getTestCaseById(this.model.data.testCaseId)
-      .subscribe(
+    this.testLinkService.getTestCaseById(this.model.data.testCaseId).subscribe(
       (testCase: TestCaseModel) => {
-        this.testLinkService.getBuildById(this.model.data.buildId)
-          .subscribe(
-          (build: BuildModel) => {
-            this.data = {
-              testCase: testCase,
-              build: build,
-            };
-          },
-          (error) => console.log(error),
-        );
+        if (this.model.data.buildId) {
+          this.testLinkService.getBuildById(this.model.data.buildId).subscribe(
+            (build: BuildModel) => {
+              this.data = {
+                testCase: testCase,
+                build: build,
+              };
+            },
+            (error) => console.log(error),
+          );
+        } else if (this.model.data.planId) {
+          this.testLinkService.getTestPlanById(this.model.data.planId).subscribe(
+            (plan: TestPlanModel) => {
+              this.data = {
+                testCase: testCase,
+                plan: plan,
+              };
+            },
+            (error) => console.log(error),
+          );
+        }
       },
       (error) => console.log(error),
-
     );
   }
 
   saveExecution(): Observable<boolean> {
     return this.executionForm.saveExecution();
   }
-
 }

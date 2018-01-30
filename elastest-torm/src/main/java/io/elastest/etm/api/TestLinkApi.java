@@ -215,10 +215,9 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", produces = {
+    @RequestMapping(value = "/testlink/project/plan/{planId}/build", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Build[]> getPlanBuilds(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
             @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId);
 
     @ApiOperation(value = "Returns last plan build", notes = "Returns last plan build.", response = Build.class, tags = {

@@ -1,0 +1,23 @@
+<ng-container *ngIf="serviceType" [ngSwitch]="serviceType">
+    <ng-container *ngSwitchCase="'TESTLINK'">
+        <div layout="row" class="push-bottom-md" *ngIf="!showTestLinkExec; else testLinkBuildInfo">
+            <md-select [(ngModel)]="testLinkSelectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
+                <md-option *ngFor="let build of testLinkBuilds" [value]="build">
+                    {{build.name}}
+                </md-option>
+            </md-select>
+            <button md-raised-button color="accent" [disabled]="!testLinkSelectedBuild || showTestLinkExec" (click)="selectTestLinkBuild()"
+                class="push-left-sm">Select Build</button>
+        </div>
+        <ng-template #testLinkBuildInfo>
+            <div layout="row" class="md-title push-bottom-md">
+                <span>Executing Build: {{testLinkSelectedBuild.name}}</span>
+            </div>
+        </ng-template>
+
+        <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data" [data]="data"></testlink-execution-form>
+        <div layout="row">
+            <button md-raised-button color="accent" [disabled]="disableTLNextBtn || caseForm != undefined && !caseForm.valid" (click)="saveTLCaseExecution()">Save & Next</button>
+        </div>
+    </ng-container>
+</ng-container>

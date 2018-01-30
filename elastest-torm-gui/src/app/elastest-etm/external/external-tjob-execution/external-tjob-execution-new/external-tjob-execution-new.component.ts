@@ -7,7 +7,7 @@ import { CompleteUrlObj } from '../../../../shared/utils';
 import { IExternalExecution } from '../../models/external-execution-interface';
 import { ExternalTJobModel } from '../../external-tjob/external-tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-
+import { ServiceType } from '../../external-project/external-project-model';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -15,12 +15,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./external-tjob-execution-new.component.scss'],
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
-  @ViewChild('externalExecution') externalExecution: IExternalExecution;
-
   externalTJob: ExternalTJobModel;
-  model: ExternalDataModel;
-  ready: boolean = false;
-
+  
   // Browser
   sessionId: string;
 
@@ -37,7 +33,6 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     private eusService: EusService,
     private route: ActivatedRoute,
   ) {
-    this.model = new ExternalDataModel();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.loadExternalTJob(params['tJobId']);
@@ -51,25 +46,9 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.externalService.getExternalTJobById(id).subscribe(
       (externalTJob: ExternalTJobModel) => {
         this.externalTJob = externalTJob;
-        this.model.serviceType = this.externalTJob.getServiceType();
-
         // this.model.data = params;
-        // this.ready = true;
 
         // this.loadChromeBrowser();
-      },
-      (error) => console.log(error),
-    );
-  }
-
-  saveExecution(): void {
-    this.externalExecution.saveExecution().subscribe(
-      (saved: boolean) => {
-        this.externalService.popupService.openSnackBar('Execution has been saved successfully');
-
-        // Do something
-
-        window.history.back();
       },
       (error) => console.log(error),
     );
@@ -95,7 +74,9 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.sessionId !== undefined) {
-      this.eusService.stopSession(this.sessionId).subscribe((ok) => {}, (error) => console.error(error));
+      this.eusService
+        .stopSession(this.sessionId)
+        .subscribe((ok) => {}, (error) => console.error(error));
     }
   }
 }
