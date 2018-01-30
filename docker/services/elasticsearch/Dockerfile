@@ -16,4 +16,5 @@ USER root
 
 RUN chown -R elasticsearch:elasticsearch /usr/share/elasticsearch
 
-USER elasticsearch
+ADD run_elasticsearch.sh /run_elasticsearch.sh
+CMD /run_elasticsearch.sh
