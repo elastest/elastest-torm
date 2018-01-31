@@ -323,7 +323,7 @@ public class TJobExecOrchestratorService {
                             resultMsg + service.get("name").toString()
                                     .replaceAll("\"", ""));
 
-                    String instanceId = esmService.provisionServiceInstanceSync(
+                    String instanceId = esmService.provisionTJobExecServiceInstanceSync(
                             service.get("id").toString().replaceAll("\"", ""),
                             tJobExec);
 
