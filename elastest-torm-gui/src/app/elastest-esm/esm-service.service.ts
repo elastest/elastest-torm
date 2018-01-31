@@ -5,6 +5,10 @@ import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
+
+export type tssParentType = 'normal' | 'tjobexec' | 'external';
 
 @Injectable()
 export class EsmService {
@@ -29,14 +33,39 @@ export class EsmService {
     return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
   }
 
-  getSupportServicesInstances() {
+  deprovisionTJobExecServiceInstance(serviceInstanceId: string, tJobExecId: string | number) {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/esm/services/instances/' +
+      serviceInstanceId +
+      '/tjobexec/' +
+      tJobExecId;
+    return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
+  }
+
+  deprovisionExternalTJobExecServiceInstance(
+    serviceInstanceId: string,
+    externalTJobExecId: string | number,
+  ) {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/esm/services/instances/' +
+      serviceInstanceId +
+      '/external/tjobexec/' +
+      externalTJobExecId;
+    return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
+  }
+
+  getSupportServicesInstances(): Observable<EsmServiceInstanceModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances';
     return this.http
       .get(url)
       .map((response) => this.transformIntoSupportServiceInstanceList(response));
   }
 
-  getSupportServicesInstancesByTJobExec(tJobExec: TJobExecModel) {
+  getSupportServicesInstancesByTJobExec(
+    tJobExec: TJobExecModel,
+  ): Observable<EsmServiceInstanceModel[]> {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/esm/services/instances/tJobExec/' +
@@ -49,6 +78,34 @@ export class EsmService {
   getSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
     let url: string =
       this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
+    return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
+  }
+
+  getSupportServiceInstanceByType(
+    id: string,
+    type: tssParentType = 'normal',
+  ): Observable<EsmServiceInstanceModel> {
+    if (type === 'external') {
+      return this.getExternalTJobExecSupportServiceInstance(id);
+    } else if (type === 'tjobexec') {
+      return this.getTJobExecSupportServiceInstance(id);
+    } else {
+      return this.getSupportServiceInstance(id);
+    }
+  }
+
+  getTJobExecSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
+    let url: string =
+      this.configurationService.configModel.hostApi + '/esm/services/instances/' + id + '/tjobexec';
+    return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
+  }
+
+  getExternalTJobExecSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/esm/services/instances/' +
+      id +
+      '/external/tjobexec';
     return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
   }
 
@@ -70,5 +127,34 @@ export class EsmService {
       retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance));
     }
     return retrivedServicesInstance;
+  }
+
+  waitForTssInstanceUp(
+    esmServicesInstanceId: string,
+    timer: Observable<number>,
+    subscription: Subscription,
+    type: tssParentType = 'normal',
+  ): Observable<EsmServiceInstanceModel> {
+    let _obs: Subject<EsmServiceInstanceModel> = new Subject<EsmServiceInstanceModel>();
+    let obs: Observable<EsmServiceInstanceModel> = _obs.asObservable();
+
+    timer = Observable.interval(1000);
+    if (subscription === null || subscription === undefined) {
+      subscription = timer.subscribe(() => {
+        this.getSupportServiceInstanceByType(esmServicesInstanceId, type).subscribe(
+          (esmServicesInstance: EsmServiceInstanceModel) => {
+            if (esmServicesInstance.serviceReady) {
+              if (subscription !== undefined) {
+                subscription.unsubscribe();
+                subscription = undefined;
+                _obs.next(esmServicesInstance);
+              }
+            }
+          },
+          (error) => console.log(error),
+        );
+      });
+    }
+    return obs;
   }
 }

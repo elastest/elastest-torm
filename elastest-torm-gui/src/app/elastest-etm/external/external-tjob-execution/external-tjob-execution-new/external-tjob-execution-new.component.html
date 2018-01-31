@@ -26,7 +26,7 @@
             [showStatus]="true"></vnc-client>
         </ng-container>
         <ng-template #loadingBrowser>
-          <div>Loading Browser...</div>
+          <div>{{browserLoadingMsg}}</div>
           <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
         </ng-template>
       </md-card-content>

@@ -9,6 +9,10 @@ import { ExternalTJobModel } from '../../external-tjob/external-tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ServiceType } from '../../external-project/external-project-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution-model';
+import { EsmService } from '../../../../elastest-esm/esm-service.service';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { EsmServiceInstanceModel } from '../../../../elastest-esm/esm-service-instance.model';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -20,6 +24,12 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   exTJobExec: ExternalTJobExecModel;
   ready: boolean = false;
 
+  // EUS
+  eusTimer: Observable<number>;
+  eusSubscription: Subscription;
+  eusInstanceId: string;
+
+  browserLoadingMsg: string = 'Loading...';
   // Browser
   sessionId: string;
 
@@ -34,6 +44,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     private externalService: ExternalService,
     public router: Router,
     private eusService: EusService,
+    private esmService: EsmService,
     private route: ActivatedRoute,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -64,11 +75,30 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       .subscribe((exTJobExec: ExternalTJobExecModel) => {
         this.exTJobExec = exTJobExec;
         this.ready = true;
-        // this.loadChromeBrowser();
+        console.log('Exec: ', this.exTJobExec);
+        this.waitForEus(exTJobExec);
       });
   }
 
+  waitForEus(exTJobExec: ExternalTJobExecModel): void {
+    this.browserLoadingMsg = 'Waiting for EUS...';
+    if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
+      this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
+      this.esmService
+        .waitForTssInstanceUp(this.eusInstanceId, this.eusTimer, this.eusSubscription, 'external')
+        .subscribe(
+          (eus: EsmServiceInstanceModel) => {
+            let eusUrl: string = eus.apiUrl;
+            this.eusService.setEusUrl(eusUrl);
+            this.loadChromeBrowser();
+          },
+          (error) => console.log(error),
+        );
+    }
+  }
+
   loadChromeBrowser(): void {
+    this.browserLoadingMsg = 'Waiting for Browser...';
     this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
@@ -98,9 +128,33 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   removeBrowser(): void {
     if (this.sessionId !== undefined) {
-      this.eusService
-        .stopSession(this.sessionId)
-        .subscribe((ok) => {}, (error) => console.error(error));
+      this.eusService.stopSession(this.sessionId).subscribe(
+        (ok) => {
+          this.deprovisionEUS();
+        },
+        (error) => {
+          console.error(error);
+          this.deprovisionEUS();
+        },
+      );
+    } else {
+      this.deprovisionEUS();
+    }
+  }
+
+  deprovisionEUS(): void {
+    if (this.eusInstanceId && this.exTJobExec) {
+      this.esmService
+        .deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id)
+        .subscribe(() => {}, (error) => console.log(error));
+    }
+    this.unsubscribeEus();
+  }
+
+  unsubscribeEus(): void {
+    if (this.eusSubscription) {
+      this.eusSubscription.unsubscribe();
+      this.eusSubscription = undefined;
     }
   }
 }

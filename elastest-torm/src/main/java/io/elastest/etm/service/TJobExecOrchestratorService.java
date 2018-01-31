@@ -371,7 +371,7 @@ public class TJobExecOrchestratorService {
         logger.debug("TSS list size: {}", esmService
                 .gettSSIByTJobExecAssociated().get(tJobExec.getId()).size());
         for (String instanceId : instancesAux) {
-            esmService.deprovisionServiceInstance(instanceId, tJobExec.getId());
+            esmService.deprovisionTJobExecServiceInstance(instanceId, tJobExec.getId());
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
 

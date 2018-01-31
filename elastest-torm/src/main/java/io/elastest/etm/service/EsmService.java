@@ -109,7 +109,9 @@ public class EsmService {
     public UtilTools utilTools;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
+    private Map<String, SupportServiceInstance> externalTJobServicesInstances;
     private Map<Long, List<String>> tSSIByTJobExecAssociated;
+    private Map<Long, List<String>> tSSIByExternalTJobExecAssociated;
     private List<String> tSSIdLoadedOnInit;
     private List<String> tSSNameLoadedOnInit;
 
@@ -120,7 +122,9 @@ public class EsmService {
         this.utilTools = utilTools;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
+        this.externalTJobServicesInstances = new HashMap<>();
         this.tSSIByTJobExecAssociated = new HashMap<>();
+        this.tSSIByExternalTJobExecAssociated = new HashMap<>();
         this.dockerService = dockerService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
@@ -376,7 +380,7 @@ public class EsmService {
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        false);
+                        servicesInstances);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -425,7 +429,8 @@ public class EsmService {
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        tJobExec != null && tJobExec.getId() != null);
+                        tJobExec != null && tJobExec.getId() != null
+                                ? tJobServicesInstances : servicesInstances);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -482,14 +487,15 @@ public class EsmService {
                     exTJobExec);
 
             if (exTJobExec != null && execId != null) {
-                tJobServicesInstances.put(instanceId, newServiceInstance);
-                List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
+                externalTJobServicesInstances.put(instanceId,
+                        newServiceInstance);
+                List<String> tSSIByExternalTJobExecAssociatedList = tSSIByExternalTJobExecAssociated
                         .get(execId) == null ? new ArrayList<>()
-                                : tSSIByTJobExecAssociated.get(execId);
-                tSSIByTJobExecAssociatedList
+                                : tSSIByExternalTJobExecAssociated.get(execId);
+                tSSIByExternalTJobExecAssociatedList
                         .add(newServiceInstance.getInstanceId());
-                tSSIByTJobExecAssociated.put(execId,
-                        tSSIByTJobExecAssociatedList);
+                tSSIByExternalTJobExecAssociated.put(execId,
+                        tSSIByExternalTJobExecAssociatedList);
 
                 createExecFilesFolder(newServiceInstance);
             } else {
@@ -502,7 +508,9 @@ public class EsmService {
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        exTJobExec != null && exTJobExec.getId() != null);
+                        exTJobExec != null && exTJobExec.getId() != null
+                                ? externalTJobServicesInstances
+                                : servicesInstances);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -785,22 +793,35 @@ public class EsmService {
 
     public void deprovisionServicesInstances() {
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            deprovisionServiceInstance(tSSInstanceId, true);
+            deprovisionServiceInstance(tSSInstanceId, tJobServicesInstances);
         });
 
         tJobServicesInstances = null;
 
+        externalTJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
+            deprovisionServiceInstance(tSSInstanceId,
+                    externalTJobServicesInstances);
+        });
+
+        externalTJobServicesInstances = null;
+
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            deprovisionServiceInstance(tSSInstanceId, false);
+            deprovisionServiceInstance(tSSInstanceId, servicesInstances);
         });
 
         servicesInstances = null;
     }
 
-    public String deprovisionServiceInstance(String instanceId,
+    public String deprovisionTJobExecServiceInstance(String instanceId,
             Long tJobExecId) {
         tSSIByTJobExecAssociated.remove(tJobExecId);
-        return deprovisionServiceInstance(instanceId, true);
+        return deprovisionServiceInstance(instanceId, tJobServicesInstances);
+    }
+    
+    public String deprovisionExternalTJobExecServiceInstance(String instanceId,
+            Long externalTJobExecId) {
+        tSSIByExternalTJobExecAssociated.remove(externalTJobExecId);
+        return deprovisionServiceInstance(instanceId, externalTJobServicesInstances);
     }
 
     /**
@@ -809,32 +830,38 @@ public class EsmService {
      * @param instanceId
      */
     public String deprovisionServiceInstance(String instanceId,
-            Boolean withTJob) {
+            Map<String, SupportServiceInstance> ssiMap) {
+        if (ssiMap == null) {
+            ssiMap = this.servicesInstances;
+        }
         DockerClient dockerClient = dockerService.getDockerClient();
         String result = "Instance deleted.";
-        Map<String, SupportServiceInstance> servicesInstances = withTJob
-                ? tJobServicesInstances : this.servicesInstances;
-        SupportServiceInstance serviceInstance = servicesInstances
-                .get(instanceId);
-        serviceInstance.setServiceReady(false);
 
-        for (String containerId : serviceInstance.getPortBindingContainers()) {
-            dockerService.stopDockerContainer(containerId, dockerClient);
-            dockerService.removeDockerContainer(containerId, dockerClient);
-        }
+        SupportServiceInstance serviceInstance = ssiMap.get(instanceId);
+        if (serviceInstance != null) {
+            serviceInstance.setServiceReady(false);
 
-        for (SupportServiceInstance subServiceInstance : serviceInstance
-                .getSubServices()) {
-            for (String containerId : subServiceInstance
+            for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
                 dockerService.stopDockerContainer(containerId, dockerClient);
                 dockerService.removeDockerContainer(containerId, dockerClient);
             }
-        }
+
+            for (SupportServiceInstance subServiceInstance : serviceInstance
+                    .getSubServices()) {
+                for (String containerId : subServiceInstance
+                        .getPortBindingContainers()) {
+                    dockerService.stopDockerContainer(containerId,
+                            dockerClient);
+                    dockerService.removeDockerContainer(containerId,
+                            dockerClient);
+                }
+            }
 
         esmServiceClient.deprovisionServiceInstance(instanceId,
                 serviceInstance);
-        servicesInstances.remove(instanceId);
+        }
+        ssiMap.remove(instanceId);
         return result;
     }
 
@@ -859,7 +886,29 @@ public class EsmService {
     }
 
     public SupportServiceInstance getServiceInstanceFromMem(String id) {
-        return servicesInstances.get(id);
+        return this.getServiceInstance(id);
+    }
+
+    public SupportServiceInstance getServiceInstance(String id) {
+        return this.getServiceInstanceBySIMap(id, servicesInstances);
+    }
+
+    public SupportServiceInstance getTJobExecServiceInstance(String id) {
+        return this.getServiceInstanceBySIMap(id, tJobServicesInstances);
+    }
+
+    public SupportServiceInstance getExternalTJobExecServiceInstance(
+            String id) {
+        return this.getServiceInstanceBySIMap(id,
+                externalTJobServicesInstances);
+    }
+
+    public SupportServiceInstance getServiceInstanceBySIMap(String id,
+            Map<String, SupportServiceInstance> ssiMap) {
+        SupportServiceInstance tss = ssiMap.get(id);
+        tss.setServiceReady(checkInstanceUrlIsUp(tss));
+
+        return tss;
     }
 
     /**
@@ -916,34 +965,37 @@ public class EsmService {
     public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
         boolean up = false;
         int responseCode = 0;
-        for (Map.Entry<String, String> urlHash : tSSInstance.getUrls()
-                .entrySet()) {
-            up = true;
-            if (urlHash.getValue().contains("http")) {
-                URL url;
+        if (tSSInstance != null && tSSInstance.getUrls() != null) {
+            for (Map.Entry<String, String> urlHash : tSSInstance.getUrls()
+                    .entrySet()) {
+                up = true;
+                if (urlHash.getValue().contains("http")) {
+                    URL url;
 
-                try {
-                    url = new URL(urlHash.getValue());
-                    logger.debug(tSSInstance.getServiceName() + " Service URL: "
-                            + urlHash.getValue());
-                    HttpURLConnection huc = (HttpURLConnection) url
-                            .openConnection();
-                    huc.setConnectTimeout(2000);
-                    responseCode = huc.getResponseCode();
-                    up = up && ((responseCode >= 200 && responseCode <= 299)
-                            || (responseCode >= 400 && responseCode <= 415));
-                    logger.debug(tSSInstance.getServiceName()
-                            + " Service response: " + responseCode);
-
-                    if (!up) {
+                    try {
+                        url = new URL(urlHash.getValue());
                         logger.debug(tSSInstance.getServiceName()
-                                + " Service is not ready.");
-                        return up;
+                                + " Service URL: " + urlHash.getValue());
+                        HttpURLConnection huc = (HttpURLConnection) url
+                                .openConnection();
+                        huc.setConnectTimeout(2000);
+                        responseCode = huc.getResponseCode();
+                        up = up && ((responseCode >= 200 && responseCode <= 299)
+                                || (responseCode >= 400
+                                        && responseCode <= 415));
+                        logger.debug(tSSInstance.getServiceName()
+                                + " Service response: " + responseCode);
+
+                        if (!up) {
+                            logger.debug(tSSInstance.getServiceName()
+                                    + " Service is not ready.");
+                            return up;
+                        }
+                    } catch (Exception e) {
+                        logger.debug(tSSInstance.getServiceName()
+                                + " Service is not ready by exception error.");
+                        return false;
                     }
-                } catch (Exception e) {
-                    logger.debug(tSSInstance.getServiceName()
-                            + " Service is not ready by exception error.");
-                    return false;
                 }
             }
         }

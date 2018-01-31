@@ -18,6 +18,7 @@ import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.Project;
+import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.external.ExternalProject;
@@ -76,14 +77,18 @@ public class ExternalService {
     private final ExternalTJobRepository externalTJobRepository;
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
-    public ExternalService(ProjectService projectService,
+    private final EsmService esmService;
+
+    public ExternalService(UtilTools utilTools, ProjectService projectService,
             TJobService tJobService,
             ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
-            ExternalTJobExecutionRepository externalTJobExecutionRepository) {
+            ExternalTJobExecutionRepository externalTJobExecutionRepository,
+            EsmService esmService) {
         super();
+        this.utilTools = utilTools;
         this.projectService = projectService;
         this.tJobService = tJobService;
         this.externalProjectRepository = externalProjectRepository;
@@ -92,6 +97,7 @@ public class ExternalService {
         this.externalTJobRepository = externalTJobRepository;
         this.runningExternalJobs = new HashMap<>();
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
+        this.esmService = esmService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob)
@@ -273,11 +279,34 @@ public class ExternalService {
             exec.setEsIndex(this.getExternalTJobExecESIndex(exec));
             exec = this.externalTJobExecutionRepository.save(exec);
         }
+
+        SupportService eus = this.startEus();
+
+        if (eus != null) {
+            String instanceId = utilTools.generateUniqueId();
+            esmService.provisionExternalTJobExecServiceInstanceAsync(
+                    eus.getId(), exec, instanceId);
+            exec.getEnvVars().put("EUS_ID", eus.getId());
+            exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
+        }
+
         return exec;
     }
 
     public String getExternalTJobExecESIndex(ExternalTJobExecution exec) {
         return "ext" + exec.getExTJob().getId() + "_e" + exec.getId();
+    }
+
+    public SupportService startEus() {
+        List<SupportService> tssList = esmService.getRegisteredServices();
+        SupportService eus = null;
+        for (SupportService tss : tssList) {
+            if ("eus".equals(tss.getName().toLowerCase())) {
+                eus = tss;
+                break;
+            }
+        }
+        return eus;
     }
 
     /* **************************************************/
