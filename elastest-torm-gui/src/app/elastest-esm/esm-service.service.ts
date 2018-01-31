@@ -4,52 +4,52 @@ import { EsmServiceModel } from './esm-service.model';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class EsmService {
+  constructor(private http: Http, private configurationService: ConfigurationService) {}
 
-  constructor(private http: Http, private configurationService: ConfigurationService) { }
-
-  getSupportServices() {
-    let url = this.configurationService.configModel.hostApi + '/esm/services';
-    return this.http.get(url)
-      .map((response) => this.transformIntoEsmServiceModel(response)
-      );
+  getSupportServices(): Observable<EsmServiceModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services';
+    return this.http.get(url).map((response) => this.transformIntoEsmServiceModel(response));
   }
 
   provisionServiceInstance(serviceId: string) {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
-    return this.http.post(url, null)
-      .map((response) => response['_body']
-      );
+    let url: string =
+      this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
+    return this.http.post(url, null).map((response) => response['_body']);
   }
 
   deprovisionServiceInstance(serviceInstanceId: string) {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId;
-    return this.http.delete(url, null)
-      .map((response) => console.log(JSON.stringify(response))
-      );
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/esm/services/instances/' +
+      serviceInstanceId;
+    return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
   }
 
   getSupportServicesInstances() {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances';
-    return this.http.get(url)
-      .map((response) => this.transformIntoSupportServiceInstanceList(response)
-      );
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances';
+    return this.http
+      .get(url)
+      .map((response) => this.transformIntoSupportServiceInstanceList(response));
   }
 
   getSupportServicesInstancesByTJobExec(tJobExec: TJobExecModel) {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
-    return this.http.get(url)
-      .map((response) => this.transformIntoSupportServiceInstanceList(response)
-      );
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/esm/services/instances/tJobExec/' +
+      tJobExec.id;
+    return this.http
+      .get(url)
+      .map((response) => this.transformIntoSupportServiceInstanceList(response));
   }
 
-  getSupportServiceInstance(id: string) {
-    let url = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
-    return this.http.get(url)
-      .map((response) => new EsmServiceInstanceModel(response.json())
-      );
+  getSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
+    let url: string =
+      this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
+    return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
   }
 
   transformIntoEsmServiceModel(response: Response) {
@@ -70,5 +70,5 @@ export class EsmService {
       retrivedServicesInstance.push(new EsmServiceInstanceModel(serviceInstance));
     }
     return retrivedServicesInstance;
-  } 
+  }
 }

@@ -39,6 +39,7 @@ import com.github.dockerjava.api.model.Ports;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.UtilTools;
 
@@ -97,7 +98,7 @@ public class EsmService {
     public String etEtmLstcpHost;
     @Value("${et.etm.lstcp.port}")
     public String etEtmLstcpPort;
-    
+
     @Value("${exec.mode}")
     public String execMode;
     @Value("${et.socat.image}")
@@ -123,7 +124,7 @@ public class EsmService {
         this.dockerService = dockerService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
-        
+
     }
 
     @PostConstruct
@@ -131,12 +132,12 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
-            if (execMode.equals("normal")){
+            if (execMode.equals("normal")) {
                 tSSIdLoadedOnInit.forEach((serviceId) -> {
-                    provisionServiceInstanceSync(serviceId, null);
+                    provisionServiceInstanceSync(serviceId);
                     logger.debug("EUS is started from ElasTest in normal mode");
                 });
-                
+
             }
         } catch (Exception e) {
             logger.warn("Error during the services registry. ");
@@ -218,14 +219,14 @@ public class EsmService {
                     registerElasTestService(serviceDefJson);
                 }
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
         }
     }
-    
-    private void registerElasTestService( ObjectNode serviceDefJson){
+
+    private void registerElasTestService(ObjectNode serviceDefJson) {
         esmServiceClient
                 .registerService(serviceDefJson.get("register").toString());
         esmServiceClient.registerManifest(
@@ -284,69 +285,142 @@ public class EsmService {
     }
 
     @Async
-    public void provisionServiceInstanceAsync(String serviceId, TJobExecution tJobExec, String instanceId) {
-        provisionServiceInstance(serviceId, tJobExec, instanceId);
+    public void provisionServiceInstanceAsync(String serviceId,
+            String instanceId) {
+        provisionServiceInstance(serviceId, instanceId);
     }
 
-    public String provisionServiceInstanceSync(String serviceId,
-            TJobExecution tJobExec) {
+    public String provisionServiceInstanceSync(String serviceId) {
         String instanceId = utilTools.generateUniqueId();
-        provisionServiceInstance(serviceId, tJobExec, instanceId);
+        provisionServiceInstance(serviceId, instanceId);
         return instanceId;
     }
 
-    public void provisionServiceInstance(String serviceId, TJobExecution tJobExec, String instanceId) {
-        logger.info("Service id to provision: " + serviceId);
+    /* *** Provision With TJobExec *** */
+
+    @Async
+    public void provisionTJobExecServiceInstanceAsync(String serviceId,
+            TJobExecution tJobExec, String instanceId) {
+        provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
+    }
+
+    public String provisionTJobExecServiceInstanceSync(String serviceId,
+            TJobExecution tJobExec) {
+        String instanceId = utilTools.generateUniqueId();
+        provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
+        return instanceId;
+    }
+
+    /* *** Provision With External TJobExec *** */
+
+    @Async
+    public void provisionExternalTJobExecServiceInstanceAsync(String serviceId,
+            ExternalTJobExecution exTJobExec, String instanceId) {
+        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
+                instanceId);
+    }
+
+    public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
+            ExternalTJobExecution exTJobExec) {
+        String instanceId = utilTools.generateUniqueId();
+        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
+                instanceId);
+        return instanceId;
+    }
+
+    public JsonNode getRawServiceById(String serviceId) throws IOException {
+        JsonNode service = null;
+        JsonNode services = getRawRegisteredServices();
+        for (JsonNode currentService : services) {
+            if (currentService.get("id").toString().replaceAll("\"", "")
+                    .equals(serviceId)) {
+                service = currentService;
+                break;
+            }
+        }
+        return service;
+    }
+
+    public SupportServiceInstance createNewServiceInstance(String serviceId,
+            Long executionId, String instanceId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode service = this.getRawServiceById(serviceId);
+        logger.info("Service instance: " + instanceId);
+        List<ObjectNode> plans = Arrays.asList(mapper.readValue(
+                service.get("plans").toString(), ObjectNode[].class));
+
+        return new SupportServiceInstance(instanceId,
+                service.get("id").toString().replaceAll("\"", ""),
+                service.get("name").toString().replaceAll("\"", ""),
+                // service.get("short_name").toString().replaceAll("\"",
+                // ""),
+                "", plans.get(0).get("id").toString().replaceAll("\"", ""),
+                executionId != null ? executionId : null);
+    }
+
+    public void provisionServiceInstance(String serviceId, String instanceId) {
+        logger.info("Service id to provision: " + serviceId);
         SupportServiceInstance newServiceInstance = null;
 
         try {
-            JsonNode services = getRawRegisteredServices();
-            for (JsonNode service : services) {
-                if (service.get("id").toString().replaceAll("\"", "")
-                        .equals(serviceId)) {
-                    logger.info("Service instance: " + instanceId);
-                    List<ObjectNode> plans = Arrays.asList(
-                            mapper.readValue(service.get("plans").toString(),
-                                    ObjectNode[].class));
-                    newServiceInstance = new SupportServiceInstance(instanceId,
-                            service.get("id").toString().replaceAll("\"", ""),
-                            service.get("name").toString().replaceAll("\"", ""),
-                            // service.get("short_name").toString().replaceAll("\"",
-                            // ""),
-                            "", plans.get(0).get("id").toString()
-                                    .replaceAll("\"", ""),
-                                    tJobExec != null ? tJobExec.getId() : null);
+            newServiceInstance = this.createNewServiceInstance(serviceId, null,
+                    instanceId);
 
-                    fillEnvVariablesToTSS(newServiceInstance, tJobExec);
+            this.fillEnvVariablesToTSS(newServiceInstance);
 
-                    if (tJobExec != null && tJobExec.getId() != null) {
-                        tJobServicesInstances.put(instanceId,
-                                newServiceInstance);
-                        List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
-                                .get(tJobExec.getId()) == null ? new ArrayList<>()
-                                        : tSSIByTJobExecAssociated
-                                                .get(tJobExec.getId());
-                        tSSIByTJobExecAssociatedList.add(newServiceInstance.getInstanceId());
-                        tSSIByTJobExecAssociated.put(tJobExec.getId(), tSSIByTJobExecAssociatedList);
-                        
-                        createExecFilesFolder(newServiceInstance);
-                    } else {
-                        servicesInstances.put(instanceId, newServiceInstance);
-                    }
+            servicesInstances.put(instanceId, newServiceInstance);
 
-                    esmServiceClient.provisionServiceInstance(
-                            newServiceInstance, instanceId,
-                            Boolean.toString(false));
-                    ObjectNode serviceInstanceDetail = getServiceInstanceInfo(
-                            instanceId);
-                    newServiceInstance.setManifestId(serviceInstanceDetail
-                            .get("context").get("manifest_id").toString()
-                            .replaceAll("\"", ""));
-                    buildSrvInstancesUrls(newServiceInstance,
-                            serviceInstanceDetail);
-                }
+            this.provisionServiceInstanceByObject(newServiceInstance,
+                    instanceId);
+        } catch (Exception e) {
+            if (newServiceInstance != null) {
+                deprovisionServiceInstance(newServiceInstance.getInstanceId(),
+                        false);
             }
+            throw new RuntimeException(
+                    "Exception requesting an instance of service \"" + serviceId
+                            + "\"",
+                    e);
+        }
+
+        if (newServiceInstance == null) {
+            throw new RuntimeException(
+                    "Service with name \"" + serviceId + "\" not found in ESM");
+        }
+    }
+
+    /* *** Provision With TJobExec *** */
+    public void provisionTJobExecServiceInstance(String serviceId,
+            TJobExecution tJobExec, String instanceId) {
+        logger.info("Service id to provision: " + serviceId);
+        SupportServiceInstance newServiceInstance = null;
+
+        try {
+            Long execId = tJobExec != null && tJobExec.getId() != null
+                    ? tJobExec.getId() : null;
+            newServiceInstance = this.createNewServiceInstance(serviceId,
+                    execId, instanceId);
+
+            fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
+
+            if (tJobExec != null && execId != null) {
+                tJobServicesInstances.put(instanceId, newServiceInstance);
+                List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
+                        .get(execId) == null ? new ArrayList<>()
+                                : tSSIByTJobExecAssociated.get(execId);
+                tSSIByTJobExecAssociatedList
+                        .add(newServiceInstance.getInstanceId());
+                tSSIByTJobExecAssociated.put(execId,
+                        tSSIByTJobExecAssociatedList);
+
+                createExecFilesFolder(newServiceInstance);
+            } else {
+                servicesInstances.put(instanceId, newServiceInstance);
+            }
+
+            this.provisionServiceInstanceByObject(newServiceInstance,
+                    instanceId);
 
         } catch (Exception e) {
             if (newServiceInstance != null) {
@@ -363,6 +437,121 @@ public class EsmService {
             throw new RuntimeException(
                     "Service with name \"" + serviceId + "\" not found in ESM");
         }
+    }
+
+    private void fillTJobExecEnvVariablesToTSS(
+            SupportServiceInstance supportServiceInstance,
+            TJobExecution tJobExec) {
+
+        if (tJobExec != null && tJobExec.getTjob() != null) {
+            Long tJobId = tJobExec.getTjob().getId();
+            Long tJobExecId = tJobExec.getId();
+
+            supportServiceInstance.getParameters().put("ET_TJOB_ID",
+                    tJobId.toString());
+            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
+                    tJobExecId.toString());
+            supportServiceInstance.getParameters().put("ET_MON_EXEC",
+                    tJobExecId.toString());// TODO refactor -> Use
+                                           // etmcontextService.getMonitoringEnvVars
+            String fileSeparator = "/";
+            supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                    etSharedFolder + fileSeparator + "tjobs" + fileSeparator
+                            + "tjob_" + tJobId + fileSeparator + "exec_"
+                            + tJobExecId
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
+        this.fillEnvVariablesToTSS(supportServiceInstance);
+    }
+
+    /* *** Provision With ExternalTJobExec *** */
+    public void provisionExternalTJobExecServiceInstance(String serviceId,
+            ExternalTJobExecution exTJobExec, String instanceId) {
+        logger.info("Service id to provision: " + serviceId);
+        SupportServiceInstance newServiceInstance = null;
+
+        try {
+            Long execId = exTJobExec != null && exTJobExec.getId() != null
+                    ? exTJobExec.getId() : null;
+            newServiceInstance = this.createNewServiceInstance(serviceId,
+                    execId, instanceId);
+
+            fillExternalTJobExecEnvVariablesToTSS(newServiceInstance,
+                    exTJobExec);
+
+            if (exTJobExec != null && execId != null) {
+                tJobServicesInstances.put(instanceId, newServiceInstance);
+                List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
+                        .get(execId) == null ? new ArrayList<>()
+                                : tSSIByTJobExecAssociated.get(execId);
+                tSSIByTJobExecAssociatedList
+                        .add(newServiceInstance.getInstanceId());
+                tSSIByTJobExecAssociated.put(execId,
+                        tSSIByTJobExecAssociatedList);
+
+                createExecFilesFolder(newServiceInstance);
+            } else {
+                servicesInstances.put(instanceId, newServiceInstance);
+            }
+
+            this.provisionServiceInstanceByObject(newServiceInstance,
+                    instanceId);
+
+        } catch (Exception e) {
+            if (newServiceInstance != null) {
+                deprovisionServiceInstance(newServiceInstance.getInstanceId(),
+                        exTJobExec != null && exTJobExec.getId() != null);
+            }
+            throw new RuntimeException(
+                    "Exception requesting an instance of service \"" + serviceId
+                            + "\"",
+                    e);
+        }
+
+        if (newServiceInstance == null) {
+            throw new RuntimeException(
+                    "Service with name \"" + serviceId + "\" not found in ESM");
+        }
+    }
+
+    private void fillExternalTJobExecEnvVariablesToTSS(
+            SupportServiceInstance supportServiceInstance,
+            ExternalTJobExecution exTJobExec) {
+
+        if (exTJobExec != null && exTJobExec.getExTJob() != null) {
+            Long exTJobId = exTJobExec.getExTJob().getId();
+            Long exTJobExecId = exTJobExec.getId();
+
+            supportServiceInstance.getParameters().put("ET_TJOB_ID",
+                    exTJobId.toString());
+            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
+                    exTJobExecId.toString());
+            supportServiceInstance.getParameters().put("ET_MON_EXEC",
+                    exTJobExec.getEsIndex());// TODO refactor -> Use
+                                             // etmcontextService.getMonitoringEnvVars
+            String fileSeparator = "/";
+            supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                    etSharedFolder + fileSeparator + "tjobs" + fileSeparator
+                            + "tjob_" + exTJobId + fileSeparator + "exec_"
+                            + exTJobExecId
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
+        this.fillEnvVariablesToTSS(supportServiceInstance);
+    }
+
+    public void provisionServiceInstanceByObject(
+            SupportServiceInstance newServiceInstance, String instanceId)
+            throws Exception {
+        esmServiceClient.provisionServiceInstance(newServiceInstance,
+                instanceId, Boolean.toString(false));
+        ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
+        newServiceInstance.setManifestId(serviceInstanceDetail.get("context")
+                .get("manifest_id").toString().replaceAll("\"", ""));
+        buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
     }
 
     private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance,
@@ -488,9 +677,10 @@ public class EsmService {
                     ipFound = true;
                 }
             }
-            
+
             if (!ipFound) {
-                throw new Exception("Field ip not found for " + serviceName +  " instance.");
+                throw new Exception(
+                        "Field ip not found for " + serviceName + " instance.");
             }
         }
     }
@@ -527,7 +717,7 @@ public class EsmService {
                 }
 
                 ((ObjectNode) node).put("port", auxPort);
-                
+
                 if (node.get("protocol") != null
                         && (node.get("protocol").toString().contains("http"))
                         || node.get("protocol").toString().contains("ws")) {
@@ -608,10 +798,11 @@ public class EsmService {
     }
 
     public String deprovisionServiceInstance(String instanceId,
-            Long tJobExecId){
+            Long tJobExecId) {
         tSSIByTJobExecAssociated.remove(tJobExecId);
         return deprovisionServiceInstance(instanceId, true);
     }
+
     /**
      * 
      * 
@@ -689,8 +880,8 @@ public class EsmService {
         return new ArrayList<SupportServiceInstance>(
                 servicesInstances.values());
     }
-    
-    public  Map<String, SupportServiceInstance> getServicesInstances() {
+
+    public Map<String, SupportServiceInstance> getServicesInstances() {
         return servicesInstances;
     }
 
@@ -713,8 +904,8 @@ public class EsmService {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            if (tSSInstance.gettJobExecId().longValue() == tJobExecId.longValue()
-                    && checkInstanceUrlIsUp(tSSInstance)) {
+            if (tSSInstance.gettJobExecId().longValue() == tJobExecId
+                    .longValue() && checkInstanceUrlIsUp(tSSInstance)) {
                 tSSInstanceList.add(tSSInstance);
             }
         });
@@ -786,38 +977,20 @@ public class EsmService {
     }
 
     private void fillEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance, TJobExecution tJobExec) {
-        
+            SupportServiceInstance supportServiceInstance) {
+
         if (execMode.equals("normal")) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator
-                            + supportServiceInstance.getServiceName().toLowerCase()
-                            + fileSeparator);
-        }
-        
-        if (tJobExec != null && tJobExec.getTjob() != null) {
-            Long tJobId =  tJobExec.getTjob().getId();
-            Long tJobExecId =  tJobExec.getId();
-            
-            supportServiceInstance.getParameters().put("ET_TJOB_ID",
-                    tJobId.toString());
-            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
-                    tJobExecId.toString());
-            supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    tJobExecId.toString());// TODO refactor -> Use etmcontextService.getMonitoringEnvVars
-            String fileSeparator = "/";
-            supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator + "tjobs" + fileSeparator
-                            + "tjob_" + tJobId + fileSeparator + "exec_"
-                            + tJobExecId
+                    etSharedFolder
                             + fileSeparator + supportServiceInstance
                                     .getServiceName().toLowerCase()
                             + fileSeparator);
         }
 
         supportServiceInstance.getParameters().put("ET_MON_LSHTTP_API",
-                etEtmLshttpApi); // TODO refactor -> Use etmcontextService.getMonitoringEnvVars
+                etEtmLshttpApi); // TODO refactor -> Use
+                                 // etmcontextService.getMonitoringEnvVars
         supportServiceInstance.getParameters().put("ET_LSBEATS_HOST",
                 etEtmLsbeatsHost);
         supportServiceInstance.getParameters().put("ET_LSBEATS_PORT",
@@ -884,7 +1057,8 @@ public class EsmService {
             return null;
         }
 
-        tSSInstanceContextMap.putAll(getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix));
+        tSSInstanceContextMap.putAll(
+                getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix));
         tSSInstanceContextMap.putAll(ssi.getParameters());
 
         return tSSInstanceContextMap;
@@ -899,8 +1073,8 @@ public class EsmService {
 
         for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData()
                 .entrySet()) {
-            String prefix = withPublicPrefix
-                    ? envVarNamePrefix : envVarNamePrefix + "_" + servicePrefix;
+            String prefix = withPublicPrefix ? envVarNamePrefix
+                    : envVarNamePrefix + "_" + servicePrefix;
             envVars.putAll(
                     setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
         }
@@ -944,9 +1118,12 @@ public class EsmService {
                 } else {
                     for (Map.Entry<String, String> endpointBindingPort : ssi
                             .getEndpointsBindingsPorts().entrySet()) {
-                        logger.debug("Binding port Key: {}", endpointBindingPort.getKey());
-                        logger.debug("Binding port value: {}", endpointBindingPort.getValue());
-                        logger.debug("Node port: {}", entry.getValue().get("port").toString());
+                        logger.debug("Binding port Key: {}",
+                                endpointBindingPort.getKey());
+                        logger.debug("Binding port value: {}",
+                                endpointBindingPort.getValue());
+                        logger.debug("Node port: {}",
+                                entry.getValue().get("port").toString());
                         if (endpointBindingPort.getValue().equals(
                                 entry.getValue().get("port").toString())) {
                             envValuePort = !publicEnvVars

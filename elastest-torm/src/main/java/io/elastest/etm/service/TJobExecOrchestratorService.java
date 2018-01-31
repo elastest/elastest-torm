@@ -323,7 +323,7 @@ public class TJobExecOrchestratorService {
                             resultMsg + service.get("name").toString()
                                     .replaceAll("\"", ""));
 
-                    String instanceId = esmService.provisionServiceInstanceSync(
+                    String instanceId = esmService.provisionTJobExecServiceInstanceSync(
                             service.get("id").toString().replaceAll("\"", ""),
                             tJobExec);
 
@@ -356,7 +356,7 @@ public class TJobExecOrchestratorService {
      * 
      * @param tJobExec
      */
-    private void deprovideServices(TJobExecution tJobExec) {
+    public void deprovideServices(TJobExecution tJobExec) {
         logger.info("Start the service deprovision.");
         List<String> instancesAux = new ArrayList<String>();
         if (tJobExec.getServicesInstances().size() > 0) {

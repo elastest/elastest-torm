@@ -96,13 +96,13 @@ public class TJobService {
 
         Future<Void> asyncExec;
         if (!tJob.isExternal()) {
-            asyncExec = tJobExecOrchestratorService
-                    .executeTJob(tJobExec, tJob.getSelectedServices());
+            asyncExec = tJobExecOrchestratorService.executeTJob(tJobExec,
+                    tJob.getSelectedServices());
         } else {
             asyncExec = tJobExecOrchestratorService
                     .executeExternalJob(tJobExec);
         }
-        
+
         asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         return tJobExec;
     }
@@ -141,8 +141,12 @@ public class TJobService {
         TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
         tJobExec.setResult(ResultEnum.values()[result]);
         tJobExecRepositoryImpl.save(tJobExec);
-        stopTJobExec(tJobExec.getId());
-        
+        try {
+            tJobExecOrchestratorService.deprovideServices(tJobExec);
+        } catch (Exception e) {
+            logger.error(
+                    "Exception during desprovisioning of the TSS associated with an External TJob.");
+        }
     }
 
     public void deleteTJobExec(Long tJobExecId) {
@@ -161,7 +165,7 @@ public class TJobService {
     public List<TJobExecution> getAllTJobExecs() {
         return tJobExecRepositoryImpl.findAll();
     }
-    
+
     public TJobExecution getTJobExecById(Long id) {
         return tJobExecRepositoryImpl.findOne(id);
     }
