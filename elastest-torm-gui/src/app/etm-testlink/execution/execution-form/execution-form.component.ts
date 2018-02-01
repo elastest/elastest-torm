@@ -3,11 +3,7 @@ import { TestLinkService } from '../../testlink.service';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TestCaseModel } from '../../models/test-case-model';
-import {
-  AfterViewChecked,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core/src/metadata/lifecycle_hooks';
+import { AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
@@ -17,8 +13,7 @@ ElementRef;
   templateUrl: './execution-form.component.html',
   styleUrls: ['./execution-form.component.scss'],
 })
-export class ExecutionFormComponent
-  implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
+export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
   @Input() data: any;
 
   @ViewChild('notes') notes: ElementRef;
@@ -71,6 +66,9 @@ export class ExecutionFormComponent
   saveExecution(): Observable<boolean> {
     let _obs: Subject<boolean> = new Subject<boolean>();
     let obs: Observable<boolean> = _obs.asObservable();
+    if (this.data.additionalNotes) {
+      this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
+    }
     this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
       (data) => {
         _obs.next(true);

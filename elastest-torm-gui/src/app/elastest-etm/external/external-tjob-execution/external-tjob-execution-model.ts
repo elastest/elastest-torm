@@ -12,4 +12,8 @@ export class ExternalTJobExecModel {
     this.exTJob = undefined;
     this.envVars = {};
   }
+
+  public getRouteString(): string {
+    return this.exTJob.getRouteString() + ' / Execution ' + this.id;
+  }
 }

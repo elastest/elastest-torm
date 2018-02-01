@@ -7,8 +7,8 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content #scrollMeTest *ngIf="exTJob">
-        <etm-case-execution-view [exTJob]="exTJob"></etm-case-execution-view>
+      <md-card-content #scrollMeTest *ngIf="exTJob && exTJobExec">
+        <etm-case-execution-view *ngIf="vncBrowserUrl !== undefined; else loadingBrowser" [exTJob]="exTJob" [exTJobExec]="exTJobExec"></etm-case-execution-view>
       </md-card-content>
     </md-card>
   </div>

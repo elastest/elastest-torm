@@ -3,25 +3,27 @@ import { SutModel } from '../../sut/sut-model';
 
 export type ServiceType = 'TESTLINK';
 export class ExternalProjectModel {
-    id: number;
-    name: string;
-    type: ServiceType;
-    externalId: string;
-    externalSystemId: string;
+  id: number;
+  name: string;
+  type: ServiceType;
+  externalId: string;
+  externalSystemId: string;
 
-    exTJobs: ExternalTJobModel[];
-    suts: SutModel[];
+  exTJobs: ExternalTJobModel[];
+  suts: SutModel[];
 
-    constructor() {
-        this.id = 0;
-        this.name = '';
-        this.type = undefined;
-        this.externalId = undefined;
-        this.externalSystemId = undefined;
+  constructor() {
+    this.id = 0;
+    this.name = '';
+    this.type = undefined;
+    this.externalId = undefined;
+    this.externalSystemId = undefined;
 
-        this.exTJobs = [];
-        this.suts = [];
+    this.exTJobs = [];
+    this.suts = [];
+  }
 
-    }
-
+  public getRouteString(): string {
+    return 'External / Project ' + this.id;
+  }
 }

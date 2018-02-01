@@ -138,7 +138,7 @@ export class EsmService {
     let _obs: Subject<EsmServiceInstanceModel> = new Subject<EsmServiceInstanceModel>();
     let obs: Observable<EsmServiceInstanceModel> = _obs.asObservable();
 
-    timer = Observable.interval(1000);
+    timer = Observable.interval(2000);
     if (subscription === null || subscription === undefined) {
       subscription = timer.subscribe(() => {
         this.getSupportServiceInstanceByType(esmServicesInstanceId, type).subscribe(

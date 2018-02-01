@@ -31,4 +31,8 @@ export class ExternalTJobModel {
     }
     return type;
   }
+
+  public getRouteString(): string {
+    return this.exProject.getRouteString() + ' / TJob ' + this.id;
+  }
 }

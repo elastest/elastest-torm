@@ -75,7 +75,6 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       .subscribe((exTJobExec: ExternalTJobExecModel) => {
         this.exTJobExec = exTJobExec;
         this.ready = true;
-        console.log('Exec: ', this.exTJobExec);
         this.waitForEus(exTJobExec);
       });
   }

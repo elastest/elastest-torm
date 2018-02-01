@@ -9,6 +9,8 @@ import { BuildModel } from '../../../../../etm-testlink/models/build-model';
 import { TestLinkService } from '../../../../../etm-testlink/testlink.service';
 import { TestCaseModel } from '../../../../../etm-testlink/models/test-case-model';
 import { ExternalTestCaseModel } from '../../../external-test-case/external-test-case-model';
+import { ExternalTJobExecModel } from '../../external-tjob-execution-model';
+import { window } from 'rxjs/operator/window';
 
 @Component({
   selector: 'etm-case-execution-view',
@@ -19,16 +21,20 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   @ViewChild('executionForm') executionForm: IExternalExecution;
 
   @Input() exTJob: ExternalTJobModel;
+  @Input() exTJobExec: ExternalTJobExecModel;
+
   serviceType: ServiceType;
   externalTestCases: ExternalTestCaseModel[] = [];
 
   data: any;
+  tJobExecUrl: string;
 
   // TestLink
   showTestLinkExec: boolean = false;
   testLinkBuilds: BuildModel[] = [];
   testLinkSelectedBuild: BuildModel;
   disableTLNextBtn: boolean = false;
+  execFinished: boolean = false;
 
   constructor(private externalService: ExternalService, private testLinkService: TestLinkService) {}
   ngOnInit() {
@@ -37,6 +43,18 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   }
 
   initExecutionView(): void {
+    if (this.exTJobExec) {
+      this.tJobExecUrl =
+        document.location.origin +
+        '/#/external/project/' +
+        this.exTJob.exProject.id +
+        '/tjob/' +
+        this.exTJob.id +
+        '/exec/' +
+        this.exTJobExec.id;
+      this.tJobExecUrl = ' <p><a href="' + this.tJobExecUrl + '">' + this.tJobExecUrl + '</a></p>';
+    }
+
     switch (this.serviceType) {
       case 'TESTLINK':
         this.initTestLinkData();
@@ -71,6 +89,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
       this.loadTestLinkTestCaseExecution(nextCase.externalId);
     } else {
       this.disableTLNextBtn = true;
+      this.execFinished = true;
       this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
     }
   }
@@ -84,6 +103,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
               this.data = {
                 testCase: testCase,
                 build: build,
+                additionalNotes: this.tJobExecUrl,
               };
             },
             (error) => console.log(error),
@@ -97,9 +117,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   saveTLCaseExecution(): void {
     this.saveExecution().subscribe(
       (saved: boolean) => {
-        this.externalService.popupService.openSnackBar(
-          'TestCase Execution has been saved successfully',
-        );
+        this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
         this.loadNextTestLinkCase();
         // Do something
 

@@ -337,9 +337,18 @@ public class TestLinkService {
 
     public ReportTCResultResponse saveExecution(Execution execution,
             Integer testCaseId) {
-        return this.executeTest(testCaseId, execution.getTestPlanId(),
-                execution.getBuildId(), execution.getNotes(),
-                execution.getStatus());
+        ReportTCResultResponse response = this.executeTest(testCaseId,
+                execution.getTestPlanId(), execution.getBuildId(),
+                execution.getNotes(), execution.getStatus());
+        execution.setId(response.getExecutionId());
+
+        ExternalTestCase externalTestCase = this.externalTestCaseRepository
+                .findByExternalIdAndExternalSystemId(testCaseId.toString(),
+                        this.getSystemId());
+
+        this.syncTestCaseExec(execution, externalTestCase);
+
+        return response;
     }
 
     public ReportTCResultResponse executeTest(Integer testCaseId,
