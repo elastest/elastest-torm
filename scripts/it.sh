@@ -11,6 +11,9 @@ function containerIp () {
     echo $( echo $ip | cut -f2 -d'"' )
 }
 
+# check open descriptors
+sysctl -a | grep max_map
+
 # Clean environment
 
 echo "Remove etm* containers"
