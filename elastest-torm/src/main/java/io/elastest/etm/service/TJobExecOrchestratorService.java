@@ -532,14 +532,6 @@ public class TJobExecOrchestratorService {
             String containerId = dockerService
                     .getContainerIdByName(container.getName(), dockerExec);
 
-            try {
-//                // Insert into ElasTest network
-//                dockerService.insertIntoNetwork(dockerExec.getNetwork(),
-//                        containerId);
-            } catch (Exception e) {
-                logger.warn("Cannot insert container {} into network {}",
-                        containerId, dockerExec.getNetwork(), e);
-            }
             // Insert container into containers list
             dockerService.insertCreatedContainer(containerId,
                     container.getName());
