@@ -1,0 +1,32 @@
+{
+ "rabbit_version": "3.7.3",
+ "users": [
+  {
+   "name": "elastest-etm",
+   "password": "elastest-etm",
+   "tags": "administrator"
+  }
+ ],
+ "vhosts": [
+  {
+   "name": "\/elastest-etm"
+  },
+  {
+   "name": "\/vhost2"
+  }
+ ],
+ "permissions": [
+  {
+   "user": "elastest-etm",
+   "vhost": "\/elastest-etm",
+   "configure": ".*",
+   "write": ".*",
+   "read": ".*"
+  }
+ ],
+ "parameters": [],
+ "policies": [],
+ "queues": [],
+ "exchanges": [],
+ "bindings": []
+}
