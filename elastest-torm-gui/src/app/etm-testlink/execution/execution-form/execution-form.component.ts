@@ -39,8 +39,8 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.data) {
-      this.ngOnInit();
       this.alreadyFocused = false;
+      this.ngOnInit();
     }
   }
 

@@ -337,11 +337,13 @@ public class TestLinkService {
 
     public ReportTCResultResponse saveExecution(Execution execution,
             Integer testCaseId) {
+        // Save TestCase Execution in Testlink
         ReportTCResultResponse response = this.executeTest(testCaseId,
                 execution.getTestPlanId(), execution.getBuildId(),
                 execution.getNotes(), execution.getStatus());
         execution.setId(response.getExecutionId());
 
+        // Get Associated ExternalTestCase And Save ExternalTestCaseExecution
         ExternalTestCase externalTestCase = this.externalTestCaseRepository
                 .findByExternalIdAndExternalSystemId(testCaseId.toString(),
                         this.getSystemId());
