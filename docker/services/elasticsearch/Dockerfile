@@ -14,6 +14,6 @@ LABEL version=$VERSION
 
 USER root
 
-RUN chown elasticsearch:elasticsearch config/elasticsearch.yml
+ADD run_elasticsearch.sh /run_elasticsearch.sh
+CMD /run_elasticsearch.sh
 
-USER elasticsearch
