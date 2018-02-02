@@ -108,7 +108,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
 
     if (this.isInit()) {
-      this.elastestESService.searchAllDynamic(this.tJobExec.logIndex, this.stream, this.component, this.metricName)
+      this.elastestESService.searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
         .subscribe(
         (obj: any) => {
           _addMoreSubject.next(obj);

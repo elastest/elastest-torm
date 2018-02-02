@@ -91,7 +91,7 @@ public class TJobService {
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         // After first save, get real Id
-        tJobExec.generateLogIndex();
+        tJobExec.generateMonitoringIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         Future<Void> asyncExec;

@@ -116,7 +116,7 @@ export class ETModelsTransformServices {
         } else {
             newTJobExec.sutExec = new SutExecModel();
         }
-        newTJobExec.logIndex = tjobExec.logIndex;
+        newTJobExec.monitoringIndex = tjobExec.monitoringIndex;
 
         if (tjobExec.tJob !== undefined && tjobExec.tJob !== null) {
             newTJobExec.tJob = this.jsonToTJobModel(tjobExec.tJob);

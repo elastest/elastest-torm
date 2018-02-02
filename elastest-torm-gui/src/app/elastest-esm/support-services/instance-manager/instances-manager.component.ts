@@ -83,7 +83,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   loadServiceInstances() {
     console.log('tSSIOnTheFly size:' + this.tSSIOnTheFly.length);
-    this.timer = Observable.interval(1000);
+    this.timer = Observable.interval(2000);
     if (this.subscription === null || this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer

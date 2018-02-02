@@ -9,7 +9,7 @@ export class TJobExecModel {
     error: string;
     result: string;
     sutExec: SutExecModel;
-    logIndex: string;
+    monitoringIndex: string;
     tJob: TJobModel;
     testSuite: any;
     parameters: any[];
@@ -23,7 +23,7 @@ export class TJobExecModel {
         this.error = undefined;
         this.result = '';
         this.sutExec = undefined;
-        this.logIndex = '';
+        this.monitoringIndex = '';
         this.tJob = undefined;
         this.testSuite = undefined;
         this.parameters = [];
@@ -37,14 +37,14 @@ export class TJobExecModel {
     }
 
     getTJobIndex(): string {
-        let testIndex: string = this.logIndex.split(',')[0];
+        let testIndex: string = this.monitoringIndex.split(',')[0];
         return testIndex;
     }
 
     getSutIndex(): string {
         let sutIndex: string = '';
         if (this.tJob.hasSut()) {
-            sutIndex = this.logIndex.split(',')[1];
+            sutIndex = this.monitoringIndex.split(',')[1];
             if (!sutIndex) {
                 sutIndex = this.getTJobIndex();
             }

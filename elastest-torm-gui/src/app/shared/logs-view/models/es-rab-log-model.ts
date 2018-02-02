@@ -13,7 +13,7 @@ export class ESRabLogModel implements LogViewModel {
     type: string;
     component: string;
     stream: string;
-    logIndex: string;
+    monitoringIndex: string;
     maxsize: number = 1000;
 
     constructor(elastestESService: ElastestESService, ) {
@@ -26,13 +26,13 @@ export class ESRabLogModel implements LogViewModel {
         this.type = '';
         this.component = '';
         this.stream = '';
-        this.logIndex = '';
+        this.monitoringIndex = '';
 
         this.elastestESService = elastestESService;
     }
 
     getAllLogs() {
-        this.elastestESService.searchAllLogs(this.logIndex, this.stream, this.component)
+        this.elastestESService.searchAllLogs(this.monitoringIndex, this.stream, this.component)
             .subscribe(
             (data) => {
                 this.traces = data;
@@ -45,7 +45,7 @@ export class ESRabLogModel implements LogViewModel {
         if (!this.prevLoaded && this.prevTraces.length > 0) {
             tracesArrayToCompare = this.prevTraces;
         }
-        this.elastestESService.getPrevLogsFromTrace(this.logIndex, tracesArrayToCompare, this.stream, this.component)
+        this.elastestESService.getPrevLogsFromTrace(this.monitoringIndex, tracesArrayToCompare, this.stream, this.component)
             .subscribe(
             (data) => {
                 if (data.length > 0) {
@@ -114,7 +114,7 @@ export class ESRabLogModel implements LogViewModel {
     }
 
     loadLastTraces(size: number = 10) {
-        this.elastestESService.getLastLogTraces(this.logIndex, this.stream, this.component, size)
+        this.elastestESService.getLastLogTraces(this.monitoringIndex, this.stream, this.component, size)
             .subscribe(
             (data) => {
                 if (this.prevTraces.length === 0) {

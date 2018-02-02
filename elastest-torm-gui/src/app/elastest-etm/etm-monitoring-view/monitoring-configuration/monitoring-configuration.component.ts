@@ -81,7 +81,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     let fieldsList: string[] = ['component', 'stream'];
 
     this.elastestESService.getAggTreeOfIndex(
-      this.tJobExec.logIndex, fieldsList, componentStreamQuery.convertToESFormat()
+      this.tJobExec.monitoringIndex, fieldsList, componentStreamQuery.convertToESFormat()
     ).subscribe(
       (logTree: any[]) => {
         this.logTree.setByObjArray(logTree);
@@ -166,7 +166,7 @@ export class MonitoringConfigurationComponent implements OnInit {
 
     let fieldsList: string[] = ['component', 'stream', 'type'];
     this.elastestESService.getAggTreeOfIndex(
-      this.tJobExec.logIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
+      this.tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
     ).subscribe(
       (metricTree: any[]) => {
         metricTree = this.cleanMetricTree(metricTree);

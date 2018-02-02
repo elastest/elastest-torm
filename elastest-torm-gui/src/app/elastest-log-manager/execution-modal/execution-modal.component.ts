@@ -72,7 +72,7 @@ export class ExecutionModalComponent implements OnInit {
     let separator: string = '';
 
     this.selectedTJobExecs.forEach((tJobExec: TJobExecModel, key: number) => {
-      selectedIndices = selectedIndices + separator + tJobExec.logIndex;
+      selectedIndices = selectedIndices + separator + tJobExec.monitoringIndex;
       separator = ',';
     });
 

@@ -32,7 +32,7 @@ export class TJobExecsManagerComponent implements OnInit {
     // { name: 'duration', label: 'Duration' },
     // { name: 'sutExecution', label: 'Sut Execution' },
     // { name: 'error', label: 'Error' },
-    // { name: 'logIndex', label: 'Log Index' },
+    // { name: 'monitoringIndex', label: 'Log Index' },
     { name: 'options', label: 'Options' },
   ];
 

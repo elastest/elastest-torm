@@ -1,5 +1,5 @@
 {
- "rabbit_version": "3.7.3",
+ "rabbit_version": "3.6.6",
  "users": [
   {
    "name": "elastest-etm",

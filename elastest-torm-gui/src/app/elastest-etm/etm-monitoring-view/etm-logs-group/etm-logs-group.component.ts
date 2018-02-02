@@ -75,7 +75,7 @@ export class EtmLogsGroupComponent implements OnInit {
         }
         individualLogs.stream = log.stream;
         individualLogs.hidePrevBtn = !this.live;
-        individualLogs.logIndex = this.tJobExec.logIndex;
+        individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
         if (!this.live) {
           individualLogs.getAllLogs();
         } else if (!this.isDefault(individualLogs)) {
@@ -94,7 +94,7 @@ export class EtmLogsGroupComponent implements OnInit {
     individualLogs.component = obj.component;
     individualLogs.stream = obj.stream;
     individualLogs.hidePrevBtn = !this.live;
-    individualLogs.logIndex = obj.logIndex;
+    individualLogs.monitoringIndex = obj.monitoringIndex;
     individualLogs.traces = obj.data;
     if (!this.alreadyExist(individualLogs)) {
       this.logsList.push(individualLogs);

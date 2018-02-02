@@ -86,7 +86,7 @@ export class ElastestTestEnginesComponent implements OnInit {
   }
 
   checkIfIsReady(testEngine: TestEngineModel, url: string) {
-    this.timer = Observable.interval(1000);
+    this.timer = Observable.interval(2000);
     if (testEngine.started && url !== '' && (this.subscription === null || this.subscription === undefined)) {
       this.subscription = this.timer
         .subscribe(() => {

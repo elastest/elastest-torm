@@ -85,7 +85,7 @@ export class EtmChartGroupComponent implements OnInit {
     this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
     this.allInOneMetrics.name = 'All Metrics';
     this.allInOneMetrics.hidePrevBtn = !this.live;
-    this.allInOneMetrics.metricsIndex = this.tJobExec.logIndex;
+    this.allInOneMetrics.metricsIndex = this.tJobExec.monitoringIndex;
     let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
     this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
     if (!this.live) {
@@ -104,7 +104,7 @@ export class EtmChartGroupComponent implements OnInit {
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-        individualMetrics.metricsIndex = this.tJobExec.logIndex;
+        individualMetrics.metricsIndex = this.tJobExec.monitoringIndex;
         if (metric.component === '') { // If no component, is a default metric
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
           if (!this.live) {
@@ -173,7 +173,7 @@ export class EtmChartGroupComponent implements OnInit {
 
     if (!this.alreadyExist(individualMetrics.name)) {
       individualMetrics.addSimpleMetricTraces(obj.data);
-      individualMetrics.metricsIndex = this.tJobExec.logIndex;
+      individualMetrics.metricsIndex = this.tJobExec.monitoringIndex;
       this.initCustomMetric(metric, individualMetrics);
 
       return true;

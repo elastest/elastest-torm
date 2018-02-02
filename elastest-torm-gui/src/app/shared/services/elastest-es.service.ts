@@ -516,7 +516,7 @@ export class ElastestESService {
                         data: convertedData,
                         component: component,
                         stream: stream,
-                        logIndex: index,
+                        monitoringIndex: index,
                     };
 
                     if (this.isLogTrace(firstElement)) {

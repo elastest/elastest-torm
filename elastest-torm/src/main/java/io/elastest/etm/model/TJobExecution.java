@@ -86,8 +86,8 @@ public class TJobExecution {
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
-    @Column(name = "logIndex")
-    private String logIndex = null;
+    @Column(name = "monitoringIndex")
+    private String monitoringIndex = null;
 
     // bi-directional many-to-one association to Tjob
     @JsonView({ BasicAttTJobExec.class })
@@ -285,17 +285,16 @@ public class TJobExecution {
     }
 
     /**
-     * Log table Index
+     * Monitoring Index
      * 
-     * @return logIndex
+     * @return monitoringIndex
      */
-
-    public String getLogIndex() {
-        return logIndex;
+    public String getMonitoringIndex() {
+        return monitoringIndex;
     }
 
-    public void setLogIndex(String logIndex) {
-        this.logIndex = logIndex;
+    public void setMonitoringIndex(String monitoringIndex) {
+        this.monitoringIndex = monitoringIndex;
     }
 
     public TJob getTjob() {
@@ -405,7 +404,8 @@ public class TJobExecution {
                 && Objects.equals(this.result, tjobExecution.result)
                 && Objects.equals(this.sutExecution, tjobExecution.sutExecution)
                 && Objects.equals(this.error, tjobExecution.error)
-                && Objects.equals(this.logIndex, tjobExecution.logIndex)
+                && Objects.equals(this.monitoringIndex,
+                        tjobExecution.monitoringIndex)
                 && Objects.equals(this.testSuite, tjobExecution.testSuite)
                 && Objects.equals(this.parameters, tjobExecution.parameters)
                 && Objects.equals(this.resultMsg, tjobExecution.resultMsg)
@@ -431,8 +431,8 @@ public class TJobExecution {
         sb.append("    sutExecution: ").append(toIndentedString(sutExecution))
                 .append("\n");
         sb.append("    error: ").append(toIndentedString(error)).append("\n");
-        sb.append("    logIndex: ").append(toIndentedString(logIndex))
-                .append("\n");
+        sb.append("    monitoringIndex: ")
+                .append(toIndentedString(monitoringIndex)).append("\n");
         sb.append("    testSuite: ").append(toIndentedString(testSuite))
                 .append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters))
@@ -447,16 +447,17 @@ public class TJobExecution {
         return sb.toString();
     }
 
-    public void generateLogIndex() {
+    public void generateMonitoringIndex() {
         SutSpecification sut = this.getTjob().getSut();
-        String logIndex = this.getId().toString();
+        String monitoringIndex = this.getId().toString();
         if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
-            logIndex += ",s" + sut.getId() + "_e" + sut.getCurrentSutExec();
+            monitoringIndex += ",s" + sut.getId() + "_e"
+                    + sut.getCurrentSutExec();
         }
-        this.setLogIndex(logIndex);
+        this.setMonitoringIndex(monitoringIndex);
     }
 
     public String[] getLogIndicesList() {
-        return this.getLogIndex().split(",");
+        return this.getMonitoringIndex().split(",");
     }
 }
