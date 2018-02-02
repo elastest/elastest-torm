@@ -323,9 +323,10 @@ public class TJobExecOrchestratorService {
                             resultMsg + service.get("name").toString()
                                     .replaceAll("\"", ""));
 
-                    String instanceId = esmService.provisionTJobExecServiceInstanceSync(
-                            service.get("id").toString().replaceAll("\"", ""),
-                            tJobExec);
+                    String instanceId = esmService
+                            .provisionTJobExecServiceInstanceSync(service
+                                    .get("id").toString().replaceAll("\"", ""),
+                                    tJobExec);
 
                     tJobExec.getServicesInstances().add(instanceId);
                 }
@@ -371,7 +372,8 @@ public class TJobExecOrchestratorService {
         logger.debug("TSS list size: {}", esmService
                 .gettSSIByTJobExecAssociated().get(tJobExec.getId()).size());
         for (String instanceId : instancesAux) {
-            esmService.deprovisionTJobExecServiceInstance(instanceId, tJobExec.getId());
+            esmService.deprovisionTJobExecServiceInstance(instanceId,
+                    tJobExec.getId());
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
 
@@ -499,7 +501,7 @@ public class TJobExecOrchestratorService {
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
-        dockerComposeYml = setLoggingToDockerComposeYml(dockerComposeYml,
+        dockerComposeYml = setElasTestConfigToDockerComposeYml(dockerComposeYml,
                 composeProjectName, dockerExec);
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
@@ -530,14 +532,6 @@ public class TJobExecOrchestratorService {
             String containerId = dockerService
                     .getContainerIdByName(container.getName(), dockerExec);
 
-            try {
-                // Insert into ElasTest network
-                dockerService.insertIntoNetwork(dockerExec.getNetwork(),
-                        containerId);
-            } catch (Exception e) {
-                logger.warn("Cannot insert container {} into network {}",
-                        containerId, dockerExec.getNetwork(), e);
-            }
             // Insert container into containers list
             dockerService.insertCreatedContainer(containerId,
                     container.getName());
@@ -556,7 +550,7 @@ public class TJobExecOrchestratorService {
 
     }
 
-    public String setLoggingToDockerComposeYml(String dockerComposeYml,
+    public String setElasTestConfigToDockerComposeYml(String dockerComposeYml,
             String composeProjectName, DockerExecution dockerExec)
             throws Exception {
         YAMLFactory yf = new YAMLFactory();
@@ -565,30 +559,21 @@ public class TJobExecOrchestratorService {
         try {
             object = mapper.readValue(dockerComposeYml, Object.class);
 
-            Map<String, HashMap<String, HashMap<String, HashMap>>> dockerComposeMap = (HashMap) object;
-            Map<String, HashMap<String, HashMap>> servicesMap = dockerComposeMap
-                    .get("services");
-            for (HashMap.Entry<String, HashMap<String, HashMap>> service : servicesMap
+            Map<String, HashMap<String, HashMap>> dockerComposeMap = (HashMap) object;
+            Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
+            for (HashMap.Entry<String, HashMap> service : servicesMap
                     .entrySet()) {
+                // Set Logging
+                service = this.setLoggingToDockerComposeYmlService(service,
+                        composeProjectName, dockerExec);
 
-                HashMap<String, HashMap> serviceContent = service.getValue();
-                String loggingKey = "logging";
-                if (serviceContent.containsKey(loggingKey)) {
-                    serviceContent.remove(loggingKey);
-                }
-                HashMap<String, Object> loggingContent = new HashMap<String, Object>();
-                loggingContent.put("driver", "syslog");
-
-                HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
-                loggingOptionsContent.put("syslog-address", "tcp://"
-                        + dockerService.getLogstashHost(dockerExec) + ":5000");
-                loggingOptionsContent.put("tag",
-                        composeProjectName + "_" + service.getKey() + "_exec");
-
-                loggingContent.put("options", loggingOptionsContent);
-
-                serviceContent.put(loggingKey, loggingContent);
+                // Set Elastest Network
+                service = this.setNetworkToDockerComposeYmlService(service,
+                        composeProjectName, dockerExec);
             }
+
+            dockerComposeMap = this.setNetworkToDockerComposeYmlRoot(
+                    dockerComposeMap, composeProjectName, dockerExec);
 
             StringWriter writer = new StringWriter();
 
@@ -603,6 +588,70 @@ public class TJobExecOrchestratorService {
         }
 
         return dockerComposeYml;
+    }
+
+    private Map<String, HashMap<String, HashMap>> setNetworkToDockerComposeYmlRoot(
+            Map<String, HashMap<String, HashMap>> dockerComposeMap,
+            String composeProjectName, DockerExecution dockerExec) {
+
+        String networksKey = "networks";
+        // If service has networks, remove it
+        if (dockerComposeMap.containsKey(networksKey)) {
+            dockerComposeMap.remove(networksKey);
+        }
+
+        HashMap<String, HashMap> networkMap = new HashMap();
+        HashMap<String, Boolean> networkOptions = new HashMap<>();
+        networkOptions.put("external", true);
+
+        networkMap.put("elastest_elastest", networkOptions);
+        dockerComposeMap.put(networksKey, networkMap);
+
+        return dockerComposeMap;
+
+    }
+
+    public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
+            HashMap.Entry<String, HashMap> service, String composeProjectName,
+            DockerExecution dockerExec) {
+        HashMap<String, HashMap> serviceContent = service.getValue();
+        String loggingKey = "logging";
+        // If service has logging, remove it
+        if (serviceContent.containsKey(loggingKey)) {
+            serviceContent.remove(loggingKey);
+        }
+        HashMap<String, Object> loggingContent = new HashMap<String, Object>();
+        loggingContent.put("driver", "syslog");
+
+        HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
+        loggingOptionsContent.put("syslog-address",
+                "tcp://" + dockerService.getLogstashHost(dockerExec) + ":5000");
+        loggingOptionsContent.put("tag",
+                composeProjectName + "_" + service.getKey() + "_exec");
+
+        loggingContent.put("options", loggingOptionsContent);
+
+        serviceContent.put(loggingKey, loggingContent);
+
+        return service;
+    }
+
+    public HashMap.Entry<String, HashMap> setNetworkToDockerComposeYmlService(
+            HashMap.Entry<String, HashMap> service, String composeProjectName,
+            DockerExecution dockerExec) {
+
+        HashMap serviceContent = service.getValue();
+        String networksKey = "networks";
+        // If service has networks, remove it
+        if (serviceContent.containsKey(networksKey)) {
+            serviceContent.remove(networksKey);
+        }
+
+        List<String> networksList = new ArrayList<>();
+        networksList.add("elastest_elastest");
+        serviceContent.put(networksKey, networksList);
+
+        return service;
     }
 
     public void endSutExec(DockerExecution dockerExec) throws Exception {
