@@ -275,8 +275,8 @@ public class ExternalService {
     public ExternalTJobExecution createExternalTJobExecution(
             ExternalTJobExecution exec) {
         exec = this.externalTJobExecutionRepository.save(exec);
-        if (exec.getEsIndex().isEmpty() || "".equals(exec.getEsIndex())) {
-            exec.setEsIndex(this.getExternalTJobExecESIndex(exec));
+        if (exec.getMonitoringIndex().isEmpty() || "".equals(exec.getMonitoringIndex())) {
+            exec.setMonitoringIndex(this.getExternalTJobExecESIndex(exec));
             exec = this.externalTJobExecutionRepository.save(exec);
         }
 

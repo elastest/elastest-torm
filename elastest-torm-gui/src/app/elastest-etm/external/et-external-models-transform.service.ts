@@ -109,7 +109,7 @@ export class ETExternalModelsTransformService {
     let newTJobExec: ExternalTJobExecModel;
     newTJobExec = new ExternalTJobExecModel();
     newTJobExec.id = tjobexec.id;
-    newTJobExec.esIndex = tjobexec.esIndex;
+    newTJobExec.monitoringIndex = tjobexec.monitoringIndex;
     newTJobExec.envVars = tjobexec.envVars;
 
     if (tjobexec.exTJob !== undefined && tjobexec.exTJob !== null) {
@@ -196,7 +196,7 @@ export class ETExternalModelsTransformService {
     let newTestExec: ExternalTestExecutionModel;
     newTestExec = new ExternalTestExecutionModel();
     newTestExec.id = testExec.id;
-    newTestExec.esIndex = testExec.esIndex;
+    newTestExec.monitoringIndex = testExec.monitoringIndex;
     newTestExec.fields = testExec.fields;
     newTestExec.result = testExec.result;
     newTestExec.externalId = testExec.externalId;

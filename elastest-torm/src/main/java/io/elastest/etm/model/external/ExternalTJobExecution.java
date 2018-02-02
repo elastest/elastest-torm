@@ -51,8 +51,8 @@ public class ExternalTJobExecution implements Serializable {
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTJobExecutionView.class, ExternalTestCaseView.class,
             ExternalTestExecutionView.class })
-    @Column(name = "esIndex")
-    private String esIndex = null;
+    @Column(name = "monitoringIndex")
+    private String monitoringIndex = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTJobExecutionView.class, ExternalTestCaseView.class,
@@ -96,12 +96,12 @@ public class ExternalTJobExecution implements Serializable {
         this.exTJob = exTJob;
     }
 
-    public String getEsIndex() {
-        return esIndex;
+    public String getMonitoringIndex() {
+        return monitoringIndex;
     }
 
-    public void setEsIndex(String esIndex) {
-        this.esIndex = esIndex;
+    public void setMonitoringIndex(String monitoringIndex) {
+        this.monitoringIndex = monitoringIndex;
     }
 
     public Map<String, String> getEnvVars() {

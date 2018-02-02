@@ -537,7 +537,7 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
                     exTJobExecId.toString());
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    exTJobExec.getEsIndex());// TODO refactor -> Use
+                    exTJobExec.getMonitoringIndex());// TODO refactor -> Use
                                              // etmcontextService.getMonitoringEnvVars
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
