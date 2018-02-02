@@ -13,6 +13,7 @@ import { EsmService } from '../../../../elastest-esm/esm-service.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { EsmServiceInstanceModel } from '../../../../elastest-esm/esm-service-instance.model';
+import { EtmMonitoringViewComponent } from '../../../etm-monitoring-view/etm-monitoring-view.component';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -20,6 +21,8 @@ import { EsmServiceInstanceModel } from '../../../../elastest-esm/esm-service-in
   styleUrls: ['./external-tjob-execution-new.component.scss'],
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
   ready: boolean = false;
@@ -70,29 +73,26 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.exTJobExec = new ExternalTJobExecModel();
     this.exTJobExec.exTJob = new ExternalTJobModel();
     this.exTJobExec.exTJob.id = this.exTJob.id;
-    this.externalService
-      .createExternalTJobExecution(this.exTJobExec)
-      .subscribe((exTJobExec: ExternalTJobExecModel) => {
-        this.exTJobExec = exTJobExec;
-        this.ready = true;
-        this.waitForEus(exTJobExec);
-      });
+    this.externalService.createExternalTJobExecution(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
+      this.exTJobExec = exTJobExec;
+      this.ready = true;
+      this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+      this.waitForEus(exTJobExec);
+    });
   }
 
   waitForEus(exTJobExec: ExternalTJobExecModel): void {
     this.browserLoadingMsg = 'Waiting for EUS...';
     if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
-      this.esmService
-        .waitForTssInstanceUp(this.eusInstanceId, this.eusTimer, this.eusSubscription, 'external')
-        .subscribe(
-          (eus: EsmServiceInstanceModel) => {
-            let eusUrl: string = eus.apiUrl;
-            this.eusService.setEusUrl(eusUrl);
-            this.loadChromeBrowser();
-          },
-          (error) => console.log(error),
-        );
+      this.esmService.waitForTssInstanceUp(this.eusInstanceId, this.eusTimer, this.eusSubscription, 'external').subscribe(
+        (eus: EsmServiceInstanceModel) => {
+          let eusUrl: string = eus.apiUrl;
+          this.eusService.setEusUrl(eusUrl);
+          this.loadChromeBrowser();
+        },
+        (error) => console.log(error),
+      );
     }
   }
 
