@@ -1,8 +1,9 @@
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { SutModel } from '../../sut/sut-model';
+import { AbstractProjectModel } from '../../models/abstract-project-model';
 
 export type ServiceType = 'TESTLINK';
-export class ExternalProjectModel {
+export class ExternalProjectModel extends AbstractProjectModel {
   id: number;
   name: string;
   type: ServiceType;
@@ -13,6 +14,7 @@ export class ExternalProjectModel {
   suts: SutModel[];
 
   constructor() {
+    super();
     this.id = 0;
     this.name = '';
     this.type = undefined;

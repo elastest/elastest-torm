@@ -94,6 +94,12 @@ public class ExternalApiController implements ExternalApi {
                 externalService.getExternalTJobById(tjobId), HttpStatus.OK);
     }
 
+    public ResponseEntity<ExternalTJob> modifyExternalTJob(
+            @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody ExternalTJob body) {
+        return new ResponseEntity<ExternalTJob>(
+                externalService.modifyExternalTJob(body), HttpStatus.OK);
+    }
+
     /* **************************************************/
     /* *************** ExternalTJobExec *************** */
     /* **************************************************/

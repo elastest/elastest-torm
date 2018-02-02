@@ -110,7 +110,7 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
-        createESIndex(tJobExec);
+        createMonitoringIndex(tJobExec);
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
@@ -758,9 +758,9 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public void createESIndex(TJobExecution tJobExec) {
+    public void createMonitoringIndex(TJobExecution tJobExec) {
         logger.info("Creating ES indices...");
-        String[] indicesList = tJobExec.getLogIndicesList();
+        String[] indicesList = tJobExec.getMonitoringIndicesList();
         for (String index : indicesList) {
             // Create Index
             String url = elasticsearchHost + "/" + index;

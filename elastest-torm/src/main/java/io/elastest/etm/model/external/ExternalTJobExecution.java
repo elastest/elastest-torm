@@ -112,4 +112,8 @@ public class ExternalTJobExecution implements Serializable {
         this.envVars = envVars;
     }
 
+    public String[] getMonitoringIndicesList() {
+        return this.getMonitoringIndex().split(",");
+    }
+
 }

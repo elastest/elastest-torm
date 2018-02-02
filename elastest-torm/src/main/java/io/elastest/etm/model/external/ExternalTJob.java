@@ -92,6 +92,10 @@ public class ExternalTJob implements Serializable {
     @JsonProperty("sut")
     private SutSpecification sut = null;
 
+    @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("execDashboardConfig")
+    private String execDashboardConfig = null;
+    
     /* **************************/
     /* ***** Constructors *******/
     /* **************************/
@@ -163,4 +167,20 @@ public class ExternalTJob implements Serializable {
         this.exTestCases = exTestCases;
     }
 
+    public SutSpecification getSut() {
+        return sut;
+    }
+
+    public void setSut(SutSpecification sut) {
+        this.sut = sut;
+    }
+
+    public String getExecDashboardConfig() {
+        return execDashboardConfig;
+    }
+
+    public void setExecDashboardConfig(String execDashboardConfig) {
+        this.execDashboardConfig = execDashboardConfig;
+    }
+    
 }

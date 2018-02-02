@@ -457,7 +457,7 @@ public class TJobExecution {
         this.setMonitoringIndex(monitoringIndex);
     }
 
-    public String[] getLogIndicesList() {
+    public String[] getMonitoringIndicesList() {
         return this.getMonitoringIndex().split(",");
     }
 }

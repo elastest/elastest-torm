@@ -1,7 +1,7 @@
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 
-export class ExternalTestExecutionModel extends AbstractTJobExecModel {
+export class ExternalTestExecutionModel {
   id: number;
   monitoringIndex: string;
   fields: any;
@@ -11,7 +11,6 @@ export class ExternalTestExecutionModel extends AbstractTJobExecModel {
   exTestCase: ExternalTestCaseModel;
 
   constructor() {
-    super();
     this.id = 0;
     this.monitoringIndex = '';
     this.fields = undefined;

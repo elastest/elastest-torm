@@ -2,8 +2,10 @@ import { ExternalProjectModel, ServiceType } from '../external-project/external-
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { SutModel } from '../../sut/sut-model';
+import { AbstractTJobModel } from '../../models/abstract-tjob-model';
+import { DashboardConfigModel } from '../../tjob/dashboard-config-model';
 
-export class ExternalTJobModel {
+export class ExternalTJobModel extends AbstractTJobModel {
   id: number;
   name: string;
   externalId: string;
@@ -14,7 +16,11 @@ export class ExternalTJobModel {
   exTestCases: ExternalTestCaseModel[];
   sut: SutModel;
 
+  execDashboardConfig: string;
+  execDashboardConfigModel: DashboardConfigModel;
+
   constructor() {
+    super();
     this.id = 0;
     this.name = '';
 
@@ -34,5 +40,9 @@ export class ExternalTJobModel {
 
   public getRouteString(): string {
     return this.exProject.getRouteString() + ' / TJob ' + this.id;
+  }
+
+  public getAbstractTJobClass(): string {
+    return 'ExternalTJobModel';
   }
 }

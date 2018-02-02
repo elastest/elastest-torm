@@ -3,27 +3,23 @@ import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
-import { TJobService } from '../../tjob/tjob.service';
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
-import { TJobExecModel } from '../../../elastest-etm/tjob-exec/tjobExec-model';
-import { TJobModel } from '../../tjob/tjob-model';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
+import { AbstractTJobModel } from '../../models/abstract-tjob-model';
+import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 
 @Component({
   selector: 'etm-logs-group',
   templateUrl: './etm-logs-group.component.html',
-  styleUrls: ['./etm-logs-group.component.scss']
+  styleUrls: ['./etm-logs-group.component.scss'],
 })
 export class EtmLogsGroupComponent implements OnInit {
   @ViewChildren(LogsViewComponent) logsViewComponents: QueryList<LogsViewComponent>;
 
-  @Input()
-  public live: boolean;
-  @Input()
-  tJob: TJobModel;
-  @Input()
-  tJobExec: TJobExecModel;
+  @Input() public live: boolean;
+  @Input() tJob: AbstractTJobModel;
+  @Input() tJobExec: AbstractTJobExecModel;
 
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
@@ -35,13 +31,9 @@ export class EtmLogsGroupComponent implements OnInit {
 
   selectedTraces: number[][] = [];
 
-  constructor(
-    private elastestESService: ElastestESService,
-    private elastestRabbitmqService: ElastestRabbitmqService,
-  ) { }
+  constructor(private elastestESService: ElastestESService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewInit(): void {
     if (this.live) {
@@ -50,7 +42,7 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   initObservables(): void {
-    // Get default Rabbit queues 
+    // Get default Rabbit queues
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
@@ -60,7 +52,7 @@ export class EtmLogsGroupComponent implements OnInit {
     });
   }
 
-  initLogsView(tJob: TJobModel, tJobExec: TJobExecModel): void {
+  initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -112,11 +104,10 @@ export class EtmLogsGroupComponent implements OnInit {
 
   createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
     this.elastestRabbitmqService.createSubject(streamType, component, stream);
-    let index: string = this.tJobExec.getCurrentESIndex(component);
-    this.elastestRabbitmqService.createAndSubscribeToTopic(index, streamType, component, stream)
-      .subscribe(
-      (data) => this.updateLogsData(data, component, stream)
-      );
+    let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
+    this.elastestRabbitmqService
+      .createAndSubscribeToTopic(index, streamType, component, stream)
+      .subscribe((data) => this.updateLogsData(data, component, stream));
   }
 
   alreadyExist(newLog: ESRabLogModel): boolean {
@@ -134,7 +125,8 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   createGroupedArray(arr, chunkSize): any {
-    let groups = [], i;
+    let groups = [],
+      i;
     for (i = 0; i < arr.length; i += chunkSize) {
       groups.push(arr.slice(i, i + chunkSize));
     }
@@ -161,7 +153,9 @@ export class EtmLogsGroupComponent implements OnInit {
           break;
         }
       }
-      if (found) { break; }
+      if (found) {
+        break;
+      }
     }
   }
 
@@ -225,7 +219,7 @@ export class EtmLogsGroupComponent implements OnInit {
     // If is live, unsubscribe
     if (this.live) {
       let streamType: string = 'log';
-      let index: string = this.tJobExec.getCurrentESIndex(component);
+      let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
 
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }

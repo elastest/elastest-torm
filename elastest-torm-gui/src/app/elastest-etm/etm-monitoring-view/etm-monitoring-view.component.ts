@@ -1,32 +1,33 @@
+import { ExternalService } from '../external/external.service';
 import { EtmLogsGroupComponent } from './etm-logs-group/etm-logs-group.component';
 import { MonitoringConfigurationComponent } from './monitoring-configuration/monitoring-configuration.component';
 import { EtmChartGroupComponent } from './etm-chart-group/etm-chart-group.component';
 import { Observable, Subject } from 'rxjs/Rx';
 import { TJobService } from '../tjob/tjob.service';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
-import { TJobExecModel } from '../tjob-exec/tjobExec-model';
-import { TJobModel } from '../tjob/tjob-model';
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MdDialog, MdDialogRef } from '@angular/material';
+import { AbstractTJobModel } from '../models/abstract-tjob-model';
+import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
+import { TJobModel } from '../tjob/tjob-model';
+import { ExternalTJobModel } from '../external/external-tjob/external-tjob-model';
 
 @Component({
   selector: 'etm-monitoring-view',
   templateUrl: './etm-monitoring-view.component.html',
-  styleUrls: ['./etm-monitoring-view.component.scss']
+  styleUrls: ['./etm-monitoring-view.component.scss'],
 })
 export class EtmMonitoringViewComponent implements OnInit {
   @ViewChild('metricsGroup') metricsGroup: EtmChartGroupComponent;
   @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
 
-  @Input()
-  public live: boolean;
+  @Input() public live: boolean;
 
-  @Input()
-  public showConfigBtn: boolean;
+  @Input() public showConfigBtn: boolean;
 
-  tJob: TJobModel;
-  tJobExec: TJobExecModel;
+  tJob: AbstractTJobModel;
+  tJobExec: AbstractTJobExecModel;
 
   component: string = '';
   stream: string = '';
@@ -34,14 +35,14 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   constructor(
     private elastestESService: ElastestESService,
+    private externalService: ExternalService,
     private tJobService: TJobService,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  initView(tJob: TJobModel, tJobExec: TJobExecModel): void {
+  initView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -69,8 +70,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   addMore(withSave: boolean = false, showPopup: boolean = true): void {
-    this.addMoreSubscribe()
-      .subscribe(
+    this.addMoreSubscribe().subscribe(
       (obj: any) => {
         let added: boolean = this.addMoreFromObj(obj);
         if (showPopup) {
@@ -108,16 +108,16 @@ export class EtmMonitoringViewComponent implements OnInit {
     let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
 
     if (this.isInit()) {
-      this.elastestESService.searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
+      this.elastestESService
+        .searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
         .subscribe(
-        (obj: any) => {
-          _addMoreSubject.next(obj);
-        },
-        (error) => _addMoreSubject.error('Could not load more')
-        ,
-      );
+          (obj: any) => {
+            _addMoreSubject.next(obj);
+          },
+          (error) => _addMoreSubject.error('Could not load more'),
+        );
     } else {
-      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet')
+      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
     }
 
     return addMoreObs;
@@ -128,14 +128,34 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   saveMonitoringConfig(showPopup: boolean = true): void {
-    this.tJobService.modifyTJob(this.tJob).subscribe(
-      (data) => {
-        if (showPopup) {
-          this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
-        }
-      },
-      (error) => console.log(error)
-    );
+    switch (this.tJob.getAbstractTJobClass()) {
+      case 'TJobModel':
+        let tJobModel: TJobModel = this.tJob as TJobModel;
+        this.tJobService.modifyTJob(tJobModel).subscribe(
+          (data) => {
+            if (showPopup) {
+              this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
+            }
+          },
+          (error) => console.log(error),
+        );
+        break;
+      case 'ExternalTJobModel':
+        let externalTJobModel: ExternalTJobModel = this.tJob as ExternalTJobModel;
+        this.externalService.modifyExternalTJob(externalTJobModel).subscribe(
+          (data) => {
+            if (showPopup) {
+              this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
+            }
+          },
+          (error) => console.log(error),
+        );
+        break;
+
+      default:
+        // Abstract
+        break;
+    }
   }
 
   loadLastTraces(): void {
@@ -149,26 +169,23 @@ export class EtmMonitoringViewComponent implements OnInit {
       height: '80%',
       width: '90%',
     });
-    dialogRef.afterClosed()
-      .subscribe(
-      (data: any) => {
-        if (data) {
-          let withSave: boolean = false;
-          let msg: string = 'Monitoring changes has been applied';
-          if (data.withSave) {
-            withSave = data.withSave;
-            msg += ' and saved';
-          }
-          if (data.logsList) {
-            this.updateLogsFromList(data.logsList, withSave);
-          }
-          if (data.metricsList) {
-            this.updateMetricsFromList(data.metricsList, withSave);
-          }
-          this.elastestESService.popupService.openSnackBar(msg);
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        let withSave: boolean = false;
+        let msg: string = 'Monitoring changes has been applied';
+        if (data.withSave) {
+          withSave = data.withSave;
+          msg += ' and saved';
         }
-      },
-    );
+        if (data.logsList) {
+          this.updateLogsFromList(data.logsList, withSave);
+        }
+        if (data.metricsList) {
+          this.updateMetricsFromList(data.metricsList, withSave);
+        }
+        this.elastestESService.popupService.openSnackBar(msg);
+      }
+    });
   }
 
   updateLogsFromList(logsList: any[], withSave: boolean): void {
@@ -178,7 +195,8 @@ export class EtmMonitoringViewComponent implements OnInit {
         this.stream = log.stream;
         this.metricName = '';
         this.addMore(withSave, false);
-      } else { // Remove
+      } else {
+        // Remove
         this.removeLogCard(log);
         if (withSave) {
           this.saveMonitoringConfig(false);
@@ -204,7 +222,8 @@ export class EtmMonitoringViewComponent implements OnInit {
         this.stream = metric.stream;
         this.metricName = metric.metricName;
         this.addMore(withSave, false);
-      } else { // Remove
+      } else {
+        // Remove
         this.removeMetricCard(metric);
         if (withSave) {
           this.saveMonitoringConfig(false);

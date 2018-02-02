@@ -1,33 +1,27 @@
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
-import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
-import {
-  ESRabComplexMetricsModel,
-} from '../../../shared/metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
+import { ESRabComplexMetricsModel } from '../../../shared/metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
 import { ElastestESService } from '../../../shared/services/elastest-es.service';
-import { TJobModel } from '../../tjob/tjob-model';
 import { MetricsChartCardComponent } from '../../../shared/metrics-view/metrics-chart-card/metrics-chart-card.component';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { SingleMetricModel } from '../../../shared/metrics-view/models/single-metric-model';
-import { TJobService } from '../../tjob/tjob.service';
 import { MetricsFieldModel } from '../../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 import { Subject, Observable } from 'rxjs/Rx';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
+import { AbstractTJobModel } from '../../models/abstract-tjob-model';
+import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 
 @Component({
   selector: 'etm-chart-group',
   templateUrl: './etm-chart-group.component.html',
-  styleUrls: ['./etm-chart-group.component.scss']
+  styleUrls: ['./etm-chart-group.component.scss'],
 })
 export class EtmChartGroupComponent implements OnInit {
   @ViewChildren(MetricsChartCardComponent) MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
-  @Input()
-  public live: boolean;
-  @Input()
-  tJob: TJobModel;
-  @Input()
-  tJobExec: TJobExecModel;
+  @Input() public live: boolean;
+  @Input() tJob: AbstractTJobModel;
+  @Input() tJobExec: AbstractTJobExecModel;
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
@@ -37,36 +31,27 @@ export class EtmChartGroupComponent implements OnInit {
   loaded: boolean = false;
 
   // TimeLine Observable
-  @Output()
-  timelineObs = new EventEmitter<any>();
+  @Output() timelineObs = new EventEmitter<any>();
 
-  @Output()
-  hoverObs = new EventEmitter<any>();
+  @Output() hoverObs = new EventEmitter<any>();
 
-  @Output()
-  leaveObs = new EventEmitter<any>();
+  @Output() leaveObs = new EventEmitter<any>();
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
 
-  constructor(
-    private elastestESService: ElastestESService,
-    private elastestRabbitmqService: ElastestRabbitmqService,
-  ) { }
+  constructor(private elastestESService: ElastestESService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.MetricsChartCardComponents.changes.subscribe(
-      (data) => this.subscribeAllToEvents(),
-    );
+    this.MetricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
     if (this.live) {
       this.initObservables();
     }
   }
 
   initObservables(): void {
-    // Get default Rabbit queues 
+    // Get default Rabbit queues
     let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
@@ -93,7 +78,7 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
-  initMetricsView(tJob: TJobModel, tJobExec: TJobExecModel): void {
+  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -105,21 +90,21 @@ export class EtmChartGroupComponent implements OnInit {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.metricsIndex = this.tJobExec.monitoringIndex;
-        if (metric.component === '') { // If no component, is a default metric
+        if (metric.component === '') {
+          // If no component, is a default metric
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
           if (!this.live) {
             individualMetrics.getAllMetrics();
           }
           this.metricsList.push(individualMetrics);
-        } else { // Else, is a custom metric
+        } else {
+          // Else, is a custom metric
           let pos: number = this.initCustomMetric(metric, individualMetrics);
           if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.type : metric.type + '.' + metric.subtype;
-            this.elastestESService.searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
-              .subscribe(
-              (obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data),
-              (error) => console.log(error),
-            );
+            this.elastestESService
+              .searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
+              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
         }
       }
@@ -136,32 +121,41 @@ export class EtmChartGroupComponent implements OnInit {
     this.createGroupedMetricList();
 
     individualMetrics.allMetricsFields.addMetricsFieldToList(
-      metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
+      metric,
+      individualMetrics.component,
+      individualMetrics.stream,
+      metric.streamType,
+      metric.activated,
     );
     this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
-      metric, individualMetrics.component, individualMetrics.stream, metric.streamType, metric.activated
+      metric,
+      individualMetrics.component,
+      individualMetrics.stream,
+      metric.streamType,
+      metric.activated,
     );
 
     let pos: number = this.metricsList.length - 1;
 
     if (this.live) {
       this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
-      let index: string = this.tJobExec.getCurrentESIndex(individualMetrics.component);
-      this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
+      let index: string = this.tJobExec.getCurrentMonitoringIndex(individualMetrics.component);
+      this.elastestRabbitmqService
+        .createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
         .subscribe(
-        (data: any) => {
-          if (data.type === metric.type && data.component === metric.component) {
-            let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
-            if (parsedData === undefined) {
-              console.error('Undefined data received, not added to ' + metric.name);
-            } else {
-              if (this.metricsList[pos]) {
-                this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+          (data: any) => {
+            if (data.type === metric.type && data.component === metric.component) {
+              let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
+              if (parsedData === undefined) {
+                console.error('Undefined data received, not added to ' + metric.name);
+              } else {
+                if (this.metricsList[pos]) {
+                  this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+                }
               }
             }
-          }
-        },
-        (error) => console.log(error)
+          },
+          (error) => console.log(error),
         );
     }
     return pos;
@@ -226,7 +220,8 @@ export class EtmChartGroupComponent implements OnInit {
   updateMetricsData(data: any): void {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
-        if (metric.isDefault()) { // Only update default metrics
+        if (metric.isDefault()) {
+          // Only update default metrics
           metric.updateData(data);
         }
       }
@@ -244,15 +239,14 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   subscribeAllToEvents(): void {
-    if (!this.live) { // If not is live, subscribe to events
+    if (!this.live) {
+      // If not is live, subscribe to events
       this.unsubscribeAllEvents();
       this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
       if (this.loaded) {
-        this.MetricsChartCardComponents.forEach(
-          (element: MetricsChartCardComponent) => {
-            this.subscribeToEvents(element);
-          }
-        );
+        this.MetricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
+          this.subscribeToEvents(element);
+        });
       }
     }
   }
@@ -266,56 +260,44 @@ export class EtmChartGroupComponent implements OnInit {
 
   subscribeToEvents(element: MetricsChartCardComponent): void {
     let eventSubscription: Subscription;
-    eventSubscription = element.getTimelineSubscription().subscribe(
-      (data) => {
-        this.updateTimeline(data);
-        this.timelineObs.next(data);
-      }
-    );
+    eventSubscription = element.getTimelineSubscription().subscribe((data) => {
+      this.updateTimeline(data);
+      this.timelineObs.next(data);
+    });
 
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
 
-    eventSubscription = element.getHoverSubscription().subscribe(
-      (data) => {
-        this.hoverCharts(data);
-        this.hoverObs.next(data.value);
-      }
-    );
+    eventSubscription = element.getHoverSubscription().subscribe((data) => {
+      this.hoverCharts(data);
+      this.hoverObs.next(data.value);
+    });
 
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
 
-    eventSubscription = element.getLeaveSubscription().subscribe(
-      (data) => {
-        this.leaveCharts();
-        this.leaveObs.next();
-      }
-    );
+    eventSubscription = element.getLeaveSubscription().subscribe((data) => {
+      this.leaveCharts();
+      this.leaveObs.next();
+    });
 
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
   }
 
   updateTimeline(domain) {
-    this.MetricsChartCardComponents.forEach(
-      (element) => {
-        element.updateDomain(domain);
-      }
-    );
+    this.MetricsChartCardComponents.forEach((element) => {
+      element.updateDomain(domain);
+    });
   }
 
   hoverCharts(item) {
-    this.MetricsChartCardComponents.forEach(
-      (element) => {
-        element.hoverCharts(item);
-      }
-    );
+    this.MetricsChartCardComponents.forEach((element) => {
+      element.hoverCharts(item);
+    });
   }
 
   leaveCharts() {
-    this.MetricsChartCardComponents.forEach(
-      (element) => {
-        element.leaveCharts();
-      }
-    );
+    this.MetricsChartCardComponents.forEach((element) => {
+      element.leaveCharts();
+    });
   }
 
   removeAndUnsubscribe(pos: number): void {
@@ -354,11 +336,11 @@ export class EtmChartGroupComponent implements OnInit {
 
     if (!component || component === '') {
       for (component of components) {
-        let index: string = this.tJobExec.getCurrentESIndex(component);
+        let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
         this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
       }
     } else {
-      let index: string = this.tJobExec.getCurrentESIndex(component);
+      let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
   }

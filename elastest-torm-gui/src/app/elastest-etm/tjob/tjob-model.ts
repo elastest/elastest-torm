@@ -6,76 +6,73 @@ import { ParameterModel } from '../parameter/parameter-model';
 import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
+import { AbstractTJobModel } from '../models/abstract-tjob-model';
 
-export class TJobModel {
-    id: number;
-    name: string;
-    imageName: string;
-    sut: SutModel;
-    project: ProjectModel;
-    tjobExecs: TJobExecModel[];
-    parameters: any[];
-    commands: string;
-    resultsPath: string;
-    execDashboardConfig: string;
-    execDashboardConfigModel: DashboardConfigModel;
-    esmServicesString: string;
-    esmServices: EsmServiceModel[];
-    esmServicesChecked: number;
+export class TJobModel extends AbstractTJobModel {
+  id: number;
+  name: string;
+  imageName: string;
+  sut: SutModel;
+  project: ProjectModel;
+  tjobExecs: TJobExecModel[];
+  parameters: any[];
+  commands: string;
+  resultsPath: string;
+  execDashboardConfig: string;
+  execDashboardConfigModel: DashboardConfigModel;
+  esmServicesString: string;
+  esmServices: EsmServiceModel[];
+  esmServicesChecked: number;
 
-    constructor() {
-        this.id = 0;
-        this.name = '';
-        this.imageName = '';
-        this.sut = undefined;
-        this.project = undefined;
-        this.tjobExecs = [];
-        this.parameters = [];
-        this.commands = '';
-        this.resultsPath = '';
-        this.execDashboardConfig = '';
-        this.execDashboardConfigModel = new DashboardConfigModel();
-        this.esmServicesString = '';
-        this.esmServices = [];
-        this.esmServicesChecked = 0;
-    }
+  constructor() {
+    super();
+    this.id = 0;
+    this.name = '';
+    this.imageName = '';
+    this.sut = undefined;
+    this.project = undefined;
+    this.tjobExecs = [];
+    this.parameters = [];
+    this.commands = '';
+    this.resultsPath = '';
+    this.execDashboardConfig = '';
+    this.execDashboardConfigModel = new DashboardConfigModel();
+    this.esmServicesString = '';
+    this.esmServices = [];
+    this.esmServicesChecked = 0;
+  }
 
-    public generateExecDashboardConfig(): void {
-        this.execDashboardConfig = JSON.stringify(this.execDashboardConfigModel);
-    }
+  public cloneTJob(): TJobModel {
+    let tJob: TJobModel = Object.assign({}, this, {
+      parameters: [...this.parameters],
+      tjobExecs: [...this.tjobExecs],
+    });
+    return tJob;
+  }
 
-    public hasSut(): boolean {
-        return (this.sut !== undefined && this.sut !== null && this.sut.id !== 0);
-    }
+  public withCommands(): boolean {
+    return this.commands !== undefined && this.commands !== null && this.commands !== '';
+  }
 
-    public cloneTJob(): TJobModel {
-        let tJob: TJobModel = Object.assign({}, this, {
-            parameters: [...this.parameters],
-            tjobExecs: [...this.tjobExecs],
-        },
-        );
-        return tJob;
-    }
+  public arrayCommands(): string[] {
+    let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
+    return commandsArray;
+  }
 
-    public withCommands() {
-        return this.commands !== undefined && this.commands !== null && this.commands !== '';
-    }
+  public changeServiceSelection($event, i: number): void {
+    console.log('Service id:' + i);
+    this.esmServices[i].selected = $event.checked;
+  }
 
-    public arrayCommands(): string[] {
-        let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
-        return commandsArray;
-    }
+  public getRouteString(): string {
+    return this.project.getRouteString() + ' / ' + this.name;
+  }
 
-    public changeServiceSelection($event, i: number): void {
-        console.log('Service id:' + i);
-        this.esmServices[i].selected = $event.checked;
-    }
+  hasParameters(): boolean {
+    return this.parameters.length > 0 || this.sut.parameters.length > 0;
+  }
 
-    public getRouteString(): string {
-        return this.project.getRouteString() + ' / ' + this.name;
-    }
-
-    hasParameters(): boolean {
-        return this.parameters.length > 0 || this.sut.parameters.length > 0;
-    }
+  public getAbstractTJobClass(): string {
+    return 'TJobModel';
+  }
 }

@@ -1,10 +1,12 @@
 import { DashboardConfigModel } from '../tjob/dashboard-config-model';
+import { AbstractProjectModel } from './abstract-project-model';
+import { SutModel } from '../sut/sut-model';
 
 export class AbstractTJobModel {
   id: number;
   name: string;
-  //sut
-  //project
+  sut: SutModel;
+  project: AbstractProjectModel;
   execDashboardConfig: string;
   execDashboardConfigModel: DashboardConfigModel;
 
@@ -19,7 +21,11 @@ export class AbstractTJobModel {
     this.execDashboardConfig = JSON.stringify(this.execDashboardConfigModel);
   }
 
-  //   public hasSut(): boolean {
-  //     return this.sut !== undefined && this.sut !== null && this.sut.id !== 0;
-  //   }
+  public hasSut(): boolean {
+    return this.sut !== undefined && this.sut !== null && this.sut.id !== 0;
+  }
+
+  public getAbstractTJobClass(): string {
+    return 'AbstractTJobModel';
+  }
 }

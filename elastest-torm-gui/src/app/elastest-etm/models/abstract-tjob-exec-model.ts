@@ -1,6 +1,8 @@
+import { AbstractTJobModel } from './abstract-tjob-model';
+
 export class AbstractTJobExecModel {
   id: number;
-  //tjob
+  tJob: AbstractTJobModel;
   monitoringIndex: string;
 
   constructor() {
@@ -13,24 +15,24 @@ export class AbstractTJobExecModel {
     return testIndex;
   }
 
-//   getCurrentESIndex(component: string) {
-//     let index: string = this.getTJobIndex();
-//     if (component === 'sut') {
-//       index = this.getSutIndex();
-//     }
-//     return index;
-//   }
+  getCurrentMonitoringIndex(component: string) {
+    let index: string = this.getTJobIndex();
+    if (component === 'sut') {
+      index = this.getSutIndex();
+    }
+    return index;
+  }
 
-//   getSutIndex(): string {
-//     let sutIndex: string = '';
-//     if (this.tJob.hasSut()) {
-//       sutIndex = this.monitoringIndex.split(',')[1];
-//       if (!sutIndex) {
-//         sutIndex = this.getTJobIndex();
-//       }
-//     } else {
-//       sutIndex = this.getTJobIndex();
-//     }
-//     return sutIndex;
-//   }
+  getSutIndex(): string {
+    let sutIndex: string = '';
+    if (this.tJob.hasSut()) {
+      sutIndex = this.monitoringIndex.split(',')[1];
+      if (!sutIndex) {
+        sutIndex = this.getTJobIndex();
+      }
+    } else {
+      sutIndex = this.getTJobIndex();
+    }
+    return sutIndex;
+  }
 }

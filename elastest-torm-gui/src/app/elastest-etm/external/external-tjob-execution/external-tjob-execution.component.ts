@@ -61,12 +61,8 @@ export class ExternalTjobExecutionComponent implements OnInit {
         this.titlesService.setTopTitle(exTJobExec.getRouteString());
 
         this.exTJob = this.exTJobExec.exTJob;
-        // this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+        this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
       });
-  }
-
-  viewTJob(): void {
-    this.router.navigate(['/external/projects', this.exTJob.exProject.id, 'tjob', this.exTJobId]);
   }
 
   viewInLogAnalyzer(): void {

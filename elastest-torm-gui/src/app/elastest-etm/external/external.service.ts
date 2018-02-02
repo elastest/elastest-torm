@@ -31,27 +31,21 @@ export class ExternalService {
     let url: string = this.hostApi + '/external/project';
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalProjectsList(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectsList(response.json()));
   }
 
   public getExternalProjectByType(project: ExternalProjectModel): Observable<ExternalProjectModel> {
     let url: string = this.hostApi + '/external/project/type/' + project.type;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
   }
 
   public getExternalProjectById(projectId: number): Observable<ExternalProjectModel> {
     let url: string = this.hostApi + '/external/project/' + projectId;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
   }
 
   // public createProject(project: ExternalProjectModel): Observable<ExternalProjectModel> {
@@ -68,18 +62,25 @@ export class ExternalService {
     let url: string = this.hostApi + '/external/extjob';
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTJobsList(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobsList(response.json()));
   }
 
   public getExternalTJobById(tJobId: number): Observable<ExternalTJobModel> {
     let url: string = this.hostApi + '/external/extjob/' + tJobId;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+  }
+
+  public modifyExternalTJob(tJob: ExternalTJobModel): Observable<ExternalTJobModel> {
+    if (!tJob.hasSut()) {
+      tJob.sut = undefined;
+    }
+    tJob.generateExecDashboardConfig();
+    let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
+    return this.http
+      .put(url, tJob)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
   }
 
   /*************************/
@@ -90,29 +91,21 @@ export class ExternalService {
     let url: string = this.hostApi + '/external/tjobexec';
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
   }
 
   public getExternalTJobExecById(tJobExecId: number): Observable<ExternalTJobExecModel> {
     let url: string = this.hostApi + '/external/tjobexec/' + tJobExecId;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
   }
 
-  public createExternalTJobExecution(
-    exec: ExternalTJobExecModel,
-  ): Observable<ExternalTJobExecModel> {
+  public createExternalTJobExecution(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
     return this.http
       .post(url, exec)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
   }
 
   /************************/
@@ -123,18 +116,14 @@ export class ExternalService {
     let url: string = this.hostApi + '/external/testcase';
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTestCasesList(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCasesList(response.json()));
   }
 
   public getExternalTestCaseById(caseId: number): Observable<ExternalTestCaseModel> {
     let url: string = this.hostApi + '/external/testcase/' + caseId;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()));
   }
 
   /************************/
@@ -145,17 +134,13 @@ export class ExternalService {
     let url: string = this.hostApi + '/external/testexec';
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTestExecsList(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecsList(response.json()));
   }
 
   public getExternalTestExecById(caseId: number): Observable<ExternalTestExecutionModel> {
     let url: string = this.hostApi + '/external/testexec/' + caseId;
     return this.http
       .get(url)
-      .map((response: Response) =>
-        this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()),
-      );
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
   }
 }
