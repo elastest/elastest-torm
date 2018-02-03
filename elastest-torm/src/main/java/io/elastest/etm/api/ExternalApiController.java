@@ -55,7 +55,12 @@ public class ExternalApiController implements ExternalApi {
             @ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId) {
         return externalService.isReadyTJobForExternalExecution(tJobExecId);
     }
-
+    
+    @Override
+    public ResponseEntity<String> getElasTestVersion() {
+        return new ResponseEntity<String>(externalService.getElasTestVersion(), HttpStatus.OK);
+    }
+    
     /* *************************************************/
     /* *************** ExternalProject *************** */
     /* *************************************************/

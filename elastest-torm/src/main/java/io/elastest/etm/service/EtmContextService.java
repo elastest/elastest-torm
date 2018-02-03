@@ -142,15 +142,8 @@ public class EtmContextService {
 
         imagesNames.forEach((imageName) -> {
             try {
-                logger.info("Image name {}.", imageName);
                 InspectImageResponse imageInfo = dockerService
                         .getImageInfoByName(imageName);
-                logger.info("Image commit {}.",
-                        imageInfo.getConfig().getLabels().get("git_commit"));
-                logger.info("Commit date {}.",
-                        imageInfo.getConfig().getLabels().get("commit_date"));
-                logger.info("Version name {}.",
-                        imageInfo.getConfig().getLabels().get("version"));
                 VersionInfo imageVersionInfo = new VersionInfo(
                         imageInfo.getConfig().getLabels().get("git_commit"),
                         imageInfo.getConfig().getLabels().get("commit_date"),

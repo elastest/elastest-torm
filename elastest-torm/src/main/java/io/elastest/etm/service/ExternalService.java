@@ -20,10 +20,12 @@ import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
+import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.service.ElasticsearchService.IndexAlreadyExistException;
@@ -86,6 +88,7 @@ public class ExternalService {
 
     private final EsmService esmService;
     private ElasticsearchService elasticsearchService;
+    private EtmContextService etmContextService;
 
     public ExternalService(UtilTools utilTools, ProjectService projectService,
             TJobService tJobService,
@@ -94,7 +97,9 @@ public class ExternalService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            EsmService esmService, ElasticsearchService elasticsearchService) {
+            EsmService esmService,
+            ElasticsearchService elasticsearchService,
+            EtmContextService etmContextService) {
         super();
         this.utilTools = utilTools;
         this.projectService = projectService;
@@ -107,6 +112,7 @@ public class ExternalService {
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.esmService = esmService;
         this.elasticsearchService = elasticsearchService;
+        this.etmContextService = etmContextService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob)
@@ -171,6 +177,18 @@ public class ExternalService {
             externalJob.setReady(true);
             return externalJob;
         }
+    }
+    
+    public String getElasTestVersion() {
+        String version = "undefined";
+        HelpInfo helpInfo = etmContextService.getHelpInfo();
+        for(Map.Entry<String, VersionInfo> entry: helpInfo.getVersionsInfo().entrySet()){
+            if(entry.getKey().split(":")[0].equals("elastest/platform")){
+                version = entry.getValue().getName();
+                break;
+            }
+        }
+        return version;
     }
 
     private TJob createElasTestEntitiesForExtJob(ExternalJob externalJob)

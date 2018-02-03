@@ -60,6 +60,14 @@ public interface ExternalApi extends EtmApiExternalRoot {
     void finishExternalJob(
             @ApiParam(value = "Object with the id of the TJob to update the state.", required = true) @Valid @RequestBody ExternalJob body);
 
+    @ApiOperation(value = "Returns the ElasTest version.", notes = "Returns the ElasTest version.", tags = {
+            "External", })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Invalid input") })
+    @RequestMapping(value = "/elastest/version", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    ResponseEntity<String> getElasTestVersion();
+
     /* *************************************************/
     /* *************** ExternalProject *************** */
     /* *************************************************/
