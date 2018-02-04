@@ -155,7 +155,7 @@ public class ExternalService {
     public void endExtTJobExecution(ExternalJob externalJob) {
         tJobService.endExternalTJobExecution(externalJob.gettJobExecId(),
                 externalJob.getResult());
-        runningExternalJobs.remove(externalJob).gettJobExecId();
+        runningExternalJobs.remove(externalJob.gettJobExecId());
     }
 
     public ExternalJob isReadyTJobForExternalExecution(Long tJobExecId) {
@@ -185,6 +185,7 @@ public class ExternalService {
         for(Map.Entry<String, VersionInfo> entry: helpInfo.getVersionsInfo().entrySet()){
             if(entry.getKey().split(":")[0].equals("elastest/platform")){
                 version = entry.getValue().getName();
+                logger.debug("ElasTest version {}", version);
                 break;
             }
         }
