@@ -175,12 +175,12 @@ public class EtmContextService {
                 monEnvs.put("ET_SUT_LOG_TAG",
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
-                monEnvs.put("ET_MON_LSHTTP_API",
+                monEnvs.put("ET_SUT_MON_LSHTTP_API",
                         "http://" + etPublicHost + ":" + etEtmLshttpPort);
-                monEnvs.put("ET_MON_LSBEATS_HOST", etPublicHost);
-                monEnvs.put("ET_MON_LSBEATS_PORT", etEtmInternalLsbeatsPort);
-                monEnvs.put("ET_MON_LSTCP_HOST", etPublicHost);
-                monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
+                monEnvs.put("ET_SUT_MON_LSBEATS_HOST", etPublicHost);
+                monEnvs.put("ET_SUT_MON_LSBEATS_PORT", etEtmInternalLsbeatsPort);
+                monEnvs.put("ET_SUT_MON_LSTCP_HOST", etPublicHost);
+                monEnvs.put("ET_SUT_MON_LSTCP_PORT", etEtmLstcpPort);
             }
         }
 
