@@ -346,11 +346,9 @@ public class TJobExecOrchestratorService {
                     externalTJob, withPublicPrefix));
         }
 
-        if (!externalTJob) {
-            // Get monitoring Env Vars
-            tJobExec.getEnvVars()
-                    .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
-        }
+        // Get monitoring Env Vars
+        tJobExec.getEnvVars()
+                .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
     }
 
     /**

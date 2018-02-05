@@ -78,8 +78,12 @@ public class EtmContextService {
     public String etEtmLsbeatsHost;
     @Value("${et.etm.lsbeats.port}")
     public String etEtmLsbeatsPort;
+    @Value("${et.etm.internal.lsbeats.port}")
+    public String etEtmInternalLsbeatsPort;
     @Value("${et.etm.lshttp.api}")
     public String etEtmLshttpApi;
+    @Value("${et.etm.lshttp.port}")
+    public String etEtmLshttpPort;
     @Value("${et.etm.rabbit.host}")
     public String etEtmRabbitHost;
     @Value("${et.etm.rabbit.port}")
@@ -158,15 +162,27 @@ public class EtmContextService {
     public Map<String, String> getMonitoringEnvVars(TJobExecution tJobExec) {
         Map<String, String> monEnvs = new HashMap<String, String>();
 
-        if (tJobExec != null) {
-            monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
-        }
-
         monEnvs.put("ET_MON_LSHTTP_API", etEtmLshttpApi);
         monEnvs.put("ET_MON_LSBEATS_HOST", etEtmLsbeatsHost);
         monEnvs.put("ET_MON_LSBEATS_PORT", etEtmLsbeatsPort);
         monEnvs.put("ET_MON_LSTCP_HOST", etEtmLstcpHost);
         monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
+
+        if (tJobExec != null) {
+            monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
+            if (tJobExec.getTjob().isExternal()) {
+                monEnvs.put("ET_SUT_CONTAINER_NAME", "sut_" + tJobExec.getId());
+                monEnvs.put("ET_SUT_LOG_TAG",
+                        "sut_" + tJobExec.getId() + "_exec");
+                // Override
+                monEnvs.put("ET_MON_LSHTTP_API",
+                        "http://" + etPublicHost + ":" + etEtmLshttpPort);
+                monEnvs.put("ET_MON_LSBEATS_HOST", etPublicHost);
+                monEnvs.put("ET_MON_LSBEATS_PORT", etEtmInternalLsbeatsPort);
+                monEnvs.put("ET_MON_LSTCP_HOST", etPublicHost);
+                monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
+            }
+        }
 
         return monEnvs;
     }
