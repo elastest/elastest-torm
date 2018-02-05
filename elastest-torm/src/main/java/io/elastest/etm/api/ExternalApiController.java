@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.elastest.etm.api.model.ExternalJob;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -55,12 +57,13 @@ public class ExternalApiController implements ExternalApi {
             @ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId) {
         return externalService.isReadyTJobForExternalExecution(tJobExecId);
     }
-    
+
     @Override
     public ResponseEntity<String> getElasTestVersion() {
-        return new ResponseEntity<String>(externalService.getElasTestVersion(), HttpStatus.OK);
+        return new ResponseEntity<String>(externalService.getElasTestVersion(),
+                HttpStatus.OK);
     }
-    
+
     /* *************************************************/
     /* *************** ExternalProject *************** */
     /* *************************************************/
@@ -126,6 +129,29 @@ public class ExternalApiController implements ExternalApi {
         return new ResponseEntity<ExternalTJobExecution>(
                 externalService.createExternalTJobExecution(body),
                 HttpStatus.OK);
+    }
+
+    public ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
+            @ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
+        return new ResponseEntity<ExternalTJobExecution>(
+                externalService.modifyExternalTJobExec(body), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+
+        ResponseEntity<List<TJobExecutionFile>> response;
+        try {
+            response = new ResponseEntity<List<TJobExecutionFile>>(
+                    externalService.getExternalTJobExecutionFilesUrls(
+                            tJobExecId),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            response = new ResponseEntity<List<TJobExecutionFile>>(
+                    new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return response;
     }
 
     /* **************************************************/

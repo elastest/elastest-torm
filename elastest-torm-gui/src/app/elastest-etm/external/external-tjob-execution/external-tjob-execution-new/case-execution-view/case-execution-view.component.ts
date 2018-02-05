@@ -90,7 +90,9 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
     } else {
       this.disableTLNextBtn = true;
       this.execFinished = true;
+      this.exTJobExec.result = 'SUCCESS';
       this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+      this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
     }
   }
 

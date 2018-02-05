@@ -25,6 +25,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
@@ -97,8 +98,7 @@ public class ExternalService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            EsmService esmService,
-            ElasticsearchService elasticsearchService,
+            EsmService esmService, ElasticsearchService elasticsearchService,
             EtmContextService etmContextService) {
         super();
         this.utilTools = utilTools;
@@ -178,12 +178,13 @@ public class ExternalService {
             return externalJob;
         }
     }
-    
+
     public String getElasTestVersion() {
         String version = "undefined";
         HelpInfo helpInfo = etmContextService.getHelpInfo();
-        for(Map.Entry<String, VersionInfo> entry: helpInfo.getVersionsInfo().entrySet()){
-            if(entry.getKey().split(":")[0].equals("elastest/platform")){
+        for (Map.Entry<String, VersionInfo> entry : helpInfo.getVersionsInfo()
+                .entrySet()) {
+            if (entry.getKey().split(":")[0].equals("elastest/platform")) {
                 version = entry.getValue().getName();
                 logger.debug("ElasTest version {}", version);
                 break;
@@ -294,7 +295,6 @@ public class ExternalService {
         } else {
             throw new HTTPException(405);
         }
-
     }
     /* **************************************************/
     /* *************** ExternalTJobExec *************** */
@@ -333,6 +333,16 @@ public class ExternalService {
         return exec;
     }
 
+    public ExternalTJobExecution modifyExternalTJobExec(
+            ExternalTJobExecution externalTJobExec) {
+        if (externalTJobExecutionRepository
+                .findOne(externalTJobExec.getId()) != null) {
+            return externalTJobExecutionRepository.save(externalTJobExec);
+        } else {
+            throw new HTTPException(405);
+        }
+    }
+
     public String getExternalTJobExecMonitoringIndex(
             ExternalTJobExecution exec) {
         return "ext" + exec.getExTJob().getId() + "_e" + exec.getId();
@@ -348,6 +358,14 @@ public class ExternalService {
             }
         }
         return eus;
+    }
+
+    public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(
+            Long exTJobExecId) throws InterruptedException {
+        ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
+                .findById(exTJobExecId);
+        return esmService.getExternalTJobExecutionFilesUrls(
+                exTJobExec.getExTJob().getId(), exTJobExecId);
     }
 
     public void createMonitoringIndex(ExternalTJobExecution exec) { // TODO

@@ -15,7 +15,7 @@
       <md-card-content>
         <div *ngIf="exTJobExec" layout="row" layout-align="space-between end">
           <span>
-            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <md-icon>settings</md-icon>
             </button>
           </span>
@@ -29,4 +29,4 @@
 <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Execution files -->
-<!-- <etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager> -->
+<etm-files-manager *ngIf="exTJob && exTJobExec" [tJobId]="exTJob.id " [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>

@@ -3,7 +3,16 @@
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row">
-          <span>Execute External TJob "{{exTJob.name}}"</span>
+          <span>
+            <img *ngIf="!exTJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
+              title="Executing TJob">
+            <button md-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/project/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
+              class="onlyIconBtn" title="Navigate to result page">
+              <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
+            </button>
+            <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
+          </span>
+          <span>Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
           <span flex></span>
           <span>
             <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
@@ -33,7 +42,7 @@
         </ng-container>
         <ng-template #loadingBrowser>
           <div>{{browserLoadingMsg}}</div>
-          <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+          <md-spinner *ngIf="exTJobExec && !exTJobExec.finished()" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
         </ng-template>
       </md-card-content>
     </md-card>
@@ -42,3 +51,6 @@
 
 <!-- logs & Metrics -->
 <etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
+
+<!-- Files -->
+<etm-files-manager *ngIf="ready && exTJob && exTJobExec" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>

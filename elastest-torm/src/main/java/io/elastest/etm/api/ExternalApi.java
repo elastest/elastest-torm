@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.api.model.ExternalJob;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -119,7 +121,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
             @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId);
 
     @ApiOperation(value = "Modifies a existing External TJob", notes = "Modifies the External TJob that matches the received External TJob.", response = ExternalTJob.class, tags = {
-            "TJob", })
+            "External", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "TJob Mofification Successful", response = ExternalTJob.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJob.class) })
@@ -160,6 +162,27 @@ public interface ExternalApi extends EtmApiExternalRoot {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
             @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body);
+
+    @ApiOperation(value = "Modifies a existing External TJobExecution ", notes = "Modifies the External TJob that matches the received External TJob Execution.", response = ExternalTJobExecution.class, tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "TJob Mofification Successful", response = ExternalTJobExecution.class),
+            @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJobExecution.class) })
+    @RequestMapping(value = "/tjobexec", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.PUT)
+    ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
+            @ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body);
+
+    @ApiOperation(value = "Returns all files associated to an External TJob Execution.", notes = "Returns all files associated to an External TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
+            "External", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJob Executions files not found") })
+    @RequestMapping(value = "tjobexec/{tJobExecId}/files", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
     /* **************************************************/
     /* *************** ExternalTestCase *************** */

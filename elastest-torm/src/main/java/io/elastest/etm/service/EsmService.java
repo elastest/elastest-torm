@@ -1,5 +1,7 @@
 package io.elastest.etm.service;
 
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +41,7 @@ import com.github.dockerjava.api.model.Ports;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.UtilTools;
@@ -104,6 +107,13 @@ public class EsmService {
     @Value("${et.socat.image}")
     public String etSocatImage;
 
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+    @Value("${registry.contextPath}")
+    private String registryContextPath;
+    @Value("${et.shared.folder}")
+    private String sharedFolder;
+
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
     public UtilTools utilTools;
@@ -114,6 +124,14 @@ public class EsmService {
     private Map<Long, List<String>> tSSIByExternalTJobExecAssociated;
     private List<String> tSSIdLoadedOnInit;
     private List<String> tSSNameLoadedOnInit;
+
+    private String tJobsFolder = "tjobs";
+    private String tJobFolderPrefix = "tjob_";
+    private String tJobExecFolderPefix = "exec_";
+
+    private String externalTJobsFolder = "external_tjobs";
+    private String externalTJobFolderPrefix = "external_tjob_";
+    private String externalTJobExecFolderPefix = "external_exec_";
 
     public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
             DockerService2 dockerService) {
@@ -371,6 +389,7 @@ public class EsmService {
             newServiceInstance = this.createNewServiceInstance(serviceId, null,
                     instanceId);
 
+            this.setTSSFilesConfig(newServiceInstance);
             this.fillEnvVariablesToTSS(newServiceInstance);
 
             servicesInstances.put(instanceId, newServiceInstance);
@@ -406,6 +425,7 @@ public class EsmService {
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
+            this.setTJobExecTSSFilesConfig(newServiceInstance, tJobExec);
             fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
 
             if (tJobExec != null && execId != null) {
@@ -444,6 +464,26 @@ public class EsmService {
         }
     }
 
+    private void setTJobExecTSSFilesConfig(
+            SupportServiceInstance supportServiceInstance,
+            TJobExecution tJobExec) {
+
+        if (tJobExec != null && tJobExec.getTjob() != null) {
+            Long tJobId = tJobExec.getTjob().getId();
+            Long tJobExecId = tJobExec.getId();
+            // etmcontextService.getMonitoringEnvVars
+            String fileSeparator = "/";
+            supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                    etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
+                            + tJobFolderPrefix + tJobId + fileSeparator
+                            + tJobExecFolderPefix + tJobExecId
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
+
+    }
+
     private void fillTJobExecEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance,
             TJobExecution tJobExec) {
@@ -458,15 +498,7 @@ public class EsmService {
                     tJobExecId.toString());
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
                     tJobExecId.toString());// TODO refactor -> Use
-                                           // etmcontextService.getMonitoringEnvVars
-            String fileSeparator = "/";
-            supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator + "tjobs" + fileSeparator
-                            + "tjob_" + tJobId + fileSeparator + "exec_"
-                            + tJobExecId
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
-                            + fileSeparator);
+
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }
@@ -483,6 +515,8 @@ public class EsmService {
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
+            this.setExternalTJobExecTSSFilesConfig(newServiceInstance,
+                    exTJobExec);
             fillExternalTJobExecEnvVariablesToTSS(newServiceInstance,
                     exTJobExec);
 
@@ -524,6 +558,24 @@ public class EsmService {
         }
     }
 
+    private void setExternalTJobExecTSSFilesConfig(
+            SupportServiceInstance supportServiceInstance,
+            ExternalTJobExecution exTJobExec) {
+        if (exTJobExec != null && exTJobExec.getExTJob() != null) {
+            Long exTJobId = exTJobExec.getExTJob().getId();
+            Long exTJobExecId = exTJobExec.getId();
+            String fileSeparator = "/";
+            supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                    etSharedFolder + fileSeparator + externalTJobsFolder
+                            + fileSeparator + externalTJobFolderPrefix
+                            + exTJobId + fileSeparator
+                            + externalTJobExecFolderPefix + exTJobExecId
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
+    }
+
     private void fillExternalTJobExecEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance,
             ExternalTJobExecution exTJobExec) {
@@ -539,14 +591,7 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
                     exTJobExec.getMonitoringIndex());// TODO refactor -> Use
             // etmcontextService.getMonitoringEnvVars
-            String fileSeparator = "/";
-            supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator + "tjobs" + fileSeparator
-                            + "tjob_" + exTJobId + fileSeparator + "exec_"
-                            + exTJobExecId
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
-                            + fileSeparator);
+
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }
@@ -1014,6 +1059,90 @@ public class EsmService {
         return up;
     }
 
+    public List<TJobExecutionFile> getTJobExecutionFilesUrls(Long tJobId,
+            Long tJobExecId) throws InterruptedException {
+        logger.info("Retrived the files generated by the TJob execution: {}",
+                tJobExecId);
+
+        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+        String tJobExecFilePath = tJobsFolder + fileSeparator + tJobFolderPrefix
+                + tJobId + fileSeparator + tJobExecFolderPefix + tJobExecId
+                + fileSeparator;
+
+        List<TJobExecutionFile> filesList = null;
+        try {
+            filesList = this.getFilesUrls(fileSeparator, tJobExecFilePath);
+        } catch (IOException fnfe) {
+            logger.warn("Error building the URLs of the execution files {}",
+                    tJobExecId);
+        }
+        return filesList;
+    }
+
+    public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(
+            Long exTJobId, Long exTJobExecId) throws InterruptedException {
+        logger.info("Retrived the files generated by the TJob execution: {}",
+                exTJobExecId);
+
+        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+        String tJobExecFilePath = externalTJobsFolder + fileSeparator
+                + externalTJobFolderPrefix + exTJobId + fileSeparator
+                + externalTJobExecFolderPefix + exTJobExecId + fileSeparator;
+
+        List<TJobExecutionFile> filesList = null;
+        try {
+            filesList = this.getFilesUrls(fileSeparator, tJobExecFilePath);
+        } catch (IOException fnfe) {
+            logger.warn("Error building the URLs of the execution files {}",
+                    exTJobExecId);
+        }
+        return filesList;
+    }
+
+    public List<TJobExecutionFile> getFilesUrls(String fileSeparator,
+            String tJobExecFilePath) throws InterruptedException, IOException {
+        List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
+
+        String tJobExecFolder = sharedFolder + tJobExecFilePath;
+        logger.debug("Shared folder:" + tJobExecFolder);
+
+        File file = ResourceUtils.getFile(tJobExecFolder);
+        // If not in dev mode
+        if (file.exists()) {
+            List<String> servicesFolders = new ArrayList<>(
+                    Arrays.asList(file.list()));
+            for (String serviceFolderName : servicesFolders) {
+                try {
+                    Thread.sleep(2000L);
+                } catch (InterruptedException ie) {
+                    logger.error("Thread sleep fail");
+                    throw ie;
+                }
+                logger.debug("Files folder:" + serviceFolderName);
+                logger.debug("Full path:" + tJobExecFolder + serviceFolderName);
+                File serviceFolder = ResourceUtils
+                        .getFile(tJobExecFolder + serviceFolderName);
+                List<String> servicesFilesNames = new ArrayList<>(
+                        Arrays.asList(serviceFolder.list()));
+                for (String serviceFileName : servicesFilesNames) {
+                    filesList.add(new TJobExecutionFile(serviceFileName,
+                            getFileUrl(tJobExecFilePath + serviceFolderName
+                                    + fileSeparator + serviceFileName),
+                            serviceFolderName));
+                }
+            }
+        }
+
+        return filesList;
+    }
+
+    public String getFileUrl(String serviceFilePath) throws IOException {
+        String urlResponse = contextPath.replaceFirst("/", "")
+                + registryContextPath + "/"
+                + serviceFilePath.replace("\\\\", "/");
+        return urlResponse;
+    }
+
     private void createExecFilesFolder(
             SupportServiceInstance supportServiceInstance) {
         logger.info("try to create folder.");
@@ -1033,9 +1162,8 @@ public class EsmService {
         }
     }
 
-    private void fillEnvVariablesToTSS(
+    private void setTSSFilesConfig(
             SupportServiceInstance supportServiceInstance) {
-
         if (execMode.equals("normal")) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
@@ -1044,6 +1172,10 @@ public class EsmService {
                                     .getServiceName().toLowerCase()
                             + fileSeparator);
         }
+    }
+
+    private void fillEnvVariablesToTSS(
+            SupportServiceInstance supportServiceInstance) {
 
         supportServiceInstance.getParameters().put("ET_MON_LSHTTP_API",
                 etEtmLshttpApi); // TODO refactor -> Use

@@ -25,7 +25,10 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
+  exTJobExecFinish: boolean = false;
   ready: boolean = false;
+  execFinishedTimer: Observable<number>;
+  execFinishedSubscription: Subscription;
 
   // EUS
   eusTimer: Observable<number>;
@@ -77,8 +80,19 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       this.exTJobExec = exTJobExec;
       this.ready = true;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+      this.checkFinished();
       this.waitForEus(exTJobExec);
     });
+  }
+
+  checkFinished(): void {
+    this.externalService
+      .checkTJobExecFinished(this.exTJobExec.id, this.execFinishedTimer, this.execFinishedSubscription)
+      .subscribe((finished: boolean) => {
+        if (finished) {
+          this.deprovideBrowserAndEus();
+        }
+      });
   }
 
   waitForEus(exTJobExec: ExternalTJobExecModel): void {
@@ -124,19 +138,22 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.removeBrowser();
+    this.deprovideBrowserAndEus();
   }
 
   @HostListener('window:beforeunload')
   beforeunloadHandler() {
     // On window closed leave session
-    this.removeBrowser();
+    this.deprovideBrowserAndEus();
   }
 
-  removeBrowser(): void {
+  deprovideBrowserAndEus(): void {
     if (this.sessionId !== undefined) {
+      this.browserLoadingMsg = 'Shutting down Browser...';
+      this.vncBrowserUrl = undefined;
       this.eusService.stopSession(this.sessionId).subscribe(
         (ok) => {
+          this.sessionId = undefined;
           this.deprovisionEUS();
         },
         (error) => {
@@ -151,9 +168,13 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   deprovisionEUS(): void {
     if (this.eusInstanceId && this.exTJobExec) {
-      this.esmService
-        .deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id)
-        .subscribe(() => {}, (error) => console.log(error));
+      this.browserLoadingMsg = 'Shutting down EUS...';
+      this.esmService.deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id).subscribe(
+        () => {
+          this.browserLoadingMsg = 'FINISHED';
+        },
+        (error) => console.log(error),
+      );
     }
     this.unsubscribeEus();
   }

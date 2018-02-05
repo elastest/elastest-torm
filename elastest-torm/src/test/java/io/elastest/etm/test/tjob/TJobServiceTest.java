@@ -21,39 +21,40 @@ import io.elastest.etm.service.TJobExecOrchestratorService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
-	
-
 
 @RunWith(JUnitPlatform.class)
-@SpringBootTest(classes=ElastestConfigTest.class)
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@SpringBootTest(classes = ElastestConfigTest.class)
+@ExtendWith({ SpringExtension.class, MockitoExtension.class })
 public class TJobServiceTest {
-	
-//	@Mock TJobRepository tJobRepository;
-//	
-//	@InjectMocks
-//	private TJobService tJobService;
 
-//	@BeforeEach
-//	void setUp(@Autowired TJobService tJobService ){
-//		this.tJobService = tJobService;
-//	}
-	
-	@Test
-	public void createTJobTest(@Autowired TJob tJob  
-			, @Mock TJobRepository tJobRepo, @Mock TJobExecOrchestratorService epmIntegrationService, @Mock TJobExecRepository tJobExecRepo){
-		//TJob createdTJob = 
-		when(tJobRepo.save(tJob)).thenReturn(tJob);
-		TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo, epmIntegrationService);		
-		TJob tJob1 = tJobService.createTJob(tJob);
-		System.out.println("ImageName:"+tJob1.getImageName());
-		assertNotNull(tJob1.getId());		
+    // @Mock TJobRepository tJobRepository;
+    //
+    // @InjectMocks
+    // private TJobService tJobService;
+
+    // @BeforeEach
+    // void setUp(@Autowired TJobService tJobService ){
+    // this.tJobService = tJobService;
+    // }
+
+    @Test
+    public void createTJobTest(@Autowired TJob tJob,
+            @Mock TJobRepository tJobRepo,
+            @Mock TJobExecOrchestratorService epmIntegrationService,
+            @Mock TJobExecRepository tJobExecRepo,
+            @Mock EsmService esmService) {
+        // TJob createdTJob =
+        when(tJobRepo.save(tJob)).thenReturn(tJob);
+        TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
+                epmIntegrationService, esmService);
+        TJob tJob1 = tJobService.createTJob(tJob);
+        System.out.println("ImageName:" + tJob1.getImageName());
+        assertNotNull(tJob1.getId());
         assertAll("Validating Project Properties",
                 () -> assertTrue(tJob1.getName().equals("SimpleTest")),
-                () -> assertTrue(tJob1.getProject().getName().equals("TestProject1"))
-        );
-		
-	}
-	
-	
+                () -> assertTrue(
+                        tJob1.getProject().getName().equals("TestProject1")));
+
+    }
+
 }

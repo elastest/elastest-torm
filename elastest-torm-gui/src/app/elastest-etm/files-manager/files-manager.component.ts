@@ -4,21 +4,20 @@ import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, IPageChangeEvent } from '@covalent/core';
+import { ExternalService } from '../external/external.service';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
+import { ExternalTJobExecModel } from '../external/external-tjob-execution/external-tjob-execution-model';
 
 @Component({
   selector: 'etm-files-manager',
   templateUrl: './files-manager.component.html',
-  styleUrls: ['./files-manager.component.scss']
+  styleUrls: ['./files-manager.component.scss'],
 })
 export class FilesManagerComponent implements OnInit {
-
-  @Input()
-  tJobId: number;
-  @Input()
-  tJobExecId: number;
-  @Input()
-  tJobExecFinish: boolean;
-
+  @Input() tJobId: number;
+  @Input() tJobExecId: number;
+  @Input() tJobExecFinish: boolean = false;
+  @Input() external: boolean = false;
 
   filesColumns: any[] = [
     { name: 'name', label: 'Name' },
@@ -42,8 +41,12 @@ export class FilesManagerComponent implements OnInit {
 
   filesUrlPrefix: string;
 
-  constructor(private _dataTableService: TdDataTableService, private tJobExecService: TJobExecService,
-    private configurationService: ConfigurationService) {
+  constructor(
+    private _dataTableService: TdDataTableService,
+    private tJobExecService: TJobExecService,
+    private externalService: ExternalService,
+    private configurationService: ConfigurationService,
+  ) {
     this.filesUrlPrefix = configurationService.configModel.host;
   }
 
@@ -78,32 +81,37 @@ export class FilesManagerComponent implements OnInit {
     this.filteredData = newData;
   }
 
-  loadExecutionFiles() {
+  loadExecutionFiles(): void {
     this.timer = Observable.interval(3500);
     if (this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
-      this.subscription = this.timer
-        .subscribe(() => {
-          this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-            .subscribe(
-            (tJobExecution) => {
+      this.subscription = this.timer.subscribe(() => {
+        if (!this.external) {
+          this.tJobExecService
+            .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+            .subscribe((tJobExecution: TJobExecModel) => {
               if (tJobExecution.finished()) {
-                console.log('Stop polling to retrive files');
-                if (this.subscription !== undefined) {
-                  this.subscription.unsubscribe();
-                  this.subscription = undefined;
-                }
+                this.endSubscription();
               }
-              this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId)
-                .subscribe((tJobsExecFiles) => {
-                  this.prepareDataTable(tJobsExecFiles)
-                });
+              this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe((tJobsExecFiles: any) => {
+                this.prepareDataTable(tJobsExecFiles);
+              });
             });
-        });
+        } else {
+          this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
+            if (exTJobExec.finished()) {
+              this.endSubscription();
+            }
+            this.externalService.getExternalTJobExecutionFiles(this.tJobExecId).subscribe((tJobsExecFiles: any) => {
+              this.prepareDataTable(tJobsExecFiles);
+            });
+          });
+        }
+      });
     }
   }
 
-  prepareDataTable(servicesInstances: FileModel[]) {
+  prepareDataTable(servicesInstances: FileModel[]): void {
     this.executionFiles = servicesInstances;
     this.filteredData = this.executionFiles;
     this.filteredTotal = this.executionFiles.length;
@@ -111,10 +119,14 @@ export class FilesManagerComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.endSubscription();
+  }
+
+  endSubscription(): void {
+    console.log('Stop polling to retrive files');
     if (this.subscription !== undefined) {
       this.subscription.unsubscribe();
       this.subscription = undefined;
     }
   }
-
 }

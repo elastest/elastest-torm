@@ -9,6 +9,8 @@ import { ExternalTJobModel } from './external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from './external-tjob-execution/external-tjob-execution-model';
 import { ExternalTestCaseModel } from './external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class ExternalService {
@@ -94,7 +96,7 @@ export class ExternalService {
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
   }
 
-  public getExternalTJobExecById(tJobExecId: number): Observable<ExternalTJobExecModel> {
+  public getExternalTJobExecById(tJobExecId: number | string): Observable<ExternalTJobExecModel> {
     let url: string = this.hostApi + '/external/tjobexec/' + tJobExecId;
     return this.http
       .get(url)
@@ -106,6 +108,46 @@ export class ExternalService {
     return this.http
       .post(url, exec)
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+  }
+
+  public modifyExternalTJobExec(tJobExec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
+    return this.http
+      .put(url, tJobExec)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+  }
+
+  public getExternalTJobExecutionFiles(tJobExecId: number): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec/' + tJobExecId + '/files';
+    return this.http.get(url).map((response) => response.json());
+  }
+
+  public checkTJobExecFinished(
+    tJobExecId: string | number,
+    timer: Observable<number>,
+    subscription: Subscription,
+  ): Observable<boolean> {
+    let _obs: Subject<boolean> = new Subject<boolean>();
+    let obs: Observable<boolean> = _obs.asObservable();
+
+    timer = Observable.interval(2000);
+    if (subscription === null || subscription === undefined) {
+      subscription = timer.subscribe(() => {
+        this.getExternalTJobExecById(tJobExecId).subscribe(
+          (exec: ExternalTJobExecModel) => {
+            if (exec.finished()) {
+              if (subscription !== undefined) {
+                subscription.unsubscribe();
+                subscription = undefined;
+                _obs.next(true);
+              }
+            }
+          },
+          (error) => console.log(error),
+        );
+      });
+    }
+    return obs;
   }
 
   /************************/

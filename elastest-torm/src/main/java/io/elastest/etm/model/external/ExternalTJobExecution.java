@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
 import io.elastest.etm.model.external.ExternalTestCase.ExternalTestCaseView;
@@ -57,6 +58,13 @@ public class ExternalTJobExecution implements Serializable {
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTJobExecutionView.class, ExternalTestCaseView.class,
             ExternalTestExecutionView.class })
+    @Column(name = "result")
+    @JsonProperty("result")
+    private ResultEnum result = null;
+
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @ElementCollection
     @MapKeyColumn(name = "VAR_NAME", length = 200)
     @Column(name = "value", length = 400)
@@ -69,11 +77,13 @@ public class ExternalTJobExecution implements Serializable {
 
     public ExternalTJobExecution() {
         this.envVars = new HashMap<>();
+        this.result = ResultEnum.IN_PROGRESS;
     }
 
     public ExternalTJobExecution(Long id) {
         this.id = id == null ? 0 : id;
         this.envVars = new HashMap<>();
+        this.result = ResultEnum.IN_PROGRESS;
     }
 
     /* *****************************/
@@ -102,6 +112,14 @@ public class ExternalTJobExecution implements Serializable {
 
     public void setMonitoringIndex(String monitoringIndex) {
         this.monitoringIndex = monitoringIndex;
+    }
+
+    public ResultEnum getResult() {
+        return result;
+    }
+
+    public void setResult(ResultEnum result) {
+        this.result = result;
     }
 
     public Map<String, String> getEnvVars() {
