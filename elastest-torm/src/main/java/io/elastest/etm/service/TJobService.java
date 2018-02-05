@@ -97,12 +97,13 @@ public class TJobService {
         if (!tJob.isExternal()) {
             asyncExec = tJobExecOrchestratorService.executeTJob(tJobExec,
                     tJob.getSelectedServices());
+            asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            asyncExec = tJobExecOrchestratorService
+            tJobExecOrchestratorService
                     .executeExternalJob(tJobExec);
         }
 
-        asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
+        
         return tJobExec;
     }
 

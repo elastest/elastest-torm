@@ -86,7 +86,7 @@ public class TJobExecOrchestratorService {
     }
 
     @Async
-    public Future<Void> executeExternalJob(TJobExecution tJobExec) {
+    public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
@@ -101,7 +101,6 @@ public class TJobExecOrchestratorService {
         resultMsg = "Executing Test";
         updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-        return new AsyncResult<Void>(null);
     }
 
     @Async
@@ -359,10 +358,12 @@ public class TJobExecOrchestratorService {
         logger.info("Start the service deprovision.");
         List<String> instancesAux = new ArrayList<String>();
         if (tJobExec.getServicesInstances().size() > 0) {
+            logger.debug("Deprovide TJob's TSSs stored in the TJob object");
             instancesAux = new ArrayList<String>(
                     tJobExec.getServicesInstances());
         } else if (esmService.gettSSIByTJobExecAssociated()
                 .get(tJobExec.getId()) != null) {
+            logger.debug("Deprovide TJob's TSSs stored in the EsmService");
             instancesAux = new ArrayList<String>(esmService
                     .gettSSIByTJobExecAssociated().get(tJobExec.getId()));
         }
@@ -374,16 +375,6 @@ public class TJobExecOrchestratorService {
                     tJobExec.getId());
             logger.debug("TSS Instance id to deprovide: {}", instanceId);
         }
-
-        // logger.info("Start the services check.");
-        // while (!tJobExec.getServicesInstances().isEmpty()) {
-        // for (String instanceId : instancesAux) {
-        // if (!esmService.isInstanceUp(instanceId)) {
-        // tJobExec.getServicesInstances().remove(instanceId);
-        // logger.info("Service {} removed from TJob.", instanceId);
-        // }
-        // }
-        // }
     }
 
     /**********************/
