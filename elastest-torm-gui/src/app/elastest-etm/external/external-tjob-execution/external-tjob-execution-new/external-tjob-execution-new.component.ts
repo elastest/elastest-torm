@@ -101,6 +101,14 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
+        let browserLog: any = {
+          monitoringIndex: this.exTJobExec.monitoringIndex,
+          component: 'tss_eus_browser_' + sessionId,
+          stream: 'console',
+          streamType: 'log',
+          type: 'dynamic',
+        };
+        this.logsAndMetrics.addMoreFromObj(browserLog);
         this.eusService.getVncUrlSplitted(sessionId).subscribe(
           (urlObj: CompleteUrlObj) => {
             this.vncHost = urlObj.queryParams.host;

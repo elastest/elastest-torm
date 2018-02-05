@@ -83,4 +83,8 @@ export class TJobExecModel extends AbstractTJobExecModel {
     }
     return icon;
   }
+
+  public getAbstractTJobExecClass(): string {
+    return 'TJobExecModel';
+  }
 }

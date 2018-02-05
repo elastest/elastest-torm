@@ -8,12 +8,12 @@
     <form #tJobForm="ngForm">
       <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
         <md-input-container flex-gt-md="20" flex-md="20">
-          <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name" name="tJobName"
-            maxlength="40" #tjobNameInput required>
+          <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name"
+            name="tJobName" maxlength="40" #tjobNameInput required>
         </md-input-container>
 
         <md-input-container flex-gt-md="20" flex-md="20" flex-offset-md="5" flex-offset-gt-md="5">
-          <input mdInput trim="blur"  #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
+          <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
             name="resultsPath" maxlength="200">
         </md-input-container>
 
@@ -24,14 +24,15 @@
               {{sut.name}}
             </md-option>
           </md-select>
-          <span class="push-left"><strong>Current SuT: </strong>{{currentSut}}</span>
+          <span class="push-left">
+            <strong>Current SuT: </strong>{{currentSut}}</span>
         </div>
       </div>
 
       <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
         <md-input-container flex-gt-md="50" flex-md="50">
-          <input mdInput trim="blur"  #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Environment docker image" [(ngModel)]="tJob.imageName"
-            name="tJobImageName" required>
+          <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Environment docker image"
+            [(ngModel)]="tJob.imageName" name="tJobImageName" required>
         </md-input-container>
       </div>
 
@@ -75,9 +76,9 @@
         </ng-template>
         <div class="pad">
           <md-card-subtitle>Metrics</md-card-subtitle>
-          <ng-container *ngIf="tJob.execDashboardConfigModel.showComplexMetrics !== undefined && tJob.execDashboardConfigModel.showComplexMetrics !== null">
+          <ng-container *ngIf="tJob.execDashboardConfigModel.showAllInOne !== undefined && tJob.execDashboardConfigModel.showAllInOne !== null">
             <span class="push-right">
-              <md-checkbox #metric{{i}} [checked]="tJob.execDashboardConfigModel.showComplexMetrics" (change)="tJob.execDashboardConfigModel.changeShowComplexMetricsActive($event)">All-in-one chart</md-checkbox>
+              <md-checkbox #metric{{i}} [checked]="tJob.execDashboardConfigModel.showAllInOne" (change)="tJob.execDashboardConfigModel.changeShowAllInOneActive($event)">All-in-one chart</md-checkbox>
             </span>
           </ng-container>
           <ng-container *ngIf="tJob.execDashboardConfigModel.allMetricsFields !== undefined && tJob.execDashboardConfigModel.allMetricsFields !== null">

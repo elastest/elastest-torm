@@ -76,12 +76,14 @@ public class ExternalTJob implements Serializable {
     @JsonView({ ExternalTJobView.class, ExternalProjectView.class })
     @JsonProperty("exTJobExecs")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(value = "exTJob")
     private List<ExternalTJobExecution> exTJobExecs;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTestExecutionView.class, ExternalTJobExecutionView.class })
     @JsonProperty("exTestCases")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(value = "exTJob")
     private List<ExternalTestCase> exTestCases;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,

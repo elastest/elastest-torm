@@ -6,6 +6,7 @@ import { ExternalTJobExecModel } from './external-tjob-execution/external-tjob-e
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
 import { SutModel } from '../sut/sut-model';
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
+import { DashboardConfigModel } from '../tjob/dashboard-config-model';
 
 @Injectable()
 export class ETExternalModelsTransformService {
@@ -23,11 +24,7 @@ export class ETExternalModelsTransformService {
     return projectsList;
   }
 
-  jsonToExternalProjectModel(
-    project: any,
-    withoutTJobs: boolean = false,
-    withoutSuts: boolean = false,
-  ): ExternalProjectModel {
+  jsonToExternalProjectModel(project: any, withoutTJobs: boolean = false, withoutSuts: boolean = false): ExternalProjectModel {
     let newProject: ExternalProjectModel;
     newProject = new ExternalProjectModel();
     newProject.id = project.id;
@@ -86,6 +83,8 @@ export class ETExternalModelsTransformService {
     } else {
       newTJob.sut = new SutModel();
     }
+    newTJob.execDashboardConfig = tjob.execDashboardConfig;
+    newTJob.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig, false, false, false);
 
     return newTJob;
   }
@@ -94,10 +93,7 @@ export class ETExternalModelsTransformService {
   /********* TJobExecs *********/
   /*****************************/
 
-  jsonToExternalTJobExecsList(
-    tjobexecs: any[],
-    fromTJob: boolean = false,
-  ): ExternalTJobExecModel[] {
+  jsonToExternalTJobExecsList(tjobexecs: any[], fromTJob: boolean = false): ExternalTJobExecModel[] {
     let tjobexecsList: ExternalTJobExecModel[] = [];
     for (let tjobexec of tjobexecs) {
       tjobexecsList.push(this.jsonToExternalTJobExecModel(tjobexec, fromTJob));
@@ -178,10 +174,7 @@ export class ETExternalModelsTransformService {
   /********* TestExecs *********/
   /*****************************/
 
-  jsonToExternalTestExecsList(
-    testExecs: any[],
-    fromTestCase: boolean = false,
-  ): ExternalTestExecutionModel[] {
+  jsonToExternalTestExecsList(testExecs: any[], fromTestCase: boolean = false): ExternalTestExecutionModel[] {
     let testExecsList: ExternalTestExecutionModel[] = [];
     for (let testExec of testExecs) {
       testExecsList.push(this.jsonToExternalTestExecutionModel(testExec, fromTestCase));
@@ -189,10 +182,7 @@ export class ETExternalModelsTransformService {
     return testExecsList;
   }
 
-  jsonToExternalTestExecutionModel(
-    testExec: any,
-    fromTestCase: boolean = false,
-  ): ExternalTestExecutionModel {
+  jsonToExternalTestExecutionModel(testExec: any, fromTestCase: boolean = false): ExternalTestExecutionModel {
     let newTestExec: ExternalTestExecutionModel;
     newTestExec = new ExternalTestExecutionModel();
     newTestExec.id = testExec.id;

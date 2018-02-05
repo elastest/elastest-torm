@@ -538,7 +538,7 @@ public class EsmService {
                     exTJobExecId.toString());
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
                     exTJobExec.getMonitoringIndex());// TODO refactor -> Use
-                                             // etmcontextService.getMonitoringEnvVars
+            // etmcontextService.getMonitoringEnvVars
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder + fileSeparator + "tjobs" + fileSeparator
@@ -817,11 +817,12 @@ public class EsmService {
         tSSIByTJobExecAssociated.remove(tJobExecId);
         return deprovisionServiceInstance(instanceId, tJobServicesInstances);
     }
-    
+
     public String deprovisionExternalTJobExecServiceInstance(String instanceId,
             Long externalTJobExecId) {
         tSSIByExternalTJobExecAssociated.remove(externalTJobExecId);
-        return deprovisionServiceInstance(instanceId, externalTJobServicesInstances);
+        return deprovisionServiceInstance(instanceId,
+                externalTJobServicesInstances);
     }
 
     /**
@@ -858,8 +859,8 @@ public class EsmService {
                 }
             }
 
-        esmServiceClient.deprovisionServiceInstance(instanceId,
-                serviceInstance);
+            esmServiceClient.deprovisionServiceInstance(instanceId,
+                    serviceInstance);
         }
         ssiMap.remove(instanceId);
         return result;
@@ -906,7 +907,9 @@ public class EsmService {
     public SupportServiceInstance getServiceInstanceBySIMap(String id,
             Map<String, SupportServiceInstance> ssiMap) {
         SupportServiceInstance tss = ssiMap.get(id);
-        tss.setServiceReady(checkInstanceUrlIsUp(tss));
+        if (tss != null) {
+            tss.setServiceReady(checkInstanceUrlIsUp(tss));
+        }
 
         return tss;
     }
@@ -965,46 +968,48 @@ public class EsmService {
     public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
         boolean up = false;
         int responseCode = 0;
-        if (tSSInstance != null && tSSInstance.getUrls() != null) {
-            for (Map.Entry<String, String> urlHash : tSSInstance.getUrls()
-                    .entrySet()) {
-                up = true;
-                if (urlHash.getValue().contains("http")) {
-                    URL url;
+        if (tSSInstance != null) {
+            if (tSSInstance.getUrls() != null) {
+                for (Map.Entry<String, String> urlHash : tSSInstance.getUrls()
+                        .entrySet()) {
+                    up = true;
+                    if (urlHash.getValue().contains("http")) {
+                        URL url;
 
-                    try {
-                        url = new URL(urlHash.getValue());
-                        logger.debug(tSSInstance.getServiceName()
-                                + " Service URL: " + urlHash.getValue());
-                        HttpURLConnection huc = (HttpURLConnection) url
-                                .openConnection();
-                        huc.setConnectTimeout(2000);
-                        responseCode = huc.getResponseCode();
-                        up = up && ((responseCode >= 200 && responseCode <= 299)
-                                || (responseCode >= 400
-                                        && responseCode <= 415));
-                        logger.debug(tSSInstance.getServiceName()
-                                + " Service response: " + responseCode);
-
-                        if (!up) {
+                        try {
+                            url = new URL(urlHash.getValue());
                             logger.debug(tSSInstance.getServiceName()
-                                    + " Service is not ready.");
-                            return up;
+                                    + " Service URL: " + urlHash.getValue());
+                            HttpURLConnection huc = (HttpURLConnection) url
+                                    .openConnection();
+                            huc.setConnectTimeout(2000);
+                            responseCode = huc.getResponseCode();
+                            up = up && ((responseCode >= 200
+                                    && responseCode <= 299)
+                                    || (responseCode >= 400
+                                            && responseCode <= 415));
+                            logger.debug(tSSInstance.getServiceName()
+                                    + " Service response: " + responseCode);
+
+                            if (!up) {
+                                logger.debug(tSSInstance.getServiceName()
+                                        + " Service is not ready.");
+                                return up;
+                            }
+                        } catch (Exception e) {
+                            logger.debug(tSSInstance.getServiceName()
+                                    + " Service is not ready by exception error.");
+                            return false;
                         }
-                    } catch (Exception e) {
-                        logger.debug(tSSInstance.getServiceName()
-                                + " Service is not ready by exception error.");
-                        return false;
                     }
                 }
             }
+            String checklMessage = up
+                    ? tSSInstance.getServiceName() + "Service is ready."
+                    : tSSInstance.getServiceName() + " Service is not ready.";
+
+            logger.info(checklMessage);
         }
-
-        String checklMessage = up
-                ? tSSInstance.getServiceName() + "Service is ready."
-                : tSSInstance.getServiceName() + " Service is not ready.";
-
-        logger.info(checklMessage);
 
         return up;
     }

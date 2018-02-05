@@ -191,10 +191,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   updateLogsFromList(logsList: any[], withSave: boolean): void {
     for (let log of logsList) {
       if (log.activated) {
-        this.component = log.component;
-        this.stream = log.stream;
-        this.metricName = '';
-        this.addMore(withSave, false);
+        this.updateLog(log, withSave);
       } else {
         // Remove
         this.removeLogCard(log);
@@ -203,6 +200,13 @@ export class EtmMonitoringViewComponent implements OnInit {
         }
       }
     }
+  }
+
+  public updateLog(log: any, withSave: boolean, showPopup: boolean = false): void {
+    this.component = log.component;
+    this.stream = log.stream;
+    this.metricName = '';
+    this.addMore(withSave, showPopup);
   }
 
   removeLogCard(log: any): void {
@@ -218,10 +222,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   updateMetricsFromList(metricsList: any[], withSave: boolean): void {
     for (let metric of metricsList) {
       if (metric.activated) {
-        this.component = metric.component;
-        this.stream = metric.stream;
-        this.metricName = metric.metricName;
-        this.addMore(withSave, false);
+        this.updateMetric(metric, withSave);
       } else {
         // Remove
         this.removeMetricCard(metric);
@@ -230,6 +231,13 @@ export class EtmMonitoringViewComponent implements OnInit {
         }
       }
     }
+  }
+
+  updateMetric(metric: any, withSave: boolean, showPopup: boolean = false): void {
+    this.component = metric.component;
+    this.stream = metric.stream;
+    this.metricName = metric.metricName;
+    this.addMore(withSave, showPopup);
   }
 
   removeMetricCard(metric: any): void {

@@ -6,7 +6,7 @@
           <span>Execute External TJob "{{exTJob.name}}"</span>
           <span flex></span>
           <span>
-            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <md-icon>settings</md-icon>
             </button>
           </span>
@@ -41,4 +41,4 @@
 </div>
 
 <!-- logs & Metrics -->
-<etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+<etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>

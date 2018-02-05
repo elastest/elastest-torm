@@ -8,6 +8,8 @@ import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core
 import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
+import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 
 @Component({
   selector: 'etm-logs-group',
@@ -87,7 +89,7 @@ export class EtmLogsGroupComponent implements OnInit {
     individualLogs.stream = obj.stream;
     individualLogs.hidePrevBtn = !this.live;
     individualLogs.monitoringIndex = obj.monitoringIndex;
-    individualLogs.traces = obj.data;
+    individualLogs.traces = obj.data ? obj.data : [];
     if (!this.alreadyExist(individualLogs)) {
       this.logsList.push(individualLogs);
       this.createGroupedLogsList();
@@ -103,11 +105,13 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
-    this.elastestRabbitmqService.createSubject(streamType, component, stream);
-    let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
-    this.elastestRabbitmqService
-      .createAndSubscribeToTopic(index, streamType, component, stream)
-      .subscribe((data) => this.updateLogsData(data, component, stream));
+    let index: string = this.getAbstractTJobExecIndex(component);
+    if (index) {
+      this.elastestRabbitmqService.createSubject(streamType, component, stream);
+      this.elastestRabbitmqService
+        .createAndSubscribeToTopic(index, streamType, component, stream)
+        .subscribe((data) => this.updateLogsData(data, component, stream));
+    }
   }
 
   alreadyExist(newLog: ESRabLogModel): boolean {
@@ -219,7 +223,7 @@ export class EtmLogsGroupComponent implements OnInit {
     // If is live, unsubscribe
     if (this.live) {
       let streamType: string = 'log';
-      let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
+      let index: string = this.getAbstractTJobExecIndex(component);
 
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
@@ -227,6 +231,24 @@ export class EtmLogsGroupComponent implements OnInit {
     this.createGroupedLogsList();
     let logField: LogFieldModel = new LogFieldModel(component, stream);
     this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
+  }
+
+  getAbstractTJobExecIndex(component: string): string {
+    let index: string;
+    switch (this.tJobExec.getAbstractTJobExecClass()) {
+      case 'ExternalTJobExecModel':
+        let externalTJobExec: ExternalTJobExecModel = this.tJobExec as ExternalTJobExecModel;
+        index = externalTJobExec.getCurrentMonitoringIndex(component);
+        break;
+      case 'TJobExecModel':
+        let tJobExec: TJobExecModel = this.tJobExec as TJobExecModel;
+        index = tJobExec.getCurrentMonitoringIndex(component);
+        break;
+      default:
+        // Abstract
+        break;
+    }
+    return index;
   }
 
   isDefault(log: ESRabLogModel): boolean {

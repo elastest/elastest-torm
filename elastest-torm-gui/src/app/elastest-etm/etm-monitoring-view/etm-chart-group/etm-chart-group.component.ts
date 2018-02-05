@@ -10,6 +10,8 @@ import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter
 import { Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
+import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 
 @Component({
   selector: 'etm-chart-group',
@@ -82,7 +84,7 @@ export class EtmChartGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    if (this.tJob.execDashboardConfigModel.showComplexMetrics) {
+    if (this.tJob.execDashboardConfigModel.showAllInOne) {
       this.initAIO();
     }
 
@@ -139,7 +141,8 @@ export class EtmChartGroupComponent implements OnInit {
 
     if (this.live) {
       this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
-      let index: string = this.tJobExec.getCurrentMonitoringIndex(individualMetrics.component);
+      let index: string = this.getAbstractTJobExecIndex(individualMetrics.component);
+
       this.elastestRabbitmqService
         .createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
         .subscribe(
@@ -336,11 +339,11 @@ export class EtmChartGroupComponent implements OnInit {
 
     if (!component || component === '') {
       for (component of components) {
-        let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
+        let index: string = this.getAbstractTJobExecIndex(component);
         this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
       }
     } else {
-      let index: string = this.tJobExec.getCurrentMonitoringIndex(component);
+      let index: string = this.getAbstractTJobExecIndex(component);
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
     }
   }
@@ -349,5 +352,23 @@ export class EtmChartGroupComponent implements OnInit {
     for (let chart of this.metricsList) {
       chart.loadLastTraces();
     }
+  }
+
+  getAbstractTJobExecIndex(component: string): string {
+    let index: string;
+    switch (this.tJobExec.getAbstractTJobExecClass()) {
+      case 'ExternalTJobExecModel':
+        let externalTJobExec: ExternalTJobExecModel = this.tJobExec as ExternalTJobExecModel;
+        index = externalTJobExec.getCurrentMonitoringIndex(component);
+        break;
+      case 'TJobExecModel':
+        let tJobExec: TJobExecModel = this.tJobExec as TJobExecModel;
+        index = tJobExec.getCurrentMonitoringIndex(component);
+        break;
+      default:
+        // Abstract
+        break;
+    }
+    return index;
   }
 }

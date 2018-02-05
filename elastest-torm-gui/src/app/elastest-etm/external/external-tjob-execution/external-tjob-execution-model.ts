@@ -18,4 +18,29 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   public getRouteString(): string {
     return this.exTJob.getRouteString() + ' / Execution ' + this.id;
   }
+
+  public getAbstractTJobExecClass(): string {
+    return 'ExternalTJobExecModel';
+  }
+
+  getSutIndex(): string {
+    let sutIndex: string = '';
+    if (this.exTJob && this.exTJob.hasSut()) {
+      sutIndex = this.monitoringIndex.split(',')[1];
+      if (!sutIndex) {
+        sutIndex = this.getTJobIndex();
+      }
+    } else {
+      sutIndex = this.getTJobIndex();
+    }
+    return sutIndex;
+  }
+
+  getCurrentMonitoringIndex(component: string): string {
+    let index: string = this.getTJobIndex();
+    if (component === 'sut') {
+      index = this.getSutIndex();
+    }
+    return index;
+  }
 }

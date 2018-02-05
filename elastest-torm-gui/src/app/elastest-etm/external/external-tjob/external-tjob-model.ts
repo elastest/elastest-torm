@@ -28,6 +28,8 @@ export class ExternalTJobModel extends AbstractTJobModel {
     this.exTJobExecs = [];
     this.exTestCases = [];
     this.sut = undefined;
+
+    this.execDashboardConfigModel = new DashboardConfigModel(undefined, false, false, false);
   }
 
   getServiceType(): ServiceType {
