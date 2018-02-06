@@ -304,6 +304,12 @@ public class ExternalService {
         return this.externalTJobExecutionRepository.findAll();
     }
 
+    public List<ExternalTJobExecution> getExternalTJobExecsByExternalTJobId(
+            Long tJobId) {
+        ExternalTJob exTJob = this.externalTJobRepository.findById(tJobId);
+        return this.externalTJobExecutionRepository.findByExTJob(exTJob);
+    }
+
     public ExternalTJobExecution getExternalTJobExecById(Long tJobExecId) {
         return this.externalTJobExecutionRepository.findById(tJobExecId);
     }

@@ -117,6 +117,13 @@ public class ExternalApiController implements ExternalApi {
                 externalService.getAllExternalTJobExecs(), HttpStatus.OK);
     }
 
+    public ResponseEntity<List<ExternalTJobExecution>> getExternalTJobExecsByExternalTJobId(
+            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
+        return new ResponseEntity<List<ExternalTJobExecution>>(
+                externalService.getExternalTJobExecsByExternalTJobId(tjobId),
+                HttpStatus.OK);
+    }
+
     public ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
             @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
         return new ResponseEntity<ExternalTJobExecution>(

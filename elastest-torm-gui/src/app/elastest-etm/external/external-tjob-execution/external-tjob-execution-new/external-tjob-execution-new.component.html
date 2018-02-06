@@ -1,8 +1,8 @@
 <div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
-  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
+  <div flex-gt-lg="50" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        <div layout="row">
+        <div layout="row" *ngIf="exTJobExec">
           <span>
             <img *ngIf="!exTJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
               title="Executing TJob">
@@ -27,7 +27,7 @@
       </md-card-content>
     </md-card>
   </div>
-  <div flex-gt-lg="50" layout-gt-sm="column" *ngIf="ready">
+  <div flex-gt-lg="50" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row">
@@ -35,7 +35,7 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
+      <md-card-content #scrollMeTest *ngIf="exTJobExec">
         <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
           <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
             [showStatus]="true"></vnc-client>
@@ -53,4 +53,4 @@
 <etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Files -->
-<etm-files-manager *ngIf="ready && exTJob && exTJobExec" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>
+<etm-files-manager *ngIf="exTJob && exTJobExec" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>

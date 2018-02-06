@@ -96,6 +96,13 @@ export class ExternalService {
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
   }
 
+  public getExternalTJobExecsByExternalTJobId(tJobId: string | number): Observable<ExternalTJobExecModel[]> {
+    let url: string = this.hostApi + '/external/extjob/' + tJobId + '/tjobexec';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
+  }
+
   public getExternalTJobExecById(tJobExecId: number | string): Observable<ExternalTJobExecModel> {
     let url: string = this.hostApi + '/external/tjobexec/' + tJobExecId;
     return this.http

@@ -26,7 +26,6 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
   exTJobExecFinish: boolean = false;
-  ready: boolean = false;
   execFinishedTimer: Observable<number>;
   execFinishedSubscription: Subscription;
 
@@ -78,7 +77,6 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.exTJobExec.exTJob.id = this.exTJob.id;
     this.externalService.createExternalTJobExecution(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
-      this.ready = true;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
       this.checkFinished();
       this.waitForEus(exTJobExec);
