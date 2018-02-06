@@ -89,6 +89,7 @@ public class TJobExecOrchestratorService {
     public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        createMonitoringIndex(tJobExec);
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
