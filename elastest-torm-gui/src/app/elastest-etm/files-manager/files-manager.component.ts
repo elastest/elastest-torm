@@ -41,6 +41,8 @@ export class FilesManagerComponent implements OnInit {
 
   filesUrlPrefix: string;
 
+  loading: boolean = false;
+
   constructor(
     private _dataTableService: TdDataTableService,
     private tJobExecService: TJobExecService,
@@ -55,6 +57,7 @@ export class FilesManagerComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.loading = false;
     this.endSubscription();
   }
 
@@ -88,6 +91,7 @@ export class FilesManagerComponent implements OnInit {
   waitForExecutionFiles(): void {
     this.timer = Observable.interval(3500);
     if (this.subscription === undefined) {
+      this.loading = true;
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer.subscribe(() => {
         this.loadExecutionFiles();
@@ -122,6 +126,7 @@ export class FilesManagerComponent implements OnInit {
     this.filteredData = this.executionFiles;
     this.filteredTotal = this.executionFiles.length;
     this.filter();
+    this.loading = false;
   }
 
   endSubscription(): void {

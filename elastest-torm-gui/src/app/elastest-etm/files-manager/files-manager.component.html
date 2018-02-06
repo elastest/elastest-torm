@@ -6,7 +6,7 @@
           <div layout="row">
             <span>Files</span>
             <span flex></span>
-            <button md-icon-button color="accent" (click)="waitForExecutionFiles()" title="Reload Files" [disabled]="subscription">
+            <button md-icon-button color="accent" (click)="waitForExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
               <md-icon>sync</md-icon>
             </button>
           </div>
@@ -14,7 +14,7 @@
         <md-divider></md-divider>
         <md-card-content>
           <ng-template #noFiles>
-            <md-spinner *ngIf="subscription; else noFilesMsg" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+            <md-spinner *ngIf="subscription || loading; else noFilesMsg" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
             <ng-template #noFilesMsg>
               No files generated during execution
             </ng-template>
