@@ -51,7 +51,11 @@ export class FilesManagerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadExecutionFiles();
+    this.waitForExecutionFiles();
+  }
+
+  ngOnDestroy() {
+    this.endSubscription();
   }
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
@@ -81,32 +85,34 @@ export class FilesManagerComponent implements OnInit {
     this.filteredData = newData;
   }
 
-  loadExecutionFiles(): void {
+  waitForExecutionFiles(): void {
     this.timer = Observable.interval(3500);
     if (this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer.subscribe(() => {
-        if (!this.external) {
-          this.tJobExecService
-            .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-            .subscribe((tJobExecution: TJobExecModel) => {
-              if (tJobExecution.finished()) {
-                this.endSubscription();
-              }
-              this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe((tJobsExecFiles: any) => {
-                this.prepareDataTable(tJobsExecFiles);
-              });
-            });
-        } else {
-          this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
-            if (exTJobExec.finished()) {
-              this.endSubscription();
-            }
-            this.externalService.getExternalTJobExecutionFiles(this.tJobExecId).subscribe((tJobsExecFiles: any) => {
-              this.prepareDataTable(tJobsExecFiles);
-            });
-          });
+        this.loadExecutionFiles();
+      });
+    }
+  }
+
+  loadExecutionFiles(): void {
+    if (!this.external) {
+      this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExecution: TJobExecModel) => {
+        if (tJobExecution.finished()) {
+          this.endSubscription();
         }
+        this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe((tJobsExecFiles: any) => {
+          this.prepareDataTable(tJobsExecFiles);
+        });
+      });
+    } else {
+      this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
+        if (exTJobExec.finished()) {
+          this.endSubscription();
+        }
+        this.externalService.getExternalTJobExecutionFiles(this.tJobExecId).subscribe((tJobsExecFiles: any) => {
+          this.prepareDataTable(tJobsExecFiles);
+        });
       });
     }
   }
@@ -118,13 +124,9 @@ export class FilesManagerComponent implements OnInit {
     this.filter();
   }
 
-  ngOnDestroy() {
-    this.endSubscription();
-  }
-
   endSubscription(): void {
-    console.log('Stop polling to retrive files');
     if (this.subscription !== undefined) {
+      console.log('Stop polling to retrive files');
       this.subscription.unsubscribe();
       this.subscription = undefined;
     }

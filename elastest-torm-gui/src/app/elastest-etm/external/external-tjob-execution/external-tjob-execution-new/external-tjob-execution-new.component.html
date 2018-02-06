@@ -4,8 +4,6 @@
       <md-card-title>
         <div layout="row" *ngIf="exTJobExec">
           <span>
-            <img *ngIf="!exTJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
-              title="Executing TJob">
             <button md-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/project/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
               class="onlyIconBtn" title="Navigate to result page">
               <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
@@ -53,4 +51,4 @@
 <etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Files -->
-<etm-files-manager *ngIf="exTJob && exTJobExec" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>
+<etm-files-manager *ngIf="exTJob && exTJobExec && showFiles" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>

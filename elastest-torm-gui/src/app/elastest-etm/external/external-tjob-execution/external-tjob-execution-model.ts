@@ -43,4 +43,18 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
     }
     return index;
   }
+
+  getBrowserLogObj(): any {
+    let browserLog: any;
+    if (this.monitoringIndex && this.envVars['BROWSER_SESSION_ID']) {
+      browserLog = {
+        monitoringIndex: this.monitoringIndex,
+        component: 'tss_eus_browser_' + this.envVars['BROWSER_SESSION_ID'],
+        stream: 'console',
+        streamType: 'log',
+        type: 'dynamic',
+      };
+    }
+    return browserLog;
+  }
 }

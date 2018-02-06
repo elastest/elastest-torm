@@ -52,17 +52,19 @@ export class ExternalTjobExecutionComponent implements OnInit {
   }
 
   loadExternalTJobExec(): void {
-    this.externalService
-      .getExternalTJobExecById(this.exTJobExecId)
-      .subscribe((exTJobExec: ExternalTJobExecModel) => {
-        this.exTJobExec = exTJobExec;
+    this.externalService.getExternalTJobExecById(this.exTJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
+      this.exTJobExec = exTJobExec;
 
-        // this.statusIcon = this.exTJobExec.getResultIcon();
-        this.titlesService.setTopTitle(exTJobExec.getRouteString());
+      // this.statusIcon = this.exTJobExec.getResultIcon();
+      this.titlesService.setTopTitle(exTJobExec.getRouteString());
 
-        this.exTJob = this.exTJobExec.exTJob;
-        this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
-      });
+      this.exTJob = this.exTJobExec.exTJob;
+      this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+      let browserLog: any = this.exTJobExec.getBrowserLogObj();
+      if (browserLog) {
+        this.logsAndMetrics.updateLog(browserLog, false);
+      }
+    });
   }
 
   viewInLogAnalyzer(): void {

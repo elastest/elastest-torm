@@ -45,6 +45,9 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   autoconnect: boolean = true;
   viewOnly: boolean = false;
 
+  // Files
+  showFiles: boolean = false;
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -113,14 +116,11 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
-        let browserLog: any = {
-          monitoringIndex: this.exTJobExec.monitoringIndex,
-          component: 'tss_eus_browser_' + sessionId,
-          stream: 'console',
-          streamType: 'log',
-          type: 'dynamic',
-        };
-        this.logsAndMetrics.addMoreFromObj(browserLog);
+        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
+        let browserLog: any = this.exTJobExec.getBrowserLogObj();
+        if (browserLog) {
+          this.logsAndMetrics.addMoreFromObj(browserLog);
+        }
         this.eusService.getVncUrlSplitted(sessionId).subscribe(
           (urlObj: CompleteUrlObj) => {
             this.vncHost = urlObj.queryParams.host;
@@ -170,6 +170,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       this.esmService.deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id).subscribe(
         () => {
           this.browserLoadingMsg = 'FINISHED';
+          this.showFiles = true;
         },
         (error) => console.log(error),
       );

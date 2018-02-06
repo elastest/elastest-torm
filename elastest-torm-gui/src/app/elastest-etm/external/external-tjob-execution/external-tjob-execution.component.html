@@ -2,23 +2,26 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        <a *ngIf="exTJob" [routerLink]="['/external/project', this.exTJob.exProject.id, 'tjob', this.exTJobId]" class="hover-pointer normalTextLink">
-          <span>External TJob</span>
-          <span> "{{exTJob.name}}"</span>
-        </a>
-        <span>: Execution {{exTJobExecId}}</span>
-        <!-- <span>
-          <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color" title="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
-        </span> -->
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <div *ngIf="exTJobExec" layout="row" layout-align="space-between end">
+        <div layout="row" layout-align="space-between end">
+          <a *ngIf="exTJob && exTJobExec" [routerLink]="['/external/project', this.exTJob.exProject.id, 'tjob', this.exTJobId]" class="hover-pointer normalTextLink">
+            <span>External TJob</span>
+            <span> "{{exTJob.name}}"</span>
+          </a>
+          <span>: Execution {{exTJobExecId}}</span>
+          <span>
+            <md-icon *ngIf="exTJobExec.finished()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}"> {{exTJobExec.getResultIcon().name}}</md-icon>
+          </span>
+          <span flex></span>
           <span>
             <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <md-icon>settings</md-icon>
             </button>
           </span>
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div layout="row" layout-align="space-between end">
         </div>
       </md-card-content>
     </md-card>

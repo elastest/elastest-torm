@@ -21,6 +21,10 @@ export class ExternalTjobExecsViewComponent implements OnInit {
   constructor(private externalService: ExternalService) {}
 
   ngOnInit() {
+    this.loadExternalTJobExecs();
+  }
+
+  loadExternalTJobExecs(): void {
     this.externalService.getExternalTJobExecsByExternalTJobId(this.exTJobId).subscribe(
       (exTJobExecs: ExternalTJobExecModel[]) => {
         this.exTJobExecs = exTJobExecs;
