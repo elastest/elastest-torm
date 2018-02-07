@@ -44,7 +44,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @ApiModel(description = "SUT definition.")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class SutSpecification {
 
     public interface SutView {
@@ -86,7 +85,6 @@ public class SutSpecification {
 
     @JsonProperty("tjobs")
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(value = "sut")
     private List<TJob> tJobs;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
@@ -160,7 +158,6 @@ public class SutSpecification {
     @JsonView({ SutView.class })
     @JsonProperty("exTJobs")
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(value = "sut")
     private List<ExternalTJob> exTJobs;
 
     public SutSpecification() {
