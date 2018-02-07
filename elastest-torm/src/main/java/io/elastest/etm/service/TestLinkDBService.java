@@ -201,6 +201,20 @@ public class TestLinkDBService {
                 testCaseId, null, null);
         return executions;
     }
+    
+    public Execution getTestExecById(Integer testCaseId, Integer testExecId) {
+        Execution[] testCaseExecs = this.getExecsByCase(testCaseId);
+        Execution exec = null;
+        if (testCaseExecs != null) {
+            for (Execution currentExec : testCaseExecs) {
+                if (testExecId == currentExec.getId()) {
+                    exec = currentExec;
+                    break;
+                }
+            }
+        }
+        return exec;
+    }
 
     public Execution[] getExecsByPlanCase(Integer testCaseId,
             Integer testPlanId) {

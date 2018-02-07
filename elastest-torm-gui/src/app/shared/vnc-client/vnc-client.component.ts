@@ -84,7 +84,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
           mouseEvent.stopPropagation();
           mouseEvent.preventDefault();
           this.canvasFocused = false;
-          console.log('out', this.canvasFocused, mouseEvent);
         }
       },
       (error) => console.log(error),
@@ -95,7 +94,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
         this.canvasFocused = true;
-        console.log('over', this.canvasFocused, mouseEvent);
       },
       (error) => console.log(error),
     );
@@ -103,7 +101,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     mouseDownObs.subscribe(
       (mouseEvent) => {
         this.canvasMouseDown = true;
-        console.log('mouse down');
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
         this.switchFocus();
@@ -113,7 +110,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     mouseUpObs.subscribe(
       (mouseEvent) => {
         this.canvasMouseDown = false;
-        console.log('mouse up');
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
       },
@@ -125,10 +121,8 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   switchHTMLClickEventListener(add: boolean = true): void {
     this.htmlEl.removeEventListener('click', this.switchFocus, false);
     if (add) {
-      console.log('event added');
       this.htmlEl.addEventListener('click', this.switchFocus, false);
     } else {
-      console.log('event removed');
       this.htmlEl.removeEventListener('click', this.switchFocus, false);
     }
   }
@@ -141,7 +135,6 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
         this.vncUi.rfb.get_keyboard().set_focused(false);
       }
     }
-    console.log('focused', this.canvasFocused);
   }
 
   suscribeToStatus(): void {

@@ -1,3 +1,41 @@
-<p>
-  execution works!
-</p>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
+  <div flex-gt-sm="100">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        Test Execution {{testExec.id}}
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div layout="row" class="push-bottom-sm">
+          <span flex-gt-xs="15">
+            <md-card-subtitle class="pad-left-none">Date</md-card-subtitle>
+            <h4>{{testExec.executionTimeStamp}}</h4>
+          </span>
+
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Status</md-card-subtitle>
+            <h4>{{testExec.status}}</h4>
+          </span>
+
+          <span flex-gt-xs="10">
+            <md-card-subtitle class="pad-left-none">Tester Id</md-card-subtitle>
+            <h4>{{testExec.testerId}}</h4>
+          </span>
+        </div>
+
+        <md-divider></md-divider>
+
+        <div layout="row" class="push-top-md">
+          <span flex-gt-xs="100">
+            <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
+            <div layout="column" class="push-top-sm">
+              <md-input-container>
+                <textarea id="notes" autosize mdInput [(ngModel)]="testExec.notes" name="notes" readonly></textarea>
+              </md-input-container>
+            </div>
+          </span>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

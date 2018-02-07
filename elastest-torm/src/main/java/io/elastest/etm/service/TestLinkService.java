@@ -375,6 +375,10 @@ public class TestLinkService {
         return this.testLinkDBService.getExecsByCase(testCaseId);
     }
 
+    public Execution getTestExecById(Integer testCaseId, Integer testExecId) {
+        return this.testLinkDBService.getTestExecById(testCaseId, testExecId);
+    }
+
     public Execution[] getPlanTestCaseExecs(Integer testPlanId,
             Integer testCaseId) {
         return this.testLinkDBService.getExecsByPlanCase(testCaseId,

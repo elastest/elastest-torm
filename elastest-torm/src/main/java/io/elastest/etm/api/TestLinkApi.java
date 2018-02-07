@@ -301,6 +301,17 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<Execution[]> getTestCaseExecs(
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 
+    @ApiOperation(value = "Returns a Test Execution of a Test Case by Id", notes = "Returns a Test Execution of a Test Case by Id.", response = Execution.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Execution.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/suite/case/{caseId}/exec/{execId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<Execution> getTestExecById(
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Id of Test Execution.", required = true) @PathVariable("execId") Integer execId);
+
     @ApiOperation(value = "Returns all execs of a Plan Test Case", notes = "Returns all execs of a Plan Test Case.", response = Execution.class, responseContainer = "List", tags = {
             "TestLink", })
     @ApiResponses(value = {

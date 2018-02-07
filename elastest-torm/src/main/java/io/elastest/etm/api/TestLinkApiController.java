@@ -237,6 +237,14 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getTestCaseExecs(caseId), HttpStatus.OK);
     }
 
+    public ResponseEntity<Execution> getTestExecById(
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Id of Test Execution.", required = true) @PathVariable("execId") Integer execId) {
+        return new ResponseEntity<Execution>(
+                testLinkService.getTestExecById(caseId, execId), HttpStatus.OK);
+
+    }
+
     public ResponseEntity<Execution[]> getPlanTestCaseExecs(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId) {

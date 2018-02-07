@@ -321,6 +321,20 @@ const routes: Routes = [
                                             path: '',
                                             component: TestCaseExecsComponent,
                                           },
+                                          {
+                                            path: 'execs',
+                                            children: [
+                                              {
+                                                path: ':execId',
+                                                children: [
+                                                  {
+                                                    path: '',
+                                                    component: ExecutionComponent,
+                                                  },
+                                                ],
+                                              },
+                                            ],
+                                          },
                                         ],
                                       },
                                     ],
