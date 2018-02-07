@@ -46,6 +46,10 @@ export class AbstractTJobExecModel {
     return this.result === 'SUCCESS' || this.result === 'FAIL' || this.result === 'ERROR' || this.result === 'STOPPED';
   }
 
+  notExecuted(): boolean {
+    return this.result === 'NOT_EXECUTED';
+  }
+
   starting(): boolean {
     return this.result === 'IN PROGRESS' || this.result === 'STARTING TSS' || this.result === 'WAITING TSS';
   }
@@ -70,6 +74,7 @@ export class AbstractTJobExecModel {
           icon.color = '#c82a0e';
           break;
         case 'STOPPED':
+        case 'NOT_EXECUTED':
           icon.name = 'indeterminate_check_box';
           icon.color = '#c82a0e';
           break;

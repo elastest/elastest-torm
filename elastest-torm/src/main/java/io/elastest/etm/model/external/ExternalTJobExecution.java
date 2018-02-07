@@ -77,13 +77,13 @@ public class ExternalTJobExecution implements Serializable {
 
     public ExternalTJobExecution() {
         this.envVars = new HashMap<>();
-        this.result = ResultEnum.IN_PROGRESS;
+        this.result = ResultEnum.NOT_EXECUTED;
     }
 
     public ExternalTJobExecution(Long id) {
         this.id = id == null ? 0 : id;
         this.envVars = new HashMap<>();
-        this.result = ResultEnum.IN_PROGRESS;
+        this.result = ResultEnum.NOT_EXECUTED;
     }
 
     /* *****************************/

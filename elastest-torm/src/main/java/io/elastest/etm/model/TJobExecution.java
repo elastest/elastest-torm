@@ -167,6 +167,8 @@ public class TJobExecution {
 
         STOPPED("STOPPED"),
 
+        NOT_EXECUTED("NOT_EXECUTED"),
+
         /* PROGRESS STATUS */
 
         IN_PROGRESS("IN PROGRESS"),

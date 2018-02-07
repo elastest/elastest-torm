@@ -137,12 +137,14 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.deprovideBrowserAndEus();
+    this.execFinishedSubscription = undefined;
   }
 
   @HostListener('window:beforeunload')
   beforeunloadHandler() {
     // On window closed leave session
     this.deprovideBrowserAndEus();
+    this.execFinishedSubscription = undefined;
   }
 
   deprovideBrowserAndEus(): void {

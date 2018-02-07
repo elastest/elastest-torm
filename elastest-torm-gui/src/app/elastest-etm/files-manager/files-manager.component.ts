@@ -102,7 +102,7 @@ export class FilesManagerComponent implements OnInit {
   loadExecutionFiles(): void {
     if (!this.external) {
       this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExecution: TJobExecModel) => {
-        if (tJobExecution.finished()) {
+        if (tJobExecution.finished() || tJobExecution.notExecuted()) {
           this.endSubscription();
         }
         this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe((tJobsExecFiles: any) => {
@@ -111,7 +111,7 @@ export class FilesManagerComponent implements OnInit {
       });
     } else {
       this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
-        if (exTJobExec.finished()) {
+        if (exTJobExec.finished() || exTJobExec.notExecuted()) {
           this.endSubscription();
         }
         this.externalService.getExternalTJobExecutionFiles(this.tJobExecId).subscribe((tJobsExecFiles: any) => {
