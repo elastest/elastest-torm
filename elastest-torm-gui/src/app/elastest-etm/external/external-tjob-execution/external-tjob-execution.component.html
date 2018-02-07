@@ -3,14 +3,15 @@
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row" layout-align="space-between end">
+          <span>
+            <md-icon *ngIf="exTJobExec.finished()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}">
+            {{exTJobExec.getResultIcon().name}}</md-icon>
+          </span>
           <a *ngIf="exTJob && exTJobExec" [routerLink]="['/external/project', this.exTJob.exProject.id, 'tjob', this.exTJobId]" class="hover-pointer normalTextLink">
             <span>External TJob</span>
             <span> "{{exTJob.name}}"</span>
           </a>
           <span>: Execution {{exTJobExecId}}</span>
-          <span>
-            <md-icon *ngIf="exTJobExec.finished()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}"> {{exTJobExec.getResultIcon().name}}</md-icon>
-          </span>
           <span flex></span>
           <span>
             <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">

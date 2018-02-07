@@ -7,16 +7,19 @@ import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
 import { MdDialog } from '@angular/material';
 import { TestSuiteModel } from '../models/test-suite-model';
+import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 
 @Component({
   selector: 'testlink-test-project',
   templateUrl: './test-project.component.html',
-  styleUrls: ['./test-project.component.scss']
+  styleUrls: ['./test-project.component.scss'],
 })
 export class TestProjectComponent implements OnInit {
   testProject: TestProjectModel;
   testSuites: TestSuiteModel[] = [];
   testPlans: TestPlanModel[] = [];
+
+  exProject: ExternalProjectModel;
 
   // Test Suite Data
   suiteColumns: any[] = [
@@ -43,11 +46,14 @@ export class TestProjectComponent implements OnInit {
   ];
 
   constructor(
-    private titlesService: TitlesService, private testLinkService: TestLinkService,
-    private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    private titlesService: TitlesService,
+    private testLinkService: TestLinkService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Project');
@@ -57,19 +63,20 @@ export class TestProjectComponent implements OnInit {
 
   loadProject(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.testLinkService.getProjectById(params['projectId']))
+      this.route.params
+        .switchMap((params: Params) => this.testLinkService.getProjectById(params['projectId']))
         .subscribe((project: TestProjectModel) => {
           this.testProject = project;
           this.titlesService.setTopTitle(this.testProject.getRouteString());
           this.loadTestSuites();
           this.loadTestPlans();
+          this.loadExternalProject();
         });
     }
   }
 
   loadTestSuites(): void {
-    this.testLinkService.getProjecTestSuites(this.testProject)
-      .subscribe(
+    this.testLinkService.getProjecTestSuites(this.testProject).subscribe(
       (suites: TestSuiteModel[]) => {
         this.testSuites = suites;
       },
@@ -78,8 +85,7 @@ export class TestProjectComponent implements OnInit {
   }
 
   loadTestPlans(): void {
-    this.testLinkService.getProjectTestPlans(this.testProject)
-      .subscribe(
+    this.testLinkService.getProjectTestPlans(this.testProject).subscribe(
       (plans: TestPlanModel[]) => {
         this.testPlans = plans;
       },
@@ -87,4 +93,12 @@ export class TestProjectComponent implements OnInit {
     );
   }
 
+  loadExternalProject(): void {
+    this.testLinkService.getExternalProjectByTestProjectId(this.testProject.id).subscribe(
+      (exProject: ExternalProjectModel) => {
+        this.exProject = exProject;
+      },
+      (error) => console.log(error),
+    );
+  }
 }

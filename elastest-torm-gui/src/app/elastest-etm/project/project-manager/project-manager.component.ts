@@ -17,21 +17,12 @@ import { RunTJobModalComponent } from '../../tjob/run-tjob-modal/run-tjob-modal.
 @Component({
   selector: 'app-project-manager',
   templateUrl: './project-manager.component.html',
-  styleUrls: ['./project-manager.component.scss']
+  styleUrls: ['./project-manager.component.scss'],
 })
 export class ProjectManagerComponent implements OnInit {
   project: ProjectModel;
+  projectId: string;
   deletingInProgress: boolean = false;
-
-  // SuT Data
-  sutColumns: any[] = [
-    { name: 'id', label: 'Id' },
-    { name: 'name', label: 'Name' },
-    { name: 'specification', label: 'Specification' },
-    { name: 'sutType', label: 'SuT Type' },
-    { name: 'description', label: 'Description' },
-    { name: 'options', label: 'Options' },
-  ];
 
   // TJob Data
   tjobColumns: any[] = [
@@ -43,13 +34,16 @@ export class ProjectManagerComponent implements OnInit {
   ];
 
   constructor(
-    private titlesService: TitlesService, private projectService: ProjectService,
-    private route: ActivatedRoute, private router: Router,
-    private tJobService: TJobService, private tJobExecService: TJobExecService, private sutService: SutService,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-
+    private titlesService: TitlesService,
+    private projectService: ProjectService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private tJobService: TJobService,
+    private tJobExecService: TJobExecService,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Project');
@@ -57,21 +51,23 @@ export class ProjectManagerComponent implements OnInit {
     this.loadProject();
   }
 
-  loadProject() {
+  loadProject(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+      this.route.params
+        .switchMap((params: Params) => this.projectService.getProject(params['projectId']))
         .subscribe((project: ProjectModel) => {
           this.project = project;
+          this.projectId = project.id.toString();
           this.titlesService.setTopTitle(this.project.getRouteString());
         });
     }
   }
 
-  editProject() {
+  editProject(): void {
     this.router.navigate(['/projects/edit', this.project.id]);
   }
 
-  deleteProject() {
+  deleteProject(): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'Project ' + this.project.id + ':' + this.project.name + ' will be deleted, do you want to continue?',
       disableClose: false, // defaults to false
@@ -80,38 +76,40 @@ export class ProjectManagerComponent implements OnInit {
       cancelButton: 'Cancel',
       acceptButton: 'Yes, delete',
     };
-    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
-      if (accept) {
-        this.deletingInProgress = true;
-        this.projectService.deleteProject(this.project).subscribe(
-          (project) => {
-            this.deletingInProgress = false;
-            this.router.navigate(['/projects']);
-          },
-          (error) => {
-            this.deletingInProgress = false;
-            console.log(error);
-          }
-        );
-      }
-    });
+    this._dialogService
+      .openConfirm(iConfirmConfig)
+      .afterClosed()
+      .subscribe((accept: boolean) => {
+        if (accept) {
+          this.deletingInProgress = true;
+          this.projectService.deleteProject(this.project).subscribe(
+            (project) => {
+              this.deletingInProgress = false;
+              this.router.navigate(['/projects']);
+            },
+            (error) => {
+              this.deletingInProgress = false;
+              console.log(error);
+            },
+          );
+        }
+      });
   }
 
   /****** TJobs functions ******/
 
-  newTJob() {
+  newTJob(): void {
     this.router.navigate(['/projects', this.project.id, 'tjob', 'new']);
   }
 
-  runTJob(tJob: TJobModel, project: ProjectModel) {
+  runTJob(tJob: TJobModel, project: ProjectModel): void {
     if (tJob.hasParameters()) {
       tJob.project = project;
       let dialogRef = this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),
       });
     } else {
-      this.tJobExecService.runTJob(tJob.id, tJob.parameters)
-        .subscribe(
+      this.tJobExecService.runTJob(tJob.id, tJob.parameters).subscribe(
         (tjobExecution: TJobExecModel) => {
           this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
         },
@@ -119,10 +117,10 @@ export class ProjectManagerComponent implements OnInit {
       );
     }
   }
-  editTJob(tJob: TJobModel) {
+  editTJob(tJob: TJobModel): void {
     this.router.navigate(['/projects', this.project.id, 'tjob', 'edit', tJob.id]);
   }
-  deleteTJob(tJob: TJobModel) {
+  deleteTJob(tJob: TJobModel): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob ' + tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
       disableClose: false,
@@ -131,67 +129,27 @@ export class ProjectManagerComponent implements OnInit {
       cancelButton: 'Cancel',
       acceptButton: 'Yes, delete',
     };
-    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
-      if (accept) {
-        this.deletingInProgress = true;
-        this.tJobService.deleteTJob(tJob).subscribe(
-          (tJob) => {
-            this.deletingInProgress = false;
-            this.loadProject();
-          },
-          (error) => {
-            this.deletingInProgress = false;
-            console.log(error);
-          }
-        );
-      }
-    });
+    this._dialogService
+      .openConfirm(iConfirmConfig)
+      .afterClosed()
+      .subscribe((accept: boolean) => {
+        if (accept) {
+          this.deletingInProgress = true;
+          this.tJobService.deleteTJob(tJob).subscribe(
+            (tJob) => {
+              this.deletingInProgress = false;
+              this.loadProject();
+            },
+            (error) => {
+              this.deletingInProgress = false;
+              console.log(error);
+            },
+          );
+        }
+      });
   }
 
-  viewTJob(tJob: TJobModel) {
+  viewTJob(tJob: TJobModel): void {
     this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id]);
   }
-
-
-  /****** Suts functions ******/
-
-  newSut() {
-    this.router.navigate(['/projects', this.project.id, 'sut', 'new']);
-  }
-
-
-  editSut(sut: SutModel) {
-    this.router.navigate(['/projects', this.project.id, 'sut', 'edit', sut.id]);
-  }
-  deleteSut(sut: SutModel) {
-    let iConfirmConfig: IConfirmConfig = {
-      message: 'Sut ' + sut.id
-        + ' will be deleted with all SuT Executions, do you want to continue? (SuT only will be deleted if hasn\'t associated TJobs)',
-      disableClose: false,
-      viewContainerRef: this._viewContainerRef,
-      title: 'Confirm',
-      cancelButton: 'Cancel',
-      acceptButton: 'Yes, delete',
-    };
-    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
-      if (accept) {
-        this.deletingInProgress = true;
-        this.sutService.deleteSut(sut).subscribe(
-          (sut) => {
-            this.deletingInProgress = false;
-            this.loadProject();
-          },
-          (error) => {
-            this.deletingInProgress = false;
-            console.log(error);
-          }
-        );
-      }
-    });
-  }
-
-  viewSut(sut: SutModel) {
-    this.router.navigate(['/projects', this.project.id, 'sut', sut.id]);
-  }
-
 }

@@ -43,7 +43,7 @@ export class ExternalService {
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
   }
 
-  public getExternalProjectById(projectId: number): Observable<ExternalProjectModel> {
+  public getExternalProjectById(projectId: number | string): Observable<ExternalProjectModel> {
     let url: string = this.hostApi + '/external/project/' + projectId;
     return this.http
       .get(url)
