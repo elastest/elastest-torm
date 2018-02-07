@@ -8,11 +8,13 @@ import { SutService } from '../sut.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { ExternalService } from '../../external/external.service';
+import { ExternalProjectModel } from '../../external/external-project/external-project-model';
 
 @Component({
   selector: 'etm-sut-form',
   templateUrl: './sut-form.component.html',
-  styleUrls: ['./sut-form.component.scss']
+  styleUrls: ['./sut-form.component.scss'],
 })
 export class SutFormComponent implements OnInit, AfterViewInit {
   @ViewChild('sutNameInput') sutNameInput: ElementRef;
@@ -43,43 +45,66 @@ export class SutFormComponent implements OnInit, AfterViewInit {
 
   constructor(
     private titlesService: TitlesService,
-    private sutService: SutService, private route: ActivatedRoute,
+    private sutService: SutService,
+    private route: ActivatedRoute,
     private projectService: ProjectService,
+    private externalService: ExternalService,
     private configurationService: ConfigurationService,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit SuT');
     this.elasTestExecMode = this.configurationService.configModel.elasTestExecMode;
     this.sut = new SutModel();
-    this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
+      this.currentPath = this.route.snapshot.url[0].path;
       if (this.currentPath === 'edit') {
-        this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId']))
-          .subscribe((sut: SutModel) => {
-            this.sut = sut;
-            this.titlesService.setTopTitle(this.sut.getRouteString());
-            this.initSutType();
-            this.initInstrumentedBy();
-            this.initInstrumentalized();
-            this.dockerCompose = this.sut.isByDockerCompose();
-            this.sutExecIndex = this.sut.getSutESIndex();
-            this.useImageCommand = !this.sut.withCommands();
-          });
+        this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId'])).subscribe((sut: SutModel) => {
+          this.sut = sut;
+          this.titlesService.setTopTitle(this.sut.getRouteString());
+          this.initSutType();
+          this.initInstrumentedBy();
+          this.initInstrumentalized();
+          this.dockerCompose = this.sut.isByDockerCompose();
+          this.sutExecIndex = this.sut.getSutESIndex();
+          this.useImageCommand = !this.sut.withCommands();
+        });
       } else if (this.currentPath === 'new') {
-        this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
-          .subscribe(
-          (project: ProjectModel) => {
-            this.sut = new SutModel();
-            this.sut.project = project;
-            this.sut.sutType = 'MANAGED';
-            this.sut.instrumentedBy = 'WITHOUT';
-            this.initInstrumentalized();
-            this.sut.managedDockerType = 'IMAGE';
-          },
-        );
+        if (this.route.params !== null || this.route.params !== undefined) {
+          // If routing
+          this.route.params.subscribe((params: Params) => {
+            if (params['projectId']) {
+              this.loadFromProject(params['projectId']);
+            } else if (params['exProjectId']) {
+              this.loadFromExternalProject(params['exProjectId']);
+            }
+          });
+        }
       }
     }
+  }
+
+  loadFromProject(projectId: string): void {
+    this.projectService.getProject(projectId).subscribe((project: ProjectModel) => {
+      this.sut = new SutModel();
+      this.sut.project = project;
+      this.initCommonSutFields();
+    });
+  }
+
+  loadFromExternalProject(exProjectId: string): void {
+    this.externalService.getExternalProjectById(exProjectId).subscribe((exProject: ExternalProjectModel) => {
+      this.sut = new SutModel();
+      this.sut.exProject = exProject;
+      this.initCommonSutFields();
+    });
+  }
+
+  initCommonSutFields(): void {
+    this.sut.sutType = 'MANAGED';
+    this.sut.instrumentedBy = 'WITHOUT';
+    this.initInstrumentalized();
+    this.sut.managedDockerType = 'IMAGE';
   }
 
   ngAfterViewInit() {
@@ -149,11 +174,13 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     if (this.useImageCommand || !this.managedChecked) {
       this.sut.commands = '';
     }
-    this.sutService.createSut(this.sut)
-      .subscribe(
+    this.sutService.createSut(this.sut).subscribe(
       (sut: SutModel) => this.postSave(sut, exit),
-      (error) => console.log(error)
-      );
+      (error) => {
+        this.externalService.popupService.openSnackBar('An error has occurred');
+        console.log(error);
+      },
+    );
   }
 
   postSave(sut: SutModel, exit: boolean = true): void {
@@ -199,7 +226,10 @@ export class SutFormComponent implements OnInit, AfterViewInit {
 
   showGetInfoBtn(): boolean {
     return (
-      !this.sut.eimConfig.logstashIp && !this.sut.eimConfig.logstashBeatsPort && !this.sut.eimConfig.logstashHttpPort && !this.sut.currentSutExec
+      !this.sut.eimConfig.logstashIp &&
+      !this.sut.eimConfig.logstashBeatsPort &&
+      !this.sut.eimConfig.logstashHttpPort &&
+      !this.sut.currentSutExec
     );
   }
 

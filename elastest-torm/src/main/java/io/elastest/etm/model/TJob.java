@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -69,6 +70,7 @@ public class TJob {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
+    @JsonIgnoreProperties(value = "tJobs")
     private SutSpecification sut = null;
 
     // bi-directional many-to-one association to TJobExec

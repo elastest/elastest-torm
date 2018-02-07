@@ -9,55 +9,58 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification.SutView;
+import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 
 @Entity
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class EimConfig {
 	public interface BasicAttEimConfig {
 	}
 
 	@Id
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class,BasicAttProject.class })
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class,ExternalProjectView.class, BasicAttProject.class })
 	@Column(name = "user")
 	@JsonProperty("user")
 	private String user = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class,ExternalProjectView.class, BasicAttProject.class })
 	@Column(name = "privateKey", columnDefinition = "TEXT", length = 65535)
 	@JsonProperty("privateKey")
 	private String privateKey = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class,ExternalProjectView.class, BasicAttProject.class })
 	@Column(name = "ip")
 	@JsonProperty("ip")
 	private String ip = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class,BasicAttProject.class })
 	@Column(name = "agentId")
 	@JsonProperty("agentId")
 	private String agentId = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class,BasicAttProject.class })
 	@Column(name = "logstashIp")
 	@JsonProperty("logstashIp")
 	private String logstashIp = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class,ExternalProjectView.class, BasicAttProject.class })
 	@Column(name = "logstashBeatsPort")
 	@JsonProperty("logstashBeatsPort")
 	private String logstashBeatsPort = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, BasicAttProject.class })
+	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class,BasicAttProject.class })
 	@Column(name = "logstashHttpPort")
 	@JsonProperty("logstashHttpPort")
 	private String logstashHttpPort = null;
@@ -65,6 +68,7 @@ public class EimConfig {
 	@JsonView({ BasicAttEimConfig.class })
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimConfig")
 	@JoinColumn(name = "sutSpecification")
+    @JsonIgnoreProperties(value = "eimConfig")
 	private SutSpecification sutSpecification;
 
 	// Getters and setters

@@ -28,4 +28,14 @@ export class ExternalProjectModel extends AbstractProjectModel {
   public getRouteString(): string {
     return 'External / Project ' + this.id;
   }
+
+  public initFromJson(json: any): void {
+    this.id = json.id ? json.id : undefined;
+    this.name = json.name ? json.name : undefined;
+    this.type = json.type ? json.type : undefined;
+    this.externalId = json.externalId ? json.externalId : undefined;
+    this.externalSystemId = json.externalSystemId ? json.externalSystemId : undefined;
+    this.exTJobs = json.exTJobs ? json.exTJobs : undefined;
+    this.suts = json.suts ? json.suts : undefined;
+  }
 }

@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -48,6 +49,7 @@ public class SutExecution {
     @JsonView(SutExecView.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty("sutSpecification")
+    @JsonIgnoreProperties(value = "sutExecution")
     private SutSpecification sutSpecification = null;
 
     @JsonView(SutExecView.class)

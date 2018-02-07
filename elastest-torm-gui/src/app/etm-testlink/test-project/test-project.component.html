@@ -84,19 +84,6 @@
           <ng-template *ngFor="let column of planColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'suites', row.id]" class="hover-pointer">{{value}}</div>
           </ng-template>
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
-              <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
-                <md-icon>play_circle_outline</md-icon>
-              </button> -->
-              <!-- <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
-                <md-icon>delete</md-icon>
-              </button> -->
-            </div>
-          </ng-template>
         </td-data-table>
       </md-card-content>
     </md-card>
@@ -117,21 +104,12 @@
           <ng-template *ngFor="let column of planColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'plans', row.id]" class="hover-pointer">{{value}}</div>
           </ng-template>
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
-              <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
-                <md-icon>play_circle_outline</md-icon>
-              </button> -->
-              <!-- <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
-                <md-icon>delete</md-icon>
-              </button> -->
-            </div>
-          </ng-template>
         </td-data-table>
       </md-card-content>
     </md-card>
   </div>
+</div>
+
+<div layout="column" *ngIf="exProject">
+  <etm-suts-manager [exProjectId]="exProject.id"></etm-suts-manager>
 </div>

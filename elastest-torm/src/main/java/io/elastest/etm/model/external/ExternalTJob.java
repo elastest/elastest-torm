@@ -91,6 +91,7 @@ public class ExternalTJob implements Serializable {
             ExternalTestExecutionView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
+    @JsonIgnoreProperties(value = "exTJobs")
     @JsonProperty("sut")
     private SutSpecification sut = null;
 

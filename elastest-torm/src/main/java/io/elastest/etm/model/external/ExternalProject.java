@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
 import io.elastest.etm.model.external.ExternalTJobExecution.ExternalTJobExecutionView;
 import io.elastest.etm.model.external.ExternalTestCase.ExternalTestCaseView;
@@ -37,7 +38,8 @@ public class ExternalProject implements Serializable {
     }
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            SutView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -45,25 +47,29 @@ public class ExternalProject implements Serializable {
     private Long id = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            SutView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            SutView.class })
     @Column(name = "type")
     @JsonProperty("type")
     private TypeEnum type = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            SutView.class })
     @Column(name = "externalId")
     @JsonProperty("externalId")
     private String externalId;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class })
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            SutView.class })
     @Column(name = "externalSystemId")
     @JsonProperty("externalSystemId")
     private String externalSystemId;

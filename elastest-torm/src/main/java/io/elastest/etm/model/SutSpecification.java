@@ -44,6 +44,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @ApiModel(description = "SUT definition.")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class SutSpecification {
 
     public interface SutView {
@@ -74,16 +75,18 @@ public class SutSpecification {
     private String description = null;
 
     @JsonProperty("sutExecution")
+    @JsonIgnoreProperties(value = "sutSpecification")
     @OneToMany(mappedBy = "sutSpecification", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<SutExecution> sutExecution = null;
 
     @JsonView({ SutView.class })
-    @JsonProperty("project")
+    @JoinColumn(name = "project_id", nullable = true)
     @ManyToOne(fetch = FetchType.LAZY)
     private Project project = null;
 
     @JsonProperty("tjobs")
-    @OneToMany(mappedBy = "sut")
+    @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(value = "sut")
     private List<TJob> tJobs;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
@@ -96,6 +99,7 @@ public class SutSpecification {
             ExternalTJobView.class, BasicAttTJob.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimConfig")
+    @JsonIgnoreProperties(value = "sutSpecification")
     private EimConfig eimConfig;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
@@ -155,7 +159,8 @@ public class SutSpecification {
 
     @JsonView({ SutView.class })
     @JsonProperty("exTJobs")
-    @OneToMany(mappedBy = "sut")
+    @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(value = "sut")
     private List<ExternalTJob> exTJobs;
 
     public SutSpecification() {
@@ -171,6 +176,25 @@ public class SutSpecification {
         this.specification = specification;
         this.description = description;
         this.project = project;
+        this.tJobs = tJobs;
+        this.sutType = sutType;
+        this.instrumentalize = instrumentalize;
+        this.currentSutExec = currentSutExec;
+        this.instrumentedBy = instrumentedBy;
+        this.port = port;
+        this.managedDockerType = managedDockerType;
+    }
+
+    public SutSpecification(Long id, String name, String specification,
+            String description, ExternalProject exProject, List<TJob> tJobs,
+            SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
+            InstrumentedByEnum instrumentedBy, String port,
+            ManagedDockerType managedDockerType) {
+        this.id = id == null ? 0 : id;
+        this.name = name;
+        this.specification = specification;
+        this.description = description;
+        this.exProject = exProject;
         this.tJobs = tJobs;
         this.sutType = sutType;
         this.instrumentalize = instrumentalize;
@@ -362,7 +386,6 @@ public class SutSpecification {
      * @return project
      **/
     @ApiModelProperty(required = true, value = "Project to which the SUT is associated", example = "{ id:\"1\" }")
-    @NotNull
     public Project getProject() {
         return project;
     }
@@ -591,14 +614,16 @@ public class SutSpecification {
                 && Objects.equals(this.mainService,
                         sutSpecification.mainService)
                 && Objects.equals(this.parameters, sutSpecification.parameters)
-                && Objects.equals(this.commands, sutSpecification.commands);
+                && Objects.equals(this.commands, sutSpecification.commands)
+                && Objects.equals(this.exProject, sutSpecification.exProject)
+                && Objects.equals(this.exTJobs, sutSpecification.exTJobs);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, instrumentedBy, port, managedDockerType,
-                mainService, parameters, commands);
+                mainService, parameters, commands, exProject, exTJobs);
     }
 
     @Override
@@ -631,6 +656,10 @@ public class SutSpecification {
         sb.append("    parameters: ").append(toIndentedString(parameters))
                 .append("\n");
         sb.append("    commands: ").append(toIndentedString(commands))
+                .append("\n");
+        sb.append("    exProject: ").append(toIndentedString(exProject))
+                .append("\n");
+        sb.append("    exTJobs: ").append(toIndentedString(exTJobs))
                 .append("\n");
         sb.append("}");
         return sb.toString();

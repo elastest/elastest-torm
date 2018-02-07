@@ -448,7 +448,7 @@ const routes: Routes = [
               //     component: TestProjectComponent,
               // },
               {
-                path: ':projectId',
+                path: ':exProjectId',
                 children: [
                   // {
                   //     path: '',
