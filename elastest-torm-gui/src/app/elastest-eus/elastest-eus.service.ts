@@ -22,7 +22,13 @@ export class EusService {
 
     let data: any = { 'desiredCapabilities': { 'browserName': browser, 'version': versionValue, 'platform': 'ANY', 'live': true } };
     return this.http.post(url, data)
-      .map((response: Response) => response.json().sessionId);
+      .map((response: Response) => {
+          let sessionId: string = response.json().value.sessionId;
+          if (sessionId) {
+            return sessionId;
+          }
+          return response.json().sessionId;
+        });
   }
 
   public getVncUrl(sessionId: string): Observable<string> {
