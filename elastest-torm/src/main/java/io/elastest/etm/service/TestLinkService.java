@@ -645,7 +645,12 @@ public class TestLinkService {
                     .findByExternalIdAndExternalSystemId(
                             externalTJob.getExternalId(),
                             externalTJob.getExternalSystemId());
+
             externalTJob.setId(savedTJob.getId());
+            externalTJob.setSut(savedTJob.getSut());
+            externalTJob
+                    .setExecDashboardConfig(savedTJob.getExecDashboardConfig());
+
             externalTJob = externalTJobRepository.save(externalTJob);
         }
         this.syncTestPlanCases(testPlan.getId(), externalTJob);
