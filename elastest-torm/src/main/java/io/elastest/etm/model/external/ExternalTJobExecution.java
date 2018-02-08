@@ -16,6 +16,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -62,6 +65,7 @@ public class ExternalTJobExecution implements Serializable {
             ExternalTestExecutionView.class })
     @Column(name = "result")
     @JsonProperty("result")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private ResultEnum result = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
