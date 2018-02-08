@@ -23,31 +23,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   websocket: WebSocket;
 
   selectedBrowser: string;
-  browsers = [
-    'chrome',
-    'firefox'
-  ];
+  selectedVersion: object = {};
 
-  selectedVersion: string;
-  browserVersions = {
-    'chrome': [
-      { value: '62', viewValue: '62' },
-      { value: '61', viewValue: '61' },
-      { value: '60', viewValue: '60' },
-      { value: '59', viewValue: '59' },
-      { value: '58', viewValue: '58' },
-      { value: '57', viewValue: '57' }
-    ],
-    'firefox': [
-      { value: '57', viewValue: '57' },
-      { value: '56', viewValue: '56' },
-      { value: '55', viewValue: '55' },
-      { value: '54', viewValue: '54' },
-      { value: '53', viewValue: '53' },
-      { value: '52', viewValue: '52' }
-    ]
-  };
-
+  browserVersions: object;
+  browserVersionsKeys: object;
 
   testColumns: any[] = [
     { name: 'id', label: 'Session id' },
@@ -80,7 +59,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   onInitComponent = new EventEmitter<string>();
 
   constructor(private titlesService: TitlesService, private eusService: EusService,
-     private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
+    private eusDialog: ElastestEusDialogService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
     if (!this.isNested) {
@@ -97,6 +76,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.eusService.setEusUrl(this.eusUrl);
       this.eusService.setEusHost(this.eusHost);
     }
+
+    this.eusService.getStatus().subscribe(
+      ok => {
+        this.browserVersions = ok.json().browsers;
+        this.browserVersionsKeys = Object.keys(this.browserVersions);
+      },
+      error => console.error(error)
+    );
 
     if (!this.websocket) {
       if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
@@ -203,8 +190,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     if (this.selectedBrowser) {
       let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
       let message: string = this.capitalize(this.selectedBrowser);
-      if (this.selectedVersion) {
-        message += " " + this.selectedVersion;
+
+      if (this.selectedVersion[this.selectedBrowser]) {
+        message += " " + this.selectedVersion[this.selectedBrowser];
       }
       message += " - live session";
       dialog.componentInstance.title = message;
@@ -217,7 +205,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         error => console.error(error)
       );
 
-      this.eusService.startSession(this.selectedBrowser, this.selectedVersion).subscribe(
+      this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser]).subscribe(
         id => {
           this.sessionId = id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
@@ -245,12 +233,18 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     );
   }
 
-  selectBrowser(browserValue) {
-    this.selectedBrowser = browserValue;
+  selectBrowser(browser: string) {
+    this.selectedBrowser = browser;
+    Object.keys(this.selectedVersion).forEach(key => {
+        if (key != browser) {
+          this.selectedVersion[key] = '';
+        }
+      }
+    );
   }
 
   clearVersion() {
-    this.selectedVersion = "";
+    Object.keys(this.selectedVersion).forEach(key => this.selectedVersion[key] = '');
   }
 
   capitalize(value: any) {

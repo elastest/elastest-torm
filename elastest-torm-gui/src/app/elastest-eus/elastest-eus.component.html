@@ -1,25 +1,19 @@
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs"  *ngIf="standalone">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="standalone">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>Manual Web Browsers</md-card-title>            
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                  <md-radio-button value="chrome" flex-gt-xs="50" id="chrome_radio">Chrome</md-radio-button>
-                <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('chrome')">
-                    <md-option *ngFor="let version of browserVersions.chrome" [value]="version.value">
-                       {{version.viewValue}}
-                    </md-option>
-                </md-select>
-                <br>
-                <br>
-                  <md-radio-button value="firefox" flex-gt-xs="50" id="firefox_radio">Firefox</md-radio-button>
-                <md-select placeholder="version" [(ngModel)]="selectedVersion" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser('firefox')">
-                    <md-option *ngFor="let version of browserVersions.firefox" [value]="version.value">
-                       {{version.viewValue}}
-                    </md-option>
-                </md-select>
+                  <div *ngFor="let browser of browserVersionsKeys">
+                    <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
+                    <md-select placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
+                      <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
+                        {{version}}
+                      </md-option>
+                    </md-select><br><br>
+                  </div>
                 </md-radio-group>
                 <div layout="row" class="push-top">
                     <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start Web Browser</button>
@@ -47,7 +41,7 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs"  *ngIf="standalone">
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="standalone">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>Recordings</md-card-title>

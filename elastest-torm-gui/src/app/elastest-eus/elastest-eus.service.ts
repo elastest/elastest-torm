@@ -19,8 +19,11 @@ export class EusService {
     if (!versionValue) {
       versionValue = '';
     }
-
-    let data: any = { 'desiredCapabilities': { 'browserName': browser, 'version': versionValue, 'platform': 'ANY', 'live': true } };
+    let browserName: string = browser;
+    if (browser == "opera") {
+      browserName = "operablink";
+    }
+    let data: any = { 'desiredCapabilities': { 'browserName': browserName, 'version': versionValue, 'platform': 'ANY', 'live': true } };
     return this.http.post(url, data)
       .map((response: Response) => {
           let sessionId: string = response.json().value.sessionId;
@@ -70,6 +73,11 @@ export class EusService {
     return this.http.delete(url);
   }
 
+  public getStatus(): Observable<Response> {
+    let url: string = this.eusUrl + '/status';
+    return this.http.get(url);
+  }
+
   public setEusUrl(eusUrl: string): void {
     this.eusUrl = eusUrl;
   }
@@ -77,6 +85,5 @@ export class EusService {
   public setEusHost(eusHost: string): void {
     this.hostName = eusHost;
   }
-
 
 }
