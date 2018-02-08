@@ -96,7 +96,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       .checkTJobExecFinished(this.exTJobExec.id, this.execFinishedTimer, this.execFinishedSubscription)
       .subscribe((finished: boolean) => {
         if (finished) {
-          this.deprovideBrowserAndEus();
+          this.end();
         }
       });
   }
@@ -199,6 +199,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   }
 
   end(): void {
+    this.showStopBtn = false;
     this.deprovideBrowserAndEus();
     this.unsubscribeExecFinished();
   }

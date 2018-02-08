@@ -13,8 +13,7 @@
           <span>Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
           <span flex></span>
           <span>
-            <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'"
-              title="Force End" class="iconBtn">
+            <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
               <md-icon>stop</md-icon>
             </button>
           </span>
@@ -43,7 +42,7 @@
       <md-card-content #scrollMeTest *ngIf="exTJobExec">
         <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
           <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-            [showStatus]="true"></vnc-client>
+            [showStatus]="true" [showConnectionBtns]="false"></vnc-client>
         </ng-container>
         <ng-template #loadingBrowser>
           <div>{{browserLoadingMsg}}</div>

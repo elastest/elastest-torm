@@ -9,7 +9,7 @@
     Canvas not supported.
   </canvas>
 </div>
-<div layout="row" class="push-top" *ngIf="vncUi">
+<div layout="row" class="push-top" *ngIf="vncUi && showConnectionBtns">
   <button md-raised-button color="accent" (click)="connect()" [disabled]="vncUi.connected">Connect</button>
   <button md-raised-button color="accent" (click)="disconnect()" [disabled]="!vncUi.connected">Disconnect</button>
 </div>

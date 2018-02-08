@@ -16,6 +16,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() public autoconnect: boolean = false;
   @Input() public viewOnly: boolean = false;
   @Input() public showStatus: boolean = true;
+  @Input() public showConnectionBtns: boolean = true;
 
   htmlEl: HTMLHtmlElement = document.getElementsByTagName('html')[0];
 
