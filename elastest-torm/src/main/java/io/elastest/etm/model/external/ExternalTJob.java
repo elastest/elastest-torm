@@ -92,6 +92,7 @@ public class ExternalTJob implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
+    @JsonIgnoreProperties(value = "exTJobs")
     private SutSpecification sut = null;
 
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)

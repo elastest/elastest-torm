@@ -136,15 +136,13 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.deprovideBrowserAndEus();
-    this.execFinishedSubscription = undefined;
+    this.end();
   }
 
   @HostListener('window:beforeunload')
   beforeunloadHandler() {
     // On window closed leave session
-    this.deprovideBrowserAndEus();
-    this.execFinishedSubscription = undefined;
+    this.end();
   }
 
   deprovideBrowserAndEus(): void {
@@ -185,5 +183,10 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       this.eusSubscription.unsubscribe();
       this.eusSubscription = undefined;
     }
+  }
+
+  end(): void {
+    this.deprovideBrowserAndEus();
+    this.execFinishedSubscription = undefined;
   }
 }

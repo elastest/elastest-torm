@@ -13,6 +13,11 @@
           <span>Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
           <span flex></span>
           <span>
+            <button *ngIf="vncBrowserUrl !== undefined" md-button (click)="end()" [style.color]="c82a0e" title="Force End" class="iconBtn">
+              <md-icon>stop</md-icon>
+            </button>
+          </span>
+          <span>
             <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <md-icon>settings</md-icon>
             </button>

@@ -48,6 +48,7 @@ import { ExternalTestExecutionFormComponent } from './elastest-etm/external/exte
 import { ExternalTjobComponent } from './elastest-etm/external/external-tjob/external-tjob.component';
 import { ExternalTjobExecutionComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution.component';
 import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/external-tjob-execution-new.component';
+import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob/external-tjob-form/external-tjob-form.component';
 
 const routes: Routes = [
   {
@@ -461,6 +462,14 @@ const routes: Routes = [
                       //     path: '',
                       //     component: ExternalTJ,
                       //   },
+                      {
+                        path: 'edit/:tJobId',
+                        component: ExternalTjobFormComponent,
+                      },
+                      // {
+                      //   path: 'new',
+                      //   component: ExternalTjobFormComponent,
+                      // },
                       {
                         path: ':tJobId',
                         children: [

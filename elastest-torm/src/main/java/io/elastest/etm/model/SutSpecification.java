@@ -21,6 +21,9 @@ import javax.persistence.OneToOne;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,6 +47,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @ApiModel(description = "SUT definition.")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SutSpecification {
 
     public interface SutView {
@@ -151,13 +155,15 @@ public class SutSpecification {
 
     @JsonView({ SutView.class })
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exProject")
-    @JsonIgnoreProperties(value = "suts")
-    private ExternalProject exProject;
+    @JoinColumn(name = "exProject", nullable = true)
+    @JsonIgnoreProperties(value = { "suts", "exTJobs"})
+    private ExternalProject exProject = null;
 
     @JsonView({ SutView.class })
     @JsonProperty("exTJobs")
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+     @JsonIgnoreProperties(value = {"sut", "exProject"})
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
 
     public SutSpecification() {

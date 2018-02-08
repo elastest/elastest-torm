@@ -11,6 +11,7 @@ import { ExternalTestCaseModel } from './external-test-case/external-test-case-m
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { SutModel } from '../sut/sut-model';
 
 @Injectable()
 export class ExternalService {
@@ -77,6 +78,10 @@ export class ExternalService {
   public modifyExternalTJob(tJob: ExternalTJobModel): Observable<ExternalTJobModel> {
     if (!tJob.hasSut()) {
       tJob.sut = undefined;
+    } else {
+      let auxSut: SutModel = new SutModel();
+      auxSut.id = tJob.sut.id;
+      tJob.sut = auxSut;
     }
     tJob.generateExecDashboardConfig();
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
