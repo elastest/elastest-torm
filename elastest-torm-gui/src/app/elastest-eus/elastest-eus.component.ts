@@ -62,7 +62,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   recordings: EusTestModel[] = [];
 
   @Input()
-  eusUrl: string;
+  eusUrl: string = "http://localhost:8040/eus/v1/";
 
   @Input()
   eusHost: string = "localhost";
