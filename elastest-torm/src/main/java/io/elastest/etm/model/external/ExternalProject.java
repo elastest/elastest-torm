@@ -80,7 +80,7 @@ public class ExternalProject implements Serializable {
     @JsonView({ ExternalProjectView.class })
     @JsonProperty("exTJobs")
     @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-//    @JsonIgnoreProperties(value = { "exProject" })
+    // @JsonIgnoreProperties(value = { "exProject" })
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
 
@@ -89,7 +89,7 @@ public class ExternalProject implements Serializable {
             ExternalTestExecutionView.class })
     @JsonProperty("suts")
     @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-//    @JsonIgnoreProperties(value = { "exProject","project" })
+    // @JsonIgnoreProperties(value = { "exProject","project" })
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<SutSpecification> suts;
 

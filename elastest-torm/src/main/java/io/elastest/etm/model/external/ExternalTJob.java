@@ -16,6 +16,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -77,6 +80,7 @@ public class ExternalTJob implements Serializable {
     @JsonProperty("exTJobExecs")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties(value = "exTJob")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJobExecution> exTJobExecs;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
@@ -84,6 +88,7 @@ public class ExternalTJob implements Serializable {
     @JsonProperty("exTestCases")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties(value = "exTJob")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTestCase> exTestCases;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,

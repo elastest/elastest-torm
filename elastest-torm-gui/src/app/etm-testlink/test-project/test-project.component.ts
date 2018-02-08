@@ -8,6 +8,7 @@ import { TestLinkService } from '../testlink.service';
 import { MdDialog } from '@angular/material';
 import { TestSuiteModel } from '../models/test-suite-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
+import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 
 @Component({
   selector: 'testlink-test-project',
@@ -42,7 +43,7 @@ export class TestProjectComponent implements OnInit {
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },
-    // { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options' },
   ];
 
   constructor(
@@ -97,6 +98,16 @@ export class TestProjectComponent implements OnInit {
     this.testLinkService.getExternalProjectByTestProjectId(this.testProject.id).subscribe(
       (exProject: ExternalProjectModel) => {
         this.exProject = exProject;
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  /* Test Plans */
+  runTestPlan(row: TestPlanModel): void {
+    this.testLinkService.getExternalTJobByTestPlanId(row.id).subscribe(
+      (exTJob: ExternalTJobModel) => {
+        this.router.navigate(['/external/project/', exTJob.exProject.id, 'tjob', exTJob.id, 'exec', 'new']);
       },
       (error) => console.log(error),
     );

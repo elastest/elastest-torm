@@ -47,7 +47,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @ApiModel(description = "SUT definition.")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class SutSpecification {
 
     public interface SutView {
@@ -156,13 +156,13 @@ public class SutSpecification {
     @JsonView({ SutView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exProject", nullable = true)
-    @JsonIgnoreProperties(value = { "suts", "exTJobs"})
+    @JsonIgnoreProperties(value = { "suts", "exTJobs" })
     private ExternalProject exProject = null;
 
     @JsonView({ SutView.class })
     @JsonProperty("exTJobs")
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-     @JsonIgnoreProperties(value = {"sut", "exProject"})
+    @JsonIgnoreProperties(value = { "sut", "exProject", "exTJobExecs", "exTestCases" })
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
 
