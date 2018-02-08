@@ -5,6 +5,7 @@
             <md-card-title>Manual Web Browsers</md-card-title>            
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
+                <span *ngIf="loading"><img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width: 23px; height: 23px; vertical-align:middle;">Loading browsers...</span>
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
                   <div *ngFor="let browser of browserVersionsKeys">
                     <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>

@@ -28,6 +28,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   browserVersions: object;
   browserVersionsKeys: object;
 
+  loading: boolean = true;
+
   testColumns: any[] = [
     { name: 'id', label: 'Session id' },
     { name: 'browser', label: 'Browser' },
@@ -81,6 +83,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       ok => {
         this.browserVersions = ok.json().browsers;
         this.browserVersionsKeys = Object.keys(this.browserVersions);
+        this.loading = false;
       },
       error => console.error(error)
     );

@@ -74,7 +74,7 @@ export class EusService {
   }
 
   public getStatus(): Observable<Response> {
-    let url: string = this.eusUrl + '/status';
+    let url: string = this.eusUrl + 'status';
     return this.http.get(url);
   }
 
