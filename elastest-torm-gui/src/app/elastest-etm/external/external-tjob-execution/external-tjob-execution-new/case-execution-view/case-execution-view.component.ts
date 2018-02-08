@@ -132,4 +132,9 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   saveExecution(): Observable<boolean> {
     return this.executionForm.saveExecution();
   }
+
+  forceStop(): Observable<ExternalTJobExecModel> {
+    this.exTJobExec.result = 'STOPPED';
+    return this.externalService.modifyExternalTJobExec(this.exTJobExec);
+  }
 }

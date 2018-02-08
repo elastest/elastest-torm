@@ -1,3 +1,4 @@
+import { CaseExecutionViewComponent } from './case-execution-view/case-execution-view.component';
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalDataModel } from '../../models/external-data-model';
@@ -22,6 +23,7 @@ import { EtmMonitoringViewComponent } from '../../../etm-monitoring-view/etm-mon
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('etmCaseExecutionView') etmCaseExecutionView: CaseExecutionViewComponent;
 
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
@@ -29,10 +31,13 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   execFinishedTimer: Observable<number>;
   execFinishedSubscription: Subscription;
 
+  showStopBtn: boolean = false;
+
   // EUS
   eusTimer: Observable<number>;
   eusSubscription: Subscription;
   eusInstanceId: string;
+  eusUrl: string;
 
   browserLoadingMsg: string = 'Loading...';
   // Browser
@@ -102,8 +107,8 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
       this.esmService.waitForTssInstanceUp(this.eusInstanceId, this.eusTimer, this.eusSubscription, 'external').subscribe(
         (eus: EsmServiceInstanceModel) => {
-          let eusUrl: string = eus.apiUrl;
-          this.eusService.setEusUrl(eusUrl);
+          this.eusUrl = eus.apiUrl;
+          this.eusService.setEusUrl(this.eusUrl);
           this.loadChromeBrowser();
         },
         (error) => console.log(error),
@@ -116,6 +121,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
+        this.showStopBtn = true;
         this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
         let browserLog: any = this.exTJobExec.getBrowserLogObj();
         if (browserLog) {
@@ -185,8 +191,22 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     }
   }
 
+  unsubscribeExecFinished(): void {
+    if (this.execFinishedSubscription) {
+      this.execFinishedSubscription.unsubscribe();
+      this.execFinishedSubscription = undefined;
+    }
+  }
+
   end(): void {
     this.deprovideBrowserAndEus();
-    this.execFinishedSubscription = undefined;
+    this.unsubscribeExecFinished();
+  }
+
+  forceEnd(): void {
+    this.showStopBtn = false;
+    this.exTJobExec.result = 'STOPPED';
+    this.externalService.modifyExternalTJobExec(this.exTJobExec);
+    this.end();
   }
 }
