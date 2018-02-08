@@ -319,8 +319,7 @@ public class ExternalService {
         exec = this.externalTJobExecutionRepository.save(exec);
         if (exec.getMonitoringIndex().isEmpty()
                 || "".equals(exec.getMonitoringIndex())) {
-            exec.setMonitoringIndex(
-                    this.getExternalTJobExecMonitoringIndex(exec));
+            exec.generateMonitoringIndex();
             exec = this.externalTJobExecutionRepository.save(exec);
         }
 
@@ -347,11 +346,6 @@ public class ExternalService {
         } else {
             throw new HTTPException(405);
         }
-    }
-
-    public String getExternalTJobExecMonitoringIndex(
-            ExternalTJobExecution exec) {
-        return "ext" + exec.getExTJob().getId() + "_e" + exec.getId();
     }
 
     public SupportService startEus() {

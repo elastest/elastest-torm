@@ -588,10 +588,11 @@ public class EsmService {
                     exTJobId.toString());
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
                     exTJobExecId.toString());
-            supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    exTJobExec.getMonitoringIndex());// TODO refactor -> Use
-            // etmcontextService.getMonitoringEnvVars
 
+            // Puts only Exec Monitoring index (without sut)
+            supportServiceInstance.getParameters().put("ET_MON_EXEC",
+                    exTJobExec.getExternalTJobExecMonitoringIndex());
+            // TODO refactor -> Use etmcontextService.getMonitoringEnvVars
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
@@ -128,6 +130,20 @@ public class ExternalTJobExecution implements Serializable {
 
     public void setEnvVars(Map<String, String> envVars) {
         this.envVars = envVars;
+    }
+
+    public String getExternalTJobExecMonitoringIndex() {
+        return "ext" + getExTJob().getId() + "_e" + getId();
+    }
+
+    public void generateMonitoringIndex() {
+        SutSpecification sut = this.getExTJob().getSut();
+        String monitoringIndex = this.getExternalTJobExecMonitoringIndex();
+        if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
+            monitoringIndex += ",s" + sut.getId() + "_e"
+                    + sut.getCurrentSutExec();
+        }
+        this.setMonitoringIndex(monitoringIndex);
     }
 
     public String[] getMonitoringIndicesList() {
