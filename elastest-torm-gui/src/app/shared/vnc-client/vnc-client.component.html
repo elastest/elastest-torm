@@ -3,6 +3,10 @@
   <span class="push-bottom">
     {{statusInfo}}
   </span>
+  <span flex></span>
+  <button md-icon-button *ngIf="errorStatus()" color="accent" (click)="reconnect()" title="Try Reconnect" [disabled]="vncUi.connected">
+    <md-icon>sync</md-icon>
+  </button>
 </div>
 <div id="vnc_screen">
   <canvas #canvas id="vnc_canvas">

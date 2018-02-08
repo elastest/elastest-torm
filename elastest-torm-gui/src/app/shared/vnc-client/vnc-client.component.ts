@@ -64,6 +64,15 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
     this.vncUi.disconnect();
   }
 
+  reconnect(): void {
+    if (!this.vncUi.connected) {
+      this.connect();
+    } else {
+      this.disconnect();
+      this.connect();
+    }
+  }
+
   preventFocus(): void {
     // Capturing Keyboard disabled by default
     this.canvasFocused = false;
@@ -158,5 +167,9 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  errorStatus(): boolean {
+    return this.statusInfo && this.statusInfo.startsWith('Error');
   }
 }
