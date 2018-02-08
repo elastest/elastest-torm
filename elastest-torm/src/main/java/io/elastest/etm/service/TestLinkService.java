@@ -707,7 +707,6 @@ public class TestLinkService {
         ExternalTestExecution externalTestExec = new ExternalTestExecution(
                 new Long(0));
         externalTestExec.setExTestCase(externalTestCase);
-        // externalTestExec.setEsIndex(esIndex);
         externalTestExec.setFields(this.getTestExecFields(exec));
         externalTestExec.setResult(exec.getStatus().name());
         externalTestExec.setExternalId(exec.getId().toString());

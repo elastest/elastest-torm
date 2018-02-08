@@ -193,7 +193,7 @@ public class DockerService2 {
             prefix = "sut_";
             containerName = getSutName(dockerExec);
         } else if ("tjob".equals(type.toLowerCase())) {
-            parametersList = tJob.getParameters();
+            parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
             image = tJob.getImageName();
             prefix = "test_";
