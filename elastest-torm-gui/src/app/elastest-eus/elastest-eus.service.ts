@@ -23,15 +23,15 @@ export class EusService {
     if (browser == "opera") {
       browserName = "operablink";
     }
-    let data: any = { 'desiredCapabilities': { 'browserName': browserName, 'version': versionValue, 'platform': 'ANY', 'live': true } };
+    let capabilities = { 'browserName': browserName, 'version': versionValue, 'platform': 'ANY', 'live': true };
+    let data: any = { 'desiredCapabilities': capabilities, "capabilities": capabilities };
     return this.http.post(url, data)
       .map((response: Response) => {
-          let sessionId: string = response.json().value.sessionId;
-          if (sessionId) {
-            return sessionId;
-          }
-          return response.json().sessionId;
-        });
+        if (response.json().value && response.json().value.sessionId) {
+          return response.json().value.sessionId;
+        }
+        return response.json().sessionId;
+      });
   }
 
   public getVncUrl(sessionId: string): Observable<string> {
