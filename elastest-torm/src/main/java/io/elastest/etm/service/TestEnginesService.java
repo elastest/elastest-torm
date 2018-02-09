@@ -11,7 +11,8 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 @Service
 public class TestEnginesService {
 
-    private Logger log = Logger.getLogger(TestEnginesService.class);
+    private final static Logger log = LoggerFactory.getLogger(TestEnginesService.class);
 
     public DockerComposeService dockerComposeService;
     public DockerService2 dockerService2;
@@ -123,7 +124,7 @@ public class TestEnginesService {
             for (DockerContainer container : dockerComposeService
                     .getContainers(serviceName).getContainers()) {
 
-                log.info(container);
+                log.debug("Container info: {}", container);
 
                 String containerName = serviceName + "_" + serviceName + "_1"; // example:
                                                                                // ece_ece_1
@@ -134,8 +135,14 @@ public class TestEnginesService {
                     for (Entry<String, List<PortInfo>> portList : container
                             .getPorts().entrySet()) {
                         if (portList.getValue() != null) {
-                            port = portList.getValue().get(0).getHostPort();
+                            if (ip.equals("localhost")){
+                                port = portList.getKey().split("/")[0];
+                                ip = portList.getValue().get(0).getHostIp();
+                            } else {
+                                port = portList.getValue().get(0).getHostPort();
+                            }
                             break;
+                            
                         }
                     }
 
