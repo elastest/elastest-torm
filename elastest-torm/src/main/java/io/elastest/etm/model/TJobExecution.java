@@ -21,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
@@ -98,9 +99,8 @@ public class TJobExecution {
     // bi-directional many-to-one association to TestSuite
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "testSuite")
-    private TestSuite testSuite;
+    @OneToMany(mappedBy = "tJobExec", cascade = CascadeType.REMOVE)
+    private List<TestSuite> testSuites;
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
@@ -142,6 +142,7 @@ public class TJobExecution {
         this.result = ResultEnum.IN_PROGRESS;
         this.servicesInstances = new ArrayList<>();
         this.envVars = new HashMap<>();
+        this.testSuites = new ArrayList<>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -150,7 +151,7 @@ public class TJobExecution {
         this.result = result;
         this.servicesInstances = new ArrayList<>();
         this.envVars = new HashMap<>();
-
+        this.testSuites = new ArrayList<>();
     }
 
     /**
@@ -307,12 +308,12 @@ public class TJobExecution {
         this.tJob = tjob;
     }
 
-    public TestSuite getTestSuite() {
-        return testSuite;
+    public List<TestSuite> getTestSuites() {
+        return testSuites;
     }
 
-    public void setTestSuite(TestSuite testSuite) {
-        this.testSuite = testSuite;
+    public void setTestSuites(List<TestSuite> testSuites) {
+        this.testSuites = testSuites;
     }
 
     public List<Parameter> getParameters() {
@@ -408,7 +409,7 @@ public class TJobExecution {
                 && Objects.equals(this.error, tjobExecution.error)
                 && Objects.equals(this.monitoringIndex,
                         tjobExecution.monitoringIndex)
-                && Objects.equals(this.testSuite, tjobExecution.testSuite)
+                && Objects.equals(this.testSuites, tjobExecution.testSuites)
                 && Objects.equals(this.parameters, tjobExecution.parameters)
                 && Objects.equals(this.resultMsg, tjobExecution.resultMsg)
                 && Objects.equals(this.startDate, tjobExecution.startDate)
@@ -418,7 +419,7 @@ public class TJobExecution {
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
-                testSuite, parameters, resultMsg, startDate, endDate);
+                testSuites, parameters, resultMsg, startDate, endDate);
     }
 
     @Override
@@ -435,7 +436,7 @@ public class TJobExecution {
         sb.append("    error: ").append(toIndentedString(error)).append("\n");
         sb.append("    monitoringIndex: ")
                 .append(toIndentedString(monitoringIndex)).append("\n");
-        sb.append("    testSuite: ").append(toIndentedString(testSuite))
+        sb.append("    testSuites: ").append(toIndentedString(testSuites))
                 .append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters))
                 .append("\n");

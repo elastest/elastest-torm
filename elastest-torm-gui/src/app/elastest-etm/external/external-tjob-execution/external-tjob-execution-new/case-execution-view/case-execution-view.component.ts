@@ -7,7 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { ServiceType } from '../../../external-project/external-project-model';
 import { BuildModel } from '../../../../../etm-testlink/models/build-model';
 import { TestLinkService } from '../../../../../etm-testlink/testlink.service';
-import { TestCaseModel } from '../../../../../etm-testlink/models/test-case-model';
+import { TLTestCaseModel } from '../../../../../etm-testlink/models/test-case-model';
 import { ExternalTestCaseModel } from '../../../external-test-case/external-test-case-model';
 import { ExternalTJobExecModel } from '../../external-tjob-execution-model';
 import { window } from 'rxjs/operator/window';
@@ -98,7 +98,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   loadTestLinkTestCaseExecution(testCaseId: string): void {
     this.testLinkService.getTestCaseById(testCaseId).subscribe(
-      (testCase: TestCaseModel) => {
+      (testCase: TLTestCaseModel) => {
         if (this.testLinkSelectedBuild) {
           this.testLinkService.getBuildById(this.testLinkSelectedBuild.id).subscribe(
             (build: BuildModel) => {

@@ -1,6 +1,6 @@
-import { TestCaseComponent } from './etm-testlink/test-case/test-case.component';
+import { TLTestCaseComponent } from './etm-testlink/test-case/test-case.component';
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
-import { TestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
+import { TLTestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
 import { TestSuiteFormComponent } from './etm-testlink/test-suite/test-suite-form/test-suite-form.component';
 import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
 import { HelpComponent } from './elastest-etm/help/help.component';
@@ -364,7 +364,7 @@ const routes: Routes = [
                         children: [
                           {
                             path: '',
-                            component: TestSuiteComponent,
+                            component: TLTestSuiteComponent,
                           },
                           {
                             path: 'cases',
@@ -385,7 +385,7 @@ const routes: Routes = [
                                     children: [
                                       {
                                         path: '',
-                                        component: TestCaseComponent,
+                                        component: TLTestCaseComponent,
                                       },
                                       {
                                         path: 'steps',

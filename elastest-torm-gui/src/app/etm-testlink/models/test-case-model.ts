@@ -1,6 +1,6 @@
 import { TestCaseStepModel } from './test-case-step-model';
 
-export class TestCaseModel {
+export class TLTestCaseModel {
     id: number;
     name: string;
     testSuiteId: number;

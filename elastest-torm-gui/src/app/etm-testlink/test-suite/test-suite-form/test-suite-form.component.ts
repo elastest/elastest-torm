@@ -1,7 +1,7 @@
 import { ActivatedRoute, Params } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { TestSuiteModel } from '../../models/test-suite-model';
+import { TLTestSuiteModel } from '../../models/test-suite-model';
 import { TestLinkService } from '../../testlink.service';
 import { TestProjectModel } from '../../models/test-project-model';
 
@@ -13,7 +13,7 @@ import { TestProjectModel } from '../../models/test-project-model';
 export class TestSuiteFormComponent implements OnInit {
   @ViewChild('suiteNameInput') suiteNameInput: ElementRef;
 
-  testSuite: TestSuiteModel;
+  testSuite: TLTestSuiteModel;
   testProject: TestProjectModel;
   currentPath: string = '';
 
@@ -24,12 +24,12 @@ export class TestSuiteFormComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit Test Suite');
-    this.testSuite = new TestSuiteModel();
+    this.testSuite = new TLTestSuiteModel();
     this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       if (this.currentPath === 'edit') {
         // this.route.params.switchMap((params: Params) => this.testlinkService.getSuiteById(params['suiteId']))
-        //   .subscribe((suite: TestSuiteModel) => {
+        //   .subscribe((suite: TLTestSuiteModel) => {
         //     this.testSuite = suite;
         //     this.titlesService.setTopTitle(this.testSuite.getRouteString());
         //   });

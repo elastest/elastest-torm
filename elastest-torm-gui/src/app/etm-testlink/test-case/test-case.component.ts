@@ -1,5 +1,5 @@
 import { TestCaseStepModel } from '../models/test-case-step-model';
-import { TestCaseModel } from '../models/test-case-model';
+import { TLTestCaseModel } from '../models/test-case-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
@@ -13,10 +13,10 @@ import { MdDialog } from '@angular/material';
   templateUrl: './test-case.component.html',
   styleUrls: ['./test-case.component.scss']
 })
-export class TestCaseComponent implements OnInit {
+export class TLTestCaseComponent implements OnInit {
 
 
-  testCase: TestCaseModel;
+  testCase: TLTestCaseModel;
   testCaseSteps: TestCaseStepModel[] = [];
 
   // TestCaseStep Data
@@ -40,14 +40,14 @@ export class TestCaseComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Case');
-    this.testCase = new TestCaseModel();
+    this.testCase = new TLTestCaseModel();
     this.loadCase();
   }
 
   loadCase(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.switchMap((params: Params) => this.testLinkService.getTestCaseById(params['caseId']))
-        .subscribe((testCase: TestCaseModel) => {
+        .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
           this.titlesService.setTopTitle(this.testCase.getRouteString());
         });

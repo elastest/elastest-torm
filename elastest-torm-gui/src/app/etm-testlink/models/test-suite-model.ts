@@ -1,6 +1,6 @@
 import { ActionOnDuplicateValue } from "./test-case-model";
 
-export class TestSuiteModel {
+export class TLTestSuiteModel {
     id: number;
     testProjectId: number;
     name: string;

@@ -1,0 +1,62 @@
+<div flex-gt-sm="100" *ngIf="testSuites">
+  <md-card tdMediaToggle="gt-xs">
+    <md-card-title>
+      Test Results
+    </md-card-title>
+    <md-divider></md-divider>
+    <md-card-content>
+
+      <div *ngFor="let suite of testSuites" class="push-bottom-sm">
+        <td-expansion-panel expand="false">
+          <ng-template td-expansion-panel-header>
+            <div layout="row" class="pad-top-sm pad-left-sm">
+              <span class="suiteStatusIconSpan pad-right-sm">
+                <md-icon [style.color]="suite.getResultIcon().color">{{suite.getResultIcon().name}}</md-icon>
+              </span>
+              <span flex-gt-xs="15">
+                <md-card-subtitle class="pad-left-none">
+                  <strong>Test Suite</strong>
+                </md-card-subtitle>
+                <h4>{{suite.name}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Nº Test</md-card-subtitle>
+                <h4>{{suite.numTests}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Errors</md-card-subtitle>
+                <h4>{{suite.errors}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Failures</md-card-subtitle>
+                <h4>{{suite.failures}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Skipped</md-card-subtitle>
+                <h4>{{suite.skipped}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Flakes</md-card-subtitle>
+                <h4>{{suite.flakes}}</h4>
+              </span>
+              <span flex-gt-xs="15">
+                <md-card-subtitle class="pad-left-none">Time Elapsed</md-card-subtitle>
+                <h4>{{suite.timeElapsed}}</h4>
+              </span>
+            </div>
+          </ng-template>
+
+          <div layout="column" class="pad-top-sm pad-left-sm">
+            <md-card-subtitle class="pad-left-none">Test Cases</md-card-subtitle>
+
+            <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases" [columns]="testCaseColumns"
+              [selectable]="false" [clickable]="false" [sortable]="false">
+            </td-data-table>
+          </div>
+
+        </td-expansion-panel>
+      </div>
+
+    </md-card-content>
+  </md-card>
+</div>

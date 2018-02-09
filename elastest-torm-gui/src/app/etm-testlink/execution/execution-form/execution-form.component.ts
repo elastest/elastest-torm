@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { TestLinkService } from '../../testlink.service';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
-import { TestCaseModel } from '../../models/test-case-model';
+import { TLTestCaseModel } from '../../models/test-case-model';
 import { AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -30,7 +30,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     { name: 'executionType', label: 'Exec Type' },
   ];
 
-  testCase: TestCaseModel;
+  testCase: TLTestCaseModel;
   build: BuildModel;
 
   tcExec: TestCaseExecutionModel;

@@ -1,4 +1,4 @@
-import { TestCaseModel } from '../../models/test-case-model';
+import { TLTestCaseModel } from '../../models/test-case-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
@@ -15,7 +15,7 @@ import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
   styleUrls: ['./test-case-execs.component.scss']
 })
 export class TestCaseExecsComponent implements OnInit {
-  testCase: TestCaseModel;
+  testCase: TLTestCaseModel;
   buildId: number;
   execs: TestCaseExecutionModel[] = [];
   testProjectId: number;
@@ -43,7 +43,7 @@ export class TestCaseExecsComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Case Execs');
-    this.testCase = new TestCaseModel();
+    this.testCase = new TLTestCaseModel();
     this.loadCase();
   }
 
@@ -56,7 +56,7 @@ export class TestCaseExecsComponent implements OnInit {
           return this.testLinkService.getTestCaseById(params['caseId']);
         }
       )
-        .subscribe((testCase: TestCaseModel) => {
+        .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
           this.titlesService.setTopTitle(this.testCase.getRouteString());
 

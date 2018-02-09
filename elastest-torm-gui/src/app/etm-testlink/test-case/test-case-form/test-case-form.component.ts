@@ -1,10 +1,10 @@
 import { ActivatedRoute, Params } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { TestCaseModel } from '../../models/test-case-model';
+import { TLTestCaseModel } from '../../models/test-case-model';
 import { TestLinkService } from '../../testlink.service';
 import { TestProjectModel } from '../../models/test-project-model';
-import { TestSuiteModel } from '../../models/test-suite-model';
+import { TLTestSuiteModel } from '../../models/test-suite-model';
 
 @Component({
   selector: 'testlink-test-case-form',
@@ -14,9 +14,9 @@ import { TestSuiteModel } from '../../models/test-suite-model';
 export class TestCaseFormComponent implements OnInit {
   @ViewChild('caseNameInput') caseNameInput: ElementRef;
 
-  testCase: TestCaseModel;
+  testCase: TLTestCaseModel;
   testProject: TestProjectModel;
-  testSuite: TestSuiteModel;
+  testSuite: TLTestSuiteModel;
   currentPath: string = '';
 
   constructor(
@@ -26,13 +26,13 @@ export class TestCaseFormComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit Test Case');
-    this.testCase = new TestCaseModel();
+    this.testCase = new TLTestCaseModel();
 
     this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       if (this.currentPath === 'edit') {
         // this.route.params.switchMap((params: Params) => this.testlinkService.getCaseById(params['caseId']))
-        //   .subscribe((case: TestCaseModel) => {
+        //   .subscribe((case: TLTestCaseModel) => {
         //     this.testCase = case;
         //     this.titlesService.setTopTitle(this.testCase.getRouteString());
         //   });
@@ -64,7 +64,7 @@ export class TestCaseFormComponent implements OnInit {
   loadTestSuite(): void {
     this.route.params.switchMap((params: Params) => this.testlinkService.getTestSuiteById(params['suiteId'], this.testProject.id))
       .subscribe(
-      (suite: TestSuiteModel) => {
+      (suite: TLTestSuiteModel) => {
         this.testSuite = suite;
         this.testCase.testSuiteId = this.testSuite.id;
       },
@@ -79,13 +79,13 @@ export class TestCaseFormComponent implements OnInit {
   save(): void {
     this.testlinkService.createTestCase(this.testCase)
       .subscribe(
-      (testCase: TestCaseModel) => this.postSave(testCase),
+      (testCase: TLTestCaseModel) => this.postSave(testCase),
       (error) => this.testlinkService.popupService.openSnackBar('Error: Case with name ' + this.testCase.name + ' already exist'),
     );
 
   }
 
-  postSave(testCase: TestCaseModel): void {
+  postSave(testCase: TLTestCaseModel): void {
     console.log(testCase)
     this.testCase = this.testlinkService.eTTestlinkModelsTransformService.jsonToTestCaseModel(testCase);
     console.log(this.testCase)

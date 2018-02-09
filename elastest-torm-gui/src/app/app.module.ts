@@ -84,11 +84,13 @@ import { InputTrimModule } from 'ng2-trim-directive';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
-import { TestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
+import { TLTestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
+import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.component';
 import { TestPlanComponent } from './etm-testlink/test-plan/test-plan.component';
 import { TestPlanFormComponent } from './etm-testlink/test-plan/test-plan-form/test-plan-form.component';
 import { TestSuiteFormComponent } from './etm-testlink/test-suite/test-suite-form/test-suite-form.component';
-import { TestCaseComponent } from './etm-testlink/test-case/test-case.component';
+import { TLTestCaseComponent } from './etm-testlink/test-case/test-case.component';
+import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
 import { BuildComponent } from './etm-testlink/build/build.component';
 import { BuildFormComponent } from './etm-testlink/build/build-form/build-form.component';
@@ -111,6 +113,7 @@ import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/exter
 import { CaseExecutionViewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/case-execution-view/case-execution-view.component';
 import { ExternalTjobExecsViewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execs-view/external-tjob-execs-view.component';
 import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob/external-tjob-form/external-tjob-form.component';
+import { TestSuitesViewComponent } from './elastest-etm/test-suite/test-suites-view/test-suites-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -148,10 +151,12 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     EtmTestlinkComponent,
     TestProjectComponent,
     TestProjectFormComponent,
+    TLTestSuiteComponent,
     TestSuiteComponent,
     TestPlanComponent,
     TestPlanFormComponent,
     TestSuiteFormComponent,
+    TLTestCaseComponent,
     TestCaseComponent,
     TestCaseFormComponent,
     BuildComponent,
@@ -174,6 +179,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     CaseExecutionViewComponent,
     ExternalTjobExecsViewComponent,
     ExternalTjobFormComponent,
+    TestSuitesViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

@@ -1,7 +1,7 @@
-import { CustomFieldModel, TestCaseModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
+import { CustomFieldModel, TLTestCaseModel, PlatformModel } from '../../etm-testlink/models/test-case-model';
 import { Injectable } from '@angular/core';
 import { TestProjectModel } from '../../etm-testlink/models/test-project-model';
-import { TestSuiteModel } from '../../etm-testlink/models/test-suite-model';
+import { TLTestSuiteModel } from '../../etm-testlink/models/test-suite-model';
 import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
 import { BuildModel } from '../../etm-testlink/models/build-model';
 import { TestCaseStepModel } from '../../etm-testlink/models/test-case-step-model';
@@ -46,8 +46,8 @@ export class ETTestlinkModelsTransformService {
     /********* Suites *********/
     /**************************/
 
-    jsonToTestSuiteList(suites: any[]): TestSuiteModel[] {
-        let suitesList: TestSuiteModel[] = [];
+    jsonToTestSuiteList(suites: any[]): TLTestSuiteModel[] {
+        let suitesList: TLTestSuiteModel[] = [];
         for (let suite of suites) {
             suitesList.push(this.jsonToTestSuiteModel(suite));
         }
@@ -55,9 +55,9 @@ export class ETTestlinkModelsTransformService {
     }
 
 
-    jsonToTestSuiteModel(suite: any): TestSuiteModel {
-        let newSuite: TestSuiteModel;
-        newSuite = new TestSuiteModel();
+    jsonToTestSuiteModel(suite: any): TLTestSuiteModel {
+        let newSuite: TLTestSuiteModel;
+        newSuite = new TLTestSuiteModel();
         newSuite.id = suite.id;
         newSuite.testProjectId = suite.testProjectId;
         newSuite.name = suite.name;
@@ -75,17 +75,17 @@ export class ETTestlinkModelsTransformService {
     /********* Cases *********/
     /*************************/
 
-    jsonToTestCasesList(cases: any[]): TestCaseModel[] {
-        let casesList: TestCaseModel[] = [];
+    jsonToTestCasesList(cases: any[]): TLTestCaseModel[] {
+        let casesList: TLTestCaseModel[] = [];
         for (let testCase of cases) {
             casesList.push(this.jsonToTestCaseModel(testCase));
         }
         return casesList;
     }
 
-    jsonToTestCaseModel(testCase: any): TestCaseModel {
-        let newCase: TestCaseModel;
-        newCase = new TestCaseModel();
+    jsonToTestCaseModel(testCase: any): TLTestCaseModel {
+        let newCase: TLTestCaseModel;
+        newCase = new TLTestCaseModel();
         newCase.id = testCase.id;
         newCase.testProjectId = testCase.testProjectId;
         newCase.name = testCase.name;

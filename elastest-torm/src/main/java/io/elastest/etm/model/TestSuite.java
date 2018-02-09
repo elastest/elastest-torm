@@ -13,12 +13,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.swagger.annotations.ApiModel;
@@ -29,55 +30,64 @@ public class TestSuite {
     public interface BasicTestSuite {
     }
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "timeElapsed")
     @JsonProperty("timeElapsed")
     private double timeElapsed;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "errors")
     @JsonProperty("errors")
     private int errors;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "failures")
     @JsonProperty("failures")
     private int failures;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "skipped")
     @JsonProperty("skipped")
     private int skipped;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "flakes")
     @JsonProperty("flakes")
     private int flakes;
 
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @Column(name = "numTests")
     @JsonProperty("numTests")
     private int numTests;
 
     // bi-directional many-to-one association to TestCase
-    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class })
+    @JsonView({ BasicAttTJobExec.class, BasicTestSuite.class,
+            BasicAttTJob.class })
     @OneToMany(mappedBy = "testSuite", cascade = CascadeType.REMOVE)
     private List<TestCase> testCases;
 
     @JsonView({ BasicTestSuite.class })
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "testSuite")
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tJobExec")
     private TJobExecution tJobExec;
 

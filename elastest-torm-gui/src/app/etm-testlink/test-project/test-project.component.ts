@@ -6,7 +6,7 @@ import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
 import { MdDialog } from '@angular/material';
-import { TestSuiteModel } from '../models/test-suite-model';
+import { TLTestSuiteModel } from '../models/test-suite-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 
@@ -17,7 +17,7 @@ import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/ext
 })
 export class TestProjectComponent implements OnInit {
   testProject: TestProjectModel;
-  testSuites: TestSuiteModel[] = [];
+  testSuites: TLTestSuiteModel[] = [];
   testPlans: TestPlanModel[] = [];
 
   exProject: ExternalProjectModel;
@@ -78,7 +78,7 @@ export class TestProjectComponent implements OnInit {
 
   loadTestSuites(): void {
     this.testLinkService.getProjecTestSuites(this.testProject).subscribe(
-      (suites: TestSuiteModel[]) => {
+      (suites: TLTestSuiteModel[]) => {
         this.testSuites = suites;
       },
       (error) => console.log(error),

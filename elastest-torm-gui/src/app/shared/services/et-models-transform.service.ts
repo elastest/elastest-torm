@@ -10,6 +10,8 @@ import { Injectable } from '@angular/core';
 import { LogAnalyzerConfigModel } from '../../elastest-log-analyzer/log-analyzer-config-model';
 import { ETExternalModelsTransformService } from '../../elastest-etm/external/et-external-models-transform.service';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
+import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
+import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -95,15 +97,15 @@ export class ETModelsTransformServices {
   }
 
   /***** TJobExec *****/
-  public jsonToTJobExecsList(tjobExecs: any[]): TJobExecModel[] {
+  public jsonToTJobExecsList(tjobExecs: any[], withoutTestSuites: boolean = false): TJobExecModel[] {
     let tJobExecsList: TJobExecModel[] = [];
     for (let tjobExec of tjobExecs) {
-      tJobExecsList.push(this.jsonToTJobExecModel(tjobExec));
+      tJobExecsList.push(this.jsonToTJobExecModel(tjobExec, withoutTestSuites));
     }
     return tJobExecsList;
   }
 
-  public jsonToTJobExecModel(tjobExec: any): TJobExecModel {
+  public jsonToTJobExecModel(tjobExec: any, withoutTestSuites: boolean = false): TJobExecModel {
     let newTJobExec: TJobExecModel;
     newTJobExec = new TJobExecModel();
 
@@ -123,7 +125,11 @@ export class ETModelsTransformServices {
     } else {
       newTJobExec.tJob = new TJobModel();
     }
-    newTJobExec.testSuite = tjobExec.testSuite;
+
+    if (!withoutTestSuites) {
+      newTJobExec.testSuites = this.jsonToTestSuitesList(tjobExec.testSuites, true);
+    }
+
     newTJobExec.parameters = tjobExec.parameters;
     newTJobExec.resultMsg = tjobExec.resultMsg;
     newTJobExec.startDate = new Date(tjobExec.startDate);
@@ -132,6 +138,79 @@ export class ETModelsTransformServices {
     }
 
     return newTJobExec;
+  }
+
+  /***** TestSuite *****/
+  public jsonToTestSuitesList(testSuites: any[], fromTJobExec: boolean = false): TestSuiteModel[] {
+    let tJobExecsList: TestSuiteModel[] = [];
+    for (let testSuite of testSuites) {
+      tJobExecsList.push(this.jsonToTestSuiteModel(testSuite, false, fromTJobExec));
+    }
+    return tJobExecsList;
+  }
+
+  public jsonToTestSuiteModel(testSuite: any, withoutTestCases: boolean = false, fromTJobExec: boolean = false): TestSuiteModel {
+    let newTestSuite: TestSuiteModel;
+    newTestSuite = new TestSuiteModel();
+
+    newTestSuite.id = testSuite.id;
+    newTestSuite.name = testSuite.name;
+    newTestSuite.timeElapsed = testSuite.timeElapsed;
+    newTestSuite.errors = testSuite.errors;
+    newTestSuite.failures = testSuite.failures;
+    newTestSuite.skipped = testSuite.skipped;
+    newTestSuite.flakes = testSuite.flakes;
+    newTestSuite.numTests = testSuite.numTests;
+
+    if (!withoutTestCases) {
+      newTestSuite.testCases = this.jsonToTestCasesList(testSuite.testCases, true);
+    }
+
+    if (testSuite.tJobExec !== undefined && testSuite.tJobExec !== null) {
+      if (!fromTJobExec) {
+        newTestSuite.tJobExec = this.jsonToTJobExecModel(testSuite.tJobExec, true);
+      } else {
+        newTestSuite.tJobExec = testSuite.tJobExec;
+      }
+    } else {
+      if (!fromTJobExec) {
+        newTestSuite.tJobExec = new TJobExecModel();
+      } else {
+        newTestSuite.tJobExec = undefined;
+      }
+    }
+
+    return newTestSuite;
+  }
+
+  /***** TestCase *****/
+  public jsonToTestCasesList(testCases: any[], fromTestSuite: boolean = false): TestCaseModel[] {
+    let testCasesList: TestCaseModel[] = [];
+    for (let testCase of testCases) {
+      testCasesList.push(this.jsonToTestCaseModel(testCase, fromTestSuite));
+    }
+    return testCasesList;
+  }
+
+  public jsonToTestCaseModel(testCase: any, fromTestSuite: boolean = false): TestCaseModel {
+    let newTestCase: TestCaseModel;
+    newTestCase = new TestCaseModel();
+
+    newTestCase.id = testCase.id;
+    newTestCase.name = testCase.name;
+    newTestCase.time = testCase.time;
+    newTestCase.failureMessage = testCase.failureMessage;
+    newTestCase.failureType = testCase.failureType;
+    newTestCase.failureErrorLine = testCase.failureErrorLine;
+    newTestCase.failureDetail = testCase.failureDetail;
+
+    if (!fromTestSuite) {
+      newTestCase.testSuite = this.jsonToTestSuiteModel(testCase.testSuite, true);
+    } else {
+      newTestCase.testSuite = testCase.testSuite;
+    }
+
+    return newTestCase;
   }
 
   /***** Sut *****/

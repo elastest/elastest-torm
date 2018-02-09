@@ -1,5 +1,5 @@
-import { TestCaseModel } from '../models/test-case-model';
-import { TestSuiteModel } from '../models/test-suite-model';
+import { TLTestCaseModel } from '../models/test-case-model';
+import { TLTestSuiteModel } from '../models/test-suite-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
@@ -13,10 +13,10 @@ import { MdDialog } from '@angular/material';
   templateUrl: './test-suite.component.html',
   styleUrls: ['./test-suite.component.scss']
 })
-export class TestSuiteComponent implements OnInit {
+export class TLTestSuiteComponent implements OnInit {
 
-  testSuite: TestSuiteModel;
-  testCases: TestCaseModel[] = [];
+  testSuite: TLTestSuiteModel;
+  testCases: TLTestCaseModel[] = [];
   projectId: number;
 
   // TestCase Data
@@ -58,7 +58,7 @@ export class TestSuiteComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Suite');
-    this.testSuite = new TestSuiteModel();
+    this.testSuite = new TLTestSuiteModel();
     this.loadSuite();
   }
 
@@ -67,7 +67,7 @@ export class TestSuiteComponent implements OnInit {
       this.route.params.switchMap((params: Params) => {
         this.projectId = params['projectId'];
         return this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId'])
-      }).subscribe((suite: TestSuiteModel) => {
+      }).subscribe((suite: TLTestSuiteModel) => {
         this.testSuite = suite;
         this.titlesService.setTopTitle(this.testSuite.getRouteString());
         this.loadTestCases();
@@ -78,7 +78,7 @@ export class TestSuiteComponent implements OnInit {
   loadTestCases(): void {
     this.testLinkService.getSuiteTestCases(this.testSuite)
       .subscribe(
-      (testCases: TestCaseModel[]) => {
+      (testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
       },
       (error) => console.log(error),

@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -683,36 +685,56 @@ public class DockerService2 {
 
                 String result = IOUtils.toString(inputStream,
                         StandardCharsets.UTF_8);
-                result = repairXML(result);
-
-                TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(
-                        null);
-                InputStream byteArrayIs = new ByteArrayInputStream(
-                        result.getBytes());
-                testSuites = testSuiteXmlParser
-                        .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
-
+                testSuites = getTestSuitesByString(result);
             } catch (IOException e) {
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
             }
         }
         return testSuites;
     }
 
-    private String repairXML(String result) {
+    private List<ReportTestSuite> getTestSuitesByString(String result) {
+        List<ReportTestSuite> results = new ArrayList<>();
         String head = "<testsuite ";
         String foot = "</testsuite>";
 
-        String[] splitedResult = result.split(head);
-        String repaired = head + splitedResult[1];
+        List<String> splitedHeadResult = new ArrayList<String>(
+                Arrays.asList(result.split(head)));
+        if (splitedHeadResult != null) {
+            if (!result.startsWith(head)) { // delete non-deseable string
+                                            // (surefire-reports/)
+                splitedHeadResult.remove(0);
+            }
+            for (String piece : splitedHeadResult) {
+                List<String> splitedFootResult = new ArrayList<String>(
+                        Arrays.asList(piece.split(foot)));
+                String newResult = head + splitedFootResult.get(0) + foot;
 
-        splitedResult = repaired.split(foot);
-        repaired = splitedResult[0] + foot;
+                ReportTestSuite testSuite = null;
 
-        return repaired;
+                try {
+                    testSuite = this
+                            .testSuiteStringToReportTestSuite(newResult);
+                } catch (ParserConfigurationException | SAXException
+                        | IOException e) {
+                    logger.error("Error on parse testSuite {}", e);
+                }
+
+                if (testSuite != null) {
+                    results.add(testSuite);
+                }
+            }
+        }
+
+        return results;
     }
 
+    private ReportTestSuite testSuiteStringToReportTestSuite(
+            String testSuiteStr) throws UnsupportedEncodingException,
+            ParserConfigurationException, SAXException, IOException {
+        TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
+        InputStream byteArrayIs = new ByteArrayInputStream(
+                testSuiteStr.getBytes());
+        return testSuiteXmlParser
+                .parse(new InputStreamReader(byteArrayIs, "UTF-8")).get(0);
+    }
 }

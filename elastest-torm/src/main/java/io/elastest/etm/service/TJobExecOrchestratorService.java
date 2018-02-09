@@ -238,8 +238,15 @@ public class TJobExecOrchestratorService {
         String resultMsg = "";
         ResultEnum finishStatus = ResultEnum.SUCCESS;
 
-        if (tJobExec.getTestSuite() != null) {
-            finishStatus = tJobExec.getTestSuite().getFinalStatus();
+        if (tJobExec.getTestSuites() != null) {
+            for (TestSuite testSuite : tJobExec.getTestSuites()) {
+                if (testSuite.getFinalStatus() == ResultEnum.FAIL) { // Else
+                                                                     // always
+                                                                     // success
+                    finishStatus = testSuite.getFinalStatus();
+                    break;
+                }
+            }
 
         } else {
             if (dockerExec.getTestContainerExitCode() != 0) {
@@ -717,34 +724,37 @@ public class TJobExecOrchestratorService {
         TestSuite tSuite;
         TestCase tCase;
         if (testSuites != null && testSuites.size() > 0) {
-            ReportTestSuite reportTestSuite = testSuites.get(0);
-            tSuite = new TestSuite();
-            tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
-            tSuite.setErrors(reportTestSuite.getNumberOfErrors());
-            tSuite.setFailures(reportTestSuite.getNumberOfFailures());
-            tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
-            tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
-            tSuite.setName(reportTestSuite.getName());
-            tSuite.setnumTests(reportTestSuite.getNumberOfTests());
+            for (ReportTestSuite reportTestSuite : testSuites) {
+                tSuite = new TestSuite();
+                tSuite.setTimeElapsed(reportTestSuite.getTimeElapsed());
+                tSuite.setErrors(reportTestSuite.getNumberOfErrors());
+                tSuite.setFailures(reportTestSuite.getNumberOfFailures());
+                tSuite.setFlakes(reportTestSuite.getNumberOfFlakes());
+                tSuite.setSkipped(reportTestSuite.getNumberOfSkipped());
+                tSuite.setName(reportTestSuite.getName());
+                tSuite.setnumTests(reportTestSuite.getNumberOfTests());
 
-            tSuite = testSuiteRepo.save(tSuite);
+                tSuite = testSuiteRepo.save(tSuite);
 
-            for (ReportTestCase reportTestCase : reportTestSuite
-                    .getTestCases()) {
-                tCase = new TestCase();
-                tCase.setName(reportTestCase.getName());
-                tCase.setTime(reportTestCase.getTime());
-                tCase.setFailureDetail(reportTestCase.getFailureDetail());
-                tCase.setFailureErrorLine(reportTestCase.getFailureErrorLine());
-                tCase.setFailureMessage(reportTestCase.getFailureMessage());
-                tCase.setFailureType(reportTestCase.getFailureType());
-                tCase.setTestSuite(tSuite);
+                for (ReportTestCase reportTestCase : reportTestSuite
+                        .getTestCases()) {
+                    tCase = new TestCase();
+                    tCase.setName(reportTestCase.getName());
+                    tCase.setTime(reportTestCase.getTime());
+                    tCase.setFailureDetail(reportTestCase.getFailureDetail());
+                    tCase.setFailureErrorLine(
+                            reportTestCase.getFailureErrorLine());
+                    tCase.setFailureMessage(reportTestCase.getFailureMessage());
+                    tCase.setFailureType(reportTestCase.getFailureType());
+                    tCase.setTestSuite(tSuite);
 
-                testCaseRepo.save(tCase);
+                    testCaseRepo.save(tCase);
+                }
+
+                tSuite.settJobExec(tJobExec);
+                testSuiteRepo.save(tSuite);
+                tJobExec.getTestSuites().add(tSuite);
             }
-
-            testSuiteRepo.save(tSuite);
-            tJobExec.setTestSuite(tSuite);
         }
     }
 

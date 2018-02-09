@@ -3,6 +3,7 @@ import { SutModel } from '../sut/sut-model';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
+import { TestSuiteModel } from '../test-suite/test-suite-model';
 
 export class TJobExecModel extends AbstractTJobExecModel {
   id: number;
@@ -12,7 +13,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
   sutExec: SutExecModel;
   monitoringIndex: string;
   tJob: TJobModel;
-  testSuite: any;
+  testSuites: TestSuiteModel[];
   parameters: any[];
   resultMsg: string;
   startDate: Date;
@@ -27,7 +28,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
     this.sutExec = undefined;
     this.monitoringIndex = '';
     this.tJob = undefined;
-    this.testSuite = undefined;
+    this.testSuites = [];
     this.parameters = [];
     this.resultMsg = '';
     this.startDate = undefined;

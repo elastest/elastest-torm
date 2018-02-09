@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, Optional, ViewChild, ElementRef } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
-import { TestCaseModel, ExecStatusValue } from '../../models/test-case-model';
+import { TLTestCaseModel, ExecStatusValue } from '../../models/test-case-model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TestLinkService } from '../../testlink.service';
@@ -26,7 +26,7 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
     { name: 'executionType', label: 'Exec Type' },
   ];
 
-  testCase: TestCaseModel;
+  testCase: TLTestCaseModel;
   build: BuildModel;
 
   tcExec: TestCaseExecutionModel;

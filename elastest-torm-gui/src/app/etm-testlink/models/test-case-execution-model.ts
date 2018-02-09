@@ -1,4 +1,4 @@
-import { ExecStatusValue, TestCaseModel, ExecTypeValue } from './test-case-model';
+import { ExecStatusValue, TLTestCaseModel, ExecTypeValue } from './test-case-model';
 import { BuildModel } from './build-model';
 
 export class TestCaseExecutionModel {

@@ -69,58 +69,12 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuite !== undefined && tJobExec.testSuite !== null && tJobExec.testSuite.testCases != undefined && tJobExec.testSuite.testCases != null">
-    <div flex-gt-sm="100">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                Test Suite
-            </md-card-title>
-            <md-divider></md-divider>
-            <md-card-content>
-                <div layout="row">
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Name</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.name}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Nº Test</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.numTests}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Errors</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.errors}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Failures</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.failures}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Skipped</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.skipped}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Flakes</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.flakes}}</h4>
-                    </span>
-                    <span flex-gt-xs="25">
-                        <md-card-subtitle>Time Elapsed</md-card-subtitle>
-                        <h4>{{tJobExec.testSuite.timeElapsed}}</h4>
-                    </span>
-                </div>
-                <div layout="row" class="push-top">
-                    <md-card-subtitle>Test Cases</md-card-subtitle>
-                </div>
-
-                <td-data-table #testCasesTable *ngIf="tJobExec.testSuite.testCases.length > 0" class="scroll_table" [data]="tJobExec.testSuite.testCases"
-                    [columns]="testCaseColumns" [selectable]="false" [clickable]="false" [sortable]="false">
-                </td-data-table>
-            </md-card-content>
-        </md-card>
-    </div>
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
+    <etm-test-suites-view flex="100" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
 </div>
 
 <!-- logs & Metrics -->
-<etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+<etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>
 
 <!-- Execution files -->
-<etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager>
+<etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>

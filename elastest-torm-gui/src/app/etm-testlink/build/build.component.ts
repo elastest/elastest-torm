@@ -4,7 +4,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
-import { TestCaseModel } from '../models/test-case-model';
+import { TLTestCaseModel } from '../models/test-case-model';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import { ExecuteCaseModalComponent } from './execute-case-modal/execute-case-modal.component';
 import { ServiceType } from '../../elastest-etm/external/external-project/external-project-model';
@@ -17,7 +17,7 @@ import { ServiceType } from '../../elastest-etm/external/external-project/extern
 export class BuildComponent implements OnInit {
 
   build: BuildModel;
-  testCases: TestCaseModel[] = [];
+  testCases: TLTestCaseModel[] = [];
   testProjectId: number;
 
   loadingCases: boolean = true;
@@ -84,7 +84,7 @@ export class BuildComponent implements OnInit {
   loadTestCases(): void {
     this.testLinkService.getBuildTestCases(this.build)
       .subscribe(
-      (testCases: TestCaseModel[]) => {
+      (testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
         this.loadingCases = false;
       },
@@ -92,16 +92,16 @@ export class BuildComponent implements OnInit {
     );
   }
 
-  execTestCase(testCase: TestCaseModel): void {
+  execTestCase(testCase: TLTestCaseModel): void {
     this.openSelectExecutions(testCase);
   }
 
-  execTestCaseWithElastest(testCase: TestCaseModel): void {
+  execTestCaseWithElastest(testCase: TLTestCaseModel): void {
     let type: ServiceType = 'TESTLINK';
     this.router.navigate(['/external/execute'], { queryParams: { serviceType: type, testCaseId: testCase.id, buildId: this.build.id } });
   }
 
-  public openSelectExecutions(testCase: TestCaseModel): void {
+  public openSelectExecutions(testCase: TLTestCaseModel): void {
     let data: any = {
       testCase: testCase,
       build: this.build,
