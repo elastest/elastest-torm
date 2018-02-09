@@ -121,17 +121,6 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.browser = json.recordedSession.browser;
           testModel.version = json.recordedSession.version;
           testModel.creationTime = json.recordedSession.creationTime;
-
-          if (testModel.browser == "operablink") {
-            testModel.browser = "opera";
-          }
-          if (testModel.version == "") {
-            testModel.version = "latest";
-            if (this.browserVersions && this.browserVersions[testModel.browser]) {
-              testModel.version = this.browserVersions[testModel.browser][0] + " (latest)";    
-            }
-          }
-
           this.recordings.push(testModel);
           this.recordings = Array.from(this.recordings);
         }
@@ -254,10 +243,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   selectBrowser(browser: string) {
     this.selectedBrowser = browser;
     Object.keys(this.selectedVersion).forEach(key => {
-        if (key != browser) {
-          this.selectedVersion[key] = '';
-        }
+      if (key != browser) {
+        this.selectedVersion[key] = '';
       }
+    }
     );
   }
 
