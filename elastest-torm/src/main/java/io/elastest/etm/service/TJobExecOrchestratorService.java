@@ -712,7 +712,7 @@ public class TJobExecOrchestratorService {
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
             TJobExecution tJobExec) {
-        System.out.println("Saving test results " + tJobExec.getId());
+        logger.info("Saving test results {} ", tJobExec.getId());
 
         TestSuite tSuite;
         TestCase tCase;
