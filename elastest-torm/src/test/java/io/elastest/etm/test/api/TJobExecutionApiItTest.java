@@ -41,119 +41,127 @@ import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TJobExecutionApiItTest extends EtmApiItTest {
 
-	private static final Logger log = LoggerFactory.getLogger(TJobExecutionApiItTest.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(TJobExecutionApiItTest.class);
 
-	long projectId;
+    long projectId;
 
-	@BeforeEach
-	void setup() {
-		log.info("App started on port {}", serverPort);
-		projectId = createProject("Test_Project").getId();
-	}
+    @BeforeEach
+    void setup() {
+        log.info("App started on port {}", serverPort);
+        projectId = createProject("Test_Project").getId();
+    }
 
-	@AfterEach
-	void reset() {
-		deleteProject(projectId);
-	}
+    @AfterEach
+    void reset() {
+        deleteProject(projectId);
+    }
 
-	@Test
-	@Disabled
-	public void testExecuteTJobWithSut() throws InterruptedException, ExecutionException, TimeoutException {
+    @Test
+    @Disabled
+    public void testExecuteTJobWithSut()
+            throws InterruptedException, ExecutionException, TimeoutException {
 
-		testExecuteTJob(true);
-	}
+        testExecuteTJob(true);
+    }
 
-	@Test
-	public void testExecuteTJobWithoutSut() throws InterruptedException, ExecutionException, TimeoutException {
+    @Test
+    public void testExecuteTJobWithoutSut()
+            throws InterruptedException, ExecutionException, TimeoutException {
 
-		testExecuteTJob(false);
-	}
+        testExecuteTJob(false);
+    }
 
-	private void testExecuteTJob(boolean withSut)
-			throws InterruptedException, ExecutionException, TimeoutException, MultipleFailuresError {
+    private void testExecuteTJob(boolean withSut) throws InterruptedException,
+            ExecutionException, TimeoutException, MultipleFailuresError {
 
-		log.info("Start the test testExecuteTJob " + (withSut ? "with" : "without") + " SuT");
+        log.info("Start the test testExecuteTJob "
+                + (withSut ? "with" : "without") + " SuT");
 
-		TJob tJob;
+        TJob tJob;
 
-		if (withSut) {
-			Long sutId = createSut(projectId).getId();
-			tJob = createTJob(projectId, sutId);
-		} else {
-			tJob = createTJob(projectId);
-		}
+        if (withSut) {
+            Long sutId = createSut(projectId).getId();
+            tJob = createTJob(projectId, sutId);
+        } else {
+            tJob = createTJob(projectId);
+        }
 
-		StompSession stompSession = connectToRabbitMQ(serverPort);
+        StompSession stompSession = connectToRabbitMQ(serverPort);
 
-		log.info("POST /api/tjob/{tjobId}/exec");
+        log.info("POST /api/tjob/{tjobId}/exec");
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-		String body = "{\"tJobParams\" : [{\"Param1\":\"NewValue1\"}], \"sutParams\" : [{\"Param1\":\"NewValue1\"}]}";
-		HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        String body = "{\"tJobParams\" : [{\"Param1\":\"NewValue1\"}], \"sutParams\" : [{\"Param1\":\"NewValue1\"}]}";
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
-		Map<String, Object> urlParams = new HashMap<>();
-		urlParams.put("tjobId", tJob.getId());
+        Map<String, Object> urlParams = new HashMap<>();
+        urlParams.put("tjobId", tJob.getId());
 
-		ResponseEntity<TJobExecution> response = httpClient.postForEntity("/api/tjob/{tjobId}/exec", entity,
-				TJobExecution.class, urlParams);
+        ResponseEntity<TJobExecution> response = httpClient.postForEntity(
+                "/api/tjob/{tjobId}/exec", entity, TJobExecution.class,
+                urlParams);
 
-		TJobExecution exec = response.getBody();
+        TJobExecution exec = response.getBody();
 
-		log.info("TJobExecution creation response: " + response);
+        log.info("TJobExecution creation response: " + response);
 
-		if (withSut) {
+        if (withSut) {
 
-			String queueToSuscribe = "/topic/" + "sut.default_log." + exec.getId() + ".log";
-			log.info("Sut log queue '" + queueToSuscribe + "'");
+            String queueToSuscribe = "/topic/" + "sut.default_log."
+                    + exec.getId() + ".log";
+            log.info("Sut log queue '" + queueToSuscribe + "'");
 
-			WaitForMessagesHandler handler = new WaitForMessagesHandler();
-			stompSession.subscribe(queueToSuscribe, handler);
+            WaitForMessagesHandler handler = new WaitForMessagesHandler();
+            stompSession.subscribe(queueToSuscribe, handler);
 
-			handler.waitForCompletion(5, TimeUnit.SECONDS);
+            handler.waitForCompletion(5, TimeUnit.SECONDS);
 
-			log.info("Sut log queue received a message");
-		}
+            log.info("Sut log queue received a message");
+        }
 
-		String queueToSuscribe = "/topic/" + "test.default_log." + exec.getId() + ".log";
-		log.info("TJob log queue '" + queueToSuscribe + "'");
+        String queueToSuscribe = "/topic/" + "test.default_log." + exec.getId()
+                + ".log";
+        log.info("TJob log queue '" + queueToSuscribe + "'");
 
-		WaitForMessagesHandler handler = new WaitForMessagesHandler(
-				msg -> msg.contains("BUILD SUCCESS") || msg.contains("BUILD FAILURE"));
+        WaitForMessagesHandler handler = new WaitForMessagesHandler(
+                msg -> msg.contains("BUILD SUCCESS")
+                        || msg.contains("BUILD FAILURE"));
 
-		stompSession.subscribe(queueToSuscribe, handler);
-		handler.waitForCompletion(180, TimeUnit.SECONDS);
+        stompSession.subscribe(queueToSuscribe, handler);
+        handler.waitForCompletion(180, TimeUnit.SECONDS);
 
-		assertAll("Validating TJobExecution Properties", () -> assertNotNull(response.getBody()),
-				() -> assertNotNull(response.getBody().getId()),
-				() -> assertTrue(response.getBody().getTjob().getId().equals(urlParams.get("tjobId"))));
+        assertAll("Validating TJobExecution Properties",
+                () -> assertNotNull(response.getBody()),
+                () -> assertNotNull(response.getBody().getId()),
+                () -> assertTrue(response.getBody().getTjob().getId()
+                        .equals(urlParams.get("tjobId"))));
 
-		while (true) {
-			exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
-			log.info("TJobExecution: " + exec);
-			if (exec.getResult() != ResultEnum.IN_PROGRESS) {
+        while (true) {
+            exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
+            log.info("TJobExecution: " + exec);
+            if (exec.getResult() != ResultEnum.IN_PROGRESS) {
 
-				log.info("Test results:" + exec.getTestSuite());
+                log.info("Test results:" + exec.getTestSuites());
 
-				break;
-			}
-			sleep(500);
-		}
+                break;
+            }
+            sleep(500);
+        }
 
-		deleteTJobExecution(exec.getId(), tJob.getId());
-		deleteTJob(tJob.getId());
-		log.info("Finished.");
-	}
+        deleteTJobExecution(exec.getId(), tJob.getId());
+        deleteTJob(tJob.getId());
+        log.info("Finished.");
+    }
 
-	
-
-	private void sleep(int waitTime) {
-		try {
-			Thread.sleep(waitTime);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-	}
+    private void sleep(int waitTime) {
+        try {
+            Thread.sleep(waitTime);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
 }
