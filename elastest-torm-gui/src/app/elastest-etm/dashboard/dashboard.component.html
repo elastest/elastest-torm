@@ -35,6 +35,10 @@
   </div>
 </div>
 
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec && tJobExec.finished() && tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
+  <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+</div>
+
 
 <!-- logs & Metrics -->
 <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
@@ -51,4 +55,4 @@
 </ng-template>
 
 <!-- Execution files -->
-<etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>
+<etm-files-manager *ngIf="tJobExec && tJobExec.finished()" [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>

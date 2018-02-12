@@ -1,4 +1,5 @@
 import { TestSuiteModel } from '../test-suite/test-suite-model';
+import { FileModel } from '../files-manager/file-model';
 
 export class TestCaseModel {
   id: number;
@@ -10,10 +11,15 @@ export class TestCaseModel {
   failureDetail: string;
   testSuite: TestSuiteModel;
 
+  // Only GUI Attr
+  files: FileModel[];
+
   constructor() {
     this.id = 0;
     this.name = '';
     this.testSuite = undefined;
+
+    this.files = [];
   }
 
   public getResultIcon(): any {

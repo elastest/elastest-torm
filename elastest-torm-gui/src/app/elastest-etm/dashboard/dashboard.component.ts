@@ -43,24 +43,23 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   disableStopBtn: boolean = false;
 
-  constructor(private titlesService: TitlesService,
+  constructor(
+    private titlesService: TitlesService,
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private elastestRabbitmqService: ElastestRabbitmqService,
-    private route: ActivatedRoute, private router: Router,
+    private route: ActivatedRoute,
+    private router: Router,
     private elastestESService: ElastestESService,
     private esmService: EsmService,
     private configurationService: ConfigurationService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.subscribe(
-        (params: Params) => {
-          this.tJobId = params.tJobId;
-          this.tJobExecId = params.tJobExecId;
-        }
-      );
+      this.route.params.subscribe((params: Params) => {
+        this.tJobId = params.tJobId;
+        this.tJobExecId = params.tJobExecId;
+      });
     }
-
   }
 
   ngOnInit() {
@@ -72,44 +71,41 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   loadTJobExec(): void {
-    this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-      .subscribe((tJobExec: TJobExecModel) => {
-        this.tJobExec = tJobExec;
-        this.titlesService.setTopTitle(tJobExec.getRouteString());
-        this.withSut = this.tJobExec.tJob.hasSut();
+    this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
+      this.tJobExec = tJobExec;
+      this.titlesService.setTopTitle(tJobExec.getRouteString());
+      this.withSut = this.tJobExec.tJob.hasSut();
 
-        this.tJobService.getTJob(this.tJobExec.tJob.id.toString())
-          .subscribe(
-          (tJob: TJobModel) => {
-            this.tJob = tJob;
-            if (this.tJobExec.finished()) {
-              this.navigateToResultPage();
-            } else {
-              this.checkResultStatus();
-              this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
-              if (tJobExec) {
-                setTimeout(() => {
-                  this.getSupportServicesInstances();
-                }, 0);
-              }
-              this.logsAndMetrics.initView(tJob, this.tJobExec);
-              if (!this.tJobExec.starting()) { // If it's already started, get last trace(s)
-                this.logsAndMetrics.loadLastTraces();
-              }
-              this.elastestRabbitmqService.subscribeToDefaultTopics(this.tJobExec);
-            }
-          });
+      this.tJobService.getTJob(this.tJobExec.tJob.id.toString()).subscribe((tJob: TJobModel) => {
+        this.tJob = tJob;
+        if (this.tJobExec.finished()) {
+          this.navigateToResultPage();
+        } else {
+          this.checkResultStatus();
+          this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
+          if (tJobExec) {
+            setTimeout(() => {
+              this.getSupportServicesInstances();
+            }, 0);
+          }
+          this.logsAndMetrics.initView(tJob, this.tJobExec);
+          if (!this.tJobExec.starting()) {
+            // If it's already started, get last trace(s)
+            this.logsAndMetrics.loadLastTraces();
+          }
+          this.elastestRabbitmqService.subscribeToDefaultTopics(this.tJobExec);
+        }
       });
+    });
   }
 
-
   navigateToResultPage(): void {
-    this.router.navigate(
-      ['/projects', this.tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
+    this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId]);
   }
 
   getSupportServicesInstances(): void {
-    this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec)
+    this.esmService
+      .getSupportServicesInstancesByTJobExec(this.tJobExec)
       .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
         if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
           this.serviceInstances = [...serviceInstances];
@@ -126,41 +122,38 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   checkResultStatus(): void {
-    this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
-      (data) => {
-        this.tJobExec.result = data.result;
-        this.tJobExec.resultMsg = data.msg;
-        if (this.tJobExec.finished()) {
-          this.statusIcon = this.tJobExec.getResultIcon();
-          console.log('TJob Execution Finished with status ' + this.tJobExec.result);
-        } else {
-          setTimeout(() => {
-            this.checkResultStatus();
-          }, 2000);
-        }
+    this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe((data) => {
+      this.tJobExec.result = data.result;
+      this.tJobExec.resultMsg = data.msg;
+      if (this.tJobExec.finished()) {
+        this.tJobExecService
+          .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+          .subscribe((finishedTJobExec: TJobExecModel) => {
+            this.tJobExec = finishedTJobExec;
+            this.statusIcon = this.tJobExec.getResultIcon();
+          });
+        console.log('TJob Execution Finished with status ' + this.tJobExec.result);
+      } else {
+        setTimeout(() => {
+          this.checkResultStatus();
+        }, 2000);
       }
-    )
+    });
   }
 
   viewTJob(): void {
-    this.router.navigate(
-      ['/projects', this.tJob.project.id, 'tjob', this.tJobId]
-    );
+    this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJobId]);
   }
 
   stopExec(): void {
     this.disableStopBtn = true;
-    this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec)
-      .subscribe(
-      (tJobExec: TJobExecModel) => {
-        this.tJobExec = tJobExec;
-        let msg: string = 'The execution has been stopped';
-        if (!this.tJobExec.stopped()) {
-          msg = 'The execution has finished before stopping it';
-        }
-        this.elastestESService.popupService.openSnackBar(msg);
-      },
-      (error) => this.disableStopBtn = false
-      );
+    this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec).subscribe((tJobExec: TJobExecModel) => {
+      this.tJobExec = tJobExec;
+      let msg: string = 'The execution has been stopped';
+      if (!this.tJobExec.stopped()) {
+        msg = 'The execution has finished before stopping it';
+      }
+      this.elastestESService.popupService.openSnackBar(msg);
+    }, (error) => (this.disableStopBtn = false));
   }
 }

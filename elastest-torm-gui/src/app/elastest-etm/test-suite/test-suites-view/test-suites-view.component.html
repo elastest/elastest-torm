@@ -57,11 +57,28 @@
                 </div>
               </ng-template>
 
+              <!-- Result -->
               <ng-template tdDataTableTemplate="result" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="resultColumn">
                   <md-icon [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
                 </div>
               </ng-template>
+
+              <!-- Files -->
+              <ng-template tdDataTableTemplate="files" let-value="value" let-row="row" let-column="column">
+                <div layout="column" class="filesColumn">
+                  <ol type="1" class="pad-left-md">
+                    <li *ngFor="let file of row.files">
+                      <a md-button [attr.href]="filesUrlPrefix + file.url" class="iconBtn-lg" target="_blank">
+                        {{file.name}}
+                        <md-icon>open_in_new</md-icon>
+                      </a>
+                    </li>
+                  </ol>
+                </div>
+              </ng-template>
+
+              <!-- Log Analyzer -->
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="logAnalyzerColumn">
                   <button md-button (click)="viewInLogAnalyzer(row)" [disabled]="!tJobExec" class="onlyIconBtn" title="View in Log Analyzer">
