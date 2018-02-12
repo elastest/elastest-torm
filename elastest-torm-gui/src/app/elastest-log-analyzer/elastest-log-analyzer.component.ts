@@ -625,20 +625,28 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
                     this.disableBtns = false;
                   },
                 );
+              } else {
+                this.startBehaviourOnNoLogs();
               }
             },
             (error) => {
-              this.disableBtns = false;
+              this.startBehaviourOnNoLogs();
             },
           );
+        } else {
+          this.startBehaviourOnNoLogs();
         }
       },
       (error) => {
         this.disableBtns = false;
       },
     );
-
     // TODO search start MSG with  to make searchafter...
+  }
+
+  startBehaviourOnNoLogs(): void {
+    this.disableBtns = false;
+    this.popup("There aren't logs to load", 'OK');
   }
 
   searchTraceByGivenMsg(msg: string): Observable<any> {
