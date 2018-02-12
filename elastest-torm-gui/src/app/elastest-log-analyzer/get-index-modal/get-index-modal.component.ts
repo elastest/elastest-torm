@@ -13,9 +13,8 @@ import { dateToInputLiteral } from '../utils/Utils';
 @Component({
   selector: 'get-index-modal',
   templateUrl: './get-index-modal.component.html',
-  styleUrls: ['./get-index-modal.component.scss']
+  styleUrls: ['./get-index-modal.component.scss'],
 })
-
 export class GetIndexModalComponent implements OnInit {
   public projects: ProjectModel[] = [];
   public selectedProject: ProjectModel;
@@ -25,9 +24,9 @@ export class GetIndexModalComponent implements OnInit {
 
   public tJobExecs: TJobExecModel[] = [];
   public tJobExecsObj: {
-    tJobExec: TJobExecModel,
-    selected: boolean,
-  }
+    tJobExec: TJobExecModel;
+    selected: boolean;
+  };
   public selectedTJobExecs: Map<number, TJobExecModel> = new Map<number, TJobExecModel>();
 
   public selectAll: boolean = false;
@@ -44,9 +43,13 @@ export class GetIndexModalComponent implements OnInit {
   ];
 
   constructor(
-    private projectService: ProjectService, private tJobService: TJobService, private tJobExecService: TJobExecService,
+    private projectService: ProjectService,
+    private tJobService: TJobService,
+    private tJobExecService: TJobExecService,
     private dialogRef: MdDialogRef<GetIndexModalComponent>,
-    @Optional() @Inject(MD_DIALOG_DATA) public fromExec: any,
+    @Optional()
+    @Inject(MD_DIALOG_DATA)
+    public fromExec: any,
   ) {
     if (fromExec) {
       this.loadByGivenExec();
@@ -55,14 +58,12 @@ export class GetIndexModalComponent implements OnInit {
     }
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   loadProjects(): void {
-    this.projectService.getProjects()
-      .subscribe(
-      (projectsList: ProjectModel[]) => this.projects = projectsList,
-      (error) => this.dialogRef.close(),
-    );
+    this.projectService
+      .getProjects()
+      .subscribe((projectsList: ProjectModel[]) => (this.projects = projectsList), (error) => this.dialogRef.close());
   }
 
   loadTJobs(project: ProjectModel): void {
@@ -71,13 +72,10 @@ export class GetIndexModalComponent implements OnInit {
 
   loadTJobExecs(tJob: TJobModel): void {
     this.loadingExecs = true;
-    this.tJobExecService.getTJobsExecutions(tJob).subscribe(
-      (execs: TJobExecModel[]) => {
-        this.tJobExecs = execs.reverse();
-        this.loadingExecs = false;
-      },
-      (error: Error) => this.loadingExecs = false,
-    );
+    this.tJobExecService.getTJobsExecutions(tJob).subscribe((execs: TJobExecModel[]) => {
+      this.tJobExecs = execs.reverse();
+      this.loadingExecs = false;
+    }, (error: Error) => (this.loadingExecs = false));
   }
 
   initDefaultSelection(): void {
@@ -103,12 +101,10 @@ export class GetIndexModalComponent implements OnInit {
     } else {
       this.selectedTJobExecs.delete(key);
     }
-
   }
 
   loadByGivenExec(): void {
-    this.tJobExecService.getTJobExecutionByTJobId(this.fromExec.tJob, this.fromExec.exec)
-      .subscribe(
+    this.tJobExecService.getTJobExecutionByTJobId(this.fromExec.tJob, this.fromExec.exec).subscribe(
       (tJobExec: TJobExecModel) => {
         this.checkTJobExec(true, tJobExec);
         this.saveIndices();
@@ -132,9 +128,9 @@ export class GetIndexModalComponent implements OnInit {
       auxToDate = maxDate(auxToDate, tJobExec.endDate);
     });
 
-    auxFromDate === fromDate ? fromDate = undefined : fromDate = auxFromDate;
+    auxFromDate === fromDate ? (fromDate = undefined) : (fromDate = auxFromDate);
 
-    auxToDate === toDate ? toDate = undefined : toDate = auxToDate;
+    auxToDate === toDate ? (toDate = undefined) : (toDate = auxToDate);
 
     let response: any = { selectedIndices: selectedIndices };
     response.fromDate = fromDate;

@@ -70,7 +70,7 @@
 </div>
 
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
-    <etm-test-suites-view flex="100" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+    <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
 </div>
 
 <!-- logs & Metrics -->

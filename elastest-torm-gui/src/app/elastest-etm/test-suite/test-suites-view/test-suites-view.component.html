@@ -51,6 +51,19 @@
 
             <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases" [columns]="testCaseColumns"
               [selectable]="false" [clickable]="false" [sortable]="false">
+              <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+                <div *ngIf="column.name !== 'logAnalyzer'" class="hover-pointer">
+                  {{value}}
+                </div>
+              </ng-template>
+
+              <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
+                <div layout="row" class="logAnalyzerColumn">
+                  <button md-button (click)="viewInLogAnalyzer(row)" [disabled]="!tJobExec" class="onlyIconBtn" title="View in Log Analyzer">
+                    <md-icon>library_books</md-icon>
+                  </button>
+                </div>
+              </ng-template>
             </td-data-table>
           </div>
 
