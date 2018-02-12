@@ -14,7 +14,7 @@ export class TestSuitesViewComponent implements OnInit {
   @Input() tJobExec: TJobExecModel;
 
   testCaseColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'result', label: 'Result' },
     { name: 'name', label: 'Name' },
     { name: 'time', label: 'Time' },
     { name: 'failureMessage', label: 'Failure Msg' },

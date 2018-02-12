@@ -57,6 +57,11 @@
                 </div>
               </ng-template>
 
+              <ng-template tdDataTableTemplate="result" let-value="value" let-row="row" let-column="column">
+                <div layout="row" class="resultColumn">
+                  <md-icon [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                </div>
+              </ng-template>
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="logAnalyzerColumn">
                   <button md-button (click)="viewInLogAnalyzer(row)" [disabled]="!tJobExec" class="onlyIconBtn" title="View in Log Analyzer">
