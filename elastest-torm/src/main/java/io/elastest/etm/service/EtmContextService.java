@@ -167,6 +167,9 @@ public class EtmContextService {
         monEnvs.put("ET_MON_LSBEATS_PORT", etEtmLsbeatsPort);
         monEnvs.put("ET_MON_LSTCP_HOST", etEtmLstcpHost);
         monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
+        monEnvs.put("ET_MON_CONTAINER_NAME", "sut_" + tJobExec.getId());
+        monEnvs.put("ET_MON_LOG_TAG",
+                "sut_" + tJobExec.getId() + "_exec");
 
         if (tJobExec != null) {
             monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
