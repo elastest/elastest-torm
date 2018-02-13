@@ -453,6 +453,11 @@ public class TJobExecOrchestratorService {
                 logger.info(resultMsg);
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+                
+                if(sut.getMainService() != null){
+                    String containerName = this.getCurrentExecSutMainServiceName(sut,dockerExec);
+                    sutIP = dockerService.getContainerIpWithDockerExecution(containerName, dockerExec);
+                }
 
                 // Wait for SuT started
                 dockerService.checkSut(dockerExec, sutIP, sutPort);
@@ -478,6 +483,10 @@ public class TJobExecOrchestratorService {
             throw e;
         }
         return sutExec;
+    }
+    
+    public String getCurrentExecSutMainServiceName(SutSpecification sut, DockerExecution dockerExec){
+        return dockerService.getSutPrefix(dockerExec,true) + "_"+ sut.getMainService() + "_1";
     }
 
     public void startSutByDockerImage(DockerExecution dockerExec)

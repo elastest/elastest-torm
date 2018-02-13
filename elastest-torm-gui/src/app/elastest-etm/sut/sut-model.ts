@@ -80,5 +80,8 @@ export class SutModel {
 
   changeSutInNewContainerValue($event): void {
     this.sutInNewContainer = $event.checked;
+    if (this.isManaged() && !this.isByDockerCompose() && !this.sutInNewContainer) {
+      this.mainService = '';
+    }
   }
 }

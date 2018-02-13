@@ -32,8 +32,7 @@ public class FilesService {
     public static final Logger logger = LoggerFactory
             .getLogger(FilesService.class);
 
-    public List<File> getFilesFromFolder(String path)
-            throws IOException {
+    public List<File> getFilesFromFolder(String path) throws IOException {
         logger.info("Get files inside the folder: {}", path);
         List<File> files = new ArrayList<>();
         try {
@@ -100,11 +99,16 @@ public class FilesService {
             Long tJobExecId = tJobExec.getId();
             // etmcontextService.getMonitoringEnvVars
             String fileSeparator = "/";
-            path = sharedFolder + fileSeparator + ElastestConstants.TJOBS_FOLDER
-                    + fileSeparator + ElastestConstants.TJOB_FOLDER_PREFIX
-                    + tJobId + fileSeparator
-                    + ElastestConstants.TJOB_EXEC_FOLDER_PREFIX + tJobExecId
-                    + fileSeparator + folder + fileSeparator;
+            String parsedSharedFolder = sharedFolder;
+            if (parsedSharedFolder.endsWith(fileSeparator)) {
+                parsedSharedFolder = parsedSharedFolder.substring(0,
+                        parsedSharedFolder.length() - 1);
+            }
+            path = parsedSharedFolder + fileSeparator
+                    + ElastestConstants.TJOBS_FOLDER + fileSeparator
+                    + ElastestConstants.TJOB_FOLDER_PREFIX + tJobId
+                    + fileSeparator + ElastestConstants.TJOB_EXEC_FOLDER_PREFIX
+                    + tJobExecId + fileSeparator + folder + fileSeparator;
         }
 
         return path;

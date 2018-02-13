@@ -81,7 +81,7 @@ public class DockerService2 {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
-    
+
     @Autowired
     public FilesService filesService;
 
@@ -237,8 +237,9 @@ public class DockerService2 {
         if (sutHost != null) {
             envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
         }
-        
-        String sutPath = filesService.buildFilesPath(tJobExec, ElastestConstants.SUT_FOLDER);
+
+        String sutPath = filesService.buildFilesPath(tJobExec,
+                ElastestConstants.SUT_FOLDER);
         filesService.createExecFilesFolder(sutPath);
 
         // Commands (optional)
@@ -246,7 +247,7 @@ public class DockerService2 {
         if (commands != null && !commands.isEmpty()) {
             cmdList.add("sh");
             cmdList.add("-c");
-            cmdList.add("cd " + sutPath);
+            commands = "cd " + sutPath + ";" + commands;
             cmdList.add(commands);
         }
 
@@ -279,8 +280,8 @@ public class DockerService2 {
                 .withCmd(cmdList).withNetworkMode(dockerExec.getNetwork());
 
         Volume sharedDataVolume = null;
-        if (dockerExec.gettJobexec().getTjob().getSut() != null
-                && dockerExec.gettJobexec().getTjob().getSut().isSutInNewContainer()) {
+        if (dockerExec.gettJobexec().getTjob().getSut() != null && dockerExec
+                .gettJobexec().getTjob().getSut().isSutInNewContainer()) {
             sharedDataVolume = new Volume(sharedFolder);
         }
 
@@ -383,8 +384,18 @@ public class DockerService2 {
     /***********************/
 
     public String getSutName(DockerExecution dockerExec) {
-        return "sut_" + dockerExec.getExecutionId() + (dockerExec.gettJobexec()
+        return this.getSutPrefix(dockerExec, false) + (dockerExec.gettJobexec()
                 .getTjob().getSut().isSutInNewContainer() ? "_Aux" : "");
+    }
+
+    public String getSutPrefix(DockerExecution dockerExec,
+            boolean isDockerCompose) {
+        if (!isDockerCompose) {
+            return "sut_" + dockerExec.getExecutionId();
+        } else {
+            return "sut" + dockerExec.getExecutionId();
+        }
+
     }
 
     public void createSutContainer(DockerExecution dockerExec)
