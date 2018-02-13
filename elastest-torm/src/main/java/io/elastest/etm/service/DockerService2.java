@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
@@ -75,6 +76,9 @@ public class DockerService2 {
 
     @Value("${et.socat.image}")
     public String etSocatImage;
+
+    @Value("${et.shared.folder}")
+    private String sharedFolder;
 
     @Autowired
     public UtilTools utilTools;
@@ -256,17 +260,32 @@ public class DockerService2 {
                     + " image. Probably because the user has stopped the execution");
             throw new TJobStoppedException();
         }
-        
+
         // Create docker sock volume
-        Volume dockerSock = new Volume("/var/run/docker.sock");
+        Volume dockerSockVolume = new Volume(dockerSock);
+
+        CreateContainerCmd containerCmd = dockerExec.getDockerClient()
+                .createContainerCmd(image).withEnv(envList)
+                .withLogConfig(logConfig).withName(containerName)
+                .withCmd(cmdList).withNetworkMode(dockerExec.getNetwork());
+
+        Volume sharedDataVolume = null;
+        if (dockerExec.gettJobexec().getTjob().getSut().isSutInNewContainer()) {
+            sharedDataVolume = new Volume(sharedFolder);
+        }
+
+        if (sharedDataVolume != null) {
+            containerCmd = containerCmd
+                    .withVolumes(dockerSockVolume, sharedDataVolume)
+                    .withBinds(new Bind(dockerSock, dockerSockVolume),
+                            new Bind(sharedFolder, sharedDataVolume));
+        } else {
+            containerCmd = containerCmd.withVolumes(dockerSockVolume)
+                    .withBinds(new Bind(dockerSock, dockerSockVolume));
+        }
 
         // Create Container
-        return dockerExec.getDockerClient().createContainerCmd(image)
-                .withEnv(envList).withLogConfig(logConfig)
-                .withName(containerName).withCmd(cmdList)
-                .withVolumes(dockerSock)
-                .withBinds(new Bind("/var/run/docker.sock", dockerSock))
-                .withNetworkMode(dockerExec.getNetwork()).exec();
+        return containerCmd.exec();
     }
 
     /********************/
@@ -354,7 +373,8 @@ public class DockerService2 {
     /***********************/
 
     public String getSutName(DockerExecution dockerExec) {
-        return "sut_" + dockerExec.getExecutionId();
+        return "sut_" + dockerExec.getExecutionId() + (dockerExec.gettJobexec()
+                .getTjob().getSut().isSutInNewContainer() ? "_Aux" : "");
     }
 
     public void createSutContainer(DockerExecution dockerExec)
