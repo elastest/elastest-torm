@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Ports;
 
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
@@ -134,7 +132,7 @@ public class EsmService {
     private String externalTJobExecFolderPefix = "external_exec_";
 
     public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
-            DockerService2 dockerService) {
+            DockerService2 dockerService, FilesService filesServices) {
         logger.info("EsmService constructor.");
         this.esmServiceClient = esmServiceClient;
         this.utilTools = utilTools;
@@ -146,6 +144,7 @@ public class EsmService {
         this.dockerService = dockerService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
+        this.filesServices = filesServices;
     }
 
     @PostConstruct
