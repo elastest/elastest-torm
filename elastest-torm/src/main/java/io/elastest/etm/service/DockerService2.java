@@ -51,6 +51,8 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.FilesService;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -79,6 +81,9 @@ public class DockerService2 {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
+    
+    @Autowired
+    public FilesService filesService;
 
     @Autowired
     public UtilTools utilTools;
@@ -232,12 +237,16 @@ public class DockerService2 {
         if (sutHost != null) {
             envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
         }
+        
+        String sutPath = filesService.buildFilesPath(tJobExec, ElastestConstants.SUT_FOLDER);
+        filesService.createExecFilesFolder(sutPath);
 
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
         if (commands != null && !commands.isEmpty()) {
             cmdList.add("sh");
             cmdList.add("-c");
+            cmdList.add("cd " + sutPath);
             cmdList.add(commands);
         }
 
