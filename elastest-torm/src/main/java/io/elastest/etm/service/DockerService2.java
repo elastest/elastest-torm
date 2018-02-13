@@ -252,11 +252,16 @@ public class DockerService2 {
                     + " image. Probably because the user has stopped the execution");
             throw new TJobStoppedException();
         }
+        
+        // Create docker sock volume
+        Volume dockerSock = new Volume("/var/run/docker.sock");
 
         // Create Container
         return dockerExec.getDockerClient().createContainerCmd(image)
                 .withEnv(envList).withLogConfig(logConfig)
                 .withName(containerName).withCmd(cmdList)
+                .withVolumes(dockerSock)
+                .withBinds(new Bind("/var/run/docker.sock", dockerSock))
                 .withNetworkMode(dockerExec.getNetwork()).exec();
     }
 
