@@ -18,6 +18,7 @@ export class SutModel {
   mainService: string;
   parameters: any[];
   commands: string;
+  sutInNewContainer: boolean = false;
 
   exProject: ExternalProjectModel;
 
@@ -37,6 +38,7 @@ export class SutModel {
     this.mainService = '';
     this.parameters = [];
     this.commands = '';
+    this.sutInNewContainer = false;
 
     this.exProject = undefined;
   }
@@ -74,5 +76,9 @@ export class SutModel {
   public arrayCommands(): string[] {
     let commandsArray: string[] = this.commands.split(';').filter((x: string) => x); // ignore empty strings
     return commandsArray;
+  }
+
+  changeSutInNewContainerValue($event): void {
+    this.sutInNewContainer = $event.checked;
   }
 }

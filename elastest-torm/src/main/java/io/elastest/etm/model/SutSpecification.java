@@ -162,9 +162,15 @@ public class SutSpecification {
     @JsonView({ SutView.class })
     @JsonProperty("exTJobs")
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(value = { "sut", "exProject", "exTJobExecs", "exTestCases" })
+    @JsonIgnoreProperties(value = { "sut", "exProject", "exTJobExecs",
+            "exTestCases" })
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
+
+    @JsonView({ SutView.class })
+    @Column(name = "sutInNewContainer")
+    @JsonProperty("sutInNewContainer")
+    private boolean sutInNewContainer = false;
 
     public SutSpecification() {
     }
@@ -173,7 +179,7 @@ public class SutSpecification {
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
-            ManagedDockerType managedDockerType) {
+            ManagedDockerType managedDockerType, boolean sutInNewContainer) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -186,6 +192,7 @@ public class SutSpecification {
         this.instrumentedBy = instrumentedBy;
         this.port = port;
         this.managedDockerType = managedDockerType;
+        this.sutInNewContainer = sutInNewContainer;
     }
 
     public SutSpecification(Long id, String name, String specification,
@@ -586,6 +593,14 @@ public class SutSpecification {
     }
 
     /* ** Other methods ** */
+
+    public boolean isSutInNewContainer() {
+        return sutInNewContainer;
+    }
+
+    public void setSutInNewContainer(boolean sutInNewContainer) {
+        this.sutInNewContainer = sutInNewContainer;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {

@@ -73,7 +73,11 @@
               <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
                 [(ngModel)]="sut.specification" name="specification" required>
             </md-input-container>
-
+            <div class="pad">
+              <span class="push-right">
+                <md-checkbox [checked]="sut.sutInNewContainer" (change)="sut.changeSutInNewContainerValue($event)">Sut in new container</md-checkbox>
+              </span>
+            </div>
             <!-- Commands -->
             <div layout="column" class="push-top push-bottom pad-top" *ngIf="managedSut.checked">
               <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>

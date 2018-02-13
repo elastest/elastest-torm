@@ -256,6 +256,8 @@ export class ETModelsTransformServices {
       newSut.exProject = sut.exProject;
     }
 
+    newSut.sutInNewContainer = sut.sutInNewContainer;
+
     return newSut;
   }
 
