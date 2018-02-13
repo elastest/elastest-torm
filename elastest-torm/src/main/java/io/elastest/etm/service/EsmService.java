@@ -2,13 +2,10 @@ package io.elastest.etm.service;
 
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,8 +22,6 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -44,6 +39,9 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
+import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.FilesService;
+import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -146,7 +144,6 @@ public class EsmService {
         this.dockerService = dockerService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
-
     }
 
     @PostConstruct
@@ -154,7 +151,7 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
-            if (execMode.equals("normal")) {
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
                 tSSIdLoadedOnInit.forEach((serviceId) -> {
                     provisionServiceInstanceSync(serviceId);
                     logger.debug("EUS is started from ElasTest in normal mode");
@@ -175,55 +172,29 @@ public class EsmService {
      * Register the ElasTest Services into the ESM.
      */
     public void registerElastestServices() {
-        logger.info("Get and send the register information: "
-                + etEsmSsDescFilesPath);
-        try {
-            File file = ResourceUtils.getFile(etEsmSsDescFilesPath);
-            // If not in dev mode
-            if (file.exists()) {
-                List<String> files = new ArrayList<>(
-                        Arrays.asList(file.list()));
-                for (String nameOfFile : files) {
-                    logger.info("File name:" + nameOfFile);
-                    File serviceFile = ResourceUtils
-                            .getFile(etEsmSsDescFilesPath + "/" + nameOfFile);
-                    registerElastestService(serviceFile);
-                }
-            } else { // Dev mode
-                Resource resource = new ClassPathResource(etEsmSsDescFilesPath);
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(resource.getInputStream()), 1024);
-                String line;
-                while ((line = br.readLine()) != null) {
-                    logger.info("File name (dev mode):" + line);
-                    File serviceFile = new ClassPathResource(
-                            etEsmSsDescFilesPath + line).getFile();
-                    registerElastestService(serviceFile);
-                }
-                br.close();
-            }
+        logger.info("Get and send the register information: {}",
+                etEsmSsDescFilesPath);
 
-        } catch (IOException fnfe) {
+        try {
+            List<File> files = FilesService
+                    .getFilesFromFolder(etEsmSsDescFilesPath);
+            for (File file : files) {
+                registerElastestService(file);
+            }
+        } catch (IOException ioe) {
             logger.warn(
                     "Service could not be registered. The file with the path "
-                            + etEsmSsDescFilesPath + " does not exist:",
-                    fnfe);
+                            + etEsmSsDescFilesPath + " does not exist.");
         }
     }
 
     public void registerElastestService(File serviceFile) throws IOException {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String content = "";
+            String content = FilesService.readFile(serviceFile);
 
-            if (!serviceFile.isDirectory()) {
-                content = new String(Files.readAllBytes(serviceFile.toPath()));
-            }
-
-            if (!content.equals("")) {
-                ObjectNode serviceDefJson = mapper.readValue(content,
-                        ObjectNode.class);
-
+            if (content != null) {
+                ObjectNode serviceDefJson = ParserService
+                        .fromStringToJson(content);
                 if (execMode.equals("normal")) {
                     logger.debug("TSS file {}", serviceFile.getName());
                     if (tSSNameLoadedOnInit
@@ -243,12 +214,15 @@ public class EsmService {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error registering a TSS.");
             throw e;
         }
     }
 
     private void registerElasTestService(ObjectNode serviceDefJson) {
+        logger.debug("Registering the {} TSS.",
+                ParserService.getNodeByElemChain(serviceDefJson,
+                        Arrays.asList("register", "name")));
         esmServiceClient
                 .registerService(serviceDefJson.get("register").toString());
         esmServiceClient.registerManifest(
@@ -1232,7 +1206,6 @@ public class EsmService {
                 "ET_EMP_INFLUXDB_GRAPHITE_PORT", etEmpInfluxdbGraphitePort);
 
         supportServiceInstance.getParameters().put("USE_TORM", "true");
-
     }
 
     public Map<String, String> getTSSInstanceContext(String tSSInstanceId,
