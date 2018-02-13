@@ -186,4 +186,15 @@ public class UtilTools {
 
         return up;
     }
+
+    public static String doPing(String ip) throws IOException {
+        InetAddress ping;
+        ping = InetAddress.getByName(ip);
+        if (ping.isReachable(5000)) {
+            return ping.getAddress().toString();
+        } else {
+            throw new IOException("Ip " + ip + " non reachable");
+        }
+    }
+
 }

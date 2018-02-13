@@ -97,8 +97,7 @@ public class TestLinkService {
         // If not development, start socat
         if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
             try {
-                String testLinkIp = dockerService.getContainerIpByNetwork(
-                        etEtmTestLinkHost, etDockerNetwork);
+                String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
                 SocatBindedPort socatBindedPort = dockerService.bindingPort(
                         testLinkIp, etEtmTestLinkPort, etDockerNetwork);
                 this.testLinkHost = etPublicHost;
