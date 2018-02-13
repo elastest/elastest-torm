@@ -247,7 +247,9 @@ public class DockerService2 {
         if (commands != null && !commands.isEmpty()) {
             cmdList.add("sh");
             cmdList.add("-c");
-            commands = "cd " + sutPath + ";" + commands;
+            if (sut.isSutInNewContainer()) {
+                commands = "cd " + sutPath + ";" + commands;
+            }
             cmdList.add(commands);
         }
 
