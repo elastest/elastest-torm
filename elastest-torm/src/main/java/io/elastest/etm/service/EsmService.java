@@ -33,6 +33,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
 
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
@@ -730,8 +731,15 @@ public class EsmService {
                                 .getEndpointsBindingsPorts().get(nodePort));
                     } else {
                         try {
-                            auxPort = bindingPort(serviceInstance, node,
-                                    tSSContainerName, networkName);
+                            SocatBindedPort socatBindedPortObj = dockerService
+                                    .bindingPort(
+                                            serviceInstance.getContainerIp(),
+                                            node.get("port").toString(),
+                                            networkName);
+                            serviceInstance.getPortBindingContainers()
+                                    .add(socatBindedPortObj.getBindedPort());
+                            auxPort = Integer.parseInt(
+                                    socatBindedPortObj.getListenPort());
                             serviceInstance.getEndpointsBindingsPorts()
                                     .put(nodePort, String.valueOf(auxPort));
                         } catch (Exception e) {
@@ -766,37 +774,6 @@ public class EsmService {
             serviceInstance.getEndpointsData().put(nodeName, node);
         }
         return serviceInstance;
-    }
-
-    private int bindingPort(SupportServiceInstance serviceInstance,
-            JsonNode node, String containerName, String networkName)
-            throws Exception {
-        DockerClient dockerClient = dockerService.getDockerClient();
-        int listenPort = 37000;
-        try {
-            listenPort = utilTools.findRandomOpenPort();
-            List<String> envVariables = new ArrayList<>();
-            envVariables.add("LISTEN_PORT=" + listenPort);
-            envVariables.add("FORWARD_PORT=" + node.get("port"));
-            envVariables.add(
-                    "TARGET_SERVICE_IP=" + serviceInstance.getContainerIp());
-            Ports portBindings = new Ports();
-            ExposedPort exposedListenPort = ExposedPort.tcp(listenPort);
-
-            portBindings.bind(exposedListenPort,
-                    Ports.Binding.bindPort(listenPort));
-
-            serviceInstance.getPortBindingContainers()
-                    .add(dockerService.runDockerContainer(dockerClient,
-                            etSocatImage, envVariables,
-                            "container" + listenPort, containerName,
-                            networkName, portBindings, listenPort));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception(e.getMessage());
-        }
-
-        return listenPort;
     }
 
     private String createServiceInstanceUrl(JsonNode node, String ip) {

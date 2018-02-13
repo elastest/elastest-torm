@@ -442,7 +442,7 @@ public class TJobExecOrchestratorService {
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
             String sutContainerId = dockerExec.getAppContainerId();
-            String sutIP = dockerService.getContainerIp(sutContainerId,
+            String sutIP = dockerService.getContainerIpWithDockerExecution(sutContainerId,
                     dockerExec);
 
             // If port is defined, wait for SuT ready

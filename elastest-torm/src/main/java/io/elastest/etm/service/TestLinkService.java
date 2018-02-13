@@ -31,9 +31,11 @@ import io.elastest.etm.dao.external.ExternalProjectRepository;
 import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.utils.UtilTools;
 import net.minidev.json.JSONObject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -49,13 +51,26 @@ public class TestLinkService {
     @Value("${et.etm.testlink.port}")
     public String etEtmTestLinkPort;
 
+    @Value("${et.etm.testlink.binded.port}")
+    public String etEtmTestLinkBindedPort;
+
+    @Value("${elastest.docker.network}")
+    private String etDockerNetwork;
+
+    @Value("${et.public.host}")
+    public String etPublicHost;
+
     @Autowired
     TestLinkDBService testLinkDBService;
+
+    public String testLinkHost;
+    public String testLinkPort;
 
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
+    private final DockerService2 dockerService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -64,15 +79,37 @@ public class TestLinkService {
     public TestLinkService(ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
             ExternalTestExecutionRepository externalTestExecutionRepository,
-            ExternalTJobRepository externalTJobRepository) {
+            ExternalTJobRepository externalTJobRepository,
+            DockerService2 dockerService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
+        this.dockerService = dockerService;
     }
 
     @PostConstruct
     public void init() {
+        // Default development
+        this.testLinkHost = etEtmTestLinkHost;
+        this.testLinkPort = etEtmTestLinkBindedPort;
+
+        // If not development, start socat
+        if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
+            try {
+                String testLinkIp = dockerService.getContainerIpByNetwork(
+                        etEtmTestLinkHost, etDockerNetwork);
+                SocatBindedPort socatBindedPort = dockerService.bindingPort(
+                        testLinkIp, etEtmTestLinkPort, etDockerNetwork);
+                this.testLinkHost = etPublicHost;
+                this.testLinkPort = socatBindedPort.getListenPort();
+            } catch (Exception e) {
+                logger.error("Cannot get Testlink socat data {}", e);
+                this.testLinkHost = etEtmTestLinkHost;
+                this.testLinkPort = etEtmTestLinkBindedPort;
+            }
+        }
+
         String url = this.getTestLinkUrl() + "/lib/api/xmlrpc/v1/xmlrpc.php";
 
         try {
@@ -97,7 +134,7 @@ public class TestLinkService {
     }
 
     public String getTestLinkUrl() {
-        return "http://" + etEtmTestLinkHost + ":" + etEtmTestLinkPort;
+        return "http://" + this.testLinkHost + ":" + this.testLinkPort;
     }
 
     /* *****************************************************************/

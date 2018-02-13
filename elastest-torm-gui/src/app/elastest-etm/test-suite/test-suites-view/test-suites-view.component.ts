@@ -27,7 +27,7 @@ export class TestSuitesViewComponent implements OnInit {
     { name: 'failureErrorLine', label: 'Failure Error Line' },
     { name: 'failureDetail', label: 'Failure Detail' },
     { name: 'files', label: 'Files' },
-    { name: 'logAnalyzer', label: 'View In Log Analyzer' },
+    { name: 'logAnalyzer', label: 'Log' },
   ];
 
   constructor(

@@ -46,6 +46,7 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -71,6 +72,9 @@ public class DockerService2 {
 
     @Value("${docker.sock}")
     private String dockerSock;
+
+    @Value("${et.socat.image}")
+    public String etSocatImage;
 
     @Autowired
     public UtilTools utilTools;
@@ -126,8 +130,8 @@ public class DockerService2 {
 
     public String runDockerContainer(DockerClient dockerClient,
             String imageName, List<String> envs, String containerName,
-            String targetContainerName, String networkName, Ports portBindings,
-            int listenPort) throws TJobStoppedException {
+            String networkName, Ports portBindings, int listenPort)
+            throws TJobStoppedException {
         try {
             dockerClient.pullImageCmd(imageName)
                     .exec(new PullImageResultCallback()).awaitSuccess();
@@ -528,7 +532,7 @@ public class DockerService2 {
     /***** Utils *****/
     /*****************/
 
-    public String getContainerIp(String containerId,
+    public String getContainerIpWithDockerExecution(String containerId,
             DockerExecution dockerExec) {
         String ip = dockerExec.getDockerClient()
                 .inspectContainerCmd(containerId).exec().getNetworkSettings()
@@ -591,6 +595,37 @@ public class DockerService2 {
             return getHostIpByNetwork(dockerExec, dockerExec.getNetwork());
         }
         return logstashHost;
+    }
+
+    public SocatBindedPort bindingPort(String containerIp, String port,
+            String networkName) throws Exception {
+        DockerClient dockerClient = this.getDockerClient();
+        int listenPort = 37000;
+        String bindedPort = null;
+        try {
+            listenPort = utilTools.findRandomOpenPort();
+            List<String> envVariables = new ArrayList<>();
+            envVariables.add("LISTEN_PORT=" + listenPort);
+            envVariables.add("FORWARD_PORT=" + port);
+            envVariables.add("TARGET_SERVICE_IP=" + containerIp);
+            Ports portBindings = new Ports();
+            ExposedPort exposedListenPort = ExposedPort.tcp(listenPort);
+
+            portBindings.bind(exposedListenPort,
+                    Ports.Binding.bindPort(listenPort));
+
+            bindedPort = this.runDockerContainer(dockerClient, etSocatImage,
+                    envVariables, "container" + listenPort, networkName,
+                    portBindings, listenPort);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception(e.getMessage());
+        }
+
+        SocatBindedPort bindedPortObj = new SocatBindedPort(
+                Integer.toString(listenPort), bindedPort);
+
+        return bindedPortObj;
     }
 
     /***************************/
