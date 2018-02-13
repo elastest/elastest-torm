@@ -46,11 +46,11 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, false);
         SutSpecification sut2 = new SutSpecification(34l, "name",
                 "specification", "description", project2, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, false);
 
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
@@ -69,7 +69,7 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, false);
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
 
