@@ -116,6 +116,7 @@ public class EsmService {
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
     public UtilTools utilTools;
+    public FilesService filesServices;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
     private Map<String, SupportServiceInstance> externalTJobServicesInstances;
@@ -177,7 +178,7 @@ public class EsmService {
                 etEsmSsDescFilesPath);
 
         try {
-            List<File> files = FilesService
+            List<File> files = filesServices
                     .getFilesFromFolder(etEsmSsDescFilesPath);
             for (File file : files) {
                 registerElastestService(file);
@@ -191,7 +192,7 @@ public class EsmService {
 
     public void registerElastestService(File serviceFile) throws IOException {
         try {
-            String content = FilesService.readFile(serviceFile);
+            String content = filesServices.readFile(serviceFile);
 
             if (content != null) {
                 ObjectNode serviceDefJson = ParserService
