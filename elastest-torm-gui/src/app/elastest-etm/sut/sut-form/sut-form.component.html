@@ -88,6 +88,11 @@
                 </md-input-container>
               </div>
             </div>
+            <!-- Main service name -->
+            <md-input-container flex="100" *ngIf="sut.sutInNewContainer">
+              <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService">
+            </md-input-container>
+
           </ng-container>
 
           <ng-template #dockerComposeSpec>
@@ -97,13 +102,13 @@
                 <textarea id="composeSpec" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification" name="composeSpec"
                   required></textarea>
               </md-input-container>
+
+              <!-- Main service name -->
+              <md-input-container flex="100">
+                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
+              </md-input-container>
             </ng-container>
           </ng-template>
-
-          <!-- Main service name -->
-          <md-input-container flex="100" *ngIf="managedSut.checked && (dockerCompose || sut.sutInNewContainer)">
-            <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
-          </md-input-container>
 
           <md-input-container flex="100" *ngIf="managedSut.checked">
             <input mdInput trim="blur" type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">

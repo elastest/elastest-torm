@@ -442,8 +442,8 @@ public class TJobExecOrchestratorService {
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
             String sutContainerId = dockerExec.getAppContainerId();
-            String sutIP = dockerService.getContainerIpWithDockerExecution(sutContainerId,
-                    dockerExec);
+            String sutIP = dockerService.getContainerIpWithDockerExecution(
+                    sutContainerId, dockerExec);
 
             // If port is defined, wait for SuT ready
             if (sut.getPort() != null) {
@@ -453,10 +453,22 @@ public class TJobExecOrchestratorService {
                 logger.info(resultMsg);
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
-                
-                if(sut.getMainService() != null){
-                    String containerName = this.getCurrentExecSutMainServiceName(sut,dockerExec);
-                    sutIP = dockerService.getContainerIpWithDockerExecution(containerName, dockerExec);
+
+                if (sut.isSutInNewContainer()) {
+                    if (sut.getMainService() != null
+                            && !"".equals(sut.getMainService())) {
+                        String containerName = this
+                                .getCurrentExecSutMainServiceName(sut,
+                                        dockerExec);
+                        sutIP = dockerService.getContainerIpWithDockerExecution(
+                                containerName, dockerExec);
+                    } else {
+                        // TODO retry
+                        String containerName = dockerService
+                                .getSutPrefix(dockerExec, false);
+                        sutIP = dockerService.getContainerIpWithDockerExecution(
+                                containerName, dockerExec);
+                    }
                 }
 
                 // Wait for SuT started
@@ -484,9 +496,11 @@ public class TJobExecOrchestratorService {
         }
         return sutExec;
     }
-    
-    public String getCurrentExecSutMainServiceName(SutSpecification sut, DockerExecution dockerExec){
-        return dockerService.getSutPrefix(dockerExec,true) + "_"+ sut.getMainService() + "_1";
+
+    public String getCurrentExecSutMainServiceName(SutSpecification sut,
+            DockerExecution dockerExec) {
+        return dockerService.getSutPrefix(dockerExec, true) + "_"
+                + sut.getMainService() + "_1";
     }
 
     public void startSutByDockerImage(DockerExecution dockerExec)
