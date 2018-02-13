@@ -24,6 +24,10 @@ public class FilesService {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
+    
+    public FilesService () {
+        
+    }
 
     public static final Logger logger = LoggerFactory
             .getLogger(FilesService.class);
