@@ -301,6 +301,24 @@ node('docker'){
                     sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                     testetmalpinegitjavaimage.push()
                 }
+                
+            stage "Test-etm-alpinedockerjava image build"
+    
+              "Create test-etm-alpinedockerjava docker image"
+            
+                echo ("Creating elastest/test-etm-alpinedockerjava image..")                
+                sh 'cd ./docker/services/examples/test-etm-alpinedockerjava; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinedockerjava:latest .'
+    
+            stage "Publish Test-etm-alpinedockerjava docker image"
+    
+                echo ("Publish elastest/test-etm-alpinedockerjava image")
+                def testetmalpinedockerjava = docker.image('elastest/test-etm-alpinedockerjava:latest')
+                //this is work arround as withDockerRegistry is not working properly 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    testetmalpinedockerjava.push()
+                }
 
             stage "Test-etm-javasutrepo image build"
     
