@@ -98,6 +98,7 @@ public class TestLinkService {
         if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
             try {
                 String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
+                logger.info("Real TestLink Ip: {}", testLinkIp);
                 SocatBindedPort socatBindedPort = dockerService.bindingPort(
                         testLinkIp, etEtmTestLinkPort, etDockerNetwork);
                 this.testLinkHost = etPublicHost;
