@@ -52,7 +52,7 @@
             <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases" [columns]="testCaseColumns"
               [selectable]="false" [clickable]="false" [sortable]="false">
               <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-                <div *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'" class="hover-pointer lineHeightNormal">
+                <div *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'" class="hover-pointer lineHeightNormal textCell" title="{{value}}">
                   {{value}}
                 </div>
               </ng-template>
@@ -66,7 +66,7 @@
 
               <!-- Files -->
               <ng-template tdDataTableTemplate="files" let-value="value" let-row="row" let-column="column">
-                <div layout="column" class="filesColumn">
+                <div layout="column" class="filesColumn textCell">
                   <ol type="1" class="pad-left-md">
                     <li *ngFor="let file of row.files">
                       <a md-button [attr.href]="filesUrlPrefix + file.url" class="iconBtn-lg" target="_blank">
