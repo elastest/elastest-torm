@@ -454,21 +454,21 @@ public class TJobExecOrchestratorService {
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
 
+                // If is Sut In new Container
                 if (sut.isSutInNewContainer()) {
+                    String containerName = null;
+                    // If is Docker compose Sut
                     if (sut.getMainService() != null
                             && !"".equals(sut.getMainService())) {
-                        String containerName = this
-                                .getCurrentExecSutMainServiceName(sut,
-                                        dockerExec);
-                        sutIP = dockerService.getContainerIpWithDockerExecution(
-                                containerName, dockerExec);
-                    } else {
-                        // TODO retry
-                        String containerName = dockerService
-                                .getSutPrefix(dockerExec, false);
-                        sutIP = dockerService.getContainerIpWithDockerExecution(
-                                containerName, dockerExec);
+                        containerName = this.getCurrentExecSutMainServiceName(
+                                sut, dockerExec);
+                    } else {                     // If is unique Docker image Sut
+                        containerName = dockerService.getSutPrefix(dockerExec,
+                                false);
                     }
+                    // TODO retry
+                    sutIP = dockerService.waitForContainerIpWithDockerExecution(
+                            containerName, dockerExec, 480000); // 8min
                 }
 
                 // Wait for SuT started

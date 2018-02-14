@@ -52,7 +52,7 @@
             <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases" [columns]="testCaseColumns"
               [selectable]="false" [clickable]="false" [sortable]="false">
               <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-                <div *ngIf="column.name !== 'logAnalyzer'" class="hover-pointer">
+                <div *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'" class="hover-pointer lineHeightNormal">
                   {{value}}
                 </div>
               </ng-template>

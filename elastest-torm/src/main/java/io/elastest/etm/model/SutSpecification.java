@@ -602,6 +602,18 @@ public class SutSpecification {
         this.sutInNewContainer = sutInNewContainer;
     }
 
+    public String getSutInContainerAuxLabel() {
+        return "Aux";
+    }
+
+    public boolean isDockerComposeSut() {
+        return this.getManagedDockerType() == ManagedDockerType.COMPOSE;
+    }
+
+    public boolean isDockerImageSut() {
+        return this.getManagedDockerType() == ManagedDockerType.IMAGE;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {

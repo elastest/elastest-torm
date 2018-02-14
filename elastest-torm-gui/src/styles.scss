@@ -95,6 +95,15 @@ textarea[autosize] {
   overflow-y: auto !important;
 }
 
+.tableCodeField {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  line-height: normal;
+}
+
+.lineHeightNormal {
+  line-height: normal;
+}
+
 .optionsColumn {
   :first-child {
     padding-left: 0px !important;

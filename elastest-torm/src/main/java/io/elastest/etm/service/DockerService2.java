@@ -196,6 +196,7 @@ public class DockerService2 {
         String commands = null;
         List<Parameter> parametersList = new ArrayList<Parameter>();
         String prefix = "";
+        String suffix = "";
         String containerName = "";
         int logPort = 5000;
 
@@ -206,6 +207,9 @@ public class DockerService2 {
             commands = sut.getCommands();
             image = sut.getSpecification();
             prefix = "sut_";
+            if (sut.isSutInNewContainer()) {
+                suffix = sut.getSutInContainerAuxLabel();
+            }
             containerName = getSutName(dockerExec);
         } else if ("tjob".equals(type.toLowerCase())) {
             parametersList = tJobExec.getParameters();
@@ -255,7 +259,7 @@ public class DockerService2 {
         }
 
         // Load Log Config
-        LogConfig logConfig = getLogConfig(logPort, prefix, dockerExec);
+        LogConfig logConfig = getLogConfig(logPort, prefix, suffix, dockerExec);
 
         // Pull Image
         try {
@@ -316,6 +320,7 @@ public class DockerService2 {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         Long execution = dockerExec.getExecutionId();
+        SutSpecification sut = tJob.getSut();
 
         String containerName = getDockbeatContainerName(dockerExec);
 
@@ -341,6 +346,13 @@ public class DockerService2 {
                     + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
         }
         envList.add(lsHostEnvVar);
+
+        // if (sut != null && sut.isSutInNewContainer()) {
+        // // Exclude Aux Sut
+        // envVar = "FILTER_EXCLUDE" + "=" + "\"" + this.getSutName(dockerExec)
+        // + "\"";
+        // envList.add(envVar);
+        // }
 
         // dockerSock
         Volume volume1 = new Volume(dockerSock);
@@ -387,8 +399,10 @@ public class DockerService2 {
     /***********************/
 
     public String getSutName(DockerExecution dockerExec) {
-        return this.getSutPrefix(dockerExec, false) + (dockerExec.gettJobexec()
-                .getTjob().getSut().isSutInNewContainer() ? "_Aux" : "");
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        return this.getSutPrefix(dockerExec, false)
+                + (sut.isDockerImageSut() && sut.isSutInNewContainer()
+                        ? "_" + sut.getSutInContainerAuxLabel() : "");
     }
 
     public String getSutPrefix(DockerExecution dockerExec,
@@ -513,7 +527,7 @@ public class DockerService2 {
         }
     }
 
-    public LogConfig getLogConfig(int port, String tagPrefix,
+    public LogConfig getLogConfig(int port, String tagPrefix, String tagSuffix,
             DockerExecution dockerExec) {
 
         logstashHost = getLogstashHost(dockerExec);
@@ -524,7 +538,8 @@ public class DockerService2 {
 
         Map<String, String> configMap = new HashMap<String, String>();
         configMap.put("syslog-address", "tcp://" + logstashHost + ":" + port);
-        configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_exec");
+        configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_"
+                + tagSuffix + "_exec");
 
         LogConfig logConfig = new LogConfig();
         logConfig.setType(LoggingType.SYSLOG);
@@ -577,11 +592,38 @@ public class DockerService2 {
     /*****************/
 
     public String getContainerIpWithDockerExecution(String containerId,
-            DockerExecution dockerExec) {
+            DockerExecution dockerExec) throws Exception {
         String ip = dockerExec.getDockerClient()
                 .inspectContainerCmd(containerId).exec().getNetworkSettings()
                 .getNetworks().get(dockerExec.getNetwork()).getIpAddress();
         return ip.split("/")[0];
+
+    }
+
+    public String waitForContainerIpWithDockerExecution(String containerId,
+            DockerExecution dockerExec, long timeout) throws Exception {
+        long start_time = System.currentTimeMillis();
+        long end_time = start_time + timeout;
+
+        String containerIp = null;
+
+        while (containerIp == null && System.currentTimeMillis() < end_time) {
+            try {
+                containerIp = this.getContainerIpWithDockerExecution(
+                        containerId, dockerExec);
+            } catch (Exception e) {
+                logger.info(
+                        "Container with id {} is no reachable yet. Retrying...",
+                        containerId);
+            }
+            Thread.sleep(1500);
+        }
+
+        if (containerIp == null) {
+            throw new Exception("Container with id " + containerId
+                    + " non reachable. Timeout!");
+        }
+        return containerIp;
     }
 
     public String getContainerIpByNetwork(String containerId, String network) {
