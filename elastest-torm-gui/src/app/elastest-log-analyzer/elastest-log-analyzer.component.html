@@ -80,7 +80,11 @@
                   </div>
                 </div>
 
-                <div clas="push-top-sm" layout="column">
+                <div *ngIf="testCaseName" class="push-top-sm" layout="column">
+                  <md-checkbox #testCase [checked]="withTestCase" id="testCase" name="testCase" (change)="setWithTestCase(testCase.checked)" style="line-height: 4;">TestCase: {{testCaseName}}</md-checkbox>
+                </div>
+
+                <div class="push-top-sm" layout="column">
                   <md-input-container class="noMarginInput">
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
                       placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
@@ -111,7 +115,8 @@
                   </div>
                 </div>
                 <div layout="row" class="push-top-sm">
-                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
+                  <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none"
+                    title="Add more traces from last">
                     <md-icon>vertical_align_bottom</md-icon> Add from last
                   </button>
                   <button md-button *ngIf="showLoadMore && !showPauseTail" (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"

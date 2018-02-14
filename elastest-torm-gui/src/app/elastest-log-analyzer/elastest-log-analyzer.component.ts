@@ -76,6 +76,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   @ViewChild('componentsTree') componentsTree: TreeComponent;
   @ViewChild('levelsTree') levelsTree: TreeComponent;
 
+  // TestCase
+  withTestCase: boolean = false;
+  testCaseName: string;
+
   constructor(
     public dialog: MdDialog,
     public router: Router,
@@ -138,12 +142,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   initESModel(): void {
-    this.esSearchModel = new ESSearchModel();
+    this.esSearchModel = this.initAndGetESModel();
+  }
+
+  initAndGetESModel(): ESSearchModel {
+    let esSearchModel: ESSearchModel = new ESSearchModel();
 
     // Add term stream_type === 'log'
-    this.esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
-    this.esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
-    this.esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
+    esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
+    esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
+    esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
+    return esSearchModel;
   }
 
   /**********************/
@@ -158,6 +167,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   prepareLoadLog(): void {
+    this.prepareLoadLogBasic();
+    this.setTerms();
+    this.setMatch();
+  }
+  prepareLoadLogBasic(): void {
     this.disableBtns = true;
     this.initESModel();
 
@@ -167,9 +181,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.esSearchModel.indices = this.logAnalyzer.selectedIndices;
     this.esSearchModel.filterPathList = this.filters;
     this.esSearchModel.body.size = this.logAnalyzer.maxResults;
+
     this.setRange();
-    this.setTerms();
-    this.setMatch();
   }
 
   setRange(): void {
@@ -198,6 +211,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
+  setRangeByGivenToGivenEsSearchModel(): void {}
+
   setTerms(): void {
     if (!this.logAnalyzer.componentsStreams.empty()) {
       this.esSearchModel.body.boolQuery.bool.must.boolList.push(this.logAnalyzer.getComponentsStreamsBool());
@@ -209,13 +224,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   setMatch(msg: string = this.logAnalyzer.messageFilter): void {
+    this.setMatchByGivenEsSearchModel(msg, this.esSearchModel);
+  }
+
+  setMatchByGivenEsSearchModel(msg: string = '', esSearchModel: ESSearchModel): void {
     /* Message field by default */
     if (msg !== '') {
       let messageMatch: ESMatchModel = new ESMatchModel();
       messageMatch.field = 'message';
       messageMatch.query = '*' + msg + '*';
       messageMatch.type = 'phrase_prefix';
-      this.esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
+      esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
     }
   }
 
@@ -279,6 +298,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadLog(withoutPrepare: boolean = false): void {
+    if (this.withTestCase && this.testCaseName) {
+      this.filterTestCase(this.testCaseName);
+      return;
+    }
     this.logAnalyzer.usingTail = this.logAnalyzer.tail;
     this.logAnalyzer.stopTail();
 
@@ -554,6 +577,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logAnalyzer.tail = tail;
   }
 
+  public setWithTestCase(testCase: boolean): void {
+    this.withTestCase = testCase;
+  }
+
   /**** Modal ****/
   public openSelectExecutions(fromExec?: any): void {
     let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
@@ -564,6 +591,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
         // Ok Pressed
+        this.testCaseName = undefined;
+        this.withTestCase = false;
         if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
           this.logAnalyzer.selectedIndices = data.selectedIndices;
           if (data.fromDate) {
@@ -575,6 +604,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.loadComponentStreams();
           this.loadLevels();
           if (fromExec && fromExec.testCase) {
+            this.testCaseName = fromExec.testCase;
+            this.withTestCase = true;
             this.filterTestCase(fromExec.testCase);
           } else {
             this.loadLog();
@@ -598,13 +629,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         startData = this.esSearchModel.getDataListFromRaw(startData, false);
         if (startData.length > 0) {
           let startRow: any = startData[0];
-
+          this.setFromDate(new Date(startRow['@timestamp']));
           // Search Finish Msg
           this.searchTraceByGivenMsg(endMsg).subscribe(
             (finishData: any) => {
               finishData = this.esSearchModel.getDataListFromRaw(finishData, false);
               if (finishData.length > 0) {
                 let finishRow: any = finishData[0];
+                this.setToDate(new Date(finishRow['@timestamp']));
                 let finishRowFullMsg: string = finishRow.message;
                 this.esSearchModel.body.searchAfter = startRow.sort;
                 this.setRangeByGiven(startRow['@timestamp'], finishRow['@timestamp']);
@@ -616,13 +648,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
                 this.elastestESService.search(searchUrl, searchBody).subscribe(
                   (data: any) => {
                     let logs: any[] = this.esSearchModel.getDataListFromRaw(data, false);
-                    let finishIndex: number = logs.indexOf(finishRowFullMsg);
-                    logs.splice(finishIndex);
+
+                    let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);
+                    if (finishObj) {
+                      let finishIndex: number = logs.indexOf(finishObj);
+                      logs.splice(finishIndex);
+                    }
 
                     this.loadLogByGivenData(logs);
                   },
                   (error) => {
-                    this.disableBtns = false;
+                    this.startBehaviourOnNoLogs();
                   },
                 );
               } else {
@@ -638,19 +674,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         }
       },
       (error) => {
-        this.disableBtns = false;
+        this.startBehaviourOnNoLogs();
       },
     );
     // TODO search start MSG with  to make searchafter...
   }
 
   startBehaviourOnNoLogs(): void {
-    this.disableBtns = false;
-    this.popup("There aren't logs to load", 'OK');
+    this.loadLogByGivenData([]);
   }
 
   searchTraceByGivenMsg(msg: string): Observable<any> {
-    this.prepareLoadLog();
+    this.prepareLoadLogBasic();
 
     this.setMatch(msg);
 
@@ -659,6 +694,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     // Remove Match Filter
     this.esSearchModel.body.boolQuery.bool.must.matchList.pop();
+    this.prepareLoadLog();
 
     return this.elastestESService.search(searchUrl, searchBody);
   }
