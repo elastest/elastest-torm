@@ -88,12 +88,16 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
     if (nextCase !== undefined) {
       this.loadTestLinkTestCaseExecution(nextCase.externalId);
     } else {
-      this.disableTLNextBtn = true;
-      this.execFinished = true;
-      this.exTJobExec.result = 'SUCCESS';
-      this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
-      this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+      this.finishTJobExecution();
     }
+  }
+
+  finishTJobExecution(): void {
+    this.disableTLNextBtn = true;
+    this.execFinished = true;
+    this.exTJobExec.result = 'SUCCESS';
+    this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+    this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
   }
 
   loadTestLinkTestCaseExecution(testCaseId: string): void {
@@ -130,7 +134,12 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   }
 
   saveExecution(): Observable<boolean> {
-    return this.executionForm.saveExecution();
+    if (this.executionForm) {
+      return this.executionForm.saveExecution();
+    } else {
+      this.finishTJobExecution();
+      throw new Error('Error: TestCase View not loaded');
+    }
   }
 
   forceStop(): Observable<ExternalTJobExecModel> {

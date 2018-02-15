@@ -10,11 +10,10 @@ import { MdDialog } from '@angular/material';
 @Component({
   selector: 'etm-testlink',
   templateUrl: './etm-testlink.component.html',
-  styleUrls: ['./etm-testlink.component.scss']
+  styleUrls: ['./etm-testlink.component.scss'],
 })
 export class EtmTestlinkComponent implements OnInit {
-  @Input()
-  isNested: boolean = false;
+  @Input() isNested: boolean = false;
   testLinkUrl: string;
 
   disableBtns: boolean = false;
@@ -36,13 +35,15 @@ export class EtmTestlinkComponent implements OnInit {
 
   projectsList: TestProjectModel[] = [];
 
-
   constructor(
     private titlesService: TitlesService,
-    private _dataTableService: TdDataTableService, private testlinkService: TestLinkService, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    private _dataTableService: TdDataTableService,
+    private testlinkService: TestLinkService,
+    private router: Router,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     if (!this.isNested) {
@@ -53,28 +54,22 @@ export class EtmTestlinkComponent implements OnInit {
   }
 
   loadTestLinkUrl(): void {
-    this.testlinkService.getTestlinkUrl()
-      .subscribe(
-      (url: string) => {
-        this.testLinkUrl = url;
-      },
-    );
+    this.testlinkService.getTestlinkUrl().subscribe((url: string) => {
+      this.testLinkUrl = url;
+    });
   }
 
   loadProjects(): void {
-    this.testlinkService.getAllTestProjects()
-      .subscribe(
-      (projects: TestProjectModel[]) => {
-        this.projectsList = projects;
-      },
-    );
+    this.testlinkService.getAllTestProjects().subscribe((projects: TestProjectModel[]) => {
+      this.projectsList = projects;
+    });
   }
 
   syncTestLink(): void {
     this.disableBtns = true;
-    this.testlinkService.syncTestlink()
-      .subscribe(
+    this.testlinkService.syncTestlink().subscribe(
       (sync: boolean) => {
+        this.loadProjects();
         this.testlinkService.popupService.openSnackBar('Successfully synchronized with Elastest!');
         this.disableBtns = false;
       },

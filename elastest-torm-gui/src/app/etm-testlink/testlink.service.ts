@@ -175,6 +175,17 @@ export class TestLinkService {
     return this.getPlanBuildsById(plan.id);
   }
 
+  public getPlanTestCasesById(planId: number | string): Observable<TLTestCaseModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId + '/case';
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(response.json()));
+  }
+
+  public getPlanTestCases(plan: TestPlanModel): Observable<TLTestCaseModel[]> {
+    return this.getPlanTestCasesById(plan.id);
+  }
+
   public getLatestPlanBuild(plan: TestPlanModel): Observable<BuildModel> {
     let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build/latestF';
     return this.http

@@ -27,7 +27,7 @@
             <md-card-subtitle class="pad-left-none">Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
               <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', exTJob.id, 'exec','new']" class="iconBtn-lg"
-                title="Run Test Plan">
+                title="Run Test Plan" [disabled]="testPlanCases.length === 0">
                 <md-icon>play_circle_outline</md-icon>
               </button>
               <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
@@ -90,6 +90,31 @@
       </md-card-content>
     </md-card>
   </div>
+
 </div>
 
-<etm-external-tjob-execs-view *ngIf="exTJob" [exTJobId]="exTJob"></etm-external-tjob-execs-view>
+<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
+  <div flex-gt-lg="50" layout-gt-sm="column">
+    <md-card tdMediaToggle="gt-xs">
+      <md-card-title>
+        <div layout="row">
+          <span>Associated Test Cases</span>
+          <span flex></span>
+          <!-- <button md-raised-button color="accent" (click)="newTJob()">New Build</button> -->
+        </div>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content #scrollMeTest>
+        <td-data-table #buildTable class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="false"
+          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+          <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+            <div *ngIf="column.name !== 'options'" class="">{{value}}</div>
+          </ng-template>
+        </td-data-table>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div flex-gt-lg="50" layout-gt-sm="column">
+    <etm-external-tjob-execs-view *ngIf="exTJob" [exTJobId]="exTJob"></etm-external-tjob-execs-view>
+  </div>
+</div>

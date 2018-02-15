@@ -268,6 +268,20 @@ public class TestLinkService {
 
     public TestCase[] getPlanTestCases(Integer planId) {
         TestCase[] cases = null;
+        try {
+            cases = (TestCase[]) ArrayUtils.addAll(cases,
+                    this.api.getTestCasesForTestPlan(planId, null, null, null,
+                            null, null, null, null, null, null,
+                            TestCaseDetails.FULL));
+        } catch (TestLinkAPIException e) {
+            // EMPTY
+        }
+
+        return cases;
+    }
+
+    public TestCase[] getPlanBuildTestCases(Integer planId) {
+        TestCase[] cases = null;
         Build[] builds = this.getPlanBuilds(planId);
         if (builds != null) {
             for (Build currentBuild : builds) {

@@ -111,10 +111,8 @@ public class TestLinkApiController implements TestLinkApi {
 
     public ResponseEntity<TestCase[]> getPlanTestCases(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId) {
-        // return new ResponseEntity<TestCase[]>(
-        // testLinkService.getPlangetPlanTestCasesTestCases(planId),
-        // HttpStatus.OK);
-        return null;
+        return new ResponseEntity<TestCase[]>(
+                testLinkService.getPlanTestCases(planId), HttpStatus.OK);
     }
 
     public ResponseEntity<TestCase> createTestCase(
