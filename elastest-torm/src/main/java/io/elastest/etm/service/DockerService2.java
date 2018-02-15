@@ -70,13 +70,13 @@ public class DockerService2 {
     @Value("${elastest.docker.network}")
     private String elastestNetwork;
 
-    @Value("${et.dockbeat.image}")
+    @Value("${et.docker.img.dockbeat}")
     private String dockbeatImage;
 
     @Value("${docker.sock}")
     private String dockerSock;
 
-    @Value("${et.socat.image}")
+    @Value("${et.docker.img.socat}")
     public String etSocatImage;
 
     @Value("${et.shared.folder}")

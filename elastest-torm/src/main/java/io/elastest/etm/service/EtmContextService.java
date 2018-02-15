@@ -100,8 +100,6 @@ public class EtmContextService {
     public String etEtmLstcpHost;
     @Value("${et.etm.lstcp.port}")
     public String etEtmLstcpPort;
-    @Value("${et.socat.image}")
-    public String etSocatImage;
 
     HelpInfo helpInfo;
 

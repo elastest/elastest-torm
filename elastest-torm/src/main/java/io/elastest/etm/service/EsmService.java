@@ -101,8 +101,6 @@ public class EsmService {
 
     @Value("${exec.mode}")
     public String execMode;
-    @Value("${et.socat.image}")
-    public String etSocatImage;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
