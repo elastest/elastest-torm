@@ -1,5 +1,5 @@
 import { TitlesService } from '../../../shared/services/titles.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { ProjectModel } from '../project-model';
 import { Component, OnInit, ViewChild } from '@angular/core';
@@ -9,7 +9,7 @@ import { ElementRef } from '@angular/core/';
 @Component({
   selector: 'app-project-form',
   templateUrl: './project-form.component.html',
-  styleUrls: ['./project-form.component.scss']
+  styleUrls: ['./project-form.component.scss'],
 })
 export class ProjectFormComponent implements OnInit, AfterViewInit {
   @ViewChild('projectNameInput') projectNameInput: ElementRef;
@@ -19,8 +19,10 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
 
   constructor(
     private titlesService: TitlesService,
-    private projectService: ProjectService, private route: ActivatedRoute,
-  ) { }
+    private projectService: ProjectService,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit Project');
@@ -28,7 +30,8 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
     this.currentPath = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       if (this.currentPath === 'edit') {
-        this.route.params.switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+        this.route.params
+          .switchMap((params: Params) => this.projectService.getProject(params['projectId']))
           .subscribe((project: ProjectModel) => {
             this.project = project;
             this.titlesService.setTopTitle(this.project.getRouteString());
@@ -45,18 +48,16 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
     window.history.back();
   }
 
-  save() {
-    this.projectService.createProject(this.project)
-      .subscribe(
-      project => this.postSave(project),
-      error => console.log(error)
-      );
-
+  save(): void {
+    this.projectService.createProject(this.project).subscribe((project) => this.postSave(project), (error) => console.log(error));
   }
 
-  postSave(project: any) {
+  postSave(project: any): void {
     this.project = project;
-    window.history.back();
+    if (this.currentPath === 'add') {
+      this.router.navigate(['/projects', project.id]);
+    } else {
+      window.history.back();
+    }
   }
-
 }
