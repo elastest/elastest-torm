@@ -114,6 +114,7 @@ import { CaseExecutionViewComponent } from './elastest-etm/external/external-tjo
 import { ExternalTjobExecsViewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execs-view/external-tjob-execs-view.component';
 import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob/external-tjob-form/external-tjob-form.component';
 import { TestSuitesViewComponent } from './elastest-etm/test-suite/test-suites-view/test-suites-view.component';
+import { TestCasesViewComponent } from './elastest-etm/test-case/test-cases-view/test-cases-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -180,6 +181,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExternalTjobExecsViewComponent,
     ExternalTjobFormComponent,
     TestSuitesViewComponent,
+    TestCasesViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

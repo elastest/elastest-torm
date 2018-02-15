@@ -762,7 +762,8 @@ public class TJobExecOrchestratorService {
                 for (ReportTestCase reportTestCase : reportTestSuite
                         .getTestCases()) {
                     tCase = new TestCase();
-                    tCase.setName(reportTestCase.getName());
+                    // Remove parentheses
+                    tCase.cleanNameAndSet(reportTestCase.getName());
                     tCase.setTime(reportTestCase.getTime());
                     tCase.setFailureDetail(reportTestCase.getFailureDetail());
                     tCase.setFailureErrorLine(

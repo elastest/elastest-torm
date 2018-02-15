@@ -122,6 +122,11 @@ public class TestCase {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public void cleanNameAndSet(String name) {
+        name = name.split("\\(")[0];
+        this.setName(name);
+    }
 
     /**
      * Get/Set time
