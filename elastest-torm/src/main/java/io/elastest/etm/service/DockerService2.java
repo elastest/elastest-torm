@@ -88,6 +88,8 @@ public class DockerService2 {
     @Autowired
     public UtilTools utilTools;
 
+    public String getThisContainerIpCmd = "ip a | grep global | grep -oE '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b'";
+
     @PreDestroy
     public void removeAllContainers() {
         DockerClient dockerClient = getDockerClient();
@@ -251,9 +253,14 @@ public class DockerService2 {
         if (commands != null && !commands.isEmpty()) {
             cmdList.add("sh");
             cmdList.add("-c");
-            if (sut != null && sut.isSutInNewContainer()) {
-                commands = sutPath != null ? ("cd " + sutPath + ";" + commands)
-                        : commands;
+            if (sut != null) {
+                if (sut.isSutInNewContainer()) {
+                    commands = sutPath != null
+                            ? ("cd " + sutPath + ";" + commands) : commands;
+                }
+            } else {
+                commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd + ");"
+                        + commands;
             }
             cmdList.add(commands);
         }
