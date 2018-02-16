@@ -259,8 +259,8 @@ public class DockerService2 {
                             ? ("cd " + sutPath + ";" + commands) : commands;
                 }
             } else {
-                commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd + ");"
-                        + commands;
+                commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd
+                        + ");" + commands;
             }
             cmdList.add(commands);
         }
@@ -563,10 +563,16 @@ public class DockerService2 {
         if (existsContainer(containerName, dockerExec)) {
             String containerId = getContainerIdByName(containerName,
                     dockerExec);
+            int timeout = 60;
             try {
                 logger.info("Stopping " + containerName + " container");
                 dockerExec.getDockerClient().stopContainerCmd(containerId)
-                        .exec();
+                        .withTimeout(timeout).exec();
+                // Wait
+                 dockerExec.getDockerClient()
+                        .waitContainerCmd(containerId)
+                        .exec(new WaitContainerResultCallback())
+                        .awaitStatusCode();
             } catch (DockerClientException e) {
                 // throw new TJobStoppedException();
             } catch (NotModifiedException e) {
@@ -574,7 +580,8 @@ public class DockerService2 {
                         "Container " + containerName + " is already stopped");
             } catch (Exception e) {
                 logger.info(
-                        "Error during stop " + containerName + " container");
+                        "Error during stop " + containerName + " container {}",
+                        e);
             } finally {
                 try {
                     logger.info("Removing " + containerName + " container");
@@ -584,7 +591,7 @@ public class DockerService2 {
                     // throw new TJobStoppedException();
                 } catch (Exception e) {
                     logger.info("Error during remove " + containerName
-                            + "container");
+                            + " container");
                 }
                 createdContainers.remove(containerId);
             }
