@@ -1,5 +1,15 @@
 FROM bitnami/testlink:1.9.16-r8
 
+# Set Image Labels
+ARG GIT_COMMIT=unspecified
+LABEL git_commit=$GIT_COMMIT
+
+ARG COMMIT_DATE=unspecified
+LABEL commit_date=$COMMIT_DATE
+
+ARG VERSION=unspecified
+LABEL version=$VERSION 
+
 # Install vi
 RUN apt-get update -y
 RUN apt-get install apt-file -y
