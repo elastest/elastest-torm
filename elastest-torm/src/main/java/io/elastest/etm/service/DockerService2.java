@@ -91,7 +91,7 @@ public class DockerService2 {
     @Autowired
     public UtilTools utilTools;
 
-    public String getThisContainerIpCmd = "ip a | grep global | grep -oE '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b'";
+    public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
 
     @PreDestroy
     public void removeAllContainers() {
@@ -289,7 +289,7 @@ public class DockerService2 {
                 }
             } else {
                 commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd
-                        + ");" + commands;
+                        + ") || echo;" + commands;
             }
             cmdList.add(commands);
         }
