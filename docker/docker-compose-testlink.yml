@@ -1,0 +1,26 @@
+version: '3'
+services:        
+    etm-testlink:
+      image: 'elastest/etm-testlink'
+      depends_on:
+            - edm-mysql
+      expose:
+            - 80
+            - 443
+      environment:
+            TESTLINK_USERNAME: admin
+            TESTLINK_PASSWORD: elastest
+            MARIADB_HOST: edm-mysql
+            MARIADB_PASSWORD:
+            MARIADB_PORT_NUMBER: 3306
+            MARIADB_USER: root
+      networks:
+             - elastest
+      volumes:
+             - etm-testlink:/bitnami
+volumes:
+    etm-testlink:
+      driver: local
+networks:
+    elastest:
+      driver: bridge

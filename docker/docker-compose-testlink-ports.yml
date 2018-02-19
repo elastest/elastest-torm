@@ -1,0 +1,6 @@
+version: '3'
+services:
+    etm-testlink:
+        ports:
+            - 37071:80
+            - 37072:443
