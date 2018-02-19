@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.dockerjava.api.model.Container;
 
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
@@ -38,6 +39,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.service.ElasticsearchService.IndexAlreadyExistException;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -456,19 +458,7 @@ public class TJobExecOrchestratorService {
 
                 // If is Sut In new Container
                 if (sut.isSutInNewContainer()) {
-                    String containerName = null;
-                    // If is Docker compose Sut
-                    if (sut.getMainService() != null
-                            && !"".equals(sut.getMainService())) {
-                        containerName = this.getCurrentExecSutMainServiceName(
-                                sut, dockerExec);
-                    } else {                     // If is unique Docker image Sut
-                        containerName = dockerService.getSutPrefix(dockerExec,
-                                false);
-                    }
-                    // TODO retry
-                    sutIP = dockerService.waitForContainerIpWithDockerExecution(
-                            containerName, dockerExec, 480000); // 8min
+                    sutIP = this.waitForSutInContainer(dockerExec, 480000); // 8min
                 }
 
                 // Wait for SuT started
@@ -495,6 +485,52 @@ public class TJobExecOrchestratorService {
             throw e;
         }
         return sutExec;
+    }
+
+    public String waitForSutInContainer(DockerExecution dockerExec,
+            long timeout) throws Exception {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        String containerName = null;
+        String sutPrefix = null;
+        boolean isDockerCompose = false;
+        // If is Docker compose Sut
+        if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
+            containerName = this.getCurrentExecSutMainServiceName(sut,
+                    dockerExec);
+            sutPrefix = this.dockerService.getSutPrefix(dockerExec, true);
+            isDockerCompose = true;
+
+        } else { // If is unique Docker image Sut
+            containerName = dockerService.getSutPrefix(dockerExec, false);
+            sutPrefix = containerName;
+        }
+
+        // Wait for created
+        this.dockerService.waitForContainerCreated(containerName, dockerExec,
+                timeout);
+
+        // Insert main sut/service into ET network
+        this.dockerService.insertIntoNetwork(dockerExec.getNetwork(),
+                this.dockerService.getContainerIdByName(containerName));
+        // Get Main sut/service ip from ET network
+        String sutIp = dockerService.waitForContainerIpWithDockerExecution(
+                containerName, dockerExec, timeout);
+
+        // Add containers to dockerService list
+        if (isDockerCompose) {
+            List<Container> containersList = this.dockerService
+                    .getContainersCreatedSinceId(
+                            dockerExec.getAppContainerId());
+            this.dockerService.getContainersByNamePrefixByGivenList(
+                    containersList, sutPrefix, ContainersListActionEnum.ADD);
+        } else {
+            String containerId = this.dockerService
+                    .getContainerIdByName(containerName);
+            this.dockerService.insertCreatedContainer(containerId,
+                    containerName);
+        }
+
+        return sutIp;
     }
 
     public String getCurrentExecSutMainServiceName(SutSpecification sut,
@@ -550,7 +586,7 @@ public class TJobExecOrchestratorService {
         for (DockerContainer container : dockerComposeService
                 .getContainers(composeProjectName).getContainers()) {
             String containerId = dockerService
-                    .getContainerIdByName(container.getName(), dockerExec);
+                    .getContainerIdByName(container.getName());
 
             // Insert container into containers list
             dockerService.insertCreatedContainer(containerId,
@@ -682,8 +718,11 @@ public class TJobExecOrchestratorService {
             updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
 
             if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
-                dockerService.endContainer(dockerExec,
-                        dockerService.getSutName(dockerExec));
+                if (sut.isSutInNewContainer()) {
+                    endSutInContainer(dockerExec);
+                }
+                dockerService
+                        .endContainer(dockerService.getSutName(dockerExec));
             } else {
                 endComposedSutExec(dockerExec);
             }
@@ -700,6 +739,37 @@ public class TJobExecOrchestratorService {
         dockerComposeService.stopProject(composeProjectName);
     }
 
+    public void endSutInContainer(DockerExecution dockerExec) throws Exception {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        String containerName = null;
+        String sutPrefix = null;
+        boolean isDockerCompose = false;
+
+        // If is Docker compose Sut
+        if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
+            containerName = this.getCurrentExecSutMainServiceName(sut,
+                    dockerExec);
+            sutPrefix = this.dockerService.getSutPrefix(dockerExec, true);
+            isDockerCompose = true;
+
+        } else { // If is unique Docker image Sut
+            containerName = dockerService.getSutPrefix(dockerExec, false);
+            sutPrefix = containerName;
+        }
+
+        // Add containers to dockerService list
+        if (isDockerCompose) {
+            List<Container> containersList = this.dockerService
+                    .getContainersCreatedSinceId(
+                            dockerExec.getAppContainerId());
+            this.dockerService.getContainersByNamePrefixByGivenList(
+                    containersList, sutPrefix, ContainersListActionEnum.REMOVE);
+        } else {
+            this.dockerService.endContainer(containerName);
+        }
+
+    }
+
     public void updateSutExecDeployStatus(DockerExecution dockerExec,
             DeployStatusEnum status) {
         SutExecution sutExec = dockerExec.getSutExec();
@@ -711,8 +781,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void endCheckSutExec(DockerExecution dockerExec) {
-        dockerService.endContainer(dockerExec,
-                dockerService.getCheckName(dockerExec));
+        dockerService.endContainer(dockerService.getCheckName(dockerExec));
     }
 
     /******************/
@@ -720,7 +789,7 @@ public class TJobExecOrchestratorService {
     /******************/
 
     public void endDockbeatExec(DockerExecution dockerExec) {
-        dockerService.endContainer(dockerExec,
+        dockerService.endContainer(
                 dockerService.getDockbeatContainerName(dockerExec));
     }
 
@@ -729,8 +798,7 @@ public class TJobExecOrchestratorService {
     /***************************/
 
     public void endTestExec(DockerExecution dockerExec) {
-        dockerService.endContainer(dockerExec,
-                dockerService.getTestName(dockerExec));
+        dockerService.endContainer(dockerService.getTestName(dockerExec));
     }
 
     private void updateTJobExecResultStatus(TJobExecution tJobExec,

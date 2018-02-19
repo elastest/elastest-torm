@@ -830,7 +830,6 @@ public class EsmService {
         if (ssiMap == null) {
             ssiMap = this.servicesInstances;
         }
-        DockerClient dockerClient = dockerService.getDockerClient();
         String result = "Instance deleted.";
 
         SupportServiceInstance serviceInstance = ssiMap.get(instanceId);
@@ -839,18 +838,16 @@ public class EsmService {
 
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
-                dockerService.stopDockerContainer(containerId, dockerClient);
-                dockerService.removeDockerContainer(containerId, dockerClient);
+                dockerService.stopDockerContainer(containerId);
+                dockerService.removeDockerContainer(containerId);
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
                 for (String containerId : subServiceInstance
                         .getPortBindingContainers()) {
-                    dockerService.stopDockerContainer(containerId,
-                            dockerClient);
-                    dockerService.removeDockerContainer(containerId,
-                            dockerClient);
+                    dockerService.stopDockerContainer(containerId);
+                    dockerService.removeDockerContainer(containerId);
                 }
             }
 

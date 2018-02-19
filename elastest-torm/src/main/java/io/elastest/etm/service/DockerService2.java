@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -35,6 +37,7 @@ import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -92,19 +95,45 @@ public class DockerService2 {
 
     @PreDestroy
     public void removeAllContainers() {
-        DockerClient dockerClient = getDockerClient();
         logger.info("Stopping started containers...");
         for (Map.Entry<String, String> entry : createdContainers.entrySet()) {
             String containerId = entry.getKey();
             String containerName = entry.getValue();
             try {
-                stopDockerContainer(containerId, dockerClient);
-                removeDockerContainer(containerId, dockerClient);
+                stopDockerContainer(containerId);
+                removeDockerContainer(containerId);
                 logger.info(containerName + " removed");
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public enum ContainersListActionEnum {
+        ADD("ADD"), REMOVE("REMOVE"), NONE("NONE");
+
+        private String value;
+
+        ContainersListActionEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ContainersListActionEnum fromValue(String text) {
+            for (ContainersListActionEnum b : ContainersListActionEnum
+                    .values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
         }
     }
 
@@ -165,21 +194,21 @@ public class DockerService2 {
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
-        createdContainers.put(container.getId(), containerName);
+        this.insertCreatedContainer(container.getId(), containerName);
 
         logger.info("Id del contenedor:" + container.getId());
 
         return container.getId();
     }
 
-    public void removeDockerContainer(String containerId,
-            DockerClient dockerClient) {
+    public void removeDockerContainer(String containerId) {
+        DockerClient dockerClient = this.getDockerClient();
         dockerClient.removeContainerCmd(containerId).exec();
         createdContainers.remove(containerId);
     }
 
-    public void stopDockerContainer(String containerId,
-            DockerClient dockerClient) {
+    public void stopDockerContainer(String containerId) {
+        DockerClient dockerClient = this.getDockerClient();
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
@@ -327,7 +356,6 @@ public class DockerService2 {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         Long execution = dockerExec.getExecutionId();
-        SutSpecification sut = tJob.getSut();
 
         String containerName = getDockbeatContainerName(dockerExec);
 
@@ -353,13 +381,6 @@ public class DockerService2 {
                     + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
         }
         envList.add(lsHostEnvVar);
-
-        // if (sut != null && sut.isSutInNewContainer()) {
-        // // Exclude Aux Sut
-        // envVar = "FILTER_EXCLUDE" + "=" + "\"" + this.getSutName(dockerExec)
-        // + "\"";
-        // envList.add(envVar);
-        // }
 
         // dockerSock
         Volume volume1 = new Volume(dockerSock);
@@ -397,7 +418,7 @@ public class DockerService2 {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        createdContainers.put(container.getId(), containerName);
+        this.insertCreatedContainer(container.getId(), containerName);
 
     }
 
@@ -436,7 +457,7 @@ public class DockerService2 {
         String sutContainerId = dockerExec.getAppContainerId();
 
         dockerExec.getDockerClient().startContainerCmd(sutContainerId).exec();
-        createdContainers.put(sutContainerId, sutName);
+        this.insertCreatedContainer(sutContainerId, sutName);
     }
 
     public String getCheckName(DockerExecution dockerExec) {
@@ -472,7 +493,7 @@ public class DockerService2 {
                 .withName(checkName).withNetworkMode(dockerExec.getNetwork())
                 .exec().getId();
         dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
-        createdContainers.put(checkContainerId, checkName);
+        this.insertCreatedContainer(checkContainerId, checkName);
 
         try {
             dockerExec.getDockerClient().waitContainerCmd(checkContainerId)
@@ -519,7 +540,7 @@ public class DockerService2 {
 
             dockerExec.getDockerClient().startContainerCmd(testContainerId)
                     .exec();
-            createdContainers.put(testContainerId, testName);
+            this.insertCreatedContainer(testContainerId, testName);
 
             int code = dockerExec.getDockerClient()
                     .waitContainerCmd(testContainerId)
@@ -559,18 +580,17 @@ public class DockerService2 {
     /***** End execution methods *****/
     /*********************************/
 
-    public void endContainer(DockerExecution dockerExec, String containerName) {
-        if (existsContainer(containerName, dockerExec)) {
-            String containerId = getContainerIdByName(containerName,
-                    dockerExec);
+    public void endContainer(String containerName) {
+        DockerClient dockerClient = this.getDockerClient();
+        if (existsContainer(containerName)) {
+            String containerId = getContainerIdByName(containerName);
             int timeout = 60;
             try {
                 logger.info("Stopping " + containerName + " container");
-                dockerExec.getDockerClient().stopContainerCmd(containerId)
-                        .withTimeout(timeout).exec();
+                dockerClient.stopContainerCmd(containerId).withTimeout(timeout)
+                        .exec();
                 // Wait
-                 dockerExec.getDockerClient()
-                        .waitContainerCmd(containerId)
+                dockerClient.waitContainerCmd(containerId)
                         .exec(new WaitContainerResultCallback())
                         .awaitStatusCode();
             } catch (DockerClientException e) {
@@ -585,8 +605,7 @@ public class DockerService2 {
             } finally {
                 try {
                     logger.info("Removing " + containerName + " container");
-                    dockerExec.getDockerClient().removeContainerCmd(containerId)
-                            .exec();
+                    dockerClient.removeContainerCmd(containerId).exec();
                 } catch (DockerClientException e) {
                     // throw new TJobStoppedException();
                 } catch (Exception e) {
@@ -638,6 +657,32 @@ public class DockerService2 {
                     + " non reachable. Timeout!");
         }
         return containerIp;
+    }
+
+    public boolean waitForContainerCreated(String containerId,
+            DockerExecution dockerExec, long timeout) throws Exception {
+        long start_time = System.currentTimeMillis();
+        long end_time = start_time + timeout;
+
+        boolean created = false;
+
+        while (!created && System.currentTimeMillis() < end_time) {
+            try {
+                created = this.existsContainer(containerId);
+            } catch (Exception e) {
+                logger.info(
+                        "Container with id {} is not created yet. Retrying...",
+                        containerId);
+            }
+            Thread.sleep(1500);
+        }
+
+        if (!created) {
+            throw new Exception("Container with id " + containerId
+                    + " not created. Timeout!");
+        } else {
+            return created;
+        }
     }
 
     public String getContainerIpByNetwork(String containerId, String network) {
@@ -728,6 +773,51 @@ public class DockerService2 {
         return bindedPortObj;
     }
 
+    public List<Container> getContainersByNamePrefix(String prefix) {
+        DockerClient dockerClient = this.getDockerClient();
+        List<Container> containers = dockerClient.listContainersCmd()
+                .withShowAll(true).exec();
+
+        return this.getContainersByNamePrefixByGivenList(containers, prefix,
+                ContainersListActionEnum.NONE);
+    }
+
+    public List<Container> getContainersCreatedSinceId(String startId) {
+        DockerClient dockerClient = this.getDockerClient();
+        return dockerClient.listContainersCmd().withShowAll(true)
+                .withSince(startId).exec();
+    }
+
+    public List<Container> getContainersByNamePrefixByGivenList(
+            List<Container> containersList, String prefix,
+            ContainersListActionEnum action) {
+        List<Container> filteredList = new ArrayList<>();
+        for (Container currentContainer : containersList) {
+            // Get name (name start with slash, we remove it)
+            String containerName = currentContainer.getNames()[0]
+                    .replaceFirst("/", "");
+            if (containerName != null && containerName.startsWith(prefix)) {
+                filteredList.add(currentContainer);
+                if (action != ContainersListActionEnum.NONE) {
+                    if (action == ContainersListActionEnum.ADD) {
+                        this.insertCreatedContainer(currentContainer.getId(),
+                                containerName);
+                        try {
+                            this.insertIntoNetwork(this.elastestNetwork,
+                                    currentContainer.getId());
+                        } catch (Exception e) {
+                            // Already added
+                        }
+                    } else {
+                        this.endContainer(containerName);
+                    }
+                }
+            }
+        }
+
+        return filteredList;
+    }
+
     /***************************/
     /***** Get TestResults *****/
     /***************************/
@@ -735,7 +825,7 @@ public class DockerService2 {
     public InputStream getFileFromContainer(String containerName,
             String fileName, DockerExecution dockerExec) {
         InputStream inputStream = null;
-        if (existsContainer(getTestName(dockerExec), dockerExec)) {
+        if (existsContainer(getTestName(dockerExec))) {
             inputStream = dockerExec.getDockerClient()
                     .copyArchiveFromContainerCmd(containerName, fileName)
                     .exec();
@@ -743,25 +833,24 @@ public class DockerService2 {
         return inputStream;
     }
 
-    public boolean existsContainer(String containerName,
-            DockerExecution dockerExec) {
+    public boolean existsContainer(String containerName) {
+        DockerClient dockerClient = this.getDockerClient();
         boolean exists = true;
         try {
-            dockerExec.getDockerClient().inspectContainerCmd(containerName)
-                    .exec();
+            dockerClient.inspectContainerCmd(containerName).exec();
         } catch (NotFoundException e) {
             exists = false;
         }
         return exists;
     }
 
-    public String getContainerIdByName(String containerName,
-            DockerExecution dockerExec) {
+    public String getContainerIdByName(String containerName) {
+        DockerClient dockerClient = this.getDockerClient();
         String id = "";
-        if (existsContainer(containerName, dockerExec)) {
+        if (existsContainer(containerName)) {
             try {
 
-                InspectContainerResponse response = dockerExec.getDockerClient()
+                InspectContainerResponse response = dockerClient
                         .inspectContainerCmd(containerName).exec();
                 id = response.getId();
             } catch (Exception e) {
