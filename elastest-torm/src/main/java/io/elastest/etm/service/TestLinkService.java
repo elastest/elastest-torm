@@ -90,38 +90,41 @@ public class TestLinkService {
 
     @PostConstruct
     public void init() {
-        // Default development
-        this.testLinkHost = etEtmTestLinkHost;
-        this.testLinkPort = etEtmTestLinkBindedPort;
+        if (!etEtmTestLinkHost.equals("none")) {
+            // Default development
+            this.testLinkHost = etEtmTestLinkHost;
+            this.testLinkPort = etEtmTestLinkBindedPort;
 
-        // If not development, start socat
-        if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
-            try {
-                String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
-                logger.info("Real TestLink Ip: {}", testLinkIp);
-                SocatBindedPort socatBindedPort = dockerService.bindingPort(
-                        testLinkIp, etEtmTestLinkPort, etDockerNetwork);
-                this.testLinkHost = etPublicHost;
-                this.testLinkPort = socatBindedPort.getListenPort();
-            } catch (Exception e) {
-                logger.error("Cannot get Testlink socat data {}", e);
-                this.testLinkHost = etEtmTestLinkHost;
-                this.testLinkPort = etEtmTestLinkBindedPort;
+            // If not development, start socat
+            if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
+                try {
+                    String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
+                    logger.info("Real TestLink Ip: {}", testLinkIp);
+                    SocatBindedPort socatBindedPort = dockerService.bindingPort(
+                            testLinkIp, etEtmTestLinkPort, etDockerNetwork);
+                    this.testLinkHost = etPublicHost;
+                    this.testLinkPort = socatBindedPort.getListenPort();
+                } catch (Exception e) {
+                    logger.error("Cannot get Testlink socat data {}", e);
+                    this.testLinkHost = etEtmTestLinkHost;
+                    this.testLinkPort = etEtmTestLinkBindedPort;
+                }
             }
-        }
 
-        String url = this.getTestLinkUrl() + "/lib/api/xmlrpc/v1/xmlrpc.php";
+            String url = this.getTestLinkUrl()
+                    + "/lib/api/xmlrpc/v1/xmlrpc.php";
 
-        try {
-            testlinkURL = new URL(url);
-        } catch (MalformedURLException mue) {
-            mue.printStackTrace();
-        }
+            try {
+                testlinkURL = new URL(url);
+            } catch (MalformedURLException mue) {
+                mue.printStackTrace();
+            }
 
-        try {
-            api = new TestLinkAPI(testlinkURL, devKey);
-        } catch (TestLinkAPIException te) {
-            logger.error(te.getMessage());
+            try {
+                api = new TestLinkAPI(testlinkURL, devKey);
+            } catch (TestLinkAPIException te) {
+                logger.error(te.getMessage());
+            }
         }
     }
 

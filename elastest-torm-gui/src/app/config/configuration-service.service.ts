@@ -38,6 +38,7 @@ export class ConfigurationService {
                         'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
                             ? servicesInfo.eusSSInstance.urls.eusWSapi : null,
                         'elasTestExecMode': servicesInfo.elasTestExecMode,
+                        'testLinkStarted': servicesInfo.testLinkStarted,
                     };
 
                     resolve();

@@ -100,6 +100,9 @@ public class EtmContextService {
     public String etEtmLstcpHost;
     @Value("${et.etm.lstcp.port}")
     public String etEtmLstcpPort;
+    
+    @Value("${et.etm.testlink.host}")
+    public String etEtmTestLinkHost;
 
     HelpInfo helpInfo;
 
@@ -115,6 +118,7 @@ public class EtmContextService {
         contextInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
         contextInfo.setElasTestExecMode(execMode);
         contextInfo.setEusSSInstance(getEusApiUrl());
+        contextInfo.setTestLinkStarted(!etEtmTestLinkHost.equals("none") ? true : false);
         return contextInfo;
     }
 

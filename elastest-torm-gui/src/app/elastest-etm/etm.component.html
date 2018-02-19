@@ -68,7 +68,7 @@
         Log Analyzer
       </a>
 
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+      <a *ngIf="configService.configModel.testLinkStarted" md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
         [routerLink]="['/testlink']" id="nav_log_manager">
         <md-icon md-list-icon>gps_not_fixed</md-icon>

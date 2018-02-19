@@ -15,6 +15,9 @@ public class ContextInfo {
     private String elasTestExecMode;
     @JsonProperty("eusSSInstance")
     private SupportServiceInstance eusSSInstance;
+    @JsonProperty("testLinkStarted")
+    private boolean testLinkStarted;
+    
     
     public String getElasticSearchUrl() {
         return elasticSearchUrl;
@@ -46,5 +49,13 @@ public class ContextInfo {
 
     public void setEusSSInstance(SupportServiceInstance eusSSInstance) {
         this.eusSSInstance = eusSSInstance;
+    }
+
+    public boolean isTestLinkStarted() {
+        return testLinkStarted;
+    }
+
+    public void setTestLinkStarted(boolean testLinkStarted) {
+        this.testLinkStarted = testLinkStarted;
     }
 }

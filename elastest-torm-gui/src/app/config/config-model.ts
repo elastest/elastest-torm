@@ -11,4 +11,5 @@ export interface ConfigModel {
   eusServiceUrl: string;
   eusWebSocketUrl: string;
   elasTestExecMode: string;
+  testLinkStarted: boolean;
 }
