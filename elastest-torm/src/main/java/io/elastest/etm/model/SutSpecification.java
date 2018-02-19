@@ -603,7 +603,7 @@ public class SutSpecification {
     }
 
     public String getSutInContainerAuxLabel() {
-        return "Aux";
+        return "aux";
     }
 
     public boolean isDockerComposeSut() {

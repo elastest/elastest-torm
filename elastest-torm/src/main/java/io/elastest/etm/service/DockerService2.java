@@ -428,18 +428,24 @@ public class DockerService2 {
 
     public String getSutName(DockerExecution dockerExec) {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
-        return this.getSutPrefix(dockerExec, false)
+        return this.getSutPrefix(dockerExec)
                 + (sut.isDockerImageSut() && sut.isSutInNewContainer()
                         ? "_" + sut.getSutInContainerAuxLabel() : "");
     }
 
-    public String getSutPrefix(DockerExecution dockerExec,
-            boolean isDockerCompose) {
-        if (!isDockerCompose) {
-            return "sut_" + dockerExec.getExecutionId();
-        } else {
-            return "sut" + dockerExec.getExecutionId();
+    public String getSutPrefix(DockerExecution dockerExec) {
+        SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
+        String prefix = "sut_" + dockerExec.getExecutionId();
+
+        if (sut.isDockerImageSut() && sut.isSutInNewContainer()) {
+            // If is Docker compose Sut
+            if (sut.getMainService() != null
+                    && !"".equals(sut.getMainService())) {
+                prefix = "sut" + dockerExec.getExecutionId();
+            }
         }
+
+        return prefix;
 
     }
 

@@ -497,11 +497,11 @@ public class TJobExecOrchestratorService {
         if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
                     dockerExec);
-            sutPrefix = this.dockerService.getSutPrefix(dockerExec, true);
+            sutPrefix = this.dockerService.getSutPrefix(dockerExec);
             isDockerCompose = true;
 
         } else { // If is unique Docker image Sut
-            containerName = dockerService.getSutPrefix(dockerExec, false);
+            containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
         }
 
@@ -535,7 +535,7 @@ public class TJobExecOrchestratorService {
 
     public String getCurrentExecSutMainServiceName(SutSpecification sut,
             DockerExecution dockerExec) {
-        return dockerService.getSutPrefix(dockerExec, true) + "_"
+        return dockerService.getSutPrefix(dockerExec) + "_"
                 + sut.getMainService() + "_1";
     }
 
@@ -749,11 +749,11 @@ public class TJobExecOrchestratorService {
         if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
                     dockerExec);
-            sutPrefix = this.dockerService.getSutPrefix(dockerExec, true);
+            sutPrefix = this.dockerService.getSutPrefix(dockerExec);
             isDockerCompose = true;
 
         } else { // If is unique Docker image Sut
-            containerName = dockerService.getSutPrefix(dockerExec, false);
+            containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
         }
 
