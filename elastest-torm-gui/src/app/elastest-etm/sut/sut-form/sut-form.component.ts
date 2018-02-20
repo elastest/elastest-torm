@@ -33,6 +33,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   adminInsCheck: boolean = false;
 
   dockerCompose: boolean = false;
+  sutInNewContainerDockerCompose: boolean = false;
 
   specText: string = 'SuT Specification';
   deployedSpecText: string = 'SuT IP';
@@ -65,6 +66,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.initSutType();
           this.initInstrumentedBy();
           this.initInstrumentalized();
+          this.initSutInNewContainer();
           this.dockerCompose = this.sut.isByDockerCompose();
           this.sutExecIndex = this.sut.getSutESIndex();
           this.useImageCommand = !this.sut.withCommands();
@@ -125,6 +127,10 @@ export class SutFormComponent implements OnInit, AfterViewInit {
 
   initInstrumentalized(): void {
     this.instrumentalized = this.sut.instrumentalize;
+  }
+
+  initSutInNewContainer(): void {
+    this.sutInNewContainerDockerCompose = this.sut.mainServiceIsNotEmpty();
   }
 
   sutBy(selected: string): void {
@@ -236,5 +242,12 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   managedDockerTypeBy(compose: boolean): void {
     this.dockerCompose = compose;
     this.sut.managedDockerType = compose ? 'COMPOSE' : 'IMAGE';
+  }
+
+  switchMainService($event): void {
+    this.sutInNewContainerDockerCompose = $event.checked;
+    if (!this.sutInNewContainerDockerCompose) {
+      this.sut.mainService = '';
+    }
   }
 }

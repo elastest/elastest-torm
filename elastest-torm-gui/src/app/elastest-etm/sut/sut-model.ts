@@ -78,6 +78,10 @@ export class SutModel {
     return commandsArray;
   }
 
+  public mainServiceIsNotEmpty(): boolean {
+    return this.mainService !== undefined && this.mainService !== null && this.mainService !== '';
+  }
+
   changeSutInNewContainerValue($event): void {
     this.sutInNewContainer = $event.checked;
     if (this.isManaged() && !this.isByDockerCompose() && !this.sutInNewContainer) {

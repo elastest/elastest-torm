@@ -73,11 +73,7 @@
               <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
                 [(ngModel)]="sut.specification" name="specification" required>
             </md-input-container>
-            <div class="pad">
-              <span class="push-right">
-                <md-checkbox [checked]="sut.sutInNewContainer" (change)="sut.changeSutInNewContainerValue($event)">Sut in new container</md-checkbox>
-              </span>
-            </div>
+            <md-checkbox [checked]="sut.sutInNewContainer" (change)="sut.changeSutInNewContainerValue($event)">Sut in new container</md-checkbox>
             <!-- Commands -->
             <div layout="column" class="push-top push-bottom pad-top" *ngIf="managedSut.checked">
               <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
@@ -88,11 +84,14 @@
                 </md-input-container>
               </div>
             </div>
-            <!-- Main service name -->
-            <md-input-container flex="100" *ngIf="sut.sutInNewContainer">
-              <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService">
-            </md-input-container>
-
+            <ng-container *ngIf="sut.sutInNewContainer">
+              <md-checkbox #inNewContainerDockerCompose [checked]="sutInNewContainerDockerCompose" (change)="switchMainService($event)"
+                class="push-bottom">SuT in docker compose</md-checkbox>
+              <!-- Main service name -->
+              <md-input-container flex="100" *ngIf="inNewContainerDockerCompose.checked">
+                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService">
+              </md-input-container>
+            </ng-container>
           </ng-container>
 
           <ng-template #dockerComposeSpec>
