@@ -1,0 +1,43 @@
+#=========================== Filebeat prospectors =============================
+
+filebeat.prospectors:
+
+- type: docker
+  enabled: true
+  containers.ids:
+    - '*'
+  processors:
+  - add_docker_metadata: ~
+#================================ General =====================================
+
+#fields_under_root: true
+#fields:
+#  exec: ${ET_MON_EXEC}
+
+
+#================================ Outputs =====================================
+
+# Configure what outputs to use when sending the data collected by the beat.
+# Multiple outputs may be used.
+
+#-------------------------- Elasticsearch output ------------------------------
+#output.elasticsearch:
+  # Array of hosts to connect to.
+  #hosts: ["localhost:9200"]
+
+  # Optional protocol and basic auth credentials.
+  #protocol: "https"
+  #username: "elastic"
+  #password: "changeme"
+
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  enabled: true
+  # The Logstash hosts
+  hosts: ["${ET_ETM_LSHTTP_HOST}:${ET_ETM_LSHTTP_PORT:5044}"]
+
+#================================ Logging =====================================
+
+logging.level: debug
+logging.to_syslog: false
+logging.to_files: false
