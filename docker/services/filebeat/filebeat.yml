@@ -1,13 +1,15 @@
 #=========================== Filebeat prospectors =============================
-
-filebeat.prospectors:
-
-- type: docker
-  enabled: true
-  containers.ids:
-    - '*'
-  processors:
-  - add_docker_metadata: ~
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            regexp:
+              docker.container.name: "^(test|sut)(_)?(\\d*)(.*)?"
+          config:
+            - type: log
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
 #================================ General =====================================
 
 #fields_under_root: true
