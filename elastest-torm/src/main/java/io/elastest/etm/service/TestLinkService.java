@@ -51,9 +51,6 @@ public class TestLinkService {
     @Value("${et.etm.testlink.port}")
     public String etEtmTestLinkPort;
 
-    @Value("${et.etm.testlink.binded.port}")
-    public String etEtmTestLinkBindedPort;
-
     @Value("${elastest.docker.network}")
     private String etDockerNetwork;
 
@@ -92,8 +89,9 @@ public class TestLinkService {
     public void init() {
         if (!etEtmTestLinkHost.equals("none")) {
             // Default development
-            this.testLinkHost = etEtmTestLinkHost;
-            this.testLinkPort = etEtmTestLinkBindedPort;
+            this.testLinkHost = this.dockerService.getContainerIpByNetwork(
+                    etEtmTestLinkHost, etDockerNetwork);
+            this.testLinkPort = etEtmTestLinkPort;
 
             // If not development, start socat
             if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
@@ -107,7 +105,7 @@ public class TestLinkService {
                 } catch (Exception e) {
                     logger.error("Cannot get Testlink socat data {}", e);
                     this.testLinkHost = etEtmTestLinkHost;
-                    this.testLinkPort = etEtmTestLinkBindedPort;
+                    this.testLinkPort = etEtmTestLinkPort;
                 }
             }
 
