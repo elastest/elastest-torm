@@ -6,6 +6,7 @@ services:
             - etm-rabbitmq
             - edm-elasticsearch
             - etm-logstash
+            - etm-filebeat
         links:
             - etm-rabbitmq
         image: elastest/etm

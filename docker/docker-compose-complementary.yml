@@ -60,6 +60,18 @@ services:
         networks:
             - elastest 
 
+    etm-filebeat:
+        image: elastest/etm-filebeat
+        depends_on:
+            - etm-logstash
+        environment:
+            - ET_ETM_LSHTTP_HOST=edm-logstash
+        networks:
+            - elastest
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/containers:/var/lib/docker/containers
+
     esm:
       image: elastest/esm
       hostname: esm

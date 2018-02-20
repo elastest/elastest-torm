@@ -1,4 +1,13 @@
 #=========================== Filebeat prospectors =============================
+
+#filebeat.prospectors:
+
+#- type: docker
+#  enabled: true
+#  containers.ids:
+#    - '*'
+
+#=========================== Filebeat autodiscover =============================
 filebeat.autodiscover:
   providers:
     - type: docker
