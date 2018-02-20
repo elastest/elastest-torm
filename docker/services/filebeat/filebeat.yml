@@ -19,6 +19,9 @@ filebeat.autodiscover:
             - type: log
               paths:
                 - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              # Docker saves logs in json format and the message is into log key
+              json.message_key: log
+
 #================================ General =====================================
 
 #fields_under_root: true
