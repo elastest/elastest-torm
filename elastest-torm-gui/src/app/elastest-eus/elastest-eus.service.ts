@@ -75,6 +75,7 @@ export class EusService {
 
   public getStatus(): Observable<Response> {
     let url: string = this.eusUrl + 'status';
+    console.log("GET " + url + " (to find out browser list in EUS)");
     return this.http.get(url);
   }
 

@@ -85,7 +85,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         this.browserVersionsKeys = Object.keys(this.browserVersions);
         this.loading = false;
       },
-      error => console.error(error)
+      error => console.error("Error getting EUS status: " + error)
     );
 
     this.startWebSocket();
