@@ -65,7 +65,7 @@ services:
         depends_on:
             - etm-logstash
         environment:
-            - ET_ETM_LSHTTP_HOST=edm-logstash
+            - ET_ETM_LSHTTP_HOST=etm-logstash
         networks:
             - elastest
         volumes:
