@@ -88,40 +88,46 @@ public class TestLinkService {
     @PostConstruct
     public void init() {
         if (!etEtmTestLinkHost.equals("none")) {
-            // Default development
-            this.testLinkHost = this.dockerService.getContainerIpByNetwork(
-                    etEtmTestLinkHost, etDockerNetwork);
-            this.testLinkPort = etEtmTestLinkPort;
 
-            // If not development, start socat
-            if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
-                try {
-                    String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
-                    logger.info("Real TestLink Ip: {}", testLinkIp);
-                    SocatBindedPort socatBindedPort = dockerService.bindingPort(
-                            testLinkIp, etEtmTestLinkPort, etDockerNetwork);
-                    this.testLinkHost = etPublicHost;
-                    this.testLinkPort = socatBindedPort.getListenPort();
-                } catch (Exception e) {
-                    logger.error("Cannot get Testlink socat data {}", e);
-                    this.testLinkHost = etEtmTestLinkHost;
-                    this.testLinkPort = etEtmTestLinkPort;
+            try {
+                // Default development
+                this.testLinkHost = this.dockerService.getContainerIpByNetwork(
+                        etEtmTestLinkHost, etDockerNetwork);
+                this.testLinkPort = etEtmTestLinkPort;
+
+                // If not development, start socat
+                if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
+                    try {
+                        String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
+                        logger.info("Real TestLink Ip: {}", testLinkIp);
+                        SocatBindedPort socatBindedPort = dockerService
+                                .bindingPort(testLinkIp, etEtmTestLinkPort,
+                                        etDockerNetwork);
+                        this.testLinkHost = etPublicHost;
+                        this.testLinkPort = socatBindedPort.getListenPort();
+                    } catch (Exception e) {
+                        logger.error("Cannot get Testlink socat data {}", e);
+                        this.testLinkHost = etEtmTestLinkHost;
+                        this.testLinkPort = etEtmTestLinkPort;
+                    }
                 }
-            }
 
-            String url = this.getTestLinkUrl()
-                    + "/lib/api/xmlrpc/v1/xmlrpc.php";
+                String url = this.getTestLinkUrl()
+                        + "/lib/api/xmlrpc/v1/xmlrpc.php";
 
-            try {
-                testlinkURL = new URL(url);
-            } catch (MalformedURLException mue) {
-                mue.printStackTrace();
-            }
+                try {
+                    testlinkURL = new URL(url);
+                } catch (MalformedURLException mue) {
+                    mue.printStackTrace();
+                }
 
-            try {
-                api = new TestLinkAPI(testlinkURL, devKey);
-            } catch (TestLinkAPIException te) {
-                logger.error(te.getMessage());
+                try {
+                    api = new TestLinkAPI(testlinkURL, devKey);
+                } catch (TestLinkAPIException te) {
+                    logger.error(te.getMessage());
+                }
+            } catch (Exception e) {
+                logger.error("Cannot get TL container ip", e);
             }
         }
     }
