@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,6 +128,24 @@ public class FilesService {
                 return;
             }
             logger.info("Folder created.");
+        }
+
+    }
+
+    public void removeExecFilesFolder(String path) throws IOException {
+        logger.debug("Try to remove folder structure: {}", path);
+        File folderStructure = new File(path);
+
+        if (folderStructure.exists()) {
+            logger.info("removing folder at {}.",
+                    folderStructure.getAbsolutePath());
+            try {
+                FileUtils.deleteDirectory(folderStructure);
+            } catch (IOException e) {
+                logger.error("File does not removed.");
+                throw e;
+            }
+            logger.info("Folder removed.");
         }
 
     }

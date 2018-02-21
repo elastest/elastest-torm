@@ -606,6 +606,7 @@ public class TJobExecOrchestratorService {
 
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public String setElasTestConfigToDockerComposeYml(String dockerComposeYml,
             String composeProjectName, DockerExecution dockerExec)
             throws Exception {
@@ -646,6 +647,7 @@ public class TJobExecOrchestratorService {
         return dockerComposeYml;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private Map<String, HashMap<String, HashMap>> setNetworkToDockerComposeYmlRoot(
             Map<String, HashMap<String, HashMap>> dockerComposeMap,
             String composeProjectName, DockerExecution dockerExec) {
@@ -667,6 +669,7 @@ public class TJobExecOrchestratorService {
 
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
             DockerExecution dockerExec) {
@@ -692,6 +695,7 @@ public class TJobExecOrchestratorService {
         return service;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setNetworkToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
             DockerExecution dockerExec) {
@@ -712,7 +716,7 @@ public class TJobExecOrchestratorService {
 
     public void endSutExec(DockerExecution dockerExec) throws Exception {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
-
+        dockerService.removeSutVolumeFolder(dockerExec);
         // If it's Managed Sut, and container is created
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
             updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);

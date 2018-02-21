@@ -233,6 +233,8 @@ public class DockerService2 {
 
         String sutHost = null;
 
+        String sutPath = null;
+
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -242,6 +244,9 @@ public class DockerService2 {
                 suffix = sut.getSutInContainerAuxLabel();
             }
             containerName = getSutName(dockerExec);
+            sutPath = filesService.buildFilesPath(tJobExec,
+                    ElastestConstants.SUT_FOLDER);
+            filesService.createExecFilesFolder(sutPath);
         } else if ("tjob".equals(type.toLowerCase())) {
             parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
@@ -272,10 +277,6 @@ public class DockerService2 {
         if (sutHost != null) {
             envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
         }
-
-        String sutPath = filesService.buildFilesPath(tJobExec,
-                ElastestConstants.SUT_FOLDER);
-        filesService.createExecFilesFolder(sutPath);
 
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
@@ -623,6 +624,16 @@ public class DockerService2 {
         } else {
             logger.info("Could not end " + containerName
                     + " container -> Not started.");
+        }
+    }
+
+    public void removeSutVolumeFolder(DockerExecution dockerExec) {
+        TJobExecution tJobExec = dockerExec.gettJobexec();
+        String sutPath = filesService.buildFilesPath(tJobExec,
+                ElastestConstants.SUT_FOLDER);
+        try {
+            filesService.removeExecFilesFolder(sutPath);
+        } catch (IOException e) {
         }
     }
 
