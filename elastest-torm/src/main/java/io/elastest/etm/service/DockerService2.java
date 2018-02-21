@@ -299,21 +299,7 @@ public class DockerService2 {
         LogConfig logConfig = getLogConfig(logPort, prefix, suffix, dockerExec);
 
         // Pull Image
-        try {
-            dockerExec.getDockerClient().pullImageCmd(image)
-                    .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException | NotFoundException ie) {
-            if (imageExistsLocally(image, dockerExec.getDockerClient())) {
-                logger.info("Docker image exits locally.");
-            } else {
-                logger.error("Error pulling the image: {}", ie.getMessage());
-                throw ie;
-            }
-        } catch (DockerClientException e) {
-            logger.info("Error on Pulling " + type
-                    + " image. Probably because the user has stopped the execution");
-            throw new TJobStoppedException();
-        }
+        this.pullETExecImage(image, type);
 
         // Create docker sock volume
         Volume dockerSockVolume = new Volume(dockerSock);
@@ -341,6 +327,31 @@ public class DockerService2 {
 
         // Create Container
         return containerCmd.exec();
+    }
+
+    public void pullETExecImage(String image, String name)
+            throws TJobStoppedException {
+        DockerClient dockerClient = this.getDockerClient();
+
+        try {
+            logger.debug("Try to Pulling {} Image ({})", name, image);
+            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback())
+                    .awaitCompletion();
+            logger.debug("{} image pulled succesfully!", name);
+        } catch (InternalServerErrorException | NotFoundException
+                | InterruptedException e) {
+            if (imageExistsLocally(image, dockerClient)) {
+                logger.info("Docker image exits locally.");
+            } else {
+                logger.error("Error pulling the {} image: {}", name, image,
+                        e.getMessage());
+            }
+        } catch (DockerClientException e) {
+            logger.info(
+                    "Error on Pulling {} image ({}). Probably because the user has stopped the execution",
+                    name, image);
+            throw new TJobStoppedException();
+        }
     }
 
     /********************/
@@ -387,23 +398,7 @@ public class DockerService2 {
         Volume volume1 = new Volume(dockerSock);
 
         // Pull Image
-        try {
-            logger.debug("Try to Pulling Dockbeat Image ({})", dockbeatImage);
-            dockerExec.getDockerClient().pullImageCmd(dockbeatImage)
-                    .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException | NotFoundException ie) {
-            if (imageExistsLocally(dockbeatImage,
-                    dockerExec.getDockerClient())) {
-                logger.info("Docker image exits locally.");
-            } else {
-                logger.error("Error pulling the image: {}", ie.getMessage());
-                throw ie;
-            }
-        } catch (DockerClientException e) {
-            logger.info("Error on Pulling " + dockbeatImage
-                    + " image. Probably because the user has stopped the execution");
-            throw new TJobStoppedException();
-        }
+        this.pullETExecImage(dockbeatImage, "Dockbeat");
 
         // Create Container
         logger.debug("Creating Dockbeat Container...");
