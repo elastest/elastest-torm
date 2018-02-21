@@ -24,9 +24,9 @@ public class FilesService {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
-    
-    public FilesService () {
-        
+
+    public FilesService() {
+
     }
 
     public static final Logger logger = LoggerFactory
@@ -118,17 +118,17 @@ public class FilesService {
         logger.debug("Try to create folder structure: {}", path);
         File folderStructure = new File(path);
 
-        try {
-            if (!folderStructure.exists()) {
-                logger.info("creating folder at {}.",
-                        folderStructure.getAbsolutePath());
-                folderStructure.mkdirs();
-                logger.info("Folder created.");
+        if (!folderStructure.exists()) {
+            logger.info("creating folder at {}.",
+                    folderStructure.getAbsolutePath());
+            boolean created = folderStructure.mkdirs();
+            if (!created) {
+                logger.error("File does not created.");
+                return;
             }
-        } catch (Exception e) {
-            logger.error("File does not created.");
-            throw e;
+            logger.info("Folder created.");
         }
+
     }
 
 }
