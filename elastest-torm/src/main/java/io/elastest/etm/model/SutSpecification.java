@@ -167,10 +167,15 @@ public class SutSpecification {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
 
-    @JsonView({ SutView.class })
-    @Column(name = "sutInNewContainer")
-    @JsonProperty("sutInNewContainer")
-    private boolean sutInNewContainer = false;
+    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
+            ExternalTJobView.class, BasicAttTJob.class })
+    @Column(name = "commandsOption", nullable = false)
+    @JsonProperty("commandsOption")
+    private CommandsOptionEnum commandsOption;
+
+    /* **************************/
+    /* ***** Constructors *******/
+    /* **************************/
 
     public SutSpecification() {
     }
@@ -179,7 +184,7 @@ public class SutSpecification {
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
-            ManagedDockerType managedDockerType, boolean sutInNewContainer) {
+            ManagedDockerType managedDockerType) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -192,7 +197,6 @@ public class SutSpecification {
         this.instrumentedBy = instrumentedBy;
         this.port = port;
         this.managedDockerType = managedDockerType;
-        this.sutInNewContainer = sutInNewContainer;
     }
 
     public SutSpecification(Long id, String name, String specification,
@@ -213,6 +217,10 @@ public class SutSpecification {
         this.port = port;
         this.managedDockerType = managedDockerType;
     }
+
+    /* *****************************/
+    /* ********** Enums ************/
+    /* *****************************/
 
     public enum SutTypeEnum {
         MANAGED("MANAGED"),
@@ -277,7 +285,9 @@ public class SutSpecification {
     public enum ManagedDockerType {
         IMAGE("IMAGE"),
 
-        COMPOSE("COMPOSE");
+        COMPOSE("COMPOSE"),
+
+        COMMANDS("COMMANDS");
 
         private String value;
 
@@ -301,6 +311,40 @@ public class SutSpecification {
             return null;
         }
     }
+
+    public enum CommandsOptionEnum {
+        DEFAULT("DEFAULT"),
+
+        IN_NEW_CONTAINER("IN_NEW_CONTAINER"),
+
+        IN_DOCKER_COMPOSE("IN_DOCKER_COMPOSE");
+
+        private String value;
+
+        CommandsOptionEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static CommandsOptionEnum fromValue(String text) {
+            for (CommandsOptionEnum b : CommandsOptionEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    /* *****************************/
+    /* ***** Getters/Setters *******/
+    /* *****************************/
 
     /**
      * Get id
@@ -592,15 +636,20 @@ public class SutSpecification {
         this.exTJobs = exTJobs;
     }
 
-    /* ** Other methods ** */
+    public CommandsOptionEnum getCommandsOption() {
+        return commandsOption;
+    }
 
+    public void setCommandsOption(CommandsOptionEnum commandsOption) {
+        this.commandsOption = commandsOption;
+    }
+
+    // TODO tmp
     public boolean isSutInNewContainer() {
-        return sutInNewContainer;
+        return this.commandsOption != CommandsOptionEnum.DEFAULT;
     }
 
-    public void setSutInNewContainer(boolean sutInNewContainer) {
-        this.sutInNewContainer = sutInNewContainer;
-    }
+    /* ** Other methods ** */
 
     public String getSutInContainerAuxLabel() {
         return "aux";
@@ -612,6 +661,10 @@ public class SutSpecification {
 
     public boolean isDockerImageSut() {
         return this.getManagedDockerType() == ManagedDockerType.IMAGE;
+    }
+    
+    public boolean isDockerCommandsSut() {
+        return this.getManagedDockerType() == ManagedDockerType.COMMANDS;
     }
 
     @Override
@@ -646,14 +699,17 @@ public class SutSpecification {
                 && Objects.equals(this.parameters, sutSpecification.parameters)
                 && Objects.equals(this.commands, sutSpecification.commands)
                 && Objects.equals(this.exProject, sutSpecification.exProject)
-                && Objects.equals(this.exTJobs, sutSpecification.exTJobs);
+                && Objects.equals(this.exTJobs, sutSpecification.exTJobs)
+                && Objects.equals(this.commandsOption,
+                        sutSpecification.commandsOption);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, instrumentedBy, port, managedDockerType,
-                mainService, parameters, commands, exProject, exTJobs);
+                mainService, parameters, commands, exProject, exTJobs,
+                commandsOption);
     }
 
     @Override
@@ -691,6 +747,8 @@ public class SutSpecification {
                 .append("\n");
         sb.append("    exTJobs: ").append(toIndentedString(exTJobs))
                 .append("\n");
+        sb.append("    commandsOption: ")
+                .append(toIndentedString(commandsOption)).append("\n");
         sb.append("}");
         return sb.toString();
     }

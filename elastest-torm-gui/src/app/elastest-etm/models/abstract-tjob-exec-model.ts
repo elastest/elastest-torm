@@ -63,7 +63,7 @@ export class AbstractTJobExecModel {
       name: '',
       color: '',
     };
-    if (this.finished()) {
+    if (this.finished() || this.notExecuted()) {
       switch (this.result) {
         case 'SUCCESS':
           icon.name = 'check_circle';

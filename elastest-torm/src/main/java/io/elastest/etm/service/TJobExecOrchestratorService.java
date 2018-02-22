@@ -42,6 +42,7 @@ import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.service.ElasticsearchService.IndexAlreadyExistException;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
@@ -434,7 +435,7 @@ public class TJobExecOrchestratorService {
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
         try {
             // By Docker Image
-            if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
+            if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
                 startSutByDockerImage(dockerExec);
             }
             // By Docker Compose
@@ -494,17 +495,20 @@ public class TJobExecOrchestratorService {
         String sutPrefix = null;
         boolean isDockerCompose = false;
         // If is Docker compose Sut
-        if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
+        if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
                     dockerExec);
             sutPrefix = this.dockerService.getSutPrefix(dockerExec);
             isDockerCompose = true;
 
-        } else { // If is unique Docker image Sut
+        }
+        // If is unique Docker image Sut
+        else if (sut
+                .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
             containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
         }
-
+        System.out.println("aaaaaaaa " + containerName);
         // Wait for created
         this.dockerService.waitForContainerCreated(containerName, dockerExec,
                 timeout);
@@ -529,7 +533,7 @@ public class TJobExecOrchestratorService {
             this.dockerService.insertCreatedContainer(containerId,
                     containerName);
         }
-
+        System.out.println("Sut ip " + sutIp);
         return sutIp;
     }
 
@@ -721,7 +725,7 @@ public class TJobExecOrchestratorService {
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
             updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
 
-            if (sut.getManagedDockerType() == ManagedDockerType.IMAGE) {
+            if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
                 if (sut.isSutInNewContainer()) {
                     endSutInContainer(dockerExec);
                 }
@@ -750,13 +754,15 @@ public class TJobExecOrchestratorService {
         boolean isDockerCompose = false;
 
         // If is Docker compose Sut
-        if (sut.getMainService() != null && !"".equals(sut.getMainService())) {
+        if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
                     dockerExec);
             sutPrefix = this.dockerService.getSutPrefix(dockerExec);
             isDockerCompose = true;
-
-        } else { // If is unique Docker image Sut
+        }
+        // If is unique Docker image Sut
+        else if (sut
+                .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
             containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
         }

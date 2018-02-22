@@ -14,11 +14,11 @@ export class SutModel {
   currentSutExec: string;
   instrumentedBy: string;
   port: string;
-  managedDockerType: string;
+  managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
   parameters: any[];
   commands: string;
-  sutInNewContainer: boolean = false;
+  commandsOption: 'DEFAULT' | 'IN_NEW_CONTAINER' | 'IN_DOCKER_COMPOSE' | '';
 
   exProject: ExternalProjectModel;
 
@@ -38,7 +38,7 @@ export class SutModel {
     this.mainService = '';
     this.parameters = [];
     this.commands = '';
-    this.sutInNewContainer = false;
+    this.commandsOption = '';
 
     this.exProject = undefined;
   }
@@ -65,11 +65,19 @@ export class SutModel {
     return this.isManaged && this.managedDockerType === 'COMPOSE';
   }
 
+  public isByDockerImage(): boolean {
+    return this.isManaged && this.managedDockerType === 'IMAGE';
+  }
+
+  public isByCommands(): boolean {
+    return this.isManaged && this.managedDockerType === 'COMMANDS';
+  }
+
   public getSutESIndex(): string {
     return 's' + this.id + '_e' + this.currentSutExec;
   }
 
-  public withCommands() {
+  public withCommands(): boolean {
     return this.commands !== undefined && this.commands !== null && this.commands !== '';
   }
 
@@ -80,12 +88,5 @@ export class SutModel {
 
   public mainServiceIsNotEmpty(): boolean {
     return this.mainService !== undefined && this.mainService !== null && this.mainService !== '';
-  }
-
-  changeSutInNewContainerValue($event): void {
-    this.sutInNewContainer = $event.checked;
-    if (this.isManaged() && !this.isByDockerCompose() && !this.sutInNewContainer) {
-      this.mainService = '';
-    }
   }
 }

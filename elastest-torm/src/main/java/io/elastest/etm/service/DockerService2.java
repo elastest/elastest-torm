@@ -433,7 +433,7 @@ public class DockerService2 {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String prefix = "sut_" + dockerExec.getExecutionId();
 
-        if (sut.isDockerImageSut() && sut.isSutInNewContainer()) {
+        if (sut.isDockerCommandsSut() && sut.isSutInNewContainer()) {
             // If is Docker compose Sut
             if (sut.getMainService() != null
                     && !"".equals(sut.getMainService())) {

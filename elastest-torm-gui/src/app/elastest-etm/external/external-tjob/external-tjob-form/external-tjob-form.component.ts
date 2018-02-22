@@ -48,4 +48,8 @@ export class ExternalTjobFormComponent implements OnInit {
     this.exTJob = exTJob;
     window.history.back();
   }
+
+  cancel(): void {
+    window.history.back();
+  }
 }

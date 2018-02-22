@@ -13,6 +13,10 @@
           <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/external/project/',row.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]"
               class="hover-pointer">
+              <ng-container *ngIf="column.name === 'result'">
+                <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+                <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+              </ng-container>
               {{value}}
             </div>
           </ng-template>

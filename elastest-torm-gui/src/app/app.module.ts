@@ -10,7 +10,7 @@ import { TestEnginesService } from './elastest-test-engines/test-engines.service
 import { EsmService } from './elastest-esm/esm-service.service';
 import { RouterModule } from '@angular/router';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
-import { CovalentExpansionPanelModule } from '@covalent/core';
+import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
 import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
@@ -202,6 +202,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TreeModule,
     InputTrimModule,
     CovalentExpansionPanelModule,
+    CovalentMessageModule,
     CovalentHttpModule.forRoot({
       interceptors: [
         {

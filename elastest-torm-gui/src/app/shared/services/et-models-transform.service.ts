@@ -244,10 +244,11 @@ export class ETModelsTransformServices {
     newSut.currentSutExec = sut.currentSutExec;
     newSut.instrumentedBy = sut.instrumentedBy;
     newSut.port = sut.port;
-    newSut.managedDockerType = sut.managedDockerType;
     newSut.mainService = sut.mainService;
     newSut.parameters = sut.parameters;
     newSut.commands = sut.commands;
+    // TMP if commands set managed with commands
+    newSut.managedDockerType = newSut.withCommands() ? 'COMMANDS' : sut.managedDockerType;
 
     if (!fromProject && sut.exProject) {
       newSut.exProject = new ExternalProjectModel();
@@ -256,7 +257,7 @@ export class ETModelsTransformServices {
       newSut.exProject = sut.exProject;
     }
 
-    newSut.sutInNewContainer = sut.sutInNewContainer;
+    newSut.commandsOption = sut.commandsOption;
 
     return newSut;
   }

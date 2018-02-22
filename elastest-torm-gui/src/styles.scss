@@ -11,6 +11,10 @@ a[md-icon-button] {
   line-height: 36px;
 }
 
+.mat-tooltip {
+  font-size: 12px !important;
+}
+
 // Capitalize
 .text-capital {
   text-transform: capitalize;
@@ -27,6 +31,10 @@ a[md-icon-button] {
 // Lighter font weight in sub-toolbars
 td-layout-manage-list .mat-toolbar {
   font-weight: 400;
+}
+
+.td-message-label{
+  font-weight: bold !important;
 }
 
 .mat-card {

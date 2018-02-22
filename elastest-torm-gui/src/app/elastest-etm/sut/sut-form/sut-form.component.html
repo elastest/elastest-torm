@@ -51,8 +51,12 @@
         <div layout="column" class="push-top" *ngIf="managedSut.checked">
           <!-- SuT DOCKER Type -->
           <div class="push-bottom">
-            <md-radio-group #radioGroupManagedDockerType (change)="managedDockerTypeBy(dockerComposeRadio.checked)">
-              <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{!dockerCompose}}" [checked]="!dockerCompose" class="push-right">
+            <md-radio-group #radioGroupManagedDockerType (change)="managedDockerTypeBy(commandsRadio.checked ? 'commands' : (dockerImageRadio.checked ? 'image' : 'compose'))">
+              <md-radio-button #commandsRadio name="commandsRadio" value="{{commands}}" [checked]="commands" class="push-right">
+                With Commands Container
+              </md-radio-button>
+
+              <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{dockerImage}}" [checked]="dockerImage" class="push-right">
                 With Docker Image
               </md-radio-button>
 
@@ -64,51 +68,82 @@
         </div>
 
 
-        <!-- SuT Specification -->
         <div layout="column" class="push-top">
 
-          <!-- Docker Image -->
-          <ng-container *ngIf="!dockerCompose; else dockerComposeSpec">
+          <!-- Common SuT Specification -->
+          <ng-container *ngIf="!managedSut.checked || (managedSut.checked && !dockerCompose); else dockerComposeSpec">
             <md-input-container flex="100">
-              <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? managedSpecText : (deployedSut.checked ? deployedSpecText : specText) }}"
+              <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? (commands ? managedCommandsSpecText : managedSpecText) : (deployedSut.checked ? deployedSpecText : specText) }}"
                 [(ngModel)]="sut.specification" name="specification" required>
             </md-input-container>
-            <md-checkbox [checked]="sut.sutInNewContainer" (change)="sut.changeSutInNewContainerValue($event)" *ngIf="managedSut.checked">SuT in new container</md-checkbox>
+          </ng-container>
+
+          <!-- Commands (Managed) -->
+          <ng-container *ngIf="managedSut.checked && commands">
             <!-- Commands -->
-            <div layout="column" class="push-top push-bottom pad-top" *ngIf="managedSut.checked">
-              <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
-              <div layout="column" *ngIf="!useImageCommand" class="push-top">
-                <md-input-container>
-                  <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands" [(ngModel)]="sut.commands"
-                    name="commands" required></textarea>
-                </md-input-container>
-              </div>
+            <div layout="column" *ngIf="!useImageCommand" class="push-top">
+              <md-input-container>
+                <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands" [(ngModel)]="sut.commands"
+                  name="commands" required></textarea>
+              </md-input-container>
             </div>
-            <ng-container *ngIf="sut.sutInNewContainer">
-              <md-checkbox #inNewContainerDockerCompose [checked]="sutInNewContainerDockerCompose" (change)="switchMainService($event)"
-                class="push-bottom">SuT in docker compose</md-checkbox>
+
+
+
+            <!-- SuT DOCKER Type -->
+            <div class="push-bottom">
+              <md-radio-group #radioGroupCommandsOption (change)="changeCommandsOption(defaultRadio.checked ? 'default' : (inNewContainerRadio.checked ? 'container' : 'compose'))">
+                <md-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault" class="push-right">
+                  SuT In Commands Container (Default)
+                </md-radio-button>
+
+                <md-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}" [checked]="optionInNewContainer"
+                  class="push-right">
+                  SuT In New Container
+                </md-radio-button>
+
+                <md-radio-button #inDockerComposeRadio name="inDockerComposeRadio" value="{{optionInDockerCompose}}" [checked]="optionInDockerCompose">
+                  SuT In Docker Compose
+                </md-radio-button>
+              </md-radio-group>
+            </div>
+            <div class="push-bottom">
+              <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}" color="primary" icon="info">
+                <!-- <button td-message-actions md-button (click)="dockerTypeInfo.close()">X</button> -->
+              </td-message>
+            </div>
+
+            <ng-container *ngIf="optionInDockerCompose">
               <!-- Main service name -->
-              <md-input-container flex="100" *ngIf="inNewContainerDockerCompose.checked">
+              <md-input-container flex="100">
                 <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
               </md-input-container>
             </ng-container>
+
+          </ng-container>
+
+          <!-- Image (Managed) -->
+          <ng-container *ngIf="managedSut.checked && dockerImage">
           </ng-container>
 
           <ng-template #dockerComposeSpec>
-            <ng-container *ngIf="managedSut.checked">
-              <!-- Specification as Docker Compose -->
-              <md-input-container flex="100">
-                <textarea id="composeSpec" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification" name="composeSpec"
-                  required></textarea>
-              </md-input-container>
-
-              <!-- Main service name -->
-              <md-input-container flex="100">
-                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
-              </md-input-container>
-            </ng-container>
+            <!-- Specification as Docker Compose -->
+            <md-input-container flex="100">
+              <textarea id="composeSpec" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification" name="composeSpec"
+                required></textarea>
+            </md-input-container>
           </ng-template>
 
+          <!-- Compose (Managed) -->
+          <ng-container *ngIf="managedSut.checked && dockerCompose">
+            <!-- Main service name -->
+            <md-input-container flex="100">
+              <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
+            </md-input-container>
+          </ng-container>
+
+
+          <!-- Port -->
           <md-input-container flex="100" *ngIf="managedSut.checked">
             <input mdInput trim="blur" type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">
           </md-input-container>

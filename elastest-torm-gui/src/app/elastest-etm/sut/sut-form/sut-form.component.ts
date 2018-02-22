@@ -24,25 +24,50 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   editMode: boolean = false;
   currentPath: string = '';
 
+  // Sut Type
   managedChecked: boolean = true;
   repoNameChecked: boolean = false;
   deployedChecked: boolean = false;
 
+  // Instrumented By
   withoutInsCheck: boolean = true;
   elastestInsCheck: boolean = false;
   adminInsCheck: boolean = false;
 
+  // Managed Docker Type
+  commands: boolean = true;
+  dockerImage: boolean = false;
   dockerCompose: boolean = false;
-  sutInNewContainerDockerCompose: boolean = false;
 
+  // Commands Option
+  optionDefault: boolean = true;
+  optionInNewContainer: boolean = false;
+  optionInDockerCompose: boolean = false;
+
+  commandsContainerHelpHead: string = 'SuT is started inside the command container';
+  dockerImageHelpHead: string = this.commandsContainerHelpHead + ' into a new docker container';
+  dockerComposeHelpHead: string = this.commandsContainerHelpHead + ' into a new docker compose containers';
+  currentCommandsModeHelpHead: string = this.commandsContainerHelpHead;
+
+  commandsContainerHelpDesc: string = 'Launch your SuT in the "Commands" text area above.';
+  dockerImageHelpDesc: string = 'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
+    ' The only mandatory requirement is that your "Commands" must end with "docker run --name $ET_SUT_CONTAINER_NAME ..." command.' +
+    ' Use Example: "docker run --rm --name $ET_SUT_CONTAINER_NAME myimage"';
+  dockerComposeHelpDesc: string = 'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
+    ' The only mandatory requirement is that your "Commands" must end with "docker-compose ... -p $ET_SUT_CONTAINER_NAME up" command.' +
+    ' Use Example: "docker-compose -f docker-compose.yml -p $ET_SUT_CONTAINER_NAME up"';
+
+  currentCommandsModeHelpDesc: string = this.commandsContainerHelpDesc;
+
+  // Others
   specText: string = 'SuT Specification';
   deployedSpecText: string = 'SuT IP';
   managedSpecText: string = 'Docker Image';
+  managedCommandsSpecText: string = 'Commands Container Image';
 
   instrumentalized: boolean = false;
 
   elasTestExecMode: string;
-  useImageCommand: boolean = false;
 
   constructor(
     private titlesService: TitlesService,
@@ -66,10 +91,10 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.initSutType();
           this.initInstrumentedBy();
           this.initInstrumentalized();
-          this.initSutInNewContainer();
-          this.dockerCompose = this.sut.isByDockerCompose();
+          this.initCommandOptions();
+          this.initManagedType();
+
           this.sutExecIndex = this.sut.getSutESIndex();
-          this.useImageCommand = !this.sut.withCommands();
         });
       } else if (this.currentPath === 'new') {
         if (this.route.params !== null || this.route.params !== undefined) {
@@ -106,7 +131,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     this.sut.sutType = 'MANAGED';
     this.sut.instrumentedBy = 'WITHOUT';
     this.initInstrumentalized();
-    this.sut.managedDockerType = 'IMAGE';
+    this.sut.managedDockerType = 'COMMANDS';
   }
 
   ngAfterViewInit() {
@@ -129,8 +154,14 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     this.instrumentalized = this.sut.instrumentalize;
   }
 
-  initSutInNewContainer(): void {
-    this.sutInNewContainerDockerCompose = this.sut.mainServiceIsNotEmpty();
+  initManagedType(): void {
+    this.commands = this.sut.isByCommands();
+    this.dockerImage = this.sut.isByDockerImage();
+    this.dockerCompose = this.sut.isByDockerCompose();
+  }
+
+  initCommandOptions(): void {
+    this.changeCommandsOption(this.sut.commandsOption);
   }
 
   sutBy(selected: string): void {
@@ -177,7 +208,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   }
 
   save(exit: boolean = true): void {
-    if (this.useImageCommand || !this.managedChecked) {
+    if (!this.sut.isByCommands() || !this.managedChecked) {
       this.sut.commands = '';
     }
     this.sutService.createSut(this.sut).subscribe(
@@ -239,15 +270,57 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     );
   }
 
-  managedDockerTypeBy(compose: boolean): void {
-    this.dockerCompose = compose;
-    this.sut.managedDockerType = compose ? 'COMPOSE' : 'IMAGE';
+  managedDockerTypeBy(mode: string): void {
+    this.commands = false;
+    this.dockerImage = false;
+    this.dockerCompose = false;
+    switch (mode) {
+      case 'commands':
+        this.commands = true;
+        this.sut.managedDockerType = 'COMMANDS';
+        break;
+      case 'image':
+        this.dockerImage = true;
+        this.sut.managedDockerType = 'IMAGE';
+        break;
+      case 'compose':
+        this.dockerCompose = true;
+        this.sut.managedDockerType = 'COMPOSE';
+        break;
+      default:
+    }
   }
 
-  switchMainService($event): void {
-    this.sutInNewContainerDockerCompose = $event.checked;
-    if (!this.sutInNewContainerDockerCompose) {
-      this.sut.mainService = '';
+  changeCommandsOption(option: string): void {
+    this.optionDefault = false;
+    this.optionInNewContainer = false;
+    this.optionInDockerCompose = false;
+    switch (option) {
+      case 'DEFAULT':
+      case 'default':
+        this.optionDefault = true;
+        this.sut.commandsOption = 'DEFAULT';
+        this.sut.mainService = '';
+        this.currentCommandsModeHelpHead = this.commandsContainerHelpHead;
+        this.currentCommandsModeHelpDesc = this.commandsContainerHelpDesc;
+
+        break;
+      case 'IN_NEW_CONTAINER':
+      case 'container':
+        this.optionInNewContainer = true;
+        this.sut.commandsOption = 'IN_NEW_CONTAINER';
+        this.sut.mainService = '';
+        this.currentCommandsModeHelpHead = this.dockerImageHelpHead;
+        this.currentCommandsModeHelpDesc = this.dockerImageHelpDesc;
+        break;
+      case 'IN_DOCKER_COMPOSE':
+      case 'compose':
+        this.optionInDockerCompose = true;
+        this.sut.commandsOption = 'IN_DOCKER_COMPOSE';
+        this.currentCommandsModeHelpHead = this.dockerComposeHelpHead;
+        this.currentCommandsModeHelpDesc = this.dockerComposeHelpDesc;
+        break;
+      default:
     }
   }
 }
