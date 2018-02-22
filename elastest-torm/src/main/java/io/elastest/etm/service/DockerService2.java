@@ -425,7 +425,7 @@ public class DockerService2 {
     public String getSutName(DockerExecution dockerExec) {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         return this.getSutPrefix(dockerExec)
-                + (sut.isDockerImageSut() && sut.isSutInNewContainer()
+                + (sut.isDockerCommandsSut() && sut.isSutInNewContainer()
                         ? "_" + sut.getSutInContainerAuxLabel() : "");
     }
 

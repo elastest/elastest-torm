@@ -508,7 +508,6 @@ public class TJobExecOrchestratorService {
             containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
         }
-        System.out.println("aaaaaaaa " + containerName);
         // Wait for created
         this.dockerService.waitForContainerCreated(containerName, dockerExec,
                 timeout);
@@ -533,7 +532,6 @@ public class TJobExecOrchestratorService {
             this.dockerService.insertCreatedContainer(containerId,
                     containerName);
         }
-        System.out.println("Sut ip " + sutIp);
         return sutIp;
     }
 
