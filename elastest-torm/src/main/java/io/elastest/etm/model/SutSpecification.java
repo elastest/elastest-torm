@@ -184,7 +184,8 @@ public class SutSpecification {
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
-            ManagedDockerType managedDockerType) {
+            ManagedDockerType managedDockerType,
+            CommandsOptionEnum commandsOption) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -197,13 +198,15 @@ public class SutSpecification {
         this.instrumentedBy = instrumentedBy;
         this.port = port;
         this.managedDockerType = managedDockerType;
+        this.commandsOption = commandsOption;
     }
 
     public SutSpecification(Long id, String name, String specification,
             String description, ExternalProject exProject, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
-            ManagedDockerType managedDockerType) {
+            ManagedDockerType managedDockerType,
+            CommandsOptionEnum commandsOption) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -216,6 +219,7 @@ public class SutSpecification {
         this.instrumentedBy = instrumentedBy;
         this.port = port;
         this.managedDockerType = managedDockerType;
+        this.commandsOption = commandsOption;
     }
 
     /* *****************************/
@@ -662,7 +666,7 @@ public class SutSpecification {
     public boolean isDockerImageSut() {
         return this.getManagedDockerType() == ManagedDockerType.IMAGE;
     }
-    
+
     public boolean isDockerCommandsSut() {
         return this.getManagedDockerType() == ManagedDockerType.COMMANDS;
     }

@@ -33,6 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 
@@ -78,7 +79,8 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"currentSutExec\": \"" + null + "\","
 				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
 				  + "\"port\": \"" + null + "\","
-				  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\""				  
+				  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
+				  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
 				+"}";
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -125,7 +127,8 @@ public class SutApiItTest extends EtmApiItTest {
 				  + "\"currentSutExec\": \"" + null + "\","
                   + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
                   + "\"port\": \"" + null + "\","
-                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\""
+                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
+                  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
                   +"}";
 
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);

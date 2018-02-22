@@ -17,6 +17,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
@@ -46,11 +47,11 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
         SutSpecification sut2 = new SutSpecification(34l, "name",
                 "specification", "description", project2, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
 
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
@@ -69,7 +70,7 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
 
@@ -107,16 +108,19 @@ public class ModelsTest {
     @Test
     public void testCreateExternalJob() {
         ExternalJob extJob = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null, 0, false);
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
+                0, false);
         assertTrue(extJob.getJobName().equals("Job1"));
     }
 
     @Test
     public void testEqualsExternalJobs() {
         ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null, 0, false);
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
+                0, false);
         ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090",
-                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null, 0, false);
+                "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
+                0, false);
         assertTrue(extJob1.equals(extJob2));
         assertEquals(extJob1.hashCode(), extJob2.hashCode());
     }

@@ -19,6 +19,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 
@@ -163,7 +164,8 @@ public class EtmApiItTest {
 				  + "\"currentSutExec\": \"" + null + "\","
                   + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
                   + "\"port\": \"" + null + "\","
-                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\""
+                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
+                  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
                   +"}";
 	
 		HttpHeaders headers = new HttpHeaders();
