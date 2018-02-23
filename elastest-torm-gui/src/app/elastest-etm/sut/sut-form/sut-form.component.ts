@@ -130,8 +130,9 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   initCommonSutFields(): void {
     this.sut.sutType = 'MANAGED';
     this.sut.instrumentedBy = 'WITHOUT';
-    this.initInstrumentalized();
     this.sut.managedDockerType = 'COMMANDS';
+    this.sut.commandsOption = 'DEFAULT';
+    this.initInstrumentalized();
   }
 
   ngAfterViewInit() {
@@ -296,15 +297,6 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     this.optionInNewContainer = false;
     this.optionInDockerCompose = false;
     switch (option) {
-      case 'DEFAULT':
-      case 'default':
-        this.optionDefault = true;
-        this.sut.commandsOption = 'DEFAULT';
-        this.sut.mainService = '';
-        this.currentCommandsModeHelpHead = this.commandsContainerHelpHead;
-        this.currentCommandsModeHelpDesc = this.commandsContainerHelpDesc;
-
-        break;
       case 'IN_NEW_CONTAINER':
       case 'container':
         this.optionInNewContainer = true;
@@ -320,7 +312,16 @@ export class SutFormComponent implements OnInit, AfterViewInit {
         this.currentCommandsModeHelpHead = this.dockerComposeHelpHead;
         this.currentCommandsModeHelpDesc = this.dockerComposeHelpDesc;
         break;
+      case 'DEFAULT':
+      case 'default':
       default:
+        this.optionDefault = true;
+        this.sut.commandsOption = 'DEFAULT';
+        this.sut.mainService = '';
+        this.currentCommandsModeHelpHead = this.commandsContainerHelpHead;
+        this.currentCommandsModeHelpDesc = this.commandsContainerHelpDesc;
+
+        break;
     }
   }
 }
