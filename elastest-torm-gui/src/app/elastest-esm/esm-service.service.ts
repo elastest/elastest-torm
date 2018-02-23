@@ -20,33 +20,22 @@ export class EsmService {
   }
 
   provisionServiceInstance(serviceId: string) {
-    let url: string =
-      this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
     return this.http.post(url, null).map((response) => response['_body']);
   }
 
   deprovisionServiceInstance(serviceInstanceId: string) {
-    let url: string =
-      this.configurationService.configModel.hostApi +
-      '/esm/services/instances/' +
-      serviceInstanceId;
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId;
     return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
   }
 
   deprovisionTJobExecServiceInstance(serviceInstanceId: string, tJobExecId: string | number) {
     let url: string =
-      this.configurationService.configModel.hostApi +
-      '/esm/services/instances/' +
-      serviceInstanceId +
-      '/tjobexec/' +
-      tJobExecId;
+      this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId + '/tjobexec/' + tJobExecId;
     return this.http.delete(url, null).map((response) => console.log(JSON.stringify(response)));
   }
 
-  deprovisionExternalTJobExecServiceInstance(
-    serviceInstanceId: string,
-    externalTJobExecId: string | number,
-  ) {
+  deprovisionExternalTJobExecServiceInstance(serviceInstanceId: string, externalTJobExecId: string | number) {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/esm/services/instances/' +
@@ -58,33 +47,20 @@ export class EsmService {
 
   getSupportServicesInstances(): Observable<EsmServiceInstanceModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances';
-    return this.http
-      .get(url)
-      .map((response) => this.transformIntoSupportServiceInstanceList(response));
+    return this.http.get(url).map((response) => this.transformIntoSupportServiceInstanceList(response));
   }
 
-  getSupportServicesInstancesByTJobExec(
-    tJobExec: TJobExecModel,
-  ): Observable<EsmServiceInstanceModel[]> {
-    let url: string =
-      this.configurationService.configModel.hostApi +
-      '/esm/services/instances/tJobExec/' +
-      tJobExec.id;
-    return this.http
-      .get(url)
-      .map((response) => this.transformIntoSupportServiceInstanceList(response));
+  getSupportServicesInstancesByTJobExec(tJobExec: TJobExecModel): Observable<EsmServiceInstanceModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
+    return this.http.get(url).map((response) => this.transformIntoSupportServiceInstanceList(response));
   }
 
   getSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
-    let url: string =
-      this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id;
     return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
   }
 
-  getSupportServiceInstanceByType(
-    id: string,
-    type: tssParentType = 'normal',
-  ): Observable<EsmServiceInstanceModel> {
+  getSupportServiceInstanceByType(id: string, type: tssParentType = 'normal'): Observable<EsmServiceInstanceModel> {
     if (type === 'external') {
       return this.getExternalTJobExecSupportServiceInstance(id);
     } else if (type === 'tjobexec') {
@@ -95,31 +71,32 @@ export class EsmService {
   }
 
   getTJobExecSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
-    let url: string =
-      this.configurationService.configModel.hostApi + '/esm/services/instances/' + id + '/tjobexec';
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id + '/tjobexec';
     return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
   }
 
   getExternalTJobExecSupportServiceInstance(id: string): Observable<EsmServiceInstanceModel> {
-    let url: string =
-      this.configurationService.configModel.hostApi +
-      '/esm/services/instances/' +
-      id +
-      '/external/tjobexec';
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/' + id + '/external/tjobexec';
     return this.http.get(url).map((response) => new EsmServiceInstanceModel(response.json()));
   }
 
-  transformIntoEsmServiceModel(response: Response) {
+  transformIntoEsmServiceModel(response: Response): EsmServiceModel[] {
     let res = response.json();
     let retrivedServices: EsmServiceModel[] = [];
 
     for (let service of res) {
-      retrivedServices.push(new EsmServiceModel(service.id, service.name, false));
+      let config: string = service.config;
+      if (service.name === 'EUS') {
+        config = '{ "webRtcStats": { "type": "boolean", "label": "Gather WebRTC Statistics", "default": false } }';
+      }
+
+      let esmService: EsmServiceModel = new EsmServiceModel(service.id, service.name, false, config);
+      retrivedServices.push(esmService);
     }
     return retrivedServices;
   }
 
-  transformIntoSupportServiceInstanceList(response: Response) {
+  transformIntoSupportServiceInstanceList(response: Response): EsmServiceInstanceModel[] {
     let res = response.json();
     let retrivedServicesInstance: EsmServiceInstanceModel[] = [];
 

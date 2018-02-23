@@ -343,7 +343,10 @@ public class TJobExecOrchestratorService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } 
+//        catch (RuntimeException re) {
+//            logger.error("Error provisioning TSS", re);
+//        }
     }
 
     private void setTJobExecEnvVars(TJobExecution tJobExec,

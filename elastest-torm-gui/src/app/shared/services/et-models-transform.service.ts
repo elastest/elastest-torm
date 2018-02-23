@@ -86,7 +86,7 @@ export class ETModelsTransformServices {
     newTJob.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
     if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null && tjob.esmServicesString !== '') {
       for (let service of JSON.parse(tjob.esmServicesString)) {
-        newTJob.esmServices.push(new EsmServiceModel(service.id, service.name, service.selected));
+        newTJob.esmServices.push(new EsmServiceModel(service.id, service.name, service.selected, service.config));
         if (service.selected) {
           newTJob.esmServicesChecked++;
         }

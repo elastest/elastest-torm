@@ -29,11 +29,11 @@ import org.springframework.util.ResourceUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.dockerjava.api.DockerClient;
 
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalTJobExecution;
@@ -222,27 +222,27 @@ public class EsmService {
         logger.debug("Registering the {} TSS.",
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
+        JsonNode configJson = serviceDefJson.get("manifest") != null
+                ? serviceDefJson.get("manifest").get("config") : null;
+        String config = configJson != null ? serviceDefJson.toString() : "";
+
         esmServiceClient
                 .registerService(serviceDefJson.get("register").toString());
-        esmServiceClient.registerManifest(
-                "{ " + "\"id\": "
-                        + serviceDefJson.get("manifest").get("id").toString()
-                        + ", \"manifest_content\": "
-                        + serviceDefJson.get("manifest").get("manifest_content")
-                                .toString()
-                        + ", \"manifest_type\": "
-                        + serviceDefJson.get("manifest").get("manifest_type")
-                                .toString()
-                        + ", \"plan_id\": "
-                        + serviceDefJson.get("manifest").get("plan_id")
-                                .toString()
-                        + ", \"service_id\": "
-                        + serviceDefJson.get("manifest").get("service_id")
-                                .toString()
-                        + ", \"endpoints\": "
-                        + serviceDefJson.get("manifest").get("endpoints")
-                                .toString()
-                        + " }",
+        esmServiceClient.registerManifest("{ " + "\"id\": "
+                + serviceDefJson.get("manifest").get("id").toString()
+                + ", \"manifest_content\": "
+                + serviceDefJson.get("manifest").get("manifest_content")
+                        .toString()
+                + ", \"manifest_type\": "
+                + serviceDefJson.get("manifest").get("manifest_type").toString()
+                + ", \"plan_id\": "
+                + serviceDefJson.get("manifest").get("plan_id").toString()
+                + ", \"service_id\": "
+                + serviceDefJson.get("manifest").get("service_id").toString()
+                + ", \"endpoints\": "
+                + serviceDefJson.get("manifest").get("endpoints").toString()
+                // + ", \"config\": " + config
+                + " }",
                 serviceDefJson.get("manifest").get("id").toString()
                         .replaceAll("\"", ""));
     }
@@ -264,12 +264,15 @@ public class EsmService {
         List<SupportService> services = new ArrayList<>();
         JsonNode objs = esmServiceClient.getRegisteredServices();
         for (JsonNode esmService : objs) {
+            JsonNode configJson = esmService.get("manifest") != null
+                    ? esmService.get("manifest").get("config") : null;
+            String config = configJson != null ? configJson.toString() : "";
             services.add(new SupportService(
                     esmService.get("id").toString().replaceAll("\"", ""),
                     esmService.get("name").toString().replaceAll("\"", ""),
                     // esmService.get("short_name").toString().replaceAll("\"",
                     // "")
-                    ""));
+                    "", config));
         }
         return services;
     }
@@ -295,7 +298,7 @@ public class EsmService {
 
     @Async
     public void provisionTJobExecServiceInstanceAsync(String serviceId,
-            TJobExecution tJobExec, String instanceId) {
+            TJobExecution tJobExec, String instanceId) throws RuntimeException {
         provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
     }
 
@@ -388,7 +391,7 @@ public class EsmService {
 
     /* *** Provision With TJobExec *** */
     public void provisionTJobExecServiceInstance(String serviceId,
-            TJobExecution tJobExec, String instanceId) {
+            TJobExecution tJobExec, String instanceId) throws RuntimeException {
         logger.info("Service id to provision: " + serviceId);
         SupportServiceInstance newServiceInstance = null;
 
@@ -399,7 +402,7 @@ public class EsmService {
                     execId, instanceId);
 
             this.setTJobExecTSSFilesConfig(newServiceInstance, tJobExec);
-            fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
+            this.fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
 
             if (tJobExec != null && execId != null) {
                 tJobServicesInstances.put(instanceId, newServiceInstance);
@@ -464,7 +467,8 @@ public class EsmService {
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId = tJobExec.getTjob().getId();
             Long tJobExecId = tJobExec.getId();
-
+            this.fillTSSConfigEnvVarsByTJob(tJobExec.getTjob(),
+                    supportServiceInstance);
             supportServiceInstance.getParameters().put("ET_TJOB_ID",
                     tJobId.toString());
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
@@ -474,6 +478,43 @@ public class EsmService {
 
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
+    }
+
+    public void fillTSSConfigEnvVarsByTJob(TJob tJob,
+            SupportServiceInstance supportServiceInstance) {
+        try {
+            List<ObjectNode> tJobTssList = tJob.getSupportServicesObj();
+            for (ObjectNode tJobSuportService : tJobTssList) {
+                JsonNode tJobTssNameObj = tJobSuportService.get("name");
+                if (tJobTssNameObj != null
+                        && supportServiceInstance.getServiceName()
+                                .equals(stringFromJsonNode(tJobTssNameObj))) {
+                    JsonNode selectedObj = tJobSuportService.get("selected");
+                    if (selectedObj != null && selectedObj.asBoolean()) {
+                        JsonNode configObj = tJobSuportService.get("config");
+                        if (configObj != null) {
+                            Iterable<String> singleConfigNamesIterator = () -> configObj
+                                    .fieldNames();
+                            for (String singleConfigName : singleConfigNamesIterator) {
+                                JsonNode singleConfig = configObj
+                                        .get(singleConfigName);
+                                String envName = singleConfigName.replaceAll(
+                                        "([a-z])_?([A-Z])", "$1_$2");
+                                envName = "ET_CONFIG_" + envName.toUpperCase();
+                                JsonNode valueObj = singleConfig.get("value");
+                                if (valueObj != null) {
+                                    supportServiceInstance.getParameters()
+                                            .put(envName, valueObj.toString());
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
     }
 
     /* *** Provision With ExternalTJobExec *** */
@@ -617,7 +658,6 @@ public class EsmService {
                     serviceInstance.setServiceIp(serviceIp);
                     logger.info(
                             "Service Ip {}:" + serviceInstance.getServiceIp());
-                    int auxPort;
 
                     SupportServiceInstance auxServiceInstance = null;
 
@@ -650,11 +690,9 @@ public class EsmService {
                                                 .get(serviceName).get("api"),
                                         ssrvContainerName, networkName, "api");
                             } else {
-                                int apiNum = 0;
                                 for (final JsonNode apiNode : manifest
                                         .get("endpoints").get(serviceName)
                                         .get("api")) {
-                                    apiNum++;
                                     getEndpointsInfo(auxServiceInstance,
                                             apiNode, ssrvContainerName,
                                             networkName,
@@ -677,11 +715,9 @@ public class EsmService {
                                                 .get(serviceName).get("gui"),
                                         ssrvContainerName, networkName, "gui");
                             } else {
-                                int guiNum = 0;
                                 for (final JsonNode guiNode : manifest
                                         .get("endpoints").get(serviceName)
                                         .get("gui")) {
-                                    guiNum++;
                                     getEndpointsInfo(auxServiceInstance,
                                             guiNode, ssrvContainerName,
                                             networkName,
@@ -1301,5 +1337,13 @@ public class EsmService {
     public void settSSIByTJobExecAssociated(
             Map<Long, List<String>> tSSIByTJobExecAssociated) {
         this.tSSIByTJobExecAssociated = tSSIByTJobExecAssociated;
+    }
+
+    public String stringFromJsonNode(JsonNode toStringObj) {
+        String string = null;
+        if (toStringObj != null) {
+            string = toStringObj.toString().replaceAll("\"", "");
+        }
+        return string;
     }
 }

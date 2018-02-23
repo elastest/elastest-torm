@@ -383,4 +383,14 @@ public class TJob {
                 .asList(mapper.readValue(selectedServices, ObjectNode[].class));
     }
 
+    public List<ObjectNode> getSupportServicesObj() {
+        List<ObjectNode> services = new ArrayList<>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            services = Arrays.asList(mapper
+                    .readValue(this.getSelectedServices(), ObjectNode[].class));
+        } catch (Exception e) {
+        }
+        return services;
+    }
 }
