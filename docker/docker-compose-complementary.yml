@@ -58,7 +58,9 @@ services:
             - transport.host=127.0.0.1
             - ES_JAVA_OPTS=-Xmx3g -Xms3g
         networks:
-            - elastest 
+            - elastest
+        sysctls:
+            - vm.max_map_count=262144
 
     etm-filebeat:
         image: elastest/etm-filebeat
