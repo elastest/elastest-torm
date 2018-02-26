@@ -178,60 +178,11 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       if (selected === 'deployedSut') {
         this.sut.sutType = 'DEPLOYED';
         this.deployedChecked = true;
-        this.sut.mainService = '';
       } else {
         this.sut.sutType = 'REPOSITORY';
         this.repoNameChecked = true;
       }
     }
-  }
-
-  goBack(): void {
-    window.history.back();
-  }
-
-  preSave(exit: boolean = true): void {
-    if (this.sut.sutType === 'DEPLOYED') {
-      this.sutService.getLogstashInfo().subscribe(
-        (data: any) => {
-          this.sut.eimConfig.ip = this.sut.specification;
-          this.sut.eimConfig.logstashIp = data.logstashIp;
-          this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
-          this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
-          this.save(exit);
-        },
-        (error) => console.log(error),
-      );
-    } else {
-      this.sut.eimConfig = undefined;
-      this.save(exit);
-    }
-  }
-
-  save(exit: boolean = true): void {
-    if (!this.sut.isByCommands() || !this.managedChecked) {
-      this.sut.commands = '';
-    }
-    this.sutService.createSut(this.sut).subscribe(
-      (sut: SutModel) => this.postSave(sut, exit),
-      (error) => {
-        this.externalService.popupService.openSnackBar('An error has occurred');
-        console.log(error);
-      },
-    );
-  }
-
-  postSave(sut: SutModel, exit: boolean = true): void {
-    this.sut = sut;
-    this.sutExecIndex = this.sut.getSutESIndex();
-
-    if (exit) {
-      window.history.back();
-    }
-  }
-
-  cancel(): void {
-    window.history.back();
   }
 
   instrumentalize($event): void {
@@ -301,7 +252,6 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       case 'container':
         this.optionInNewContainer = true;
         this.sut.commandsOption = 'IN_NEW_CONTAINER';
-        this.sut.mainService = '';
         this.currentCommandsModeHelpHead = this.dockerImageHelpHead;
         this.currentCommandsModeHelpDesc = this.dockerImageHelpDesc;
         break;
@@ -317,11 +267,61 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       default:
         this.optionDefault = true;
         this.sut.commandsOption = 'DEFAULT';
-        this.sut.mainService = '';
         this.currentCommandsModeHelpHead = this.commandsContainerHelpHead;
         this.currentCommandsModeHelpDesc = this.commandsContainerHelpDesc;
 
         break;
     }
+  }
+
+  goBack(): void {
+    window.history.back();
+  }
+
+  preSave(exit: boolean = true): void {
+    if (this.sut.sutType === 'DEPLOYED') {
+      this.sutService.getLogstashInfo().subscribe(
+        (data: any) => {
+          this.sut.eimConfig.ip = this.sut.specification;
+          this.sut.eimConfig.logstashIp = data.logstashIp;
+          this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
+          this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
+          this.save(exit);
+        },
+        (error) => console.log(error),
+      );
+    } else {
+      this.sut.eimConfig = undefined;
+      this.save(exit);
+    }
+  }
+
+  save(exit: boolean = true): void {
+    if (!this.sut.isByCommands() || !this.managedChecked) {
+      this.sut.commands = '';
+    }
+    if (!this.sut.isByDockerCompose() && !this.sut.isByCommandsInDockerCompose()) {
+      this.sut.mainService = '';
+    }
+    this.sutService.createSut(this.sut).subscribe(
+      (sut: SutModel) => this.postSave(sut, exit),
+      (error) => {
+        this.externalService.popupService.openSnackBar('An error has occurred');
+        console.log(error);
+      },
+    );
+  }
+
+  postSave(sut: SutModel, exit: boolean = true): void {
+    this.sut = sut;
+    this.sutExecIndex = this.sut.getSutESIndex();
+
+    if (exit) {
+      window.history.back();
+    }
+  }
+
+  cancel(): void {
+    window.history.back();
   }
 }

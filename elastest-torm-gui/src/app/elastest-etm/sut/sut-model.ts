@@ -6,7 +6,7 @@ export class SutModel {
   id: number;
   name: string;
   specification: string;
-  sutType: string;
+  sutType: 'MANAGED' | 'DEPLOYED' | 'REPOSITORY' | '';
   description: string;
   project: ProjectModel;
   eimConfig: EimConfigModel;
@@ -62,15 +62,27 @@ export class SutModel {
   }
 
   public isByDockerCompose(): boolean {
-    return this.isManaged && this.managedDockerType === 'COMPOSE';
+    return this.isManaged() && this.managedDockerType === 'COMPOSE';
   }
 
   public isByDockerImage(): boolean {
-    return this.isManaged && this.managedDockerType === 'IMAGE';
+    return this.isManaged() && this.managedDockerType === 'IMAGE';
   }
 
   public isByCommands(): boolean {
-    return this.isManaged && this.managedDockerType === 'COMMANDS';
+    return this.isManaged() && this.managedDockerType === 'COMMANDS';
+  }
+
+  public isByCommandsDefault(): boolean {
+    return this.isByCommands() && this.commandsOption === 'DEFAULT';
+  }
+
+  public isByCommandsInNewContainer(): boolean {
+    return this.isByCommands() && this.commandsOption === 'IN_NEW_CONTAINER';
+  }
+
+  public isByCommandsInDockerCompose(): boolean {
+    return this.isByCommands() && this.commandsOption === 'IN_DOCKER_COMPOSE';
   }
 
   public getSutESIndex(): string {
