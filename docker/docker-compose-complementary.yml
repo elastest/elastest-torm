@@ -59,6 +59,7 @@ services:
             - ES_JAVA_OPTS=-Xmx3g -Xms3g
         networks:
             - elastest
+        privileged: true
         sysctls:
             - vm.max_map_count=262144
 
