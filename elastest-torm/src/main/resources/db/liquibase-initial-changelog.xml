@@ -1,0 +1,456 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="root (generated)" id="1519812833749-1">
+        <createTable tableName="ENV_VARS">
+            <column name="TJOB_EXEC" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(400)"/>
+            <column name="VAR_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-2">
+        <createTable tableName="EimConfig">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="agentId" type="VARCHAR(255)"/>
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="logstashBeatsPort" type="VARCHAR(255)"/>
+            <column name="logstashHttpPort" type="VARCHAR(255)"/>
+            <column name="logstashIp" type="VARCHAR(255)"/>
+            <column name="privateKey" type="TEXT"/>
+            <column name="user" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-3">
+        <createTable tableName="ExternalProject">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="externalId" type="VARCHAR(255)"/>
+            <column name="externalSystemId" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="type" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-4">
+        <createTable tableName="ExternalTJob">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="execDashboardConfig" type="TEXT"/>
+            <column name="externalId" type="VARCHAR(255)"/>
+            <column name="externalSystemId" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="exProject" type="BIGINT"/>
+            <column name="sut" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-5">
+        <createTable tableName="ExternalTJobExec_ENV_VARS">
+            <column name="ExternalTJobExec" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(400)"/>
+            <column name="VAR_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-6">
+        <createTable tableName="ExternalTJobExecution">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="monitoringIndex" type="VARCHAR(255)"/>
+            <column name="result" type="INT"/>
+            <column name="exTJob" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-7">
+        <createTable tableName="ExternalTestCase">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="externalId" type="VARCHAR(255)"/>
+            <column name="externalSystemId" type="VARCHAR(255)"/>
+            <column name="fields" type="TEXT"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="exTJob" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-8">
+        <createTable tableName="ExternalTestExecution">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="externalId" type="VARCHAR(255)"/>
+            <column name="externalSystemId" type="VARCHAR(255)"/>
+            <column name="fields" type="TEXT"/>
+            <column name="monitoringIndex" type="VARCHAR(255)"/>
+            <column name="result" type="VARCHAR(255)"/>
+            <column name="exTestCase" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-9">
+        <createTable tableName="LogAnalyzerConfig">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="columnsConfig" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-10">
+        <createTable tableName="Project">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-11">
+        <createTable tableName="SutExecParameter">
+            <column name="SutExec" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-12">
+        <createTable tableName="SutExecution">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="deployStatus" type="INT"/>
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="url" type="VARCHAR(255)"/>
+            <column name="sutSpecification_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-13">
+        <createTable tableName="SutParameter">
+            <column name="SutSpecification" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-14">
+        <createTable tableName="SutSpecification">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="commands" type="TEXT"/>
+            <column name="commandsOption" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currentSutExec" type="BIGINT"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="instrumentalize" type="BIT(1)"/>
+            <column name="instrumentedBy" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mainService" type="VARCHAR(255)"/>
+            <column name="managedDockerType" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="port" type="VARCHAR(255)"/>
+            <column name="specification" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sutType" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eimConfig" type="BIGINT"/>
+            <column name="exProject" type="BIGINT"/>
+            <column name="project_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-15">
+        <createTable tableName="TJob">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="commands" type="TEXT"/>
+            <column name="execDashboardConfig" type="TEXT"/>
+            <column name="external" type="BIT(1)"/>
+            <column name="image_name" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resultsPath" type="VARCHAR(255)"/>
+            <column name="selectedServices" type="TEXT"/>
+            <column name="project" type="BIGINT"/>
+            <column name="sut" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-16">
+        <createTable tableName="TJobExecParameter">
+            <column name="TJobExec" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-17">
+        <createTable tableName="TJobExecution">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="duration" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="endDate" type="datetime(6)"/>
+            <column name="error" type="VARCHAR(255)"/>
+            <column name="monitoringIndex" type="VARCHAR(255)"/>
+            <column name="result" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resultMsg" type="VARCHAR(255)"/>
+            <column name="startDate" type="datetime(6)"/>
+            <column name="sut_execution" type="BIGINT"/>
+            <column name="tjob" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-18">
+        <createTable tableName="TJobExecution_servicesInstances">
+            <column name="TJobExecution_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="servicesInstances" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-19">
+        <createTable tableName="TJobParameter">
+            <column name="TJob" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-20">
+        <createTable tableName="TestCase">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="failureDetail" type="TEXT"/>
+            <column name="failureErrorLine" type="VARCHAR(255)"/>
+            <column name="failureMessage" type="TEXT"/>
+            <column name="failureType" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="time" type="DOUBLE"/>
+            <column name="testSuite" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-21">
+        <createTable tableName="TestSuite">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="errors" type="INT"/>
+            <column name="failures" type="INT"/>
+            <column name="flakes" type="INT"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="numTests" type="INT"/>
+            <column name="skipped" type="INT"/>
+            <column name="timeElapsed" type="DOUBLE"/>
+            <column name="tJobExec" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-22">
+        <addPrimaryKey columnNames="TJOB_EXEC, VAR_NAME" constraintName="PRIMARY" tableName="ENV_VARS"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-23">
+        <addPrimaryKey columnNames="ExternalTJobExec, VAR_NAME" constraintName="PRIMARY" tableName="ExternalTJobExec_ENV_VARS"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-24">
+        <addUniqueConstraint columnNames="externalId, externalSystemId" constraintName="UK6d2oyo11c00wtuvbf86fwa1nd" tableName="ExternalTJob"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-25">
+        <addUniqueConstraint columnNames="externalId, externalSystemId" constraintName="UKcmifwtfjofn8obfaju8qgjb0f" tableName="ExternalTestCase"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-26">
+        <addUniqueConstraint columnNames="externalId, externalSystemId" constraintName="UKdaagq54ukcclrr7w6cjhupn7x" tableName="ExternalProject"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-27">
+        <addUniqueConstraint columnNames="externalId, externalSystemId" constraintName="UKmfnqebightf4ttlwr5e0gcsd3" tableName="ExternalTestExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-28">
+        <createIndex indexName="FK21rkdthdklkycgjgv75romrh6" tableName="SutExecution">
+            <column name="sutSpecification_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-29">
+        <createIndex indexName="FK27xvgi132cqc2w740hh0s07tb" tableName="TJobParameter">
+            <column name="TJob"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-30">
+        <createIndex indexName="FK50l1jep8srlbgh367tlh8gbae" tableName="ExternalTestCase">
+            <column name="exTJob"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-31">
+        <createIndex indexName="FK7weq23cwj1kat219q8w4jw3nr" tableName="TestSuite">
+            <column name="tJobExec"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-32">
+        <createIndex indexName="FKbt4oh38n0tasvr3hxqgfrejit" tableName="SutSpecification">
+            <column name="project_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-33">
+        <createIndex indexName="FKcih2okdogc5lfqi3e6i6827jb" tableName="TJobExecution">
+            <column name="sut_execution"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-34">
+        <createIndex indexName="FKgcni9cl5ncx1oo05inf68ewrb" tableName="TJobExecParameter">
+            <column name="TJobExec"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-35">
+        <createIndex indexName="FKhcl1sic06r9f8ynufhn2scd1g" tableName="ExternalTJob">
+            <column name="sut"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-36">
+        <createIndex indexName="FKhk40dhvlx8qxeejwyn725lrti" tableName="SutExecParameter">
+            <column name="SutExec"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-37">
+        <createIndex indexName="FKi6nih2vc39dr2usctvsoxfw3t" tableName="ExternalTJob">
+            <column name="exProject"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-38">
+        <createIndex indexName="FKm3q10xhr2i12t59pt0sa58ili" tableName="ExternalTJobExecution">
+            <column name="exTJob"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-39">
+        <createIndex indexName="FKmxlmgs09yr99ox3tvmhdbk5sk" tableName="TJob">
+            <column name="sut"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-40">
+        <createIndex indexName="FKo00tpj6c56vibb52jlfie6ut3" tableName="ExternalTestExecution">
+            <column name="exTestCase"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-41">
+        <createIndex indexName="FKqaijb9ivao5vog31paayujalb" tableName="TJobExecution">
+            <column name="tjob"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-42">
+        <createIndex indexName="FKqivehktkjh3ryg9sbympcu0l" tableName="TJob">
+            <column name="project"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-43">
+        <createIndex indexName="FKqn2j0fu5fc2o39705m8su10ix" tableName="TestCase">
+            <column name="testSuite"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-44">
+        <createIndex indexName="FKrle2aqio50ddkkixey8i55aae" tableName="SutSpecification">
+            <column name="eimConfig"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-45">
+        <createIndex indexName="FKsuiu9yiwd9ydgh85pcbxura16" tableName="SutParameter">
+            <column name="SutSpecification"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-46">
+        <createIndex indexName="FKtkoa3skuay26hw58ky1jyukpi" tableName="TJobExecution_servicesInstances">
+            <column name="TJobExecution_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-47">
+        <createIndex indexName="FKylum76njaa88e8hfv07bgdpd" tableName="SutSpecification">
+            <column name="exProject"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-48">
+        <addForeignKeyConstraint baseColumnNames="sutSpecification_id" baseTableName="SutExecution" constraintName="FK21rkdthdklkycgjgv75romrh6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutSpecification"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-49">
+        <addForeignKeyConstraint baseColumnNames="TJob" baseTableName="TJobParameter" constraintName="FK27xvgi132cqc2w740hh0s07tb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJob"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-50">
+        <addForeignKeyConstraint baseColumnNames="exTJob" baseTableName="ExternalTestCase" constraintName="FK50l1jep8srlbgh367tlh8gbae" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalTJob"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-51">
+        <addForeignKeyConstraint baseColumnNames="tJobExec" baseTableName="TestSuite" constraintName="FK7weq23cwj1kat219q8w4jw3nr" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-52">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="SutSpecification" constraintName="FKbt4oh38n0tasvr3hxqgfrejit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Project"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-53">
+        <addForeignKeyConstraint baseColumnNames="sut_execution" baseTableName="TJobExecution" constraintName="FKcih2okdogc5lfqi3e6i6827jb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-54">
+        <addForeignKeyConstraint baseColumnNames="TJOB_EXEC" baseTableName="ENV_VARS" constraintName="FKf1qe5p99dcgyby1pnxh3bcxt8" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-55">
+        <addForeignKeyConstraint baseColumnNames="TJobExec" baseTableName="TJobExecParameter" constraintName="FKgcni9cl5ncx1oo05inf68ewrb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-56">
+        <addForeignKeyConstraint baseColumnNames="sut" baseTableName="ExternalTJob" constraintName="FKhcl1sic06r9f8ynufhn2scd1g" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutSpecification"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-57">
+        <addForeignKeyConstraint baseColumnNames="SutExec" baseTableName="SutExecParameter" constraintName="FKhk40dhvlx8qxeejwyn725lrti" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-58">
+        <addForeignKeyConstraint baseColumnNames="exProject" baseTableName="ExternalTJob" constraintName="FKi6nih2vc39dr2usctvsoxfw3t" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalProject"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-59">
+        <addForeignKeyConstraint baseColumnNames="exTJob" baseTableName="ExternalTJobExecution" constraintName="FKm3q10xhr2i12t59pt0sa58ili" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalTJob"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-60">
+        <addForeignKeyConstraint baseColumnNames="sut" baseTableName="TJob" constraintName="FKmxlmgs09yr99ox3tvmhdbk5sk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutSpecification"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-61">
+        <addForeignKeyConstraint baseColumnNames="exTestCase" baseTableName="ExternalTestExecution" constraintName="FKo00tpj6c56vibb52jlfie6ut3" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalTestCase"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-62">
+        <addForeignKeyConstraint baseColumnNames="tjob" baseTableName="TJobExecution" constraintName="FKqaijb9ivao5vog31paayujalb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJob"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-63">
+        <addForeignKeyConstraint baseColumnNames="project" baseTableName="TJob" constraintName="FKqivehktkjh3ryg9sbympcu0l" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Project"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-64">
+        <addForeignKeyConstraint baseColumnNames="testSuite" baseTableName="TestCase" constraintName="FKqn2j0fu5fc2o39705m8su10ix" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TestSuite"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-65">
+        <addForeignKeyConstraint baseColumnNames="ExternalTJobExec" baseTableName="ExternalTJobExec_ENV_VARS" constraintName="FKr5pse039h47f0b8jcq1kyeuub" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalTJobExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-66">
+        <addForeignKeyConstraint baseColumnNames="eimConfig" baseTableName="SutSpecification" constraintName="FKrle2aqio50ddkkixey8i55aae" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="EimConfig"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-67">
+        <addForeignKeyConstraint baseColumnNames="SutSpecification" baseTableName="SutParameter" constraintName="FKsuiu9yiwd9ydgh85pcbxura16" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="SutSpecification"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-68">
+        <addForeignKeyConstraint baseColumnNames="TJobExecution_id" baseTableName="TJobExecution_servicesInstances" constraintName="FKtkoa3skuay26hw58ky1jyukpi" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="root (generated)" id="1519812833749-69">
+        <addForeignKeyConstraint baseColumnNames="exProject" baseTableName="SutSpecification" constraintName="FKylum76njaa88e8hfv07bgdpd" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ExternalProject"/>
+    </changeSet>
+</databaseChangeLog>

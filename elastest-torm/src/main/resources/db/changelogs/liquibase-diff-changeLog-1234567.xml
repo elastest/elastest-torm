@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="frdiaz (generated)" id="1519814832436-1">
+        <dropNotNullConstraint columnDataType="bigint" columnName="duration" tableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1519814832436-2">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="name" tableName="Project"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1519814832436-3">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="name" tableName="SutSpecification"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1519814832436-4">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="name" tableName="TJob"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1519814832436-5">
+        <dropNotNullConstraint columnDataType="int" columnName="result" tableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1519814832436-6">
+        <dropNotNullConstraint columnDataType="clob" columnName="specification" tableName="SutSpecification"/>
+    </changeSet>
+</databaseChangeLog>

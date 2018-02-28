@@ -28,6 +28,10 @@ node('TESTDOCKER'){
             sh 'cd ./elastest-torm; mvn -Pci-no-it-test test;'
             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
             
+        stage "Test DB changes"
+            echo ("Test DB changes")
+            sh 'cd ./scripts; ./load-db-data.sh;' 
+            
         stage ("IT Test elastest-torm")
             echo ("Starting TORM integration tests")
             sh 'cd ./scripts; ./it.sh'
