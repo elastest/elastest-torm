@@ -65,7 +65,7 @@
         <div class="pad" layout="column">
           <div *ngFor="let service of esmServicesCatalog; let i = index" layout="row">
             <div layout="row" layout-align="center center" class="push-bottom">
-              <md-checkbox #service{{i}} [checked]="service.selected" (change)="service.changeServiceSelection($event)"></md-checkbox>
+              <md-checkbox #service{{i}} id="service{{service.name}}" [checked]="service.selected" (change)="service.changeServiceSelection($event)"></md-checkbox>
             </div>
             <td-expansion-panel expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
               <ng-template td-expansion-panel-label>
