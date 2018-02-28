@@ -39,7 +39,7 @@ docker exec -it $mysqlContainerName sh -c 'mysql ETM < /dump/devdump1.sql'
 
 # Apply updates
 echo "Apply updates"
-mvn liquibase:update -Dmysql.host=$mysqlServiceIp -Dinitial.changelog=liquibase-changelog.xml
+mvn liquibase:update -Dmysql.host=$mysqlServiceIp -Dinitial.changelog=liquibase-changelog-ci.xml
 
 mvnExit=$?
 
