@@ -30,7 +30,7 @@ node('TESTDOCKER'){
             
         stage "Test DB changes"
             echo ("Test DB changes")
-            sh 'cd ./scripts; ./load-db-data.sh;' 
+            sh 'cd ./scripts/db; ./load-db-data.sh;' 
             
         stage ("IT Test elastest-torm")
             echo ("Starting TORM integration tests")
