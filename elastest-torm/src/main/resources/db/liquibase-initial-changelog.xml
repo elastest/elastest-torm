@@ -149,9 +149,6 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="commands" type="TEXT"/>
-            <column name="commandsOption" type="INT">
-                <constraints nullable="false"/>
-            </column>
             <column name="currentSutExec" type="BIGINT"/>
             <column name="description" type="VARCHAR(255)"/>
             <column name="instrumentalize" type="BIT(1)"/>
@@ -173,8 +170,11 @@
                 <constraints nullable="false"/>
             </column>
             <column name="eimConfig" type="BIGINT"/>
-            <column name="exProject" type="BIGINT"/>
             <column name="project_id" type="BIGINT"/>
+            <column name="exProject" type="BIGINT"/>
+            <column name="commandsOption" type="INT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
     <changeSet author="root (generated)" id="1519812833749-15">
