@@ -23,6 +23,7 @@
             <column name="logstashIp" type="VARCHAR(255)"/>
             <column name="privateKey" type="TEXT"/>
             <column name="user" type="VARCHAR(255)"/>
+            <column name="logstashHttpApiUrl" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
     <changeSet author="root (generated)" id="1519812833749-3">
