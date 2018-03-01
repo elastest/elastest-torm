@@ -111,6 +111,7 @@ public class EsmService {
 
     public EsmServiceClient esmServiceClient;
     public DockerService2 dockerService;
+    public EtmContextAuxService etmContextAuxService;
     public UtilTools utilTools;
     public FilesService filesServices;
     private Map<String, SupportServiceInstance> servicesInstances;
@@ -130,8 +131,8 @@ public class EsmService {
     private String externalTJobExecFolderPefix = "external_exec_";
 
     public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
-            DockerService2 dockerService, FilesService filesServices) {
-        logger.info("EsmService constructor.");
+            DockerService2 dockerService, FilesService filesServices,
+            EtmContextAuxService etmContextAuxService) {
         this.esmServiceClient = esmServiceClient;
         this.utilTools = utilTools;
         this.servicesInstances = new ConcurrentHashMap<>();
@@ -143,6 +144,7 @@ public class EsmService {
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
         this.filesServices = filesServices;
+        this.etmContextAuxService = etmContextAuxService;
     }
 
     @PostConstruct
@@ -447,7 +449,6 @@ public class EsmService {
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId = tJobExec.getTjob().getId();
             Long tJobExecId = tJobExec.getId();
-            // etmcontextService.getMonitoringEnvVars
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
@@ -474,8 +475,7 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
                     tJobExecId.toString());
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    tJobExecId.toString());// TODO refactor -> Use
-
+                    tJobExecId.toString());
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }
@@ -606,7 +606,6 @@ public class EsmService {
             // Puts only Exec Monitoring index (without sut)
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
                     exTJobExec.getExternalTJobExecMonitoringIndex());
-            // TODO refactor -> Use etmcontextService.getMonitoringEnvVars
         }
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }
@@ -1160,17 +1159,9 @@ public class EsmService {
     private void fillEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance) {
 
-        supportServiceInstance.getParameters().put("ET_MON_LSHTTP_API",
-                etEtmLshttpApi); // TODO refactor -> Use
-                                 // etmcontextService.getMonitoringEnvVars
-        supportServiceInstance.getParameters().put("ET_LSBEATS_HOST",
-                etEtmLsbeatsHost);
-        supportServiceInstance.getParameters().put("ET_LSBEATS_PORT",
-                etEtmLsbeatsPort);
-        supportServiceInstance.getParameters().put("ET_LSTCP_HOST",
-                etEtmLstcpHost);
-        supportServiceInstance.getParameters().put("ET_LSTCP_PORT",
-                etEtmLstcpPort);
+        supportServiceInstance.getParameters()
+                .putAll(etmContextAuxService.getMonitoringEnvVars());
+
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST",
                 etEtmLstcpHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT",

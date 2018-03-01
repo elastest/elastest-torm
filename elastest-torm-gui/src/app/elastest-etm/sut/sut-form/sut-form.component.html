@@ -108,7 +108,8 @@
               </md-radio-group>
             </div>
             <div class="push-bottom">
-              <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}" color="primary" icon="info">
+              <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}" color="primary"
+                icon="info">
                 <!-- <button td-message-actions md-button (click)="dockerTypeInfo.close()">X</button> -->
               </td-message>
             </div>
@@ -190,8 +191,8 @@
               <strong>Logstash IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
             <md-list-item *ngIf="sut.eimConfig.logstashBeatsPort">
               <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBeatsPort}}</md-list-item>
-            <md-list-item *ngIf="sut.eimConfig.logstashHttpPort">
-              <strong>HTTP Port:&nbsp;</strong> {{sut.eimConfig.logstashHttpPort}}</md-list-item>
+            <md-list-item *ngIf="sut.eimConfig.logstashHttpApiUrl">
+              <strong>HTTP Api Url:&nbsp;</strong> {{sut.eimConfig.logstashHttpApiUrl}}</md-list-item>
             <md-list-item *ngIf="sut.currentSutExec">
               <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</md-list-item>
           </md-list>

@@ -218,6 +218,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       !this.sut.eimConfig.logstashIp &&
       !this.sut.eimConfig.logstashBeatsPort &&
       !this.sut.eimConfig.logstashHttpPort &&
+      !this.sut.eimConfig.logstashHttpApiUrl &&
       !this.sut.currentSutExec
     );
   }
@@ -286,6 +287,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.sut.eimConfig.logstashIp = data.logstashIp;
           this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
           this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
+          this.sut.eimConfig.logstashHttpApiUrl = data.logstashHttpApiUrl;
           this.save(exit);
         },
         (error) => console.log(error),

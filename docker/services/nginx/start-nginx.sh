@@ -10,4 +10,8 @@ else
 fi
 
 
+# SSL Certificate
+sudo mkdir /etc/nginx/ssl
+sudo openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -subj '/CN=localhost/O=ElasTest/C=EU' -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+
 nginx -g "daemon off;"

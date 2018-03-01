@@ -361,7 +361,7 @@ public class TJobExecOrchestratorService {
 
         // Get monitoring Env Vars
         tJobExec.getEnvVars()
-                .putAll(etmContextService.getMonitoringEnvVars(tJobExec));
+                .putAll(etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
     }
 
     /**

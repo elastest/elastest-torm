@@ -39,8 +39,8 @@ public class EtmContextApiController implements EtmContextApi {
         Map<String, String> tSSInstanceContextMap = esmService
                 .getTSSInstanceContext(tSSInstanceId, true, true);
         if (tSSInstanceContextMap != null) {
-            return new ResponseEntity<Map<String, String>>(tSSInstanceContextMap,
-                    HttpStatus.OK);
+            return new ResponseEntity<Map<String, String>>(
+                    tSSInstanceContextMap, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -74,10 +74,12 @@ public class EtmContextApiController implements EtmContextApi {
     @Override
     public ResponseEntity<Map<String, String>> getLogstashInfo() {
         Map<String, String> logstashInfo = new HashMap<>();
-        // TODO real logstash ip with proxy
-        logstashInfo.put("logstashIp", publicHost);
-        logstashInfo.put("logstashBeatsPort", "5044");
-        logstashInfo.put("logstashHttpPort", "5003");
+
+        ContextInfo context = etmContextService.getContextInfo();
+        logstashInfo.put("logstashIp", context.getLogstashIp());
+        logstashInfo.put("logstashBeatsPort", context.getLogstashBeatsPort());
+        logstashInfo.put("logstashHttpApiUrl", context.getLogstashHttpUrl());
+        logstashInfo.put("logstashHttpPort", context.getLogstashHttpPort());
 
         return new ResponseEntity<Map<String, String>>(logstashInfo,
                 HttpStatus.OK);

@@ -31,12 +31,12 @@ public class EtmContextService {
     @Autowired
     EsmService esmService;
     @Autowired
+    EtmContextAuxService etmContextAuxService;
+    @Autowired
     DockerService2 dockerService;
 
-    @Value("${et.edm.elasticsearch.api}")
-    public String elasticsearchApi;
     @Value("${et.public.host}")
-    public String publicHost;
+    public String etPublicHost;
     @Value("${et.in.prod}")
     public boolean etInProd;
     @Value("${et.etm.rabbit.path.with-proxy}")
@@ -50,8 +50,7 @@ public class EtmContextService {
     public String etEsmSsDescFilesPath;
     @Value("${et.shared.folder}")
     public String etSharedFolder;
-    @Value("${et.public.host}")
-    public String etPublicHost;
+
     @Value("${server.port}")
     public String serverPort;
     @Value("${elastest.docker.network}")
@@ -74,16 +73,7 @@ public class EtmContextService {
     public String etEsmApi;
     @Value("${et.eim.api}")
     public String etEimApi;
-    @Value("${et.etm.lsbeats.host}")
-    public String etEtmLsbeatsHost;
-    @Value("${et.etm.lsbeats.port}")
-    public String etEtmLsbeatsPort;
-    @Value("${et.etm.internal.lsbeats.port}")
-    public String etEtmInternalLsbeatsPort;
-    @Value("${et.etm.lshttp.api}")
-    public String etEtmLshttpApi;
-    @Value("${et.etm.lshttp.port}")
-    public String etEtmLshttpPort;
+
     @Value("${et.etm.rabbit.host}")
     public String etEtmRabbitHost;
     @Value("${et.etm.rabbit.port}")
@@ -96,11 +86,23 @@ public class EtmContextService {
     public String etEmpInfluxdbHost;
     @Value("${et.emp.influxdb.graphite.port}")
     public String etEmpInfluxdbGraphitePort;
+
+    // Logstash
+    @Value("${et.etm.lsbeats.host}")
+    public String etEtmLsBeatsHost;
+    @Value("${et.etm.lsbeats.port}")
+    public String etEtmLsBeatsPort;
+    @Value("${et.etm.internal.lsbeats.port}")
+    public String etEtmInternalLsbeatsPort;
+    @Value("${et.etm.lshttp.api}")
+    public String etEtmLsHttpApi;
+    @Value("${et.etm.lshttp.port}")
+    public String etEtmLsHttpPort;
     @Value("${et.etm.lstcp.host}")
-    public String etEtmLstcpHost;
+    public String etEtmLsTcpHost;
     @Value("${et.etm.lstcp.port}")
-    public String etEtmLstcpPort;
-    
+    public String etEtmLsTcpPort;
+
     @Value("${et.etm.testlink.host}")
     public String etEtmTestLinkHost;
 
@@ -111,14 +113,9 @@ public class EtmContextService {
     }
 
     public ContextInfo getContextInfo() {
-        ContextInfo contextInfo = new ContextInfo();
-        contextInfo.setElasticSearchUrl(
-                etInProd ? "http://" + publicHost + ":37000/elasticsearch"
-                        : elasticsearchApi);
-        contextInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
-        contextInfo.setElasTestExecMode(execMode);
+        ContextInfo contextInfo = this.etmContextAuxService.getContextInfo();
         contextInfo.setEusSSInstance(getEusApiUrl());
-        contextInfo.setTestLinkStarted(!etEtmTestLinkHost.equals("none") ? true : false);
+
         return contextInfo;
     }
 
@@ -161,18 +158,13 @@ public class EtmContextService {
         });
     }
 
-    public Map<String, String> getMonitoringEnvVars(TJobExecution tJobExec) {
+    public Map<String, String> getTJobExecMonitoringEnvVars(
+            TJobExecution tJobExec) {
         Map<String, String> monEnvs = new HashMap<String, String>();
-
-        monEnvs.put("ET_MON_LSHTTP_API", etEtmLshttpApi);
-        monEnvs.put("ET_MON_LSBEATS_HOST", etEtmLsbeatsHost);
-        monEnvs.put("ET_MON_LSBEATS_PORT", etEtmLsbeatsPort);
-        monEnvs.put("ET_MON_LSTCP_HOST", etEtmLstcpHost);
-        monEnvs.put("ET_MON_LSTCP_PORT", etEtmLstcpPort);
-        monEnvs.put("ET_MON_LOG_TAG",
-                "sut_" + tJobExec.getId() + "_exec");
+        monEnvs.putAll(this.etmContextAuxService.getMonitoringEnvVars());
 
         if (tJobExec != null) {
+            monEnvs.put("ET_MON_LOG_TAG", "sut_" + tJobExec.getId() + "_exec");
             monEnvs.put("ET_SUT_CONTAINER_NAME", "sut_" + tJobExec.getId());
             monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
             if (tJobExec.getTjob().isExternal()) {
@@ -180,11 +172,12 @@ public class EtmContextService {
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
                 monEnvs.put("ET_SUT_MON_LSHTTP_API",
-                        "http://" + etPublicHost + ":" + etEtmLshttpPort);
+                        "http://" + etPublicHost + ":" + etEtmLsHttpPort);
                 monEnvs.put("ET_SUT_MON_LSBEATS_HOST", etPublicHost);
-                monEnvs.put("ET_SUT_MON_LSBEATS_PORT", etEtmInternalLsbeatsPort);
+                monEnvs.put("ET_SUT_MON_LSBEATS_PORT",
+                        etEtmInternalLsbeatsPort);
                 monEnvs.put("ET_SUT_MON_LSTCP_HOST", etPublicHost);
-                monEnvs.put("ET_SUT_MON_LSTCP_PORT", etEtmLstcpPort);
+                monEnvs.put("ET_SUT_MON_LSTCP_PORT", etEtmLsTcpPort);
             }
         }
 
