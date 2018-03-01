@@ -35,7 +35,7 @@ fi
 
 # Load the DB from a dump file
 echo "Loading database"
-docker exec -it $mysqlContainerName sh -c 'mysql ETM < /dump/devdump1.sql'
+docker exec $mysqlContainerName sh -c 'mysql ETM < /dump/devdump1.sql'
 
 # Apply updates
 echo "Apply updates"
