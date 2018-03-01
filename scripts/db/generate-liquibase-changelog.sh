@@ -32,7 +32,7 @@ else
 fi
 
 # Change to the elastest-torm folder
-cd ../elastest-torm/
+cd ../../elastest-torm/
 
 # Create the ETM database
 echo "Create the ETM database"
