@@ -10,8 +10,17 @@ public class ContextInfo {
     @JsonProperty("elasticSearchUrl")
     private String elasticSearchUrl;
 
+    @JsonProperty("elasticSearchSSlUrl")
+    private String elasticSearchSSlUrl;
+
+    @JsonProperty("elasticsearchPath")
+    private String elasticsearchPath;
+
     @JsonProperty("logstashHttpUrl")
     private String logstashHttpUrl;
+
+    @JsonProperty("logstashSSLHttpUrl")
+    private String logstashSSLHttpUrl;
 
     @JsonProperty("logstashHttpPort")
     private String logstashHttpPort;
@@ -31,6 +40,9 @@ public class ContextInfo {
     @JsonProperty("logstashIp")
     private String logstashIp;
 
+    @JsonProperty("logstashPath")
+    private String logstashPath;
+
     @JsonProperty("rabbitPath")
     private String rabbitPath;
 
@@ -43,6 +55,8 @@ public class ContextInfo {
     @JsonProperty("testLinkStarted")
     private boolean testLinkStarted;
 
+    // Getters & Setters
+
     public String getElasticSearchUrl() {
         return elasticSearchUrl;
     }
@@ -51,12 +65,36 @@ public class ContextInfo {
         this.elasticSearchUrl = elasticSearchUrl;
     }
 
+    public String getElasticSearchSSlUrl() {
+        return elasticSearchSSlUrl;
+    }
+
+    public void setElasticSearchSSlUrl(String elasticSearchSSlUrl) {
+        this.elasticSearchSSlUrl = elasticSearchSSlUrl;
+    }
+
+    public String getElasticsearchPath() {
+        return elasticsearchPath;
+    }
+
+    public void setElasticsearchPath(String elasticsearchPath) {
+        this.elasticsearchPath = elasticsearchPath;
+    }
+
     public String getLogstashHttpUrl() {
         return logstashHttpUrl;
     }
 
     public void setLogstashHttpUrl(String logstashHttpUrl) {
         this.logstashHttpUrl = logstashHttpUrl;
+    }
+
+    public String getLogstashSSLHttpUrl() {
+        return logstashSSLHttpUrl;
+    }
+
+    public void setLogstashSSLHttpUrl(String logstashSSLHttpUrl) {
+        this.logstashSSLHttpUrl = logstashSSLHttpUrl;
     }
 
     public String getLogstashHttpPort() {
@@ -107,6 +145,14 @@ public class ContextInfo {
         this.logstashIp = logstashIp;
     }
 
+    public String getLogstashPath() {
+        return logstashPath;
+    }
+
+    public void setLogstashPath(String logstashPath) {
+        this.logstashPath = logstashPath;
+    }
+
     public String getRabbitPath() {
         return rabbitPath;
     }
@@ -138,5 +184,4 @@ public class ContextInfo {
     public void setTestLinkStarted(boolean testLinkStarted) {
         this.testLinkStarted = testLinkStarted;
     }
-
 }
