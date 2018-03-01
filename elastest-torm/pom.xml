@@ -33,28 +33,39 @@
     </developers>
 
     <properties>
+        <!-- Java 8 -->
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        
+        <!-- JUnit 5 and Test dependencies -->
         <junit.jupiter.version>5.0.0-M5</junit.jupiter.version>
         <junit.platform.version>1.0.0-M5</junit.platform.version>
         <spring-test-junit5.version>1.0.0.M5</spring-test-junit5.version>
-        <springfox-version>2.6.1</springfox-version>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        
+        <!-- Other dependencies -->
+        <springfox-version>2.6.1</springfox-version>
         <rest-assured.version>3.0.3</rest-assured.version>
+        
         <!-- Cross plugins settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!--  Liquibase properties -->
+        <initial.changelog>liquibase-initial-changelog.xml</initial.changelog>
+        <liquibase-core.version>3.5.3</liquibase-core.version>
+        <liquibase-hibernate5.version>3.6</liquibase-hibernate5.version>
+        <spring-data-jpa-liquibase.version>1.11.1.RELEASE</spring-data-jpa-liquibase.version>
+        <hibernate-validator-liquibase>6.0.0.Alpha1</hibernate-validator-liquibase>
+        
         <!-- plugins versions -->
         <maven.source.plugin.version>2.2.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
-        <!--  Liquibase properties -->
-        <initial.changelog>liquibase-initial-changelog.xml</initial.changelog>
-
+        <liquibase-maven-plugin.version>3.5.3</liquibase-maven-plugin.version>
     </properties>
 
     <!-- as agreed Public Artifacts will be under Apache Software License -->
@@ -265,15 +276,13 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>3.5.3</version>
+            <version>${liquibase-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-maven-plugin</artifactId>
-            <version>3.5.3</version>
+            <version>${liquibase-maven-plugin.version}</version>
         </dependency>
-
-
     </dependencies>
 
     <build>
@@ -396,7 +405,7 @@
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>${liquibase-maven-plugin.version}</version>
                 <configuration>
                     <propertyFile>src/main/resources/liquibase.properties</propertyFile>
                     <changeLogFile>src/main/resources/db/${initial.changelog}</changeLogFile>
@@ -405,35 +414,21 @@
                     <url><![CDATA[jdbc:mysql://${mysql.host}:3306/ETM?useSSL=false&createDatabaseIfNotExist=true&nullNamePatternMatchesAll=true]]></url>
                     <diffChangeLogFile>src/main/resources/db/changelogs/liquibase-diff-changeLog-${change.date}.xml</diffChangeLogFile>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>update</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <dependencies>
-                    <!-- dependency> <groupId>org.liquibase.ext</groupId> 
-                        <artifactId>liquibase-hibernate4</artifactId> <version>3.5</version> </dependency -->
                     <dependency>
                         <groupId>org.liquibase.ext</groupId>
                         <artifactId>liquibase-hibernate5</artifactId>
-                        <version>3.6</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                        <version>4.3.7.RELEASE</version>
+                        <version>${liquibase-hibernate5.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.springframework.data</groupId>
                         <artifactId>spring-data-jpa</artifactId>
-                        <version>1.11.1.RELEASE</version>
+                        <version>${spring-data-jpa-liquibase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.hibernate.validator</groupId>
                         <artifactId>hibernate-validator</artifactId>
-                        <version>6.0.0.Alpha1</version>
+                        <version>${hibernate-validator-liquibase}</version>
                     </dependency>
                 </dependencies>
             </plugin>
