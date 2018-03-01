@@ -89,7 +89,7 @@ public class EimConfig {
 
     public EimConfig(Long id, String user, String privateKey, String ip,
             String agentId, String logstashIp, String logstashBeatsPort,
-            String logstashHttpPort) {
+            String logstashHttpPort, String logstashHttpApiUrl) {
         this.id = id == null ? 0 : id;
         this.user = user;
         this.privateKey = privateKey;
@@ -98,6 +98,7 @@ public class EimConfig {
         this.logstashIp = logstashIp;
         this.logstashBeatsPort = logstashBeatsPort;
         this.logstashHttpPort = logstashHttpPort;
+        this.logstashHttpApiUrl = logstashHttpApiUrl;
     }
 
     public EimConfig() {
