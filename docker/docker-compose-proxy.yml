@@ -4,9 +4,9 @@ services:
         image: elastest/etm-proxy
         expose:
             - 80
+            - 443
         ports:
             - 37000:80
-	    - 37443:443
         depends_on:
             - etm
         networks:
