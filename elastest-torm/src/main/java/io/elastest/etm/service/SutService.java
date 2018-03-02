@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.SutExecutionRepository;
@@ -13,6 +15,9 @@ import io.elastest.etm.model.SutSpecification;
 
 @Service
 public class SutService {
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(SutService.class);
 
     private final SutRepository sutRepository;
     private final SutExecutionRepository sutExecutionRepository;
@@ -48,9 +53,13 @@ public class SutService {
                     // {
                     sutExec.setUrl(sut.getSpecification());
                     // }
+                    logger.debug(
+                            "Instrumentalizing SuT \"" + sut.getName() + "\"");
                     this.eimService.instrumentalizeSut(sut.getEimConfig());
                 } else if (savedSut.isInstrumentalize()
                         && !sut.isInstrumentalize()) { // Deinstrumentalize
+                    logger.debug("Deinstrumentalizing SuT \"" + sut.getName()
+                            + "\"");
                     this.eimService.deinstrumentSut(sut.getEimConfig());
                 }
             } else {
