@@ -30,7 +30,7 @@ public class EimService {
 
 	@Async
 	@SuppressWarnings("unchecked")
-	public void instrumentSut(EimConfig eimConfig) {
+	public void instrumentalizeSut(EimConfig eimConfig) {
 		RestTemplate restTemplate = new RestTemplate();
 
 		Map<String, String> body = new HashMap<>();

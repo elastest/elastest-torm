@@ -10,7 +10,6 @@ import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @Service
@@ -46,7 +45,7 @@ public class SutService {
 //				if (sut.getInstrumentedBy() != InstrumentedByEnum.ADMIN) {
 					sutExec.setUrl(sut.getSpecification());
 //				}
-				this.eimService.instrumentSut(sut.getEimConfig());
+				this.eimService.instrumentalizeSut(sut.getEimConfig());
 			} else if (savedSut.isinstrumentalize() && !sut.isinstrumentalize()) { // Deinstrumentalize
 				this.eimService.deinstrumentSut(sut.getEimConfig());
 			}
