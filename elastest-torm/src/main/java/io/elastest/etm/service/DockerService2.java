@@ -84,6 +84,9 @@ public class DockerService2 {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
+    
+    @Value("${et.etm.logstash.container.name}")
+    private String etEtmLogstashContainerName;
 
     @Autowired
     public FilesService filesService;
@@ -560,7 +563,7 @@ public class DockerService2 {
     public LogConfig getLogConfig(int port, String tagPrefix, String tagSuffix,
             DockerExecution dockerExec) {
 
-        logstashHost = getLogstashHost(dockerExec);
+        logstashHost = getContainerIpByNetwork(etEtmLogstashContainerName, elastestNetwork); 
 
         logger.info(
                 "Logstash Host to send logs from containers: {}. To port {}",
