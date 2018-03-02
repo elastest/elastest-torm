@@ -54,7 +54,6 @@ public class EimService {
 			this.eimConfigRepository.save(eimConfig);
 		} catch (Exception e) {
 			System.err.println("EIM is not started");
-//			e.printStackTrace();
 		}
 	}
 

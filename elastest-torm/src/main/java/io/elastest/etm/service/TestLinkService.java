@@ -106,7 +106,7 @@ public class TestLinkService {
                         this.testLinkHost = etPublicHost;
                         this.testLinkPort = socatBindedPort.getListenPort();
                     } catch (Exception e) {
-                        logger.error("Cannot get Testlink socat data {}", e);
+                        logger.error("Cannot get Testlink socat data", e);
                         this.testLinkHost = etEtmTestLinkHost;
                         this.testLinkPort = etEtmTestLinkPort;
                     }
@@ -127,7 +127,7 @@ public class TestLinkService {
                     logger.error(te.getMessage());
                 }
             } catch (Exception e) {
-                logger.error("Cannot get TL container ip", e);
+                logger.error("Cannot get TestLink container ip");
             }
         }
     }

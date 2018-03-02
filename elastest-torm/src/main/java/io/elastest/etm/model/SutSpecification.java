@@ -517,11 +517,11 @@ public class SutSpecification {
      * @return instrumentalize
      **/
 
-    public boolean isinstrumentalize() {
+    public boolean isInstrumentalize() {
         return instrumentalize;
     }
 
-    public void setinstrumentalize(boolean instrumentalize) {
+    public void setInstrumentalize(boolean instrumentalize) {
         this.instrumentalize = instrumentalize;
     }
 
@@ -669,6 +669,10 @@ public class SutSpecification {
 
     public boolean isDockerCommandsSut() {
         return this.getManagedDockerType() == ManagedDockerType.COMMANDS;
+    }
+    
+    public boolean isInstrumentedByElastest(){
+        return this.getSutType() == SutTypeEnum.DEPLOYED && this.getInstrumentedBy() == InstrumentedByEnum.ELASTEST;
     }
 
     @Override
