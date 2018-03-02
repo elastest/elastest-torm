@@ -11,7 +11,7 @@ mysqlContainerName="aux-lb-db$BUILD_NUMBER"
 echo $mysqlContainerName
 #Start the Mysql Db
 echo "Start Mysql DB service."
-docker run -d --name=$mysqlContainerName -v /home/ubuntu/tmp/git/elastest-torm/scripts/db:/dump -e MYSQL_PASSWORD=elastest -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=elastest -e MYSQL_USER=elastest elastest/edm-mysql
+docker run -d --name=$mysqlContainerName -v $PWD/dump -e MYSQL_PASSWORD=elastest -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=elastest -e MYSQL_USER=elastest elastest/edm-mysql
 
 mysqlServiceIp=$(containerIp $mysqlContainerName)
 #Wait for DB is ready on linux
