@@ -17,7 +17,7 @@ export class ConfigurationService {
         console.log("Starting configuration.");
         let protocol: string = window.location.protocol;
         let host: string = window.location.host;
-        console.log("protocol: " + protocol);        
+        console.log("protocol: " + protocol);
         let hostApi: string = (protocol === 'https:' ? 'https://' : 'http://') + host + '/api';
         console.log("hostapi: " + hostApi);
 
@@ -25,7 +25,7 @@ export class ConfigurationService {
             this.getServicesInfo(hostApi)
                 .subscribe((servicesInfo) => {
                     let eusUrl = servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
-                    ? new URL(servicesInfo.eusSSInstance.urls.api) : null;
+                        ? new URL(servicesInfo.eusSSInstance.urls.api) : null;
                     this.configModel = {
                         'hostName': window.location.hostname,
                         'host': (protocol === 'https:' ? 'https://' : 'http://') + host,
@@ -37,9 +37,11 @@ export class ConfigurationService {
                         'eusPort': eusUrl !== null ? eusUrl.port : null,
                         'eusServiceUrlNoPath': (protocol === 'https:' ? 'https://' : 'http://') + environment.eus,
                         'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
-                            ? servicesInfo.eusSSInstance.urls.api : null,
+                            ? (protocol === 'https:' ? String(servicesInfo.eusSSInstance.urls.api).replace('http://', 'https://') 
+                            : servicesInfo.eusSSInstance.urls.api) : null,
                         'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
-                            ? servicesInfo.eusSSInstance.urls.eusWSapi : null,
+                            ? (protocol === 'https:' ? String(servicesInfo.eusSSInstance.urls.eusWSapi).replace('ws://', 'wss://') 
+                            : servicesInfo.eusSSInstance.urls.eusWSapi) : null,
                         'elasTestExecMode': servicesInfo.elasTestExecMode,
                         'testLinkStarted': servicesInfo.testLinkStarted,
                     };
@@ -86,7 +88,7 @@ export class ConfigurationService {
     public getHelpInfo() {
         let url: string = this.configModel.hostApi + '/context/help/info';
         return this.http.get(url)
-        .map((response) => response.json());
+            .map((response) => response.json());
     }
 
 }
