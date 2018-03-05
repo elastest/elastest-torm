@@ -15,8 +15,9 @@ export class ConfigurationService {
 
     load() {
         console.log("Starting configuration.");
+        let protocol: string = window.location.protocol;
         let host: string = window.location.host;
-        let hostApi: string = 'http://' + host + '/api';
+        let hostApi: string = (protocol === 'https' ? 'https://' : 'http://') + host + '/api';
 
         return new Promise((resolve, reject) => {
             this.getServicesInfo(hostApi)
@@ -25,14 +26,14 @@ export class ConfigurationService {
                     ? new URL(servicesInfo.eusSSInstance.urls.api) : null;
                     this.configModel = {
                         'hostName': window.location.hostname,
-                        'host': 'http://' + host,
+                        'host': (protocol === 'https' ? 'https://' : 'http://') + host,
                         'hostApi': hostApi,
                         'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
-                        'hostEIM': 'http://' + environment.hostEIM + '/',
+                        'hostEIM': (protocol === 'https' ? 'https://' : 'http://') + environment.hostEIM + '/',
                         'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
                         'eusHost': eusUrl !== null ? eusUrl.hostname : null,
                         'eusPort': eusUrl !== null ? eusUrl.port : null,
-                        'eusServiceUrlNoPath': 'http://' + environment.eus,
+                        'eusServiceUrlNoPath': (protocol === 'https' ? 'https://' : 'http://') + environment.eus,
                         'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
                             ? servicesInfo.eusSSInstance.urls.api : null,
                         'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
