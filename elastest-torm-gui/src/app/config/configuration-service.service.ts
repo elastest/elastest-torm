@@ -17,8 +17,8 @@ export class ConfigurationService {
         console.log("Starting configuration.");
         let protocol: string = window.location.protocol;
         let host: string = window.location.host;
-        console.log("host: " + host);        
-        let hostApi: string = (protocol === 'https' ? 'https://' : 'http://') + host + '/api';
+        console.log("protocol: " + protocol);        
+        let hostApi: string = (protocol === 'https:' ? 'https://' : 'http://') + host + '/api';
         console.log("hostapi: " + hostApi);
 
         return new Promise((resolve, reject) => {
@@ -28,14 +28,14 @@ export class ConfigurationService {
                     ? new URL(servicesInfo.eusSSInstance.urls.api) : null;
                     this.configModel = {
                         'hostName': window.location.hostname,
-                        'host': (protocol === 'https' ? 'https://' : 'http://') + host,
+                        'host': (protocol === 'https:' ? 'https://' : 'http://') + host,
                         'hostApi': hostApi,
                         'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
-                        'hostEIM': (protocol === 'https' ? 'https://' : 'http://') + environment.hostEIM + '/',
+                        'hostEIM': (protocol === 'https:' ? 'https://' : 'http://') + environment.hostEIM + '/',
                         'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
                         'eusHost': eusUrl !== null ? eusUrl.hostname : null,
                         'eusPort': eusUrl !== null ? eusUrl.port : null,
-                        'eusServiceUrlNoPath': (protocol === 'https' ? 'https://' : 'http://') + environment.eus,
+                        'eusServiceUrlNoPath': (protocol === 'https:' ? 'https://' : 'http://') + environment.eus,
                         'eusServiceUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
                             ? servicesInfo.eusSSInstance.urls.api : null,
                         'eusWebSocketUrl': servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
