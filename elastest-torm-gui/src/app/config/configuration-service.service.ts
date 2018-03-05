@@ -17,7 +17,9 @@ export class ConfigurationService {
         console.log("Starting configuration.");
         let protocol: string = window.location.protocol;
         let host: string = window.location.host;
+        console.log("host: " + host);        
         let hostApi: string = (protocol === 'https' ? 'https://' : 'http://') + host + '/api';
+        console.log("hostapi: " + hostApi);
 
         return new Promise((resolve, reject) => {
             this.getServicesInfo(hostApi)
