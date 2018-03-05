@@ -32,7 +32,7 @@ export class ConfigurationService {
                         'hostApi': hostApi,
                         'hostElasticsearch': servicesInfo.elasticSearchUrl + '/',
                         'hostEIM': (protocol === 'https:' ? 'https://' : 'http://') + environment.hostEIM + '/',
-                        'hostWsServer': 'ws://' + host + servicesInfo.rabbitPath,
+                        'hostWsServer': (protocol === 'https:' ? 'wss://' : 'ws://') + host + servicesInfo.rabbitPath,
                         'eusHost': eusUrl !== null ? eusUrl.hostname : null,
                         'eusPort': eusUrl !== null ? eusUrl.port : null,
                         'eusServiceUrlNoPath': (protocol === 'https:' ? 'https://' : 'http://') + environment.eus,
