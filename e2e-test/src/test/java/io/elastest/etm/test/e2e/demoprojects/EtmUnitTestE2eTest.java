@@ -14,11 +14,10 @@
  * limitations under the License.
  *
  */
-package io.elastest.etm.test.e2e;
+package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -43,38 +41,30 @@ import io.github.bonigarcia.SeleniumExtension;
  * @since 0.1.1
  */
 @Tag("e2e")
-@DisplayName("E2E tests of ETM")
+@DisplayName("ETM E2E test of Unit Test project")
 @ExtendWith(SeleniumExtension.class)
-public class EtmTJobE2eTest extends EtmBaseTest {
+public class EtmUnitTestE2eTest extends EtmBaseTest {
 
 	final Logger log = getLogger(lookup().lookupClass());
 
 	@Test
-	@DisplayName("Create Unit Test")
+	@DisplayName("Create Unit Test project Test")
 	void testCreateUnitTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
 		this.driver = driver;
 
-		log.info("Navigate to TORM and start new project");
-		driver.manage().window().setSize(new Dimension(1024, 1024));
-		driver.manage().timeouts().implicitlyWait(5, SECONDS);
-		if (secureElastest) {
-			driver.get(secureTorm);
-		} else {
-			driver.get(tormUrl);
-		}
+		navigateToTorm(driver);
 		createNewProject(driver, "Unit Tests");
 
-		log.info("Create new TJob");
 		String tJobName = "Unit Test";
 		String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
 		String sutName = null;
 		String tJobImage = "elastest/test-etm-alpinegitjava";
 		String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
 
-		createNewTJobWithCommands(driver, tJobName, tJobTestResultPath, sutName, tJobImage, commands, null, null);
+		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, null);
 
-		log.info("Run TJob");
-		driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
+		// Run TJob
+		runTJobFromProjectPage(driver, tJobName);
 
 		log.info("Wait for build sucess traces");
 		WebDriverWait waitLogs = new WebDriverWait(driver, 180);

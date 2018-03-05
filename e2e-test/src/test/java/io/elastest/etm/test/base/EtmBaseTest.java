@@ -18,6 +18,7 @@ package io.elastest.etm.test.base;
 
 import static java.lang.System.getProperty;
 import static java.lang.invoke.MethodHandles.lookup;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.ALL;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
@@ -33,6 +34,7 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
@@ -43,18 +45,12 @@ import org.slf4j.Logger;
 
 import io.github.bonigarcia.DriverCapabilities;
 
-/**
- * Parent for E2E EUS tests.
- *
- * @author Boni Garcia (boni.garcia@urjc.es)
- * @since 0.1.1
- */
 public class EtmBaseTest {
 
 	final Logger log = getLogger(lookup().lookupClass());
 
 	protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
-	protected String secureTorm = "http://user:pass@localhost:37000/";
+	protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
 
 	protected String eUser = null;
 	protected String ePassword = null;
@@ -106,18 +102,79 @@ public class EtmBaseTest {
 		}
 	}
 
+	protected void navigateToTorm(WebDriver driver) {
+		log.info("Navigate to TORM");
+		driver.manage().window().setSize(new Dimension(1024, 1024));
+		driver.manage().timeouts().implicitlyWait(5, SECONDS);
+		if (secureElastest) {
+			driver.get(secureTorm);
+		} else {
+			driver.get(tormUrl);
+		}
+	}
+
+	/* *************** */
+	/* *** Project *** */
+	/* *************** */
 	protected void createNewProject(WebDriver driver, String projectName) {
+		log.info("Create project");
 		driver.findElement(By.xpath("//button[contains(string(), 'New Project')]")).click();
 		driver.findElement(By.name("project.name")).sendKeys(projectName);
 		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
 	}
-	
+
 	protected void removeProject(WebDriver driver, String projectName) {
-		//TODO
+		this.navigateToTorm(driver);
+		// TODO
 	}
 
-	protected void createNewTJobWithCommands(WebDriver driver, String tJobName, String testResultPath, String sutName,
-			String dockerImage, String commands, Map<String, String> parameters, List<String> tss) {
+	protected void navigateToProject(WebDriver driver, String projectName) {
+		this.navigateToTorm(driver);
+		driver.findElement(By.xpath("//div[contains(string(), '" + projectName + "')]")).click();
+	}
+
+	protected boolean projectExists(WebDriver driver, String projectName) {
+		this.navigateToTorm(driver);
+		return driver.findElements(By.xpath("//div[contains(string(), '" + projectName + "')]")).size() != 0;
+	}
+
+	/* *************** */
+	/* ***** Sut ***** */
+	/* *************** */
+	protected void createNewSutDeployedByElastestWithCommands(WebDriver driver) {
+
+	}
+
+	protected void createNewSutDeployedByElastestWithImage(WebDriver driver, String sutName, String desc, String image,
+			String port, Map<String, String> params) {
+		log.info("Create new SuT");
+		driver.findElement(By.xpath("//button[contains(string(), 'New SuT')]")).click();
+
+		driver.findElement(By.name("sutName")).sendKeys(sutName);
+		driver.findElement(By.name("sutDesc")).sendKeys(desc);
+
+		driver.findElement(By.name("managedSut")).click();
+		driver.findElement(By.name("dockerImageRadio")).click();
+		driver.findElement(By.name("specification")).sendKeys(image);
+
+		if (port != null && !"".equals(port)) {
+			driver.findElement(By.name("port")).sendKeys(port);
+		}
+
+		// Parameters TODO
+
+		// Save
+		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
+	}
+
+	/* ************** */
+	/* **** TJob **** */
+	/* ************** */
+
+	protected void createNewTJob(WebDriver driver, String tJobName, String testResultPath, String sutName,
+			String dockerImage, boolean imageCommands, String commands, Map<String, String> parameters,
+			List<String> tssList) {
+		log.info("Create new TJob");
 		driver.findElement(By.xpath("//button[contains(string(), 'New TJob')]")).click();
 
 		driver.findElement(By.name("tJobName")).sendKeys(tJobName);
@@ -137,20 +194,31 @@ public class EtmBaseTest {
 
 		// Image and commands
 		driver.findElement(By.name("tJobImageName")).sendKeys(dockerImage);
-		driver.findElement(By.name("commands")).sendKeys(commands);
 
-		// Parameters
+		if (imageCommands) {
+			driver.findElement(By.name("toggleCommands")).click();
+		} else {
+			driver.findElement(By.name("commands")).sendKeys(commands);
+		}
+
+		// Parameters TODO
 
 		// TSS
+		if (tssList != null) {
+			for (String tss : tssList) {
+				driver.findElement(By.xpath("//md-checkbox[@title='Select " + tss + "']")).click();
+			}
+		}
 
 		// Save
 		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
 	}
 
-	// protected void createNewTJobWithDockerImageCommands(WebDriver driver,
-	// String tJobName, String testResultPath, ) {
-	//
-	// }
+	protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
+		log.info("Run TJob");
+		driver.findElement(By.xpath("//span[contains(string(), '" + tJobName + "')]")).click();
+		driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
+	}
 
 	protected void startTestSupportService(WebDriver driver, String supportServiceLabel) {
 		WebElement tssNavButton = driver.findElement(By.id("nav_support_services"));
