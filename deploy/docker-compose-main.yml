@@ -21,9 +21,9 @@ services:
             - ET_EDM_ELASTICSEARCH_API=http://edm-elasticsearch:9200/
             - ET_EDM_API=http://edm:37003/
             - ET_EPM_API=http://epm:37002/
-            - ET_ETM_API=http://etm:37006/
+            - ET_ETM_API=http://etm:8091/
             - ET_ESM_API=http://esm:37005/
-            - ET_EIM_API=http://eim:37004/
+            - ET_EIM_API=http://eim:8080/
             - ET_ETM_LSBEATS_HOST=etm-logstash
             - ET_ETM_LSBEATS_PORT=5044
             - ET_ETM_LSHTTP_API=http://etm-logstash:5003/
