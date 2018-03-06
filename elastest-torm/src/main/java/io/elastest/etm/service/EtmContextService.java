@@ -103,9 +103,6 @@ public class EtmContextService {
     @Value("${et.etm.lstcp.port}")
     public String etEtmLsTcpPort;
 
-    @Value("${et.etm.testlink.host}")
-    public String etEtmTestLinkHost;
-
     HelpInfo helpInfo;
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository) {

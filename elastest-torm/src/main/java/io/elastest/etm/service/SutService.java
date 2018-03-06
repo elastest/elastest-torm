@@ -77,6 +77,9 @@ public class SutService {
 
 	public void deleteSut(Long sutId) {
 		SutSpecification sut = sutRepository.findOne(sutId);
+		if (sut.isInstrumentalize()) {
+			this.eimService.deinstrumentSut(sut.getEimConfig());
+		}
 		sutRepository.delete(sut);
 	}
 
