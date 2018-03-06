@@ -69,7 +69,7 @@ public class EtmBaseTest {
 
 	@BeforeEach
 	void setup() {
-		String etmApi = getProperty("etEmpApi");
+		String etmApi = getProperty("etEtmApi");
 		if (etmApi != null) {
 			tormUrl = etmApi;
 		}
@@ -130,12 +130,12 @@ public class EtmBaseTest {
 
 	protected void navigateToProject(WebDriver driver, String projectName) {
 		this.navigateToTorm(driver);
-		driver.findElement(By.xpath("//div[contains(string(), '" + projectName + "')]")).click();
+		driver.findElement(By.xpath("//td/div[contains(string(), '" + projectName + "')]")).click();
 	}
 
 	protected boolean projectExists(WebDriver driver, String projectName) {
 		this.navigateToTorm(driver);
-		return driver.findElements(By.xpath("//div[contains(string(), '" + projectName + "')]")).size() != 0;
+		return driver.findElements(By.xpath("//td/div[contains(string(), '" + projectName + "')]")).size() != 0;
 	}
 
 	/* *************** */
@@ -216,7 +216,7 @@ public class EtmBaseTest {
 
 	protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
 		log.info("Run TJob");
-		driver.findElement(By.xpath("//span[contains(string(), '" + tJobName + "')]")).click();
+		driver.findElement(By.xpath("//td/div/span[contains(string(), '" + tJobName + "')]")).click();
 		driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
 	}
 

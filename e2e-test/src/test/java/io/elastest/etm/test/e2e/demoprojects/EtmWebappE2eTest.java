@@ -52,6 +52,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 	final Logger log = getLogger(lookup().lookupClass());
 	final String projectName = "Webapp";
 	final String sutName = "Webapp";
+	final int timeout = 600;
 
 	void createProjectAndSut(WebDriver driver) throws InterruptedException {
 		if (!projectExists(driver, projectName)) {
@@ -89,7 +90,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 		runTJobFromProjectPage(driver, tJobName);
 
 		log.info("Wait for build sucess traces");
-		WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+		WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
 		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
 	}
 
@@ -115,7 +116,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 		runTJobFromProjectPage(driver, tJobName);
 
 		log.info("Wait for build sucess traces");
-		WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+		WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
 		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
 	}
 

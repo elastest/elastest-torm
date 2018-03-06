@@ -1,0 +1,42 @@
+@Library('ciElastestConnect') _
+
+elastest_lib.setVersion('dev')
+//initialization of the context for the library
+elastest_lib.setContext(this)
+
+//initialization of the runnable object to access elastest methods inside the pipeline
+def elastest= elastest_lib.getElastestMethods()
+
+elastest_lib.setMode('experimental-lite')
+
+//definition of nodes is managed by the library. Just declare the steps of your pipeline
+//inside the elastest_lib.pipeline({...})
+elastest_lib.pipeline({
+    
+    stage ('docker container')
+        def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
+        mycontainer.pull()
+        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+            sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
+          
+            stage ('prepare')
+                git 'https://github.com/elastest/elastest-torm.git'
+                elastest.connect2ElastestNetwork()
+                def elastestURL = elastest.getEtmUrl()
+                
+            stage ("E2E tests")
+                try {
+                   sh "cd e2e-test; mvn -B clean test -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+                } catch(e) {
+                    sh '''\
+                       docker ps --all
+                       docker ps --filter name=etm -q
+                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                    '''
+                } finally {
+                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                }
+        }
+  })
+  
