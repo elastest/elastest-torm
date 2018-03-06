@@ -68,13 +68,22 @@ md-sidenav-container {
 }
 
 :host /deep/ .mat-tab-label {
-    min-width: 90px !important;
+    min-width: 33% !important;
 }
 
 
+:host /deep/ .mat-tab-header {
+    min-width: 100%;
+}
+
+:host /deep/ .mat-icon {
+    vertical-align: middle;
+}
+
 #logSidenav, #logSidenav md-tab-group, #logManagerForm{
-    height: 100%;
-    margin: 0;
+    height: 99%;
+    width: 100%;
+    margin: 0 !important;
 }
 
 #logManagerForm{
@@ -82,9 +91,11 @@ md-sidenav-container {
 }
 
 #logSidenav md-card-content{
-    height: 99%;
-    padding-top: 4px;
-    padding-bottom: 0;
+    height: 100%;
+    padding: 2px 6px 0px 8px;
+    //padding-right: 8px;
+    //padding-top: 4px;
+    //padding-bottom: 0;
 }
 
 :host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper{
@@ -92,27 +103,53 @@ md-sidenav-container {
 }
 
 #filtersTop{
-    height: 82%;
-    max-height: 82%;
-    overflow: auto;
+    height: 84%;
+    max-height: 86%;
+    overflow-y: hidden;
+    padding: 0px !important;
 }
 
 #filtersBottom{
     height: 16%;
 }
 
+#executionsButton{
+    margin: auto;
+}
+
+#tail{
+    text-align: center;
+}
+
+#filtersBottom{
+    padding-top: 6px;
+}
+
+#executionsButton > button, #loadLogButton > button {
+    min-width: fit-content;
+}
+
+#loadLogButton{
+    margin-left: 10px;
+}
+
 :host /deep/ #logDate{
     //max-height: 26% !important;
+    margin-top: -3px;
 }
 
 #indicesDate{
     max-height: 51% !important;
-    overflow: auto;
+    overflow-y: hidden;
 }
 
 #componentsLevels{
     max-height: 48% !important;
     overflow: auto;
+}
+
+#componentsLevels md-card-subtitle{
+    margin-bottom: 3px;
 }
 
 #componentsLevels > div, #indicesDate > div {
@@ -121,6 +158,17 @@ md-sidenav-container {
 
 :host /deep/ #componentsLevels .angular-tree-component{
     overflow: hidden;
+}
+
+#addFromLast, #addFromSelected, #pauseTail{
+    text-align: center;
+}
+#pauseTail{
+    margin:auto;
+}
+
+#tail > p{
+    margin-top: 4px;
 }
 
 // Patterns
@@ -135,6 +183,10 @@ md-sidenav-container {
 }
 .patternColor input[type="color"]::-webkit-color-swatch {
 	border: none;
+}
+
+:host /deep/ .mat-tab-body-content{
+    overflow-y: hidden !important;
 }
 
 @media (min-width : 1400px) { //TODO not working
