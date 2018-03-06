@@ -44,6 +44,7 @@ export class ConfigurationService {
                             : servicesInfo.eusSSInstance.urls.eusWSapi) : null,
                         'elasTestExecMode': servicesInfo.elasTestExecMode,
                         'testLinkStarted': servicesInfo.testLinkStarted,
+                        'httpsSecure': protocol ==='https' ? true : false,
                     };
 
                     resolve();

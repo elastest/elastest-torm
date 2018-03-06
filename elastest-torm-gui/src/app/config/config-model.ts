@@ -12,4 +12,5 @@ export interface ConfigModel {
   eusWebSocketUrl: string;
   elasTestExecMode: string;
   testLinkStarted: boolean;
+  httpsSecure: boolean;
 }
