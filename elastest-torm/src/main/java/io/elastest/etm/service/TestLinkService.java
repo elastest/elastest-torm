@@ -101,7 +101,7 @@ public class TestLinkService {
 				this.testLinkPort = etEtmTestLinkPort;
 
 				// If not development, start socat
-				if (!UtilTools.checkIfUrlIsUp(this.getTestLinkUrl())) {
+				if (!etPublicHost.equals("localhost")) {
 					try {
 						String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
 						logger.info("Real TestLink Ip: {}", testLinkIp);
