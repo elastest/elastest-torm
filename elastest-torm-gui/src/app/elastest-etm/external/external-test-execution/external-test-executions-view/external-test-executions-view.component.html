@@ -1,0 +1,47 @@
+<div flex-gt-sm="100" *ngIf="exTestExecs">
+  <md-card tdMediaToggle="gt-xs">
+    <md-card-title>
+      Test Case Executions
+    </md-card-title>
+    <md-divider></md-divider>
+    <md-card-content>
+
+      <div *ngFor="let exTestExec of exTestExecs" class="push-bottom-sm">
+        <td-expansion-panel expand="false">
+          <!-- Header -->
+          <ng-template td-expansion-panel-header>
+            <div layout="row" class="pad-top-sm pad-left-sm">
+              <span class="exTestExecStatusIconSpan pad-right-sm">
+                <md-icon [style.color]="exTestExec.getResultIcon().color">{{exTestExec.getResultIcon().name}}</md-icon>
+              </span>
+              <span flex-gt-xs="15">
+                <md-card-subtitle class="pad-left-none">
+                  <strong>Test Case</strong>
+                </md-card-subtitle>
+                <h4>{{exTestExec.exTestCase.name}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
+                <h4>{{exTestExec.startDate}}</h4>
+              </span>
+              <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
+                <h4>{{exTestExec.endDate}}</h4>
+              </span>
+              <!-- <span flex-gt-xs="10">
+                <md-card-subtitle class="pad-left-none">View Execution</md-card-subtitle>
+
+                <button md-button [routerLink]="['/external/project/',exTJobExec.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]" class="onlyIconBtn"
+                  title="View Execution">
+                  <md-icon>remove_red_eye</md-icon>
+                </button>
+              </span> -->
+            </div>
+          </ng-template>
+
+        </td-expansion-panel>
+      </div>
+
+    </md-card-content>
+  </md-card>
+</div>
