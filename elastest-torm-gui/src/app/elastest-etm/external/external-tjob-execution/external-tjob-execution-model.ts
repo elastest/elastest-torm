@@ -64,7 +64,7 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   updateResultByTestExecsResults(): void {
     let result: string = 'SUCCESS';
     for (let exec of this.exTestExecs) {
-      result = result === 'SUCCESS' && exec.result === 'SUCCESS' ? 'SUCCESS' : 'FAILED';
+      result = result === 'SUCCESS' && exec.result === 'SUCCESS' ? 'SUCCESS' : 'FAIL';
     }
     this.result = result;
   }

@@ -78,7 +78,7 @@ public class ExternalTJobExecution implements Serializable {
 
 	@JsonView({ ExternalTJobExecutionView.class })
 	@OneToMany(mappedBy = "exTJobExec", cascade = CascadeType.REMOVE)
-	@JsonIgnoreProperties(value = { "exTJobExec" })
+	@JsonIgnoreProperties(value = { "exTJobExec", "exTestCase" })
 	private List<ExternalTestExecution> exTestExecs;
 
 	/* **************************/

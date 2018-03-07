@@ -95,8 +95,10 @@ export class ETExternalModelsTransformService {
 
   jsonToExternalTJobExecsList(tjobexecs: any[], fromTJob: boolean = false): ExternalTJobExecModel[] {
     let tjobexecsList: ExternalTJobExecModel[] = [];
-    for (let tjobexec of tjobexecs) {
-      tjobexecsList.push(this.jsonToExternalTJobExecModel(tjobexec, fromTJob));
+    if (tjobexecs && tjobexecs.length > 0) {
+      for (let tjobexec of tjobexecs) {
+        tjobexecsList.push(this.jsonToExternalTJobExecModel(tjobexec, fromTJob));
+      }
     }
     return tjobexecsList;
   }

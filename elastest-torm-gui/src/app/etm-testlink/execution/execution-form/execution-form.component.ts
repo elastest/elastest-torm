@@ -8,6 +8,8 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
 import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
+import { ExternalService } from '../../../elastest-etm/external/external.service';
 ElementRef;
 @Component({
   selector: 'testlink-execution-form',
@@ -37,7 +39,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
 
   tcExec: TestCaseExecutionModel;
 
-  constructor(private testLinkService: TestLinkService) {}
+  constructor(private testLinkService: TestLinkService, private externalService: ExternalService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.data) {
@@ -71,8 +73,13 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     if (this.data.additionalNotes) {
       this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
     }
-    this.testLinkService.saveExecution(this.tcExec, this.testCase.id, this.exTJobExec).subscribe(
-      (data) => {
+    this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
+      (data: any) => {
+        if (this.exTJobExec !== undefined) {
+          this.testLinkService
+            .setExternalTJobExecToTestExecutionByExecutionId(data.executionId, this.exTJobExec)
+            .subscribe((exTestExec: ExternalTestExecutionModel) => {}, (error) => console.log(error));
+        }
         _obs.next(true);
       },
       (error) => _obs.error(error),

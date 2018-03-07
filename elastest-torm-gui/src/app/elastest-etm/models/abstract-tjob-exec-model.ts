@@ -43,7 +43,13 @@ export class AbstractTJobExecModel {
   }
 
   finished(): boolean {
-    return this.result === 'SUCCESS' || this.result === 'FAIL' || this.result === 'ERROR' || this.result === 'STOPPED';
+    return (
+      this.result === 'SUCCESS' ||
+      this.result === 'FAIL' ||
+      this.result === 'ERROR' ||
+      this.result === 'STOPPED' ||
+      this.result === 'FAILED'
+    );
   }
 
   notExecuted(): boolean {
