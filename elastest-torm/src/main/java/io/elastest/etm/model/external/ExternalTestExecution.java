@@ -23,132 +23,139 @@ import io.elastest.etm.model.external.ExternalTestCase.ExternalTestCaseView;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
 public class ExternalTestExecution implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public interface ExternalTestExecutionView {
-    }
+	public interface ExternalTestExecutionView {
+	}
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    @JsonProperty("id")
-    private Long id = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
+	@JsonProperty("id")
+	private Long id = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Column(name = "monitoringIndex")
-    private String monitoringIndex = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "monitoringIndex")
+	private String monitoringIndex = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Column(name = "fields", columnDefinition = "TEXT", length = 65535)
-    @JsonProperty("fields")
-    private String fields = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "fields", columnDefinition = "TEXT", length = 65535)
+	@JsonProperty("fields")
+	private String fields = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Column(name = "result")
-    @JsonProperty("result")
-    private String result = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "result")
+	@JsonProperty("result")
+	private String result = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Column(name = "externalId")
-    @JsonProperty("externalId")
-    private String externalId;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "externalId")
+	@JsonProperty("externalId")
+	private String externalId;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @Column(name = "externalSystemId")
-    @JsonProperty("externalSystemId")
-    private String externalSystemId;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "externalSystemId")
+	@JsonProperty("externalSystemId")
+	private String externalSystemId;
 
-    @JsonView({ ExternalTestExecutionView.class })
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exTestCase")
-    @JsonIgnoreProperties(value = "exTestExecs")
-    private ExternalTestCase exTestCase;
+	@JsonView({ ExternalTestExecutionView.class })
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "exTestCase")
+	@JsonIgnoreProperties(value = "exTestExecs")
+	private ExternalTestCase exTestCase;
 
-    /* **************************/
-    /* ***** Constructors *******/
-    /* **************************/
+	@JsonView({ ExternalTestExecutionView.class })
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "exTJobExec")
+	@JsonIgnoreProperties(value = { "exTestExecs" })
+	private ExternalTJobExecution exTJobExec;
 
-    public ExternalTestExecution() {
-    }
+	/* **************************/
+	/* ***** Constructors *******/
+	/* **************************/
 
-    public ExternalTestExecution(Long id) {
-        this.id = id == null ? 0 : id;
-    }
+	public ExternalTestExecution() {
+	}
 
-    /* *****************************/
-    /* ***** Getters/Setters *******/
-    /* *****************************/
+	public ExternalTestExecution(Long id) {
+		this.id = id == null ? 0 : id;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	/* *****************************/
+	/* ***** Getters/Setters *******/
+	/* *****************************/
 
-    public void setId(Long id) {
-        this.id = id == null ? 0 : id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getMonitoringIndex() {
-        return monitoringIndex;
-    }
+	public void setId(Long id) {
+		this.id = id == null ? 0 : id;
+	}
 
-    public void setMonitoringIndex(String monitoringIndex) {
-        this.monitoringIndex = monitoringIndex;
-    }
+	public String getMonitoringIndex() {
+		return monitoringIndex;
+	}
 
-    public String getFields() {
-        return fields;
-    }
+	public void setMonitoringIndex(String monitoringIndex) {
+		this.monitoringIndex = monitoringIndex;
+	}
 
-    public void setFields(String fields) {
-        this.fields = fields;
-    }
+	public String getFields() {
+		return fields;
+	}
 
-    public String getResult() {
-        return result;
-    }
+	public void setFields(String fields) {
+		this.fields = fields;
+	}
 
-    public void setResult(String result) {
-        this.result = result;
-    }
+	public String getResult() {
+		return result;
+	}
 
-    public String getExternalId() {
-        return externalId;
-    }
+	public void setResult(String result) {
+		this.result = result;
+	}
 
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
+	public String getExternalId() {
+		return externalId;
+	}
 
-    public String getExternalSystemId() {
-        return externalSystemId;
-    }
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
 
-    public void setExternalSystemId(String externalSystemId) {
-        this.externalSystemId = externalSystemId;
-    }
+	public String getExternalSystemId() {
+		return externalSystemId;
+	}
 
-    public ExternalTestCase getExTestCase() {
-        return exTestCase;
-    }
+	public void setExternalSystemId(String externalSystemId) {
+		this.externalSystemId = externalSystemId;
+	}
 
-    public void setExTestCase(ExternalTestCase exTestCase) {
-        this.exTestCase = exTestCase;
-    }
+	public ExternalTestCase getExTestCase() {
+		return exTestCase;
+	}
+
+	public void setExTestCase(ExternalTestCase exTestCase) {
+		this.exTestCase = exTestCase;
+	}
+
+	public ExternalTJobExecution getExTJobExec() {
+		return exTJobExec;
+	}
+
+	public void setExTJobExec(ExternalTJobExecution exTJobExec) {
+		this.exTJobExec = exTJobExec;
+	}
 
 }

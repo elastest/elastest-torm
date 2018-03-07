@@ -34,7 +34,7 @@ export class EimConfigModel {
 
   validatePrivateKey(): void {
     if (this.privateKey) {
-      this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\n');
+      this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\\\n');
     }
   }
 }

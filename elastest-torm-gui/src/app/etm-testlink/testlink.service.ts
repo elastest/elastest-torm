@@ -15,6 +15,8 @@ import { ETExternalModelsTransformService } from '../elastest-etm/external/et-ex
 import { ExternalTJobModel } from '../elastest-etm/external/external-tjob/external-tjob-model';
 import { ExternalTestCaseModel } from '../elastest-etm/external/external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from '../elastest-etm/external/external-test-execution/external-test-execution-model';
+import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { ExternalService } from '../elastest-etm/external/external.service';
 
 @Injectable()
 export class TestLinkService {
@@ -25,6 +27,7 @@ export class TestLinkService {
     private configurationService: ConfigurationService,
     public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
     public eTExternalModelsTransformService: ETExternalModelsTransformService,
+    private externalService: ExternalService,
     public popupService: PopupService,
   ) {
     this.hostApi = this.configurationService.configModel.hostApi;
@@ -216,9 +219,26 @@ export class TestLinkService {
   /******** Execs ********/
   /***********************/
 
-  public saveExecution(execution: TestCaseExecutionModel, testCaseId: number | string) {
+  public saveExecution(
+    execution: TestCaseExecutionModel,
+    testCaseId: number | string,
+    exTJobExec: ExternalTJobExecModel = undefined,
+  ): any {
     let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
-    return this.http.post(url, execution).map((response: Response) => response.json());
+    return this.http.post(url, execution).map((response: Response) => {
+      if (exTJobExec !== undefined) {
+        this.getExternalTestExecutionByExecutionId(response.json().executionId).subscribe(
+          (exTestExec: ExternalTestExecutionModel) => {
+            exTestExec.exTJobExec = exTJobExec;
+            this.externalService
+              .createExternalTestExecution(exTestExec)
+              .subscribe((exTestExec: ExternalTestExecutionModel) => {}, (error) => console.log(error));
+          },
+          (error) => console.log(error),
+        );
+      }
+      return response.json();
+    });
   }
 
   public getAllExecs(): Observable<TestCaseExecutionModel[]> {

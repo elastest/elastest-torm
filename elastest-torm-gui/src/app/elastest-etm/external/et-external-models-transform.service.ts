@@ -207,6 +207,8 @@ export class ETExternalModelsTransformService {
       }
     }
 
+    newTestExec.exTJobExec = testExec.exTJobExec;
+
     return newTestExec;
   }
 }

@@ -1,11 +1,13 @@
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
+import { ExternalTestExecutionModel } from '../external-test-execution/external-test-execution-model';
 
 export class ExternalTJobExecModel extends AbstractTJobExecModel {
   id: number;
   monitoringIndex: string;
   exTJob: ExternalTJobModel;
   envVars: any;
+  exTestExecs: ExternalTestExecutionModel[];
 
   constructor() {
     super();
@@ -13,6 +15,7 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
     this.monitoringIndex = '';
     this.exTJob = undefined;
     this.envVars = {};
+    this.exTestExecs = [];
   }
 
   public getRouteString(): string {
@@ -56,5 +59,13 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
       };
     }
     return browserLog;
+  }
+
+  updateResultByTestExecsResults(): void {
+    let result: string = 'SUCCESS';
+    for (let exec of this.exTestExecs) {
+      result = result === 'SUCCESS' && exec.result === 'SUCCESS' ? 'SUCCESS' : 'FAILED';
+    }
+    this.result = result;
   }
 }

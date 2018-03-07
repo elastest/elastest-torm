@@ -1,5 +1,6 @@
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
+import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 
 export class ExternalTestExecutionModel {
   id: number;
@@ -9,11 +10,13 @@ export class ExternalTestExecutionModel {
   externalId: string;
   externalSystemId: string;
   exTestCase: ExternalTestCaseModel;
+  exTJobExec: ExternalTJobExecModel;
 
   constructor() {
     this.id = 0;
     this.monitoringIndex = '';
     this.fields = undefined;
     this.exTestCase = undefined;
+    this.exTJobExec = undefined;
   }
 }

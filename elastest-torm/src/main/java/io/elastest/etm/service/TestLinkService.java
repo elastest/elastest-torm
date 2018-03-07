@@ -726,6 +726,8 @@ public class TestLinkService {
 			ExternalTestExecution savedTestExec = externalTestExecutionRepository.findByExternalIdAndExternalSystemId(
 					externalTestExec.getExternalId(), externalTestExec.getExternalSystemId());
 			externalTestExec.setId(savedTestExec.getId());
+			externalTestExec.setExTJobExec(savedTestExec.getExTJobExec());
+			externalTestExec.setMonitoringIndex(savedTestExec.getMonitoringIndex());
 			externalTestExec = externalTestExecutionRepository.save(externalTestExec);
 		}
 	}

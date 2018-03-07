@@ -25,177 +25,164 @@ import io.swagger.annotations.ApiParam;
 @RestController
 public class ExternalApiController implements ExternalApi {
 
-    private ExternalService externalService;
+	private ExternalService externalService;
 
-    public ExternalApiController(ExternalService externalService) {
-        this.externalService = externalService;
-    }
+	public ExternalApiController(ExternalService externalService) {
+		this.externalService = externalService;
+	}
 
-    @Override
-    public ExternalJob execTJobFromExternalTJob(
-            @ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
-        try {
-            return externalService.executeExternalTJob(body);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+	@Override
+	public ExternalJob execTJobFromExternalTJob(
+			@ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
+		try {
+			return externalService.executeExternalTJob(body);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-    @Override
-    public void finishExternalJob(
-            @ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
-        try {
-            externalService.endExtTJobExecution(body);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	@Override
+	public void finishExternalJob(
+			@ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
+		try {
+			externalService.endExtTJobExecution(body);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    @Override
-    public ExternalJob isReadyTJobForExternalExecution(
-            @ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId) {
-        return externalService.isReadyTJobForExternalExecution(tJobExecId);
-    }
+	@Override
+	public ExternalJob isReadyTJobForExternalExecution(
+			@ApiParam(value = "TJob Execution id.", required = true) @Valid @PathVariable Long tJobExecId) {
+		return externalService.isReadyTJobForExternalExecution(tJobExecId);
+	}
 
-    @Override
-    public ResponseEntity<String> getElasTestVersion() {
-        return new ResponseEntity<String>(externalService.getElasTestVersion(),
-                HttpStatus.OK);
-    }
+	@Override
+	public ResponseEntity<String> getElasTestVersion() {
+		return new ResponseEntity<String>(externalService.getElasTestVersion(), HttpStatus.OK);
+	}
 
-    /* *************************************************/
-    /* *************** ExternalProject *************** */
-    /* *************************************************/
+	/* *************************************************/
+	/* *************** ExternalProject *************** */
+	/* *************************************************/
 
-    public ResponseEntity<List<ExternalProject>> getAllExternalProjects() {
-        return new ResponseEntity<List<ExternalProject>>(
-                externalService.getAllExternalProjects(), HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalProject>> getAllExternalProjects() {
+		return new ResponseEntity<List<ExternalProject>>(externalService.getAllExternalProjects(), HttpStatus.OK);
+	}
 
-    public ResponseEntity<List<ExternalProject>> getAllExternalProjectsByType(
-            @ApiParam(value = "Type of the project.", required = true) @PathVariable("type") TypeEnum type) {
-        return new ResponseEntity<List<ExternalProject>>(
-                externalService.getAllExternalProjectsByType(type),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalProject>> getAllExternalProjectsByType(
+			@ApiParam(value = "Type of the project.", required = true) @PathVariable("type") TypeEnum type) {
+		return new ResponseEntity<List<ExternalProject>>(externalService.getAllExternalProjectsByType(type),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalProject> getExternalProjectById(
-            @ApiParam(value = "Id of an External Project.", required = true) @PathVariable("projectId") Long projectId) {
-        return new ResponseEntity<ExternalProject>(
-                externalService.getExternalProjectById(projectId),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalProject> getExternalProjectById(
+			@ApiParam(value = "Id of an External Project.", required = true) @PathVariable("projectId") Long projectId) {
+		return new ResponseEntity<ExternalProject>(externalService.getExternalProjectById(projectId), HttpStatus.OK);
+	}
 
-    /* **************************************************/
-    /* ***************** ExternalTJob ***************** */
-    /* **************************************************/
+	/* **************************************************/
+	/* ***************** ExternalTJob ***************** */
+	/* **************************************************/
 
-    public ResponseEntity<List<ExternalTJob>> getAllExternalTJobs() {
-        return new ResponseEntity<List<ExternalTJob>>(
-                externalService.getAllExternalTJobs(), HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalTJob>> getAllExternalTJobs() {
+		return new ResponseEntity<List<ExternalTJob>>(externalService.getAllExternalTJobs(), HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTJob> getExternalTJobById(
-            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
-        return new ResponseEntity<ExternalTJob>(
-                externalService.getExternalTJobById(tjobId), HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTJob> getExternalTJobById(
+			@ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
+		return new ResponseEntity<ExternalTJob>(externalService.getExternalTJobById(tjobId), HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTJob> modifyExternalTJob(
-            @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody ExternalTJob body) {
-        return new ResponseEntity<ExternalTJob>(
-                externalService.modifyExternalTJob(body), HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTJob> modifyExternalTJob(
+			@ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody ExternalTJob body) {
+		return new ResponseEntity<ExternalTJob>(externalService.modifyExternalTJob(body), HttpStatus.OK);
+	}
 
-    /* **************************************************/
-    /* *************** ExternalTJobExec *************** */
-    /* **************************************************/
+	/* **************************************************/
+	/* *************** ExternalTJobExec *************** */
+	/* **************************************************/
 
-    public ResponseEntity<List<ExternalTJobExecution>> getAllExternalTJobExecs() {
-        return new ResponseEntity<List<ExternalTJobExecution>>(
-                externalService.getAllExternalTJobExecs(), HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalTJobExecution>> getAllExternalTJobExecs() {
+		return new ResponseEntity<List<ExternalTJobExecution>>(externalService.getAllExternalTJobExecs(),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<List<ExternalTJobExecution>> getExternalTJobExecsByExternalTJobId(
-            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
-        return new ResponseEntity<List<ExternalTJobExecution>>(
-                externalService.getExternalTJobExecsByExternalTJobId(tjobId),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalTJobExecution>> getExternalTJobExecsByExternalTJobId(
+			@ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tjobId") Long tjobId) {
+		return new ResponseEntity<List<ExternalTJobExecution>>(
+				externalService.getExternalTJobExecsByExternalTJobId(tjobId), HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
-            @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
-        return new ResponseEntity<ExternalTJobExecution>(
-                externalService.getExternalTJobExecById(tJobExecId),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTJobExecution> getExternalTJobExecById(
+			@ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+		return new ResponseEntity<ExternalTJobExecution>(externalService.getExternalTJobExecById(tJobExecId),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
-            @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
-        return new ResponseEntity<ExternalTJobExecution>(
-                externalService.createExternalTJobExecution(body),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
+			@ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
+		return new ResponseEntity<ExternalTJobExecution>(externalService.createExternalTJobExecution(body),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
-            @ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
-        return new ResponseEntity<ExternalTJobExecution>(
-                externalService.modifyExternalTJobExec(body), HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
+			@ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
+		return new ResponseEntity<ExternalTJobExecution>(externalService.modifyExternalTJobExec(body), HttpStatus.OK);
+	}
 
-    public ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
-            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+	public ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
+			@ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
 
-        ResponseEntity<List<TJobExecutionFile>> response;
-        try {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
-                    externalService.getExternalTJobExecutionFilesUrls(
-                            tJobExecId),
-                    HttpStatus.OK);
-        } catch (Exception e) {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
-                    new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+		ResponseEntity<List<TJobExecutionFile>> response;
+		try {
+			response = new ResponseEntity<List<TJobExecutionFile>>(
+					externalService.getExternalTJobExecutionFilesUrls(tJobExecId), HttpStatus.OK);
+		} catch (Exception e) {
+			response = new ResponseEntity<List<TJobExecutionFile>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-        return response;
-    }
+		return response;
+	}
 
-    /* **************************************************/
-    /* *************** ExternalTestCase *************** */
-    /* **************************************************/
+	public ResponseEntity<List<ExternalTestExecution>> getAllExternalTJobExecExternalTestExecutions(
+			@ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+		return new ResponseEntity<List<ExternalTestExecution>>(externalService.getTJobExecTestExecutions(tJobExecId),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<List<ExternalTestCase>> getAllExternalTestCases() {
-        return new ResponseEntity<List<ExternalTestCase>>(
-                externalService.getAllExternalTestCases(), HttpStatus.OK);
-    }
+	/* **************************************************/
+	/* *************** ExternalTestCase *************** */
+	/* **************************************************/
 
-    public ResponseEntity<ExternalTestCase> getExternalTestCaseById(
-            @ApiParam(value = "Id of an External Test Case.", required = true) @PathVariable("caseId") Long caseId) {
-        return new ResponseEntity<ExternalTestCase>(
-                externalService.getExternalTestCaseById(caseId), HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalTestCase>> getAllExternalTestCases() {
+		return new ResponseEntity<List<ExternalTestCase>>(externalService.getAllExternalTestCases(), HttpStatus.OK);
+	}
 
-    /* *************************************************/
-    /* ************ ExternalTestExecution ************ */
-    /* *************************************************/
+	public ResponseEntity<ExternalTestCase> getExternalTestCaseById(
+			@ApiParam(value = "Id of an External Test Case.", required = true) @PathVariable("caseId") Long caseId) {
+		return new ResponseEntity<ExternalTestCase>(externalService.getExternalTestCaseById(caseId), HttpStatus.OK);
+	}
 
-    public ResponseEntity<List<ExternalTestExecution>> getAllExternalTestExecutions() {
-        return new ResponseEntity<List<ExternalTestExecution>>(
-                externalService.getAllExternalTestExecutions(), HttpStatus.OK);
-    }
+	/* *************************************************/
+	/* ************ ExternalTestExecution ************ */
+	/* *************************************************/
 
-    public ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
-            @ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("execId") Long execId) {
-        return new ResponseEntity<ExternalTestExecution>(
-                externalService.getExternalTestExecutionById(execId),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<List<ExternalTestExecution>> getAllExternalTestExecutions() {
+		return new ResponseEntity<List<ExternalTestExecution>>(externalService.getAllExternalTestExecutions(),
+				HttpStatus.OK);
+	}
 
-    public ResponseEntity<ExternalTestExecution> createExternalTestExecution(
-            @ApiParam(value = "Object with the External Test Execution data to create.", required = true) @Valid @RequestBody ExternalTestExecution body) {
-        return new ResponseEntity<ExternalTestExecution>(
-                externalService.createExternalTestExecution(body),
-                HttpStatus.OK);
-    }
+	public ResponseEntity<ExternalTestExecution> getExternalTestExecutionById(
+			@ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("execId") Long execId) {
+		return new ResponseEntity<ExternalTestExecution>(externalService.getExternalTestExecutionById(execId),
+				HttpStatus.OK);
+	}
+
+	public ResponseEntity<ExternalTestExecution> createExternalTestExecution(
+			@ApiParam(value = "Object with the External Test Execution data to create.", required = true) @Valid @RequestBody ExternalTestExecution body) {
+		return new ResponseEntity<ExternalTestExecution>(externalService.createExternalTestExecution(body),
+				HttpStatus.OK);
+	}
 }

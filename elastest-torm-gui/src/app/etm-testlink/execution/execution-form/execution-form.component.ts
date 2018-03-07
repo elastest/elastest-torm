@@ -7,6 +7,7 @@ import { AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core/src/me
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
+import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 ElementRef;
 @Component({
   selector: 'testlink-execution-form',
@@ -15,6 +16,7 @@ ElementRef;
 })
 export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
   @Input() data: any;
+  @Input() exTJobExec: ExternalTJobExecModel;
 
   @ViewChild('notes') notes: ElementRef;
   alreadyFocused: boolean = false;
@@ -69,7 +71,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     if (this.data.additionalNotes) {
       this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
     }
-    this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
+    this.testLinkService.saveExecution(this.tcExec, this.testCase.id, this.exTJobExec).subscribe(
       (data) => {
         _obs.next(true);
       },

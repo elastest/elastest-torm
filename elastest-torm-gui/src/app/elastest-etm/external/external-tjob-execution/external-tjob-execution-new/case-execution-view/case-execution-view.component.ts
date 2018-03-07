@@ -11,6 +11,7 @@ import { TLTestCaseModel } from '../../../../../etm-testlink/models/test-case-mo
 import { ExternalTestCaseModel } from '../../../external-test-case/external-test-case-model';
 import { ExternalTJobExecModel } from '../../external-tjob-execution-model';
 import { window } from 'rxjs/operator/window';
+import { ExternalTestExecutionModel } from '../../../external-test-execution/external-test-execution-model';
 
 @Component({
   selector: 'etm-case-execution-view',
@@ -95,9 +96,19 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   finishTJobExecution(): void {
     this.disableTLNextBtn = true;
     this.execFinished = true;
-    this.exTJobExec.result = 'SUCCESS';
-    this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
-    this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+    this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
+      (exTestExecs: ExternalTestExecutionModel[]) => {
+        this.exTJobExec.exTestExecs = exTestExecs;
+        this.exTJobExec.updateResultByTestExecsResults();
+        this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+        this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+      },
+      (error) => {
+        this.exTJobExec.result = 'SUCCESS';
+        this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+        this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+      },
+    );
   }
 
   loadTestLinkTestCaseExecution(testCaseId: string): void {
