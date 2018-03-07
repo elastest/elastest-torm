@@ -40,6 +40,7 @@ services:
             - ET_PUBLIC_HOST=localhost
             - ET_SHARED_FOLDER=/shared-data/
             - ET_PROXY_PORT=37000
+            - ET_PROXY_HOST=etm-proxy
             - ET_IN_PROD=true
             - ET_ETM_TESTLINK_HOST=etm-testlink
             - ET_ETM_TESTLINK_PORT=80

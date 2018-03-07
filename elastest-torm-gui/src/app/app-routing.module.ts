@@ -49,6 +49,7 @@ import { ExternalTjobComponent } from './elastest-etm/external/external-tjob/ext
 import { ExternalTjobExecutionComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution.component';
 import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/external-tjob-execution-new.component';
 import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob/external-tjob-form/external-tjob-form.component';
+import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
 
 const routes: Routes = [
   {
@@ -458,18 +459,10 @@ const routes: Routes = [
                   {
                     path: 'tjob',
                     children: [
-                      //   {
-                      //     path: '',
-                      //     component: ExternalTJ,
-                      //   },
                       {
                         path: 'edit/:tJobId',
                         component: ExternalTjobFormComponent,
                       },
-                      // {
-                      //   path: 'new',
-                      //   component: ExternalTjobFormComponent,
-                      // },
                       {
                         path: ':tJobId',
                         children: [
@@ -480,10 +473,6 @@ const routes: Routes = [
                           {
                             path: 'exec',
                             children: [
-                              //   {
-                              //     path: '',
-                              //     component: ExternalTJ,
-                              //   },
                               {
                                 path: 'new',
                                 component: ExternalTjobExecutionNewComponent,
@@ -494,6 +483,30 @@ const routes: Routes = [
                                   {
                                     path: '',
                                     component: ExternalTjobExecutionComponent,
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            path: 'case',
+                            children: [
+                              {
+                                path: ':caseId',
+                                children: [
+                                  {
+                                    path: 'exec',
+                                    children: [
+                                      {
+                                        path: ':execId',
+                                        children: [
+                                          {
+                                            path: '',
+                                            component: ExternalTestExecutionComponent,
+                                          },
+                                        ],
+                                      },
+                                    ],
                                   },
                                 ],
                               },
