@@ -11,6 +11,8 @@ export class ExternalTestExecutionModel {
   externalSystemId: string;
   exTestCase: ExternalTestCaseModel;
   exTJobExec: ExternalTJobExecModel;
+  startDate: Date;
+  endDate: Date;
 
   constructor() {
     this.id = 0;
@@ -18,5 +20,7 @@ export class ExternalTestExecutionModel {
     this.fields = undefined;
     this.exTestCase = undefined;
     this.exTJobExec = undefined;
+    this.startDate = undefined;
+    this.endDate = undefined;
   }
 }

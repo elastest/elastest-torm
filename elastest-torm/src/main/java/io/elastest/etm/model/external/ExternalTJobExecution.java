@@ -1,6 +1,7 @@
 package io.elastest.etm.model.external;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,16 @@ public class ExternalTJobExecution implements Serializable {
 	@OneToMany(mappedBy = "exTJobExec", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties(value = { "exTJobExec", "exTestCase" })
 	private List<ExternalTestExecution> exTestExecs;
+
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
+			ExternalTestCaseView.class, ExternalTestExecutionView.class })
+	@Column(name = "startDate")
+	private Date startDate = null;
+
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
+			ExternalTestCaseView.class, ExternalTestExecutionView.class })
+	@Column(name = "endDate")
+	private Date endDate = null;
 
 	/* **************************/
 	/* ***** Constructors *******/
@@ -163,6 +174,22 @@ public class ExternalTJobExecution implements Serializable {
 
 	public void setExTestExecs(List<ExternalTestExecution> exTestExecs) {
 		this.exTestExecs = exTestExecs;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 }

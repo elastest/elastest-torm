@@ -125,6 +125,13 @@ export class ETExternalModelsTransformService {
       }
     }
 
+    if (tjobexec.startDate !== undefined && tjobexec.startDate !== null) {
+      newTJobExec.startDate = new Date(tjobexec.startDate);
+    }
+    if (tjobexec.endDate !== undefined && tjobexec.endDate !== null) {
+      newTJobExec.endDate = new Date(tjobexec.endDate);
+    }
+
     return newTJobExec;
   }
 
@@ -210,6 +217,13 @@ export class ETExternalModelsTransformService {
     }
 
     newTestExec.exTJobExec = testExec.exTJobExec;
+
+    if (testExec.startDate !== undefined && testExec.startDate !== null) {
+      newTestExec.startDate = new Date(testExec.startDate);
+    }
+    if (testExec.endDate !== undefined && testExec.endDate !== null) {
+      newTestExec.endDate = new Date(testExec.endDate);
+    }
 
     return newTestExec;
   }

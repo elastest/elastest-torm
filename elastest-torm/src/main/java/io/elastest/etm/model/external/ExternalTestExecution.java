@@ -1,6 +1,7 @@
 package io.elastest.etm.model.external;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -78,6 +79,16 @@ public class ExternalTestExecution implements Serializable {
 	@JoinColumn(name = "exTJobExec")
 	@JsonIgnoreProperties(value = { "exTestExecs" })
 	private ExternalTJobExecution exTJobExec;
+
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "startDate")
+	private Date startDate = null;
+
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class })
+	@Column(name = "endDate")
+	private Date endDate = null;
 
 	/* **************************/
 	/* ***** Constructors *******/
