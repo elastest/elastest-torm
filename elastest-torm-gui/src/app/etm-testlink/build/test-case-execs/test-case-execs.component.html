@@ -60,19 +60,11 @@
         <div layout="row" class="push-top-md">
           <span flex-gt-xs="45">
             <md-card-subtitle class="pad-left-none">Summary</md-card-subtitle>
-            <div layout="column" class="push-top-sm">
-              <md-input-container>
-                <textarea id="summary" autosize mdInput [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
-              </md-input-container>
-            </div>
+            <div id="summary" [innerHTML]="testCase.summary"></div>
           </span>
           <span flex-gt-xs="45" flex-offset="5">
             <md-card-subtitle class="pad-left-none">Preconditions</md-card-subtitle>
-            <div layout="column" class="push-top-sm">
-              <md-input-container>
-                <textarea id="preconditions" autosize mdInput [(ngModel)]="testCase.preconditions" name="preconditions" readonly></textarea>
-              </md-input-container>
-            </div>
+            <div  [innerHTML]="testCase.preconditions"></div>
           </span>
         </div>
       </md-card-content>

@@ -43,11 +43,7 @@
         <div layout="column" class="push-top">
           <span flex-gt-xs="100">
             <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
-            <div layout="column" class="push-top">
-              <md-input-container>
-                <textarea id="notes" autosize mdInput [(ngModel)]="testPlan.notes" name="notes" readonly></textarea>
-              </md-input-container>
-            </div>
+            <div id="notes" [innerHTML]="testPlan.notes"></div>
           </span>
         </div>
       </md-card-content>
@@ -71,7 +67,10 @@
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
-              class="hover-pointer">{{value}}</div>
+              class="hover-pointer">
+              <div  *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+              <div *ngIf="column.name !== 'notes'">{{value}}</div>
+            </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
@@ -108,7 +107,12 @@
         <td-data-table #buildTable class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="false"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options'" class="">{{value}}</div>
+            <div *ngIf="column.name !== 'options'" class="">
+                <div  *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
+                <ng-template #normalValue> 
+                  <span>{{value}}</span> 
+                </ng-template> 
+            </div>
           </ng-template>
         </td-data-table>
       </md-card-content>
