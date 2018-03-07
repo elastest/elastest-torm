@@ -8,6 +8,6 @@
 	<include
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-1234567.xml" />
 	<include
-		file="classpath:db/changelogs/liquibase-diff-changeLog-20180307.xml" />
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20180307.xml" />
 	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>
