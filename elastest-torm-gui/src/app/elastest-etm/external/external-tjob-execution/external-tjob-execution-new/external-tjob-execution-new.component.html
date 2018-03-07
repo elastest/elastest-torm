@@ -42,7 +42,7 @@
       <md-card-content #scrollMeTest *ngIf="exTJobExec">
         <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
           <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-            [showStatus]="true" [showConnectionBtns]="false"></vnc-client>
+            [showStatus]="false" [showConnectionBtns]="false"></vnc-client>
         </ng-container>
         <ng-template #loadingBrowser>
           <div>{{browserLoadingMsg}}</div>

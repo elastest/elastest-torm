@@ -125,6 +125,8 @@ export class ETExternalModelsTransformService {
       }
     }
 
+    newTJobExec.exTestExecs = this.jsonToExternalTestExecsList(tjobexec.exTestExecs);
+
     if (tjobexec.startDate !== undefined && tjobexec.startDate !== null) {
       newTJobExec.startDate = new Date(tjobexec.startDate);
     }
