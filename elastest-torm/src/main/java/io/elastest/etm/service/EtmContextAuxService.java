@@ -20,6 +20,10 @@ public class EtmContextAuxService {
 	public String etProxyPort;
 	@Value("${et.proxy.ssl.port}")
 	public String etProxySSLPort;
+	@Value("${et.proxy.internal.port}")
+	public String etProxyInternalPort;
+	@Value("${et.proxy.internal.ssl.port}")
+	public String etProxyInternalSSLPort;
 	@Value("${et.proxy.host}")
 	public String etProxyHost;
 
@@ -70,14 +74,18 @@ public class EtmContextAuxService {
 
 		if (etInProd) {
 			String proxyIp = etPublicHost;
+			String proxyPort = etProxyPort;
+			String proxySslPort = etProxySSLPort;
 			if ("localhost".equals(etPublicHost)) {
 				try {
 					proxyIp = UtilTools.doPing(etProxyHost);
+					proxyPort = etProxyInternalPort;
+					proxySslPort = etProxyInternalSSLPort;
 				} catch (Exception e) {
 				}
 			}
-			contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + etProxyPort + etEtmLogstashPathWithProxy);
-			contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":" + etProxySSLPort + etEtmLogstashPathWithProxy);
+			contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort + etEtmLogstashPathWithProxy);
+			contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":" + proxySslPort + etEtmLogstashPathWithProxy);
 			contextInfo.setLogstashIp(etPublicHost);
 
 			contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
