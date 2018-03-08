@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { EsmServiceInstanceModel } from '../../../../elastest-esm/esm-service-instance.model';
 import { EtmMonitoringViewComponent } from '../../../etm-monitoring-view/etm-monitoring-view.component';
+import { PullingObjectModel } from '../../../../shared/pulling-obj.model';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -81,6 +82,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   createTJobExecution(): void {
     this.exTJobExec = new ExternalTJobExecModel();
+    this.exTJobExec.startDate = new Date();
     // TODO fix No _valueDeserializer assigned
     this.exTJobExec.exTJob = new ExternalTJobModel();
     this.exTJobExec.exTJob.id = this.exTJob.id;
@@ -96,20 +98,33 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   }
 
   checkFinished(): void {
-    this.externalService
-      .checkTJobExecFinished(this.exTJobExec.id, this.execFinishedTimer, this.execFinishedSubscription)
-      .subscribe((finished: boolean) => {
-        if (finished) {
-          this.end();
-        }
-      });
+    let responseObj: PullingObjectModel = this.externalService.checkTJobExecFinished(
+      this.exTJobExec.id,
+      this.execFinishedTimer,
+      this.execFinishedSubscription,
+    );
+    this.execFinishedSubscription = responseObj.subscription;
+
+    responseObj.observable.subscribe((finished: boolean) => {
+      if (finished) {
+        this.end();
+      }
+    });
   }
 
   waitForEus(exTJobExec: ExternalTJobExecModel): void {
     this.browserLoadingMsg = 'Waiting for EUS...';
     if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
-      this.esmService.waitForTssInstanceUp(this.eusInstanceId, this.eusTimer, this.eusSubscription, 'external').subscribe(
+      let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
+        this.eusInstanceId,
+        this.eusTimer,
+        this.eusSubscription,
+        'external',
+      );
+      this.eusSubscription = responseObj.subscription;
+
+      responseObj.observable.subscribe(
         (eus: EsmServiceInstanceModel) => {
           this.eusUrl = eus.apiUrl;
           this.eusService.setEusUrl(this.eusUrl);
@@ -211,6 +226,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   forceEnd(): void {
     this.showStopBtn = false;
     this.exTJobExec.result = 'STOPPED';
+    this.exTJobExec.endDate = new Date();
     this.externalService.modifyExternalTJobExec(this.exTJobExec);
     this.end();
   }

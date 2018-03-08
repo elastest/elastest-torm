@@ -1,3 +1,4 @@
+import { PullingObjectModel } from '../../shared/pulling-obj.model';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
@@ -145,7 +146,7 @@ export class ExternalService {
     tJobExecId: string | number,
     timer: Observable<number>,
     subscription: Subscription,
-  ): Observable<boolean> {
+  ): PullingObjectModel {
     let _obs: Subject<boolean> = new Subject<boolean>();
     let obs: Observable<boolean> = _obs.asObservable();
 
@@ -166,7 +167,10 @@ export class ExternalService {
         );
       });
     }
-    return obs;
+    let responseObj: PullingObjectModel = new PullingObjectModel();
+    responseObj.observable = obs;
+    responseObj.subscription = subscription;
+    return responseObj;
   }
 
   /************************/

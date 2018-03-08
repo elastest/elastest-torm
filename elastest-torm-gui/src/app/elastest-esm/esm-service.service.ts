@@ -7,6 +7,7 @@ import { Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { PullingObjectModel } from '../shared/pulling-obj.model';
 
 export type tssParentType = 'normal' | 'tjobexec' | 'external';
 
@@ -111,7 +112,7 @@ export class EsmService {
     timer: Observable<number>,
     subscription: Subscription,
     type: tssParentType = 'normal',
-  ): Observable<EsmServiceInstanceModel> {
+  ): PullingObjectModel {
     let _obs: Subject<EsmServiceInstanceModel> = new Subject<EsmServiceInstanceModel>();
     let obs: Observable<EsmServiceInstanceModel> = _obs.asObservable();
 
@@ -132,6 +133,9 @@ export class EsmService {
         );
       });
     }
-    return obs;
+    let responseObj: PullingObjectModel = new PullingObjectModel();
+    responseObj.observable = obs;
+    responseObj.subscription = subscription;
+    return responseObj;
   }
 }

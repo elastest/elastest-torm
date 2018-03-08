@@ -33,7 +33,7 @@ td-layout-manage-list .mat-toolbar {
   font-weight: 400;
 }
 
-.td-message-label{
+.td-message-label {
   font-weight: bold !important;
 }
 
@@ -133,6 +133,12 @@ textarea[autosize] {
 
 .fontsizeInitial {
   font-size: initial;
+}
+
+.centeredStatusIconSpan {
+  display: inline-flex;
+  align-items: center;
+  text-align: center;
 }
 
 .onlyIconBtn {
