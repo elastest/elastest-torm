@@ -18,8 +18,10 @@ export class ETExternalModelsTransformService {
 
   jsonToExternalProjectsList(projects: any[]): ExternalProjectModel[] {
     let projectsList: ExternalProjectModel[] = [];
-    for (let project of projects) {
-      projectsList.push(this.jsonToExternalProjectModel(project));
+    if (projects && projects.length > 0) {
+      for (let project of projects) {
+        projectsList.push(this.jsonToExternalProjectModel(project));
+      }
     }
     return projectsList;
   }
@@ -48,8 +50,10 @@ export class ETExternalModelsTransformService {
 
   jsonToExternalTJobsList(tjobs: any[], fromProject: boolean = false): ExternalTJobModel[] {
     let tjobsList: ExternalTJobModel[] = [];
-    for (let tjob of tjobs) {
-      tjobsList.push(this.jsonToExternalTJobModel(tjob, fromProject));
+    if (tjobs && tjobs.length > 0) {
+      for (let tjob of tjobs) {
+        tjobsList.push(this.jsonToExternalTJobModel(tjob, fromProject));
+      }
     }
     return tjobsList;
   }
@@ -143,8 +147,10 @@ export class ETExternalModelsTransformService {
 
   jsonToExternalTestCasesList(cases: any[], fromTJob: boolean = false): ExternalTestCaseModel[] {
     let casesList: ExternalTestCaseModel[] = [];
-    for (let testCase of cases) {
-      casesList.push(this.jsonToExternalTestCaseModel(testCase, fromTJob));
+    if (cases && cases.length > 0) {
+      for (let testCase of cases) {
+        casesList.push(this.jsonToExternalTestCaseModel(testCase, fromTJob));
+      }
     }
     return casesList;
   }
@@ -188,8 +194,10 @@ export class ETExternalModelsTransformService {
 
   jsonToExternalTestExecsList(testExecs: any[], fromTestCase: boolean = false): ExternalTestExecutionModel[] {
     let testExecsList: ExternalTestExecutionModel[] = [];
-    for (let testExec of testExecs) {
-      testExecsList.push(this.jsonToExternalTestExecutionModel(testExec, fromTestCase));
+    if (testExecs && testExecs.length > 0) {
+      for (let testExec of testExecs) {
+        testExecsList.push(this.jsonToExternalTestExecutionModel(testExec, fromTestCase));
+      }
     }
     return testExecsList;
   }

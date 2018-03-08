@@ -79,7 +79,7 @@ public class ExternalTJob implements Serializable {
     @JsonView({ ExternalTJobView.class, ExternalProjectView.class })
     @JsonProperty("exTJobExecs")
     @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(value = "exTJob")
+    @JsonIgnoreProperties(value = {"exTJob", "exTestExecs"})
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJobExecution> exTJobExecs;
 

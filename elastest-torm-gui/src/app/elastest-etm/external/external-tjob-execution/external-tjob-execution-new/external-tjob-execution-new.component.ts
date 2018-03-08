@@ -83,6 +83,9 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     this.exTJobExec = new ExternalTJobExecModel();
     this.exTJobExec.exTJob = new ExternalTJobModel();
     this.exTJobExec.exTJob.id = this.exTJob.id;
+    this.exTJobExec.exTJob.name = undefined;
+    this.exTJobExec.exTJob.execDashboardConfig = undefined;
+    this.exTJobExec.exTJob.execDashboardConfigModel = undefined;
     this.externalService.createExternalTJobExecution(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
