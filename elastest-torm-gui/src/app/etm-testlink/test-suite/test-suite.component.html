@@ -7,33 +7,43 @@
       <md-divider></md-divider>
       <md-card-content>
         <div layout="row">
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
-            <h4>{{testSuite.name}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Project ID</md-card-subtitle>
-            <h4>{{testSuite.testProjectId}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Parent ID</md-card-subtitle>
-            <h4>{{testSuite.parentId}}</h4>
-          </span>
-          <span flex-gt-xs="5">
-            <md-card-subtitle class="pad-left-none">Order</md-card-subtitle>
-            <h4>{{testSuite.order}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Check Duplicated Name</md-card-subtitle>
-            <h4>{{testSuite.checkDuplicatedName}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Action On Duplicated Name</md-card-subtitle>
-            <span *ngIf="testSuite.actionOnDuplicatedName !== undefined; else noneAction">
-              <h4>{{testSuite.actionOnDuplicatedName}}</h4>
-            </span>
-            <ng-template #noneAction></ng-template>
-          </span>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Name</h4>
+                <p>{{testSuite.name}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Project ID</h4>
+                <p>{{testSuite.testProjectId}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Parent ID</h4>
+                <p>{{testSuite.parentId}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
+          <div flex="5"></div>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Order</h4>
+                <p>{{testSuite.order}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Check Duplicated Name</h4>
+                <p>{{testSuite.checkDuplicatedName}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Action On Duplicated Name</h4>
+                <p>{{testSuite.actionOnDuplicatedName}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
 
           <!-- <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
@@ -47,7 +57,8 @@
             </div>
           </span> -->
         </div>
-        <div layout="column" class="push-top">
+        <md-divider></md-divider>
+        <div layout="column" class="push-top-sm" id="testSuiteBottomInfo">
           <span flex-gt-xs="100">
             <md-card-subtitle class="pad-left-none">Details</md-card-subtitle>
             <div [innerHTML]="testSuite.details"></div>
@@ -75,10 +86,10 @@
           <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',projectId, 'suites', testSuite.id, 'cases', row.id]"
               class="hover-pointer">
-              <div  *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
-              <ng-template #normalValue> 
-                <span>{{value}}</span> 
-              </ng-template> 
+              <div *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
+              <ng-template #normalValue>
+                <span>{{value}}</span>
+              </ng-template>
             </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">

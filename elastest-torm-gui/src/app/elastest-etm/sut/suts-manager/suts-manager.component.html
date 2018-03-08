@@ -8,8 +8,12 @@
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content #scrollMeSut>
-    <td-data-table #sutsTable id="sutsTable" class="scroll_table" [data]="suts" [columns]="sutColumns" [selectable]="false" [clickable]="false"
-      [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+    <div *ngIf="suts.length === 0" class="push-top-md messageEmptyCard">
+      <md-icon>assignment</md-icon>
+      <p>No SuTs created</p>
+    </div>
+    <td-data-table #sutsTable *ngIf="suts.lengh > 0" id="sutsTable" class="scroll_table" [data]="suts" [columns]="sutColumns"
+      [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div layout="row" class="sutOptions optionsColumn">
           <button md-button (click)="editSut(row)" class="iconBtn-lg" title="Edit SuT">

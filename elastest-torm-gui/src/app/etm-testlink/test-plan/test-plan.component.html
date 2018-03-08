@@ -2,45 +2,58 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        Test Plan {{testPlan.name}}
+        <div layout="row">
+          <span>Test Plan {{testPlan.name}}</span>
+          <span flex></span>
+          <div *ngIf="exTJob != undefined">
+            <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
+              title="Edit External TJob associated to Test Plan">
+              <md-icon>mode_edit</md-icon>
+            </button>
+            <button md-raised-button color="accent" [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', exTJob.id, 'exec','new']"
+              title="Run Test Plan" [disabled]="testPlanCases.length === 0">
+              Execute Test
+            </button>
+            <!--<button md-button (click)="deletePlan()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Plan">
+                <md-icon>delete</md-icon>
+              </button> -->
+          </div>
+
+        </div>
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content>
         <div layout="row">
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
-            <h4>{{testPlan.name}}</h4>
-          </span>
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Project Name</md-card-subtitle>
-            <h4>{{testPlan.projectName}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Active</md-card-subtitle>
-            <h4>{{testPlan.active}}</h4>
-          </span>
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Public</md-card-subtitle>
-            <h4>{{testPlan.public}}</h4>
-          </span>
-          <span flex-gt-xs="25" *ngIf="exTJob != undefined">
-            <md-card-subtitle class="pad-left-none">Options</md-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', exTJob.id, 'exec','new']" class="iconBtn-lg"
-                title="Run Test Plan" [disabled]="testPlanCases.length === 0">
-                <md-icon>play_circle_outline</md-icon>
-              </button>
-              <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
-                title="Edit External TJob associated to Test Plan">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <!--<button md-button (click)="deletePlan()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Plan">
-                <md-icon>delete</md-icon>
-              </button> -->
-            </div>
-          </span>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Name</h4>
+                <p>{{testPlan.name}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Project Name</h4>
+                <p>{{testPlan.projectName}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
+          <div flex="5"></div>
+          <div flex="47" class="testLinkListInfo">
+            <md-list>
+              <md-list-item>
+                <h4>Active</h4>
+                <p>{{testPlan.active}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Public</h4>
+                <p>{{testPlan.public}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
         </div>
-        <div layout="column" class="push-top">
+        <md-divider></md-divider>
+        <div layout="column" class="push-top" id="testPlanBottomInfo">
           <span flex-gt-xs="100">
             <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
             <div id="notes" [innerHTML]="testPlan.notes"></div>
@@ -68,7 +81,7 @@
           <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
               class="hover-pointer">
-              <div  *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+              <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
               <div *ngIf="column.name !== 'notes'">{{value}}</div>
             </div>
           </ng-template>
@@ -104,14 +117,18 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
+        <div *ngIf="testPlanCases.length === 0" class="push-top-md messageEmptyCard">
+          <md-icon>assignment</md-icon>
+          <p>No Test Plan Cases created</p>
+        </div>
         <td-data-table #buildTable class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="false"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" class="">
-                <div  *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
-                <ng-template #normalValue> 
-                  <span>{{value}}</span> 
-                </ng-template> 
+              <div *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
+              <ng-template #normalValue>
+                <span>{{value}}</span>
+              </ng-template>
             </div>
           </ng-template>
         </td-data-table>

@@ -6,65 +6,69 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content>
-        <div layout="row" class="push-bottom-xs">
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
-            <h4>{{testCase.name}}</h4>
-          </span>
+        <div layout="row">
+          <div flex="47">
+            <md-list class="testLinkListInfo">
 
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Exec Type</md-card-subtitle>
-            <span *ngIf="testCase.executionType !== undefined; else noneExecType">
-              <h4>{{testCase.executionType}}</h4>
-            </span>
-            <ng-template #noneExecType></ng-template>
-          </span>
+              <md-list-item>
+                <h4>Name</h4>
+                <p>{{testCase.name}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Exec Type</h4>
+                <p *ngIf="testCase.executionType !== undefined">{{testCase.executionType}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Order</h4>
+                <p>{{testCase.order}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Extggernal ID</h4>
+                <p>{{testCase.fullExternalId}}</p>
+              </md-list-item>
 
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Order</md-card-subtitle>
-            <h4>{{testCase.order}}</h4>
-          </span>
+            </md-list>
+          </div>
+          <div flex="5"></div>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
 
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">External Id</md-card-subtitle>
-            <h4>{{testCase.fullExternalId}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Version Id</md-card-subtitle>
-            <h4>{{testCase.versionId}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Version</md-card-subtitle>
-            <h4>{{testCase.version}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Parent Id</md-card-subtitle>
-            <h4>{{testCase.parentId}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Execution Status</md-card-subtitle>
-            <span *ngIf="testCase.executionStatus !== undefined; else noneAction">
-              <h4>{{testCase.executionStatus}}</h4>
-            </span>
-            <ng-template #noneAction></ng-template>
-          </span>
-
+              <md-list-item>
+                <h4>Version ID</h4>
+                <p>{{testCase.versionId}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Version</h4>
+                <p>{{testCase.version}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Parent ID</h4>
+                <p>{{testCase.parentId}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Execution Status</h4>
+                <p *ngIf="testCase.executionStatus !== undefined">{{testCase.executionStatus}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
         </div>
 
         <md-divider></md-divider>
 
-        <div layout="row" class="push-top-md">
-          <span flex-gt-xs="45">
+        <div layout="row" class="push-top-sm" id="testCaseBottomInfo">
+          <span flex="50">
             <md-card-subtitle class="pad-left-none">Summary</md-card-subtitle>
             <div id="summary" [innerHTML]="testCase.summary"></div>
           </span>
-          <span flex-gt-xs="45" flex-offset="5">
+          <span flex="50">
             <md-card-subtitle class="pad-left-none">Preconditions</md-card-subtitle>
-            <div  [innerHTML]="testCase.preconditions"></div>
+            <div [innerHTML]="testCase.preconditions"></div>
           </span>
         </div>
       </md-card-content>
@@ -83,8 +87,12 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
+      <div *ngIf="execs.length === 0" class="push-top-md messageEmptyCard">
+          <md-icon>assignment</md-icon>
+          <p>No Executions created</p>
+      </div>
       <md-card-content #scrollMeTest>
-        <td-data-table #execTable class="scroll_table" [data]="execs" [columns]="execColumns" [selectable]="false" [clickable]="true"
+        <td-data-table #execTable *ngIf="execs.length > 0" class="scroll_table" [data]="execs" [columns]="execColumns" [selectable]="false" [clickable]="true"
           [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of execColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', row.testPlanId, 'builds', buildId, 'cases', testCase.id,'execs',row.id]"
