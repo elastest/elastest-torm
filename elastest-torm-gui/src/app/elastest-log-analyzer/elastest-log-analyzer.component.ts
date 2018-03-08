@@ -94,6 +94,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         exec: params.exec,
         testCase: params.testCase,
       };
+    } else if (params.exTJob && params.exTJobExec) {
+      fromExec = {
+        exTJob: params.exTJob,
+        exTJobExec: params.exTJobExec,
+        exTestExec: params.exTestExec,
+      };
     }
 
     this.openSelectExecutions(fromExec);

@@ -1,10 +1,11 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
-      <md-card-title class="pad-bottom">
+      <md-card-title>
         <div layout="row" layout-align="space-between end">
           <span>
-            <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}">
+            <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
+              title="{{exTJobExec.result}}">
               {{exTJobExec.getResultIcon().name}}</md-icon>
           </span>
           <a *ngIf="exTJob && exTJobExec" class="normalTextLink">
@@ -20,6 +21,20 @@
           </span>
         </div>
       </md-card-title>
+      <md-card-content>
+
+        <div layout="row" class="push-bottom-sm">
+          <span flex-gt-xs="15">
+            <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
+            <h4>{{exTJobExec.startDate}}</h4>
+          </span>
+          <span flex-gt-xs="15">
+            <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
+            <h4>{{exTJobExec.endDate}}</h4>
+          </span>
+        </div>
+
+      </md-card-content>
 
     </md-card>
   </div>

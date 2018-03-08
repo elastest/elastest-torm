@@ -101,6 +101,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
         this.exTJobExec.exTestExecs = exTestExecs;
         this.exTJobExec.updateResultByTestExecsResults();
         this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+        this.exTJobExec.endDate = new Date();
         this.exTJobExec.exTestExecs = []; // TODO fix No _valueDeserializer assigned
         this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
       },
