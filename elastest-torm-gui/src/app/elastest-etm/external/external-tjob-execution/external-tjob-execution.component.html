@@ -4,10 +4,10 @@
       <md-card-title class="pad-bottom">
         <div layout="row" layout-align="space-between end">
           <span>
-            <md-icon *ngIf="exTJobExec.finished()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}">
+            <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color" title="{{exTJobExec.result}}">
               {{exTJobExec.getResultIcon().name}}</md-icon>
           </span>
-          <a *ngIf="exTJob && exTJobExec" [routerLink]="['/external/project', this.exTJob.exProject.id, 'tjob', this.exTJobId]" class="hover-pointer normalTextLink">
+          <a *ngIf="exTJob && exTJobExec" class="normalTextLink">
             <span>External TJob</span>
             <span> "{{exTJob.name}}"</span>
           </a>

@@ -81,6 +81,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
 
   createTJobExecution(): void {
     this.exTJobExec = new ExternalTJobExecModel();
+    // TODO fix No _valueDeserializer assigned
     this.exTJobExec.exTJob = new ExternalTJobModel();
     this.exTJobExec.exTJob.id = this.exTJob.id;
     this.exTJobExec.exTJob.name = undefined;
