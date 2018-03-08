@@ -12,7 +12,7 @@
       <md-icon>assignment</md-icon>
       <p>No SuTs created</p>
     </div>
-    <td-data-table #sutsTable *ngIf="suts.lengh > 0" id="sutsTable" class="scroll_table" [data]="suts" [columns]="sutColumns"
+    <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="scroll_table" [data]="suts" [columns]="sutColumns"
       [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div layout="row" class="sutOptions optionsColumn">
