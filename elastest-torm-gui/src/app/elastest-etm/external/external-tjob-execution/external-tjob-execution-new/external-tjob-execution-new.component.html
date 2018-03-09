@@ -1,5 +1,5 @@
 <div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+  <div flex-gt-sm="40" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row" *ngIf="exTJobExec">
@@ -10,7 +10,7 @@
             </button>
             <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
           </span>
-          <span>Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
+          <span id="executingTitle">Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
           <span flex></span>
           <span>
             <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
@@ -31,7 +31,7 @@
       </md-card-content>
     </md-card>
   </div>
-  <div flex-gt-lg="50" layout-gt-sm="column">
+  <div flex-gt-sm="60" layout-gt-sm="column">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
         <div layout="row">
