@@ -91,7 +91,7 @@
               </ng-template>
             </div>
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{value | date:'medium'}}
+              {{value | date:'MM/dd HH:mm:ss'}}
             </div>
           </ng-template>
 
