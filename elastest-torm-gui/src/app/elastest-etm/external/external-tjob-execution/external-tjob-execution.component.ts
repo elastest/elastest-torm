@@ -8,6 +8,7 @@ import { MdDialog } from '@angular/material';
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from './external-tjob-execution-model';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
+import { ExternalTestExecutionModel } from '../external-test-execution/external-test-execution-model';
 
 @Component({
   selector: 'etm-external-tjob-execution',
@@ -21,6 +22,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
   exTJobExecId: number;
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
+  exTestExecs: ExternalTestExecutionModel[];
 
   statusIcon: any = {
     name: '',
@@ -57,6 +59,13 @@ export class ExternalTjobExecutionComponent implements OnInit {
 
       // this.statusIcon = this.exTJobExec.getResultIcon();
       this.titlesService.setTopTitle(exTJobExec.getRouteString());
+
+      this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
+        (exTestExecs: ExternalTestExecutionModel[]) => {
+          this.exTestExecs = exTestExecs;
+        },
+        (error) => console.log(error),
+      );
 
       this.exTJob = this.exTJobExec.exTJob;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);

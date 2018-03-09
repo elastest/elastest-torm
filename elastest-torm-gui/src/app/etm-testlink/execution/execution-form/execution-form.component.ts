@@ -75,9 +75,10 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     }
     this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
       (data: any) => {
+        console.log(data);
         if (this.exTJobExec !== undefined) {
-          this.testLinkService
-            .setExternalTJobExecToTestExecutionByExecutionId(data.executionId, this.exTJobExec)
+          this.externalService
+            .setExternalTJobExecToTestExecutionByExecutionId(data.executionId, this.exTJobExec.id)
             .subscribe((exTestExec: ExternalTestExecutionModel) => {}, (error) => console.log(error));
         }
         _obs.next(true);

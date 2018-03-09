@@ -40,8 +40,8 @@
   </div>
 </div>
 
-<div layout="column" *ngIf="exTJob && exTJobExec">
-  <etm-external-test-executions-view [exTestExecs]="exTJobExec.exTestExecs" [exTJobExec]="exTJobExec" flex></etm-external-test-executions-view>
+<div layout="column" *ngIf="exTJob && exTJobExec && exTestExecs">
+  <etm-external-test-executions-view [exTestExecs]="exTestExecs" [exTJobExec]="exTJobExec" flex></etm-external-test-executions-view>
 </div>
 
 <!-- logs & Metrics -->

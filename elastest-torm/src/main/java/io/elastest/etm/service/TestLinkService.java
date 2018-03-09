@@ -39,7 +39,6 @@ import io.elastest.etm.utils.UtilTools;
 import net.minidev.json.JSONObject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
-import io.elastest.etm.model.external.ExternalTJobExecution;
 
 @Service
 public class TestLinkService {
@@ -755,13 +754,6 @@ public class TestLinkService {
 		fields.put("plan", plan);
 		fields.put("build", build);
 		return fields.toString();
-	}
-
-	public ExternalTestExecution setExternalTJobExecToTestExecutionByExecutionId(Integer execId,
-			ExternalTJobExecution exTJobExec) {
-		ExternalTestExecution exTestExec = this.getExternalTestExecByExecutionId(execId);
-		exTestExec.setExTJobExec(exTJobExec);
-		return this.externalTestExecutionRepository.save(exTestExec);
 	}
 
 }

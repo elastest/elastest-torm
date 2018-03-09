@@ -278,14 +278,4 @@ export class TestLinkService {
       .get(url)
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
   }
-
-  public setExternalTJobExecToTestExecutionByExecutionId(
-    execId: number | string,
-    exTJobExec: ExternalTJobExecModel,
-  ): Observable<ExternalTestExecutionModel> {
-    let url: string = this.hostApi + '/testlink/external/testexec/' + execId + '/tjobexec';
-    return this.http
-      .post(url, exTJobExec)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
-  }
 }

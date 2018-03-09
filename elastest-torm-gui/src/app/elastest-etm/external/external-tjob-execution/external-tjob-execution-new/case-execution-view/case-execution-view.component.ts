@@ -26,6 +26,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   serviceType: ServiceType;
   externalTestCases: ExternalTestCaseModel[] = [];
+  currentExternalTestExecution: ExternalTestExecutionModel;
 
   data: any;
   tJobExecUrl: string;
@@ -81,16 +82,65 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   selectTestLinkBuild(): void {
     this.showTestLinkExec = true;
     this.externalTestCases = this.exTJob.exTestCases;
-    this.loadNextTestLinkCase();
+    if (this.testLinkSelectedBuild) {
+      this.testLinkService.getBuildById(this.testLinkSelectedBuild.id).subscribe(
+        (build: BuildModel) => {
+          this.data = {
+            build: build,
+            additionalNotes: this.tJobExecUrl,
+          };
+          // Load First TCase
+          this.loadNextTestLinkCase();
+        },
+        (error) => console.log(error),
+      );
+    }
   }
 
   loadNextTestLinkCase(): void {
     let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
     if (nextCase !== undefined) {
-      this.loadTestLinkTestCaseExecution(nextCase.externalId);
+      // this.currentExternalTestExecution = new ExternalTestExecutionModel();
+      // this.currentExternalTestExecution.exTestCase = nextCase;
+      // this.currentExternalTestExecution.exTJobExec = this.exTJobExec;
+      // this.currentExternalTestExecution.startDate = new Date();
+      // this.currentExternalTestExecution.externalSystemId = nextCase.externalSystemId;
+      // this.currentExternalTestExecution.externalId = 'executing-' + nextCase.id+'-'+;
+      // this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+      //   (savedExTestExec: ExternalTestExecutionModel) => {
+      //     this.startTestLinkTestCaseExecution(nextCase.externalId);
+      //   },
+      //   (error) => console.log(error),
+      // );
+      this.startTestLinkTestCaseExecution(nextCase.externalId);
+
     } else {
       this.finishTJobExecution();
     }
+  }
+
+  startTestLinkTestCaseExecution(testCaseId: string): void {
+    this.testLinkService.getTestCaseById(testCaseId).subscribe(
+      (testCase: TLTestCaseModel) => {
+        // New object to detect on changes
+        this.data = {
+          testCase: testCase,
+          build: this.data.build,
+          additionalNotes: this.tJobExecUrl,
+        };
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  saveTLCaseExecution(): void {
+    this.saveExecution().subscribe(
+      (saved: boolean) => {
+        this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
+        this.loadNextTestLinkCase();
+      },
+      (error) => console.log(error),
+    );
   }
 
   finishTJobExecution(): void {
@@ -110,39 +160,6 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
         this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
         this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
       },
-    );
-  }
-
-  loadTestLinkTestCaseExecution(testCaseId: string): void {
-    this.testLinkService.getTestCaseById(testCaseId).subscribe(
-      (testCase: TLTestCaseModel) => {
-        if (this.testLinkSelectedBuild) {
-          this.testLinkService.getBuildById(this.testLinkSelectedBuild.id).subscribe(
-            (build: BuildModel) => {
-              this.data = {
-                testCase: testCase,
-                build: build,
-                additionalNotes: this.tJobExecUrl,
-              };
-            },
-            (error) => console.log(error),
-          );
-        }
-      },
-      (error) => console.log(error),
-    );
-  }
-
-  saveTLCaseExecution(): void {
-    this.saveExecution().subscribe(
-      (saved: boolean) => {
-        this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
-        this.loadNextTestLinkCase();
-        // Do something
-
-        // window.history/*  */.back();
-      },
-      (error) => console.log(error),
     );
   }
 

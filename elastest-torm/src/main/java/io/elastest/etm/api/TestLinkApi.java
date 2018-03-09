@@ -17,7 +17,6 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
-import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.swagger.annotations.Api;
@@ -363,16 +362,4 @@ public interface TestLinkApi extends EtmApiRoot {
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<ExternalTestExecution> getExternalTestExecutionByExecutionId(
 			@ApiParam(value = "ID of the Execution.", required = true) @PathVariable("execId") Integer execId);
-
-	@ApiOperation(value = "Sets an External TJobExec to External Test Execution By Given Execution Id", notes = "Sets an External TJobExec to External Test Execution By Given Execution Id.", response = ExternalTestExecution.class, tags = {
-			"TestLink", })
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class),
-			@ApiResponse(code = 404, message = "Resources not found") })
-	@RequestMapping(value = "/testlink/external/testexec/{execId}/tjobexec", produces = {
-			"application/json" }, method = RequestMethod.POST)
-	ResponseEntity<ExternalTestExecution> getExternalTestExecutionByExecutionId(
-			@ApiParam(value = "ID of the Execution.", required = true) @PathVariable("execId") Integer execId,
-			@ApiParam(value = "External TJob Exec to bind.", required = true) @Valid @RequestBody ExternalTJobExecution body);
-
 }

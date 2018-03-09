@@ -54,7 +54,7 @@
 </div>
 
 <!-- logs & Metrics -->
-<etm-monitoring-view *ngIf="exTJobExec" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
+<etm-monitoring-view *ngIf="exTJobExec !== undefined" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Files -->
 <etm-files-manager *ngIf="exTJob && exTJobExec && showFiles" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>

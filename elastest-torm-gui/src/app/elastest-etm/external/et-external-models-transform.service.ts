@@ -71,10 +71,10 @@ export class ETExternalModelsTransformService {
     newTJob.externalId = tjob.externalId;
     newTJob.externalSystemId = tjob.externalSystemId;
     if (!withoutTestCases) {
-      newTJob.exTestCases = this.jsonToExternalTestCasesList(tjob.exTestCases, true);
+      newTJob.exTestCases = tjob.exTestCases;
     }
     if (!withoutTJobExecs) {
-      newTJob.exTJobExecs = this.jsonToExternalTJobExecsList(tjob.exTJobExecs, true);
+      newTJob.exTJobExecs = tjob.exTJobExecs;
     }
     if (!fromProject) {
       newTJob.exProject = this.jsonToExternalProjectModel(tjob.exProject, true);
@@ -129,7 +129,7 @@ export class ETExternalModelsTransformService {
       }
     }
 
-    newTJobExec.exTestExecs = this.jsonToExternalTestExecsList(tjobexec.exTestExecs);
+    newTJobExec.exTestExecs = tjobexec.exTestExecs;
 
     if (tjobexec.startDate !== undefined && tjobexec.startDate !== null) {
       newTJobExec.startDate = new Date(tjobexec.startDate);
@@ -169,7 +169,7 @@ export class ETExternalModelsTransformService {
 
     newCase.fields = testCase.fields;
     if (!withoutTestExecs) {
-      newCase.exTestExecs = this.jsonToExternalTestExecsList(testCase.exTestExecs, true);
+      newCase.exTestExecs = testCase.exTestExecs;
     }
     if (testCase.exTJob !== undefined && testCase.exTJob !== null) {
       if (!fromTJob) {

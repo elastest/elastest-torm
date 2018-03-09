@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +262,10 @@ public class ExternalService {
 		return this.externalTJobRepository.findByExternalIdAndExternalSystemId(externalId, externalSystemId);
 	}
 
+	public ExternalTJob createExternalTJob(ExternalTJob body) {
+		return this.externalTJobRepository.save(body);
+	}
+
 	public ExternalTJob modifyExternalTJob(ExternalTJob externalTJob) {
 		if (externalTJobRepository.findOne(externalTJob.getId()) != null) {
 			return externalTJobRepository.save(externalTJob);
@@ -299,6 +304,31 @@ public class ExternalService {
 			esmService.provisionExternalTJobExecServiceInstanceAsync(eus.getId(), exec, instanceId);
 			exec.getEnvVars().put("EUS_ID", eus.getId());
 			exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
+		}
+
+		this.createMonitoringIndex(exec);
+
+		return exec;
+	}
+
+	public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(Long exTJobId) {
+		ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId);
+		ExternalTJobExecution exec = new ExternalTJobExecution();
+		exec.setExTJob(exTJob);
+		exec.setStartDate(new Date());
+
+		this.externalTJobExecutionRepository.save(exec);
+		exec.generateMonitoringIndex();
+		exec = this.externalTJobExecutionRepository.save(exec);
+
+		SupportService eus = this.startEus();
+
+		if (eus != null) {
+			String instanceId = utilTools.generateUniqueId();
+			esmService.provisionExternalTJobExecServiceInstanceAsync(eus.getId(), exec, instanceId);
+			exec.getEnvVars().put("EUS_ID", eus.getId());
+			exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
+			exec = this.externalTJobExecutionRepository.save(exec);
 		}
 
 		this.createMonitoringIndex(exec);
@@ -409,7 +439,28 @@ public class ExternalService {
 		return this.externalTestExecutionRepository.findByExternalIdAndExternalSystemId(externalId, externalSystemId);
 	}
 
+	public List<ExternalTestExecution> getExternalTestExecutionsByExternalTJobExec(Long exTJobExecId) {
+		ExternalTJobExecution exTJobExec = this.externalTJobExecutionRepository.findById(exTJobExecId);
+		return this.externalTestExecutionRepository.findByExTJobExec(exTJobExec);
+	}
+
 	public ExternalTestExecution createExternalTestExecution(ExternalTestExecution exec) {
 		return this.externalTestExecutionRepository.save(exec);
+	}
+
+	public ExternalTestExecution modifyExternalTestExecution(ExternalTestExecution externalTestExec) {
+		if (externalTestExecutionRepository.findOne(externalTestExec.getId()) != null) {
+			return externalTestExecutionRepository.save(externalTestExec);
+		} else {
+			throw new HTTPException(405);
+		}
+	}
+
+	public ExternalTestExecution setExternalTJobExecToTestExecutionByExecutionId(Integer execId, Long exTJobExecId) {
+		ExternalTJobExecution exTJobExec = this.externalTJobExecutionRepository.findById(exTJobExecId);
+		ExternalTestExecution exTestExec = this.externalTestExecutionRepository
+				.findByExternalIdAndExternalSystemId(execId.toString(), exTJobExec.getExTJob().getExternalSystemId());
+		exTestExec.setExTJobExec(exTJobExec);
+		return this.externalTestExecutionRepository.save(exTestExec);
 	}
 }
