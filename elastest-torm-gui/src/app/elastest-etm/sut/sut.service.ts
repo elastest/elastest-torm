@@ -35,9 +35,6 @@ export class SutService {
 
   public createSut(sut: SutModel): Observable<SutModel> {
     let url: string = this.configurationService.configModel.hostApi + '/sut';
-    if (sut.eimConfig) {
-      sut.eimConfig.validatePrivateKey();
-    }
     return this.http.post(url, sut).map((response) => this.eTModelsTransformServices.jsonToSutModel(response.json()));
   }
 

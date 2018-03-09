@@ -31,10 +31,4 @@ export class EimConfigModel {
       this.logstashHttpApiUrl = eimConfigJson.logstashHttpApiUrl;
     }
   }
-
-  validatePrivateKey(): void {
-    if (this.privateKey) {
-      this.privateKey = this.privateKey.replace(new RegExp('\n', 'g'), '\\\\n');
-    }
-  }
 }
