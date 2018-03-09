@@ -39,9 +39,13 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
+      <div *ngIf="!project.tjobs || project.tjobs.length === 0" class="push-top-sm messageEmptyCard">
+        <md-icon>assignment</md-icon>
+        <p>No TJobs created</p>
+      </div>
       <md-card-content #scrollMeTest>
-        <td-data-table #tjobsTable class="scroll_table" [data]="project.tjobs" [columns]="tjobColumns" [selectable]="false" [clickable]="true"
-          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <td-data-table #tjobsTable *ngIf="project.tjobs && project.tjobs.length > 0" class="scroll_table" [data]="project.tjobs"
+          [columns]="tjobColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" (click)="viewTJob(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sut'; else tjobSutValue"> {{value}}</span>

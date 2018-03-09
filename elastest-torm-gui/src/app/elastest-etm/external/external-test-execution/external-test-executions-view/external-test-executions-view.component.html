@@ -5,7 +5,10 @@
     </md-card-title>
     <md-divider></md-divider>
     <md-card-content>
-
+      <div *ngIf="!exTestExecs || exTestExecs.length === 0" class="push-top-sm messageEmptyCard">
+        <md-icon>assignment</md-icon>
+        <p>No Test Executions generated</p>
+      </div>
       <div *ngFor="let exTestExec of exTestExecs" class="push-bottom-sm">
         <td-expansion-panel expand="false">
           <!-- Header -->

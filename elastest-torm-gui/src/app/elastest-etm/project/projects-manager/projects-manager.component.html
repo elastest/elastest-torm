@@ -12,8 +12,13 @@
                 <!-- <md-divider></md-divider> -->
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">
-                    <td-data-table #projectsTable [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
-                        [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" [style.height.px]="200">
+                    <div *ngIf="!projectData || projectData.length === 0" class="push-top-md messageEmptyCard">
+                        <md-icon>assignment</md-icon>
+                        <p>No Projects created</p>
+                    </div>
+                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData" [columns]="projectColumns"
+                        [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
+                        [style.height.px]="200">
                         <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>
                         </ng-template>

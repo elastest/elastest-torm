@@ -26,11 +26,11 @@
         <div layout="row" class="push-bottom-sm">
           <span flex-gt-xs="15">
             <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
-            <h4>{{exTJobExec.startDate}}</h4>
+            <h4>{{exTJobExec.startDate | date:'medium'}}</h4>
           </span>
           <span flex-gt-xs="15">
             <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
-            <h4>{{exTJobExec.endDate}}</h4>
+            <h4>{{exTJobExec.endDate | date:'medium'}}</h4>
           </span>
         </div>
 
