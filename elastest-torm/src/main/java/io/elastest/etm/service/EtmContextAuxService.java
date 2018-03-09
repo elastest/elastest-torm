@@ -3,6 +3,7 @@ package io.elastest.etm.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class EtmContextAuxService {
 	public String etProxyInternalSSLPort;
 	@Value("${et.proxy.host}")
 	public String etProxyHost;
+
+	@Value("${elastest.docker.network}")
+	private String elastestNetwork;
 
 	@Value("${et.etm.testlink.host}")
 	public String etEtmTestLinkHost;
@@ -58,6 +62,12 @@ public class EtmContextAuxService {
 	@Value("${et.etm.logstash.path.with-proxy}")
 	public String etEtmLogstashPathWithProxy;
 
+	@Value("${et.etm.logstash.container.name}")
+	private String etEtmLogstashContainerName;
+
+	@Autowired
+	DockerService2 dockerService;
+
 	public EtmContextAuxService() {
 	}
 
@@ -72,6 +82,7 @@ public class EtmContextAuxService {
 		contextInfo.setLogstashBeatsPort(etEtmLsBeatsPort);
 		contextInfo.setLogstashHttpPort(etEtmLsHttpPort);
 
+		String logstashHost = dockerService.getContainerIpByNetwork(etEtmLogstashContainerName, elastestNetwork);
 		if (etInProd) {
 			String proxyIp = etPublicHost;
 			String proxyPort = etProxyPort;
@@ -86,7 +97,8 @@ public class EtmContextAuxService {
 			}
 			contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort + etEtmLogstashPathWithProxy);
 			contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":" + proxySslPort + etEtmLogstashPathWithProxy);
-			contextInfo.setLogstashIp(etPublicHost);
+
+			contextInfo.setLogstashIp(logstashHost);
 
 			contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
 			contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + etProxyPort + etEtmElasticsearchPathWithProxy);
@@ -94,7 +106,7 @@ public class EtmContextAuxService {
 			contextInfo.setLogstashHttpUrl(etEtmLsHttpApi);
 			contextInfo.setLogstashSSLHttpUrl(
 					"https://" + etPublicHost + ":" + etProxySSLPort + etEtmLogstashPathWithProxy);
-			contextInfo.setLogstashIp(etPublicHost);
+			contextInfo.setLogstashIp(logstashHost);
 			contextInfo.setElasticSearchUrl(etEdmElasticsearchApi);
 		}
 
