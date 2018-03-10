@@ -5,15 +5,15 @@ import { ExternalService } from '../../external.service';
 import { Router } from '@angular/router';
 import { EusService } from '../../../../elastest-eus/elastest-eus.service';
 import { CompleteUrlObj } from '../../../../shared/utils';
+import { IExternalExecutionSaveModel } from '../../models/external-execution-save.model';
 
 @Component({
   selector: 'etm-external-test-execution-form',
   templateUrl: './external-test-execution-form.component.html',
-  styleUrls: ['./external-test-execution-form.component.scss']
+  styleUrls: ['./external-test-execution-form.component.scss'],
 })
 export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
-  @ViewChild('externalExecution')
-  externalExecution: IExternalExecution;
+  @ViewChild('externalExecution') externalExecution: IExternalExecution;
 
   model: ExternalDataModel;
   ready: boolean = false;
@@ -28,11 +28,7 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
   autoconnect: boolean = true;
   viewOnly: boolean = false;
 
-
-  constructor(
-    private externalService: ExternalService, public router: Router,
-    private eusService: EusService,
-  ) {
+  constructor(private externalService: ExternalService, public router: Router, private eusService: EusService) {
     let params: any = router.parseUrl(router.url).queryParams;
     this.model = new ExternalDataModel();
     this.model.serviceType = params.serviceType;
@@ -42,17 +38,14 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
     this.loadChromeBrowser();
   }
 
-  ngOnInit() {
-
-  }
+  ngOnInit() {}
 
   saveExecution(): void {
     this.externalExecution.saveExecution().subscribe(
-      (saved: boolean) => {
+      (savedObj: IExternalExecutionSaveModel) => {
         this.externalService.popupService.openSnackBar('Execution has been saved successfully');
 
         // Do something
-
 
         window.history.back();
       },
@@ -61,8 +54,7 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
   }
 
   loadChromeBrowser(): void {
-    this.eusService.startSession('chrome', '62')
-      .subscribe(
+    this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
         this.eusService.getVncUrlSplitted(sessionId).subscribe(
@@ -71,7 +63,6 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
             this.vncPort = urlObj.queryParams.port;
             this.vncPassword = urlObj.queryParams.password;
             this.vncBrowserUrl = urlObj.href;
-
           },
           (error) => console.error(error),
         );
@@ -82,10 +73,7 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.sessionId !== undefined) {
-      this.eusService.stopSession(this.sessionId).subscribe(
-        (ok) => { },
-        (error) => console.error(error),
-      );
+      this.eusService.stopSession(this.sessionId).subscribe((ok) => {}, (error) => console.error(error));
     }
   }
 }

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.Execution;
-import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -245,14 +244,13 @@ public interface TestLinkApi extends EtmApiRoot {
 	/* ***************************** Executions ******************************/
 	/* ***********************************************************************/
 
-	@ApiOperation(value = "Execute Test Case", notes = "Execute Test Case", response = ReportTCResultResponse.class, tags = {
+	@ApiOperation(value = "Execute Test Case", notes = "Execute Test Case", response = Execution.class, tags = {
 			"TestLink", })
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Successful operation", response = ReportTCResultResponse.class),
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Execution.class),
 			@ApiResponse(code = 405, message = "Invalid input"), @ApiResponse(code = 409, message = "Already exist") })
 	@RequestMapping(value = "/testlink/project/plan/build/case/{caseId}/exec", produces = {
 			"application/json" }, consumes = { "application/json" }, method = RequestMethod.POST)
-	ResponseEntity<ReportTCResultResponse> executeTestCase(
+	ResponseEntity<Execution> executeTestCase(
 			@ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
 			@ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body);
 

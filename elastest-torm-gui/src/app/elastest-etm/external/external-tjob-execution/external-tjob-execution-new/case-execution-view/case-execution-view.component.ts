@@ -12,6 +12,8 @@ import { ExternalTestCaseModel } from '../../../external-test-case/external-test
 import { ExternalTJobExecModel } from '../../external-tjob-execution-model';
 import { window } from 'rxjs/operator/window';
 import { ExternalTestExecutionModel } from '../../../external-test-execution/external-test-execution-model';
+import { IExternalExecutionSaveModel } from '../../../models/external-execution-save.model';
+import { TestCaseExecutionModel } from '../../../../../etm-testlink/models/test-case-execution-model';
 
 @Component({
   selector: 'etm-case-execution-view',
@@ -100,23 +102,22 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   loadNextTestLinkCase(): void {
     let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
     if (nextCase !== undefined) {
-      // this.currentExternalTestExecution = new ExternalTestExecutionModel();
-      // this.currentExternalTestExecution.exTestCase = nextCase;
-      // this.currentExternalTestExecution.exTJobExec = this.exTJobExec;
-      // this.currentExternalTestExecution.startDate = new Date();
-      // this.currentExternalTestExecution.externalSystemId = nextCase.externalSystemId;
-      // this.currentExternalTestExecution.externalId = 'executing-' + nextCase.id+'-'+;
-      // this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
-      //   (savedExTestExec: ExternalTestExecutionModel) => {
-      //     this.startTestLinkTestCaseExecution(nextCase.externalId);
-      //   },
-      //   (error) => console.log(error),
-      // );
+      this.initCurrentExternalTestExecution(nextCase);
       this.startTestLinkTestCaseExecution(nextCase.externalId);
-
     } else {
       this.finishTJobExecution();
     }
+  }
+
+  initCurrentExternalTestExecution(currentCase: ExternalTestCaseModel): void {
+    this.currentExternalTestExecution = new ExternalTestExecutionModel();
+    this.currentExternalTestExecution.exTestCase = currentCase;
+    this.currentExternalTestExecution.exTJobExec = new ExternalTJobExecModel();
+    this.currentExternalTestExecution.exTJobExec.id = this.exTJobExec.id;
+
+    this.currentExternalTestExecution.startDate = new Date();
+    this.currentExternalTestExecution.externalSystemId = currentCase.externalSystemId;
+    this.currentExternalTestExecution.monitoringIndex = this.exTJobExec.monitoringIndex;
   }
 
   startTestLinkTestCaseExecution(testCaseId: string): void {
@@ -135,9 +136,22 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   saveTLCaseExecution(): void {
     this.saveExecution().subscribe(
-      (saved: boolean) => {
-        this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
-        this.loadNextTestLinkCase();
+      (savedObj: IExternalExecutionSaveModel) => {
+        let tlExec: TestCaseExecutionModel = savedObj.response;
+        if (tlExec.id !== undefined) {
+          this.currentExternalTestExecution.externalId = tlExec.id.toString();
+          this.currentExternalTestExecution.endDate = new Date();
+          this.currentExternalTestExecution.result = tlExec.status;
+          this.currentExternalTestExecution.setFieldsByExternalObjAndService(tlExec, 'TESTLINK');
+
+          this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+            (savedExTestExec: ExternalTestExecutionModel) => {
+              this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
+              this.loadNextTestLinkCase();
+            },
+            (error) => console.log(error),
+          );
+        }
       },
       (error) => console.log(error),
     );
@@ -153,6 +167,8 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
         this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
         this.exTJobExec.endDate = new Date();
         this.exTJobExec.exTestExecs = []; // TODO fix No _valueDeserializer assigned
+        this.exTJobExec.exTJob.exTestCases = []; // TODO fix No _valueDeserializer assigned
+
         this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
       },
       (error) => {
@@ -163,7 +179,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
     );
   }
 
-  saveExecution(): Observable<boolean> {
+  saveExecution(): Observable<IExternalExecutionSaveModel> {
     if (this.executionForm) {
       return this.executionForm.saveExecution();
     } else {

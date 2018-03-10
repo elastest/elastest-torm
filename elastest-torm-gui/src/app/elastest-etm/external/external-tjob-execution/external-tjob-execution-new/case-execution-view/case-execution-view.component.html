@@ -17,7 +17,7 @@
             </div>
         </ng-template>
         <div id="testLinkExec">
-            <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data && data.testCase" [data]="data" [exTJobExec]="exTJobExec"></testlink-execution-form>
+            <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data && data.testCase" [data]="data"></testlink-execution-form>
         </div>
         <div layout="row">
             <button md-raised-button color="accent" [disabled]="disableTLNextBtn || caseForm != undefined && !caseForm.valid" (click)="saveTLCaseExecution()">Save & Next</button>

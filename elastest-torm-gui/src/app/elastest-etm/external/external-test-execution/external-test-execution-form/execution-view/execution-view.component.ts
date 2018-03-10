@@ -8,6 +8,7 @@ import { TLTestCaseModel } from '../../../../../etm-testlink/models/test-case-mo
 import { BuildModel } from '../../../../../etm-testlink/models/build-model';
 import { ServiceType } from '../../../external-project/external-project-model';
 import { TestPlanModel } from '../../../../../etm-testlink/models/test-plan-model';
+import { IExternalExecutionSaveModel } from '../../../models/external-execution-save.model';
 
 @Component({
   selector: 'etm-execution-view',
@@ -70,7 +71,7 @@ export class ExecutionViewComponent implements OnInit, IExternalExecution {
     );
   }
 
-  saveExecution(): Observable<boolean> {
+  saveExecution(): Observable<IExternalExecutionSaveModel> {
     return this.executionForm.saveExecution();
   }
 }

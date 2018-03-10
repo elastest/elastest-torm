@@ -1,6 +1,8 @@
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
+import { ServiceType } from '../external-project/external-project-model';
+import { TestCaseExecutionModel } from '../../../etm-testlink/models/test-case-execution-model';
 
 export class ExternalTestExecutionModel {
   id: number;
@@ -79,5 +81,23 @@ export class ExternalTestExecutionModel {
       }
     }
     return icon;
+  }
+
+  public setFieldsByExternalObjAndService(externalObj: any, service: ServiceType): void {
+    switch (service) {
+      case 'TESTLINK':
+        this.setTestLinkFields(externalObj);
+        break;
+      default:
+        break;
+    }
+  }
+
+  public setTestLinkFields(tlExec: TestCaseExecutionModel): void {
+    let fieldsObj: object = {
+      build: { id: tlExec.buildId },
+      plan: { id: tlExec.testPlanId },
+    };
+    this.fields = JSON.stringify(fieldsObj);
   }
 }

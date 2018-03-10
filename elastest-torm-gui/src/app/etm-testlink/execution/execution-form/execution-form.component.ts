@@ -9,7 +9,7 @@ import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
 import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
-import { ExternalService } from '../../../elastest-etm/external/external.service';
+import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
 ElementRef;
 @Component({
   selector: 'testlink-execution-form',
@@ -18,7 +18,6 @@ ElementRef;
 })
 export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
   @Input() data: any;
-  @Input() exTJobExec: ExternalTJobExecModel;
 
   @ViewChild('notes') notes: ElementRef;
   alreadyFocused: boolean = false;
@@ -26,11 +25,8 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
   // TestCaseSteps Data
   testCaseStepsColumns: any[] = [
     { name: 'id', label: 'Id' },
-    // { name: 'testCaseVersionId', label: 'Version Id' },
-    // { name: 'number', label: 'Number' },
     { name: 'actions', label: 'Actions' },
     { name: 'expectedResults', label: 'Expected Results' },
-    // { name: 'active', label: 'Active' },
     { name: 'executionType', label: 'Exec Type' },
   ];
 
@@ -39,7 +35,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
 
   tcExec: TestCaseExecutionModel;
 
-  constructor(private testLinkService: TestLinkService, private externalService: ExternalService) {}
+  constructor(private testLinkService: TestLinkService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.data) {
@@ -67,21 +63,18 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     }
   }
 
-  saveExecution(): Observable<boolean> {
-    let _obs: Subject<boolean> = new Subject<boolean>();
-    let obs: Observable<boolean> = _obs.asObservable();
+  saveExecution(): Observable<IExternalExecutionSaveModel> {
+    let _obs: Subject<IExternalExecutionSaveModel> = new Subject<IExternalExecutionSaveModel>();
+    let obs: Observable<IExternalExecutionSaveModel> = _obs.asObservable();
     if (this.data.additionalNotes) {
       this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
     }
     this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
-      (data: any) => {
-        console.log(data);
-        if (this.exTJobExec !== undefined) {
-          this.externalService
-            .setExternalTJobExecToTestExecutionByExecutionId(data.executionId, this.exTJobExec.id)
-            .subscribe((exTestExec: ExternalTestExecutionModel) => {}, (error) => console.log(error));
-        }
-        _obs.next(true);
+      (savedExecution: TestCaseExecutionModel) => {
+        let savedResponse: IExternalExecutionSaveModel = new IExternalExecutionSaveModel();
+        savedResponse.saved = true;
+        savedResponse.response = savedExecution;
+        _obs.next(savedResponse);
       },
       (error) => _obs.error(error),
     );

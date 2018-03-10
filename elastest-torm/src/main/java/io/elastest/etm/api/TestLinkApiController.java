@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.Execution;
-import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -191,17 +190,17 @@ public class TestLinkApiController implements TestLinkApi {
 	/* ***************************** Executions ******************************/
 	/* ***********************************************************************/
 
-	public ResponseEntity<ReportTCResultResponse> executeTestCase(
+	public ResponseEntity<Execution> executeTestCase(
 			@ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
 			@ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body) {
-		ReportTCResultResponse result = null;
+		Execution exec = null;
 
 		try {
-			result = testLinkService.saveExecution(body, caseId);
-			return new ResponseEntity<ReportTCResultResponse>(result, HttpStatus.OK);
+			exec = testLinkService.saveExecution(body, caseId);
+			return new ResponseEntity<Execution>(exec, HttpStatus.OK);
 		} catch (TestLinkAPIException e) {
 			System.out.println(e);
-			return new ResponseEntity<ReportTCResultResponse>(result, HttpStatus.CONFLICT);
+			return new ResponseEntity<Execution>(exec, HttpStatus.CONFLICT);
 		}
 	}
 

@@ -217,9 +217,11 @@ export class TestLinkService {
   /******** Execs ********/
   /***********************/
 
-  public saveExecution(execution: TestCaseExecutionModel, testCaseId: number | string): any {
+  public saveExecution(execution: TestCaseExecutionModel, testCaseId: number | string): Observable<TestCaseExecutionModel> {
     let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
-    return this.http.post(url, execution).map((response: Response) => response.json());
+    return this.http
+      .post(url, execution)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToExecModel(response.json()));
   }
 
   public getAllExecs(): Observable<TestCaseExecutionModel[]> {
