@@ -1,3 +1,56 @@
-<p>
-  external-test-execution works!
-</p>
+<div layout="column">
+  <md-card>
+    <md-card-title>
+      <div layout="row">
+        <span>
+          <md-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
+            title="{{exTestExec.result}}">
+            {{exTestExec.getResultIcon().name}}</md-icon>
+        </span>
+        <a *ngIf="exTestCase && exTestExec" class="normalTextLink">
+          <span>External Test Case</span>
+          <span> "{{exTestCase.name}}"</span>
+        </a>
+        <span>: Execution {{exTestExecId}}</span>
+      </div>
+    </md-card-title>
+    <md-card-content>
+      <div layout="row" class="push-bottom-sm">
+        <div flex="47">
+          <md-list class="testLinkListInfo">
+            <md-list-item>
+              <h4>Start Date</h4>
+              <p>{{exTestExec.startDate | date:'MM/dd HH:mm:ss'}}</p>
+            </md-list-item>
+          </md-list>
+        </div>
+        <div flex="5"></div>
+        <div flex="47">
+          <md-list class="testLinkListInfo">
+            <md-list-item>
+              <h4>End Date</h4>
+              <p>{{exTestExec.endDate | date:'MM/dd HH:mm:ss'}}</p>
+            </md-list-item>
+          </md-list>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+</div>
+
+
+<div layout="row">
+  <div #serviceExecution flex="50">
+    <ng-container *ngIf="serviceType" [ngSwitch]="serviceType">
+      <ng-container *ngSwitchCase="'TESTLINK'">
+        <div id="testLinkExec">
+          <testlink-test-execution #executionForm *ngIf="exTestCase.externalId && exTestExec.externalId" [caseId]="exTestCase.externalId"
+            [execId]="exTestExec.externalId"></testlink-test-execution>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div flex="50">
+
+  </div>
+</div>

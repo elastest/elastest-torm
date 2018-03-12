@@ -103,7 +103,13 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
     let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
     if (nextCase !== undefined) {
       this.initCurrentExternalTestExecution(nextCase);
-      this.startTestLinkTestCaseExecution(nextCase.externalId);
+      this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+        (savedExTestExec: ExternalTestExecutionModel) => {
+          this.currentExternalTestExecution = savedExTestExec;
+          this.startTestLinkTestCaseExecution(nextCase.externalId);
+        },
+        (error) => console.log(error),
+      );
     } else {
       this.finishTJobExecution();
     }
@@ -117,6 +123,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
     this.currentExternalTestExecution.startDate = new Date();
     this.currentExternalTestExecution.externalSystemId = currentCase.externalSystemId;
+    this.currentExternalTestExecution.externalId = 'tmp-exId-' + this.exTJobExec.id + '-' + currentCase.id;
     this.currentExternalTestExecution.monitoringIndex = this.exTJobExec.monitoringIndex;
   }
 
@@ -144,7 +151,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
           this.currentExternalTestExecution.result = tlExec.status;
           this.currentExternalTestExecution.setFieldsByExternalObjAndService(tlExec, 'TESTLINK');
 
-          this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+          this.externalService.modifyExternalTestExecution(this.currentExternalTestExecution).subscribe(
             (savedExTestExec: ExternalTestExecutionModel) => {
               this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
               this.loadNextTestLinkCase();

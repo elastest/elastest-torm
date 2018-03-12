@@ -233,6 +233,13 @@ export class ExternalService {
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
   }
 
+  public modifyExternalTestExecution(exec: ExternalTestExecutionModel): Observable<ExternalTestExecutionModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/external/testexec';
+    return this.http
+      .put(url, exec)
+      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
+  }
+
   public setExternalTJobExecToTestExecutionByExecutionId(
     execId: number | string,
     exTJobExecId: number | string,
