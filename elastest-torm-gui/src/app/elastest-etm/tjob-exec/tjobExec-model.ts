@@ -9,30 +9,22 @@ export class TJobExecModel extends AbstractTJobExecModel {
   id: number;
   duration: number;
   error: string;
-  result: string;
   sutExec: SutExecModel;
   monitoringIndex: string;
   tJob: TJobModel;
   testSuites: TestSuiteModel[];
   parameters: any[];
-  resultMsg: string;
-  startDate: Date;
-  endDate: Date;
 
   constructor() {
     super();
     this.id = 0;
     this.duration = 0;
     this.error = undefined;
-    this.result = '';
     this.sutExec = undefined;
     this.monitoringIndex = '';
     this.tJob = undefined;
     this.testSuites = [];
     this.parameters = [];
-    this.resultMsg = '';
-    this.startDate = undefined;
-    this.endDate = undefined;
   }
 
   public hasSutExec(): boolean {

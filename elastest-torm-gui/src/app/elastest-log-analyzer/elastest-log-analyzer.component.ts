@@ -90,14 +90,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let fromExec: any;
     if (params.tjob && params.exec) {
       fromExec = {
+        type: 'normal',
         tJob: params.tjob,
         exec: params.exec,
         testCase: params.testCase,
       };
     } else if (params.exTJob && params.exTJobExec) {
       fromExec = {
+        type: 'external',
         exTJob: params.exTJob,
         exTJobExec: params.exTJobExec,
+        exTestCase: params.exTestCase,
         exTestExec: params.exTestExec,
       };
     }
@@ -609,10 +612,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           }
           this.loadComponentStreams();
           this.loadLevels();
-          if (fromExec && fromExec.testCase) {
-            this.testCaseName = fromExec.testCase;
+          if (fromExec && (fromExec.testCase || fromExec.exTestCase)) {
             this.withTestCase = true;
-            this.filterTestCase(fromExec.testCase);
+            if (fromExec.testCase) {
+              this.testCaseName = fromExec.testCase;
+            } else if (fromExec.exTestCase) {
+              this.testCaseName = fromExec.exTestCase;
+            }
+            this.filterTestCase(this.testCaseName);
           } else {
             this.loadLog();
           }

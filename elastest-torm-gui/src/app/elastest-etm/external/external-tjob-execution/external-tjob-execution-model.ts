@@ -8,8 +8,7 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   exTJob: ExternalTJobModel;
   envVars: any;
   exTestExecs: ExternalTestExecutionModel[];
-  startDate: Date;
-  endDate: Date;
+
 
   constructor() {
     super();
@@ -18,8 +17,6 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
     this.exTJob = undefined;
     this.envVars = {};
     this.exTestExecs = [];
-    this.startDate = undefined;
-    this.endDate = undefined;
   }
 
   public getRouteString(): string {

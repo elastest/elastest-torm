@@ -103,7 +103,7 @@ public class EtmContextAuxService {
 			contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
 			contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + etProxyPort + etEtmElasticsearchPathWithProxy);
 		} else {
-			contextInfo.setLogstashHttpUrl(etEtmLsHttpApi);
+			contextInfo.setLogstashHttpUrl("http://" + etPublicHost + ":" + etProxyPort + etEtmLogstashPathWithProxy);
 			contextInfo.setLogstashSSLHttpUrl(
 					"https://" + etPublicHost + ":" + etProxySSLPort + etEtmLogstashPathWithProxy);
 			contextInfo.setLogstashIp(logstashHost);

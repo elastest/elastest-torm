@@ -1,7 +1,7 @@
 <div layout="column">
   <md-card>
     <md-card-title>
-      <div layout="row">
+      <div layout="row" layout-align="space-between end">
         <span>
           <md-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
             title="{{exTestExec.result}}">
@@ -12,6 +12,12 @@
           <span> "{{exTestCase.name}}"</span>
         </a>
         <span>: Execution {{exTestExecId}}</span>
+        <span flex></span>
+        <span *ngIf="exTestExec, exTestCase">
+          <button md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn" title="View in Log Analyzer">
+            <md-icon>library_books</md-icon>
+          </button>
+        </span>
       </div>
     </md-card-title>
     <md-card-content>

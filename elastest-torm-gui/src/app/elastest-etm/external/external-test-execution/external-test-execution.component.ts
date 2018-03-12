@@ -48,4 +48,15 @@ export class ExternalTestExecutionComponent implements OnInit {
       (error) => console.log(error),
     );
   }
+
+  viewInLogAnalyzer(): void {
+    this.router.navigate(['/loganalyzer'], {
+      queryParams: {
+        exTJob: this.exTestCase.exTJob.id,
+        exTJobExec: this.exTestExec.exTJobExec.id,
+        exTestCase: this.exTestCase.name,
+        exTestExec: this.exTestExec.id,
+      },
+    });
+  }
 }
