@@ -7,32 +7,37 @@
       <md-divider></md-divider>
       <md-card-content>
         <div layout="row" class="push-bottom-sm">
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Date</md-card-subtitle>
-            <h4>{{testExec.executionTimeStamp}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Status</md-card-subtitle>
-            <h4>{{testExec.status}}</h4>
-          </span>
-
-          <span flex-gt-xs="10">
-            <md-card-subtitle class="pad-left-none">Tester Id</md-card-subtitle>
-            <h4>{{testExec.testerId}}</h4>
-          </span>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Date</h4>
+                <p>{{testExec.executionTimeStamp | date:'MM/dd HH:mm:ss'}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item>
+                <h4>Tester Id</h4>
+                <p>{{testExec.testerId}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
+          <div flex="5"></div>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Status</h4>
+                <p>{{testExec.status}}</p>
+              </md-list-item>
+              <md-divider></md-divider>
+            </md-list>
+          </div>
         </div>
 
         <md-divider></md-divider>
 
-        <div layout="row" class="push-top-md">
+        <div layout="row" class="push-top-sm">
           <span flex-gt-xs="100">
             <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
-            <div layout="column" class="push-top-sm">
-              <md-input-container>
-                <textarea id="notes" autosize mdInput [(ngModel)]="testExec.notes" name="notes" readonly></textarea>
-              </md-input-container>
-            </div>
+            <div id="notes" [innerHTML]="testExec.notes"></div>
           </span>
         </div>
       </md-card-content>

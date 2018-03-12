@@ -22,20 +22,27 @@
         </div>
       </md-card-title>
       <md-card-content>
-
         <div layout="row" class="push-bottom-sm">
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
-            <h4>{{exTJobExec.startDate | date:'MM/dd HH:mm:ss'}}</h4>
-          </span>
-          <span flex-gt-xs="15">
-            <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
-            <h4>{{exTJobExec.endDate | date:'MM/dd HH:mm:ss'}}</h4>
-          </span>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>Start Date</h4>
+                <p>{{exTJobExec.startDate | date:'MM/dd HH:mm:ss'}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
+          <div flex="5"></div>
+          <div flex="47">
+            <md-list class="testLinkListInfo">
+              <md-list-item>
+                <h4>End Date</h4>
+                <p>{{exTJobExec.endDate | date:'MM/dd HH:mm:ss'}}</p>
+              </md-list-item>
+            </md-list>
+          </div>
         </div>
-
+        <md-divider></md-divider>
       </md-card-content>
-
     </md-card>
   </div>
 </div>
