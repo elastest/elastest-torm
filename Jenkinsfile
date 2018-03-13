@@ -17,7 +17,7 @@ node('TESTDOCKER'){
         
         stage "Build elastest-torm-gui"
             echo ("Build elastest-torm-gui")
-            sh 'cd ./elastest-torm-gui; ~/npm5/bin/npm install; mvn package;'
+            sh 'cd ./elastest-torm-gui; npm install; mvn package;'
         
         stage "Build elastest-torm"
             echo ("Build elastest-torm")
