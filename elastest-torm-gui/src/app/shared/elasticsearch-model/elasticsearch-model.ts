@@ -93,7 +93,7 @@ export class ESSearchBodyModel {
     return this.size === -1;
   }
 
-  convertToESFormat(): any {
+  convertToESFormat(): object {
     let formatted: any = {};
     if (!this.empty()) {
       formatted.size = this.size;
@@ -154,8 +154,8 @@ export class ESSearchModel {
     return esUrl;
   }
 
-  getSearchBody(): any {
-    let body: any = {};
+  getSearchBody(): object {
+    let body: object = {};
     body = this.body.convertToESFormat();
 
     return body;

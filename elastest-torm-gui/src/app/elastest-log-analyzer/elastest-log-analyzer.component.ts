@@ -321,7 +321,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
 
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: string = this.esSearchModel.getSearchBody();
+    let searchBody: object = this.esSearchModel.getSearchBody();
 
     this.elastestESService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
@@ -374,7 +374,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
 
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: string = this.esSearchModel.getSearchBody();
+    let searchBody: object = this.esSearchModel.getSearchBody();
 
     this.elastestESService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
@@ -411,7 +411,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
         this.esSearchModel.body.searchAfter = this.logRows[selected].sort;
         let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-        let searchBody: string = this.esSearchModel.getSearchBody();
+        let searchBody: object = this.esSearchModel.getSearchBody();
         this.elastestESService.search(searchUrl, searchBody).subscribe(
           (data: any) => {
             let moreRows: any[] = this.esSearchModel.getDataListFromRaw(data, false);
@@ -656,7 +656,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
                 // Load Logs
                 this.logAnalyzer.selectedRow = undefined;
                 let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-                let searchBody: string = this.esSearchModel.getSearchBody();
+                let searchBody: object = this.esSearchModel.getSearchBody();
 
                 this.elastestESService.search(searchUrl, searchBody).subscribe(
                   (data: any) => {
@@ -703,7 +703,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.setMatch(msg);
 
     let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: string = this.esSearchModel.getSearchBody();
+    let searchBody: object = this.esSearchModel.getSearchBody();
 
     // Remove Match Filter
     this.esSearchModel.body.boolQuery.bool.must.matchList.pop();

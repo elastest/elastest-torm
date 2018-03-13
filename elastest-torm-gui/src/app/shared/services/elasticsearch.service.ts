@@ -5,6 +5,9 @@ import { Injectable } from '@angular/core';
 import { Http, Request, RequestMethod, RequestOptions, Response } from '@angular/http';
 import { Subject, Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
+import { ESSearchModel } from '../elasticsearch-model/elasticsearch-model';
+import { ESBoolModel } from '../elasticsearch-model/es-bool-model';
+import { ESTermModel, ESTermsModel } from '../elasticsearch-model/es-query-model';
 
 @Injectable()
 export class ElasticSearchService {
@@ -100,7 +103,7 @@ export class ElasticSearchService {
     searchUrl = this.addFilterToSearchUrl(searchUrl, filterPath);
 
     if (theQuery === undefined || theQuery === null) {
-      theQuery = this.getDefaultQuery(terms);
+      theQuery = this.getDefaultQueryByRawTermList(terms);
     }
     theQuery['size'] = size;
     let _logs: Subject<string[]> = new Subject<string[]>();
@@ -238,8 +241,7 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery: any = this.getDefaultQuery(must);
-    theQuery['size'] = 10000;
+    let theQuery: any = this.getDefaultQueryByRawTermList(must);
     return this.internalSearch(searchUrl, theQuery);
   }
 
@@ -287,9 +289,8 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery: any = this.getDefaultQuery(must);
+    let theQuery: any = this.getDefaultQueryByRawTermList(must);
 
-    theQuery['size'] = 10000;
     return this.internalSearch(searchUrl, theQuery);
   }
 
@@ -337,9 +338,8 @@ export class ElasticSearchService {
     must = must.concat(terms);
 
     let searchUrl: string = url + '/_search';
-    let theQuery: any = this.getDefaultQuery(must);
+    let theQuery: any = this.getDefaultQueryByRawTermList(must);
 
-    theQuery['size'] = 10000;
     return this.internalSearch(searchUrl, theQuery);
   }
 
@@ -359,17 +359,36 @@ export class ElasticSearchService {
     return logs;
   }
 
-  getDefaultQuery(must: any): object {
-    let theQuery: object = {
-      sort: [{ '@timestamp': 'asc' }, { _uid: 'asc' }],
-      query: {
-        bool: {
-          must: must,
-        },
-      },
-    };
+  getDefaultQuery(bool: ESBoolModel): object {
+    let esSearchModel: ESSearchModel = new ESSearchModel();
+    esSearchModel.body.boolQuery.bool = bool;
+    esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
+    esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
+    esSearchModel.body.size = 10000;
 
-    return theQuery;
+    return esSearchModel.getSearchBody();
+  }
+
+  getDefaultQueryByTermList(terms: ESTermModel[]): object {
+    let bool: ESBoolModel = new ESBoolModel();
+    bool.must.termList = terms;
+
+    return this.getDefaultQuery(bool);
+  }
+
+  getDefaultQueryByRawTermList(terms: object[]): object {
+    let termList: ESTermModel[] = [];
+    for (let currentRawTerm of terms) {
+      let currentTerm: ESTermModel = new ESTermModel();
+      if (currentRawTerm['term'] !== undefined) {
+        currentRawTerm = currentRawTerm['term'];
+      }
+      currentTerm.name = Object.keys(currentRawTerm)[0];
+      currentTerm.value = currentRawTerm[currentTerm.name];
+      termList.push(currentTerm);
+    }
+
+    return this.getDefaultQueryByTermList(termList);
   }
 
   addFilterToSearchUrl(searchUrl: string, filterPath?: string[]): string {
