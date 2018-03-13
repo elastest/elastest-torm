@@ -1,10 +1,10 @@
 <div layout="column">
   <md-card>
     <md-card-title>
-      <div layout="row" layout-align="space-between end">
+      <div layout="row" layout-align="space-between end" class="pad-right-xs">
         <span>
           <md-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
-            title="{{exTestExec.result}}">
+            mdTooltip="{{exTestExec.result}}">
             {{exTestExec.getResultIcon().name}}</md-icon>
         </span>
         <a *ngIf="exTestCase && exTestExec" class="normalTextLink">
@@ -14,8 +14,13 @@
         <span>: Execution {{exTestExecId}}</span>
         <span flex></span>
         <span *ngIf="exTestExec, exTestCase">
-          <button md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn" title="View in Log Analyzer">
+          <button md-button (click)="viewInLogAnalyzer()" class="iconBtn" mdTooltip="View in Log Analyzer">
             <md-icon>library_books</md-icon>
+          </button>
+        </span>
+        <span>
+          <button md-button (click)="logsAndMetrics.openMonitoringConfig()" mdTooltip="Open Monitoring Config" class="iconBtn">
+            <md-icon>settings</md-icon>
           </button>
         </span>
       </div>
@@ -26,7 +31,7 @@
           <md-list class="testLinkListInfo">
             <md-list-item>
               <h4>Start Date</h4>
-              <p>{{exTestExec.startDate | date:'MM/dd HH:mm:ss'}}</p>
+              <p>{{exTestExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
             </md-list-item>
           </md-list>
         </div>
@@ -35,7 +40,7 @@
           <md-list class="testLinkListInfo">
             <md-list-item>
               <h4>End Date</h4>
-              <p>{{exTestExec.endDate | date:'MM/dd HH:mm:ss'}}</p>
+              <p>{{exTestExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
             </md-list-item>
           </md-list>
         </div>
@@ -60,3 +65,6 @@
 
   </div>
 </div>
+
+<!-- logs & Metrics -->
+<etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>

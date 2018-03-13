@@ -13,7 +13,7 @@
         <td-expansion-panel expand="false">
           <!-- Header -->
           <ng-template td-expansion-panel-header>
-            <div layout="row" class="pad-top-sm pad-left-sm" [routerLink]="['/external/project/',exTJobExec.exTJob.exProject.id,'tjob',exTJobExec.exTJob.id,'case',exTestExec.exTestCase.id, 'exec',exTestExec.id]">
+            <div layout="row" class="pad-top-sm pad-left-sm" [routerLink]="['/external/project/',exTestExec.exTJobExec.exTJob.exProject.id,'tjob',exTJobExec.exTJob.id,'case',exTestExec.exTestCase.id, 'exec',exTestExec.id]">
               <span class="centeredStatusIconSpan pad-right-sm">
                 <md-icon [style.color]="exTestExec.getResultIcon().color">{{exTestExec.getResultIcon().name}}</md-icon>
               </span>

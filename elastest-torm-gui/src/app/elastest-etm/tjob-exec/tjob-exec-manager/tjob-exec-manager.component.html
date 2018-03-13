@@ -8,7 +8,7 @@
                 </a>
                 <span>: Execution {{tJobExecId}}</span>
                 <span>
-                    <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color" title="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
+                    <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color" mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
                 </span>
             </md-card-title>
             <md-divider></md-divider>
@@ -20,11 +20,11 @@
                     </span>
                     <span flex-gt-xs="20">
                         <md-card-subtitle>Start Date</md-card-subtitle>
-                        <h4>{{ tJobExec.startDate | date:'MM/dd HH:mm:ss' }}</h4>
+                        <h4>{{ tJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
                     <span flex-gt-xs="20">
                         <md-card-subtitle>End Date</md-card-subtitle>
-                        <h4>{{ tJobExec.endDate | date:'MM/dd HH:mm:ss' }}</h4>
+                        <h4>{{ tJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
                     <ng-container>
                         <span flex-gt-xs="10" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">

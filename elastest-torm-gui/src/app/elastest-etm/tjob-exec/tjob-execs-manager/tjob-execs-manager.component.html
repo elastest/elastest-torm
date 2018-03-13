@@ -39,7 +39,7 @@
               </span>
             </div>
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{value | date:'MM/dd HH:mm:ss'}}
+              {{value | date:'dd/MM/yyyy HH:mm:ss'}}
             </div>
           </ng-template>
 
@@ -81,7 +81,7 @@
               </span>
             </div>
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{value | date:'MM/dd HH:mm:ss'}}
+              {{value | date:'dd/MM/yyyy HH:mm:ss'}}
             </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">

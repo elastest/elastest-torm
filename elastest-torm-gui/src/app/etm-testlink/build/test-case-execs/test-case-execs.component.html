@@ -100,7 +100,7 @@
               {{value}}
             </div>
             <div *ngIf="column.name === 'executionTimeStamp'" [routerLink]="['/testlink/projects',testProjectId, 'plans', row.testPlanId, 'builds', buildId, 'cases', testCase.id,'execs',row.id]">
-              {{value | date:'MM/dd HH:mm:ss'}}
+              {{value | date:'dd/MM/yyyy HH:mm:ss'}}
             </div>
             <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
 

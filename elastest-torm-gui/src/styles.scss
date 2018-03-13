@@ -12,7 +12,8 @@ a[md-icon-button] {
 }
 
 .mat-tooltip {
-  font-size: 12px !important;
+  font-size: 14px !important;
+  background-color: #333 !important;
 }
 
 // Capitalize
@@ -231,13 +232,13 @@ textarea[autosize] {
 .pad-left-xs {
   padding-left: 4px !important;
 }
-.testLinkListInfo{
+.testLinkListInfo {
   padding-top: 0px;
 }
-.testLinkListInfo p{
+.testLinkListInfo p {
   margin-left: auto;
 }
-.messageEmptyCard{
+.messageEmptyCard {
   text-align: center;
   color: #727272;
 }

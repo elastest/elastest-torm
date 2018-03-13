@@ -5,7 +5,7 @@
         <div layout="row" layout-align="space-between end">
           <span>
             <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
-              title="{{exTJobExec.result}}">
+              mdTooltip="{{exTJobExec.result}}">
               {{exTJobExec.getResultIcon().name}}</md-icon>
           </span>
           <a *ngIf="exTJob && exTJobExec" class="normalTextLink">
@@ -27,7 +27,7 @@
             <md-list class="testLinkListInfo">
               <md-list-item>
                 <h4>Start Date</h4>
-                <p>{{exTJobExec.startDate | date:'MM/dd HH:mm:ss'}}</p>
+                <p>{{exTJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
               </md-list-item>
             </md-list>
           </div>
@@ -36,7 +36,7 @@
             <md-list class="testLinkListInfo">
               <md-list-item>
                 <h4>End Date</h4>
-                <p>{{exTJobExec.endDate | date:'MM/dd HH:mm:ss'}}</p>
+                <p>{{exTJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
               </md-list-item>
             </md-list>
           </div>

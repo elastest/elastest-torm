@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { ExternalService } from '../external.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ExternalTestExecutionModel } from './external-test-execution-model';
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { ServiceType } from '../external-project/external-project-model';
+import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
+import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
+import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 
 @Component({
   selector: 'etm-external-test-execution',
@@ -12,9 +15,14 @@ import { ServiceType } from '../external-project/external-project-model';
   styleUrls: ['./external-test-execution.component.scss'],
 })
 export class ExternalTestExecutionComponent implements OnInit {
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+
   exTestExecId: number;
   exTestExec: ExternalTestExecutionModel;
   exTestCase: ExternalTestCaseModel;
+
+  exTJob: ExternalTJobModel;
+  exTJobExec: ExternalTJobExecModel;
 
   serviceType: ServiceType;
 
@@ -44,6 +52,17 @@ export class ExternalTestExecutionComponent implements OnInit {
         this.titlesService.setTopTitle(exTestExec.getRouteString());
         this.exTestCase = this.exTestExec.exTestCase;
         this.serviceType = this.exTestExec.getServiceType();
+
+        this.exTJob = this.exTestCase.exTJob;
+        this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
+          this.exTestExec.exTJobExec,
+        );
+
+        this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+        let browserLog: any = this.exTJobExec.getBrowserLogObj();
+        if (browserLog) {
+          this.logsAndMetrics.updateLog(browserLog, false);
+        }
       },
       (error) => console.log(error),
     );
