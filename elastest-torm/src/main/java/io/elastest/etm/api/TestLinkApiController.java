@@ -176,14 +176,20 @@ public class TestLinkApiController implements TestLinkApi {
 		}
 	}
 
+	public ResponseEntity<Build> getBuildById(
+			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId) {
+		return new ResponseEntity<Build>(testLinkService.getBuildById(buildId), HttpStatus.OK);
+	}
+
 	public ResponseEntity<TestCase[]> getBuildTestCases(
 			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId) {
 		return new ResponseEntity<TestCase[]>(testLinkService.getBuildTestCasesById(buildId), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Build> getBuildById(
-			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId) {
-		return new ResponseEntity<Build>(testLinkService.getBuildById(buildId), HttpStatus.OK);
+	public ResponseEntity<TestCase> getBuildTestCaseById(
+			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
+			@ApiParam(value = "Id of the Test Case.", required = true) @PathVariable("caseId") Integer caseId) {
+		return new ResponseEntity<TestCase>(testLinkService.getBuildTestCaseById(buildId, caseId), HttpStatus.OK);
 	}
 
 	/* ***********************************************************************/

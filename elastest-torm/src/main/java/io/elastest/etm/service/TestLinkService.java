@@ -336,6 +336,18 @@ public class TestLinkService {
 		return this.getBuildTestCases(build);
 	}
 
+	public TestCase getBuildTestCaseById(Integer buildId, Integer caseId) {
+		Build build = this.getBuildById(buildId);
+		TestCase[] testCases = this.getBuildTestCases(build);
+		TestCase tCase = null;
+		for (TestCase currentCase : testCases) {
+			if (currentCase.getId() == caseId) {
+				return currentCase;
+			}
+		}
+		return tCase;
+	}
+
 	public TestCase[] getProjectTestCases(Integer projectId) {
 		TestCase[] testCase = null;
 		for (TestSuite currentSuite : this.getProjectTestSuites(projectId)) {

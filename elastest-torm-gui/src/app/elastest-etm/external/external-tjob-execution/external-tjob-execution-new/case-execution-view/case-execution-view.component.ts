@@ -128,12 +128,13 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   }
 
   startTestLinkTestCaseExecution(testCaseId: string): void {
-    this.testLinkService.getTestCaseById(testCaseId).subscribe(
+    let build: BuildModel = this.data.build;
+    this.testLinkService.getBuildTestCaseById(build.id, testCaseId).subscribe(
       (testCase: TLTestCaseModel) => {
         // New object to detect on changes
         this.data = {
           testCase: testCase,
-          build: this.data.build,
+          build: build,
           additionalNotes: this.tJobExecUrl,
         };
       },
