@@ -94,7 +94,7 @@
             <div class="push-bottom">
               <md-radio-group #radioGroupCommandsOption (change)="changeCommandsOption(defaultRadio.checked ? 'default' : (inNewContainerRadio.checked ? 'container' : 'compose'))">
                 <md-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault" class="push-right">
-                  SuT In Commands Container (Default)
+                  SuT In Commands Container
                 </md-radio-button>
 
                 <md-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}" [checked]="optionInNewContainer"
