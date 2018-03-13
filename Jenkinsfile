@@ -17,7 +17,6 @@ node('TESTDOCKER'){
         
         stage "Build elastest-torm-gui"
             echo ("Build elastest-torm-gui")
-            sh 'mkdir ~/npm5; npm config set prefix "~/npm5"; export PATH=~/npm5/bin:$PATH; source ~/.profile; npm install npm@5.6.0 -g;'
             sh 'cd ./elastest-torm-gui; ~/npm5/bin/npm install; mvn package;'
         
         stage "Build elastest-torm"
