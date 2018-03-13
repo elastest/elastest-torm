@@ -47,6 +47,17 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   }
 
   initExecutionView(): void {
+    switch (this.serviceType) {
+      case 'TESTLINK':
+        this.setTJobExecutionUrl('Test Plan Execution:');
+        this.initTestLinkData();
+        break;
+      default:
+        break;
+    }
+  }
+
+  setTJobExecutionUrl(label: string): void {
     if (this.exTJobExec) {
       this.tJobExecUrl =
         document.location.origin +
@@ -56,16 +67,23 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
         this.exTJob.id +
         '/exec/' +
         this.exTJobExec.id;
-      this.tJobExecUrl = ' <p><a href="' + this.tJobExecUrl + '">' + this.tJobExecUrl + '</a></p>';
+      this.tJobExecUrl = ' <p><strong>' + label + ' </strong><a href="' + this.tJobExecUrl + '">' + this.tJobExecUrl + '</a></p>';
     }
+  }
 
-    switch (this.serviceType) {
-      case 'TESTLINK':
-        this.initTestLinkData();
-        break;
-      default:
-        break;
-    }
+  getCurrentTestExecutionUrl(label: string): string {
+    let testExecUrl: string =
+      document.location.origin +
+      '/#/external/project/' +
+      this.exTJob.exProject.id +
+      '/tjob/' +
+      this.exTJob.id +
+      '/case/' +
+      this.currentExternalTestExecution.exTestCase.id +
+      '/exec/' +
+      this.currentExternalTestExecution.id;
+    testExecUrl = ' <p><strong>' + label + ' </strong><a href="' + testExecUrl + '">' + testExecUrl + '</a></p>';
+    return testExecUrl;
   }
 
   /**********************/
@@ -89,7 +107,6 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
         (build: BuildModel) => {
           this.data = {
             build: build,
-            additionalNotes: this.tJobExecUrl,
           };
           // Load First TCase
           this.loadNextTestLinkCase();
@@ -129,13 +146,15 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
 
   startTestLinkTestCaseExecution(testCaseId: string): void {
     let build: BuildModel = this.data.build;
+    let additionalNotes: string = this.getCurrentTestExecutionUrl('Test Case Execution:');
+    additionalNotes += this.tJobExecUrl;
     this.testLinkService.getBuildTestCaseById(build.id, testCaseId).subscribe(
       (testCase: TLTestCaseModel) => {
         // New object to detect on changes
         this.data = {
           testCase: testCase,
           build: build,
-          additionalNotes: this.tJobExecUrl,
+          additionalNotes: additionalNotes,
         };
       },
       (error) => console.log(error),
