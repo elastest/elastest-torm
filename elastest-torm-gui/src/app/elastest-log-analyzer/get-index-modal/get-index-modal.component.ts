@@ -1,4 +1,4 @@
-import { minDate, maxDate } from '../../elastest-log-manager/utils/Utils';
+import { minDate, maxDate } from '../utils/Utils';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
