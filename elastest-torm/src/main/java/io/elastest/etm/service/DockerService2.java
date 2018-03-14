@@ -556,7 +556,7 @@ public class DockerService2 {
 		}
 
 		if (host != null && port > -1) {
-			logger.info("EMS Host to send {} logs from containers: {}. To port {}", type, host, port);
+			logger.info("EMS Host to send logs from {} container: {}. To port {}", type, host, port);
 			return this.getLogConfig(host, port, tagPrefix, tagSuffix, dockerExec);
 		} else {
 			throw new Exception("Error on get EMS Log config");

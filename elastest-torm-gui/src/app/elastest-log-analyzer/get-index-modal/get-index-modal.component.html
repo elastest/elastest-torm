@@ -1,14 +1,15 @@
 <h2 md-dialog-title>Select Executions</h2>
 
 <md-dialog-content>
-  <div layout="column" layout-gt-sm="row" class="pad-right pad-bottom">
+  <div *ngIf="testLinkStarted" layout="column" layout-gt-sm="row" class="pad-right pad-bottom">
     <md-radio-group #typeRadioGroup (change)="changeType(internalType.checked ? 'internal' : 'external')">
       <md-radio-button #internalType name="internalType" value="internalSelected" [checked]="internalSelected" class="push-right">
         Internal
       </md-radio-button>
 
       <md-radio-button #externalType name="externalType" value="externalSelected" [checked]="externalSelected">
-        External
+        <!-- External -->
+        TestLink
       </md-radio-button>
     </md-radio-group>
   </div>

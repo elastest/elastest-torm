@@ -16,6 +16,7 @@ import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
+import { ConfigurationService } from '../../config/configuration-service.service';
 
 @Component({
   selector: 'get-index-modal',
@@ -23,6 +24,7 @@ import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/ext
   styleUrls: ['./get-index-modal.component.scss'],
 })
 export class GetIndexModalComponent implements OnInit {
+  public testLinkStarted: boolean = false;
   public abstractProjects: AbstractProjectModel[] = [];
   public selectedProject: AbstractProjectModel;
 
@@ -59,10 +61,12 @@ export class GetIndexModalComponent implements OnInit {
     private tJobExecService: TJobExecService,
     private externalService: ExternalService,
     private dialogRef: MdDialogRef<GetIndexModalComponent>,
+    private configService: ConfigurationService,
     @Optional()
     @Inject(MD_DIALOG_DATA)
     public fromExec: any,
   ) {
+    this.testLinkStarted = this.configService.configModel.testLinkStarted;
     this.init();
     if (fromExec) {
       if (fromExec.type === 'normal') {
