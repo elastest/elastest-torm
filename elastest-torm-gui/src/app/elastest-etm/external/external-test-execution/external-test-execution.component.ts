@@ -49,7 +49,6 @@ export class ExternalTestExecutionComponent implements OnInit {
     this.externalService.getExternalTestExecById(this.exTestExecId).subscribe(
       (exTestExec: ExternalTestExecutionModel) => {
         this.exTestExec = exTestExec;
-        this.titlesService.setTopTitle(exTestExec.getRouteString());
         this.exTestCase = this.exTestExec.exTestCase;
         this.serviceType = this.exTestExec.getServiceType();
 

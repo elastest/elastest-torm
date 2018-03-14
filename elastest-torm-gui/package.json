@@ -3,7 +3,11 @@
   "version": "0.5.1-SNAPSHOT",
   "private": true,
   "description": "ElasTest TORM GUI",
-  "keywords": ["angular", "components", "reusable"],
+  "keywords": [
+    "angular",
+    "components",
+    "reusable"
+  ],
   "scripts": {
     "e2e": "ng e2e",
     "lint": "ng lint",
