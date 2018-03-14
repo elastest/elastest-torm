@@ -76,7 +76,6 @@ import { GetIndexModalComponent } from './elastest-log-analyzer/get-index-modal/
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
 import { AgGridModule } from 'ag-grid-angular/main';
 import { TreeModule } from 'angular-tree-component';
-import { ExecutionModalComponent } from './elastest-log-manager/execution-modal/execution-modal.component';
 
 import { HelpComponent } from './elastest-etm/help/help.component';
 import { ShowMessageModalComponent } from './elastest-log-analyzer/show-message-modal/show-message-modal.component';
@@ -147,7 +146,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TJobExecsManagerComponent,
     GetIndexModalComponent,
     ElastestLogAnalyzerComponent,
-    ExecutionModalComponent,
     MonitoringConfigurationComponent,
     HelpComponent,
     ShowMessageModalComponent,
@@ -259,7 +257,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     RunTJobModalComponent,
     GetIndexModalComponent,
     ShowMessageModalComponent,
-    ExecutionModalComponent,
     ExecuteCaseModalComponent,
     MonitoringConfigurationComponent,
   ],

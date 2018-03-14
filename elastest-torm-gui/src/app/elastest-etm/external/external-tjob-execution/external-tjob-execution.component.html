@@ -5,7 +5,7 @@
         <div layout="row" layout-align="space-between end">
           <span>
             <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
-              title="{{exTJobExec.result}}">
+              mdTooltip="{{exTJobExec.result}}">
               {{exTJobExec.getResultIcon().name}}</md-icon>
           </span>
           <a *ngIf="exTJob && exTJobExec" class="normalTextLink">

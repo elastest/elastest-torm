@@ -33,7 +33,6 @@ import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
 import { UsersFormComponent } from './users/form/form.component';
-import { ElastestLogManagerComponent } from './elastest-log-manager/elastest-log-manager.component';
 import { RefreshComponent } from './shared/refresh/refresh.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
@@ -223,10 +222,6 @@ const routes: Routes = [
       {
         path: 'service-gui',
         component: ServiceGuiComponent,
-      },
-      {
-        path: 'logmanager',
-        component: ElastestLogManagerComponent,
       },
       {
         path: 'loganalyzer',
@@ -565,7 +560,6 @@ export const routedComponents: any[] = [
   TjobExecManagerComponent,
   SutFormComponent,
   ElastestEusComponent,
-  ElastestLogManagerComponent,
   InstancesManagerComponent,
   ServiceGuiComponent,
   ServiceDetailComponent,

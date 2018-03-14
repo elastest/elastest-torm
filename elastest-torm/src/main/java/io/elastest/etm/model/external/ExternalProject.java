@@ -32,161 +32,154 @@ import io.elastest.etm.model.external.ExternalTestExecution.ExternalTestExecutio
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "externalId", "externalSystemId" }) })
 public class ExternalProject implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public interface ExternalProjectView {
-    }
+	public interface ExternalProjectView {
+	}
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class,
-            SutView.class })
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    @JsonProperty("id")
-    private Long id = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
+			ExternalTestCaseView.class, ExternalTestExecutionView.class, SutView.class })
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
+	@JsonProperty("id")
+	private Long id = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class,
-            SutView.class })
-    @Column(name = "name")
-    @JsonProperty("name")
-    private String name = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class, SutView.class })
+	@Column(name = "name")
+	@JsonProperty("name")
+	private String name = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class,
-            SutView.class })
-    @Column(name = "type")
-    @JsonProperty("type")
-    private TypeEnum type = null;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class, SutView.class })
+	@Column(name = "type")
+	@JsonProperty("type")
+	private TypeEnum type = null;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class,
-            SutView.class })
-    @Column(name = "externalId")
-    @JsonProperty("externalId")
-    private String externalId;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class, SutView.class })
+	@Column(name = "externalId")
+	@JsonProperty("externalId")
+	private String externalId;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTestCaseView.class, ExternalTestExecutionView.class,
-            SutView.class })
-    @Column(name = "externalSystemId")
-    @JsonProperty("externalSystemId")
-    private String externalSystemId;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,
+			ExternalTestExecutionView.class, SutView.class })
+	@Column(name = "externalSystemId")
+	@JsonProperty("externalSystemId")
+	private String externalSystemId;
 
-    @JsonView({ ExternalProjectView.class })
-    @JsonProperty("exTJobs")
-    @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    // @JsonIgnoreProperties(value = { "exProject" })
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<ExternalTJob> exTJobs;
+	@JsonView({ ExternalProjectView.class })
+	@JsonProperty("exTJobs")
+	@OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	// @JsonIgnoreProperties(value = { "exProject" })
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<ExternalTJob> exTJobs;
 
-    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
-            ExternalTestExecutionView.class })
-    @JsonProperty("suts")
-    @OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    // @JsonIgnoreProperties(value = { "exProject","project" })
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<SutSpecification> suts;
+	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
+			ExternalTestCaseView.class, ExternalTestExecutionView.class })
+	@JsonProperty("suts")
+	@OneToMany(mappedBy = "exProject", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	// @JsonIgnoreProperties(value = { "exProject","project" })
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<SutSpecification> suts;
 
-    /* **************************/
-    /* ***** Constructors *******/
-    /* **************************/
+	/* **************************/
+	/* ***** Constructors *******/
+	/* **************************/
 
-    public ExternalProject() {
-    }
+	public ExternalProject() {
+	}
 
-    public ExternalProject(Long id) {
-        this.id = id == null ? 0 : id;
-    }
+	public ExternalProject(Long id) {
+		this.id = id == null ? 0 : id;
+	}
 
-    public enum TypeEnum {
-        TESTLINK("TESTLINK");
+	public enum TypeEnum {
+		TESTLINK("TESTLINK");
 
-        private String value;
+		private String value;
 
-        TypeEnum(String value) {
-            this.value = value;
-        }
+		TypeEnum(String value) {
+			this.value = value;
+		}
 
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
 
-        @JsonCreator
-        public static TypeEnum fromValue(String text) {
-            for (TypeEnum b : TypeEnum.values()) {
-                if (String.valueOf(b.value).equals(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
-    }
+		@JsonCreator
+		public static TypeEnum fromValue(String text) {
+			for (TypeEnum b : TypeEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
 
-    /* *****************************/
-    /* ***** Getters/Setters *******/
-    /* *****************************/
+	/* *****************************/
+	/* ***** Getters/Setters *******/
+	/* *****************************/
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id == null ? 0 : id;
-    }
+	public void setId(Long id) {
+		this.id = id == null ? 0 : id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public TypeEnum getType() {
-        return type;
-    }
+	public TypeEnum getType() {
+		return type;
+	}
 
-    public void setType(TypeEnum type) {
-        this.type = type;
-    }
+	public void setType(TypeEnum type) {
+		this.type = type;
+	}
 
-    public String getExternalId() {
-        return externalId;
-    }
+	public String getExternalId() {
+		return externalId;
+	}
 
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
 
-    public String getExternalSystemId() {
-        return externalSystemId;
-    }
+	public String getExternalSystemId() {
+		return externalSystemId;
+	}
 
-    public void setExternalSystemId(String externalSystemId) {
-        this.externalSystemId = externalSystemId;
-    }
+	public void setExternalSystemId(String externalSystemId) {
+		this.externalSystemId = externalSystemId;
+	}
 
-    public List<ExternalTJob> getExTJobs() {
-        return exTJobs;
-    }
+	public List<ExternalTJob> getExTJobs() {
+		return exTJobs;
+	}
 
-    public void setExTJobs(List<ExternalTJob> exTJobs) {
-        this.exTJobs = exTJobs;
-    }
+	public void setExTJobs(List<ExternalTJob> exTJobs) {
+		this.exTJobs = exTJobs;
+	}
 
-    public List<SutSpecification> getSuts() {
-        return suts;
-    }
+	public List<SutSpecification> getSuts() {
+		return suts;
+	}
 
-    public void setSuts(List<SutSpecification> suts) {
-        this.suts = suts;
-    }
+	public void setSuts(List<SutSpecification> suts) {
+		this.suts = suts;
+	}
 }

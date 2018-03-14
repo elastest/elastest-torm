@@ -230,7 +230,7 @@ public interface TestLinkApi extends EtmApiRoot {
 			@ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
 			@ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body);
 
-	@ApiOperation(value = "Returns the Test Cases of a Build", notes = "Returnsthe Test Cases of a Build", response = TestCase.class, responseContainer = "List", tags = {
+	@ApiOperation(value = "Returns the Test Cases of a Build", notes = "Returns the Test Cases of a Build", response = TestCase.class, responseContainer = "List", tags = {
 			"TestLink", })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
@@ -239,6 +239,16 @@ public interface TestLinkApi extends EtmApiRoot {
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<TestCase[]> getBuildTestCases(
 			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId);
+
+	@ApiOperation(value = "Returns specific Test Case of a Build", notes = "Returns specific Test Case of a Build", response = TestCase.class, tags = {
+			"TestLink", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
+			@ApiResponse(code = 404, message = "Resources not found") })
+	@RequestMapping(value = "/testlink/project/plan/build/{buildId}/case/{caseId}", produces = {
+			"application/json" }, method = RequestMethod.GET)
+	ResponseEntity<TestCase> getBuildTestCaseById(
+			@ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
+			@ApiParam(value = "Id of the Test Case.", required = true) @PathVariable("caseId") Integer caseId);
 
 	/* ***********************************************************************/
 	/* ***************************** Executions ******************************/

@@ -13,7 +13,7 @@
         <td-expansion-panel expand="false">
           <!-- Header -->
           <ng-template td-expansion-panel-header>
-            <div layout="row" class="pad-top-sm pad-left-sm">
+            <div layout="row" class="pad-top-sm pad-left-sm" [routerLink]="['/external/project/',exTestExec.exTJobExec.exTJob.exProject.id,'tjob',exTJobExec.exTJob.id,'case',exTestExec.exTestCase.id, 'exec',exTestExec.id]">
               <span class="centeredStatusIconSpan pad-right-sm">
                 <md-icon [style.color]="exTestExec.getResultIcon().color">{{exTestExec.getResultIcon().name}}</md-icon>
               </span>
@@ -25,11 +25,11 @@
               </span>
               <span flex-gt-xs="10">
                 <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
-                <h4>{{exTestExec.startDate}}</h4>
+                <h4>{{exTestExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</h4>
               </span>
               <span flex-gt-xs="10">
                 <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
-                <h4>{{exTestExec.endDate}}</h4>
+                <h4>{{exTestExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</h4>
               </span>
             </div>
           </ng-template>

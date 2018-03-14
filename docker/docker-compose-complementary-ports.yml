@@ -3,3 +3,5 @@ services:
     etm-logstash:        
         ports:
             - 5000:5000
+            - 5037:5037
+            - 5044:5044

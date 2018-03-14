@@ -53,7 +53,7 @@
               [selectable]="false" [clickable]="false" [sortable]="false">
               <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                 <div *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'" class="hover-pointer lineHeightNormal textCell"
-                  title="{{value}}">
+                  mdTooltip="{{value}}">
                   {{value}}
                 </div>
               </ng-template>

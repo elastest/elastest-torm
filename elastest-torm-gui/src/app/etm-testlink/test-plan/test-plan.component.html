@@ -12,11 +12,9 @@
             </button>
             <button md-raised-button color="accent" [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', exTJob.id, 'exec','new']"
               title="Run Test Plan" [disabled]="testPlanCases.length === 0">
+              <md-icon>play_circle_outline</md-icon>
               Execute Test
             </button>
-            <!--<button md-button (click)="deletePlan()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Plan">
-                <md-icon>delete</md-icon>
-              </button> -->
           </div>
 
         </div>

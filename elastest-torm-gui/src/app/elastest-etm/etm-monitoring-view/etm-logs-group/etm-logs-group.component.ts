@@ -128,9 +128,9 @@ export class EtmLogsGroupComponent implements OnInit {
     this.groupedLogsList = this.createGroupedArray(this.logsList, defaultGroupNum);
   }
 
-  createGroupedArray(arr, chunkSize): any {
-    let groups = [],
-      i;
+  createGroupedArray(arr: ESRabLogModel[], chunkSize: number): ESRabLogModel[][] {
+    let groups: ESRabLogModel[][] = [];
+    let i: number = 0;
     for (i = 0; i < arr.length; i += chunkSize) {
       groups.push(arr.slice(i, i + chunkSize));
     }

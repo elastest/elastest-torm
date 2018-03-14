@@ -6,7 +6,7 @@ import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitorin
 import { TJobModel } from '../tjob/tjob-model';
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription, Observable } from 'rxjs/Rx';
 
 import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
 import { ESRabLogModel } from '../../shared/logs-view/models/es-rab-log-model';
@@ -43,6 +43,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   disableStopBtn: boolean = false;
 
+  checkResultSubscription: Subscription;
+  checkTSSInstancesSubscription: Subscription;
+
   constructor(
     private titlesService: TitlesService,
     private tJobService: TJobService,
@@ -70,6 +73,12 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.loadTJobExec();
   }
 
+  ngOnDestroy() {
+    this.elastestRabbitmqService.unsubscribeWSDestination();
+    this.unsubscribeCheckResult();
+    this.unsubscribeCheckTssInstances();
+  }
+
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
@@ -84,9 +93,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
           this.checkResultStatus();
           this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
           if (tJobExec) {
-            setTimeout(() => {
-              this.getSupportServicesInstances();
-            }, 0);
+            this.getSupportServicesInstances();
           }
           this.logsAndMetrics.initView(tJob, this.tJobExec);
           if (!this.tJobExec.starting()) {
@@ -104,41 +111,59 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   getSupportServicesInstances(): void {
-    this.esmService
-      .getSupportServicesInstancesByTJobExec(this.tJobExec)
-      .subscribe((serviceInstances: EsmServiceInstanceModel[]) => {
-        if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
-          this.serviceInstances = [...serviceInstances];
-        } else {
-          setTimeout(() => {
-            this.getSupportServicesInstances();
-          }, 2000);
-        }
+    let timer: Observable<number> = Observable.interval(2200);
+    if (this.checkTSSInstancesSubscription === null || this.checkTSSInstancesSubscription === undefined) {
+      this.checkTSSInstancesSubscription = timer.subscribe(() => {
+        this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec).subscribe(
+          (serviceInstances: EsmServiceInstanceModel[]) => {
+            if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
+              this.unsubscribeCheckTssInstances();
+              this.serviceInstances = [...serviceInstances];
+            }
+          },
+          (error) => console.log(error),
+        );
       });
+    }
   }
 
-  ngOnDestroy() {
-    this.elastestRabbitmqService.unsubscribeWSDestination();
+  unsubscribeCheckTssInstances(): void {
+    if (this.checkTSSInstancesSubscription !== undefined) {
+      this.checkTSSInstancesSubscription.unsubscribe();
+      this.checkTSSInstancesSubscription = undefined;
+    }
   }
 
   checkResultStatus(): void {
-    this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe((data) => {
-      this.tJobExec.result = data.result;
-      this.tJobExec.resultMsg = data.msg;
-      if (this.tJobExec.finished()) {
-        this.tJobExecService
-          .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-          .subscribe((finishedTJobExec: TJobExecModel) => {
-            this.tJobExec = finishedTJobExec;
-            this.statusIcon = this.tJobExec.getResultIcon();
-          });
-        console.log('TJob Execution Finished with status ' + this.tJobExec.result);
-      } else {
-        setTimeout(() => {
-          this.checkResultStatus();
-        }, 2000);
-      }
-    });
+    let timer: Observable<number> = Observable.interval(2200);
+    if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
+      this.checkResultSubscription = timer.subscribe(() => {
+        this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
+          (data) => {
+            this.tJobExec.result = data.result;
+            this.tJobExec.resultMsg = data.msg;
+            if (this.tJobExec.finished()) {
+              this.unsubscribeCheckResult();
+              this.tJobExecService
+                .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+                .subscribe((finishedTJobExec: TJobExecModel) => {
+                  this.tJobExec = finishedTJobExec;
+                  this.statusIcon = this.tJobExec.getResultIcon();
+                });
+              this.elastestESService.popupService.openSnackBar('TJob Execution Finished with status ' + this.tJobExec.result);
+            }
+          },
+          (error) => console.log(error),
+        );
+      });
+    }
+  }
+
+  unsubscribeCheckResult(): void {
+    if (this.checkResultSubscription !== undefined) {
+      this.checkResultSubscription.unsubscribe();
+      this.checkResultSubscription = undefined;
+    }
   }
 
   viewTJob(): void {

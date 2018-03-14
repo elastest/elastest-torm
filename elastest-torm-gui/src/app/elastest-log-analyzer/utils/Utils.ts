@@ -16,12 +16,19 @@
  */
 
 export function dateToInputLiteral(date: Date): string {
-  return date.getUTCFullYear() + '-' +
-    pad(date.getUTCMonth() + 1, 2) + '-' +
-    pad(date.getUTCDate(), 2) + 'T' +
-    pad(date.getUTCHours(), 2) + ':' +
-    pad(date.getMinutes(), 2) + ':' +
-    pad(date.getSeconds(), 2);
+  return (
+    date.getUTCFullYear() +
+    '-' +
+    pad(date.getUTCMonth() + 1, 2) +
+    '-' +
+    pad(date.getUTCDate(), 2) +
+    'T' +
+    pad(date.getUTCHours(), 2) +
+    ':' +
+    pad(date.getMinutes(), 2) +
+    ':' +
+    pad(date.getSeconds(), 2)
+  );
 }
 
 function pad(n: any, width: number, z?: string) {
@@ -45,9 +52,7 @@ export function invertColor(hex: string, bw: boolean = false): string {
   let g: any = parseInt(hex.slice(2, 4), 16);
   let b: any = parseInt(hex.slice(4, 6), 16);
   if (bw) {
-    return (r * 0.299 + g * 0.587 + b * 0.114) > 186
-      ? '#000000'
-      : '#FFFFFF';
+    return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
   }
   // invert color components
   r = (255 - r).toString(16);
@@ -55,6 +60,34 @@ export function invertColor(hex: string, bw: boolean = false): string {
   b = (255 - b).toString(16);
   // pad each with zeros and return
   return '#' + padZero(r) + padZero(g) + padZero(b);
+}
+
+export function minDate(date1: Date, date2: Date): Date {
+  if (date1 === undefined) {
+    return date2;
+  }
+
+  if (date2 === undefined) {
+    return date1;
+  }
+
+  let min: Date;
+  date1 > date2 ? (min = date2) : (min = date1);
+  return min;
+}
+
+export function maxDate(date1: Date, date2: Date): Date {
+  if (date1 === undefined) {
+    return date2;
+  }
+
+  if (date2 === undefined) {
+    return date1;
+  }
+
+  let max: Date;
+  date1 < date2 ? (max = date2) : (max = date1);
+  return max;
 }
 
 function padZero(str: string, len?: number): string {

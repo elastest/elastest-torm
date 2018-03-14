@@ -90,13 +90,15 @@ public class ExternalService {
 	private final EsmService esmService;
 	private ElasticsearchService elasticsearchService;
 	private EtmContextService etmContextService;
+	private LogstashService logstashService;
 
 	public ExternalService(UtilTools utilTools, ProjectService projectService, TJobService tJobService,
 			ExternalProjectRepository externalProjectRepository, ExternalTestCaseRepository externalTestCaseRepository,
 			ExternalTestExecutionRepository externalTestExecutionRepository,
 			ExternalTJobRepository externalTJobRepository,
 			ExternalTJobExecutionRepository externalTJobExecutionRepository, EsmService esmService,
-			ElasticsearchService elasticsearchService, EtmContextService etmContextService) {
+			ElasticsearchService elasticsearchService, EtmContextService etmContextService,
+			LogstashService logstashService) {
 		super();
 		this.utilTools = utilTools;
 		this.projectService = projectService;
@@ -110,6 +112,7 @@ public class ExternalService {
 		this.esmService = esmService;
 		this.elasticsearchService = elasticsearchService;
 		this.etmContextService = etmContextService;
+		this.logstashService = logstashService;
 	}
 
 	public ExternalJob executeExternalTJob(ExternalJob externalJob) throws Exception {
@@ -445,12 +448,14 @@ public class ExternalService {
 	}
 
 	public ExternalTestExecution createExternalTestExecution(ExternalTestExecution exec) {
+		this.logstashService.sendStartTestLogtrace(exec.getTestMonitoringIndex(), exec.getExTestCase().getName());
 		return this.externalTestExecutionRepository.save(exec);
 	}
 
-	public ExternalTestExecution modifyExternalTestExecution(ExternalTestExecution externalTestExec) {
-		if (externalTestExecutionRepository.findOne(externalTestExec.getId()) != null) {
-			return externalTestExecutionRepository.save(externalTestExec);
+	public ExternalTestExecution modifyExternalTestExecution(ExternalTestExecution exec) {
+		if (externalTestExecutionRepository.findOne(exec.getId()) != null) {
+			this.logstashService.sendFinishTestLogtrace(exec.getTestMonitoringIndex(), exec.getExTestCase().getName());
+			return externalTestExecutionRepository.save(exec);
 		} else {
 			throw new HTTPException(405);
 		}

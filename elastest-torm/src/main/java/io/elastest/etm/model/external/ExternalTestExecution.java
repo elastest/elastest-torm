@@ -118,6 +118,14 @@ public class ExternalTestExecution implements Serializable {
 		return monitoringIndex;
 	}
 
+	public String getTestMonitoringIndex() {
+		if (monitoringIndex != null) {
+			String testMonitoringIndex = monitoringIndex.split(",")[0];
+			return testMonitoringIndex != null ? testMonitoringIndex : this.getMonitoringIndex();
+		}
+		return this.getMonitoringIndex();
+	}
+
 	public void setMonitoringIndex(String monitoringIndex) {
 		this.monitoringIndex = monitoringIndex;
 	}

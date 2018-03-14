@@ -80,13 +80,13 @@ md-sidenav-container {
     vertical-align: middle;
 }
 
-#logSidenav, #logSidenav md-tab-group, #logManagerForm{
+#logSidenav, #logSidenav md-tab-group, #logAnalyzerForm{
     height: 99%;
     width: 100%;
     margin: 0 !important;
 }
 
-#logManagerForm{
+#logAnalyzerForm{
     position: absolute;
 }
 
@@ -190,7 +190,7 @@ md-sidenav-container {
 }
 
 @media (min-width : 1400px) { //TODO not working
-    :host /deep/ .mat-tab-body-content:has(> #logManagerForm){
+    :host /deep/ .mat-tab-body-content:has(> #logAnalyzerForm){
         overflow-x: hidden !important;
     }
 }

@@ -83,10 +83,10 @@ public class EtmContextAuxService {
 		contextInfo.setLogstashHttpPort(etEtmLsHttpPort);
 
 		String logstashHost = dockerService.getContainerIpByNetwork(etEtmLogstashContainerName, elastestNetwork);
+		String proxyIp = etPublicHost;
+		String proxyPort = etProxyPort;
+		String proxySslPort = etProxySSLPort;
 		if (etInProd) {
-			String proxyIp = etPublicHost;
-			String proxyPort = etProxyPort;
-			String proxySslPort = etProxySSLPort;
 			if ("localhost".equals(etPublicHost)) {
 				try {
 					proxyIp = UtilTools.doPing(etProxyHost);
@@ -95,20 +95,17 @@ public class EtmContextAuxService {
 				} catch (Exception e) {
 				}
 			}
-			contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort + etEtmLogstashPathWithProxy);
-			contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":" + proxySslPort + etEtmLogstashPathWithProxy);
-
-			contextInfo.setLogstashIp(logstashHost);
-
-			contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
-			contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + etProxyPort + etEtmElasticsearchPathWithProxy);
 		} else {
-			contextInfo.setLogstashHttpUrl(etEtmLsHttpApi);
-			contextInfo.setLogstashSSLHttpUrl(
-					"https://" + etPublicHost + ":" + etProxySSLPort + etEtmLogstashPathWithProxy);
-			contextInfo.setLogstashIp(logstashHost);
-			contextInfo.setElasticSearchUrl(etEdmElasticsearchApi);
+			proxyIp = dockerService.getHostIpByNetwork(elastestNetwork);
 		}
+
+		contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort + etEtmLogstashPathWithProxy);
+		contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":" + proxySslPort + etEtmLogstashPathWithProxy);
+
+		contextInfo.setLogstashIp(logstashHost);
+
+		contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
+		contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + proxyPort + etEtmElasticsearchPathWithProxy);
 
 		contextInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
 		contextInfo.setElasTestExecMode(execMode);

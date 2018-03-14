@@ -100,4 +100,16 @@ export class ExternalTestExecutionModel {
     };
     this.fields = JSON.stringify(fieldsObj);
   }
+
+  public getRouteString(): string {
+    return this.exTestCase.getRouteString() + ' / Execution ' + this.id;
+  }
+
+  getServiceType(): ServiceType {
+    let type: ServiceType;
+    if (this.exTestCase !== undefined) {
+      type = this.exTestCase.getServiceType();
+    }
+    return type;
+  }
 }

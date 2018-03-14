@@ -6,10 +6,16 @@ export class AbstractTJobExecModel {
   monitoringIndex: string;
   result: string;
   resultMsg: string;
+  startDate: Date;
+  endDate: Date;
 
   constructor() {
     this.id = 0;
     this.monitoringIndex = '';
+    this.result = '';
+    this.resultMsg = '';
+    this.startDate = undefined;
+    this.endDate = undefined;
   }
 
   getTJobIndex(): string {

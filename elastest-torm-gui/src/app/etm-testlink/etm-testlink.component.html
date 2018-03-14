@@ -4,30 +4,20 @@
             <md-card>
                 <md-card-title>
                     <div layout="row">
-                        <span>TestLink Info</span>
+                        <span>TestLink</span>
+                        <a href="{{testLinkUrl}}" class="iconBtn" target="_blank" mdTooltip="Open TestLink in new tab">
+                            <md-icon color="accent">open_in_new</md-icon>
+                        </a>
                         <span flex></span>
-                        <button md-icon-button color="accent" (click)="syncTestLink()" title="Sync data with ElasTest" [disabled]="disableBtns">
+                        <button md-icon-button color="accent" (click)="syncTestLink()" mdTooltip="Sync data with ElasTest" [disabled]="disableBtns">
                             <md-icon>sync</md-icon>
                         </button>
                     </div>
                 </md-card-title>
+
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">
-                    <a title="TestLink url to use" href="{{testLinkUrl}}" target="_blank">Ir a TestLink</a>
-                </md-card-content>
-            </md-card>
-        </div>
-        <div flex-gt-sm="100">
-            <md-card>
-                <md-card-title>
-                    <div layout="row">
-                        <span>Test Projects</span>
-                        <span flex></span>
-                        <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects/new']">New Test Project</button> -->
-                    </div>
-                </md-card-title>
-                <md-divider></md-divider>
-                <md-card-content class="push-bottom-none">
+                    <div class="md-title push-bottom-sm">Test Projects</div>
                     <div *ngIf="projectsList.length === 0" class="push-top-md messageEmptyCard">
                         <md-icon>assignment</md-icon>
                         <p>No Test Projects created</p>

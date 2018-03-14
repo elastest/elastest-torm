@@ -102,7 +102,6 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
       this.tJob.commands = '';
     }
     this.tJob.esmServices = this.esmServicesCatalog;
-    console.log(this.tJob.esmServices);
     console.log('Services ' + JSON.stringify(this.tJob.esmServices));
 
     this.tJobService.createTJob(this.tJob, this.action).subscribe((tJob) => this.postSave(tJob), (error) => console.log(error));
