@@ -282,7 +282,16 @@ public class DockerService2 {
 		}
 
 		// Load Log Config
-		LogConfig logConfig = getLogConfig(logPort, prefix, suffix, dockerExec);
+		LogConfig logConfig = null;
+		if (tJob.isSelectedService("ems")) {
+			try {
+				logConfig = getEMSLogConfig(type, prefix, suffix, dockerExec);
+			} catch (Exception e) {
+				logger.error("", e);
+			}
+		} else {
+			logConfig = getDefaultLogConfig(logPort, prefix, suffix, dockerExec);
+		}
 
 		// Pull Image
 		this.pullETExecImage(image, type);
@@ -513,14 +522,10 @@ public class DockerService2 {
 		}
 	}
 
-	public LogConfig getLogConfig(int port, String tagPrefix, String tagSuffix, DockerExecution dockerExec) {
-
-		logstashHost = getContainerIpByNetwork(etEtmLogstashContainerName, elastestNetwork);
-
-		logger.info("Logstash Host to send logs from containers: {}. To port {}", logstashHost, port);
-
+	public LogConfig getLogConfig(String host, int port, String tagPrefix, String tagSuffix,
+			DockerExecution dockerExec) {
 		Map<String, String> configMap = new HashMap<String, String>();
-		configMap.put("syslog-address", "tcp://" + logstashHost + ":" + port);
+		configMap.put("syslog-address", "tcp://" + host + ":" + port);
 		configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_" + tagSuffix + "_exec");
 
 		LogConfig logConfig = new LogConfig();
@@ -528,6 +533,34 @@ public class DockerService2 {
 		logConfig.setConfig(configMap);
 
 		return logConfig;
+	}
+
+	public LogConfig getDefaultLogConfig(int port, String tagPrefix, String tagSuffix, DockerExecution dockerExec) {
+		logstashHost = getContainerIpByNetwork(etEtmLogstashContainerName, elastestNetwork);
+		logger.info("Logstash Host to send logs from containers: {}. To port {}", logstashHost, port);
+
+		return this.getLogConfig(logstashHost, port, tagPrefix, tagSuffix, dockerExec);
+	}
+
+	public LogConfig getEMSLogConfig(String type, String tagPrefix, String tagSuffix, DockerExecution dockerExec)
+			throws Exception {
+		TJobExecution tJobExec = dockerExec.gettJobexec();
+		String host = null;
+		int port = -1;
+		if ("tjob".equals(type.toLowerCase())) {
+			host = tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_HOST");
+			port = Integer.parseInt(tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_PORT"));
+		} else if ("sut".equals(type.toLowerCase())) {
+			host = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
+			port = Integer.parseInt(tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT"));
+		}
+
+		if (host != null && port > -1) {
+			logger.info("EMS Host to send {} logs from containers: {}. To port {}", type, host, port);
+			return this.getLogConfig(host, port, tagPrefix, tagSuffix, dockerExec);
+		} else {
+			throw new Exception("Error on get EMS Log config");
+		}
 	}
 
 	/*********************************/
