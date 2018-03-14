@@ -26,7 +26,7 @@ export class HelpComponent implements OnInit {
   constructor(private titlesService: TitlesService, private configurationService: ConfigurationService) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('Help');
+    this.titlesService.setHeadTitle('Help');
     this.configurationService.getHelpInfo()
       .subscribe(
       (helpInfo) => {

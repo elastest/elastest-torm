@@ -69,7 +69,7 @@ export class TLTestSuiteComponent implements OnInit {
         return this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId'])
       }).subscribe((suite: TLTestSuiteModel) => {
         this.testSuite = suite;
-        this.titlesService.setTopTitle(this.testSuite.getRouteString());
+        this.titlesService.setPathName(this.router.routerState.snapshot.url);
         this.loadTestCases();
       });
     }

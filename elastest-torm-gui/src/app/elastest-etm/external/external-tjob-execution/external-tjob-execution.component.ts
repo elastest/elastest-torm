@@ -58,7 +58,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
       this.exTJobExec = exTJobExec;
 
       // this.statusIcon = this.exTJobExec.getResultIcon();
-      this.titlesService.setTopTitle(exTJobExec.getRouteString());
+      //this.titlesService.setPathName( this.router.routerState.snapshot.url);
 
       this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
         (exTestExecs: ExternalTestExecutionModel[]) => {

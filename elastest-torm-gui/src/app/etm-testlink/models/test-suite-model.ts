@@ -15,7 +15,7 @@ export class TLTestSuiteModel {
     }
 
     public getRouteString(): string {
-        return 'TestLink ' + ' / TestSuite ' + this.name;
+        return 'TestSuite ' + this.name;
     }
 }
 

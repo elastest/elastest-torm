@@ -58,7 +58,7 @@ export class TestCaseExecsComponent implements OnInit {
       )
         .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
-          this.titlesService.setTopTitle(this.testCase.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
           this.loadExecs();
         });

@@ -65,7 +65,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this.isNested) {
-      this.titlesService.setHeadAndTopTitle('Web Browsers');
+      this.titlesService.setHeadTitle('Web Browsers');
     }
     if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
       console.log("Uses data from backend.");

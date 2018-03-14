@@ -44,13 +44,7 @@ export class SutModel {
   }
 
   public getRouteString(): string {
-    let routeStr: string = ' / SuT / ' + this.name;
-    if (this.project) {
-      routeStr = this.project.getRouteString() + routeStr;
-    } else if (this.exProject) {
-      routeStr = this.exProject.getRouteString() + routeStr;
-    }
-    return routeStr;
+    return this.name;
   }
 
   public isManaged(): boolean {

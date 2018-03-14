@@ -68,7 +68,7 @@ export class TestProjectComponent implements OnInit {
         .switchMap((params: Params) => this.testLinkService.getProjectById(params['projectId']))
         .subscribe((project: TestProjectModel) => {
           this.testProject = project;
-          this.titlesService.setTopTitle(this.testProject.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
           this.loadTestSuites();
           this.loadTestPlans();
           this.loadExternalProject();

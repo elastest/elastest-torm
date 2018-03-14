@@ -16,7 +16,7 @@ export class TJobsManagerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('TJobs');
+    this.titlesService.setHeadTitle('TJobs');
   }
 
 

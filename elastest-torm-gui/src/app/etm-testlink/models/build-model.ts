@@ -10,6 +10,6 @@ export class BuildModel {
 
 
     public getRouteString(): string {
-        return 'TestLink ' + ' / Build ' + this.name;
+        return 'Build ' + this.name;
     }
 }

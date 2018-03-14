@@ -62,7 +62,7 @@ export class TjobManagerComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
         .subscribe((tJob: TJobModel) => {
           this.tJob = tJob;
-          this.titlesService.setTopTitle(tJob.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }

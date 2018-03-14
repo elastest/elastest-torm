@@ -18,6 +18,6 @@ export class TestCaseExecutionModel {
   }
 
   public getRouteString(): string {
-    return 'TestLink ' + ' / TestCase Execution ' + this.id;
+    return 'Execution: ' + this.id;
   }
 }

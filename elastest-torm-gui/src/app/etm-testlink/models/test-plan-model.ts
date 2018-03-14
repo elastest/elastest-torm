@@ -11,6 +11,6 @@ export class TestPlanModel {
     }
 
     public getRouteString(): string {
-        return 'TestLink ' + ' / TestPlan ' + this.name;
+        return 'TestPlan ' + this.name;
     }
 }

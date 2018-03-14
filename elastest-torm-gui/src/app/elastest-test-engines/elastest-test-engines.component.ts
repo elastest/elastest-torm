@@ -33,7 +33,7 @@ export class ElastestTestEnginesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('Test Engines');
+    this.titlesService.setHeadTitle('Test Engines');
     this.getTestEngines();
   }
 

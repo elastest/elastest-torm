@@ -58,7 +58,7 @@ export class ProjectManagerComponent implements OnInit {
         .subscribe((project: ProjectModel) => {
           this.project = project;
           this.projectId = project.id.toString();
-          this.titlesService.setTopTitle(this.project.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
         });
     }
   }

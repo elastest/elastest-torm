@@ -15,6 +15,7 @@ import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {Ng2BreadcrumbModule} from 'ng2-breadcrumb/ng2-breadcrumb';
 
 import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
 import { CovalentHighlightModule } from '@covalent/highlight';
@@ -217,6 +218,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     }),
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    Ng2BreadcrumbModule.forRoot()
   ], // modules needed to run this module
   providers: [
     httpInterceptorProviders,

@@ -49,7 +49,7 @@ export class TLTestCaseComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.testLinkService.getTestCaseById(params['caseId']))
         .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
-          this.titlesService.setTopTitle(this.testCase.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
         });
     }
   }

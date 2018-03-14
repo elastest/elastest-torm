@@ -6,7 +6,7 @@ import { SutModel } from '../sut-model';
 import { SutService } from '../sut.service';
 
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
@@ -73,6 +73,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     private titlesService: TitlesService,
     private sutService: SutService,
     private route: ActivatedRoute,
+    private router: Router,
     private projectService: ProjectService,
     private externalService: ExternalService,
     private configurationService: ConfigurationService,
@@ -87,7 +88,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       if (this.currentPath === 'edit') {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId'])).subscribe((sut: SutModel) => {
           this.sut = sut;
-          this.titlesService.setTopTitle(this.sut.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url, "Edit: " + this.sut.getRouteString());
           this.initSutType();
           this.initInstrumentedBy();
           this.initInstrumentalized();
@@ -97,6 +98,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.sutExecIndex = this.sut.getSutESIndex();
         });
       } else if (this.currentPath === 'new') {
+        //this.titlesService.setPathName(this.router.routerState.snapshot.url);
         if (this.route.params !== null || this.route.params !== undefined) {
           // If routing
           this.route.params.subscribe((params: Params) => {

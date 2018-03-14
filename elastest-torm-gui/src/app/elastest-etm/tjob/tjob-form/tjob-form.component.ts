@@ -8,7 +8,7 @@ import { TJobModel } from '../tjob-model';
 import { TJobService } from '../tjob.service';
 
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { SupportServiceConfigModel } from '../../../elastest-esm/support-service.model';
 
@@ -34,6 +34,7 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
     private titlesService: TitlesService,
     private tJobService: TJobService,
     private route: ActivatedRoute,
+    private router: Router,
     private projectService: ProjectService,
     private esmService: EsmService,
   ) {
@@ -41,7 +42,6 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Edit TJob');
     this.init();
   }
 
@@ -61,7 +61,7 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
             .switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
             .subscribe((tJob: TJobModel) => {
               this.tJob = tJob;
-              this.titlesService.setTopTitle(this.tJob.getRouteString());
+              this.titlesService.setPathName(this.router.routerState.snapshot.url, 'Edit: ' + this.tJob.getRouteString());
               this.currentSut = tJob.sut.id > 0 ? tJob.sut.name : 'None';
               this.useImageCommand = !this.tJob.withCommands();
               for (let tJobEsmService of this.tJob.esmServices) {

@@ -3,9 +3,12 @@
     <md-icon>menu</md-icon>
   </button>
   <div td-toolbar-content layout="row" layout-align="center center" flex>
-    <div layout="row" layout-align="start center" class="push-left">
+    <!--<div layout="row" layout-align="start center" class="push-left">
       <span id="topTitle">{{topTitle}}</span>
-    </div>
+    </div>-->
+    <breadcrumb [useBootstrap]="true"></breadcrumb>
+
+    
     <span flex></span>
     <button *ngIf="isReloadable()" md-icon-button mdTooltip="Refresh" (click)="refresh()">
       <md-icon md-list-icon>refresh</md-icon>

@@ -230,7 +230,7 @@ export class ElastestLogManagerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('Log Analyzer');
+    this.titlesService.setHeadTitle('Log Analyzer');
   }
 
   ngAfterViewChecked() {

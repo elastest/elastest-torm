@@ -17,7 +17,7 @@ import { TdMediaService } from '@covalent/core';
 export class EtmComponent implements AfterViewInit, OnInit {
   @ViewChild('manageList') manageList: TdLayoutManageListComponent;
 
-  topTitle: string;
+  //topTitle: string;
   openedMenu: boolean = true;
   enableRefresh: boolean = false;
 
@@ -29,7 +29,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
       this.enableRefresh = true;
     }
-    this.titlesService.setHeadAndTopTitle('ElasTest');
+    this.titlesService.setHeadTitle('ElasTest');
     this.elastestRabbitmqService.configWSConnection();
     this.elastestRabbitmqService.startWsConnection();
   }

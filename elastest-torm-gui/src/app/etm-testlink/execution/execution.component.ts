@@ -36,7 +36,7 @@ export class ExecutionComponent implements OnInit {
         .switchMap((params: Params) => this.testLinkService.getTestExecById(params['caseId'], params['execId']))
         .subscribe((testExec: TestCaseExecutionModel) => {
           this.testExec = testExec;
-          this.titlesService.setTopTitle(this.testExec.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
         });
     }
   }

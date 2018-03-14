@@ -47,7 +47,7 @@ export class EtmTestlinkComponent implements OnInit {
 
   ngOnInit() {
     if (!this.isNested) {
-      this.titlesService.setHeadAndTopTitle('Testlink Projects');
+      this.titlesService.setHeadTitle('Testlink Projects');
     }
     this.loadTestLinkUrl();
     this.loadProjects();

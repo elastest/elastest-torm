@@ -74,7 +74,7 @@ export class BuildComponent implements OnInit {
       )
         .subscribe((build: BuildModel) => {
           this.build = build;
-          this.titlesService.setTopTitle(this.build.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
           this.loadTestCases();
         });

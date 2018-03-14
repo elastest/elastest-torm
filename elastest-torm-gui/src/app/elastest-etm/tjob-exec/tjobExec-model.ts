@@ -40,7 +40,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
   }
 
   public getRouteString(): string {
-    return this.tJob.getRouteString() + ' / Execution ' + this.id;
+    return 'Execution ' + this.id;
   }
 
   public getAbstractTJobExecClass(): string {

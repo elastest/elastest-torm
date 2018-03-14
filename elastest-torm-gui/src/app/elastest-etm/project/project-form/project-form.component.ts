@@ -34,7 +34,7 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
           .switchMap((params: Params) => this.projectService.getProject(params['projectId']))
           .subscribe((project: ProjectModel) => {
             this.project = project;
-            this.titlesService.setTopTitle(this.project.getRouteString());
+            this.titlesService.setPathName(this.router.routerState.snapshot.url, 'Edit: ' + this.project.getRouteString());
           });
       }
     }

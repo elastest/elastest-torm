@@ -39,7 +39,7 @@ export class TLTestCaseModel {
     }
 
     public getRouteString(): string {
-        return 'TestLink ' + ' / TestCase ' + this.name;
+        return 'TestCase ' + this.name;
     }
 
     getImportanceValues(): TestImportanceValue[] {

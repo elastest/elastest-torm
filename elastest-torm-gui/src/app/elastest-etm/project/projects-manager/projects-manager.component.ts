@@ -52,7 +52,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     if (!this.isNested) {
-      this.titlesService.setHeadAndTopTitle('Projects');
+      this.titlesService.setHeadTitle('Projects');
       this.tableStyle = "without_scroll_table";
     } else {
       this.tableStyle = "scroll_table";

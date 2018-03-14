@@ -1,4 +1,4 @@
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { TestProjectModel } from '../../models/test-project-model';
@@ -18,8 +18,9 @@ export class TestProjectFormComponent implements OnInit {
 
   constructor(
     private titlesService: TitlesService,
-    private testlinkService: TestLinkService, private route: ActivatedRoute,
-  ) { }
+    private testlinkService: TestLinkService,
+    private route: ActivatedRoute,
+    private router: Router) { }
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit Test Project');
@@ -30,7 +31,7 @@ export class TestProjectFormComponent implements OnInit {
         this.route.params.switchMap((params: Params) => this.testlinkService.getProjectById(params['projectId']))
           .subscribe((project: TestProjectModel) => {
             this.testProject = project;
-            this.titlesService.setTopTitle(this.testProject.getRouteString());
+            this.titlesService.setPathName(this.router.routerState.snapshot.url);
           });
       }
     }

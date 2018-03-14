@@ -65,7 +65,7 @@ export class TJobModel extends AbstractTJobModel {
   }
 
   public getRouteString(): string {
-    return this.project.getRouteString() + ' / ' + this.name;
+    return this.name;
   }
 
   hasParameters(): boolean {

@@ -44,7 +44,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
-    this.titlesService.setHeadAndTopTitle('Test Support Services');
+    this.titlesService.setHeadTitle('Test Support Services');
     this.loadServiceInstances();
     this.esmService.getSupportServices()
       .subscribe(

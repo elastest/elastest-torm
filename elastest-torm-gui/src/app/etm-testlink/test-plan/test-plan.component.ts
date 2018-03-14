@@ -68,7 +68,7 @@ export class TestPlanComponent implements OnInit {
         })
         .subscribe((plan: TestPlanModel) => {
           this.testPlan = plan;
-          this.titlesService.setTopTitle(this.testPlan.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
           this.loadBuilds();
           this.loadTestCases();
