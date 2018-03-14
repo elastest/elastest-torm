@@ -20,7 +20,7 @@
             <ng-template md-tab-label>
               <md-icon mdTooltip="Filter">tune</md-icon>
             </ng-template>
-            <form #logManagerForm="ngForm" id="logManagerForm">
+            <form #logAnalyzerForm="ngForm" id="logAnalyzerForm">
               <!-- Top Content -->
               <div id="filtersTop" class="pad-xs pad-top-sm" layout="column">
                 <div id="indicesDate" layout="column" class="pad-top-sm">
@@ -95,7 +95,7 @@
                 <div class="" layout="column">
                   <md-input-container class="noMarginInput">
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
-                      placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)">
+                      placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
                   </md-input-container>
                 </div>
               </div>
@@ -108,12 +108,12 @@
                   <div flex="25">
                     <md-input-container class="noMarginInput noPaddingInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                        name="max_results" placeholder="Nº Entries" #logManagerFormElement #logManagerFormControl="ngModel"
-                        (keydown.enter)="verifyAndLoadLog($event, logManagerForm.valid)" required>
+                        name="max_results" placeholder="Nº Entries" #logAnalyzerFormElement #logAnalyzerFormControl="ngModel"
+                        (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)" required>
                     </md-input-container>
                   </div>
                   <div flex="20" id="loadLogButton">
-                    <button md-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logManagerForm.valid || disableBtns">
+                    <button md-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
                       <md-icon>refresh</md-icon>
                       <span *ngIf="logRows.length <= 0">Load log</span>
                       <span *ngIf="logRows.length > 0">Reload log</span>                      
