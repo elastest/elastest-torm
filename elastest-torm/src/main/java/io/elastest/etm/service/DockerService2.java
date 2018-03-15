@@ -269,7 +269,6 @@ public class DockerService2 {
 		// Commands (optional)
 		ArrayList<String> cmdList = new ArrayList<>();
 		if (commands != null && !commands.isEmpty()) {
-			cmdList.add("sh");
 			cmdList.add("-c");
 			if (sut != null) {
 				if (sut.isSutInNewContainer()) {
@@ -300,7 +299,7 @@ public class DockerService2 {
 		Volume dockerSockVolume = new Volume(dockerSock);
 
 		CreateContainerCmd containerCmd = dockerExec.getDockerClient().createContainerCmd(image).withEnv(envList)
-				.withLogConfig(logConfig).withName(containerName).withCmd(cmdList)
+				.withLogConfig(logConfig).withName(containerName).withCmd(cmdList).withEntrypoint("/bin/sh")
 				.withNetworkMode(dockerExec.getNetwork());
 
 		Volume sharedDataVolume = null;
