@@ -1,5 +1,6 @@
 package io.elastest.etm.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
+import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 
@@ -50,13 +52,13 @@ public class SutService {
 					sut = this.instrumentalizeSut(sut);
 				} else if (savedSut.isInstrumentalize() && !sut.isInstrumentalize()) { // Deinstrumentalize
 					logger.debug("Deinstrumentalizing SuT \"" + sut.getName() + "\"");
-					this.eimService.deinstrumentSut(sut.getEimConfig());
+					this.eimService.deInstrumentalizeAndUnDeployBeats(sut.getEimConfig());
 				} else {
 					logger.debug("SuT is already instrumentalized. No changes");
 				}
 			} else {
 				if (savedSut.isInstrumentalize()) {
-					this.eimService.deinstrumentSut(sut.getEimConfig());
+					this.eimService.deinstrumentalize(sut.getEimConfig());
 				}
 			}
 		}
@@ -66,19 +68,31 @@ public class SutService {
 	public SutSpecification instrumentalizeSut(SutSpecification sut) {
 		SutExecution sutExec = createSutExecutionBySut(sut);
 		sut.setCurrentSutExec(sutExec.getId());
-		// if (sut.getInstrumentedBy() != InstrumentedByEnum.ADMIN)
-		// {
 		sutExec.setUrl(sut.getSpecification());
-		// }
+
+		// Deploy beats
+		EimMonitoringConfig eimMonitoringConfig = new EimMonitoringConfig();
+		eimMonitoringConfig.setExec(sut.getSutMonitoringIndex());
+		eimMonitoringConfig.setComponent("sut");
+
+		String stream = "default_log";
+		eimMonitoringConfig.getPacketbeat().setStream(stream);
+		eimMonitoringConfig.getFilebeat().setStream(stream);
+		eimMonitoringConfig.getTopbeat().setStream(stream);
+
+		eimMonitoringConfig.getFilebeat().setPaths(new ArrayList<>());
+		eimMonitoringConfig.getFilebeat().getPaths().add("/var/log/*.log");
+
 		logger.debug("Instrumentalizing SuT \"" + sut.getName() + "\"");
-		this.eimService.instrumentalizeSut(sut.getEimConfig());
+		this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(), eimMonitoringConfig);
+
 		return sut;
 	}
 
 	public void deleteSut(Long sutId) {
 		SutSpecification sut = sutRepository.findOne(sutId);
 		if (sut.isInstrumentalize()) {
-			this.eimService.deinstrumentSut(sut.getEimConfig());
+			this.eimService.deInstrumentalizeAndUnDeployBeats(sut.getEimConfig());
 		}
 		sutRepository.delete(sut);
 	}

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import io.elastest.etm.dao.EimConfigRepository;
 import io.elastest.etm.model.EimConfig;
+import io.elastest.etm.model.EimMonitoringConfig;
 
 @Service
 public class EimService {
@@ -27,13 +30,26 @@ public class EimService {
 
 	public String eimApiPath = "eim/api";
 
+	public String eimApiUrl;
+
 	public EimService(EimConfigRepository eimConfigRepository) {
 		this.eimConfigRepository = eimConfigRepository;
 	}
 
-	@Async
+	@PostConstruct
+	public void initEimApiUrl() {
+		this.eimApiUrl = this.eimUrl + eimApiPath;
+	}
+
 	@SuppressWarnings("unchecked")
-	public void instrumentalizeSut(EimConfig eimConfig) {
+	public String getPublickey() {
+		RestTemplate restTemplate = new RestTemplate();
+		Map<String, String> publicKeyObj = restTemplate.getForObject(eimUrl + eimApiPath + "/publickey", Map.class);
+		return publicKeyObj.get("publickey");
+	}
+
+	@SuppressWarnings("unchecked")
+	public void instrumentalize(EimConfig eimConfig) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		Map<String, String> body = new HashMap<>();
@@ -50,28 +66,85 @@ public class EimService {
 
 		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(body, headers);
 
+		String url = this.eimApiUrl + "/agent";
+		logger.debug("Instrumentalizing SuT: " + url);
+		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
+		logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
+		eimConfig.setAgentId(response.get("agentId"));
+		this.eimConfigRepository.save(eimConfig);
+	}
+
+	public void deinstrumentalize(EimConfig eimConfig) {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+	}
+
+	@SuppressWarnings("unchecked")
+	public void deployBeats(EimConfig eimConfig, EimMonitoringConfig eimMonitoringConfig) throws Exception {
+		RestTemplate restTemplate = new RestTemplate();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+		HttpEntity<EimMonitoringConfig> request = new HttpEntity<EimMonitoringConfig>(eimMonitoringConfig, headers);
+
+		String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/monitor";
+		logger.debug("Activating beats: " + url);
+		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
+		if (response.get("monitored").equals("true")) {
+			logger.debug("Beats activated!");
+		} else {
+			throw new Exception("Beats not activated");
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void unDeployBeats(EimConfig eimConfig) {
+		RestTemplate restTemplate = new RestTemplate();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+		HttpEntity<EimMonitoringConfig> request = new HttpEntity<EimMonitoringConfig>(null, headers);
+
 		try {
-			String url = eimUrl + eimApiPath + "/agent";
-			logger.debug("Instrumentalizing SuT: " + url);
+			String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/unmonitor";
+			logger.debug("Deactivating beats: " + url);
 			Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-			logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
-			eimConfig.setAgentId(response.get("agentId"));
-			this.eimConfigRepository.save(eimConfig);
+			if (response.get("monitored").equals("false")) {
+				logger.debug("Beats Deactivated!");
+			} else {
+				logger.error("Beats not Deactivated");
+			}
 		} catch (Exception e) {
-			logger.error("EIM is not started or response is an 500 Internal Server Error");
+			logger.error("Error on Deactivate Beats: not Deactivated", e);
+		}
+	}
+
+	/* ****************** */
+	/* *** Additional *** */
+	/* ****************** */
+	@Async
+	public void instrumentalizeAndDeployBeats(EimConfig eimConfig, EimMonitoringConfig eimMonitoringConfig) {
+		try {
+			this.instrumentalize(eimConfig);
+			try {
+				this.deployBeats(eimConfig, eimMonitoringConfig);
+			} catch (Exception e) {
+				logger.error("Error on activate Beats: not activated", e);
+			}
+		} catch (Exception e) {
+			logger.error("EIM is not started or response is an 500 Internal Server Error", e);
 		}
 	}
 
 	@Async
-	public void deinstrumentSut(EimConfig eimConfig) {
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.delete(eimUrl + eimApiPath + "/agent/" + eimConfig.getAgentId());
+	public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig) {
+		this.unDeployBeats(eimConfig);
+		this.deinstrumentalize(eimConfig);
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getPublickey() {
-		RestTemplate restTemplate = new RestTemplate();
-		Map<String, String> publicKeyObj = restTemplate.getForObject(eimUrl + eimApiPath + "/publickey", Map.class);
-		return publicKeyObj.get("publickey");
-	}
 }
