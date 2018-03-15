@@ -48,7 +48,7 @@ public class EtmApiItTest {
 				"\"imageName\": \"elastest/test-etm-test1\"," +
 				"\"name\": \"testApp1\"," + 
 				"\"parameters\": [{\"Param1\":\"Value1\"}]," +
-				"\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/TEST-es.tfcfrd.app1TestJobsJenkins.AppTest.xml\"," +
+				"\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/\"," +
 				"\"project\": { \"id\":" + projectId + "}" +
 				
 				(sutId == -1? "": ", \"sut\":{ \"id\":" +sutId+"}")

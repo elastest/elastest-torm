@@ -268,6 +268,7 @@ public class DockerService2 {
 
 		// Commands (optional)
 		ArrayList<String> cmdList = new ArrayList<>();
+		ArrayList<String> entrypointList = new ArrayList<>();
 		if (commands != null && !commands.isEmpty()) {
 			cmdList.add("-c");
 			if (sut != null) {
@@ -278,6 +279,8 @@ public class DockerService2 {
 				commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd + ") || echo;" + commands;
 			}
 			cmdList.add(commands);
+
+			entrypointList.add("/bin/sh");
 		}
 
 		// Load Log Config
@@ -299,7 +302,7 @@ public class DockerService2 {
 		Volume dockerSockVolume = new Volume(dockerSock);
 
 		CreateContainerCmd containerCmd = dockerExec.getDockerClient().createContainerCmd(image).withEnv(envList)
-				.withLogConfig(logConfig).withName(containerName).withCmd(cmdList).withEntrypoint("/bin/sh")
+				.withLogConfig(logConfig).withName(containerName).withCmd(cmdList).withEntrypoint(entrypointList)
 				.withNetworkMode(dockerExec.getNetwork());
 
 		Volume sharedDataVolume = null;
