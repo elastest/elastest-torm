@@ -82,7 +82,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
-      //this.titlesService.setPathName(this.router.routerState.snapshot.url);
+      this.titlesService.setPathName(this.router.routerState.snapshot.url);
       this.withSut = this.tJobExec.tJob.hasSut();
 
       this.tJobService.getTJob(this.tJobExec.tJob.id.toString()).subscribe((tJob: TJobModel) => {
