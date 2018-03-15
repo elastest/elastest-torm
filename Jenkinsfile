@@ -3,7 +3,7 @@ node('TESTDOCKER'){
     stage "CI Container setup"
 
         echo("the node is up")
-        def mycontainer = docker.image('elastest/ci-docker-compose-siblings')
+        def mycontainer = docker.image('elastest/ci-docker-compose-siblings:node7-npm4')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
             
