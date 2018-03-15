@@ -26,6 +26,8 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
   useImageCommand: boolean = false;
+  commandsHelpHeadMessage: string = "Warning!";
+  commandsHelpMessage: string = "Any entrypoint defined in your Dockerfile will be ignored";
   elastestEsmServices: string[];
   esmServicesCatalog: EsmServiceModel[];
   action: string;

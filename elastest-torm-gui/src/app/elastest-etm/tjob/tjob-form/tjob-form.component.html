@@ -44,6 +44,11 @@
             <textarea id="commands" rows="10" mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands" [(ngModel)]="tJob.commands"
               name="commands" required></textarea>
           </md-input-container>
+          <div class="push-bottom">
+            <td-message #dockerTypeInfo label="{{commandsHelpHeadMessage}}" sublabel="{{commandsHelpMessage}}" color="primary"
+              icon="info">
+            </td-message>
+          </div>
         </div>
       </div>
 
