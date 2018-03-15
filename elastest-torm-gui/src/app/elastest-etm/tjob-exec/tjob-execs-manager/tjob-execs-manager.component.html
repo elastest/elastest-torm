@@ -45,10 +45,6 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
-                class="iconBtn-lg">
-                <md-icon>delete</md-icon>
-              </button>
               <button md-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
                 <md-icon>library_books</md-icon>
               </button>
