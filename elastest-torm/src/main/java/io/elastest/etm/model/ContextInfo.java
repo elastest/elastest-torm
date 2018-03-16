@@ -51,9 +51,15 @@ public class ContextInfo {
 
     @JsonProperty("eusSSInstance")
     private SupportServiceInstance eusSSInstance;
-
+    
     @JsonProperty("testLinkStarted")
     private boolean testLinkStarted;
+    
+    @JsonProperty("empGrafanaUrl")
+    private String empGrafanaUrl;
+    
+    @JsonProperty("edmCommandUrl")
+    private String edmCommandUrl;
 
     // Getters & Setters
 
@@ -184,4 +190,21 @@ public class ContextInfo {
     public void setTestLinkStarted(boolean testLinkStarted) {
         this.testLinkStarted = testLinkStarted;
     }
+
+    public String getEmpGrafanaUrl() {
+        return empGrafanaUrl;
+    }
+
+    public void setEmpGrafanaUrl(String empGrafanaUrl) {
+        this.empGrafanaUrl = empGrafanaUrl;
+    }
+
+    public String getEdmCommandUrl() {
+        return edmCommandUrl;
+    }
+
+    public void setEdmCommandUrl(String edmCommandUrl) {
+        this.edmCommandUrl = edmCommandUrl;
+    }
+
 }

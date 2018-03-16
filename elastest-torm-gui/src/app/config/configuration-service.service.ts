@@ -45,6 +45,8 @@ export class ConfigurationService {
                         'elasTestExecMode': servicesInfo.elasTestExecMode,
                         'testLinkStarted': servicesInfo.testLinkStarted,
                         'httpsSecure': protocol ==='https' ? true : false,
+                        'empGrafanaUrl': servicesInfo.empGrafanaUrl,
+                        'edmCommandUrl': servicesInfo.edmCommandUrl,
                     };
 
                     resolve();

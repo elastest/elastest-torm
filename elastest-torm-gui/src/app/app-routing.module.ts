@@ -1,3 +1,4 @@
+import { AppModule } from './';
 import { TLTestCaseComponent } from './etm-testlink/test-case/test-case.component';
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
 import { TLTestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
@@ -49,6 +50,8 @@ import { ExternalTjobExecutionComponent } from './elastest-etm/external/external
 import { ExternalTjobExecutionNewComponent } from './elastest-etm/external/external-tjob-execution/external-tjob-execution-new/external-tjob-execution-new.component';
 import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob/external-tjob-form/external-tjob-form.component';
 import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
+import { EdmContainerComponent } from './elastest-edm/edm-container/edm-container.component';
+import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
 
 const routes: Routes = [
   {
@@ -534,6 +537,24 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'edm',
+        children: [
+          {
+            path: '',
+            component: EdmContainerComponent,
+          },
+        ],        
+      },
+      {
+        path: 'epm',
+        children: [
+          {
+            path: '',
+            component: EmpContainerComponent,
+          },
+        ],
+      }
     ],
   },
 ];

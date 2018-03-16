@@ -118,6 +118,8 @@ import { TestSuitesViewComponent } from './elastest-etm/test-suite/test-suites-v
 import { TestCasesViewComponent } from './elastest-etm/test-case/test-cases-view/test-cases-view.component';
 import { SupportServiceConfigViewComponent } from './elastest-esm/support-service-config-view/support-service-config-view.component';
 import { ExternalTestExecutionsViewComponent } from './elastest-etm/external/external-test-execution/external-test-executions-view/external-test-executions-view.component';
+import { EdmContainerComponent } from './elastest-edm/edm-container/edm-container.component';
+import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -186,6 +188,8 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TestCasesViewComponent,
     SupportServiceConfigViewComponent,
     ExternalTestExecutionsViewComponent,
+    EdmContainerComponent,
+    EmpContainerComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

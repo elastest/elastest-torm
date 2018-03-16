@@ -13,4 +13,6 @@ export interface ConfigModel {
   elasTestExecMode: string;
   testLinkStarted: boolean;
   httpsSecure: boolean;
+  empGrafanaUrl: string;
+  edmCommandUrl: string;
 }
