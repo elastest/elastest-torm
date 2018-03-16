@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EmpContainerComponent implements OnInit {
 
-  serviceUrl: string = "http://www.elmundo.es";
+  serviceUrl: string = "";
   
   constructor(private configService: ConfigurationService) { }
 

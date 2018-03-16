@@ -64,6 +64,11 @@ public class EtmContextAuxService {
 
 	@Value("${et.etm.logstash.container.name}")
 	private String etEtmLogstashContainerName;
+	
+	@Value("${et.emp.grafana.context-path}")
+	private String etEmpGrafanContextPath;
+	@Value("${et.edm.command.context-path}")
+	private String etEdmCommandContextPath;
 
 	@Autowired
 	DockerService2 dockerService;
@@ -110,6 +115,9 @@ public class EtmContextAuxService {
 		contextInfo.setRabbitPath(etInProd ? etEtmRabbitPathWithProxy : "");
 		contextInfo.setElasTestExecMode(execMode);
 		contextInfo.setTestLinkStarted(!etEtmTestLinkHost.equals("none") ? true : false);
+		
+		contextInfo.setEdmCommandUrl("http://" + etPublicHost + ":" + etProxyPort + "/" + etEdmCommandContextPath);
+		contextInfo.setEmpGrafanaUrl("http://" + etPublicHost + ":" + etProxyPort + "/" + etEmpGrafanContextPath);
 		return contextInfo;
 	}
 
