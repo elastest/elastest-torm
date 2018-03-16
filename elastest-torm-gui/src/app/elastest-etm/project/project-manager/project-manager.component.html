@@ -2,28 +2,20 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        Project {{project.name}}
+        <div layout="row">
+          <span>Project {{project.name}}</span>
+          <span flex></span>
+          <div>
+            <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
+              <md-icon>mode_edit</md-icon>
+            </button>
+            <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Project">
+              <md-icon>delete</md-icon>
+            </button>
+          </div>
+        </div>
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content>
-        <div layout="row">
-          <span flex-gt-xs="25">
-            <md-card-subtitle class="pad-left-none">Name</md-card-subtitle>
-            <h4>{{project.name}}</h4>
-          </span>
-          <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Project">
-                <md-icon>delete</md-icon>
-              </button>
-            </div>
-          </span>
-        </div>
-      </md-card-content>
     </md-card>
   </div>
 </div>
