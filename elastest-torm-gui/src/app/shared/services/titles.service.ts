@@ -1,6 +1,6 @@
+import { BreadcrumbService } from '../breadcrumb/breadcrumb.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { Injectable } from '@angular/core';
-import { BreadcrumbService } from 'ng2-breadcrumb/ng2-breadcrumb';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
@@ -26,13 +26,13 @@ export class TitlesService {
     private tJobExecService: TJobExecService,
     private testLinkService: TestLinkService,
   ) {
-    this.breadcrumbService.addFriendlyNameForRoute('/projects', 'Projects /');
+    this.breadcrumbService.addFriendlyNameForRoute('/projects', 'Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/projects/add', 'New Project');
     this.breadcrumbService.addFriendlyNameForRoute('/tjobexecs', 'Dashboard');
     this.breadcrumbService.addFriendlyNameForRoute('/test-engines', 'Test Engines');
-    this.breadcrumbService.addFriendlyNameForRoute('/support-services', 'Test Support Service');
+    this.breadcrumbService.addFriendlyNameForRoute('/support-services', 'Test Support Services');
     this.breadcrumbService.addFriendlyNameForRoute('/loganalyzer', 'Log Analyzer');
-    this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects /');
+    this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/sut/new)$', 'New SuT');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/tjob/new)$', 'New TJob');
@@ -67,21 +67,21 @@ export class TitlesService {
         if (groupArr[0] === 'projects') {
           this.projectService.getProject(groupArr[1]).subscribe(
             (project: ProjectModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', project.name + ' /');
+              this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', '/ ' + project.name);
             },
             (error) => console.log(error),
           );
         } else if (groupArr[0] === 'tjob') {
           this.tJobService.getTJob(groupArr[1]).subscribe(
             (tjob: TJobModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', tjob.name + ' /');
+              this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + tjob.name);
             },
             (error) => console.log(error),
           );
         } else if (groupArr[0] === 'tjob-exec') {
           this.breadcrumbService.addFriendlyNameForRouteRegex(
             '.*/tjob-exec/' + groupArr[1] + '$',
-            'Execution ' + groupArr[1] + ' /',
+            '/ Execution ' + groupArr[1],
           );
         } else if (groupArr[0] === 'testlink') {
           if (groupArr[1] && groupArr[1] === 'projects') {
@@ -89,7 +89,7 @@ export class TitlesService {
               (project: TestProjectModel) => {
                 this.breadcrumbService.addFriendlyNameForRouteRegex(
                   '.*/testlink/projects/' + groupArr[2] + '$',
-                  project.name + ' /',
+                  '/ ' + project.name,
                 );
               },
               (error) => console.log(error),
@@ -97,32 +97,32 @@ export class TitlesService {
           }
         } else if (Number(groupArr[0]) && groupArr[1] === 'suites') {
           this.testLinkService.getTestSuiteById(groupArr[2], groupArr[0]).subscribe((tsuite: TLTestSuiteModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex('.*suites/' + groupArr[2] + '$', tsuite.name + ' /');
+            this.breadcrumbService.addFriendlyNameForRouteRegex('.*suites/' + groupArr[2] + '$', '/ ' + tsuite.name);
           });
         } else if (groupArr[0] === 'cases') {
           this.testLinkService.getTestCaseById(groupArr[1]).subscribe(
             (testCase: TLTestCaseModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*cases/' + groupArr[1] + '$', testCase.name + ' /');
+              this.breadcrumbService.addFriendlyNameForRouteRegex('.*cases/' + groupArr[1] + '$', '/ ' + testCase.name);
             },
             (error) => console.log(error),
           );
         } else if (groupArr[0] === 'plans') {
           this.testLinkService.getTestPlanById(groupArr[1]).subscribe(
             (testPlan: TestPlanModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*plans/' + groupArr[1] + '$', testPlan.name + ' /');
+              this.breadcrumbService.addFriendlyNameForRouteRegex('.*plans/' + groupArr[1] + '$', '/ ' + testPlan.name);
             },
             (error) => console.log(error),
           );
         } else if (groupArr[0] === 'builds') {
           this.testLinkService.getBuildById(groupArr[1]).subscribe(
             (build: BuildModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*builds/' + groupArr[1] + '$', build.name + ' /');
+              this.breadcrumbService.addFriendlyNameForRouteRegex('.*builds/' + groupArr[1] + '$', '/ ' + build.name);
             },
             (error) => console.log(error),
           );
         } else if (Number(groupArr[0]) && groupArr[1] === 'execs') {
           this.testLinkService.getTestExecById(groupArr[0], groupArr[2]).subscribe((exec: TestCaseExecutionModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex('.*execs/' + groupArr[2] + '$', 'Execution ' + exec.id + ' /');
+            this.breadcrumbService.addFriendlyNameForRouteRegex('.*execs/' + groupArr[2] + '$', '/ Execution ' + exec.id);
           });
         }
       }

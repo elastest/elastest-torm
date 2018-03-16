@@ -15,7 +15,6 @@ import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {Ng2BreadcrumbModule} from 'ng2-breadcrumb/ng2-breadcrumb';
 
 import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
 import { CovalentHighlightModule } from '@covalent/highlight';
@@ -26,6 +25,8 @@ import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
 import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.module';
 
+import { BreadcrumbService } from './shared/breadcrumb/breadcrumb.service';
+import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
 import { StompWSManager } from './shared/services/stomp-ws-manager.service';
@@ -216,7 +217,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     }),
     CovalentHighlightModule,
     CovalentMarkdownModule,
-    Ng2BreadcrumbModule.forRoot()
   ], // modules needed to run this module
   providers: [
     httpInterceptorProviders,
@@ -234,6 +234,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ElastestESService,
     PopupService,
     TitlesService,
+    BreadcrumbService,
     ETModelsTransformServices,
     ETTestlinkModelsTransformService,
     ETExternalModelsTransformService,

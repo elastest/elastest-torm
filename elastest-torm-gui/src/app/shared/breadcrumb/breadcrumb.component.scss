@@ -1,0 +1,28 @@
+#breadcrumb {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#breadcrumb-item {
+  display: inline-block;
+}
+#breadcrumb-item a,
+#breadcrumb-item span {
+  color: #ffffff;
+  text-align: center;
+  padding: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 850px) {
+  #breadcrumb-item span,
+  #breadcrumb-item a {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 770px) {
+  #breadcrumb-item {
+    display: none;
+  }
+}

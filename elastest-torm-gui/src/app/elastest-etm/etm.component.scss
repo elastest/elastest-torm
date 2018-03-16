@@ -1,22 +1,3 @@
-:host /deep/ #menusideLeft > .td-layout-manage-list .list{
-    overflow-x: hidden !important;
-}
-:host /deep/ .breadcrumb {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    
-}
-:host /deep/ .breadcrumb-item {
-    float: left;
-}
-:host /deep/ .breadcrumb-item a , :host /deep/ .breadcrumb-item span {
-    display: block;
-    color: #ffffff;
-    text-align: center;
-    padding: 4px;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
+:host /deep/ #menusideLeft > .td-layout-manage-list .list {
+  overflow-x: hidden !important;
 }

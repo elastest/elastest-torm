@@ -32,6 +32,7 @@ import { TimelineComponent } from './metrics-view/metrics-chart-card/combo-chart
 import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
 import { RefreshComponent } from './refresh/refresh.component';
+import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 
 
 const FLEX_LAYOUT_MODULES: any[] = [
@@ -85,6 +86,7 @@ const CHART_MODULES: any[] = [
     VncClientComponent,
     TestVncComponent,
     RefreshComponent,
+    BreadcrumbComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -105,6 +107,7 @@ const CHART_MODULES: any[] = [
     VncClientComponent,
     TestVncComponent,
     RefreshComponent,
+    BreadcrumbComponent
   ]
 })
 export class SharedModule { }

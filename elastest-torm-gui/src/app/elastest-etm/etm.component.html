@@ -2,30 +2,26 @@
   <button md-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu">
     <md-icon>menu</md-icon>
   </button>
-  <div td-toolbar-content layout="row" layout-align="center center" flex>
-    <!--<div layout="row" layout-align="start center" class="push-left">
-      <span id="topTitle">{{topTitle}}</span>
-    </div>-->
-    <breadcrumb [useBootstrap]="true"></breadcrumb>
-
-    
-    <span flex></span>
-    <button *ngIf="isReloadable()" md-icon-button mdTooltip="Refresh" (click)="refresh()">
-      <md-icon md-list-icon>refresh</md-icon>
-    </button>
-    <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/" target="_blank">
-      <md-icon>chrome_reader_mode</md-icon>
-    </a>
-    <a md-icon-button mdTooltip="Github" href="https://github.com/elastest/elastest-torm" target="_blank">
-      <md-icon svgIcon="assets:github"></md-icon>
-    </a>
-    <button md-icon-button mdTooltip="Fullscreen" (click)="toggleFullscreen()">
-      <md-icon md-list-icon>fullscreen</md-icon>
-    </button>
-    <button md-icon-button mdTooltip="Help" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/help']"
-      id="help">
-      <md-icon md-list-icon>help_outline</md-icon>
-    </button>
+  <div td-toolbar-content layout="row" layout-margin layout-align="center center" flex>
+    <breadcrumb flex="80"></breadcrumb>
+    <div flex layout-align="end center">
+      <button *ngIf="isReloadable()" md-icon-button mdTooltip="Refresh" (click)="refresh()">
+        <md-icon md-list-icon>refresh</md-icon>
+      </button>
+      <a md-icon-button mdTooltip="Docs" href="http://elastest.io/docs/" target="_blank">
+        <md-icon>chrome_reader_mode</md-icon>
+      </a>
+      <a md-icon-button mdTooltip="Github" href="https://github.com/elastest/elastest-torm" target="_blank">
+        <md-icon svgIcon="assets:github"></md-icon>
+      </a>
+      <button md-icon-button mdTooltip="Fullscreen" (click)="toggleFullscreen()">
+        <md-icon md-list-icon>fullscreen</md-icon>
+      </button>
+      <button md-icon-button mdTooltip="Help" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/help']"
+        id="help">
+        <md-icon md-list-icon>help_outline</md-icon>
+      </button>
+    </div>
   </div>
   <td-layout-manage-list id="menusideLeft" #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
     [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '244px' :
@@ -71,9 +67,9 @@
         Log Analyzer
       </a>
 
-      <a *ngIf="configService.configModel.testLinkStarted" md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/testlink']" id="nav_log_manager">
+      <a *ngIf="configService.configModel.testLinkStarted" md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple
+        class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/testlink']" id="nav_log_manager">
         <md-icon md-list-icon>gps_not_fixed</md-icon>
         TestLink
       </a>

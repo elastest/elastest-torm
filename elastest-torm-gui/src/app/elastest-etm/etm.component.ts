@@ -17,7 +17,6 @@ import { TdMediaService } from '@covalent/core';
 export class EtmComponent implements AfterViewInit, OnInit {
   @ViewChild('manageList') manageList: TdLayoutManageListComponent;
 
-  //topTitle: string;
   openedMenu: boolean = true;
   enableRefresh: boolean = false;
 
