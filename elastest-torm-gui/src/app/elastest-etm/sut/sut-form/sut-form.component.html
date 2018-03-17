@@ -151,35 +151,49 @@
         </div>
 
         <!-- Deployed: Instrumented By Elastest fields -->
-        <div layout="row" class="push-top" *ngIf="elasTestExecMode !== 'normal' && deployedChecked && elastestInsCheck">
-          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
-            <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
-          </md-input-container>
-          <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
-            <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
-          </md-input-container>
+        <div layout="column" class="push-top" *ngIf="elasTestExecMode !== 'normal' && deployedChecked && elastestInsCheck">
+          <div layout="row">
 
-          <!-- Instrumentalize? -->
-          <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
-            <md-list-item *ngIf="!instrumentalized">
-              <div>
-                <h3>Not Instrumentalized</h3>
-                <p>
-                  <md-checkbox [checked]="this.sut.instrumentalize" (change)="instrumentalize($event)">Instrumentalize</md-checkbox>
-                </p>
-              </div>
-            </md-list-item>
-            <md-list-item *ngIf="instrumentalized">
-              <div>
-                <h3>Instrumentalized </h3>
-                <p>
-                  <md-checkbox [checked]="!this.sut.instrumentalize" (change)="deinstrumentalize($event)">De-Instrumentalize</md-checkbox>
-                </p>
-              </div>
-            </md-list-item>
-          </md-list>
+            <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
+              <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
+            </md-input-container>
+            <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
+              <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
+            </md-input-container>
+
+            <!-- Instrumentalize? -->
+            <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+              <md-list-item *ngIf="!instrumentalized">
+                <div>
+                  <h3>Not Instrumentalized</h3>
+                  <p>
+                    <md-checkbox [checked]="this.sut.instrumentalize" (change)="instrumentalize($event)">Instrumentalize</md-checkbox>
+                  </p>
+                </div>
+              </md-list-item>
+              <md-list-item *ngIf="instrumentalized">
+                <div>
+                  <h3>Instrumentalized </h3>
+                  <p>
+                    <md-checkbox [checked]="!this.sut.instrumentalize" (change)="deinstrumentalize($event)">De-Instrumentalize</md-checkbox>
+                  </p>
+                </div>
+              </md-list-item>
+            </md-list>
+          </div>
+          <!-- Eim Logs Paths -->
+          <td-expansion-panel expand="true" class="push-bottom push-top">
+            <ng-template td-expansion-panel-label>
+              <span>SuT Logs Paths</span>
+            </ng-template>
+            <div class="pad-sm pad-top-xs">
+              <td-message #dockerTypeInfo label="{{eimLogsPathHelpDesc}}" color="primary" icon="info">
+              </td-message>
+              <string-list-view [model]="sut.eimMonitoringConfig.beats.get('filebeat').paths" [fieldName]="'Logs Path'">
+              </string-list-view>
+            </div>
+          </td-expansion-panel>
         </div>
-
         <!-- Deployed: Instrumented By SuT Admin Info -->
         <div layout="row" class="push-top" *ngIf="deployedChecked && adminInsCheck">
           <div *ngIf="showGetInfoBtn()">

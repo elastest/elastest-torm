@@ -105,6 +105,13 @@ public class SutSpecification {
 
 	@JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class, ExternalTJobView.class,
 			BasicAttTJob.class })
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "eimMonitoringConfig")
+	@JsonIgnoreProperties(value = "sutSpecification")
+	private EimMonitoringConfig eimMonitoringConfig;
+
+	@JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class, ExternalTJobView.class,
+			BasicAttTJob.class })
 	@Column(name = "instrumentalize")
 	@JsonProperty("instrumentalize")
 	private boolean instrumentalize = false;
@@ -506,6 +513,19 @@ public class SutSpecification {
 	}
 
 	/**
+	 * Get eimMonitoringConfig
+	 * 
+	 * @return eimMonitoringConfig
+	 **/
+	public EimMonitoringConfig getEimMonitoringConfig() {
+		return eimMonitoringConfig;
+	}
+
+	public void setEimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
+		this.eimMonitoringConfig = eimMonitoringConfig;
+	}
+
+	/**
 	 * Get instrumentalize
 	 * 
 	 * @return instrumentalize
@@ -684,6 +704,7 @@ public class SutSpecification {
 				&& Objects.equals(this.project, sutSpecification.project)
 				&& Objects.equals(this.sutType, sutSpecification.sutType)
 				&& Objects.equals(this.eimConfig, sutSpecification.eimConfig)
+				&& Objects.equals(this.eimMonitoringConfig, sutSpecification.eimMonitoringConfig)
 				&& Objects.equals(this.instrumentalize, sutSpecification.instrumentalize)
 				&& Objects.equals(this.currentSutExec, sutSpecification.currentSutExec)
 				&& Objects.equals(this.instrumentedBy, sutSpecification.instrumentedBy)
@@ -699,8 +720,9 @@ public class SutSpecification {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, specification, description, project, sutType, eimConfig, instrumentedBy, port,
-				managedDockerType, mainService, parameters, commands, exProject, exTJobs, commandsOption);
+		return Objects.hash(id, name, specification, description, project, sutType, eimConfig, eimMonitoringConfig,
+				instrumentedBy, port, managedDockerType, mainService, parameters, commands, exProject, exTJobs,
+				commandsOption);
 	}
 
 	@Override
@@ -714,6 +736,7 @@ public class SutSpecification {
 		sb.append("    project: ").append(toIndentedString(project)).append("\n");
 		sb.append("    sutType: ").append(toIndentedString(sutType)).append("\n");
 		sb.append("    eimConfig: ").append(toIndentedString(eimConfig)).append("\n");
+		sb.append("    eimMonitoringConfig: ").append(toIndentedString(eimMonitoringConfig)).append("\n");
 		sb.append("    instrumentalize: ").append(toIndentedString(instrumentalize)).append("\n");
 		sb.append("    currentSutExec: ").append(toIndentedString(currentSutExec)).append("\n");
 		sb.append("    instrumentedBy: ").append(toIndentedString(instrumentedBy)).append("\n");

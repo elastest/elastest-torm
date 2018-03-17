@@ -12,6 +12,7 @@ import { ETExternalModelsTransformService } from '../../elastest-etm/external/et
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
 import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
+import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -237,6 +238,7 @@ export class ETModelsTransformServices {
       newSut.project = sut.project;
     }
     newSut.eimConfig = new EimConfigModel(sut.eimConfig);
+    newSut.eimConfig = new EimConfigModel(sut.eimConfig);
     newSut.instrumentalize = sut.instrumentalize;
     if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
       sut.instrumentalize = false;
@@ -258,6 +260,8 @@ export class ETModelsTransformServices {
     }
 
     newSut.commandsOption = sut.commandsOption;
+
+    newSut.eimMonitoringConfig = this.jsonToEimMonitoringConfigModel(sut.eimMonitoringConfig);
 
     return newSut;
   }
@@ -282,6 +286,32 @@ export class ETModelsTransformServices {
     newSutExec.parameters = sutExec.parameters;
 
     return newSutExec;
+  }
+
+  /**** EimMonitoringConfig ****/
+
+  jsonToEimMonitoringConfigModel(eimMonitoringConfig: any): EimMonitoringConfigModel {
+    let newEimMonitoringConfigModel: EimMonitoringConfigModel = new EimMonitoringConfigModel();
+    if (eimMonitoringConfig !== undefined && eimMonitoringConfig !== null) {
+      newEimMonitoringConfigModel.id = eimMonitoringConfig.id;
+      newEimMonitoringConfigModel.exec = eimMonitoringConfig.exec;
+      newEimMonitoringConfigModel.component = eimMonitoringConfig.component;
+      newEimMonitoringConfigModel.sut = eimMonitoringConfig.sut;
+
+      if (eimMonitoringConfig.beats !== undefined) {
+        newEimMonitoringConfigModel.beats.forEach((beat: EimBeatConfigModel, key: string) => {
+          let currentBeat: any = eimMonitoringConfig.beats[key];
+          if (currentBeat !== undefined) {
+            newEimMonitoringConfigModel.beats.get(key).id = currentBeat.id;
+            newEimMonitoringConfigModel.beats.get(key).name = currentBeat.name;
+            newEimMonitoringConfigModel.beats.get(key).paths = currentBeat.paths;
+            newEimMonitoringConfigModel.beats.get(key).stream = currentBeat.stream;
+          }
+        });
+      }
+    }
+
+    return newEimMonitoringConfigModel;
   }
 
   /**** LogAnalyzerConfig ****/

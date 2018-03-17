@@ -9,7 +9,9 @@
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-1234567.xml" />
 	<include
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20180307.xml" />
-			<include
+	<include
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20180307140258.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20180317112001.xml" />
 	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

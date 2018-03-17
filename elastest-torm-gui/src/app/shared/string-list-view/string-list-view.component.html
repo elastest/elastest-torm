@@ -1,0 +1,16 @@
+<button md-raised-button color="accent" (click)="addField()" mdTooltip="Add {{fieldName}}" class="iconBtn push-top-sm">
+  <md-icon>add</md-icon>Add {{fieldName}}</button>
+
+<div *ngFor="let field of model; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
+  <md-list-item flex-gt-xs="100">
+    <div layout="row" layout-align="center center">
+      <md-input-container>
+        <input mdInput id="fieldName{{i}}" value="" [(ngModel)]="model[i]" placeholder="{{fieldName}}" type="text" required>
+      </md-input-container>
+
+      <button md-button (click)="deleteField(i)" mdTooltip="Delete {{fieldName}}" class="iconBtn push-top-sm">
+        <md-icon>delete</md-icon>
+      </button>
+    </div>
+  </md-list-item>
+</div>

@@ -1,6 +1,5 @@
 package io.elastest.etm.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -71,20 +70,12 @@ public class SutService {
 		sutExec.setUrl(sut.getSpecification());
 
 		// Deploy beats
-		EimMonitoringConfig eimMonitoringConfig = new EimMonitoringConfig();
+		EimMonitoringConfig eimMonitoringConfig = sut.getEimMonitoringConfig();
 		eimMonitoringConfig.setExec(sut.getSutMonitoringIndex());
-		eimMonitoringConfig.setComponent("sut");
-
-		String stream = "default_log";
-		eimMonitoringConfig.getPacketbeat().setStream(stream);
-		eimMonitoringConfig.getFilebeat().setStream(stream);
-		eimMonitoringConfig.getTopbeat().setStream(stream);
-
-		eimMonitoringConfig.getFilebeat().setPaths(new ArrayList<>());
-		eimMonitoringConfig.getFilebeat().getPaths().add("/var/log/*.log");
+		sut.setEimMonitoringConfig(eimMonitoringConfig);
 
 		logger.debug("Instrumentalizing SuT \"" + sut.getName() + "\"");
-		this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(), eimMonitoringConfig);
+		this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(), sut.getEimMonitoringConfig());
 
 		return sut;
 	}

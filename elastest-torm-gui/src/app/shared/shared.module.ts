@@ -34,6 +34,7 @@ import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
 import { RefreshComponent } from './refresh/refresh.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component';
+import { StringListViewComponent } from './string-list-view/string-list-view.component';
 
 
 const FLEX_LAYOUT_MODULES: any[] = [
@@ -87,6 +88,7 @@ const CHART_MODULES: any[] = [
     VncClientComponent,
     TestVncComponent,
     RefreshComponent,
+    StringListViewComponent,
     BreadcrumbComponent,
     LogsViewTextComponent,
   ],
@@ -101,6 +103,7 @@ const CHART_MODULES: any[] = [
     MetricsChartCardComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
+    StringListViewComponent,
     ComboChartComponent,
     EtmChartGroupComponent,
     EtmLogsGroupComponent,

@@ -4,22 +4,20 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'parameters-view',
   templateUrl: './parameters-view.component.html',
-  styleUrls: ['./parameters-view.component.scss']
+  styleUrls: ['./parameters-view.component.scss'],
 })
 export class ParametersViewComponent implements OnInit {
-  @Input()
-  public model: ParameterModel[];
+  @Input() public model: ParameterModel[];
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  addParameter() {
+  addParameter(): void {
     this.model.push(new ParameterModel());
   }
 
-  deleteParameter(position: number) {
+  deleteParameter(position: number): void {
     this.model.splice(position, 1);
   }
 }

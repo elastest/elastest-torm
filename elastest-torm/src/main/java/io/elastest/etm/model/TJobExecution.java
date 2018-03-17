@@ -75,22 +75,15 @@ public class TJobExecution {
 	@JsonProperty("error")
 	private String error = null;
 
-	// @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-	// BasicAttProject.class })
-	// @OneToMany(mappedBy="tJobExec", cascade = CascadeType.REMOVE)
-	// private List<Log> logs = null;
-
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@Column(name = "monitoringIndex")
 	private String monitoringIndex = null;
 
-	// bi-directional many-to-one association to Tjob
 	@JsonView({ BasicAttTJobExec.class })
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "tjob")
 	private TJob tJob;
 
-	// bi-directional many-to-one association to TestSuite
 	@JsonView({ BasicAttTJobExec.class, BasicAttTJob.class, BasicAttProject.class })
 	@OneToMany(mappedBy = "tJobExec", cascade = CascadeType.REMOVE)
 	private List<TestSuite> testSuites;

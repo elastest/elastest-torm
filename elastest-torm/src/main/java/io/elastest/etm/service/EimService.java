@@ -87,7 +87,8 @@ public class EimService {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-		HttpEntity<EimMonitoringConfig> request = new HttpEntity<EimMonitoringConfig>(eimMonitoringConfig, headers);
+		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(
+				eimMonitoringConfig.getEimMonitoringConfigInApiFormat(), headers);
 
 		String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/monitor";
 		logger.debug("Activating beats: " + url);
@@ -100,25 +101,13 @@ public class EimService {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	public void unDeployBeats(EimConfig eimConfig) {
 		RestTemplate restTemplate = new RestTemplate();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-		HttpEntity<EimMonitoringConfig> request = new HttpEntity<EimMonitoringConfig>(null, headers);
 
 		try {
 			String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/unmonitor";
 			logger.debug("Deactivating beats: " + url);
-			Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-			if (response.get("monitored").equals("false")) {
-				logger.debug("Beats Deactivated!");
-			} else {
-				logger.error("Beats not Deactivated");
-			}
+			restTemplate.delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
 		} catch (Exception e) {
 			logger.error("Error on Deactivate Beats: not Deactivated", e);
 		}

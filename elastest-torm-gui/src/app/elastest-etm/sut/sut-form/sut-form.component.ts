@@ -69,6 +69,8 @@ export class SutFormComponent implements OnInit, AfterViewInit {
 
   elasTestExecMode: string;
 
+  eimLogsPathHelpDesc: string = 'You can use *.log to get all logs from specific path. Example: "/var/log/*.log"';
+
   constructor(
     private titlesService: TitlesService,
     private sutService: SutService,
@@ -88,7 +90,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
       if (this.currentPath === 'edit') {
         this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId'])).subscribe((sut: SutModel) => {
           this.sut = sut;
-          this.titlesService.setPathName(this.router.routerState.snapshot.url, "Edit: " + this.sut.getRouteString());
+          this.titlesService.setPathName(this.router.routerState.snapshot.url, 'Edit: ' + this.sut.getRouteString());
           this.initSutType();
           this.initInstrumentedBy();
           this.initInstrumentalized();
@@ -98,7 +100,6 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.sutExecIndex = this.sut.getSutESIndex();
         });
       } else if (this.currentPath === 'new') {
-        //this.titlesService.setPathName(this.router.routerState.snapshot.url);
         if (this.route.params !== null || this.route.params !== undefined) {
           // If routing
           this.route.params.subscribe((params: Params) => {
@@ -111,6 +112,10 @@ export class SutFormComponent implements OnInit, AfterViewInit {
         }
       }
     }
+  }
+
+  ngAfterViewInit() {
+    this.sutNameInput.nativeElement.focus();
   }
 
   loadFromProject(projectId: string): void {
@@ -135,10 +140,6 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     this.sut.managedDockerType = 'COMMANDS';
     this.sut.commandsOption = 'DEFAULT';
     this.initInstrumentalized();
-  }
-
-  ngAfterViewInit() {
-    this.sutNameInput.nativeElement.focus();
   }
 
   initSutType(): void {

@@ -1,0 +1,44 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1521282008027-1">
+        <createTable tableName="EimBeatConfig">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="EimBeatConfigPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="stream" type="VARCHAR(255)"/>
+            <column name="eimMonitoringConfig" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-2">
+        <createTable tableName="EimBeatPath">
+            <column name="EimBeatConfig" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paths" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-3">
+        <createTable tableName="EimMonitoringConfig">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="EimMonitoringConfigPK"/>
+            </column>
+            <column name="component" type="VARCHAR(255)"/>
+            <column name="exec" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-4">
+        <addColumn tableName="SutSpecification">
+            <column name="eimMonitoringConfig" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-5">
+        <addForeignKeyConstraint baseColumnNames="eimMonitoringConfig" baseTableName="SutSpecification" constraintName="FKjtlncrx62yx0jsav2cuoe72at" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="EimMonitoringConfig"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-6">
+        <addForeignKeyConstraint baseColumnNames="EimBeatConfig" baseTableName="EimBeatPath" constraintName="FKpch2p5wa6kr7tsi7nk4cg0vgu" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="EimBeatConfig"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1521282008027-7">
+        <addForeignKeyConstraint baseColumnNames="eimMonitoringConfig" baseTableName="EimBeatConfig" constraintName="FKtpugvtuiay8q1ed4ll9i9cicf" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="EimMonitoringConfig"/>
+    </changeSet>
+</databaseChangeLog>

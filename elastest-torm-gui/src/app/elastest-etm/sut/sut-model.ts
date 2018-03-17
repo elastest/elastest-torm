@@ -1,6 +1,8 @@
 import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 import { ExternalProjectModel } from '../external/external-project/external-project-model';
+import { EimMonitoringConfigModel } from './eim-monitoring-config.model';
+import { defaultStreamMap } from '../../shared/defaultESData-model';
 
 export class SutModel {
   id: number;
@@ -10,6 +12,7 @@ export class SutModel {
   description: string;
   project: ProjectModel;
   eimConfig: EimConfigModel;
+  eimMonitoringConfig: EimMonitoringConfigModel;
   instrumentalize: boolean;
   currentSutExec: string;
   instrumentedBy: string;
@@ -30,6 +33,7 @@ export class SutModel {
     this.description = '';
     this.project = undefined;
     this.eimConfig = new EimConfigModel();
+    this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', defaultStreamMap.log);
     this.instrumentalize = false;
     this.currentSutExec = undefined;
     this.instrumentedBy = '';

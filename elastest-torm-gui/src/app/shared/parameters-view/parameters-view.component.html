@@ -1,4 +1,4 @@
-<button md-raised-button color="accent" (click)="addParameter()" aria-label="Add parameter" title="Add parameter" class="iconBtn push-top-sm">
+<button md-raised-button color="accent" (click)="addParameter()" mdTooltip="Add parameter" class="iconBtn push-top-sm">
   <md-icon>add</md-icon>Add Parameter</button>
 
 <div *ngFor="let parameter of model; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
@@ -11,7 +11,7 @@
         <input mdInput id="parameterValue{{i}}" value="" [(ngModel)]="parameter.value" placeholder="Default Value" required>
       </md-input-container>
 
-      <button md-button (click)="deleteParameter(i)" aria-label="close" title="Delete parameter" class="iconBtn push-top-sm">
+      <button md-button (click)="deleteParameter(i)" mdTooltip="Delete parameter" class="iconBtn push-top-sm">
         <md-icon>delete</md-icon>
       </button>
     </div>
