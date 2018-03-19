@@ -33,6 +33,7 @@ import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
 import { RefreshComponent } from './refresh/refresh.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component';
 
 
 const FLEX_LAYOUT_MODULES: any[] = [
@@ -87,6 +88,7 @@ const CHART_MODULES: any[] = [
     TestVncComponent,
     RefreshComponent,
     BreadcrumbComponent,
+    LogsViewTextComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -107,7 +109,8 @@ const CHART_MODULES: any[] = [
     VncClientComponent,
     TestVncComponent,
     RefreshComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    LogsViewTextComponent,
   ]
 })
 export class SharedModule { }
