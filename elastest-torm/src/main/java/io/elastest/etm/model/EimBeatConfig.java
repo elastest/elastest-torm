@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.EimMonitoringConfig.EimConfigView;
+import io.elastest.etm.model.EimMonitoringConfig.EimMonitoringConfigView;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
@@ -29,23 +31,27 @@ public class EimBeatConfig {
 	}
 
 	@Id
-	@JsonView({ EimBeatConfigView.class, EimConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
+	@JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class,
+			BasicAttProject.class })
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView({ EimBeatConfigView.class, EimConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
+	@JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class,
+			BasicAttProject.class })
 	@Column(name = "name")
 	@JsonProperty("name")
 	private String name;
 
-	@JsonView({ EimBeatConfigView.class, EimConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
+	@JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class,
+			BasicAttProject.class })
 	@Column(name = "stream")
 	@JsonProperty("stream")
 	private String stream;
 
-	@JsonView({ EimBeatConfigView.class, EimConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
+	@JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class,
+			BasicAttProject.class })
 	@ElementCollection
 	@CollectionTable(name = "EimBeatPath", joinColumns = @JoinColumn(name = "EimBeatConfig"))
 	List<String> paths;
@@ -56,6 +62,10 @@ public class EimBeatConfig {
 	private EimMonitoringConfig eimMonitoringConfig;
 
 	public EimBeatConfig() {
+	}
+
+	public EimBeatConfig(Long id) {
+		this.id = id == null ? 0 : id;
 	}
 
 	public EimBeatConfig(Long id, String stream) {
@@ -112,6 +122,19 @@ public class EimBeatConfig {
 		}
 
 		return body;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class EimBeatConfig {\n");
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    name: ").append(toIndentedString(name)).append("\n");
+		sb.append("    stream: ").append(toIndentedString(stream)).append("\n");
+		sb.append("    paths: ").append(toIndentedString(paths)).append("\n");
+		sb.append("    eimMonitoringConfig: ").append(toIndentedString(eimMonitoringConfig)).append("\n");
+		sb.append("}");
+		return sb.toString();
 	}
 
 }

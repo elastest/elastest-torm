@@ -72,13 +72,13 @@ public class ExternalTestExecution implements Serializable {
 	@JsonView({ ExternalTestExecutionView.class })
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "exTestCase")
-	@JsonIgnoreProperties(value = "exTestExecs")
+	@JsonIgnoreProperties(value = "exTestExecs", allowSetters = true)
 	private ExternalTestCase exTestCase;
 
 	@JsonView({ ExternalTestExecutionView.class })
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "exTJobExec")
-	@JsonIgnoreProperties(value = { "exTestExecs" })
+	@JsonIgnoreProperties(value = { "exTestExecs" }, allowSetters = true)
 	private ExternalTJobExecution exTJobExec;
 
 	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTestCaseView.class,

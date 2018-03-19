@@ -17,13 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import io.elastest.etm.dao.EimConfigRepository;
+import io.elastest.etm.dao.EimMonitoringConfigRepository;
 import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
 
 @Service
 public class EimService {
-	private final EimConfigRepository eimConfigRepository;
 	private static final Logger logger = LoggerFactory.getLogger(EimService.class);
+
+	private final EimConfigRepository eimConfigRepository;
+	private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
 
 	@Value("${et.eim.api}")
 	public String eimUrl;
@@ -32,14 +35,20 @@ public class EimService {
 
 	public String eimApiUrl;
 
-	public EimService(EimConfigRepository eimConfigRepository) {
+	public EimService(EimConfigRepository eimConfigRepository,
+			EimMonitoringConfigRepository eimMonitoringConfigRepository) {
 		this.eimConfigRepository = eimConfigRepository;
+		this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
 	}
 
 	@PostConstruct
 	public void initEimApiUrl() {
 		this.eimApiUrl = this.eimUrl + eimApiPath;
 	}
+
+	/* ***************** */
+	/* **** EIM API **** */
+	/* ***************** */
 
 	@SuppressWarnings("unchecked")
 	public String getPublickey() {
@@ -111,6 +120,14 @@ public class EimService {
 		} catch (Exception e) {
 			logger.error("Error on Deactivate Beats: not Deactivated", e);
 		}
+	}
+
+	/* ****************** */
+	/* ****** BBDD ****** */
+	/* ****************** */
+
+	public EimMonitoringConfig createEimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
+		return this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
 	}
 
 	/* ****************** */

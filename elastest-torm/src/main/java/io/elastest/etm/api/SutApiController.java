@@ -31,10 +31,8 @@ public class SutApiController implements SutApi {
 	@JsonView(SutView.class)
 	public ResponseEntity<SutSpecification> createSuT(
 			@ApiParam(value = "SuT configuration", required = true) @Valid @RequestBody SutSpecification body) {
-
 		SutSpecification sut = sutService.createSutSpecification(body);
 		return new ResponseEntity<SutSpecification>(sut, HttpStatus.OK);
-
 	}
 
 	@JsonView(SutView.class)

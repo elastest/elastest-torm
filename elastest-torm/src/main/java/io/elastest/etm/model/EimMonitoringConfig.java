@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,35 +29,35 @@ import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 @Entity
 public class EimMonitoringConfig {
 
-	public interface EimConfigView {
+	public interface EimMonitoringConfigView {
 	}
 
 	@Id
-	@JsonView({ EimConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
+	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
 			BasicAttProject.class })
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	@JsonProperty("id")
 	private Long id = null;
 
-	@JsonView({ EimConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
+	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
 			BasicAttProject.class })
 	@Column(name = "exec")
 	@JsonProperty("exec")
 	private String exec = null;
 
-	@JsonView({ EimConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
+	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
 			BasicAttProject.class })
 	@Column(name = "component")
 	@JsonProperty("component")
 	private String component = null;
 
-	@JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
+	@JsonView({ EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
 	@OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
 	@MapKey(name = "name")
 	Map<String, EimBeatConfig> beats;
 
-	@JsonView({ EimConfigView.class, EimBeatConfigView.class, })
+	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, })
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimMonitoringConfig")
 	@JoinColumn(name = "sutSpecification")
 	@JsonIgnoreProperties(value = "eimMonitoringConfig")
@@ -123,4 +125,18 @@ public class EimMonitoringConfig {
 
 		return body;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class EimMonitoringConfig {\n");
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    exec: ").append(toIndentedString(exec)).append("\n");
+		sb.append("    component: ").append(toIndentedString(component)).append("\n");
+		sb.append("    beats: ").append(toIndentedString(beats)).append("\n");
+		sb.append("    sutSpecification: ").append(toIndentedString(sutSpecification)).append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
+
 }

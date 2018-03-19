@@ -69,12 +69,12 @@ public class ExternalTestCase implements Serializable {
 	@JsonView({ ExternalTestCaseView.class, ExternalTestExecutionView.class })
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "exTJob")
-	@JsonIgnoreProperties(value = { "exTestCases", "exTJobExecs" })
+	@JsonIgnoreProperties(value = { "exTestCases", "exTJobExecs" }, allowSetters = true)
 	private ExternalTJob exTJob;
 
 	@JsonView({ ExternalTestCaseView.class, ExternalProjectView.class, ExternalTJobView.class, })
 	@OneToMany(mappedBy = "exTestCase", cascade = CascadeType.REMOVE)
-	@JsonIgnoreProperties(value = { "exTestCase", "exTJobExec" })
+	@JsonIgnoreProperties(value = { "exTestCase", "exTJobExec" }, allowSetters = true)
 	private List<ExternalTestExecution> exTestExecs;
 
 	/* **************************/

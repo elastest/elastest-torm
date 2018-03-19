@@ -296,18 +296,17 @@ export class ETModelsTransformServices {
       newEimMonitoringConfigModel.id = eimMonitoringConfig.id;
       newEimMonitoringConfigModel.exec = eimMonitoringConfig.exec;
       newEimMonitoringConfigModel.component = eimMonitoringConfig.component;
-      newEimMonitoringConfigModel.sut = eimMonitoringConfig.sut;
 
       if (eimMonitoringConfig.beats !== undefined) {
-        newEimMonitoringConfigModel.beats.forEach((beat: EimBeatConfigModel, key: string) => {
-          let currentBeat: any = eimMonitoringConfig.beats[key];
+        for (let key of Object.keys(eimMonitoringConfig.beats)) {
+          let currentBeat: EimBeatConfigModel = eimMonitoringConfig.beats[key];
           if (currentBeat !== undefined) {
-            newEimMonitoringConfigModel.beats.get(key).id = currentBeat.id;
-            newEimMonitoringConfigModel.beats.get(key).name = currentBeat.name;
-            newEimMonitoringConfigModel.beats.get(key).paths = currentBeat.paths;
-            newEimMonitoringConfigModel.beats.get(key).stream = currentBeat.stream;
+            newEimMonitoringConfigModel.beats[key].id = currentBeat.id;
+            newEimMonitoringConfigModel.beats[key].name = currentBeat.name;
+            newEimMonitoringConfigModel.beats[key].paths = currentBeat.paths;
+            newEimMonitoringConfigModel.beats[key].stream = currentBeat.stream;
           }
-        });
+        }
       }
     }
 

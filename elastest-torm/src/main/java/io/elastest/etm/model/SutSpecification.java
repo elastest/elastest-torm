@@ -77,7 +77,7 @@ public class SutSpecification {
 	private String description = null;
 
 	@JsonProperty("sutExecution")
-	@JsonIgnoreProperties(value = "sutSpecification")
+	@JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
 	@OneToMany(mappedBy = "sutSpecification", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private List<SutExecution> sutExecution = null;
 
@@ -100,14 +100,14 @@ public class SutSpecification {
 			BasicAttTJob.class })
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "eimConfig")
-	@JsonIgnoreProperties(value = "sutSpecification")
+	@JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
 	private EimConfig eimConfig;
 
 	@JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class, ExternalTJobView.class,
 			BasicAttTJob.class })
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "eimMonitoringConfig")
-	@JsonIgnoreProperties(value = "sutSpecification")
+	@JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
 	private EimMonitoringConfig eimMonitoringConfig;
 
 	@JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class, ExternalTJobView.class,
@@ -162,13 +162,13 @@ public class SutSpecification {
 	@JsonView({ SutView.class })
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "exProject", nullable = true)
-	@JsonIgnoreProperties(value = { "suts", "exTJobs" })
+	@JsonIgnoreProperties(value = { "suts", "exTJobs" }, allowSetters = true)
 	private ExternalProject exProject = null;
 
 	@JsonView({ SutView.class })
 	@JsonProperty("exTJobs")
 	@OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-	@JsonIgnoreProperties(value = { "sut", "exProject", "exTJobExecs", "exTestCases" })
+	@JsonIgnoreProperties(value = { "sut", "exProject", "exTJobExecs", "exTestCases" }, allowSetters = true)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<ExternalTJob> exTJobs;
 
