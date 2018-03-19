@@ -38,6 +38,9 @@ public class SutService {
 
 	public SutSpecification prepareSutToSave(SutSpecification sut) {
 		if (sut.getId() == 0) { // If is a new Sut, set
+			if (!sut.isInstrumentedByElastest()) {
+				sut.setEimMonitoringConfig(null);
+			}
 			sut = sutRepository.save(sut); // Save first
 			SutExecution sutExec = createSutExecutionBySut(sut);
 			sut.setCurrentSutExec(sutExec.getId());
