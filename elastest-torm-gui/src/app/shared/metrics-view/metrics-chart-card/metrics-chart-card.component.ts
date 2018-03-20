@@ -5,54 +5,49 @@ import { ComboChartComponent } from './combo-chart/combo-chart.component';
 import { ESRabComplexMetricsModel } from './models/es-rab-complex-metrics-model';
 import { ComplexMetricsModel } from './models/complex-metrics-model';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MetricsViewComponent } from '../metrics-view.component';
 
 @Component({
-    selector: 'metrics-chart-card',
-    templateUrl: './metrics-chart-card.component.html',
-    styleUrls: ['./metrics-chart-card.component.scss']
+  selector: 'metrics-chart-card',
+  templateUrl: './metrics-chart-card.component.html',
+  styleUrls: ['./metrics-chart-card.component.scss'],
 })
 export class MetricsChartCardComponent implements OnInit {
-    @Input()
-    public model: ESRabComplexMetricsModel;
+  @Input() public model: ESRabComplexMetricsModel;
 
-    @Input()
-    public fieldsList?: MetricsFieldModel[];
+  @Input() public fieldsList?: MetricsFieldModel[];
 
-    @Input()
-    public showConfig: boolean;
+  @Input() public showConfig: boolean;
 
-    @Input()
-    public remove: Function;
-  
-    @ViewChild('comboChart')
-    comboChart: ComboChartComponent;
+  @Input() public remove: Function;
 
-    constructor() { }
+  @ViewChild('metricsView') metricsView: MetricsViewComponent;
 
-    ngOnInit() {
-    }
+  constructor() {}
 
-    getTimelineSubscription(): Observable<any> {
-        return this.comboChart.timelineObs;
-    }
+  ngOnInit() {}
 
-    getHoverSubscription(): Observable<any> {
-        return this.comboChart.hoverObs;
-    }
+  getTimelineSubscription(): Observable<any> {
+    return this.metricsView.getTimelineSubscription();
+  }
 
-    getLeaveSubscription(): Observable<any> {
-        return this.comboChart.leaveObs;
-    }
+  getHoverSubscription(): Observable<any> {
+    return this.metricsView.getHoverSubscription();
+  }
 
-    updateDomain(domain) {
-        this.comboChart.updateDomainAux(domain);
-    }
+  getLeaveSubscription(): Observable<any> {
+    return this.metricsView.getLeaveSubscription();
+  }
 
-    hoverCharts(item) {
-        this.comboChart.tooltipObj.mouseMove('', true, item.value);
-    }
+  updateDomain(domain): void {
+    this.metricsView.updateDomain(domain);
+  }
 
-    leaveCharts() {
-        this.comboChart.hideCirclesAux();
-    }
+  hoverCharts(item): void {
+    this.metricsView.hoverCharts(item);
+  }
+
+  leaveCharts(): void {
+    this.metricsView.leaveCharts();
+  }
 }
