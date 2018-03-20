@@ -22,6 +22,7 @@ import io.elastest.etm.dao.EimMonitoringConfigRepository;
 import io.elastest.etm.model.EimBeatConfig;
 import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
+import io.elastest.etm.model.EimMonitoringConfig.ApiEimMonitoringConfig;
 
 @Service
 public class EimService {
@@ -103,12 +104,14 @@ public class EimService {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.set("X_Broker_Api_Version", "2.12");
 
-		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(
+		HttpEntity<ApiEimMonitoringConfig> request = new HttpEntity<ApiEimMonitoringConfig>(
 				eimMonitoringConfig.getEimMonitoringConfigInApiFormat(), headers);
 
 		String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/monitor";
 		logger.debug("Activating beats: {} {}", url, request);
+
 		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
 		if (response.get("monitored").equals("true")) {
 			logger.debug("Beats activated!");

@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.CascadeType;
@@ -115,15 +116,28 @@ public class EimMonitoringConfig {
 
 	// Others
 
-	public Map<String, String> getEimMonitoringConfigInApiFormat() {
-		Map<String, String> body = new HashMap<>();
-		body.put("exec", this.getExec());
-		body.put("component", this.getComponent());
-		body.put("packetbeat", this.getBeats().get("packetbeat").getEimBeatInApiFormat().toString());
-		body.put("filebeat", this.getBeats().get("filebeat").getEimBeatInApiFormat().toString());
-		body.put("topbeat", this.getBeats().get("topbeat").getEimBeatInApiFormat().toString());
+	public ApiEimMonitoringConfig getEimMonitoringConfigInApiFormat() {
+		ApiEimMonitoringConfig apiEimMonitoringConfig = new ApiEimMonitoringConfig();
+		apiEimMonitoringConfig.setExec(this.getExec());
+		apiEimMonitoringConfig.setComponent(this.getComponent());
 
-		return body;
+		ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
+		packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
+		packetbeat.setStream(this.getBeats().get("packetbeat").getStream());
+
+		ApiEimBeatConfig filebeat = new ApiEimBeatConfig();
+		filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
+		filebeat.setStream(this.getBeats().get("filebeat").getStream());
+
+		ApiEimBeatConfig topbeat = new ApiEimBeatConfig();
+		topbeat.setPaths(this.getBeats().get("topbeat").getPaths());
+		topbeat.setStream(this.getBeats().get("topbeat").getStream());
+
+		apiEimMonitoringConfig.setPacketbeat(packetbeat);
+		apiEimMonitoringConfig.setFilebeat(filebeat);
+		apiEimMonitoringConfig.setTopbeat(topbeat);
+
+		return apiEimMonitoringConfig;
 	}
 
 	@Override
@@ -139,4 +153,80 @@ public class EimMonitoringConfig {
 		return sb.toString();
 	}
 
+	public class ApiEimMonitoringConfig {
+		String exec;
+		String component;
+		ApiEimBeatConfig packetbeat;
+		ApiEimBeatConfig filebeat;
+		ApiEimBeatConfig topbeat;
+
+		public ApiEimMonitoringConfig() {
+		}
+
+		public String getExec() {
+			return exec;
+		}
+
+		public void setExec(String exec) {
+			this.exec = exec;
+		}
+
+		public String getComponent() {
+			return component;
+		}
+
+		public void setComponent(String component) {
+			this.component = component;
+		}
+
+		public ApiEimBeatConfig getPacketbeat() {
+			return packetbeat;
+		}
+
+		public void setPacketbeat(ApiEimBeatConfig packetbeat) {
+			this.packetbeat = packetbeat;
+		}
+
+		public ApiEimBeatConfig getFilebeat() {
+			return filebeat;
+		}
+
+		public void setFilebeat(ApiEimBeatConfig filebeat) {
+			this.filebeat = filebeat;
+		}
+
+		public ApiEimBeatConfig getTopbeat() {
+			return topbeat;
+		}
+
+		public void setTopbeat(ApiEimBeatConfig topbeat) {
+			this.topbeat = topbeat;
+		}
+
+	}
+
+	public class ApiEimBeatConfig {
+		String stream;
+		List<String> paths;
+
+		public ApiEimBeatConfig() {
+		}
+
+		public String getStream() {
+			return stream;
+		}
+
+		public void setStream(String stream) {
+			this.stream = stream;
+		}
+
+		public List<String> getPaths() {
+			return paths;
+		}
+
+		public void setPaths(List<String> paths) {
+			this.paths = paths;
+		}
+
+	}
 }

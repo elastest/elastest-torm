@@ -29,9 +29,12 @@
                 <p>{{testPlan.name}}</p>
               </md-list-item>
               <md-divider></md-divider>
-              <md-list-item>
-                <h4>Project Name</h4>
-                <p>{{testPlan.projectName}}</p>
+              <md-list-item *ngIf="exTJob !== undefined">
+                <h4>SuT</h4>
+                <p *ngIf="exTJob.sut !== undefined && exTJob.sut.id > 0; else noSut">{{exTJob.sut.name}}</p>
+                <ng-template #noSut>
+                  <p>None</p>
+                </ng-template>
               </md-list-item>
             </md-list>
           </div>
@@ -53,7 +56,7 @@
         <md-divider></md-divider>
         <div layout="column" class="push-top" id="testPlanBottomInfo">
           <span flex-gt-xs="100">
-            <md-card-subtitle class="pad-left-none">Notes</md-card-subtitle>
+            <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="testPlan.notes"></div>
           </span>
         </div>

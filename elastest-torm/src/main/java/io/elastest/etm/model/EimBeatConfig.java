@@ -136,5 +136,4 @@ public class EimBeatConfig {
 		sb.append("}");
 		return sb.toString();
 	}
-
 }
