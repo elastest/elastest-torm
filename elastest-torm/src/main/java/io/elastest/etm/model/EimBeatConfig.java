@@ -118,7 +118,7 @@ public class EimBeatConfig {
 		body.put("stream", this.getStream());
 
 		if (this.name.equals("filebeat")) {
-			body.put("component", this.getPaths().toString());
+			body.put("paths", this.getPaths().toString());
 		}
 
 		return body;

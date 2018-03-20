@@ -64,7 +64,7 @@ public class SutService {
 				}
 			} else {
 				if (savedSut.isInstrumentalize()) {
-					this.eimService.deinstrumentalize(sut.getEimConfig());
+					this.eimService.deInstrumentalizeAndUnDeployBeats(sut.getEimConfig());
 				}
 			}
 		}

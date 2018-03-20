@@ -63,7 +63,7 @@ public class EimService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void instrumentalize(EimConfig eimConfig) throws Exception {
+	public EimConfig instrumentalize(EimConfig eimConfig) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 
 		Map<String, String> body = new HashMap<>();
@@ -85,12 +85,15 @@ public class EimService {
 		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
 		logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
 		eimConfig.setAgentId(response.get("agentId"));
-		this.eimConfigRepository.save(eimConfig);
+		return this.eimConfigRepository.save(eimConfig);
 	}
 
-	public void deinstrumentalize(EimConfig eimConfig) {
+	public EimConfig deinstrumentalize(EimConfig eimConfig) {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+		eimConfig.setAgentId(null);
+		return this.eimConfigRepository.save(eimConfig);
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,7 +108,7 @@ public class EimService {
 				eimMonitoringConfig.getEimMonitoringConfigInApiFormat(), headers);
 
 		String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/monitor";
-		logger.debug("Activating beats: " + url);
+		logger.debug("Activating beats: {} {}", url, request);
 		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
 		if (response.get("monitored").equals("true")) {
 			logger.debug("Beats activated!");
@@ -158,7 +161,7 @@ public class EimService {
 	@Async
 	public void instrumentalizeAndDeployBeats(EimConfig eimConfig, EimMonitoringConfig eimMonitoringConfig) {
 		try {
-			this.instrumentalize(eimConfig);
+			eimConfig = this.instrumentalize(eimConfig);
 			try {
 				this.deployBeats(eimConfig, eimMonitoringConfig);
 			} catch (Exception e) {
