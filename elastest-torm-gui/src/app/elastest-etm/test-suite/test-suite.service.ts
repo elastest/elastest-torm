@@ -23,4 +23,13 @@ export class TestSuiteService {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/testsuite';
     return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTestSuitesList(response.json()));
   }
+
+  public getTestSuiteById(testSuiteId: number): Observable<TestSuiteModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/testsuite/' + testSuiteId;
+    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTestSuiteModel(response.json()));
+  }
+
+  public getTestSuite(testSuite: TestSuiteModel): Observable<TestSuiteModel> {
+    return this.getTestSuiteById(testSuite.id);
+  }
 }
