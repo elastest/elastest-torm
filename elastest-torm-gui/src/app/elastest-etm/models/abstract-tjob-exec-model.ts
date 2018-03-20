@@ -74,6 +74,7 @@ export class AbstractTJobExecModel {
     let icon: any = {
       name: '',
       color: '',
+      result: this.result,
     };
     if (this.finished() || this.notExecuted()) {
       switch (this.result) {
