@@ -40,6 +40,10 @@ public class SutService {
 		if (sut.getId() == 0) { // If is a new Sut, set
 			if (!sut.isInstrumentedByElastest()) {
 				sut.setEimMonitoringConfig(null);
+			} else {
+				EimMonitoringConfig savedEimMonitoringConfig = this.eimService
+						.createEimMonitoringConfigAndChilds(sut.getEimMonitoringConfig());
+				sut.setEimMonitoringConfig(savedEimMonitoringConfig);
 			}
 			sut = sutRepository.save(sut); // Save first
 			SutExecution sutExec = createSutExecutionBySut(sut);

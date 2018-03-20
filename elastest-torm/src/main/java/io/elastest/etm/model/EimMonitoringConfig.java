@@ -60,7 +60,7 @@ public class EimMonitoringConfig {
 	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, })
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimMonitoringConfig")
 	@JoinColumn(name = "sutSpecification")
-	@JsonIgnoreProperties(value = "eimMonitoringConfig")
+	@JsonIgnoreProperties(value = "eimMonitoringConfig", allowSetters = true)
 	private SutSpecification sutSpecification;
 
 	public EimMonitoringConfig() {

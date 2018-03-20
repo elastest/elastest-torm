@@ -16,8 +16,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import io.elastest.etm.dao.EimBeatConfigRepository;
 import io.elastest.etm.dao.EimConfigRepository;
 import io.elastest.etm.dao.EimMonitoringConfigRepository;
+import io.elastest.etm.model.EimBeatConfig;
 import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
 
@@ -27,6 +29,7 @@ public class EimService {
 
 	private final EimConfigRepository eimConfigRepository;
 	private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
+	private final EimBeatConfigRepository eimBeatConfigRepository;
 
 	@Value("${et.eim.api}")
 	public String eimUrl;
@@ -36,9 +39,11 @@ public class EimService {
 	public String eimApiUrl;
 
 	public EimService(EimConfigRepository eimConfigRepository,
-			EimMonitoringConfigRepository eimMonitoringConfigRepository) {
+			EimMonitoringConfigRepository eimMonitoringConfigRepository,
+			EimBeatConfigRepository eimBeatConfigRepository) {
 		this.eimConfigRepository = eimConfigRepository;
 		this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
+		this.eimBeatConfigRepository = eimBeatConfigRepository;
 	}
 
 	@PostConstruct
@@ -128,6 +133,23 @@ public class EimService {
 
 	public EimMonitoringConfig createEimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
 		return this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
+	}
+
+	public EimMonitoringConfig createEimMonitoringConfigAndChilds(EimMonitoringConfig eimMonitoringConfig) {
+		if (eimMonitoringConfig != null) {
+			Map<String, EimBeatConfig> beats = eimMonitoringConfig.getBeats();
+			eimMonitoringConfig.setBeats(null);
+			eimMonitoringConfig = this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
+			if (beats != null) {
+				for (Map.Entry<String, EimBeatConfig> currentBeat : beats.entrySet()) {
+					currentBeat.getValue().setEimMonitoringConfig(eimMonitoringConfig);
+					EimBeatConfig savedBeat = this.eimBeatConfigRepository.save(currentBeat.getValue());
+					currentBeat.setValue(savedBeat);
+				}
+				eimMonitoringConfig.setBeats(beats);
+			}
+		}
+		return eimMonitoringConfig;
 	}
 
 	/* ****************** */
