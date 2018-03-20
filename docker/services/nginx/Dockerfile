@@ -7,14 +7,21 @@ RUN apk add --no-cache \
 	nano \
 	openssl \
 	sudo
+	
+ENV ESC='$'
+
 
 COPY nginx-default.conf /etc/nginx/conf.d/default.conf
-
-COPY nginx-securized.conf /etc/nginx/conf.d/nginx-securized.conf
 
 COPY nginx.htpasswd /etc/nginx/conf.d/nginx.htpasswd
 
 COPY proxy.conf /etc/nginx/sites-available/proxy.conf
+
+COPY nginx-base-location.conf /etc/nginx/sites-available/nginx-base-location.conf
+
+COPY nginx-logstash-location.conf /etc/nginx/sites-available/nginx-logstash-location.conf
+
+COPY nginx-experimental-locations.conf /etc/nginx/sites-available/nginx-experimental-locations.conf
 
 COPY start-nginx.sh /start-nginx.sh
 

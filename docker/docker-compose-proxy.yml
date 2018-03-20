@@ -12,6 +12,11 @@ services:
             - etm
         networks:
             - elastest
+        environment:
+            - LOCATION_RULES=nginx-base-location.conf
+            - ET_SECURITY=false
+            - ET_USER=none
+            - ET_PASS=none
 networks:
     elastest:
       driver: bridge

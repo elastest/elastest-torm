@@ -3,5 +3,5 @@ services:
     etm-proxy:
         environment:
             - ET_SECURITY=true
-            - ET_USER=elastest
-            - ET_PASS=elastest
+            - ET_USER=none
+            - ET_PASS=none
