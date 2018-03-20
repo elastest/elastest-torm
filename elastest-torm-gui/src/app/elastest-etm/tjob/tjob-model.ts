@@ -75,4 +75,11 @@ export class TJobModel extends AbstractTJobModel {
   public getAbstractTJobClass(): string {
     return 'TJobModel';
   }
+
+  public getLastExecution(): TJobExecModel {
+    if (this.tjobExecs.length > 0) {
+      return this.tjobExecs[this.tjobExecs.length - 1];
+    }
+    return undefined;
+  }
 }

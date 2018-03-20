@@ -10,6 +10,7 @@ import { TJobModel } from '../tjob-model';
 import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { RunTJobModalComponent } from '../run-tjob-modal/run-tjob-modal.component';
+import { ETModelsTransformServices } from '../../../shared/services/et-models-transform.service';
 
 @Component({
   selector: 'etm-tjobs-manager',
@@ -29,6 +30,8 @@ export class TJobsManagerComponent implements OnInit {
     { name: 'id', label: 'Id' },
     { name: 'name', label: 'Name' },
     { name: 'imageName', label: 'Image Name' },
+    { name: 'lastExecutionDate', label: 'Last Execution' },
+    { name: 'result', label: 'Result' },
     { name: 'sut', label: 'Sut' },
     { name: 'options', label: 'Options' },
   ];
@@ -43,6 +46,7 @@ export class TJobsManagerComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private projectService: ProjectService,
+    private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
 
   ngOnInit() {
@@ -73,6 +77,7 @@ export class TJobsManagerComponent implements OnInit {
       this.project = project;
       if (project) {
         this.tJobs = this.project.tjobs;
+        this.addLastTJob();
       }
     });
   }
@@ -139,5 +144,16 @@ export class TJobsManagerComponent implements OnInit {
 
   viewTJob(tJob: TJobModel): void {
     this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id]);
+  }
+
+  addLastTJob(): void {
+    let lastExecution: TJobExecModel = new TJobExecModel();
+    for (let tjob of this.tJobs) {
+      lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(tjob.getLastExecution(), true);
+      if (lastExecution !== undefined) {
+        tjob['lastExecutionDate'] = lastExecution.endDate;
+        tjob['result'] = lastExecution.getResultIcon();
+      }
+    }
   }
 }
