@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EpmContainerComponent } from './epm-container.component';
+import { EmpContainerComponent } from './emp-container.component';
 
-describe('EpmContainerComponent', () => {
-  let component: EpmContainerComponent;
-  let fixture: ComponentFixture<EpmContainerComponent>;
+describe('EmpContainerComponent', () => {
+  let component: EmpContainerComponent;
+  let fixture: ComponentFixture<EmpContainerComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EpmContainerComponent ]
+      declarations: [ EmpContainerComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EpmContainerComponent);
+    fixture = TestBed.createComponent(EmpContainerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
