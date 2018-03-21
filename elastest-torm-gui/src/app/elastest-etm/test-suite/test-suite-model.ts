@@ -1,5 +1,6 @@
 import { TestCaseModel } from '../test-case/test-case-model';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
+import { defaultResult, getResultIconByString } from '../../shared/utils';
 
 export class TestSuiteModel {
   id: number;
@@ -26,13 +27,13 @@ export class TestSuiteModel {
     };
 
     if (this.errors !== undefined && this.errors !== null && this.failures !== undefined && this.failures !== null) {
+      let result: defaultResult = 'FAIL';
+
       if (this.errors === 0 && this.failures === 0) {
-        icon.name = 'check_circle';
-        icon.color = '#669a13';
-      } else {
-        icon.name = 'error';
-        icon.color = '#c82a0e';
+        result = 'SUCCESS';
       }
+
+      icon = getResultIconByString(result);
     }
 
     return icon;

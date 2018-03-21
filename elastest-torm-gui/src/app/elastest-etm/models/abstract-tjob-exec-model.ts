@@ -1,4 +1,5 @@
 import { AbstractTJobModel } from './abstract-tjob-model';
+import { getResultIconByString } from '../../shared/utils';
 
 export class AbstractTJobExecModel {
   id: number;
@@ -77,27 +78,7 @@ export class AbstractTJobExecModel {
       result: this.result,
     };
     if (this.finished() || this.notExecuted()) {
-      switch (this.result) {
-        case 'SUCCESS':
-          icon.name = 'check_circle';
-          icon.color = '#669a13';
-          break;
-        case 'FAIL':
-          icon.name = 'error';
-          icon.color = '#c82a0e';
-          break;
-        case 'STOPPED':
-        case 'NOT_EXECUTED':
-          icon.name = 'indeterminate_check_box';
-          icon.color = '#c82a0e';
-          break;
-        case 'ERROR':
-          icon.name = 'do_not_disturb';
-          icon.color = '#c82a0e';
-          break;
-        default:
-          break;
-      }
+      icon = getResultIconByString(this.result);
     }
     return icon;
   }

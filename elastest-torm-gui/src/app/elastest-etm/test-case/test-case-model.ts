@@ -1,5 +1,6 @@
 import { TestSuiteModel } from '../test-suite/test-suite-model';
 import { FileModel } from '../files-manager/file-model';
+import { getResultIconByString, defaultResult } from '../../shared/utils';
 
 export class TestCaseModel {
   id: number;
@@ -27,14 +28,11 @@ export class TestCaseModel {
       name: '',
       color: '',
     };
-
+    let result: defaultResult = 'FAIL';
     if (this.isSuccess()) {
-      icon.name = 'check_circle';
-      icon.color = '#669a13';
-    } else {
-      icon.name = 'error';
-      icon.color = '#c82a0e';
+      result = 'SUCCESS';
     }
+    icon = getResultIconByString(result);
 
     return icon;
   }

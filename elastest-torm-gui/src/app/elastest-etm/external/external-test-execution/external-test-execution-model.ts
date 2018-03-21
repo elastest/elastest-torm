@@ -3,6 +3,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 import { ServiceType } from '../external-project/external-project-model';
 import { TestCaseExecutionModel } from '../../../etm-testlink/models/test-case-execution-model';
+import { getResultIconByString } from '../../../shared/utils';
 
 export class ExternalTestExecutionModel {
   id: number;
@@ -52,33 +53,7 @@ export class ExternalTestExecutionModel {
       color: '',
     };
     if (this.finished() || this.notExecuted()) {
-      switch (this.result) {
-        case 'SUCCESS':
-        case 'PASSED':
-          icon.name = 'check_circle';
-          icon.color = '#669a13';
-          break;
-        case 'FAIL':
-        case 'FAILED':
-          icon.name = 'error';
-          icon.color = '#c82a0e';
-          break;
-        case 'STOPPED':
-        case 'NOT_EXECUTED':
-          icon.name = 'indeterminate_check_box';
-          icon.color = '#c82a0e';
-          break;
-        case 'ERROR':
-          icon.name = 'do_not_disturb';
-          icon.color = '#c82a0e';
-          break;
-        case 'BLOCKED':
-          icon.name = 'warning';
-          icon.color = '#ffac2f';
-          break;
-        default:
-          break;
-      }
+      icon = getResultIconByString(this.result);
     }
     return icon;
   }

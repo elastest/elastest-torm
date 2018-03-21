@@ -25,6 +25,10 @@
       </md-card-subtitle>
       <td-data-table #stepsTable class="scroll_table" [data]="testCase.steps" [columns]="testCaseStepsColumns" [selectable]="false"
         [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <ng-template *ngFor="let column of testCaseStepsColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+          <div *ngIf="column.name === 'actions' || column.name === 'expectedResults'; else onlyValue" [innerHTML]="value"></div>
+          <ng-template #onlyValue>{{value}}</ng-template>
+        </ng-template>
       </td-data-table>
     </div>
 

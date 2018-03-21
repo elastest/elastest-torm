@@ -10,6 +10,7 @@ import { IExternalExecution } from '../../../elastest-etm/external/models/extern
 import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
 import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
+import { getResultIconByString } from '../../../shared/utils';
 ElementRef;
 @Component({
   selector: 'testlink-execution-form',
@@ -35,7 +36,11 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
 
   tcExec: TestCaseExecutionModel;
 
-  constructor(private testLinkService: TestLinkService) {}
+  resultObj: any;
+
+  constructor(private testLinkService: TestLinkService) {
+    this.resultObj = getResultIconByString('');
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.data) {
@@ -54,6 +59,8 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     this.tcExec.executionType = this.testCase.executionType;
     this.tcExec.testPlanId = this.build.testPlanId;
     this.tcExec.buildId = this.build.id;
+
+    this.resultObj = getResultIconByString(this.testCase.executionStatus);
   }
 
   ngAfterViewChecked() {
