@@ -52,6 +52,7 @@ import { ExternalTjobFormComponent } from './elastest-etm/external/external-tjob
 import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
 import { EdmContainerComponent } from './elastest-edm/edm-container/edm-container.component';
 import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
+import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
 
 const routes: Routes = [
   {
@@ -312,6 +313,15 @@ const routes: Routes = [
                                     component: BuildComponent,
                                   },
                                   {
+                                    path: 'exec',
+                                    children: [
+                                      {
+                                        path: 'new',
+                                        component: TestPlanExecutionComponent,
+                                      },
+                                    ],
+                                  },
+                                  {
                                     path: 'cases',
                                     children: [
                                       {
@@ -544,7 +554,7 @@ const routes: Routes = [
             path: '',
             component: EdmContainerComponent,
           },
-        ],        
+        ],
       },
       {
         path: 'emp',
@@ -554,7 +564,7 @@ const routes: Routes = [
             component: EmpContainerComponent,
           },
         ],
-      }
+      },
     ],
   },
 ];

@@ -1,0 +1,14 @@
+<h2 md-dialog-title>Select a Build</h2>
+<md-dialog-content>
+  <div layout="row" class="push-bottom-md" *ngIf="ready">
+    <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
+      <md-option *ngFor="let build of builds" [value]="build">
+        {{build.name}}
+      </md-option>
+    </md-select>
+  </div>
+</md-dialog-content>
+<md-dialog-actions>
+  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTestPlan()" [disabled]="selectedBuild === undefined">Run Test Plan</button>
+  <button md-button md-dialog-close>Cancel</button>
+</md-dialog-actions>

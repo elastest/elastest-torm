@@ -5,9 +5,10 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdDialogRef } from '@angular/material';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 import { TLTestCaseModel } from '../models/test-case-model';
+import { SelectBuildModalComponent } from './select-build-modal/select-build-modal.component';
 
 @Component({
   selector: 'testlink-test-plan',
@@ -102,5 +103,15 @@ export class TestPlanComponent implements OnInit {
       },
       (error) => console.log(error),
     );
+  }
+
+  runTestPlan(): void {
+    let dialogRef: MdDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
+      data: {
+        testPlan: this.testPlan,
+        builds: this.builds,
+        testProjectId: this.testProjectId,
+      },
+    });
   }
 }

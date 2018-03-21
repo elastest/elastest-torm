@@ -176,7 +176,7 @@ public class TestLinkService {
 		TestProject project = null;
 		try {
 			for (TestProject currentProject : this.getProjects()) {
-				if (currentProject.getId() == projectId) {
+				if (currentProject.getId().equals(projectId)) {
 					project = currentProject;
 					break;
 				}
@@ -252,7 +252,7 @@ public class TestLinkService {
 		try {
 			TestCase[] testCases = getSuiteTestCases(suiteId);
 			for (TestCase testCase : testCases) {
-				if (testCase.getId() == caseId) {
+				if (testCase.getId().equals(caseId)) {
 					foundTestCase = testCase;
 				}
 			}
@@ -341,7 +341,7 @@ public class TestLinkService {
 		TestCase[] testCases = this.getBuildTestCases(build);
 		TestCase tCase = null;
 		for (TestCase currentCase : testCases) {
-			if (currentCase.getId() == caseId) {
+			if (currentCase.getId().equals(caseId)) {
 				return currentCase;
 			}
 		}
@@ -483,7 +483,7 @@ public class TestLinkService {
 			TestPlan[] plans = this.getAllTestPlans();
 			if (plans != null) {
 				for (TestPlan currentPlan : plans) {
-					if (currentPlan.getId() == planId) {
+					if (currentPlan.getId().equals(planId)) {
 						plan = currentPlan;
 						break;
 					}
@@ -502,7 +502,7 @@ public class TestLinkService {
 		TestPlan plan = null;
 		try {
 			for (TestPlan currentPlan : this.getProjectTestPlans(projectId)) {
-				if (currentPlan.getId() == planId) {
+				if (currentPlan.getId().equals(planId)) {
 					plan = currentPlan;
 					break;
 				}
@@ -525,6 +525,18 @@ public class TestLinkService {
 			// EMPTY
 		}
 		return builds;
+	}
+
+	public Build getPlanBuildById(Integer planId, Integer buildId) {
+		Build[] builds = this.getPlanBuilds(planId);
+		if (builds != null) {
+			for (Build currentBuild : builds) {
+				if (currentBuild.getId().equals(buildId)) {
+					return currentBuild;
+				}
+			}
+		}
+		return null;
 	}
 
 	public Build getLatestPlanBuild(Integer planId) {
@@ -551,7 +563,7 @@ public class TestLinkService {
 			Build[] builds = this.getAllBuilds();
 			if (builds != null) {
 				for (Build currentBuild : builds) {
-					if (currentBuild.getId() == buildId) {
+					if (currentBuild.getId().equals(buildId)) {
 						build = currentBuild;
 						break;
 					}
@@ -761,5 +773,4 @@ public class TestLinkService {
 		fields.put("build", build);
 		return fields.toString();
 	}
-
 }

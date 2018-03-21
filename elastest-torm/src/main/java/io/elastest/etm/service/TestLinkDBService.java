@@ -25,227 +25,210 @@ import br.eti.kinoshita.testlinkjavaapi.util.Util;
 @Service
 public class TestLinkDBService {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(TestLinkService.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestLinkService.class);
 
-    @Value("${et.etm.testlink.db}")
-    public String testlinkDB;
+	@Value("${et.etm.testlink.db}")
+	public String testlinkDB;
 
-    @Value("${et.etm.testlink.db.user}")
-    public String testlinkDBUser;
+	@Value("${et.etm.testlink.db.user}")
+	public String testlinkDBUser;
 
-    @Value("${et.etm.testlink.db.pass}")
-    public String testlinkDBPass;
+	@Value("${et.etm.testlink.db.pass}")
+	public String testlinkDBPass;
 
-    @Value("${et.edm.mysql.host}")
-    public String mysqlHost;
+	@Value("${et.edm.mysql.host}")
+	public String mysqlHost;
 
-    @Value("${et.edm.mysql.port}")
-    public String mysqlport;
+	@Value("${et.edm.mysql.port}")
+	public String mysqlport;
 
-    Connection conn;
-    Statement stmt;
+	Connection conn;
+	Statement stmt;
 
-    @PostConstruct
-    public void init() {
-        String url = "jdbc:mysql://" + mysqlHost + ":" + mysqlport + "/"
-                + testlinkDB + "?autoReconnect=true&useSSL=false";
+	@PostConstruct
+	public void init() {
+		String url = "jdbc:mysql://" + mysqlHost + ":" + mysqlport + "/" + testlinkDB
+				+ "?autoReconnect=true&useSSL=false";
 
-        try {
-            conn = DriverManager.getConnection(url, testlinkDBUser,
-                    testlinkDBPass);
-            stmt = conn.createStatement();
-        } catch (SQLException e) {
-            logger.error(e.getMessage());
-        }
+		try {
+			conn = DriverManager.getConnection(url, testlinkDBUser, testlinkDBPass);
+			stmt = conn.createStatement();
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		}
 
-    }
+	}
 
-    /* ************************************************************/
-    /* ************************** Utils ***************************/
-    /* ************************************************************/
+	/* ************************************************************/
+	/* ************************** Utils ***************************/
+	/* ************************************************************/
 
-    public List<HashMap<String, Object>> convertResultSetToList(ResultSet rs)
-            throws SQLException {
-        ResultSetMetaData md = rs.getMetaData();
-        int columns = md.getColumnCount();
-        List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
+	public List<HashMap<String, Object>> convertResultSetToList(ResultSet rs) throws SQLException {
+		ResultSetMetaData md = rs.getMetaData();
+		int columns = md.getColumnCount();
+		List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
 
-        while (rs.next()) {
-            HashMap<String, Object> row = new HashMap<String, Object>(columns);
-            for (int i = 1; i <= columns; ++i) {
-                row.put(md.getColumnName(i), rs.getObject(i));
-            }
-            list.add(row);
-        }
+		while (rs.next()) {
+			HashMap<String, Object> row = new HashMap<String, Object>(columns);
+			for (int i = 1; i <= columns; ++i) {
+				row.put(md.getColumnName(i), rs.getObject(i));
+			}
+			list.add(row);
+		}
 
-        return list;
-    }
+		return list;
+	}
 
-    @SuppressWarnings("hiding")
-    public interface Callable<Object> {
-        public Object call(Map<String, Object> input);
-    }
+	@SuppressWarnings("hiding")
+	public interface Callable<Object> {
+		public Object call(Map<String, Object> input);
+	}
 
-    public Object[] getObjectListFromResultList(
-            Callable<Object> conversionMethod,
-            List<HashMap<String, Object>> resultList) {
-        Object[] objects = null;
+	public Object[] getObjectListFromResultList(Callable<Object> conversionMethod,
+			List<HashMap<String, Object>> resultList) {
+		Object[] objects = null;
 
-        for (HashMap<String, Object> result : resultList) {
-            Object obj = conversionMethod.call(result);
-            objects = (Object[]) ArrayUtils.add(objects, obj);
-        }
+		for (HashMap<String, Object> result : resultList) {
+			Object obj = conversionMethod.call(result);
+			objects = (Object[]) ArrayUtils.add(objects, obj);
+		}
 
-        return objects;
-    }
+		return objects;
+	}
 
-    public Execution[] getExecutionListFromResultList(
-            List<HashMap<String, Object>> resultList) {
-        Execution[] executions = null;
+	public Execution[] getExecutionListFromResultList(List<HashMap<String, Object>> resultList) {
+		Execution[] executions = null;
 
-        Callable<Object> getExecution = new Callable<Object>() {
-            @Override
-            public java.lang.Object call(Map<String, java.lang.Object> input) {
-                return Util.getExecution(input);
-            }
-        };
-        executions = (Execution[]) this
-                .getObjectListFromResultList(getExecution, resultList);
+		Callable<Object> getExecution = new Callable<Object>() {
+			@Override
+			public java.lang.Object call(Map<String, java.lang.Object> input) {
+				return Util.getExecution(input);
+			}
+		};
+		executions = (Execution[]) this.getObjectListFromResultList(getExecution, resultList);
 
-        return executions;
-    }
+		return executions;
+	}
 
-    public Build[] getBuildListFromResultList(
-            List<HashMap<String, Object>> resultList) {
-        Build[] builds = null;
+	public Build[] getBuildListFromResultList(List<HashMap<String, Object>> resultList) {
+		Build[] builds = null;
 
-        Callable<Object> getBuild = new Callable<Object>() {
-            @Override
-            public java.lang.Object call(Map<String, java.lang.Object> input) {
-                return Util.getBuild(input);
-            }
-        };
-        builds = (Build[]) this.getObjectListFromResultList(getBuild,
-                resultList);
+		Callable<Object> getBuild = new Callable<Object>() {
+			@Override
+			public java.lang.Object call(Map<String, java.lang.Object> input) {
+				return Util.getBuild(input);
+			}
+		};
+		builds = (Build[]) this.getObjectListFromResultList(getBuild, resultList);
 
-        return builds;
-    }
+		return builds;
+	}
 
-    /* ************************************************************/
-    /* *************************** Api ****************************/
-    /* ************************************************************/
+	/* ************************************************************/
+	/* *************************** Api ****************************/
+	/* ************************************************************/
 
-    /* **** Execs **** */
+	/* **** Execs **** */
 
-    public Execution[] getAllExecs() {
-        Execution[] executions = null;
-        try {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM executions");
-            List<HashMap<String, Object>> resultList = this
-                    .convertResultSetToList(rs);
-            executions = this.getExecutionListFromResultList(resultList);
+	public Execution[] getAllExecs() {
+		Execution[] executions = null;
+		try {
+			ResultSet rs = stmt.executeQuery("SELECT * FROM executions");
+			List<HashMap<String, Object>> resultList = this.convertResultSetToList(rs);
+			executions = this.getExecutionListFromResultList(resultList);
 
-        } catch (SQLException e) {
-            logger.error(e.getMessage());
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 
-        return executions;
-    }
+		return executions;
+	}
 
-    public Execution[] getExecsByCaseAndOthers(Integer testPlanId,
-            Integer buildId, Integer testCaseId, Integer testCaseExternalId,
-            Integer platformId) {
-        Execution[] executions = null;
-        if (testCaseId != null) {
-            String query = "SELECT * FROM executions";
-            String testCaseQuery = " WHERE tcversion_id IN ("
-                    + "SELECT id FROM nodes_hierarchy" + " WHERE parent_id = "
-                    + testCaseId + ")";
-            query += testCaseQuery;
+	public Execution[] getExecsByCaseAndOthers(Integer testPlanId, Integer buildId, Integer testCaseId,
+			Integer testCaseExternalId, Integer platformId) {
+		Execution[] executions = null;
+		if (testCaseId != null) {
+			String query = "SELECT * FROM executions";
+			String testCaseQuery = " WHERE tcversion_id IN (" + "SELECT id FROM nodes_hierarchy" + " WHERE parent_id = "
+					+ testCaseId + ")";
+			query += testCaseQuery;
 
-            if (testPlanId != null) {
-                String testPlanQuery = " AND testplan_id = " + testPlanId;
-                query += testPlanQuery;
-            }
+			if (testPlanId != null) {
+				String testPlanQuery = " AND testplan_id = " + testPlanId;
+				query += testPlanQuery;
+			}
 
-            if (buildId != null) {
-                String buildQuery = " AND build_id = " + buildId;
-                query += buildQuery;
-            }
+			if (buildId != null) {
+				String buildQuery = " AND build_id = " + buildId;
+				query += buildQuery;
+			}
 
-            if (platformId != null) {
-                String platformQuery = " AND platform_id = " + platformId;
-                query += platformQuery;
-            }
+			if (platformId != null) {
+				String platformQuery = " AND platform_id = " + platformId;
+				query += platformQuery;
+			}
 
-            try {
-                ResultSet rs = stmt.executeQuery(query);
-                List<HashMap<String, Object>> resultList = this
-                        .convertResultSetToList(rs);
+			try {
+				ResultSet rs = stmt.executeQuery(query);
+				List<HashMap<String, Object>> resultList = this.convertResultSetToList(rs);
 
-                executions = this.getExecutionListFromResultList(resultList);
-            } catch (SQLException e) {
-                logger.error(e.getMessage());
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-        }
-        return executions;
-    }
+				executions = this.getExecutionListFromResultList(resultList);
+			} catch (SQLException e) {
+				logger.error(e.getMessage());
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+		return executions;
+	}
 
-    public Execution[] getExecsByCase(Integer testCaseId) {
-        Execution[] executions = this.getExecsByCaseAndOthers(null, null,
-                testCaseId, null, null);
-        return executions;
-    }
-    
-    public Execution getTestExecById(Integer testCaseId, Integer testExecId) {
-        Execution[] testCaseExecs = this.getExecsByCase(testCaseId);
-        Execution exec = null;
-        if (testCaseExecs != null) {
-            for (Execution currentExec : testCaseExecs) {
-                if (testExecId == currentExec.getId()) {
-                    exec = currentExec;
-                    break;
-                }
-            }
-        }
-        return exec;
-    }
+	public Execution[] getExecsByCase(Integer testCaseId) {
+		Execution[] executions = this.getExecsByCaseAndOthers(null, null, testCaseId, null, null);
+		return executions;
+	}
 
-    public Execution[] getExecsByPlanCase(Integer testCaseId,
-            Integer testPlanId) {
-        Execution[] executions = this.getExecsByCaseAndOthers(testPlanId, null,
-                testCaseId, null, null);
-        return executions;
-    }
+	public Execution getTestExecById(Integer testCaseId, Integer testExecId) {
+		Execution[] testCaseExecs = this.getExecsByCase(testCaseId);
+		Execution exec = null;
+		if (testCaseExecs != null) {
+			for (Execution currentExec : testCaseExecs) {
+				if (testExecId.equals(currentExec.getId())) {
+					exec = currentExec;
+					break;
+				}
+			}
+		}
+		return exec;
+	}
 
-    public Execution[] getExecsByBuildCase(Integer buildId,
-            Integer testCaseId) {
-        Execution[] executions = this.getExecsByCaseAndOthers(null, buildId,
-                testCaseId, null, null);
-        return executions;
-    }
+	public Execution[] getExecsByPlanCase(Integer testCaseId, Integer testPlanId) {
+		Execution[] executions = this.getExecsByCaseAndOthers(testPlanId, null, testCaseId, null, null);
+		return executions;
+	}
 
-    /* **** Builds **** */
+	public Execution[] getExecsByBuildCase(Integer buildId, Integer testCaseId) {
+		Execution[] executions = this.getExecsByCaseAndOthers(null, buildId, testCaseId, null, null);
+		return executions;
+	}
 
-    public Build[] getAllBuilds() {
-        Build[] builds = null;
-        String query = "SELECT * FROM builds";
-        try {
-            ResultSet rs = stmt.executeQuery(query);
-            List<HashMap<String, Object>> resultList;
-            resultList = this.convertResultSetToList(rs);
-            builds = this.getBuildListFromResultList(resultList);
-        } catch (SQLException e) {
-            logger.error(e.getMessage());
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return builds;
-    }
+	/* **** Builds **** */
+
+	public Build[] getAllBuilds() {
+		Build[] builds = null;
+		String query = "SELECT * FROM builds";
+		try {
+			ResultSet rs = stmt.executeQuery(query);
+			List<HashMap<String, Object>> resultList;
+			resultList = this.convertResultSetToList(rs);
+			builds = this.getBuildListFromResultList(resultList);
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return builds;
+	}
 
 }

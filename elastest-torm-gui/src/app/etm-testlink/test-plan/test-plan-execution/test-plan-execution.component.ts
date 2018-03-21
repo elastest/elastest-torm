@@ -1,0 +1,422 @@
+import { ExecutionFormComponent } from '../../execution/execution-form/execution-form.component';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { ExternalTJobModel } from '../../../elastest-etm/external/external-tjob/external-tjob-model';
+import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { ExternalService } from '../../../elastest-etm/external/external.service';
+import { Router, Params, ActivatedRoute } from '@angular/router';
+import { TestLinkService } from '../../testlink.service';
+import { EusService } from '../../../elastest-eus/elastest-eus.service';
+import { ExternalTestCaseModel } from '../../../elastest-etm/external/external-test-case/external-test-case-model';
+import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
+import { CompleteUrlObj } from '../../../shared/utils';
+import { BuildModel } from '../../models/build-model';
+import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
+import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
+import { TLTestCaseModel } from '../../models/test-case-model';
+import { Observable, Subscription } from 'rxjs';
+import { CaseExecutionViewComponent } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-new/case-execution-view/case-execution-view.component';
+import { EtmMonitoringViewComponent } from '../../../elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
+import { PullingObjectModel } from '../../../shared/pulling-obj.model';
+import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
+import { EsmService } from '../../../elastest-esm/esm-service.service';
+import { TestPlanModel } from '../../models/test-plan-model';
+
+@Component({
+  selector: 'testlink-test-plan-execution',
+  templateUrl: './test-plan-execution.component.html',
+  styleUrls: ['./test-plan-execution.component.scss'],
+})
+export class TestPlanExecutionComponent implements OnInit {
+  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('tlExecutionForm') tlExecutionForm: ExecutionFormComponent;
+
+  params: Params;
+
+  testPlan: TestPlanModel;
+  selectedBuild: BuildModel;
+
+  exTJob: ExternalTJobModel;
+  exTJobExec: ExternalTJobExecModel;
+  externalTestCases: ExternalTestCaseModel[] = [];
+  currentExternalTestExecution: ExternalTestExecutionModel;
+
+  exTJobExecFinish: boolean = false;
+  execFinishedTimer: Observable<number>;
+  execFinishedSubscription: Subscription;
+
+  showStopBtn: boolean = false;
+
+  // EUS
+  eusTimer: Observable<number>;
+  eusSubscription: Subscription;
+  eusInstanceId: string;
+  eusUrl: string;
+
+  browserLoadingMsg: string = 'Loading...';
+
+  // Browser
+  sessionId: string;
+
+  vncBrowserUrl: string;
+  vncHost: string;
+  vncPort: string;
+  vncPassword: string;
+  autoconnect: boolean = true;
+  viewOnly: boolean = false;
+
+  // Files
+  showFiles: boolean = false;
+
+  // Others
+  data: any;
+  tJobExecUrl: string;
+
+  disableTLNextBtn: boolean = false;
+  execFinished: boolean = false;
+
+  constructor(
+    private externalService: ExternalService,
+    public router: Router,
+    private route: ActivatedRoute,
+    private esmService: EsmService,
+    private eusService: EusService,
+    private testLinkService: TestLinkService,
+  ) {
+    if (this.route.params !== null || this.route.params !== undefined) {
+      this.route.params.subscribe((params: Params) => {
+        this.params = params;
+        this.loadPlanAndBuild();
+      });
+    }
+  }
+
+  ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.end();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.end();
+  }
+
+  loadPlanAndBuild(): void {
+    this.testLinkService.getTestPlanById(this.params['planId']).subscribe((plan: TestPlanModel) => {
+      this.testPlan = plan;
+      this.loadBuild();
+    });
+  }
+
+  loadBuild(): void {
+    this.testLinkService.getBuildById(this.params['buildId']).subscribe(
+      (build: BuildModel) => {
+        this.selectedBuild = build;
+        this.loadExternalTJob();
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  /**********************/
+  /* **** External **** */
+  /**********************/
+
+  loadExternalTJob(): void {
+    this.testLinkService.getExternalTJobByTestPlanId(this.testPlan.id).subscribe(
+      (exTJob: ExternalTJobModel) => {
+        this.exTJob = exTJob;
+        this.createTJobExecution();
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  createTJobExecution(): void {
+    this.exTJobExec = new ExternalTJobExecModel();
+    this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
+      this.exTJobExec = exTJobExec;
+      this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+      this.checkFinished();
+      this.waitForEus(exTJobExec);
+    });
+  }
+
+  checkFinished(): void {
+    let responseObj: PullingObjectModel = this.externalService.checkTJobExecFinished(
+      this.exTJobExec.id,
+      this.execFinishedTimer,
+      this.execFinishedSubscription,
+    );
+    this.execFinishedSubscription = responseObj.subscription;
+
+    responseObj.observable.subscribe((finished: boolean) => {
+      if (finished) {
+        this.end();
+      }
+    });
+  }
+
+  waitForEus(exTJobExec: ExternalTJobExecModel): void {
+    this.browserLoadingMsg = 'Waiting for EUS...';
+    if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
+      this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
+      let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
+        this.eusInstanceId,
+        this.eusTimer,
+        this.eusSubscription,
+        'external',
+      );
+      this.eusSubscription = responseObj.subscription;
+
+      responseObj.observable.subscribe(
+        (eus: EsmServiceInstanceModel) => {
+          this.eusUrl = eus.apiUrl;
+          this.eusService.setEusUrl(this.eusUrl);
+          this.loadChromeBrowser();
+        },
+        (error) => console.log(error),
+      );
+    }
+  }
+
+  loadChromeBrowser(): void {
+    this.browserLoadingMsg = 'Waiting for Browser...';
+    this.eusService.startSession('chrome', '62').subscribe(
+      (sessionId: string) => {
+        this.sessionId = sessionId;
+        this.showStopBtn = true;
+        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
+        let browserLog: any = this.exTJobExec.getBrowserLogObj();
+        if (browserLog) {
+          this.logsAndMetrics.addMoreFromObj(browserLog);
+        }
+        this.eusService.getVncUrlSplitted(sessionId).subscribe(
+          (urlObj: CompleteUrlObj) => {
+            this.vncHost = urlObj.queryParams.host;
+            this.vncPort = urlObj.queryParams.port;
+            this.vncPassword = urlObj.queryParams.password;
+            this.vncBrowserUrl = urlObj.href;
+            this.startExecution();
+          },
+          (error) => console.error(error),
+        );
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  startExecution(): void {
+    this.externalTestCases = this.exTJob.exTestCases;
+    this.setTJobExecutionUrl('Test Plan Execution:');
+    this.data = {
+      build: this.selectedBuild,
+    };
+    // Load First TCase
+    this.loadNextTestLinkCase();
+  }
+
+  deprovideBrowserAndEus(): void {
+    if (this.sessionId !== undefined) {
+      this.browserLoadingMsg = 'Shutting down Browser...';
+      this.vncBrowserUrl = undefined;
+      this.eusService.stopSession(this.sessionId).subscribe(
+        (ok) => {
+          this.sessionId = undefined;
+          this.deprovisionEUS();
+        },
+        (error) => {
+          console.error(error);
+          this.deprovisionEUS();
+        },
+      );
+    } else {
+      this.deprovisionEUS();
+    }
+  }
+
+  deprovisionEUS(): void {
+    if (this.eusInstanceId && this.exTJobExec) {
+      this.browserLoadingMsg = 'Shutting down EUS...';
+      this.esmService.deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id).subscribe(
+        () => {
+          this.browserLoadingMsg = 'FINISHED';
+          this.showFiles = true;
+          this.viewEndedTJobExec();
+        },
+        (error) => console.log(error),
+      );
+    }
+    this.unsubscribeEus();
+  }
+
+  unsubscribeEus(): void {
+    if (this.eusSubscription) {
+      this.eusSubscription.unsubscribe();
+      this.eusSubscription = undefined;
+    }
+  }
+
+  unsubscribeExecFinished(): void {
+    if (this.execFinishedSubscription) {
+      this.execFinishedSubscription.unsubscribe();
+      this.execFinishedSubscription = undefined;
+    }
+  }
+
+  end(): void {
+    this.showStopBtn = false;
+    this.unsubscribeExecFinished();
+    this.deprovideBrowserAndEus();
+  }
+
+  forceEnd(): void {
+    this.showStopBtn = false;
+    this.exTJobExec.result = 'STOPPED';
+    this.exTJobExec.endDate = new Date();
+    this.externalService.modifyExternalTJobExec(this.exTJobExec);
+    this.end();
+  }
+
+  setTJobExecutionUrl(label: string): void {
+    if (this.exTJobExec) {
+      this.tJobExecUrl =
+        document.location.origin +
+        '/#/external/project/' +
+        this.exTJob.exProject.id +
+        '/tjob/' +
+        this.exTJob.id +
+        '/exec/' +
+        this.exTJobExec.id;
+      this.tJobExecUrl = ' <p><strong>' + label + ' </strong><a href="' + this.tJobExecUrl + '">' + this.tJobExecUrl + '</a></p>';
+    }
+  }
+
+  getCurrentTestExecutionUrl(label: string): string {
+    let testExecUrl: string =
+      document.location.origin +
+      '/#/external/project/' +
+      this.exTJob.exProject.id +
+      '/tjob/' +
+      this.exTJob.id +
+      '/case/' +
+      this.currentExternalTestExecution.exTestCase.id +
+      '/exec/' +
+      this.currentExternalTestExecution.id;
+    testExecUrl = ' <p><strong>' + label + ' </strong><a href="' + testExecUrl + '">' + testExecUrl + '</a></p>';
+    return testExecUrl;
+  }
+
+  /**********************/
+  /* **** TestLink **** */
+  /**********************/
+
+  loadNextTestLinkCase(): void {
+    let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
+    if (nextCase !== undefined) {
+      this.initCurrentExternalTestExecution(nextCase);
+      this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+        (savedExTestExec: ExternalTestExecutionModel) => {
+          this.currentExternalTestExecution = savedExTestExec;
+          this.startTestLinkTestCaseExecution(nextCase.externalId);
+        },
+        (error) => console.log(error),
+      );
+    } else {
+      this.finishTJobExecution();
+    }
+  }
+
+  initCurrentExternalTestExecution(currentCase: ExternalTestCaseModel): void {
+    this.currentExternalTestExecution = new ExternalTestExecutionModel();
+    this.currentExternalTestExecution.exTestCase = currentCase;
+    this.currentExternalTestExecution.exTJobExec = new ExternalTJobExecModel();
+    this.currentExternalTestExecution.exTJobExec.id = this.exTJobExec.id;
+
+    this.currentExternalTestExecution.startDate = new Date();
+    this.currentExternalTestExecution.externalSystemId = currentCase.externalSystemId;
+    this.currentExternalTestExecution.externalId = 'tmp-exId-' + this.exTJobExec.id + '-' + currentCase.id;
+    this.currentExternalTestExecution.monitoringIndex = this.exTJobExec.monitoringIndex;
+  }
+
+  startTestLinkTestCaseExecution(testCaseId: string): void {
+    let build: BuildModel = this.data.build;
+    let additionalNotes: string = this.getCurrentTestExecutionUrl('Test Case Execution:');
+    additionalNotes += this.tJobExecUrl;
+    this.testLinkService.getBuildTestCaseById(build.id, testCaseId).subscribe(
+      (testCase: TLTestCaseModel) => {
+        // New object to detect on changes
+        this.data = {
+          testCase: testCase,
+          build: build,
+          additionalNotes: additionalNotes,
+        };
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  saveTLCaseExecution(): void {
+    this.saveExecution().subscribe(
+      (savedObj: IExternalExecutionSaveModel) => {
+        let tlExec: TestCaseExecutionModel = savedObj.response;
+        if (tlExec.id !== undefined) {
+          this.currentExternalTestExecution.externalId = tlExec.id.toString();
+          this.currentExternalTestExecution.endDate = new Date();
+          this.currentExternalTestExecution.result = tlExec.status;
+          this.currentExternalTestExecution.setFieldsByExternalObjAndService(tlExec, 'TESTLINK');
+
+          this.externalService.modifyExternalTestExecution(this.currentExternalTestExecution).subscribe(
+            (savedExTestExec: ExternalTestExecutionModel) => {
+              this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
+              this.loadNextTestLinkCase();
+            },
+            (error) => console.log(error),
+          );
+        }
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  finishTJobExecution(): void {
+    this.disableTLNextBtn = true;
+    this.execFinished = true;
+    this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
+      (exTestExecs: ExternalTestExecutionModel[]) => {
+        this.exTJobExec.exTestExecs = exTestExecs;
+        this.exTJobExec.updateResultByTestExecsResults();
+        this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+        this.exTJobExec.endDate = new Date();
+        this.exTJobExec.exTestExecs = []; // TODO fix No _valueDeserializer assigned
+        this.exTJobExec.exTJob.exTestCases = []; // TODO fix No _valueDeserializer assigned
+
+        this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+      },
+      (error) => {
+        this.exTJobExec.result = 'SUCCESS';
+        this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
+        this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+      },
+    );
+  }
+
+  saveExecution(): Observable<IExternalExecutionSaveModel> {
+    if (this.tlExecutionForm) {
+      return this.tlExecutionForm.saveExecution();
+    } else {
+      this.finishTJobExecution();
+      throw new Error('Error: TestCase View not loaded');
+    }
+  }
+
+  forceStop(): Observable<ExternalTJobExecModel> {
+    this.exTJobExec.result = 'STOPPED';
+    return this.externalService.modifyExternalTJobExec(this.exTJobExec);
+  }
+
+  viewEndedTJobExec(): void {
+    this.router.navigate(['/external/project/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
+  }
+}

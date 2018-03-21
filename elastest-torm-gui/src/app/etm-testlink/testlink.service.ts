@@ -183,6 +183,13 @@ export class TestLinkService {
     return this.http.get(url).map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildList(response.json()));
   }
 
+  public getPlanBuildById(planId: number | string, buildId: number | string): Observable<BuildModel> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId + '/build/' + buildId;
+    return this.http
+      .get(url)
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToBuildModel(response.json()));
+  }
+
   public getPlanBuilds(plan: TestPlanModel): Observable<BuildModel[]> {
     return this.getPlanBuildsById(plan.id);
   }

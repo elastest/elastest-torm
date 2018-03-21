@@ -66,6 +66,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
   saveExecution(): Observable<IExternalExecutionSaveModel> {
     let _obs: Subject<IExternalExecutionSaveModel> = new Subject<IExternalExecutionSaveModel>();
     let obs: Observable<IExternalExecutionSaveModel> = _obs.asObservable();
+    let oldNotes: string = this.tcExec.notes;
     if (this.data.additionalNotes) {
       this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
     }
@@ -76,8 +77,15 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
         savedResponse.response = savedExecution;
         _obs.next(savedResponse);
       },
-      (error) => _obs.error(error),
+      (error) => {
+        this.tcExec.notes = oldNotes;
+        _obs.error(error);
+      },
     );
     return obs;
+  }
+
+  public isValidForm(): boolean {
+    return this.tcExec.status !== undefined && this.tcExec.status !== null;
   }
 }

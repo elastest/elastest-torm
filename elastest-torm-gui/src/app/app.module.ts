@@ -120,6 +120,8 @@ import { SupportServiceConfigViewComponent } from './elastest-esm/support-servic
 import { ExternalTestExecutionsViewComponent } from './elastest-etm/external/external-test-execution/external-test-executions-view/external-test-executions-view.component';
 import { EdmContainerComponent } from './elastest-edm/edm-container/edm-container.component';
 import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
+import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
+import { SelectBuildModalComponent } from './etm-testlink/test-plan/select-build-modal/select-build-modal.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -190,6 +192,8 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExternalTestExecutionsViewComponent,
     EdmContainerComponent,
     EmpContainerComponent,
+    TestPlanExecutionComponent,
+    SelectBuildModalComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -264,6 +268,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ShowMessageModalComponent,
     ExecuteCaseModalComponent,
     MonitoringConfigurationComponent,
+    SelectBuildModalComponent,
   ],
   bootstrap: [AppComponent],
 })

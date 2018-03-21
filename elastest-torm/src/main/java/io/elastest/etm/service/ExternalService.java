@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
 import io.elastest.etm.api.model.ExternalJob;
@@ -383,7 +384,10 @@ public class ExternalService {
 
 			try {
 				elasticsearchService.putCall(url, body);
+				logger.info("Index {} created", index);
 			} catch (IndexAlreadyExistException e) {
+				logger.error("Index {} already exist", index, e);
+			} catch (HttpClientErrorException e) {
 				logger.error("Index {} already exist", index, e);
 			} catch (RestClientException e) {
 				logger.error("Error creating index {}", index, e);
@@ -394,7 +398,6 @@ public class ExternalService {
 				enableESFieldData(index, url, "level");
 				enableESFieldData(index, url, "type");
 			}
-			logger.info("Index {} created", index);
 		}
 		logger.info("ES indices created!");
 	}
