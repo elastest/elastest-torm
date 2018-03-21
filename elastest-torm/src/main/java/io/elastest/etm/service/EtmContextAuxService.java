@@ -67,6 +67,8 @@ public class EtmContextAuxService {
 	
 	@Value("${et.emp.grafana.context-path}")
 	private String etEmpGrafanContextPath;
+	@Value("${et.emp.grafana.dashboard}")
+	private String etEmpGrafanaDashboard;
 	@Value("${et.edm.command.context-path}")
 	private String etEdmCommandContextPath;
 
@@ -117,7 +119,7 @@ public class EtmContextAuxService {
 		contextInfo.setTestLinkStarted(!etEtmTestLinkHost.equals("none") ? true : false);
 		
 		contextInfo.setEdmCommandUrl("http://" + etPublicHost + ":" + etProxyPort + "/" + etEdmCommandContextPath);
-		contextInfo.setEmpGrafanaUrl("http://" + etPublicHost + ":" + etProxyPort + "/" + etEmpGrafanContextPath);
+		contextInfo.setEmpGrafanaUrl("http://" + etPublicHost + ":" + etProxyPort + "/" + etEmpGrafanContextPath + etEmpGrafanaDashboard);
 		return contextInfo;
 	}
 
