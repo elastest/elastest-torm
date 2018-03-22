@@ -18,6 +18,7 @@ package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -65,10 +66,12 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
 
 		// Run TJob
 		runTJobFromProjectPage(driver, tJobName);
-
-		log.info("Wait for build sucess traces");
+		
 		WebDriverWait waitLogs = new WebDriverWait(driver, 180);
-		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
+	    log.info("Wait for metrics");
+	    waitLogs.until(presenceOfElementLocated(By.className("tick")));
+	    log.info("Wait for build sucess traces");
+	    waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
 	}
 
 }
