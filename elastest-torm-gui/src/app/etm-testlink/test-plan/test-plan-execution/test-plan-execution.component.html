@@ -1,58 +1,64 @@
-<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="40" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row" *ngIf="exTJobExec">
-          <span>
-            <button md-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
-              <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
-            </button>
-            <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
-          </span>
-          <span id="executingTitle">Executing Test Plan "{{testPlan.name}}" - Build "{{selectedBuild.name}}"- Exec {{exTJobExec.id}} </span>
-          <span flex></span>
-          <span>
-            <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
-              <md-icon>stop</md-icon>
-            </button>
-          </span>
-          <span>
-            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
-              <md-icon>settings</md-icon>
-            </button>
-          </span>
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest *ngIf="exTJob && exTJobExec && !exTJobExec.finished()">
-        <div id="testLinkExec">
-          <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
-        </div>
-        <div layout="row">
-          <button md-raised-button color="accent" *ngIf="tlExecutionForm" [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
-            (click)="saveTLCaseExecution()">Save & Next</button>
-        </div>
-      </md-card-content>
+<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs" layout-fill>
+  <div flex-gt-sm="40" layout-gt-sm="column" layout-fill>
+    <md-card tdMediaToggle="gt-xs" flex>
+      <div layout="column" layout-fill>
+        <md-card-title>
+          <div layout="row" *ngIf="exTJobExec">
+            <span>
+              <button md-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
+                <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
+              </button>
+              <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
+            </span>
+            <span id="executingTitle">Executing Test Plan "{{testPlan.name}}" - Build "{{selectedBuild.name}}"- Exec {{exTJobExec.id}} </span>
+            <span flex></span>
+            <span>
+              <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
+                <md-icon>stop</md-icon>
+              </button>
+            </span>
+            <span>
+              <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
+                <md-icon>settings</md-icon>
+              </button>
+            </span>
+          </div>
+        </md-card-title>
+        <md-divider></md-divider>
+        <md-card-content *ngIf="exTJob && exTJobExec && !exTJobExec.finished()" flex class="push-bottom-none">
+          <div layout="column" layout-fill>
+            <div id="testLinkExec" flex [style.overflow]="auto">
+              <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
+            </div>
+            <div layout="row">
+              <button md-raised-button color="accent" *ngIf="tlExecutionForm" [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
+                (click)="saveTLCaseExecution()">Save & Next</button>
+            </div>
+          </div>
+        </md-card-content>
+      </div>
     </md-card>
   </div>
-  <div flex-gt-sm="60" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Browser</span>
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest *ngIf="exTJobExec">
-        <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
-          <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-            [showStatus]="false" [showConnectionBtns]="false"></vnc-client>
-        </ng-container>
-        <ng-template #loadingBrowser>
-          <div>{{browserLoadingMsg}}</div>
-          <md-spinner *ngIf="exTJobExec && !exTJobExec.finished()" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
-        </ng-template>
-      </md-card-content>
+  <div flex-gt-sm="60" layout-gt-sm="column" layout-fill>
+    <md-card tdMediaToggle="gt-xs" flex>
+      <div layout="column" layout-fill>
+        <md-card-title>
+          <div layout="row">
+            <span>Browser</span>
+          </div>
+        </md-card-title>
+        <md-divider></md-divider>
+        <md-card-content *ngIf="exTJobExec" flex [style.overflow]="auto" class="push-bottom-none">
+          <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
+            <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
+              [showStatus]="false" [showConnectionBtns]="false"></vnc-client>
+          </ng-container>
+          <ng-template #loadingBrowser>
+            <div>{{browserLoadingMsg}}</div>
+            <md-spinner *ngIf="exTJobExec && !exTJobExec.finished()" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+          </ng-template>
+        </md-card-content>
+      </div>
     </md-card>
   </div>
 </div>

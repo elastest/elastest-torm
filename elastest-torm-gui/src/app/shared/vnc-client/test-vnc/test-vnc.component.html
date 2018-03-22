@@ -1,13 +1,13 @@
-<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" >
-  <div flex-gt-lg="100" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
+<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" layout-fill>
+  <md-card tdMediaToggle="gt-xs" flex>
+    <div layout="column" layout-fill>
       <md-card-title>
         VNC
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content>
+      <md-card-content flex style="overflow: auto;">
         <vnc-client [host]="host" [port]="port" [password]="password" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="true"></vnc-client>
       </md-card-content>
-    </md-card>
-  </div>
+    </div>
+  </md-card>
 </div>

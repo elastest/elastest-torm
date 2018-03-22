@@ -386,9 +386,9 @@ public class ExternalService {
 				elasticsearchService.putCall(url, body);
 				logger.info("Index {} created", index);
 			} catch (IndexAlreadyExistException e) {
-				logger.error("Index {} already exist", index, e);
+				logger.error("Index {} already exist", index);
 			} catch (HttpClientErrorException e) {
-				logger.error("Index {} already exist", index, e);
+				logger.error("Index {} already exist", index);
 			} catch (RestClientException e) {
 				logger.error("Error creating index {}", index, e);
 			} finally {

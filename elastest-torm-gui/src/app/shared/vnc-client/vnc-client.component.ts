@@ -49,7 +49,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   initVnc(): void {
     if (this.host && this.port) {
-      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password);
+      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, 'scale');
       this.vncUi.init();
       this.suscribeToStatus();
       this.preventFocus();
