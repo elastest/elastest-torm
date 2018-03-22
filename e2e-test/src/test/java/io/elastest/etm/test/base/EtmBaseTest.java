@@ -47,214 +47,248 @@ import io.github.bonigarcia.DriverCapabilities;
 
 public class EtmBaseTest {
 
-	final Logger log = getLogger(lookup().lookupClass());
+    final Logger log = getLogger(lookup().lookupClass());
 
-	protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
-	protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
+    protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
+    protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
 
-	protected String eUser = null;
-	protected String ePassword = null;
+    protected String eUser = null;
+    protected String ePassword = null;
 
-	protected boolean secureElastest = false;
+    protected boolean secureElastest = false;
 
-	protected WebDriver driver;
+    protected WebDriver driver;
 
-	@DriverCapabilities
-	DesiredCapabilities capabilities = chrome();
-	{
-		LoggingPreferences logPrefs = new LoggingPreferences();
-		logPrefs.enable(BROWSER, ALL);
-		capabilities.setCapability(LOGGING_PREFS, logPrefs);
-	}
+    @DriverCapabilities
+    DesiredCapabilities capabilities = chrome();
+    {
+        LoggingPreferences logPrefs = new LoggingPreferences();
+        logPrefs.enable(BROWSER, ALL);
+        capabilities.setCapability(LOGGING_PREFS, logPrefs);
+    }
 
-	@BeforeEach
-	void setup() {
-		String etmApi = getProperty("etEtmApi");
-		if (etmApi != null) {
-			tormUrl = etmApi;
-		}
-		String elastestUser = getProperty("eUser");
-		if (elastestUser != null) {
-			eUser = elastestUser;
+    @BeforeEach
+    void setup() {
+        String etmApi = getProperty("etEtmApi");
+        if (etmApi != null) {
+            tormUrl = etmApi;
+        }
+        String elastestUser = getProperty("eUser");
+        if (elastestUser != null) {
+            eUser = elastestUser;
 
-			String elastestPassword = getProperty("ePass");
-			if (elastestPassword != null) {
-				ePassword = elastestPassword;
-				secureElastest = true;
-			}
+            String elastestPassword = getProperty("ePass");
+            if (elastestPassword != null) {
+                ePassword = elastestPassword;
+                secureElastest = true;
+            }
 
-		}
-		if (secureElastest) {
-			String split_url[] = tormUrl.split("//");
-			secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@" + split_url[1];
-		}
+        }
+        if (secureElastest) {
+            String split_url[] = tormUrl.split("//");
+            secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
+                    + split_url[1];
+        }
 
-		log.info("Using URL {} to connect to {} TORM", tormUrl, secureElastest ? "secure" : "unsecure");
-	}
+        log.info("Using URL {} to connect to {} TORM", tormUrl,
+                secureElastest ? "secure" : "unsecure");
+    }
 
-	@AfterEach
-	void teardown() throws IOException {
-		if (driver != null) {
-			log.info("Browser console at the end of the test");
-			LogEntries logEntries = driver.manage().logs().get(BROWSER);
-			logEntries.forEach((entry) -> log.info("[{}] {} {}", new Date(entry.getTimestamp()), entry.getLevel(),
-					entry.getMessage()));
-		}
-	}
+    @AfterEach
+    void teardown() throws IOException {
+        if (driver != null) {
+            log.info("Browser console at the end of the test");
+            LogEntries logEntries = driver.manage().logs().get(BROWSER);
+            logEntries.forEach((entry) -> log.info("[{}] {} {}",
+                    new Date(entry.getTimestamp()), entry.getLevel(),
+                    entry.getMessage()));
+        }
+    }
 
-	protected void navigateToTorm(WebDriver driver) {
-		log.info("Navigate to TORM");
-		driver.manage().window().setSize(new Dimension(1024, 1024));
-		driver.manage().timeouts().implicitlyWait(5, SECONDS);
-		if (secureElastest) {
-			driver.get(secureTorm);
-		} else {
-			driver.get(tormUrl);
-		}
-	}
+    protected void navigateToTorm(WebDriver driver) {
+        log.info("Navigate to TORM");
+        driver.manage().window().setSize(new Dimension(1024, 1024));
+        driver.manage().timeouts().implicitlyWait(5, SECONDS);
+        if (secureElastest) {
+            driver.get(secureTorm);
+        } else {
+            driver.get(tormUrl);
+        }
+    }
 
-	/* *************** */
-	/* *** Project *** */
-	/* *************** */
-	protected void createNewProject(WebDriver driver, String projectName) {
-		log.info("Create project");
-		driver.findElement(By.xpath("//button[contains(string(), 'New Project')]")).click();
-		driver.findElement(By.name("project.name")).sendKeys(projectName);
-		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
-	}
+    /* *************** */
+    /* *** Project *** */
+    /* *************** */
+    protected void createNewProject(WebDriver driver, String projectName) {
+        log.info("Create project");
+        driver.findElement(
+                By.xpath("//button[contains(string(), 'New Project')]"))
+                .click();
+        driver.findElement(By.name("project.name")).sendKeys(projectName);
+        driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
+                .click();
+    }
 
-	protected void removeProject(WebDriver driver, String projectName) {
-		this.navigateToTorm(driver);
-		// TODO
-	}
+    protected void removeProject(WebDriver driver, String projectName) {
+        this.navigateToTorm(driver);
+        // TODO
+    }
 
-	protected void navigateToProject(WebDriver driver, String projectName) {
-		this.navigateToTorm(driver);
-		driver.findElement(By.xpath("//td/div[contains(string(), '" + projectName + "')]")).click();
-	}
+    protected void navigateToProject(WebDriver driver, String projectName) {
+        this.navigateToTorm(driver);
+        driver.findElement(
+                By.xpath("//td/div[contains(string(), '" + projectName + "')]"))
+                .click();
+    }
 
-	protected boolean projectExists(WebDriver driver, String projectName) {
-		this.navigateToTorm(driver);
-		return driver.findElements(By.xpath("//td/div[contains(string(), '" + projectName + "')]")).size() != 0;
-	}
+    protected boolean projectExists(WebDriver driver, String projectName) {
+        this.navigateToTorm(driver);
+        return driver
+                .findElements(By.xpath(
+                        "//td/div[contains(string(), '" + projectName + "')]"))
+                .size() != 0;
+    }
 
-	/* *************** */
-	/* ***** Sut ***** */
-	/* *************** */
-	protected void createNewSutDeployedByElastestWithCommands(WebDriver driver) {
+    /* *************** */
+    /* ***** Sut ***** */
+    /* *************** */
+    protected void createNewSutDeployedByElastestWithCommands(
+            WebDriver driver) {
 
-	}
+    }
 
-	protected void createNewSutDeployedByElastestWithImage(WebDriver driver, String sutName, String desc, String image,
-			String port, Map<String, String> params) {
-		log.info("Create new SuT");
-		driver.findElement(By.xpath("//button[contains(string(), 'New SuT')]")).click();
+    protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
+            String sutName, String desc, String image, String port,
+            Map<String, String> params) {
+        log.info("Create new SuT");
+        driver.findElement(By.xpath("//button[contains(string(), 'New SuT')]"))
+                .click();
 
-		driver.findElement(By.name("sutName")).sendKeys(sutName);
-		driver.findElement(By.name("sutDesc")).sendKeys(desc);
+        driver.findElement(By.name("sutName")).sendKeys(sutName);
+        driver.findElement(By.name("sutDesc")).sendKeys(desc);
 
-		driver.findElement(By.name("managedSut")).click();
-		driver.findElement(By.name("dockerImageRadio")).click();
-		driver.findElement(By.name("specification")).sendKeys(image);
+        driver.findElement(By.name("managedSut")).click();
+        driver.findElement(By.name("dockerImageRadio")).click();
+        driver.findElement(By.name("specification")).sendKeys(image);
 
-		if (port != null && !"".equals(port)) {
-			driver.findElement(By.name("port")).sendKeys(port);
-		}
+        if (port != null && !"".equals(port)) {
+            driver.findElement(By.name("port")).sendKeys(port);
+        }
 
-		// Parameters TODO
+        // Parameters TODO
 
-		// Save
-		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
-	}
+        // Save
+        driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
+                .click();
+    }
 
-	/* ************** */
-	/* **** TJob **** */
-	/* ************** */
+    /* ************** */
+    /* **** TJob **** */
+    /* ************** */
 
-	protected void createNewTJob(WebDriver driver, String tJobName, String testResultPath, String sutName,
-			String dockerImage, boolean imageCommands, String commands, Map<String, String> parameters,
-			List<String> tssList) {
-		log.info("Create new TJob");
-		driver.findElement(By.xpath("//button[contains(string(), 'New TJob')]")).click();
+    protected void createNewTJob(WebDriver driver, String tJobName,
+            String testResultPath, String sutName, String dockerImage,
+            boolean imageCommands, String commands,
+            Map<String, String> parameters, List<String> tssList) {
+        log.info("Create new TJob");
+        driver.findElement(By.xpath("//button[contains(string(), 'New TJob')]"))
+                .click();
 
-		driver.findElement(By.name("tJobName")).sendKeys(tJobName);
+        driver.findElement(By.name("tJobName")).sendKeys(tJobName);
 
-		if (testResultPath != null) {
-			driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
-		}
+        if (testResultPath != null) {
+            driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
+        }
 
-		// Select SuT
-		driver.findElement(By.xpath("//md-select/div/span[contains(string(), 'Select a SuT')]")).click();
-		if (sutName != null) {
-			driver.findElement(By.xpath("//md-option[contains(string(), '" + sutName + "')]")).click();
-		} else {
-			driver.findElement(By.xpath("//md-option[contains(string(), 'None')]")).click();
+        // Select SuT
+        driver.findElement(By
+                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"))
+                .click();
+        if (sutName != null) {
+            driver.findElement(By.xpath(
+                    "//md-option[contains(string(), '" + sutName + "')]"))
+                    .click();
+        } else {
+            driver.findElement(
+                    By.xpath("//md-option[contains(string(), 'None')]"))
+                    .click();
 
-		}
+        }
 
-		// Image and commands
-		driver.findElement(By.name("tJobImageName")).sendKeys(dockerImage);
+        // Image and commands
+        driver.findElement(By.name("tJobImageName")).sendKeys(dockerImage);
 
-		if (imageCommands) {
-			driver.findElement(By.name("toggleCommands")).click();
-		} else {
-			driver.findElement(By.name("commands")).sendKeys(commands);
-		}
+        if (imageCommands) {
+            driver.findElement(By.name("toggleCommands")).click();
+        } else {
+            driver.findElement(By.name("commands")).sendKeys(commands);
+        }
 
-		// Parameters TODO
+        // Parameters TODO
 
-		// TSS
-		if (tssList != null) {
-			for (String tss : tssList) {
-				driver.findElement(By.xpath("//md-checkbox[@title='Select " + tss + "']")).click();
-			}
-		}
+        // TSS
+        if (tssList != null) {
+            for (String tss : tssList) {
+                driver.findElement(
+                        By.xpath("//md-checkbox[@title='Select " + tss + "']"))
+                        .click();
+            }
+        }
 
-		// Save
-		driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]")).click();
-	}
+        // Save
+        driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
+                .click();
+    }
 
-	protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
-		log.info("Run TJob");
-		driver.findElement(By.xpath("//td/div/span[contains(string(), '" + tJobName + "')]")).click();
-		driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
-	}
+    protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
+        log.info("Run TJob");
+        driver.findElement(By
+                .xpath("//td/div/span[contains(string(), '" + tJobName + "')]"))
+                .click();
+        driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
+    }
 
-	protected void startTestSupportService(WebDriver driver, String supportServiceLabel) {
-		WebElement tssNavButton = driver.findElement(By.id("nav_support_services"));
-		if (!tssNavButton.isDisplayed()) {
-			driver.findElement(By.id("main_menu")).click();
-		}
-		tssNavButton.click();
+    protected void startTestSupportService(WebDriver driver,
+            String supportServiceLabel) {
+        WebElement tssNavButton = driver
+                .findElement(By.id("nav_support_services"));
+        if (!tssNavButton.isDisplayed()) {
+            driver.findElement(By.id("main_menu")).click();
+        }
+        tssNavButton.click();
 
-		WebDriverWait waitElement = new WebDriverWait(driver, 3);
-		By supportService;
-		int numRetries = 1;
-		do {
-			driver.findElement(By.className("mat-select-trigger")).click();
-			supportService = By.xpath("//md-option[contains(string(), '" + supportServiceLabel + "')]");
-			try {
-				waitElement.until(visibilityOfElementLocated(supportService));
-				log.info("Element {} already available", supportService);
-				break;
+        WebDriverWait waitElement = new WebDriverWait(driver, 3);
+        By supportService;
+        int numRetries = 1;
+        do {
+            driver.findElement(By.className("mat-select-trigger")).click();
+            supportService = By.xpath("//md-option[contains(string(), '"
+                    + supportServiceLabel + "')]");
+            try {
+                waitElement.until(visibilityOfElementLocated(supportService));
+                log.info("Element {} already available", supportService);
+                break;
 
-			} catch (Exception e) {
-				numRetries++;
-				if (numRetries > 6) {
-					log.warn("Max retries ({}) reached ... leaving", numRetries);
-					break;
-				}
-				log.warn("Element {} not available ... retrying", supportService);
-			}
-		} while (true);
-		driver.findElement(supportService).click();
+            } catch (Exception e) {
+                numRetries++;
+                if (numRetries > 6) {
+                    log.warn("Max retries ({}) reached ... leaving",
+                            numRetries);
+                    break;
+                }
+                log.warn("Element {} not available ... retrying",
+                        supportService);
+            }
+        } while (true);
+        driver.findElement(supportService).click();
 
-		log.info("Create and wait instance");
-		driver.findElement(By.id("create_instance")).click();
-		WebDriverWait waitService = new WebDriverWait(driver, 120); // seconds
-		By serviceDetailButton = By.xpath("//button[@title='View Service Detail']");
-		waitService.until(visibilityOfElementLocated(serviceDetailButton));
-		driver.findElement(serviceDetailButton).click();
-	}
+        log.info("Create and wait instance");
+        driver.findElement(By.id("create_instance")).click();
+        WebDriverWait waitService = new WebDriverWait(driver, 120); // seconds
+        By serviceDetailButton = By
+                .xpath("//button[@title='View Service Detail']");
+        waitService.until(visibilityOfElementLocated(serviceDetailButton));
+        driver.findElement(serviceDetailButton).click();
+    }
 
 }

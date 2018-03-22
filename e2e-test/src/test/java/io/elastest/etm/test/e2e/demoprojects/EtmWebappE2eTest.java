@@ -50,80 +50,88 @@ import io.github.bonigarcia.SeleniumExtension;
 @ExtendWith(SeleniumExtension.class)
 public class EtmWebappE2eTest extends EtmBaseTest {
 
-	final Logger log = getLogger(lookup().lookupClass());
-	final String projectName = "Webapp";
-	final String sutName = "Webapp";
-	final int timeout = 600;
+    final Logger log = getLogger(lookup().lookupClass());
+    final String projectName = "Webapp";
+    final String sutName = "Webapp";
+    final int timeout = 600;
 
-	void createProjectAndSut(WebDriver driver) throws InterruptedException {
-		if (!projectExists(driver, projectName)) {
-			navigateToTorm(driver);
+    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        if (!projectExists(driver, projectName)) {
+            navigateToTorm(driver);
 
-			createNewProject(driver, projectName);
+            createNewProject(driver, projectName);
 
-			// Create SuT
-			String sutDesc = "Webapp Description";
-			String sutImage = "elastest/demo-web-java-test-sut";
-			String sutPort = "8080";
-			createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc, sutImage, sutPort, null);
-		}
-	}
+            // Create SuT
+            String sutDesc = "Webapp Description";
+            String sutImage = "elastest/demo-web-java-test-sut";
+            String sutPort = "8080";
+            createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
+                    sutImage, sutPort, null);
+        }
+    }
 
-	@Test
-	@DisplayName("Create WebApp project Chrome Test")
-	void testCreateChromeTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
-		this.driver = driver;
+    @Test
+    @DisplayName("Create WebApp project Chrome Test")
+    void testCreateChromeTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        this.driver = driver;
 
-		this.createProjectAndSut(driver);
+        this.createProjectAndSut(driver);
 
-		navigateToProject(driver, projectName);
+        navigateToProject(driver, projectName);
 
-		String tJobName = "Chrome Test";
-		String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-		String tJobImage = "elastest/test-etm-alpinegitjava";
-		String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-		List<String> tssList = new ArrayList<>();
-		tssList.add("EUS");
+        String tJobName = "Chrome Test";
+        String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+        String tJobImage = "elastest/test-etm-alpinegitjava";
+        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
+        List<String> tssList = new ArrayList<>();
+        tssList.add("EUS");
 
-		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, tssList);
+        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
+                false, commands, null, tssList);
 
-		// Run TJob
-		runTJobFromProjectPage(driver, tJobName);
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
 
-		WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-		log.info("Wait for metrics");
-		waitLogs.until(presenceOfElementLocated(By.className("tick")));
-		log.info("Wait for build sucess traces");
-		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
-	}
+        WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
+        log.info("Wait for metrics");
+        waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        log.info("Wait for build sucess traces");
+        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                "BUILD FAILURE"));
+    }
 
-	@Test
-	@DisplayName("Create WebApp project Chrome Test")
-	void testCreateFirefoxTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
-		this.driver = driver;
+    @Test
+    @DisplayName("Create WebApp project Chrome Test")
+    void testCreateFirefoxTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        this.driver = driver;
 
-		this.createProjectAndSut(driver);
+        this.createProjectAndSut(driver);
 
-		navigateToProject(driver, projectName);
+        navigateToProject(driver, projectName);
 
-		String tJobName = "Firefox Test";
-		String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-		String tJobImage = "elastest/test-etm-alpinegitjava";
-		String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
-		List<String> tssList = new ArrayList<>();
-		tssList.add("EUS");
+        String tJobName = "Firefox Test";
+        String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+        String tJobImage = "elastest/test-etm-alpinegitjava";
+        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
+        List<String> tssList = new ArrayList<>();
+        tssList.add("EUS");
 
-		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, tssList);
+        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
+                false, commands, null, tssList);
 
-		// Run TJob
-		runTJobFromProjectPage(driver, tJobName);
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
 
-		
-		WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-		log.info("Wait for metrics");
-		waitLogs.until(presenceOfElementLocated(By.className("tick")));
-		log.info("Wait for build sucess traces");
-		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
-	}
+        WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
+        log.info("Wait for metrics");
+        waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        log.info("Wait for build sucess traces");
+        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                "BUILD FAILURE"));
+    }
 
 }

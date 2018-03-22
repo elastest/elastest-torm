@@ -46,32 +46,36 @@ import io.github.bonigarcia.SeleniumExtension;
 @ExtendWith(SeleniumExtension.class)
 public class EtmUnitTestE2eTest extends EtmBaseTest {
 
-	final Logger log = getLogger(lookup().lookupClass());
+    final Logger log = getLogger(lookup().lookupClass());
 
-	@Test
-	@DisplayName("Create Unit Test project Test")
-	void testCreateUnitTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
-		this.driver = driver;
+    @Test
+    @DisplayName("Create Unit Test project Test")
+    void testCreateUnitTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        this.driver = driver;
 
-		navigateToTorm(driver);
-		createNewProject(driver, "Unit Tests");
+        navigateToTorm(driver);
+        createNewProject(driver, "Unit Tests");
 
-		String tJobName = "Unit Test";
-		String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
-		String sutName = null;
-		String tJobImage = "elastest/test-etm-alpinegitjava";
-		String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
+        String tJobName = "Unit Test";
+        String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
+        String sutName = null;
+        String tJobImage = "elastest/test-etm-alpinegitjava";
+        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
 
-		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, null);
+        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
+                false, commands, null, null);
 
-		// Run TJob
-		runTJobFromProjectPage(driver, tJobName);
-		
-		WebDriverWait waitLogs = new WebDriverWait(driver, 180);
-	    log.info("Wait for metrics");
-	    waitLogs.until(presenceOfElementLocated(By.className("tick")));
-	    log.info("Wait for build sucess traces");
-	    waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD FAILURE"));
-	}
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
+
+        WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+        log.info("Wait for metrics");
+        waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        log.info("Wait for build sucess traces");
+        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                "BUILD FAILURE"));
+    }
 
 }

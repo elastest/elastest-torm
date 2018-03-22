@@ -50,50 +50,55 @@ import io.github.bonigarcia.SeleniumExtension;
 @ExtendWith(SeleniumExtension.class)
 public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
 
-	final Logger log = getLogger(lookup().lookupClass());
-	final String projectName = "OpenVidu WebRTC";
-	final String sutName = "OpenVidu Test App";
-	final int timeout = 600;
+    final Logger log = getLogger(lookup().lookupClass());
+    final String projectName = "OpenVidu WebRTC";
+    final String sutName = "OpenVidu Test App";
+    final int timeout = 600;
 
-	void createProjectAndSut(WebDriver driver) throws InterruptedException {
-		if (!projectExists(driver, projectName)) {
-			navigateToTorm(driver);
+    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        if (!projectExists(driver, projectName)) {
+            navigateToTorm(driver);
 
-			createNewProject(driver, projectName);
+            createNewProject(driver, projectName);
 
-			// Create SuT
-			String sutDesc = "OpenVidu Description";
-			String sutImage = "elastest/demo-openvidu-test-sut2";
-			String sutPort = "8443";
-			createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc, sutImage, sutPort, null);
-		}
-	}
+            // Create SuT
+            String sutDesc = "OpenVidu Description";
+            String sutImage = "elastest/demo-openvidu-test-sut2";
+            String sutPort = "8443";
+            createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
+                    sutImage, sutPort, null);
+        }
+    }
 
-	@Test
-	@DisplayName("Create OpenVidu WebRTC project Chrome Test")
-	void testCreateChromeTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
-		this.driver = driver;
+    @Test
+    @DisplayName("Create OpenVidu WebRTC project Chrome Test")
+    void testCreateChromeTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        this.driver = driver;
 
-		this.createProjectAndSut(driver);
+        this.createProjectAndSut(driver);
 
-		navigateToProject(driver, projectName);
+        navigateToProject(driver, projectName);
 
-		String tJobName = "Videocall Test";
-		String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";
-		String tJobImage = "elastest/test-etm-alpinegitjava";
-		String commands = "echo \"Cloning project\"; git clone https://github.com/elastest/demo-projects; cd demo-projects/openvidu-test; echo \"Compiling project\"; mvn -DskipTests=true -B package; echo \"Executing test\"; mvn -B test;";
-		List<String> tssList = new ArrayList<>();
-		tssList.add("EUS");
+        String tJobName = "Videocall Test";
+        String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";
+        String tJobImage = "elastest/test-etm-alpinegitjava";
+        String commands = "echo \"Cloning project\"; git clone https://github.com/elastest/demo-projects; cd demo-projects/openvidu-test; echo \"Compiling project\"; mvn -DskipTests=true -B package; echo \"Executing test\"; mvn -B test;";
+        List<String> tssList = new ArrayList<>();
+        tssList.add("EUS");
 
-		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, tssList);
+        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
+                false, commands, null, tssList);
 
-		// Run TJob
-		runTJobFromProjectPage(driver, tJobName);
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
 
-		WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-	    log.info("Wait for metrics");
-	    waitLogs.until(presenceOfElementLocated(By.className("tick")));
-	    log.info("Wait for build sucess traces");
-		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD SUCCESS"));
-	}
+        WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
+        log.info("Wait for metrics");
+        waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        log.info("Wait for build sucess traces");
+        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                "BUILD SUCCESS"));
+    }
 }

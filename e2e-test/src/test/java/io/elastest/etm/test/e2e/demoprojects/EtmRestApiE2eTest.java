@@ -46,40 +46,45 @@ import io.github.bonigarcia.SeleniumExtension;
 @ExtendWith(SeleniumExtension.class)
 public class EtmRestApiE2eTest extends EtmBaseTest {
 
-	final Logger log = getLogger(lookup().lookupClass());
+    final Logger log = getLogger(lookup().lookupClass());
 
-	@Test
-	@DisplayName("Create REST API project Test")
-	void testCreateUnitTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver) throws InterruptedException {
-		this.driver = driver;
+    @Test
+    @DisplayName("Create REST API project Test")
+    void testCreateUnitTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        this.driver = driver;
 
-		navigateToTorm(driver);
+        navigateToTorm(driver);
 
-		createNewProject(driver, "REST API");
+        createNewProject(driver, "REST API");
 
-		// Create SuT
-		String sutName = "REST App";
-		String sutDesc = "REST App Description";
-		String sutImage = "elastest/demo-rest-java-test-sut";
-		String sutPort = "8080";
-		createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc, sutImage, sutPort, null);
+        // Create SuT
+        String sutName = "REST App";
+        String sutDesc = "REST App Description";
+        String sutImage = "elastest/demo-rest-java-test-sut";
+        String sutPort = "8080";
+        createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
+                sutImage, sutPort, null);
 
-		// Create TJob
-		String tJobName = "Rest Test";
-		String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
-		String tJobImage = "elastest/test-etm-alpinegitjava";
-		String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
+        // Create TJob
+        String tJobName = "Rest Test";
+        String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
+        String tJobImage = "elastest/test-etm-alpinegitjava";
+        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
 
-		createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage, false, commands, null, null);
+        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
+                false, commands, null, null);
 
-		// Run TJob
-		runTJobFromProjectPage(driver, tJobName);
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
 
-		WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+        WebDriverWait waitLogs = new WebDriverWait(driver, 180);
         log.info("Wait for metrics");
         waitLogs.until(presenceOfElementLocated(By.className("tick")));
-		log.info("Wait for build sucess traces");
-		waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"), "BUILD SUCCESS"));
-	}
+        log.info("Wait for build sucess traces");
+        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                "BUILD SUCCESS"));
+    }
 
 }
