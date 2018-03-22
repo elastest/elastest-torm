@@ -25,8 +25,8 @@
           </div>
         </md-card-title>
         <md-divider></md-divider>
-        <md-card-content *ngIf="exTJob && exTJobExec && !exTJobExec.finished()" flex class="push-bottom-none">
-          <div layout="column" layout-fill>
+        <md-card-content flex class="push-bottom-none">
+          <div *ngIf="!browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished(); else showMessage" layout="column" layout-fill>
             <div id="testLinkExec" flex [style.overflow]="auto">
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
@@ -35,6 +35,12 @@
                 (click)="saveTLCaseExecution()">Save & Next</button>
             </div>
           </div>
+          <ng-template #showMessage>
+            <div layout-align="center center" layout="column" layout-fill>
+              <div class="md-headline">{{executionCardMsg}}</div>
+              <div class="md-subhead" *ngIf="execFinished">{{executionCardSubMsg}}</div>
+            </div>
+          </ng-template>
         </md-card-content>
       </div>
     </md-card>
@@ -49,14 +55,17 @@
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content *ngIf="exTJobExec" flex [style.overflow]="auto" class="push-bottom-none">
-          <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
-            <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-              [showStatus]="false" [showConnectionBtns]="false"></vnc-client>
-          </ng-container>
-          <ng-template #loadingBrowser>
-            <div>{{browserLoadingMsg}}</div>
-            <md-spinner *ngIf="exTJobExec && !exTJobExec.finished()" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
-          </ng-template>
+          <div layout-align="center center" layout="column" layout-fill>
+            <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
+              <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
+                [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
+            </ng-container>
+            <ng-template #loadingBrowser>
+              <div class="md-headline">{{browserCardMsg}}</div>
+              <md-spinner *ngIf="exTJobExec && (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided))" strokeWidth="6"
+                color="accent" class="push-top-sm"></md-spinner>
+            </ng-template>
+          </div>
         </md-card-content>
       </div>
     </md-card>

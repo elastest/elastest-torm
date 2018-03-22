@@ -46,13 +46,18 @@ export class TestPlanExecutionComponent implements OnInit {
 
   showStopBtn: boolean = false;
 
+  executionCardMsg: string = 'Loading...';
+  executionCardSubMsg: string = '';
+
   // EUS
   eusTimer: Observable<number>;
   eusSubscription: Subscription;
   eusInstanceId: string;
   eusUrl: string;
 
-  browserLoadingMsg: string = 'Loading...';
+  browserCardMsg: string = 'Loading...';
+  browserAndEusLoading: boolean = true;
+  browserAndEusDeprovided: boolean = false;
 
   // Browser
   sessionId: string;
@@ -159,7 +164,8 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   waitForEus(exTJobExec: ExternalTJobExecModel): void {
-    this.browserLoadingMsg = 'Waiting for EUS...';
+    this.executionCardMsg = 'Please wait while the browser is loading. This may take a while.';
+    this.browserCardMsg = 'Waiting for EUS...';
     if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
       let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
@@ -182,7 +188,8 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   loadChromeBrowser(): void {
-    this.browserLoadingMsg = 'Waiting for Browser...';
+    this.browserCardMsg = 'Waiting for Browser...';
+    this.executionCardMsg = 'Just a little more...';
     this.eusService.startSession('chrome', '62').subscribe(
       (sessionId: string) => {
         this.sessionId = sessionId;
@@ -198,6 +205,7 @@ export class TestPlanExecutionComponent implements OnInit {
             this.vncPort = urlObj.queryParams.port;
             this.vncPassword = urlObj.queryParams.password;
             this.vncBrowserUrl = urlObj.href;
+            this.browserAndEusLoading = false;
             this.startExecution();
           },
           (error) => console.error(error),
@@ -219,7 +227,7 @@ export class TestPlanExecutionComponent implements OnInit {
 
   deprovideBrowserAndEus(): void {
     if (this.sessionId !== undefined) {
-      this.browserLoadingMsg = 'Shutting down Browser...';
+      this.browserCardMsg = 'Shutting down Browser...';
       this.vncBrowserUrl = undefined;
       this.eusService.stopSession(this.sessionId).subscribe(
         (ok) => {
@@ -238,10 +246,11 @@ export class TestPlanExecutionComponent implements OnInit {
 
   deprovisionEUS(): void {
     if (this.eusInstanceId && this.exTJobExec) {
-      this.browserLoadingMsg = 'Shutting down EUS...';
+      this.browserCardMsg = 'Shutting down EUS...';
       this.esmService.deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id).subscribe(
         () => {
-          this.browserLoadingMsg = 'FINISHED';
+          this.browserCardMsg = 'FINISHED';
+          this.browserAndEusDeprovided = true;
           this.showFiles = true;
           this.viewEndedTJobExec();
         },
@@ -266,12 +275,15 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   end(): void {
+    this.executionCardMsg = 'The execution has been finished!';
+    this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     this.showStopBtn = false;
     this.unsubscribeExecFinished();
     this.deprovideBrowserAndEus();
   }
 
   forceEnd(): void {
+    this.executionCardMsg = 'The execution has been stopped!';
     this.showStopBtn = false;
     this.exTJobExec.result = 'STOPPED';
     this.exTJobExec.endDate = new Date();
@@ -381,6 +393,8 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   finishTJobExecution(): void {
+    this.executionCardMsg = 'The execution has been finished!';
+    this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     this.disableTLNextBtn = true;
     this.execFinished = true;
     this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
@@ -409,11 +423,6 @@ export class TestPlanExecutionComponent implements OnInit {
       this.finishTJobExecution();
       throw new Error('Error: TestCase View not loaded');
     }
-  }
-
-  forceStop(): Observable<ExternalTJobExecModel> {
-    this.exTJobExec.result = 'STOPPED';
-    return this.externalService.modifyExternalTJobExec(this.exTJobExec);
   }
 
   viewEndedTJobExec(): void {
