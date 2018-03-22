@@ -75,21 +75,27 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
-        <td-data-table #buildTable class="scroll_table" [data]="builds" [columns]="buildColumns" [selectable]="false" [clickable]="true"
-          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
-              class="hover-pointer">
-              <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
-              <div *ngIf="column.name !== 'notes'">{{value}}</div>
-            </div>
-          </ng-template>
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+        <div *ngIf="builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
+          <md-icon>assignment</md-icon>
+          <p>No Builds created</p>
+        </div>
+        <ng-template #showBuilds>
+          <td-data-table #buildTable class="scroll_table" [data]="builds" [columns]="buildColumns" [selectable]="false" [clickable]="true"
+            [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+              <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
+                class="hover-pointer">
+                <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+                <div *ngIf="column.name !== 'notes'">{{value}}</div>
+              </div>
+            </ng-template>
+            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+              <div layout="row" class="optionsColumn">
 
-            </div>
-          </ng-template>
-        </td-data-table>
+              </div>
+            </ng-template>
+          </td-data-table>
+        </ng-template>
       </md-card-content>
     </md-card>
   </div>
@@ -110,7 +116,7 @@
       <md-card-content #scrollMeTest>
         <div *ngIf="testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
-          <p>No Test Plan Cases created</p>
+          <p>No Test Cases associated</p>
         </div>
         <ng-template #showTestCases>
           <td-data-table #tcTable class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="false"

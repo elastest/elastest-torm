@@ -26,159 +26,181 @@ import io.elastest.etm.model.EimMonitoringConfig.ApiEimMonitoringConfig;
 
 @Service
 public class EimService {
-	private static final Logger logger = LoggerFactory.getLogger(EimService.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(EimService.class);
 
-	private final EimConfigRepository eimConfigRepository;
-	private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
-	private final EimBeatConfigRepository eimBeatConfigRepository;
+    private final EimConfigRepository eimConfigRepository;
+    private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
+    private final EimBeatConfigRepository eimBeatConfigRepository;
 
-	@Value("${et.eim.api}")
-	public String eimUrl;
+    @Value("${et.eim.api}")
+    public String eimUrl;
 
-	public String eimApiPath = "eim/api";
+    public String eimApiPath = "eim/api";
 
-	public String eimApiUrl;
+    public String eimApiUrl;
 
-	public EimService(EimConfigRepository eimConfigRepository,
-			EimMonitoringConfigRepository eimMonitoringConfigRepository,
-			EimBeatConfigRepository eimBeatConfigRepository) {
-		this.eimConfigRepository = eimConfigRepository;
-		this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
-		this.eimBeatConfigRepository = eimBeatConfigRepository;
-	}
+    public EimService(EimConfigRepository eimConfigRepository,
+            EimMonitoringConfigRepository eimMonitoringConfigRepository,
+            EimBeatConfigRepository eimBeatConfigRepository) {
+        this.eimConfigRepository = eimConfigRepository;
+        this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
+        this.eimBeatConfigRepository = eimBeatConfigRepository;
+    }
 
-	@PostConstruct
-	public void initEimApiUrl() {
-		this.eimApiUrl = this.eimUrl + eimApiPath;
-	}
+    @PostConstruct
+    public void initEimApiUrl() {
+        this.eimApiUrl = this.eimUrl + eimApiPath;
+    }
 
-	/* ***************** */
-	/* **** EIM API **** */
-	/* ***************** */
+    /* ***************** */
+    /* **** EIM API **** */
+    /* ***************** */
 
-	@SuppressWarnings("unchecked")
-	public String getPublickey() {
-		RestTemplate restTemplate = new RestTemplate();
-		Map<String, String> publicKeyObj = restTemplate.getForObject(eimUrl + eimApiPath + "/publickey", Map.class);
-		return publicKeyObj.get("publickey");
-	}
+    @SuppressWarnings("unchecked")
+    public String getPublickey() {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> publicKeyObj = restTemplate
+                .getForObject(eimUrl + eimApiPath + "/publickey", Map.class);
+        return publicKeyObj.get("publickey");
+    }
 
-	@SuppressWarnings("unchecked")
-	public EimConfig instrumentalize(EimConfig eimConfig) throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
+    @SuppressWarnings("unchecked")
+    public EimConfig instrumentalize(EimConfig eimConfig) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
 
-		Map<String, String> body = new HashMap<>();
-		body.put("address", eimConfig.getIp());
-		body.put("user", eimConfig.getUser());
-		body.put("private_key", eimConfig.getPrivateKey());
-		body.put("logstash_ip", eimConfig.getLogstashIp());
-		body.put("logstash_port", eimConfig.getLogstashBeatsPort());
+        Map<String, String> body = new HashMap<>();
+        body.put("address", eimConfig.getIp());
+        body.put("user", eimConfig.getUser());
+        body.put("private_key", eimConfig.getPrivateKey());
+        body.put("logstash_ip", eimConfig.getLogstashIp());
+        body.put("logstash_port", eimConfig.getLogstashBeatsPort());
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.set("X_Broker_Api_Version", "2.12");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(
+                Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("X_Broker_Api_Version", "2.12");
 
-		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(body, headers);
+        HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(
+                body, headers);
 
-		String url = this.eimApiUrl + "/agent";
-		logger.debug("Instrumentalizing SuT: " + url);
-		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-		logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
-		eimConfig.setAgentId(response.get("agentId"));
-		return this.eimConfigRepository.save(eimConfig);
-	}
+        String url = this.eimApiUrl + "/agent";
+        logger.debug("Instrumentalizing SuT: " + url);
+        Map<String, String> response = restTemplate.postForObject(url, request,
+                Map.class);
+        logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
+        eimConfig.setAgentId(response.get("agentId"));
+        return this.eimConfigRepository.save(eimConfig);
+    }
 
-	public EimConfig deinstrumentalize(EimConfig eimConfig) {
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
-		eimConfig.setAgentId(null);
-		return this.eimConfigRepository.save(eimConfig);
+    public EimConfig deinstrumentalize(EimConfig eimConfig) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate
+                .delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+        eimConfig.setAgentId(null);
+        return this.eimConfigRepository.save(eimConfig);
 
-	}
+    }
 
-	@SuppressWarnings("unchecked")
-	public void deployBeats(EimConfig eimConfig, EimMonitoringConfig eimMonitoringConfig) throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
+    @SuppressWarnings("unchecked")
+    public void deployBeats(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.set("X_Broker_Api_Version", "2.12");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(
+                Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("X_Broker_Api_Version", "2.12");
 
-		HttpEntity<ApiEimMonitoringConfig> request = new HttpEntity<ApiEimMonitoringConfig>(
-				eimMonitoringConfig.getEimMonitoringConfigInApiFormat(), headers);
+        HttpEntity<ApiEimMonitoringConfig> request = new HttpEntity<ApiEimMonitoringConfig>(
+                eimMonitoringConfig.getEimMonitoringConfigInApiFormat(),
+                headers);
 
-		String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/monitor";
-		logger.debug("Activating beats: {} {}", url, request);
+        String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId()
+                + "/monitor";
+        logger.debug("Activating beats: {} {}", url, request);
 
-		Map<String, String> response = restTemplate.postForObject(url, request, Map.class);
-		if (response.get("monitored").equals("true")) {
-			logger.debug("Beats activated!");
-		} else {
-			throw new Exception("Beats not activated");
-		}
+        Map<String, Object> response = restTemplate.postForObject(url, request,
+                Map.class);
+        if (response.get("monitored").toString().equals("true")) {
+            logger.debug("Beats activated!");
+        } else {
+            throw new Exception("Beats not activated");
+        }
 
-	}
+    }
 
-	public void unDeployBeats(EimConfig eimConfig) {
-		RestTemplate restTemplate = new RestTemplate();
+    public void unDeployBeats(EimConfig eimConfig) {
+        RestTemplate restTemplate = new RestTemplate();
 
-		try {
-			String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId() + "/unmonitor";
-			logger.debug("Deactivating beats: " + url);
-			restTemplate.delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
-		} catch (Exception e) {
-			logger.error("Error on Deactivate Beats: not Deactivated", e);
-		}
-	}
+        try {
+            String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId()
+                    + "/unmonitor";
+            logger.debug("Deactivating beats: " + url);
+            restTemplate.delete(
+                    this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+        } catch (Exception e) {
+            logger.error("Error on Deactivate Beats: not Deactivated", e);
+        }
+    }
 
-	/* ****************** */
-	/* ****** BBDD ****** */
-	/* ****************** */
+    /* ****************** */
+    /* ****** BBDD ****** */
+    /* ****************** */
 
-	public EimMonitoringConfig createEimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
-		return this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
-	}
+    public EimMonitoringConfig createEimMonitoringConfig(
+            EimMonitoringConfig eimMonitoringConfig) {
+        return this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
+    }
 
-	public EimMonitoringConfig createEimMonitoringConfigAndChilds(EimMonitoringConfig eimMonitoringConfig) {
-		if (eimMonitoringConfig != null) {
-			Map<String, EimBeatConfig> beats = eimMonitoringConfig.getBeats();
-			eimMonitoringConfig.setBeats(null);
-			eimMonitoringConfig = this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
-			if (beats != null) {
-				for (Map.Entry<String, EimBeatConfig> currentBeat : beats.entrySet()) {
-					currentBeat.getValue().setEimMonitoringConfig(eimMonitoringConfig);
-					EimBeatConfig savedBeat = this.eimBeatConfigRepository.save(currentBeat.getValue());
-					currentBeat.setValue(savedBeat);
-				}
-				eimMonitoringConfig.setBeats(beats);
-			}
-		}
-		return eimMonitoringConfig;
-	}
+    public EimMonitoringConfig createEimMonitoringConfigAndChilds(
+            EimMonitoringConfig eimMonitoringConfig) {
+        if (eimMonitoringConfig != null) {
+            Map<String, EimBeatConfig> beats = eimMonitoringConfig.getBeats();
+            eimMonitoringConfig.setBeats(null);
+            eimMonitoringConfig = this.eimMonitoringConfigRepository
+                    .save(eimMonitoringConfig);
+            if (beats != null) {
+                for (Map.Entry<String, EimBeatConfig> currentBeat : beats
+                        .entrySet()) {
+                    currentBeat.getValue()
+                            .setEimMonitoringConfig(eimMonitoringConfig);
+                    EimBeatConfig savedBeat = this.eimBeatConfigRepository
+                            .save(currentBeat.getValue());
+                    currentBeat.setValue(savedBeat);
+                }
+                eimMonitoringConfig.setBeats(beats);
+            }
+        }
+        return eimMonitoringConfig;
+    }
 
-	/* ****************** */
-	/* *** Additional *** */
-	/* ****************** */
-	@Async
-	public void instrumentalizeAndDeployBeats(EimConfig eimConfig, EimMonitoringConfig eimMonitoringConfig) {
-		try {
-			eimConfig = this.instrumentalize(eimConfig);
-			try {
-				this.deployBeats(eimConfig, eimMonitoringConfig);
-			} catch (Exception e) {
-				logger.error("Error on activate Beats: not activated", e);
-			}
-		} catch (Exception e) {
-			logger.error("EIM is not started or response is an 500 Internal Server Error", e);
-		}
-	}
+    /* ****************** */
+    /* *** Additional *** */
+    /* ****************** */
+    @Async
+    public void instrumentalizeAndDeployBeats(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) {
+        try {
+            eimConfig = this.instrumentalize(eimConfig);
+            try {
+                this.deployBeats(eimConfig, eimMonitoringConfig);
+            } catch (Exception e) {
+                logger.error("Error on activate Beats: not activated", e);
+            }
+        } catch (Exception e) {
+            logger.error(
+                    "EIM is not started or response is an 500 Internal Server Error",
+                    e);
+        }
+    }
 
-	@Async
-	public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig) {
-		this.unDeployBeats(eimConfig);
-		this.deinstrumentalize(eimConfig);
-	}
+    @Async
+    public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig) {
+        this.unDeployBeats(eimConfig);
+        this.deinstrumentalize(eimConfig);
+    }
 
 }
