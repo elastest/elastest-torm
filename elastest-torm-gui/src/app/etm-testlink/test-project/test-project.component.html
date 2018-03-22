@@ -128,6 +128,13 @@
               <div *ngIf="column.name !== 'notes'">{{value}}</div>
             </div>
           </ng-template>
+          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+            <div layout="row" class="optionsColumn">
+              <button md-button (click)="runTestPlan(row)" class="iconBtn-lg" title="Run Test Plan">
+                <md-icon>play_circle_outline</md-icon>
+              </button>
+            </div>
+          </ng-template>
         </td-data-table>
       </md-card-content>
     </md-card>

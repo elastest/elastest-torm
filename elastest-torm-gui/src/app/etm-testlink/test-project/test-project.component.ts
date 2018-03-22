@@ -5,10 +5,11 @@ import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdDialogRef } from '@angular/material';
 import { TLTestSuiteModel } from '../models/test-suite-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
+import { SelectBuildModalComponent } from '../test-plan/select-build-modal/select-build-modal.component';
 
 @Component({
   selector: 'testlink-test-project',
@@ -38,6 +39,7 @@ export class TestProjectComponent implements OnInit {
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },
+    { name: 'options', label: 'Options' },
   ];
 
   constructor(
@@ -98,12 +100,12 @@ export class TestProjectComponent implements OnInit {
   }
 
   /* Test Plans */
-  runTestPlan(row: TestPlanModel): void {
-    this.testLinkService.getExternalTJobByTestPlanId(row.id).subscribe(
-      (exTJob: ExternalTJobModel) => {
-        this.router.navigate(['/external/project/', exTJob.exProject.id, 'tjob', exTJob.id, 'exec', 'new']);
+  runTestPlan(testPlan: TestPlanModel): void {
+    let dialogRef: MdDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
+      data: {
+        testPlan: testPlan,
+        testProjectId: this.testProject.id,
       },
-      (error) => console.log(error),
-    );
+    });
   }
 }

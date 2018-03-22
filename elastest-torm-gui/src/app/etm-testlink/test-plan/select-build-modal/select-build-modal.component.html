@@ -1,12 +1,20 @@
 <h2 md-dialog-title>Select a Build</h2>
 <md-dialog-content>
-  <div layout="row" class="push-bottom-md" *ngIf="ready">
-    <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
-      <md-option *ngFor="let build of builds" [value]="build">
-        {{build.name}}
-      </md-option>
-    </md-select>
+  <div layout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
+    <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
+      <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
+        <md-option *ngFor="let build of builds" [value]="build">
+          {{build.name}}
+        </md-option>
+      </md-select>
+    </ng-container>
+    <ng-template #noTestCases>
+      <div class="md-title">There are not associated test cases. Cannot run Test Plan</div>
+    </ng-template>
   </div>
+  <ng-template #notReadyMsg>
+    <div class="md-title" *ngIf="!builds || builds.length > 0; else noBuilds">There are not builds. Cannot run Test Plan</div>
+  </ng-template>
 </md-dialog-content>
 <md-dialog-actions>
   <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTestPlan()" [disabled]="selectedBuild === undefined">Run Test Plan</button>

@@ -1,6 +1,6 @@
 <div id="testCaseName">
-  <p>
-    TC Name:
+  <p class="md-headline push-top-none push-bottom-sm">
+    Test Case Name:
     <strong>{{testCase.name}}</strong>
   </p>
 </div>
@@ -29,19 +29,25 @@
   <md-divider></md-divider>
   <div layout="row" class="push-top">
     <div flex="50" id="testCaseInfo">
-      <span>Summary</span>
+      <span class="md-subhead">
+        <strong>Summary</strong>
+      </span>
       <p id="summary" [innerHTML]="testCase.summary"></p>
     </div>
     <div flex="50" id="testCaseInfo">
-      <span>Preconditions</span>
+      <span class="md-subhead">
+        <strong>Preconditions</strong>
+      </span>
       <p id="preconditions" [innerHTML]="testCase.preconditions"></p>
     </div>
   </div>
   <md-divider></md-divider>
   <div layout="column" class="push-top">
-    <md-card-subtitle flex class="pad-left-none" id="executionTableTitle">
-      Test Case Steps
-    </md-card-subtitle>
+    <div flex class="pad-left-none md-title push-bottom-sm" id="executionTableTitle">
+      <strong>
+        Test Case Steps
+      </strong>
+    </div>
     <div *ngIf="!testCase.steps || testCase.steps.length === 0" class=" messageEmptyCard">
       <md-icon>assignment</md-icon>
       <p>Steps not created </p>
