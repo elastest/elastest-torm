@@ -7,7 +7,7 @@ import { SutService } from '../sut.service';
 
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
 
@@ -16,8 +16,10 @@ import { ExternalProjectModel } from '../../external/external-project/external-p
   templateUrl: './sut-form.component.html',
   styleUrls: ['./sut-form.component.scss'],
 })
-export class SutFormComponent implements OnInit, AfterViewInit {
+export class SutFormComponent implements OnInit, DoCheck {
   @ViewChild('sutNameInput') sutNameInput: ElementRef;
+
+  alreadyFocusedSutNameInput: boolean = false;
 
   sut: SutModel;
   sutExecIndex: string = '';
@@ -84,7 +86,6 @@ export class SutFormComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.titlesService.setHeadTitle('Edit SuT');
     this.elasTestExecMode = this.configurationService.configModel.elasTestExecMode;
-    this.sut = new SutModel();
     if (this.route.params !== null || this.route.params !== undefined) {
       this.currentPath = this.route.snapshot.url[0].path;
       if (this.currentPath === 'edit') {
@@ -100,6 +101,7 @@ export class SutFormComponent implements OnInit, AfterViewInit {
           this.sutExecIndex = this.sut.getSutESIndex();
         });
       } else if (this.currentPath === 'new') {
+        this.sut = new SutModel();
         if (this.route.params !== null || this.route.params !== undefined) {
           // If routing
           this.route.params.subscribe((params: Params) => {
@@ -114,8 +116,11 @@ export class SutFormComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
-    this.sutNameInput.nativeElement.focus();
+  ngDoCheck() {
+    if (this.sutNameInput !== undefined && !this.alreadyFocusedSutNameInput) {
+      this.alreadyFocusedSutNameInput = true;
+      this.sutNameInput.nativeElement.focus();
+    }
   }
 
   loadFromProject(projectId: string): void {

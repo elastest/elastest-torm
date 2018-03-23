@@ -9,7 +9,7 @@ import { TJobService } from '../tjob.service';
 
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { SupportServiceConfigModel } from '../../../elastest-esm/support-service.model';
 
 @Component({
@@ -17,8 +17,9 @@ import { SupportServiceConfigModel } from '../../../elastest-esm/support-service
   templateUrl: './tjob-form.component.html',
   styleUrls: ['./tjob-form.component.scss'],
 })
-export class TJobFormComponent implements OnInit, AfterViewInit {
+export class TJobFormComponent implements OnInit, DoCheck {
   @ViewChild('tjobNameInput') tjobNameInput: ElementRef;
+  alreadyFocusedTJobNameInput: boolean = false;
 
   tJob: TJobModel;
   editMode: boolean = false;
@@ -26,8 +27,8 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
   sutEmpty: SutModel = new SutModel();
   currentSut: string = 'None';
   useImageCommand: boolean = false;
-  commandsHelpHeadMessage: string = "Warning!";
-  commandsHelpMessage: string = "Any entrypoint defined in your Dockerfile will be ignored";
+  commandsHelpHeadMessage: string = 'Warning!';
+  commandsHelpMessage: string = 'Any entrypoint defined in your Dockerfile will be ignored';
   elastestEsmServices: string[];
   esmServicesCatalog: EsmServiceModel[];
   action: string;
@@ -47,8 +48,11 @@ export class TJobFormComponent implements OnInit, AfterViewInit {
     this.init();
   }
 
-  ngAfterViewInit() {
-    this.tjobNameInput.nativeElement.focus();
+  ngDoCheck() {
+    if (this.tjobNameInput !== undefined && !this.alreadyFocusedTJobNameInput) {
+      this.alreadyFocusedTJobNameInput = true;
+      this.tjobNameInput.nativeElement.focus();
+    }
   }
 
   init(): void {
