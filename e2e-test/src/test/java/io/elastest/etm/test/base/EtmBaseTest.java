@@ -198,11 +198,12 @@ public class EtmBaseTest {
         waitService.until(visibilityOfElementLocated(serviceDetailButton));
         driver.findElement(serviceDetailButton).click();
         
+        WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
         By serviceFieldTJobName = By
                 .name("tJobName");
-        waitService.until(visibilityOfElementLocated(serviceFieldTJobName));
+        waitService2.until(visibilityOfElementLocated(serviceFieldTJobName));
         driver.findElement(serviceFieldTJobName).sendKeys(tJobName);
-
+        
         if (testResultPath != null) {
             driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
         }
