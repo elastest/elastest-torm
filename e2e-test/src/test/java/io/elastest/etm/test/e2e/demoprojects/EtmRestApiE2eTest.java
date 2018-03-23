@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -47,6 +48,23 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmRestApiE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
+    final String projectName = "REST API";
+    
+    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        if (!projectExists(driver, projectName)) {
+            navigateToTorm(driver);
+
+            createNewProject(driver, projectName);
+
+            // Create SuT
+            String sutName = "REST App";
+            String sutDesc = "REST App Description";
+            String sutImage = "elastest/demo-rest-java-test-sut";
+            String sutPort = "8080";
+            createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
+                    sutImage, sutPort, null);
+        }
+    }
 
     @Test
     @DisplayName("Create REST API project Test")
@@ -55,20 +73,13 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
             throws InterruptedException {
         this.driver = driver;
 
-        navigateToTorm(driver);
-
-        createNewProject(driver, "REST API");
-
-        // Create SuT
-        String sutName = "REST App";
-        String sutDesc = "REST App Description";
-        String sutImage = "elastest/demo-rest-java-test-sut";
-        String sutPort = "8080";
-        createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
-                sutImage, sutPort, null);
-
+        this.createProjectAndSut(driver);
+        
+        navigateToProject(driver, projectName);
+        
         // Create TJob
         String tJobName = "Rest Test";
+        String sutName = "REST App";
         String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
         String tJobImage = "elastest/test-etm-alpinegitjava";
         String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";

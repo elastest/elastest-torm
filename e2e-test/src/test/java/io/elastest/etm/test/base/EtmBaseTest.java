@@ -190,11 +190,18 @@ public class EtmBaseTest {
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
             Map<String, String> parameters, List<String> tssList) {
-        log.info("Create new TJob");
-        driver.findElement(By.xpath("//button[contains(string(), 'New TJob')]"))
-                .click();
-
-        driver.findElement(By.name("tJobName")).sendKeys(tJobName);
+        log.info("Wait for the \"New TJob\" button ");
+        
+        WebDriverWait waitService = new WebDriverWait(driver, 10); // seconds
+        By serviceDetailButton = By
+                .xpath("//button[contains(string(), 'New TJob')]");
+        waitService.until(visibilityOfElementLocated(serviceDetailButton));
+        driver.findElement(serviceDetailButton).click();
+        
+        By serviceFieldTJobName = By
+                .name("tJobName");
+        waitService.until(visibilityOfElementLocated(serviceFieldTJobName));
+        driver.findElement(serviceFieldTJobName).sendKeys(tJobName);
 
         if (testResultPath != null) {
             driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);

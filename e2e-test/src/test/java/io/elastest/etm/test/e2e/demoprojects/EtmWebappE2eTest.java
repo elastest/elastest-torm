@@ -25,7 +25,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @Tag("e2e")
 @DisplayName("ETM E2E test of Webapp project")
 @ExtendWith(SeleniumExtension.class)
-@Disabled
 public class EtmWebappE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
@@ -58,11 +56,9 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        navigateToTorm(driver);
         if (!projectExists(driver, projectName)) {
-            navigateToTorm(driver);
-
             createNewProject(driver, projectName);
-
             // Create SuT
             String sutDesc = "Webapp Description";
             String sutImage = "elastest/demo-web-java-test-sut";
