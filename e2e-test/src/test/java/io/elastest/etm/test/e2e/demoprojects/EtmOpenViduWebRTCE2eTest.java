@@ -95,8 +95,8 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
         runTJobFromProjectPage(driver, tJobName);
 
         WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-        log.info("Wait for metrics");
-        waitLogs.until(presenceOfElementLocated(By.className("tick")));
+//        log.info("Wait for metrics");
+//        waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
                 "BUILD SUCCESS"));
