@@ -37,8 +37,8 @@
           </div>
           <ng-template #showMessage>
             <div layout-align="center center" layout="column" layout-fill>
-              <div class="md-headline">{{executionCardMsg}}</div>
-              <div class="md-subhead" *ngIf="execFinished">{{executionCardSubMsg}}</div>
+              <div class="md-headline text-center">{{executionCardMsg}}</div>
+              <div class="md-subhead text-center" *ngIf="execFinished">{{executionCardSubMsg}}</div>
             </div>
           </ng-template>
         </md-card-content>
@@ -61,7 +61,7 @@
                 [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>
-              <div class="md-headline">{{browserCardMsg}}</div>
+              <div class="md-headline text-center">{{browserCardMsg}}</div>
               <md-spinner *ngIf="exTJobExec && (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided))" strokeWidth="6"
                 color="accent" class="push-top-sm"></md-spinner>
             </ng-template>

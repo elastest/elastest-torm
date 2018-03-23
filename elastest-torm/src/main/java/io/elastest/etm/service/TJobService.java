@@ -13,11 +13,15 @@ import javax.xml.ws.http.HTTPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
+import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
 import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
@@ -73,8 +77,19 @@ public class TJobService {
     }
 
     public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters,
-            List<Parameter> sutParameters) {
+            List<Parameter> sutParameters) throws HttpClientErrorException {
         TJob tJob = tJobRepo.findOne(tJobId);
+
+        SutSpecification sut = tJob.getSut();
+        // Checks if has sut instrumented by elastest and beats status is
+        // activating yet
+        if (sut != null && sut.isInstrumentedByElastest()
+                && sut.getEimMonitoringConfig() != null
+                && sut.getEimMonitoringConfig()
+                        .getBeatsStatus() == BeatsStatusEnum.ACTIVATING) {
+            throw new HttpClientErrorException(HttpStatus.ACCEPTED);
+        }
+
         TJobExecution tJobExec = new TJobExecution();
         tJobExec.setStartDate(new Date());
         if (tJob.getSut() != null && sutParameters != null
@@ -97,11 +112,9 @@ public class TJobService {
                     tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            tJobExecOrchestratorService
-                    .executeExternalJob(tJobExec);
+            tJobExecOrchestratorService.executeExternalJob(tJobExec);
         }
 
-        
         return tJobExec;
     }
 

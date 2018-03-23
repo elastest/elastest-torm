@@ -18,8 +18,10 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.EimBeatConfig.EimBeatConfigView;
@@ -30,203 +32,256 @@ import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 @Entity
 public class EimMonitoringConfig {
 
-	public interface EimMonitoringConfigView {
-	}
+    public interface EimMonitoringConfigView {
+    }
 
-	@Id
-	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
-			BasicAttProject.class })
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	@JsonProperty("id")
-	private Long id = null;
+    @Id
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
+            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    @JsonProperty("id")
+    private Long id = null;
 
-	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
-			BasicAttProject.class })
-	@Column(name = "exec")
-	@JsonProperty("exec")
-	private String exec = null;
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
+            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "exec")
+    @JsonProperty("exec")
+    private String exec = null;
 
-	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, SutView.class, ExternalProjectView.class,
-			BasicAttProject.class })
-	@Column(name = "component")
-	@JsonProperty("component")
-	private String component = null;
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
+            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "component")
+    @JsonProperty("component")
+    private String component = null;
 
-	@JsonView({ EimMonitoringConfigView.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
-	@MapKey(name = "name")
-	Map<String, EimBeatConfig> beats;
+    @JsonView({ EimMonitoringConfigView.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
+    @MapKey(name = "name")
+    Map<String, EimBeatConfig> beats;
 
-	@JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, })
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimMonitoringConfig")
-	@JoinColumn(name = "sutSpecification")
-	@JsonIgnoreProperties(value = "eimMonitoringConfig", allowSetters = true)
-	private SutSpecification sutSpecification;
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, })
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "eimMonitoringConfig")
+    @JoinColumn(name = "sutSpecification")
+    @JsonIgnoreProperties(value = "eimMonitoringConfig", allowSetters = true)
+    private SutSpecification sutSpecification;
 
-	public EimMonitoringConfig() {
-	}
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
+            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "beatsStatus")
+    @JsonProperty("beatsStatus")
+    private BeatsStatusEnum beatsStatus;
 
-	public EimMonitoringConfig(Long id, String exec, String component, Map<String, EimBeatConfig> beats) {
-		this.id = id == null ? 0 : id;
-		this.exec = exec;
-		this.component = component;
-		this.beats = beats != null ? beats : new HashMap<>();
-	}
+    public EimMonitoringConfig() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public EimMonitoringConfig(Long id, String exec, String component,
+            Map<String, EimBeatConfig> beats) {
+        this.id = id == null ? 0 : id;
+        this.exec = exec;
+        this.component = component;
+        this.beats = beats != null ? beats : new HashMap<>();
+        this.beatsStatus = BeatsStatusEnum.DEACTIVATED;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public enum BeatsStatusEnum {
+        ACTIVATED("ACTIVATED"),
 
-	public String getExec() {
-		return exec;
-	}
+        ACTIVATING("ACTIVATING"),
 
-	public void setExec(String exec) {
-		this.exec = exec;
-	}
+        DEACTIVATED("DEACTIVATED"),
 
-	public String getComponent() {
-		return component;
-	}
+        DEACTIVATING("DEACTIVATING");
 
-	public void setComponent(String component) {
-		this.component = component;
-	}
+        private String value;
 
-	public Map<String, EimBeatConfig> getBeats() {
-		return beats;
-	}
+        BeatsStatusEnum(String value) {
+            this.value = value;
+        }
 
-	public void setBeats(Map<String, EimBeatConfig> beats) {
-		this.beats = beats;
-	}
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
 
-	public SutSpecification getSutSpecification() {
-		return sutSpecification;
-	}
+        @JsonCreator
+        public static BeatsStatusEnum fromValue(String text) {
+            for (BeatsStatusEnum b : BeatsStatusEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
 
-	public void setSutSpecification(SutSpecification sutSpecification) {
-		this.sutSpecification = sutSpecification;
-	}
+    /* *** Getters/Setters *** */
 
-	// Others
+    public Long getId() {
+        return id;
+    }
 
-	public ApiEimMonitoringConfig getEimMonitoringConfigInApiFormat() {
-		ApiEimMonitoringConfig apiEimMonitoringConfig = new ApiEimMonitoringConfig();
-		apiEimMonitoringConfig.setExec(this.getExec());
-		apiEimMonitoringConfig.setComponent(this.getComponent());
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-		ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
-		packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
-		packetbeat.setStream(this.getBeats().get("packetbeat").getStream());
+    public String getExec() {
+        return exec;
+    }
 
-		ApiEimBeatConfig filebeat = new ApiEimBeatConfig();
-		filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
-		filebeat.setStream(this.getBeats().get("filebeat").getStream());
+    public void setExec(String exec) {
+        this.exec = exec;
+    }
 
-		ApiEimBeatConfig topbeat = new ApiEimBeatConfig();
-		topbeat.setPaths(this.getBeats().get("topbeat").getPaths());
-		topbeat.setStream(this.getBeats().get("topbeat").getStream());
+    public String getComponent() {
+        return component;
+    }
 
-		apiEimMonitoringConfig.setPacketbeat(packetbeat);
-		apiEimMonitoringConfig.setFilebeat(filebeat);
-		apiEimMonitoringConfig.setTopbeat(topbeat);
+    public void setComponent(String component) {
+        this.component = component;
+    }
 
-		return apiEimMonitoringConfig;
-	}
+    public Map<String, EimBeatConfig> getBeats() {
+        return beats;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("class EimMonitoringConfig {\n");
-		sb.append("    id: ").append(toIndentedString(id)).append("\n");
-		sb.append("    exec: ").append(toIndentedString(exec)).append("\n");
-		sb.append("    component: ").append(toIndentedString(component)).append("\n");
-		sb.append("    beats: ").append(toIndentedString(beats)).append("\n");
-		sb.append("    sutSpecification: ").append(toIndentedString(sutSpecification)).append("\n");
-		sb.append("}");
-		return sb.toString();
-	}
+    public void setBeats(Map<String, EimBeatConfig> beats) {
+        this.beats = beats;
+    }
 
-	public class ApiEimMonitoringConfig {
-		String exec;
-		String component;
-		ApiEimBeatConfig packetbeat;
-		ApiEimBeatConfig filebeat;
-		ApiEimBeatConfig topbeat;
+    public SutSpecification getSutSpecification() {
+        return sutSpecification;
+    }
 
-		public ApiEimMonitoringConfig() {
-		}
+    public void setSutSpecification(SutSpecification sutSpecification) {
+        this.sutSpecification = sutSpecification;
+    }
 
-		public String getExec() {
-			return exec;
-		}
+    // Others
 
-		public void setExec(String exec) {
-			this.exec = exec;
-		}
+    public BeatsStatusEnum getBeatsStatus() {
+        return beatsStatus;
+    }
 
-		public String getComponent() {
-			return component;
-		}
+    public void setBeatsStatus(BeatsStatusEnum beatsStatus) {
+        this.beatsStatus = beatsStatus;
+    }
 
-		public void setComponent(String component) {
-			this.component = component;
-		}
+    public ApiEimMonitoringConfig getEimMonitoringConfigInApiFormat() {
+        ApiEimMonitoringConfig apiEimMonitoringConfig = new ApiEimMonitoringConfig();
+        apiEimMonitoringConfig.setExec(this.getExec());
+        apiEimMonitoringConfig.setComponent(this.getComponent());
 
-		public ApiEimBeatConfig getPacketbeat() {
-			return packetbeat;
-		}
+        ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
+        packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
+        packetbeat.setStream(this.getBeats().get("packetbeat").getStream());
 
-		public void setPacketbeat(ApiEimBeatConfig packetbeat) {
-			this.packetbeat = packetbeat;
-		}
+        ApiEimBeatConfig filebeat = new ApiEimBeatConfig();
+        filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
+        filebeat.setStream(this.getBeats().get("filebeat").getStream());
 
-		public ApiEimBeatConfig getFilebeat() {
-			return filebeat;
-		}
+        ApiEimBeatConfig topbeat = new ApiEimBeatConfig();
+        topbeat.setPaths(this.getBeats().get("topbeat").getPaths());
+        topbeat.setStream(this.getBeats().get("topbeat").getStream());
 
-		public void setFilebeat(ApiEimBeatConfig filebeat) {
-			this.filebeat = filebeat;
-		}
+        apiEimMonitoringConfig.setPacketbeat(packetbeat);
+        apiEimMonitoringConfig.setFilebeat(filebeat);
+        apiEimMonitoringConfig.setTopbeat(topbeat);
 
-		public ApiEimBeatConfig getTopbeat() {
-			return topbeat;
-		}
+        return apiEimMonitoringConfig;
+    }
 
-		public void setTopbeat(ApiEimBeatConfig topbeat) {
-			this.topbeat = topbeat;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class EimMonitoringConfig {\n");
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
+        sb.append("    exec: ").append(toIndentedString(exec)).append("\n");
+        sb.append("    component: ").append(toIndentedString(component))
+                .append("\n");
+        sb.append("    beats: ").append(toIndentedString(beats)).append("\n");
+        sb.append("    sutSpecification: ")
+                .append(toIndentedString(sutSpecification)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
 
-	}
+    public class ApiEimMonitoringConfig {
+        String exec;
+        String component;
+        ApiEimBeatConfig packetbeat;
+        ApiEimBeatConfig filebeat;
+        ApiEimBeatConfig topbeat;
 
-	public class ApiEimBeatConfig {
-		String stream;
-		List<String> paths;
+        public ApiEimMonitoringConfig() {
+        }
 
-		public ApiEimBeatConfig() {
-		}
+        public String getExec() {
+            return exec;
+        }
 
-		public String getStream() {
-			return stream;
-		}
+        public void setExec(String exec) {
+            this.exec = exec;
+        }
 
-		public void setStream(String stream) {
-			this.stream = stream;
-		}
+        public String getComponent() {
+            return component;
+        }
 
-		public List<String> getPaths() {
-			return paths;
-		}
+        public void setComponent(String component) {
+            this.component = component;
+        }
 
-		public void setPaths(List<String> paths) {
-			this.paths = paths;
-		}
+        public ApiEimBeatConfig getPacketbeat() {
+            return packetbeat;
+        }
 
-	}
+        public void setPacketbeat(ApiEimBeatConfig packetbeat) {
+            this.packetbeat = packetbeat;
+        }
+
+        public ApiEimBeatConfig getFilebeat() {
+            return filebeat;
+        }
+
+        public void setFilebeat(ApiEimBeatConfig filebeat) {
+            this.filebeat = filebeat;
+        }
+
+        public ApiEimBeatConfig getTopbeat() {
+            return topbeat;
+        }
+
+        public void setTopbeat(ApiEimBeatConfig topbeat) {
+            this.topbeat = topbeat;
+        }
+
+    }
+
+    public class ApiEimBeatConfig {
+        String stream;
+        List<String> paths;
+
+        public ApiEimBeatConfig() {
+        }
+
+        public String getStream() {
+            return stream;
+        }
+
+        public void setStream(String stream) {
+            this.stream = stream;
+        }
+
+        public List<String> getPaths() {
+            return paths;
+        }
+
+        public void setPaths(List<String> paths) {
+            this.paths = paths;
+        }
+
+    }
 }

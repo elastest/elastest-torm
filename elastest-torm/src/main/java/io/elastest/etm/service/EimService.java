@@ -23,6 +23,7 @@ import io.elastest.etm.model.EimBeatConfig;
 import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.EimMonitoringConfig.ApiEimMonitoringConfig;
+import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
 
 @Service
 public class EimService {
@@ -122,25 +123,37 @@ public class EimService {
                 + "/monitor";
         logger.debug("Activating beats: {} {}", url, request);
 
+        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                eimMonitoringConfig, BeatsStatusEnum.ACTIVATING);
+
         Map<String, Object> response = restTemplate.postForObject(url, request,
                 Map.class);
         if (response.get("monitored").toString().equals("true")) {
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.ACTIVATED);
             logger.debug("Beats activated!");
         } else {
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
             throw new Exception("Beats not activated");
         }
 
     }
 
-    public void unDeployBeats(EimConfig eimConfig) {
+    public void unDeployBeats(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
             String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId()
                     + "/unmonitor";
             logger.debug("Deactivating beats: " + url);
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
             restTemplate.delete(
                     this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
         } catch (Exception e) {
             logger.error("Error on Deactivate Beats: not Deactivated", e);
         }
@@ -177,6 +190,12 @@ public class EimService {
         return eimMonitoringConfig;
     }
 
+    public EimMonitoringConfig updateEimMonitoringConfigBeatsStatus(
+            EimMonitoringConfig eimMonitoringConfig, BeatsStatusEnum status) {
+        eimMonitoringConfig.setBeatsStatus(status);
+        return this.eimMonitoringConfigRepository.save(eimMonitoringConfig);
+    }
+
     /* ****************** */
     /* *** Additional *** */
     /* ****************** */
@@ -198,8 +217,9 @@ public class EimService {
     }
 
     @Async
-    public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig) {
-        this.unDeployBeats(eimConfig);
+    public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) {
+        this.unDeployBeats(eimConfig, eimMonitoringConfig);
         this.deinstrumentalize(eimConfig);
     }
 
