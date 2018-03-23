@@ -53,6 +53,8 @@ import { ExternalTestExecutionComponent } from './elastest-etm/external/external
 import { EdmContainerComponent } from './elastest-edm/edm-container/edm-container.component';
 import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
 import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
+import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.component';
+import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
 
 const routes: Routes = [
   {
@@ -120,6 +122,29 @@ const routes: Routes = [
                               {
                                 path: '',
                                 component: TjobExecManagerComponent,
+                              },
+                              {
+                                path: 'testSuite',
+                                children: [
+                                  {
+                                    path: ':testSuiteId',
+                                    children: [
+                                      {
+                                        path: '',
+                                        component: TestSuiteComponent
+                                      },
+                                      {
+                                        path: 'testCase',
+                                        children: [
+                                          {
+                                            path: ':testCaseId',
+                                            component: TestCaseComponent
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
                               },
                               {
                                 path: 'dashboard',

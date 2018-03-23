@@ -51,6 +51,22 @@ export class TestSuitesViewComponent implements OnInit {
       });
     }
   }
+  viewTestCaseDetails(suite: TestSuiteModel, testCase: TestCaseModel): void {
+    if (this.tJobExec) {
+      this.router.navigate([
+        '/projects',
+        this.tJobExec.tJob.project.id,
+        'tjob',
+        this.tJobExec.tJob.id,
+        'tjob-exec',
+        this.tJobExec.id,
+        'testSuite',
+        suite.id,
+        'testCase',
+        testCase.id,
+      ]);
+    }
+  }
 
   getExecutionFiles(): void {
     this.tJobExecService.getTJobExecutionFiles(this.tJobExec.tJob.id, this.tJobExec.id).subscribe(

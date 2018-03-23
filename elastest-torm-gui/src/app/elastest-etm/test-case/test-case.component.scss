@@ -1,0 +1,69 @@
+#testCaseContent {
+  max-height: 99%;
+  overflow-y: hidden;
+}
+#testCaseCard {
+  height: 100%;
+}
+
+#cardContent {
+  height: 90% !important;
+  overflow-y: auto;
+}
+
+#cardContent,
+#cardContent md-list {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+#testCaseInfo p {
+  word-wrap: break-word;
+}
+
+:host /deep/ .mat-tab-body-wrapper {
+  height: 100%;
+}
+:host /deep/ .mat-sidenav-content {
+  padding: 0px !important;
+  height: 103%;
+}
+
+:host /deep/ .mat-tab-label{
+  min-width: 95px !important;
+  max-width: 95px;
+  text-overflow: ellipsis;
+}
+#miniLogAnalyzerTab {
+  height: 98%;
+}
+#miniLogAnalyzerCard md-card-content {
+  padding: 4px;
+}
+
+@media (max-width: 768px) {
+  #miniLogAnalyzerCard,
+  #miniLogAnalyzerCard md-card-content {
+    height: 490px;
+  }
+}
+
+@media (max-width: 1024px) {
+  #miniLogAnalyzerCard,
+  #miniLogAnalyzerCard md-card-content {
+    height: 490px;
+  }
+}
+
+@media (max-width: 1440px) {
+  #miniLogAnalyzerCard,
+  #miniLogAnalyzerCard md-card-content {
+    height: 590px;
+  }
+}
+@media (min-width: 2560px) {
+  #miniLogAnalyzerCard,
+  #miniLogAnalyzerCard md-card-content {
+    height: 890px;
+  }
+}

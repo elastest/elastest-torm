@@ -9,7 +9,7 @@ import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestESService } from '../shared/services/elastest-es.service';
 import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
-import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, ViewChild, Input } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
 import { MdDialog, MdDialogRef } from '@angular/material';
 import {
@@ -26,6 +26,9 @@ import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
 import { MarkComponent } from './mark-component/mark.component';
+import { TreeNode } from 'angular-tree-component/dist/defs/api';
+import { TJobExecService } from '../elastest-etm/tjob-exec/tjobExec.service';
+import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -61,6 +64,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     // },
   };
 
+  @Input() tJobId: number;
+  @Input() tJobExecId: number;
+  @Input() testCase: string;
+  @Input() isEmbed: boolean = false;
+  @Input() componentStreams: any;
+
   @ViewChild('fromDate') fromDate: ElementRef;
   @ViewChild('toDate') toDate: ElementRef;
   @ViewChild('mark') mark: MarkComponent;
@@ -78,38 +87,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   // TestCase
   withTestCase: boolean = false;
-  testCaseName: string;
+  testCaseName: string = undefined;
 
   constructor(
     public dialog: MdDialog,
     public router: Router,
     private elastestESService: ElastestESService,
     private logAnalyzerService: LogAnalyzerService,
-  ) {
-    let params: any = router.parseUrl(router.url).queryParams;
-    let fromExec: any;
-    if (params.tjob && params.exec) {
-      fromExec = {
-        type: 'normal',
-        tJob: params.tjob,
-        exec: params.exec,
-        testCase: params.testCase,
-      };
-    } else if (params.exTJob && params.exTJobExec) {
-      fromExec = {
-        type: 'external',
-        exTJob: params.exTJob,
-        exTJobExec: params.exTJobExec,
-        exTestCase: params.exTestCase,
-        exTestExec: params.exTestExec,
-      };
-    }
-
-    this.openSelectExecutions(fromExec);
-  }
+    private tJobExecService: TJobExecService,
+  ) {}
 
   ngOnInit() {
     this.logAnalyzer = new LogAnalyzerModel();
+    this.initLogAnalyzer();
     this.logAnalyzerService.getLogAnalyzerConfig().subscribe(
       (logAnalyzerConfig: LogAnalyzerConfigModel) => {
         if (logAnalyzerConfig !== undefined) {
@@ -133,6 +123,38 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   /***** INIT *****/
 
+  initLogAnalyzer() {
+    let params: any = this.router.parseUrl(this.router.url).queryParams;
+    let fromExec: any;
+    if ((params.tjob && params.exec) || (this.tJobId !== undefined && this.tJobExecId !== undefined)) {
+      fromExec = {
+        type: 'normal',
+        tJob: params.tjob ? params.tjob : this.tJobId ? this.tJobId : undefined,
+        exec: params.exec ? params.exec : this.tJobExecId ? this.tJobExecId : undefined,
+        testCase: params.testCase ? params.testCase : this.testCase ? this.testCase : undefined,
+      };
+    } else if (params.exTJob && params.exTJobExec) {
+      fromExec = {
+        type: 'external',
+        exTJob: params.exTJob,
+        exTJobExec: params.exTJobExec,
+        exTestCase: params.exTestCase,
+        exTestExec: params.exTestExec,
+      };
+    }
+    if (!this.isEmbed) {
+      this.openSelectExecutions(fromExec);
+    } else {
+      this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tjobExec: TJobExecModel) => {
+        let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
+          fromDate: tjobExec.startDate,
+          selectedIndices: [tjobExec.monitoringIndex],
+          toDate: tjobExec.endDate,
+        };
+        this.loadSelectExecutions(data, fromExec);
+      });
+    }
+  }
   // Function to init some parameters of ag-grid
   onGridReady(params: GridReadyEvent | ComponentStateChangedEvent): void {
     this.gridApi = params.api;
@@ -263,20 +285,24 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         switch (field) {
           case '@timestamp':
             columnObj.maxWidth = 232;
+            columnObj.hide = this.isEmbed;
             break;
           case 'message':
             break;
           case 'level':
             columnObj.maxWidth = 100;
+            columnObj.hide = this.isEmbed;
             break;
           case 'component':
             columnObj.maxWidth = 260;
             break;
           case 'stream':
             columnObj.maxWidth = 188;
+            columnObj.hide = this.isEmbed;
             break;
           case 'exec':
             columnObj.maxWidth = 60;
+            columnObj.hide = this.isEmbed;
             break;
           default:
             break;
@@ -598,38 +624,45 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       width: '90%',
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      if (data) {
-        // Ok Pressed
-        this.testCaseName = undefined;
-        this.withTestCase = false;
-        if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
-          this.logAnalyzer.selectedIndices = data.selectedIndices;
-          if (data.fromDate) {
-            this.setFromDate(data.fromDate);
-          }
-          if (data.toDate) {
-            this.setToDate(data.toDate);
-          }
-          this.loadComponentStreams();
-          this.loadLevels();
-          if (fromExec && (fromExec.testCase || fromExec.exTestCase)) {
-            this.withTestCase = true;
-            if (fromExec.testCase) {
-              this.testCaseName = fromExec.testCase;
-            } else if (fromExec.exTestCase) {
-              this.testCaseName = fromExec.exTestCase;
-            }
-            this.filterTestCase(this.testCaseName);
-          } else {
-            this.loadLog();
-          }
+      this.loadSelectExecutions(data, fromExec);
+    });
+  }
+
+  loadSelectExecutions(data: any, fromExec: any): void {
+    if (data) {
+      // Ok Pressed
+      if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
+        this.logAnalyzer.selectedIndices = data.selectedIndices;
+        if (data.fromDate) {
+          this.setFromDate(data.fromDate);
+        }
+        if (data.toDate) {
+          this.setToDate(data.toDate);
+        }
+        if (this.isEmbed && this.componentStreams) {
+          this.logAnalyzer.setComponentsStreams(this.componentStreams);
+          this.componentsTree.treeModel.update();
         } else {
-          this.popup('No execution was selected. Selected all by default');
+          this.loadComponentStreams();
+        }
+        this.loadLevels();
+        this.withTestCase = fromExec && (fromExec.testCase || fromExec.exTestCase);
+        if (this.withTestCase) {
+          if (fromExec.testCase) {
+            this.testCaseName = fromExec.testCase;
+          } else {
+            this.testCaseName = fromExec.exTestCase;
+          }
+          this.filterTestCase(this.testCaseName);
+        } else {
           this.loadLog();
         }
       } else {
+        this.popup('No execution was selected. Selected all by default');
+        this.loadLog();
       }
-    });
+    } else {
+    }
   }
 
   filterTestCase(testCase: string): void {

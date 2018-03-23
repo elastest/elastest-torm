@@ -12,7 +12,7 @@
   </div>
 
   <!-- SIDENAV -->
-  <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="25">
+  <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
     <md-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
       <md-card-content class="push-bottom-none">
         <md-tab-group>
