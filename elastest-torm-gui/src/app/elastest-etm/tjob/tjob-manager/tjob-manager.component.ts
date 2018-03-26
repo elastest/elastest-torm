@@ -44,6 +44,7 @@ export class TjobManagerComponent implements OnInit {
     { name: 'options', label: 'Options' },
   ];
   tJobExecData: TJobExecModel[] = [];
+  showSpinner: boolean = true;
 
   constructor(
     private titlesService: TitlesService,
@@ -71,6 +72,7 @@ export class TjobManagerComponent implements OnInit {
           this.tJob.sut = this.sutEmpty;
         }
         this.tJobExecData = this.tJobService.getTJobExecsList(tJob);
+        this.showSpinner = false;
         this.sortTJobsExec(); // Id desc
       });
     }

@@ -35,7 +35,8 @@
             </md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <div *ngIf="testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
+                <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                <div *ngIf="!showSpinner && testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
                     <md-icon>assignment</md-icon>
                     <p>No Browsers created yet</p>
                 </div>

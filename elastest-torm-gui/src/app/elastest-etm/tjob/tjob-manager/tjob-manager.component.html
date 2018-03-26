@@ -68,7 +68,8 @@
         Executions
       </md-card-title>
       <md-divider></md-divider>
-      <div *ngIf="!tJobExecData || tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
+      <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+      <div *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
         <md-icon>assignment</md-icon>
         <p>No Executions generated</p>
       </div>

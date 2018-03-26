@@ -87,7 +87,8 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
-      <div *ngIf="execs.length === 0" class="push-top-important messageEmptyCard">
+      <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+      <div *ngIf="!showSpinner && execs.length === 0" class="push-top-important messageEmptyCard">
         <md-icon>assignment</md-icon>
         <p>No Executions created</p>
       </div>

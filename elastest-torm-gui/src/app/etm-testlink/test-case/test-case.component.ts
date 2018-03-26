@@ -17,6 +17,7 @@ export class TLTestCaseComponent implements OnInit {
 
 
   testCase: TLTestCaseModel;
+  showSpinner: boolean = true;
   testCaseSteps: TestCaseStepModel[] = [];
 
   // TestCaseStep Data
@@ -49,6 +50,7 @@ export class TLTestCaseComponent implements OnInit {
       this.route.params.switchMap((params: Params) => this.testLinkService.getTestCaseById(params['caseId']))
         .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
+          this.showSpinner = false;
           this.titlesService.setPathName(this.router.routerState.snapshot.url);
         });
     }

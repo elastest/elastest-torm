@@ -48,7 +48,8 @@
         Test Case Steps
       </strong>
     </div>
-    <div *ngIf="!testCase.steps || testCase.steps.length === 0" class=" messageEmptyCard">
+    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <div *ngIf="!showSpinner && testCase.steps.length === 0" class=" messageEmptyCard">
       <md-icon>assignment</md-icon>
       <p>Steps not created </p>
     </div>

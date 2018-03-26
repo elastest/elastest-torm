@@ -32,6 +32,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
   ];
 
   testCase: TLTestCaseModel;
+  showSpinner: boolean = true;
   build: BuildModel;
 
   tcExec: TestCaseExecutionModel;
@@ -52,6 +53,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
   ngOnInit() {
     this.tcExec = new TestCaseExecutionModel();
     this.testCase = this.data.testCase;
+    this.showSpinner = false;
     this.build = this.data.build;
 
     this.tcExec.testCaseVersionId = this.testCase.versionId;

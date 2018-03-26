@@ -19,7 +19,9 @@ import { SelectBuildModalComponent } from '../test-plan/select-build-modal/selec
 export class TestProjectComponent implements OnInit {
   testProject: TestProjectModel;
   testSuites: TLTestSuiteModel[] = [];
+  showSpinnerSuites: boolean = true;
   testPlans: TestPlanModel[] = [];
+  showSpinnerPlans: boolean = true;
 
   exProject: ExternalProjectModel;
 
@@ -76,6 +78,7 @@ export class TestProjectComponent implements OnInit {
     this.testLinkService.getProjecTestSuites(this.testProject).subscribe(
       (suites: TLTestSuiteModel[]) => {
         this.testSuites = suites;
+        this.showSpinnerSuites = false;
       },
       (error) => console.log(error),
     );
@@ -85,6 +88,7 @@ export class TestProjectComponent implements OnInit {
     this.testLinkService.getProjectTestPlans(this.testProject).subscribe(
       (plans: TestPlanModel[]) => {
         this.testPlans = plans;
+        this.showSpinnerPlans = false;
       },
       (error) => console.log(error),
     );

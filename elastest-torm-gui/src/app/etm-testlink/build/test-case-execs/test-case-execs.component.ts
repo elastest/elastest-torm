@@ -18,6 +18,7 @@ export class TestCaseExecsComponent implements OnInit {
   testCase: TLTestCaseModel;
   buildId: number;
   execs: TestCaseExecutionModel[] = [];
+  showSpinner: boolean = true;
   testProjectId: number;
 
   // Exec Data
@@ -70,6 +71,7 @@ export class TestCaseExecsComponent implements OnInit {
       .subscribe(
       (execs: TestCaseExecutionModel[]) => {
         this.execs = execs.reverse(); // To sort
+        this.showSpinner = false;
       },
       (error) => console.log(error),
     );

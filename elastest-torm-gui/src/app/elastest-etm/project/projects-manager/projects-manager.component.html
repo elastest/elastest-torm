@@ -12,7 +12,8 @@
                 <!-- <md-divider></md-divider> -->
                 <md-divider></md-divider>
                 <md-card-content class="push-bottom-none">
-                    <div *ngIf="!projectData || projectData.length === 0" class="push-top-important messageEmptyCard">
+                    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                    <div *ngIf="!showSpinner && projectData.length === 0" class="push-top-important messageEmptyCard">
                         <md-icon>assignment</md-icon>
                         <p>No Projects created</p>
                     </div>

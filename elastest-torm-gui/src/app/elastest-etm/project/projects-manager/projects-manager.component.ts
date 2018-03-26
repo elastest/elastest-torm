@@ -34,6 +34,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ];
 
   projectData: ProjectModel[] = [];
+  showSpinner: boolean = true;
 
   sortBy: string = 'name';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
@@ -66,6 +67,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
       .subscribe(
       (projects) => {
         this.projectData = projects;
+        this.showSpinner = false;
       },
     );
   }

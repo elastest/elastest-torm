@@ -34,6 +34,7 @@ export class EtmTestlinkComponent implements OnInit {
   ];
 
   projectsList: TestProjectModel[] = [];
+  showSpinner: boolean = true;
 
   constructor(
     private titlesService: TitlesService,
@@ -62,6 +63,7 @@ export class EtmTestlinkComponent implements OnInit {
   loadProjects(): void {
     this.testlinkService.getAllTestProjects().subscribe((projects: TestProjectModel[]) => {
       this.projectsList = projects;
+      this.showSpinner = false;
     });
   }
 

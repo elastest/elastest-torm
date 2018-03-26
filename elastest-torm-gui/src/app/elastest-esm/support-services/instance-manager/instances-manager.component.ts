@@ -21,6 +21,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   ];
 
   instancesData: EsmServiceInstanceModel[] = [];
+  showSpinner: boolean = true;
 
   filteredData: any[] = [];
   filteredTotal: number = 0;
@@ -153,6 +154,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   prepareDataTable(servicesInstances: EsmServiceInstanceModel[]) {
     this.instancesData = servicesInstances;
+    this.showSpinner = false;
     this.filteredData = this.instancesData;
     this.filteredTotal = this.instancesData.length;
     this.filter();

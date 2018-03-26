@@ -7,7 +7,8 @@
         </div>
     </md-card-title>
     <md-divider></md-divider>
-    <div *ngIf="!tJobs || tJobs.length === 0" class="push-top-sm messageEmptyCard">
+    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <div *ngIf="!showSpinner && tJobs.length === 0" class="push-top-sm messageEmptyCard">
         <md-icon>assignment</md-icon>
         <p>No TJobs created</p>
     </div>

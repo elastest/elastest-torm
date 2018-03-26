@@ -22,6 +22,7 @@ export class TJobsManagerComponent implements OnInit {
 
   project: ProjectModel;
   tJobs: TJobModel[] = [];
+  showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
 
@@ -77,6 +78,7 @@ export class TJobsManagerComponent implements OnInit {
       this.project = project;
       if (project) {
         this.tJobs = this.project.tjobs;
+        this.showSpinner = false;
         this.addLastTJob();
       }
     });

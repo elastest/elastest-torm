@@ -75,7 +75,8 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
-        <div *ngIf="builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
+        <md-spinner strokeWidth="6" *ngIf="showSpinnerBuilds" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        <div *ngIf="!showSpinnerBuilds && builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No Builds created</p>
         </div>
@@ -113,8 +114,9 @@
         </div>
       </md-card-title>
       <md-divider></md-divider>
+      <md-spinner strokeWidth="6" *ngIf="showSpinnerCases" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
       <md-card-content #scrollMeTest>
-        <div *ngIf="testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
+        <div *ngIf="!showSpinnerCases && testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No Test Cases associated</p>
         </div>

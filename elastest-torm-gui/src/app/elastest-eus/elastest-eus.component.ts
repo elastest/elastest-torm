@@ -38,6 +38,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   ];
 
   testData: EusTestModel[] = [];
+  showSpinner: boolean = true;
 
   recordings: EusTestModel[] = [];
 
@@ -134,6 +135,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
             }
           }
           this.testData = Array.from(newTestData);
+          this.showSpinner = false;
         }
       };
     }

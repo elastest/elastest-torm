@@ -18,7 +18,9 @@ import { SelectBuildModalComponent } from './select-build-modal/select-build-mod
 export class TestPlanComponent implements OnInit {
   testPlan: TestPlanModel;
   builds: BuildModel[] = [];
+  showSpinnerBuilds: boolean = true;
   testPlanCases: TLTestCaseModel[] = [];
+  showSpinnerCases: boolean = true;
   testProjectId: number;
 
   exTJob: ExternalTJobModel;
@@ -82,6 +84,7 @@ export class TestPlanComponent implements OnInit {
     this.testLinkService.getPlanBuilds(this.testPlan).subscribe(
       (builds: BuildModel[]) => {
         this.builds = builds;
+        this.showSpinnerBuilds = false;
       },
       (error) => console.log(error),
     );
@@ -91,6 +94,7 @@ export class TestPlanComponent implements OnInit {
     this.testLinkService.getPlanTestCases(this.testPlan).subscribe(
       (testCases: TLTestCaseModel[]) => {
         this.testPlanCases = testCases;
+        this.showSpinnerCases = false;
       },
       (error) => console.log(error),
     );

@@ -29,6 +29,7 @@ export class SutsManagerComponent implements OnInit {
   parentType: string;
 
   suts: SutModel[] = [];
+  showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
 
@@ -89,6 +90,7 @@ export class SutsManagerComponent implements OnInit {
       this.parentType = 'ProjectModel';
       if (project) {
         this.suts = this.project.suts;
+        this.showSpinner = false;
       }
     });
   }
@@ -99,6 +101,7 @@ export class SutsManagerComponent implements OnInit {
       this.parentType = 'ExternalProjectModel';
       if (exProject) {
         this.suts = this.exProject.suts;
+        this.showSpinner = false;
       }
     });
   }
