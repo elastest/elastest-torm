@@ -101,7 +101,7 @@ export class TjobExecManagerComponent implements OnInit {
 
   viewInLogAnalyzer(): void {
     this.router.navigate(
-      ['/loganalyzer'],
+      ['projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.id, 'loganalyzer'],
       { queryParams: { tjob: this.tJob.id, exec: this.tJobExec.id } }
     );
   }

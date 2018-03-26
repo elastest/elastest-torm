@@ -44,11 +44,29 @@ export class TestSuitesViewComponent implements OnInit {
     }
   }
 
-  viewInLogAnalyzer(testCase: TestCaseModel): void {
-    if (this.tJobExec) {
-      this.router.navigate(['/loganalyzer'], {
-        queryParams: { tjob: this.tJobExec.tJob.id, exec: this.tJobExec.id, testCase: testCase.name },
-      });
+  viewInLogAnalyzer(suite: TestSuiteModel, testCase: TestCaseModel): void {
+    console.log('tjob', this.tJobExec);
+    console.log('testcase', testCase);
+    console.log('suite', suite);
+    if (this.tJobExec && suite) {
+      this.router.navigate(
+        [
+          '/projects',
+            this.tJobExec.tJob.project.id,
+            'tjob',
+            this.tJobExec.tJob.id,
+            'tjob-exec',
+            this.tJobExec.id ,
+            'testSuite',
+            suite.id,
+            'testCase',
+            testCase.id,
+            'loganalyzer',
+        ],
+        {
+          queryParams: { tjob: this.tJobExec.tJob.id, exec: this.tJobExec.id, testCase: testCase.name },
+        },
+      );
     }
   }
   viewTestCaseDetails(suite: TestSuiteModel, testCase: TestCaseModel): void {

@@ -124,6 +124,10 @@ const routes: Routes = [
                                 component: TjobExecManagerComponent,
                               },
                               {
+                                path: 'loganalyzer',
+                                component: ElastestLogAnalyzerComponent,
+                              },
+                              {
                                 path: 'testSuite',
                                 children: [
                                   {
@@ -131,15 +135,25 @@ const routes: Routes = [
                                     children: [
                                       {
                                         path: '',
-                                        component: TestSuiteComponent
+                                        component: TestSuiteComponent,
                                       },
                                       {
                                         path: 'testCase',
                                         children: [
                                           {
                                             path: ':testCaseId',
-                                            component: TestCaseComponent
+                                            children: [
+                                              {
+                                                path: '',
+                                                component: TestCaseComponent,
+                                              },
+                                              {
+                                                path: 'loganalyzer',
+                                                component: ElastestLogAnalyzerComponent,
+                                              },
+                                            ]
                                           },
+                                          
                                         ],
                                       },
                                     ],

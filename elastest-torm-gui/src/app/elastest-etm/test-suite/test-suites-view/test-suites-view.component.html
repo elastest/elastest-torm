@@ -82,7 +82,7 @@
               <!-- Log Analyzer -->
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="logAnalyzerColumn">
-                  <button md-button (click)="viewInLogAnalyzer(row)" [disabled]="!tJobExec" class="onlyIconBtn" title="Log">
+                  <button md-button (click)="viewInLogAnalyzer(suite, row)" [disabled]="!tJobExec" class="onlyIconBtn" title="Log">
                     <md-icon>library_books</md-icon>
                   </button>
                 </div>

@@ -29,6 +29,7 @@ import { MarkComponent } from './mark-component/mark.component';
 import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { TJobExecService } from '../elastest-etm/tjob-exec/tjobExec.service';
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
+import { TitlesService } from '../shared/services/titles.service';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -95,9 +96,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     private elastestESService: ElastestESService,
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
+    private titlesService: TitlesService
   ) {}
 
   ngOnInit() {
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.logAnalyzer = new LogAnalyzerModel();
     this.initLogAnalyzer();
     this.logAnalyzerService.getLogAnalyzerConfig().subscribe(

@@ -14,6 +14,8 @@ import { TLTestCaseModel } from '../../etm-testlink/models/test-case-model';
 import { TestPlanModel } from '../../etm-testlink/models/test-plan-model';
 import { BuildModel } from '../../etm-testlink/models/build-model';
 import { TestCaseExecutionModel } from '../../etm-testlink/models/test-case-execution-model';
+import { TestCaseService } from '../../elastest-etm/test-case/test-case.service';
+import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 
 @Injectable()
 export class TitlesService {
@@ -25,6 +27,7 @@ export class TitlesService {
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private testLinkService: TestLinkService,
+    private testCaseService: TestCaseService,
   ) {
     this.breadcrumbService.addFriendlyNameForRoute('/projects', 'Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/projects/add', 'New Project');
@@ -32,7 +35,8 @@ export class TitlesService {
     this.breadcrumbService.addFriendlyNameForRoute('/test-engines', 'Test Engines');
     this.breadcrumbService.addFriendlyNameForRoute('/support-services', 'Test Support Services');
     this.breadcrumbService.addFriendlyNameForRoute('/loganalyzer', 'Log Analyzer');
-    this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
+    this.breadcrumbService.addFriendlyNameForRouteRegex('/loganalyzer?.*', '/ Log Analyzer');
+    this.breadcrumbService.addFriendlyNameForRoute('^/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/sut/new)$', 'New SuT');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/tjob/new)$', 'New TJob');
@@ -49,6 +53,9 @@ export class TitlesService {
     breadcrumbService.hideRouteRegex('.*/execs$');
     breadcrumbService.hideRouteRegex('external.*');
     breadcrumbService.hideRouteRegex('.*/execs$');
+    breadcrumbService.hideRouteRegex('.*/testSuite$'); // TODO delete when testSuite was used.
+    breadcrumbService.hideRouteRegex('.*/testSuite/(\\d+)$');
+    breadcrumbService.hideRouteRegex('.*/testCase$');
   }
 
   setHeadTitle(title: string): void {
@@ -79,10 +86,14 @@ export class TitlesService {
             (error) => console.log(error),
           );
         } else if (groupArr[0] === 'tjob-exec') {
-          this.breadcrumbService.addFriendlyNameForRouteRegex(
-            '.*/tjob-exec/' + groupArr[1] + '$',
-            '/ Execution ' + groupArr[1],
-          );
+          this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob-exec/' + groupArr[1] + '$', '/ Execution ' + groupArr[1]);
+        } else if (groupArr[0] === 'testCase') {
+          this.testCaseService.getTestCaseById(+groupArr[1]).subscribe((testCase: TestCaseModel) => {
+            this.breadcrumbService.addFriendlyNameForRouteRegex(
+              '.*/testCase/' + groupArr[1] + '$',
+              '/ Test Case ' + testCase.name,
+            );
+          });
         } else if (groupArr[0] === 'testlink') {
           if (groupArr[1] && groupArr[1] === 'projects') {
             this.testLinkService.getProjectById(groupArr[2]).subscribe(

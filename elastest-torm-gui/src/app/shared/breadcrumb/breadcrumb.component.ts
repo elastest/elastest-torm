@@ -26,13 +26,16 @@ export class BreadcrumbComponent implements OnInit, OnChanges {
     if (this.prefix.length > 0) {
       this._urls.unshift(this.prefix);
     }
-
-    this._routerSubscription = this.router.events.subscribe((navigationEnd: NavigationEnd) => {
-      if (navigationEnd instanceof NavigationEnd) {
-        this._urls.length = 0; //Fastest way to clear out array
-        this.generateBreadcrumbTrail(navigationEnd.urlAfterRedirects ? navigationEnd.urlAfterRedirects : navigationEnd.url);
-      }
-    });
+    if (this.router.navigated) {
+      this._urls.length = 0; //Fastest way to clear out array
+      this.generateBreadcrumbTrail(this.router.routerState.snapshot.url);
+      this._routerSubscription = this.router.events.subscribe((navigationEnd: NavigationEnd) => {
+        if (navigationEnd instanceof NavigationEnd) {
+          this._urls.length = 0; //Fastest way to clear out array
+          this.generateBreadcrumbTrail(navigationEnd.urlAfterRedirects ? navigationEnd.urlAfterRedirects : navigationEnd.url);
+        }
+      });
+    }
   }
 
   ngOnChanges(changes: any): void {
@@ -73,7 +76,7 @@ export class BreadcrumbComponent implements OnInit, OnChanges {
     return !url ? '' : this.breadcrumbService.getFriendlyNameForRoute(url);
   }
 
-  ngOnDestroy(): void {
+  /*ngOnDestroy(): void {
     this._routerSubscription.unsubscribe();
-  }
+  }*/
 }

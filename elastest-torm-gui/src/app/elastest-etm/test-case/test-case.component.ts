@@ -1,5 +1,6 @@
+import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TestCaseService } from './test-case.service';
 import { TestCaseModel } from './test-case-model';
 import { ESBoolQueryModel, ESTermModel } from '../../shared/elasticsearch-model/es-query-model';
@@ -26,9 +27,12 @@ export class TestCaseComponent implements OnInit {
     private testCaseService: TestCaseService,
     private elastestESService: ElastestESService,
     public route: ActivatedRoute,
+    private titlesService: TitlesService,
+    private router: Router
   ) {}
 
   ngOnInit() {
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.getTestCase();
     this.logAnalyzer = new LogAnalyzerModel();
     this.streamTypeTerm = new ESTermModel();
