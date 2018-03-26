@@ -1,20 +1,22 @@
-
 <div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="standalone">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
-            <md-card-title>Manual Web Browsers</md-card-title>            
+            <md-card-title>Manual Web Browsers</md-card-title>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <span *ngIf="loading"><img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width: 23px; height: 23px; vertical-align:middle;">Loading browsers...</span>
+                <span *ngIf="loading">
+                    <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width: 23px; height: 23px; vertical-align:middle;">Loading browsers...</span>
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                  <div *ngFor="let browser of browserVersionsKeys">
-                    <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
-                    <md-select placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
-                      <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
-                        {{version}}
-                      </md-option>
-                    </md-select><br><br>
-                  </div>
+                    <div *ngFor="let browser of browserVersionsKeys">
+                        <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
+                        <md-select placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
+                            <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
+                                {{version}}
+                            </md-option>
+                        </md-select>
+                        <br>
+                        <br>
+                    </div>
                 </md-radio-group>
                 <div layout="row" class="push-top">
                     <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start Web Browser</button>
@@ -24,19 +26,27 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" >
+<div layout-gt-sm="row" tdMediaToggle="gt-xs">
     <div flex-gt-xs="100">
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>{{ !standalone ? "Web Browsers" : "WebDriver Web Browsers" }}</md-card-title>
-            <md-card-subtitle *ngIf="standalone">Remote Web Driver URL: <strong>{{configurationService.configModel.eusServiceUrl}}</strong></md-card-subtitle>
+            <md-card-subtitle *ngIf="standalone">Remote Web Driver URL:
+                <strong>{{configurationService.configModel.eusServiceUrl}}</strong>
+            </md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
-                    <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <i class="material-icons" (click)="getLiveUrl(value)" style="cursor: pointer">open_in_new</i>
-                        <i class="material-icons" (click)="viewSession(value, row, ' - automated test')" id="view_automated" title="open as dialog">open_in_browser</i>
-                    </ng-template>
-                </td-data-table>
+                <div *ngIf="testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
+                    <md-icon>assignment</md-icon>
+                    <p>No Browsers created yet</p>
+                </div>
+                <ng-template #showBrowsersTable>
+                    <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
+                        <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
+                            <i class="material-icons" (click)="getLiveUrl(value)" style="cursor: pointer">open_in_new</i>
+                            <i class="material-icons" (click)="viewSession(value, row, ' - automated test')" id="view_automated" title="open as dialog">open_in_browser</i>
+                        </ng-template>
+                    </td-data-table>
+                </ng-template>
             </md-card-content>
         </md-card>
     </div>

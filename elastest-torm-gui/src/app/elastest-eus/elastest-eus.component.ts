@@ -106,7 +106,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.websocket.onopen = () => this.websocket.send('getRecordings');
 
       this.websocket.onmessage = (message) => {
-        let json = JSON.parse(message.data);
+        let json: any = JSON.parse(message.data);
 
         if (json.newSession) {
           let testModel: EusTestModel = new EusTestModel();
