@@ -395,11 +395,6 @@ public class ExternalService {
                 exTJobExec.getExTJob().getId(), exTJobExecId);
     }
 
-    public void enableESFieldData(String index, String url, String field) {
-        logger.info("Enabling FieldData for {} in index {}", field, index);
-        elasticsearchService.enableFieldData(url, field);
-    }
-
     public List<ExternalTestExecution> getTJobExecTestExecutions(
             Long tJobExecId) {
         ExternalTJobExecution tJobExec = externalTJobExecutionRepository

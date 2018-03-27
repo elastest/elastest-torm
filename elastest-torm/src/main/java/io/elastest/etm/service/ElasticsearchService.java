@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -83,123 +82,6 @@ public class ElasticsearchService {
 
     }
 
-    /* ************* */
-    /* *** Index *** */
-    /* ************* */
-    
-    
-    public void createMonitoringIndex(String[] indicesList) {
-        logger.info("Creating ES indices...");
-        for (String index : indicesList) {
-            // Create Index
-            String url = this.esApiUrl + "/" + index;
-            logger.info("Creating index: {}", index);
-
-            String type = "_doc";
-            String[] properties = { "component", "stream", "level", "et_type" };
-
-            Map<String, String> mappings = new HashMap<>();
-            mappings.put(type,
-                    "{ \"" + type + "\": { \"properties\": {"
-                            + "\"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"et_type\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
-                            + "} }" + "}");
-
-            try {
-                CreateIndexResponse a = this
-                        .createIndexSync(index, mappings, null, null);
-                logger.debug("index response: {}", a);
-            } catch (Exception e) {
-                logger.error("Error creating index {}", index, e);
-            } finally {
-                // Enable Fielddata for components, streams and levels
-                this.enablePropertiesGroupFieldData(url, type,
-                        properties);
-            }
-            logger.info("Index {} created", index);
-        }
-        logger.info("ES indices created!");
-    }
-
-
-    public CreateIndexRequest createIndexRequest(String index,
-            Map<String, String> mappings, String alias, String timeout) {
-        CreateIndexRequest request = new CreateIndexRequest(index);
-
-        if (mappings != null && !mappings.isEmpty()) {
-            for (Map.Entry<String, String> entry : mappings.entrySet()) {
-                request.mapping(entry.getKey(), entry.getValue(),
-                        XContentType.JSON);
-            }
-        }
-
-        if (alias != null) {
-            request.alias(new Alias(alias));
-        }
-
-        if (timeout != null && !timeout.isEmpty()) {
-            request.timeout(timeout);
-        }
-
-        return request;
-    }
-
-    public CreateIndexResponse createIndexSync(String index,
-            Map<String, String> mappings, String alias, String timeout)
-            throws Exception {
-        CreateIndexRequest request = this.createIndexRequest(index, mappings,
-                alias, timeout);
-
-        return this.esClient.indices().create(request);
-    }
-
-    public void createIndexAsync(ActionListener<CreateIndexResponse> listener,
-            String index, Map<String, String> mappings, String alias,
-            String timeout) throws IOException {
-        CreateIndexRequest request = this.createIndexRequest(index, mappings,
-                alias, timeout);
-
-        this.esClient.indices().createAsync(request, listener);
-    }
-
-    public void enableFieldData(String url, String field) {
-        String group = field + 's';
-        url = url + "/_mapping/" + group;
-
-        String body = "{" + "\"properties\": {" + "\"" + field + "\": {"
-                + "\"type\": \"text\", \"fielddata\": true" + "}" + "}" + "}";
-        try {
-            putCall(url, body);
-        } catch (IndexAlreadyExistException e) {
-        } catch (RestClientException e) {
-        }
-    }
-
-    public void enablePropertiesGroupFieldData(String url, String type,
-            String[] fields) {
-        url = url + "/_mapping/" + type;
-
-        String properties = "";
-        int counter = 0;
-        for (String field : fields) {
-            properties += "\"" + field + "\": {"
-                    + "\"type\": \"text\", \"fielddata\": true" + "}";
-            if (counter < fields.length - 1) {
-                properties += ",";
-            }
-            counter++;
-        }
-
-        String body = "{" + "\"properties\": {" + properties + "}" + "}";
-        try {
-            putCall(url, body);
-        } catch (IndexAlreadyExistException e) {
-        } catch (RestClientException e) {
-        }
-    }
-
     public ResponseEntity<String> putCall(String url, String body)
             throws IndexAlreadyExistException, RestClientException {
         RestTemplate restTemplate = new RestTemplate(
@@ -249,6 +131,80 @@ public class ElasticsearchService {
         factory.setReadTimeout(readTimeout);
         factory.setConnectTimeout(connectTimeout);
         return factory;
+    }
+
+    /* ************* */
+    /* *** Index *** */
+    /* ************* */
+
+    public void createMonitoringIndex(String[] indicesList) {
+        boolean hasFailures = false;
+        logger.info("Creating ES indices...");
+        for (String index : indicesList) {
+            logger.info("Creating index: {}", index);
+            String type = "_doc";
+
+            Map<String, String> mappings = new HashMap<>();
+            mappings.put(type,
+                    "{ \"" + type + "\": { \"properties\": {"
+                            + "\"component\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"stream\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"level\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"et_type\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
+                            + "} }" + "}");
+            try {
+                this.createIndexSync(index, mappings, null, null);
+                logger.info("Index {} created", index);
+            } catch (Exception e) {
+                hasFailures = true;
+                logger.error("Error creating index {}", index, e);
+            }
+        }
+        if (hasFailures) {
+            logger.info("Create ES indices finished with some errors");
+        } else {
+            logger.info("Create ES indices finished!");
+        }
+    }
+
+    public CreateIndexRequest createIndexRequest(String index,
+            Map<String, String> mappings, String alias, String timeout) {
+        CreateIndexRequest request = new CreateIndexRequest(index);
+
+        if (mappings != null && !mappings.isEmpty()) {
+            for (Map.Entry<String, String> entry : mappings.entrySet()) {
+                request.mapping(entry.getKey(), entry.getValue(),
+                        XContentType.JSON);
+            }
+        }
+
+        if (alias != null) {
+            request.alias(new Alias(alias));
+        }
+
+        if (timeout != null && !timeout.isEmpty()) {
+            request.timeout(timeout);
+        }
+
+        return request;
+    }
+
+    public CreateIndexResponse createIndexSync(String index,
+            Map<String, String> mappings, String alias, String timeout)
+            throws Exception {
+        CreateIndexRequest request = this.createIndexRequest(index, mappings,
+                alias, timeout);
+
+        return this.esClient.indices().create(request);
+    }
+
+    public void createIndexAsync(ActionListener<CreateIndexResponse> listener,
+            String index, Map<String, String> mappings, String alias,
+            String timeout) throws IOException {
+        CreateIndexRequest request = this.createIndexRequest(index, mappings,
+                alias, timeout);
+
+        this.esClient.indices().createAsync(request, listener);
     }
 
     /* ************** */
