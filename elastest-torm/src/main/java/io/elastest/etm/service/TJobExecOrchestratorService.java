@@ -892,9 +892,4 @@ public class TJobExecOrchestratorService {
             }
         }
     }
-
-    public void enableESFieldData(String index, String url, String field) {
-        logger.info("Enabling FieldData for {} in index {}", field, index);
-        elasticsearchService.enableFieldData(url, field);
-    }
 }
