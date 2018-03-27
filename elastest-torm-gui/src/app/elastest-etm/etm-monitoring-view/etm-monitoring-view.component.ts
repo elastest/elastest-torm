@@ -84,7 +84,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           this.saveMonitoringConfig(showPopup);
         }
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -114,7 +114,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           (obj: any) => {
             _addMoreSubject.next(obj);
           },
-          (error) => _addMoreSubject.error('Could not load more'),
+          (error: Error) => _addMoreSubject.error('Could not load more'),
         );
     } else {
       _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
@@ -137,7 +137,7 @@ export class EtmMonitoringViewComponent implements OnInit {
               this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
         break;
       case 'ExternalTJobModel':
@@ -148,7 +148,7 @@ export class EtmMonitoringViewComponent implements OnInit {
               this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
         break;
 

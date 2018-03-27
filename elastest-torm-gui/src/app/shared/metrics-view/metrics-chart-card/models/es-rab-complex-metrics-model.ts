@@ -106,7 +106,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   }
 
   updateData(trace: any): void {
-    let positionsList: number[] = this.allMetricsFields.getPositionsList(trace.type, trace.component, trace.stream);
+    let positionsList: number[] = this.allMetricsFields.getPositionsList(trace['et_type'], trace.component, trace.stream);
     for (let position of positionsList) {
       let metric: MetricsFieldModel = this.allMetricsFields.fieldsList[position];
       let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(trace, metric);
@@ -308,13 +308,13 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
   }
 
-  activateAllMatchesByStreamTypeAndSubtype(stream: string, type: string, subtype?: string): void {
+  activateAllMatchesByStreamTypeAndSubtype(stream: string, etType: string, subtype?: string): void {
     this.deactivateAll();
     for (let metric of this.allMetricsFields.fieldsList) {
       if (!subtype) {
         subtype = metric.subtype;
       }
-      if (metric.type === type && metric.stream === stream && metric.subtype === subtype) {
+      if (metric.etType === etType && metric.stream === stream && metric.subtype === subtype) {
         metric.activated = true;
         break;
       }

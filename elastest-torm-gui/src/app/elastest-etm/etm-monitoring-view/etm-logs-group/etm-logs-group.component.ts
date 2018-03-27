@@ -62,7 +62,7 @@ export class EtmLogsGroupComponent implements OnInit {
       if (log.activated) {
         let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
         individualLogs.name = this.capitalize(log.component) + ' Logs';
-        individualLogs.type = log.component + 'logs';
+        individualLogs.etType = log.component + 'logs';
         individualLogs.component = log.component;
         if (log.stream === undefined || log.stream === null || log.stream === '') {
           log.stream = defaultStreamMap.log;
@@ -84,7 +84,7 @@ export class EtmLogsGroupComponent implements OnInit {
   addMoreLogs(obj: any): boolean {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';
-    individualLogs.type = obj.type;
+    individualLogs.etType = obj.etType;
     individualLogs.component = obj.component;
     individualLogs.stream = obj.stream;
     individualLogs.hidePrevBtn = !this.live;

@@ -45,7 +45,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public streamType: string = 'log';
   public streamTypeTerm: ESTermModel = new ESTermModel();
 
-  public filters: string[] = ['@timestamp', 'message', 'level', 'type', 'component', 'stream', 'stream_type', 'exec'];
+  public filters: string[] = ['@timestamp', 'message', 'level', 'et_type', 'component', 'stream', 'stream_type', 'exec'];
 
   public logRows: any[] = [];
   public logColumns: any[] = [];
@@ -276,7 +276,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logColumns = [];
 
     for (let field of this.esSearchModel.filterPathList) {
-      if (field !== 'stream_type' && field !== 'type') {
+      if (field !== 'stream_type' && field !== 'et_type') {
         // stream_type is always log
         let columnObj: AgGridColumn = new AgGridColumn();
         columnObj.headerName = field;

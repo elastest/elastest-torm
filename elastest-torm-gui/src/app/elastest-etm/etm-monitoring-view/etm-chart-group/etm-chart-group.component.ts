@@ -103,7 +103,7 @@ export class EtmChartGroupComponent implements OnInit {
           // Else, is a custom metric
           let pos: number = this.initCustomMetric(metric, individualMetrics);
           if (!this.live && pos >= 0) {
-            let metricName: string = metric.streamType === 'atomic_metric' ? metric.type : metric.type + '.' + metric.subtype;
+            let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
             this.elastestESService
               .searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
@@ -147,7 +147,7 @@ export class EtmChartGroupComponent implements OnInit {
         .createAndSubscribeToTopic(index, metric.streamType, individualMetrics.component, metric.stream)
         .subscribe(
           (data: any) => {
-            if (data.type === metric.type && data.component === metric.component) {
+            if (data['et_type'] === metric.etType && data.component === metric.component) {
               let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
               if (parsedData === undefined) {
                 console.error('Undefined data received, not added to ' + metric.name);
@@ -182,19 +182,19 @@ export class EtmChartGroupComponent implements OnInit {
   initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
     let ignoreComponent: string = this.getIgnoreComponent();
     let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
-    individualMetrics.name = this.createName(metric.component, metric.stream, metric.type, metric.subtype);
+    individualMetrics.name = this.createName(metric.component, metric.stream, metric.etType, metric.subtype);
     individualMetrics.component = metric.component;
     individualMetrics.stream = metric.stream;
     individualMetrics.hidePrevBtn = !this.live;
     return individualMetrics;
   }
 
-  createName(component: string, stream: string, type: string, subtype: string): string {
-    return this.createNameWithoutSubtype(component, stream, type) + ' ' + subtype;
+  createName(component: string, stream: string, etType: string, subtype: string): string {
+    return this.createNameWithoutSubtype(component, stream, etType) + ' ' + subtype;
   }
 
-  createNameWithoutSubtype(component: string, stream: string, type: string): string {
-    return component + ' ' + stream + ' ' + type;
+  createNameWithoutSubtype(component: string, stream: string, etType: string): string {
+    return component + ' ' + stream + ' ' + etType;
   }
 
   alreadyExist(name: string): boolean {

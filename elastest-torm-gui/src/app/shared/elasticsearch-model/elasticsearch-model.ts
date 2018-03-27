@@ -124,7 +124,7 @@ export class ESSearchModel {
     return this.indices.length === 0 || !this.searchPath.startsWith('/_search');
   }
 
-  addFiltersPathToSearchUrl(searchUrl: string) {
+  addFiltersPathToSearchUrl(searchUrl: string): string {
     searchUrl += '?ignore_unavailable'; // For multiple index (ignore if not exist)
     if (this.filterPathList && this.filterPathList.length > 0) {
       let filterPathPrefix: string = 'filter_path=';

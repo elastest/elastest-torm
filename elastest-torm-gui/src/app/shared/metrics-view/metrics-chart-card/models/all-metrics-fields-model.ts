@@ -3,11 +3,11 @@ import { MetricsFieldModel } from './metrics-field-model';
 
 // Aux Classes
 export class MetricFieldGroupModel {
-  type: string;
+  etType: string;
   subtypes: SubtypesObjectModel[];
 
-  constructor(type: string, subtypes: SubtypesObjectModel[]) {
-    this.type = type;
+  constructor(etType: string, subtypes: SubtypesObjectModel[]) {
+    this.etType = etType;
     this.subtypes = subtypes.slice(0);
   }
 
@@ -103,25 +103,25 @@ export enum MetricbeatType {
 
 export function getMetricBeatFieldGroupList(): MetricFieldGroupModel[] {
   let list: MetricFieldGroupModel[] = [];
-  for (let type in MetricbeatType) {
-    if (isNaN(parseInt(type))) {
+  for (let etType in MetricbeatType) {
+    if (isNaN(parseInt(etType))) {
       // enums returns position and value
-      list.push(new MetricFieldGroupModel(type + '_cpu', metricbeatCpuSubtypes));
-      list.push(new MetricFieldGroupModel(type + '_memory', metricbeatMemorySubtypes));
-      // list.push(new MetricFieldGroupModel(type + '_network', getMetricbeatNetworkSubtypes())); //Disabled (traces with same millisecond)
+      list.push(new MetricFieldGroupModel(etType + '_cpu', metricbeatCpuSubtypes));
+      list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemorySubtypes));
+      // list.push(new MetricFieldGroupModel(etType + '_network', getMetricbeatNetworkSubtypes())); //Disabled (traces with same millisecond)
     }
   }
   return list;
 }
 
-export function getMetricbeatFieldGroupIfItsMetricbeatType(type: string): MetricFieldGroupModel[] {
+export function getMetricbeatFieldGroupIfItsMetricbeatType(etType: string): MetricFieldGroupModel[] {
   let metricBeatFieldGroupList: MetricFieldGroupModel[] = getMetricBeatFieldGroupList();
-  return isMetricFieldGroup(type, metricBeatFieldGroupList) ? metricBeatFieldGroupList : undefined;
+  return isMetricFieldGroup(etType, metricBeatFieldGroupList) ? metricBeatFieldGroupList : undefined;
 }
 
-export function isMetricFieldGroup(type: string, givenMetricFieldGroupList: MetricFieldGroupModel[]): boolean {
+export function isMetricFieldGroup(etType: string, givenMetricFieldGroupList: MetricFieldGroupModel[]): boolean {
   for (let metricFieldGroup of givenMetricFieldGroupList) {
-    if (type === metricFieldGroup.type) {
+    if (etType === metricFieldGroup.etType) {
       return true;
     }
   }
@@ -166,7 +166,7 @@ export class AllMetricsFields {
     }
     if (!alreadySaved) {
       let subtypeObj: SubtypesObjectModel = new SubtypesObjectModel(metricsFieldModel.subtype, metricsFieldModel.unit);
-      this.addFieldToFieldList(this.fieldsList, metricsFieldModel.type, subtypeObj, component, stream, streamType, activated);
+      this.addFieldToFieldList(this.fieldsList, metricsFieldModel.etType, subtypeObj, component, stream, streamType, activated);
       return this.fieldsList.length - 1;
     }
   }
@@ -174,7 +174,7 @@ export class AllMetricsFields {
   createFieldsListByComponent(component: string, activate: boolean = false): MetricsFieldModel[] {
     let list: MetricsFieldModel[] = [];
     for (let metricFieldGroup of metricFieldGroupList) {
-      // Foreach type for this component
+      // Foreach etType for this component
       list = list.concat(this.createFieldsListBySublist(metricFieldGroup, component, undefined, undefined, activate));
     }
     return list;
@@ -190,15 +190,15 @@ export class AllMetricsFields {
     let list: MetricsFieldModel[] = [];
 
     for (let subtype of metricFieldGroup.subtypes) {
-      // Foreach subtype of this type and this component
-      list = [...this.addFieldToFieldList(list, metricFieldGroup.type, subtype, component, stream, streamType, activated)];
+      // Foreach subtype of this etType and this component
+      list = [...this.addFieldToFieldList(list, metricFieldGroup.etType, subtype, component, stream, streamType, activated)];
     }
     return list;
   }
 
   addFieldToFieldList(
     list: MetricsFieldModel[],
-    type: string,
+    etType: string,
     subtype: SubtypesObjectModel,
     component: string,
     stream?: string,
@@ -206,7 +206,7 @@ export class AllMetricsFields {
     activated: boolean = false,
   ): MetricsFieldModel[] {
     let newField: MetricsFieldModel = new MetricsFieldModel(
-      type,
+      etType,
       subtype.subtype,
       subtype.unit,
       component,
@@ -237,10 +237,10 @@ export class AllMetricsFields {
     return this.createFieldsListByComponent('');
   }
 
-  getPositionsList(type: string, component: string, stream?: string): number[] {
-    let namePrefix: string = component + '_' + type;
+  getPositionsList(etType: string, component: string, stream?: string): number[] {
+    let namePrefix: string = component + '_' + etType;
     if (stream) {
-      namePrefix = component + '_' + stream + '_' + type;
+      namePrefix = component + '_' + stream + '_' + etType;
     }
     let positionsList: number[] = [];
     let counter: number = 0;
@@ -271,8 +271,8 @@ export class AllMetricsFields {
   }
 
   getDefaultUnitBySubtype(subtypeName: string): Units | string {
-    for (let type of metricFieldGroupList) {
-      for (let subtype of type.subtypes) {
+    for (let etType of metricFieldGroupList) {
+      for (let subtype of etType.subtypes) {
         if (subtypeName === subtype.subtype) {
           return subtype.unit;
         }
@@ -284,11 +284,11 @@ export class AllMetricsFields {
   getDefaultUnitByTypeAndSubtype(typeName: string, subtypeName: string): Units | string {
     let currentMetricFieldGroupList: MetricFieldGroupModel[] = getMetricbeatFieldGroupIfItsMetricbeatType(typeName);
     if (currentMetricFieldGroupList === undefined) {
-      // If is not Metricbeat type, it's dockbeat
+      // If is not Metricbeat etType, it's dockbeat
       currentMetricFieldGroupList = metricFieldGroupList;
     }
-    for (let type of currentMetricFieldGroupList) {
-      for (let subtype of type.subtypes) {
+    for (let etType of currentMetricFieldGroupList) {
+      for (let subtype of etType.subtypes) {
         if (subtypeName === subtype.subtype) {
           return subtype.unit;
         }

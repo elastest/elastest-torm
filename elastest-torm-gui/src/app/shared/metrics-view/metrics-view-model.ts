@@ -22,7 +22,7 @@ export interface MetricsViewModel extends LoadPreviousModel {
 
   timeline: boolean;
   data: MetricsDataModel[];
-  type: string;
+  etType: string;
 
   prevTraces: any[];
   prevLoaded: boolean;

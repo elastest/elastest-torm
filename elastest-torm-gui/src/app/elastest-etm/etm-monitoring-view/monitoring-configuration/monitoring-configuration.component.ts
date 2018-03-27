@@ -126,19 +126,19 @@ export class MonitoringConfigurationComponent implements OnInit {
           if (streamType.children) {
             if (streamType.name !== defaultStreamMap.composed_metrics && streamType !== defaultStreamMap.atomic_metric) {
               let newTypeList: any[] = [];
-              for (let type of streamType.children) {
-                let typeName: string = type.name;
+              for (let etType of streamType.children) {
+                let typeName: string = etType.name;
                 let deleted: boolean = false;
                 for (let metricbeatType in MetricbeatType) {
                   if (isNaN(parseInt(metricbeatType))) {
-                    if (typeName.startsWith(metricbeatType + '_') && !isMetricFieldGroup(type.name, this.metricbeatFieldGroupList)) {
+                    if (typeName.startsWith(metricbeatType + '_') && !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)) {
                       deleted = true;
                       break;
                     }
                   }
                 }
                 if (!deleted) {
-                  newTypeList.push(type);
+                  newTypeList.push(etType);
                 }
               }
               metricTree[componentPos].children[streamPos].children = newTypeList;
@@ -160,11 +160,11 @@ export class MonitoringConfigurationComponent implements OnInit {
     componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
 
     let notContainerMetric: ESTermModel = new ESTermModel();
-    notContainerMetric.name = 'type';
+    notContainerMetric.name = 'et_type';
     notContainerMetric.value = 'container';
     componentStreamTypeQuery.bool.mustNot.termList.push(notContainerMetric);
 
-    let fieldsList: string[] = ['component', 'stream', 'type'];
+    let fieldsList: string[] = ['component', 'stream', 'et_type'];
     this.elastestESService.getAggTreeOfIndex(
       this.tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
     ).subscribe(
@@ -197,21 +197,21 @@ export class MonitoringConfigurationComponent implements OnInit {
       for (let streamType of componentStreamType.children) {
         let stream: string = streamType.name;
         for (let typeTree of streamType.children) {
-          let type: string = typeTree.name;
+          let etType: string = typeTree.name;
           let currentMetricFieldGroupList: MetricFieldGroupModel[] = [];
-          if (isMetricFieldGroup(type, this.metricbeatFieldGroupList)) { // If is Metricbeat type
+          if (isMetricFieldGroup(etType, this.metricbeatFieldGroupList)) { // If is Metricbeat etType
             currentMetricFieldGroupList = this.metricbeatFieldGroupList;
-          } else if (isMetricFieldGroup(type, metricFieldGroupList)) { // If it's Dockbeat type
+          } else if (isMetricFieldGroup(etType, metricFieldGroupList)) { // If it's Dockbeat etType
             currentMetricFieldGroupList = metricFieldGroupList;
           }
           for (let metricFieldGroup of currentMetricFieldGroupList) {
-            if (metricFieldGroup.type === type) {
+            if (metricFieldGroup.etType === etType) {
               for (let subtype of metricFieldGroup.subtypes) {
                 let subtypeTree: TreeCheckElementModel = new TreeCheckElementModel();
                 subtypeTree.name = subtype.subtype;
 
                 // If exist card, init checks
-                let metricCardName: string = this.metricCards.createName(component, stream, type, subtypeTree.name);
+                let metricCardName: string = this.metricCards.createName(component, stream, etType, subtypeTree.name);
                 if (this.metricCards.alreadyExist(metricCardName)) {
                   subtypeTree.checked = true;
                 }
@@ -249,13 +249,13 @@ export class MonitoringConfigurationComponent implements OnInit {
       for (let streamTypeSubtype of componentStreamTypeSubtype.children) {
         let stream: string = streamTypeSubtype.name;
         for (let typeSubtype of streamTypeSubtype.children) {
-          let type: string = typeSubtype.name;
+          let etType: string = typeSubtype.name;
           if (typeSubtype.children.length > 0) {
             for (let subtype of typeSubtype.children) {
               let metric: any = {
                 component: component,
                 stream: stream,
-                metricName: type + '.' + subtype.name,
+                metricName: etType + '.' + subtype.name,
                 activated: subtype.checked,
               };
               metricsList.push(metric);
@@ -264,7 +264,7 @@ export class MonitoringConfigurationComponent implements OnInit {
             let metric: any = {
               component: component,
               stream: stream,
-              metricName: type,
+              metricName: etType,
               activated: typeSubtype.checked,
             };
             metricsList.push(metric);

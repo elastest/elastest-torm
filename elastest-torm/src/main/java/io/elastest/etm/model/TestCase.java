@@ -2,6 +2,7 @@ package io.elastest.etm.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.util.Date;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.model.TestSuite.BasicTestSuite;
@@ -77,6 +79,16 @@ public class TestCase {
     @JoinColumn(name = "testSuite")
     private TestSuite testSuite;
 
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "startDate")
+    private Date startDate = null;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "endDate")
+    private Date endDate = null;
+
     // Constructors
     public TestCase() {
     }
@@ -122,7 +134,7 @@ public class TestCase {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public void cleanNameAndSet(String name) {
         name = name.split("\\(")[0];
         this.setName(name);
@@ -206,6 +218,32 @@ public class TestCase {
         this.testSuite = testSuite;
     }
 
+    /**
+     * Get/Set startDate
+     * 
+     * @return startDate
+     **/
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    /**
+     * Get/Set endDate
+     * 
+     * @return endDate
+     **/
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
     // Others
 
     @Override
@@ -232,7 +270,9 @@ public class TestCase {
                 && Objects.equals(this.failureErrorLine,
                         testCase.failureErrorLine)
                 && Objects.equals(this.failureDetail, testCase.failureDetail)
-                && Objects.equals(this.testSuite, testCase.testSuite);
+                && Objects.equals(this.testSuite, testCase.testSuite)
+                && Objects.equals(this.startDate, testCase.startDate)
+                && Objects.equals(this.endDate, testCase.endDate);
     }
 
     @Override
@@ -253,8 +293,11 @@ public class TestCase {
                 .append("\n");
         sb.append("    testSuite: ").append(toIndentedString(testSuite))
                 .append("\n");
+        sb.append("    startDate: ").append(toIndentedString(startDate))
+                .append("\n");
+        sb.append("    endDate: ").append(toIndentedString(endDate))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }
-
 }

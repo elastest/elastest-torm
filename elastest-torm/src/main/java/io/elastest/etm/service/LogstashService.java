@@ -11,6 +11,7 @@ import java.net.URLConnection;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
@@ -19,66 +20,77 @@ import org.slf4j.Logger;
 
 @Service
 public class LogstashService {
-	final Logger logger = getLogger(lookup().lookupClass());
+    final Logger logger = getLogger(lookup().lookupClass());
 
-	ContextInfo contextInfo;
+    ContextInfo contextInfo;
 
-	String lsHttpApi;
+    String lsHttpApi;
 
-	String logDefaultStream = "default_log";
-	String defaultTestComponent = "test";
+    String logDefaultStream = "default_log";
+    String defaultTestComponent = "test";
 
-	EtmContextAuxService etmContextAuxService;
+    EtmContextAuxService etmContextAuxService;
 
-	public LogstashService(EtmContextAuxService etmContextAuxService) {
-		this.etmContextAuxService = etmContextAuxService;
-	}
+    @Value("${test.case.start.msg.prefix}")
+    public String tcStartMsgPrefix;
+    @Value("${test.case.finish.msg.prefix}")
+    public String tcFinishMsgPrefix;
 
-	@PostConstruct
-	public void init() {
-		this.contextInfo = this.etmContextAuxService.getContextInfo();
-		this.lsHttpApi = this.contextInfo.getLogstashHttpUrl();
-	}
+    public LogstashService(EtmContextAuxService etmContextAuxService) {
+        this.etmContextAuxService = etmContextAuxService;
+    }
 
-	public void sendSingleLogTrace(String message, String component, String exec, String stream) {
-		if (lsHttpApi == null) {
-			return;
-		}
+    @PostConstruct
+    public void init() {
+        this.contextInfo = this.etmContextAuxService.getContextInfo();
+        this.lsHttpApi = this.contextInfo.getLogstashHttpUrl();
+    }
 
-		try {
-			URL url = new URL(lsHttpApi);
+    public void sendSingleLogTrace(String message, String component,
+            String exec, String stream) {
+        if (lsHttpApi == null) {
+            return;
+        }
 
-			URLConnection con = url.openConnection();
-			HttpURLConnection http = (HttpURLConnection) con;
-			http.setRequestMethod("POST");
-			http.setDoOutput(true);
+        try {
+            URL url = new URL(lsHttpApi);
 
-			String body = "{" + "\"component\":\"" + component + "\"" + ",\"exec\":\"" + exec + "\"" + ",\"stream\":\""
-					+ stream + "\"" + ",\"message\":\"" + message + "\"" + "}";
-			byte[] out = body.getBytes(UTF_8);
-			logger.debug("Sending single log trace to logstash ({}): {}", lsHttpApi, body);
-			int length = out.length;
+            URLConnection con = url.openConnection();
+            HttpURLConnection http = (HttpURLConnection) con;
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
 
-			http.setFixedLengthStreamingMode(length);
-			http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-			http.connect();
-			try (OutputStream os = http.getOutputStream()) {
-				os.write(out);
-			}
-		} catch (
+            String body = "{" + "\"component\":\"" + component + "\""
+                    + ",\"exec\":\"" + exec + "\"" + ",\"stream\":\"" + stream
+                    + "\"" + ",\"message\":\"" + message + "\"" + "}";
+            byte[] out = body.getBytes(UTF_8);
+            logger.debug("Sending single log trace to logstash ({}): {}",
+                    lsHttpApi, body);
+            int length = out.length;
 
-		Exception e) {
-			logger.error("Exception in send single log trace", e);
-		}
-	}
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type",
+                    "application/json; charset=UTF-8");
+            http.connect();
+            try (OutputStream os = http.getOutputStream()) {
+                os.write(out);
+            }
+        } catch (
 
-	public void sendStartTestLogtrace(String exec, String testName) {
-		String message = "##### Start test: " + testName;
-		this.sendSingleLogTrace(message, defaultTestComponent, exec, logDefaultStream);
-	}
+        Exception e) {
+            logger.error("Exception in send single log trace", e);
+        }
+    }
 
-	public void sendFinishTestLogtrace(String exec, String testName) {
-		String message = "##### Finish test: " + testName;
-		this.sendSingleLogTrace(message, defaultTestComponent, exec, logDefaultStream);
-	}
+    public void sendStartTestLogtrace(String exec, String testName) {
+        String message = this.tcStartMsgPrefix + testName;
+        this.sendSingleLogTrace(message, defaultTestComponent, exec,
+                logDefaultStream);
+    }
+
+    public void sendFinishTestLogtrace(String exec, String testName) {
+        String message = this.tcFinishMsgPrefix + testName;
+        this.sendSingleLogTrace(message, defaultTestComponent, exec,
+                logDefaultStream);
+    }
 }

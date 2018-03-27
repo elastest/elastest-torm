@@ -10,7 +10,7 @@ export class ESRabLogModel implements LogViewModel {
   prevTraces: any[];
   prevLoaded: boolean;
   hidePrevBtn: boolean;
-  type: string;
+  etType: string;
   component: string;
   stream: string;
   monitoringIndex: string;
@@ -23,7 +23,7 @@ export class ESRabLogModel implements LogViewModel {
     this.filteredTraces = [];
     this.prevLoaded = false;
     this.hidePrevBtn = false;
-    this.type = '';
+    this.etType = '';
     this.component = '';
     this.stream = '';
     this.monitoringIndex = '';

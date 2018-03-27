@@ -22,7 +22,7 @@ export class MetricsModel implements MetricsViewModel {
 
   timeline: boolean;
   data: MetricsDataModel[];
-  type: string;
+  etType: string;
 
   prevTraces: string[];
   prevLoaded: boolean;
@@ -44,7 +44,7 @@ export class MetricsModel implements MetricsViewModel {
 
     this.colorScheme = new ColorSchemeModel();
     this.data = [];
-    this.type = '';
+    this.etType = '';
 
     this.prevTraces = [];
     this.prevLoaded = false;

@@ -126,7 +126,6 @@ export class ESMatchModel {
             formatted[this.field].query = this.query;
             if (this.operator) { formatted[this.field].operator = this.operator; }
             if (this.zeroTermsQuery) { formatted[this.field]['zero_terms_query'] = this.zeroTermsQuery; }
-            if (this.type) { formatted[this.field].type = this.type; }
         }
         return formatted;
     }

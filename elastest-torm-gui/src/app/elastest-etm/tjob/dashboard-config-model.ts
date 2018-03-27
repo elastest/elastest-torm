@@ -36,7 +36,7 @@ export class DashboardConfigModel {
         }
 
         let metricModel: MetricsFieldModel = new MetricsFieldModel(
-          metric.type,
+          metric.etType,
           metric.subtype,
           metric.unit,
           metric.component,

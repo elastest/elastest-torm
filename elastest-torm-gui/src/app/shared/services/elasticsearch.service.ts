@@ -2,7 +2,7 @@ import { ConfigModel } from '../../config/config-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 
 import { Injectable } from '@angular/core';
-import { Http, Request, RequestMethod, RequestOptions, Response } from '@angular/http';
+import { Http, Request, RequestMethod, RequestOptions, Response, Headers } from '@angular/http';
 import { Subject, Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 import { ESSearchModel } from '../elasticsearch-model/elasticsearch-model';
@@ -23,8 +23,12 @@ export class ElasticSearchService {
   }
 
   getSearch(url: string): Observable<any> {
+    let headers: Headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
     let requestOptions: RequestOptions = new RequestOptions({
       method: RequestMethod.Get,
+      headers: headers,
       url,
     });
 
@@ -40,9 +44,12 @@ export class ElasticSearchService {
 
   internalSearch(url: string, query: any): Observable<any> {
     // console.log('URL:', url, 'Query:', query);
+    let headers: Headers = new Headers();
+    headers.append('Content-Type', 'application/json');
 
     let requestOptions: RequestOptions = new RequestOptions({
       method: RequestMethod.Post,
+      headers: headers,
       url,
       body: JSON.stringify(query),
     });
@@ -62,8 +69,12 @@ export class ElasticSearchService {
   }
 
   getInfo(url: string): Observable<any> {
+    let headers: Headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
     let requestOptions: RequestOptions = new RequestOptions({
       method: RequestMethod.Get,
+      headers: headers,
       url,
     });
 

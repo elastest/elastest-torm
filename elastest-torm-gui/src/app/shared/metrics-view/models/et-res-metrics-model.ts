@@ -48,7 +48,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
         this.elastestESService = elastestESService;
 
         this.metricsField = metricsField;
-        this.type = this.metricsField.type;
+        this.etType = this.metricsField.etType;
 
         this.showXAxis = true;
         this.showYAxis = true;
@@ -78,7 +78,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     initMetricsTypeData() {
-        this.name = this.metricsField.type + ' ' + this.metricsField.subtype;
+        this.name = this.metricsField.etType + ' ' + this.metricsField.subtype;
         switch (this.metricsField.unit) {
             case 'percent':
                 this.yAxisLabel = this.metricsField.subtype + ' %';

@@ -63,22 +63,19 @@
   </div>
 
   <form #caseForm="ngForm" class="push-top-sm">
-    <div layout="row" layout-margin>
-      <md-input-container flex="50">
-        <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
-      </md-input-container>
+    <div layout="column" layout-margin>
+      <div layout="row">
+        <md-radio-group [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
+          required>
+          <md-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [value]="status" class="push-right-sm">{{status}}</md-radio-button>
+        </md-radio-group>
+      </div>
 
-      <!-- <md-input-container class="noMarginInput noPaddingInput push-bottom-md">
-          <input mdInput type="number" class="form-control input-sm" id="duration" value="0" [(ngModel)]="tcExec.executionTimeStamp" name="duration"
-            placeholder="Exec duration (min)">
-        </md-input-container> -->
-
-      <md-select flex="50" [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
-        required>
-        <md-option *ngFor="let status of testCase.getExecStatusValuesToExec()" [value]="status ">
-          {{status}}
-        </md-option>
-      </md-select>
+      <div layout="column">
+        <md-input-container flex="50">
+          <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+        </md-input-container>
+      </div>
     </div>
   </form>
 
