@@ -249,7 +249,7 @@ public class TestCase {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, time, failureMessage, failureType,
-                failureErrorLine, failureDetail, testSuite);
+                failureErrorLine, failureDetail, testSuite, startDate, endDate);
     }
 
     @Override
