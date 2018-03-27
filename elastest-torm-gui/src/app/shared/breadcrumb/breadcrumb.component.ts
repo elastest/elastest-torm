@@ -65,15 +65,58 @@ export class BreadcrumbComponent implements OnInit, OnChanges {
   }
 
   friendlyName(url: string): string {
-    let itemsToShow: number = 3;
-    if (this._urls.length > itemsToShow) {
-      if (this._urls.indexOf(url) < this._urls.length - itemsToShow) {
-        return this._urls.indexOf(url) === 0 ? '...' : '/ ...';
-      } else {
-        return this.breadcrumbService.getFriendlyNameForRoute(url);
-      }
+    let itemsToChange: number = 0;
+
+    itemsToChange = this.getChangesToBeResponsive();
+    if (this._urls.indexOf(url) <= itemsToChange - 1) {
+      return this._urls.indexOf(url) === 0 ? '...' : '/ ...';
+    } else {
+      return !url ? '' : this.breadcrumbService.getFriendlyNameForRoute(url);
     }
-    return !url ? '' : this.breadcrumbService.getFriendlyNameForRoute(url);
+  }
+
+  private getLengthOfBreadcrumb(): number {
+    let length: number = 0;
+    let namesToChange: number = 0;
+    this._urls.forEach((route: string) => {
+      length += this.breadcrumbService.getFriendlyNameForRoute(route).length;
+    });
+
+    return length;
+  }
+
+  private getChangesToBeResponsive(): number {
+    let itemsToChange: number = 0;
+    let width: number = window.screen.width;
+    let length: number = this.getLengthOfBreadcrumb();
+
+    if (width > 860 && width < 960 && length > 50) {
+      itemsToChange = this.wordsNumberToChange(length, 50);
+    } else if (width >= 960 && width < 1070 && length > 65) {
+      itemsToChange = this.wordsNumberToChange(length, 65);
+    } else if (width >= 1070 && width < 1140 && length > 80) {
+      itemsToChange = this.wordsNumberToChange(length, 80);
+    } else if (width >= 1140 && width < 1250 && length > 90) {
+      itemsToChange = this.wordsNumberToChange(length, 90);
+    } else if (width >= 1250 && length > 100) {
+      itemsToChange = this.wordsNumberToChange(length, 100);
+    }
+    return itemsToChange;
+  }
+
+  private wordsNumberToChange(totalLength: number, limit: number): number {
+    let wordsNumber: number = 0;
+    let newTotalLength: number = totalLength;
+    for (let url of this._urls) {
+      newTotalLength = newTotalLength - this.breadcrumbService.getFriendlyNameForRoute(url).length + '/ ...'.length;
+
+      if (newTotalLength <= limit) {
+        wordsNumber++;
+        return wordsNumber;
+      }
+      wordsNumber++;
+    }
+    return 0;
   }
 
   /*ngOnDestroy(): void {

@@ -36,7 +36,7 @@ export class TitlesService {
     this.breadcrumbService.addFriendlyNameForRoute('/support-services', 'Test Support Services');
     this.breadcrumbService.addFriendlyNameForRoute('/loganalyzer', 'Log Analyzer');
     this.breadcrumbService.addFriendlyNameForRouteRegex('/loganalyzer?.*', '/ Log Analyzer');
-    this.breadcrumbService.addFriendlyNameForRoute('^/testlink', 'Testlink Projects');
+    this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/sut/new)$', 'New SuT');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/tjob/new)$', 'New TJob');

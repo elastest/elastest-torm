@@ -14,14 +14,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 850px) {
-  #breadcrumb-item span,
-  #breadcrumb-item a {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 770px) {
+@media (max-width: 860px) {
   #breadcrumb-item {
     display: none;
   }
