@@ -17,12 +17,12 @@ export class EimMonitoringConfigModel {
 export class EimBeatsMap {
   packetbeat: EimBeatConfigModel;
   filebeat: EimBeatConfigModel;
-  topbeat: EimBeatConfigModel;
+  metricbeat: EimBeatConfigModel;
 
   constructor(stream: string = '') {
     this.packetbeat = new EimBeatConfigModel('packetbeat', stream);
     this.filebeat = new EimBeatConfigModel('filebeat', stream);
-    this.topbeat = new EimBeatConfigModel('topbeat', stream);
+    this.metricbeat = new EimBeatConfigModel('metricbeat', stream);
   }
 }
 

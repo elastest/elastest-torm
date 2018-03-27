@@ -300,7 +300,7 @@ export class ETModelsTransformServices {
       if (eimMonitoringConfig.beats !== undefined) {
         for (let key of Object.keys(eimMonitoringConfig.beats)) {
           let currentBeat: EimBeatConfigModel = eimMonitoringConfig.beats[key];
-          if (currentBeat !== undefined) {
+          if (currentBeat !== undefined && newEimMonitoringConfigModel.beats[key] !== undefined) {
             newEimMonitoringConfigModel.beats[key].id = currentBeat.id;
             newEimMonitoringConfigModel.beats[key].name = currentBeat.name;
             newEimMonitoringConfigModel.beats[key].paths = currentBeat.paths;

@@ -23,14 +23,16 @@ public class SutService {
     private final SutRepository sutRepository;
     private final SutExecutionRepository sutExecutionRepository;
     private final EimService eimService;
+    private ElasticsearchService elasticsearchService;
 
     public SutService(SutRepository sutRepository,
             SutExecutionRepository sutExecutionRepository,
-            EimService eimService) {
+            EimService eimService, ElasticsearchService elasticsearchService) {
         super();
         this.sutRepository = sutRepository;
         this.sutExecutionRepository = sutExecutionRepository;
         this.eimService = eimService;
+        this.elasticsearchService = elasticsearchService;
     }
 
     public SutSpecification createSutSpecification(
@@ -53,6 +55,8 @@ public class SutService {
             SutExecution sutExec = createSutExecutionBySut(sut);
             sut.setCurrentSutExec(sutExec.getId());
             if (sut.isInstrumentalize()) {
+                String[] index = { sut.getSutMonitoringIndex() };
+                elasticsearchService.createMonitoringIndex(index);
                 sut = this.instrumentalizeSut(sut);
             }
         } else {

@@ -182,13 +182,13 @@ public class EimMonitoringConfig {
         filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
         filebeat.setStream(this.getBeats().get("filebeat").getStream());
 
-        ApiEimBeatConfig topbeat = new ApiEimBeatConfig();
-        topbeat.setPaths(this.getBeats().get("topbeat").getPaths());
-        topbeat.setStream(this.getBeats().get("topbeat").getStream());
+        ApiEimBeatConfig metricbeat = new ApiEimBeatConfig();
+        metricbeat.setPaths(this.getBeats().get("metricbeat").getPaths());
+        metricbeat.setStream(this.getBeats().get("metricbeat").getStream());
 
         apiEimMonitoringConfig.setPacketbeat(packetbeat);
         apiEimMonitoringConfig.setFilebeat(filebeat);
-        apiEimMonitoringConfig.setTopbeat(topbeat);
+        apiEimMonitoringConfig.setMetricbeat(metricbeat);
 
         return apiEimMonitoringConfig;
     }
@@ -213,7 +213,7 @@ public class EimMonitoringConfig {
         String component;
         ApiEimBeatConfig packetbeat;
         ApiEimBeatConfig filebeat;
-        ApiEimBeatConfig topbeat;
+        ApiEimBeatConfig metricbeat;
 
         public ApiEimMonitoringConfig() {
         }
@@ -250,12 +250,12 @@ public class EimMonitoringConfig {
             this.filebeat = filebeat;
         }
 
-        public ApiEimBeatConfig getTopbeat() {
-            return topbeat;
+        public ApiEimBeatConfig getMetricbeat() {
+            return metricbeat;
         }
 
-        public void setTopbeat(ApiEimBeatConfig topbeat) {
-            this.topbeat = topbeat;
+        public void setMetricbeat(ApiEimBeatConfig metricbeat) {
+            this.metricbeat = metricbeat;
         }
 
     }
