@@ -8,6 +8,8 @@ import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { LogAnalyzerModel } from '../../elastest-log-analyzer/log-analyzer-model';
 import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { ElastestLogAnalyzerComponent } from '../../elastest-log-analyzer/elastest-log-analyzer.component';
+import { TJobExecService } from '../tjob-exec/tjobExec.service';
+import { FileModel } from '../files-manager/file-model';
 
 @Component({
   selector: 'etm-test-case',
@@ -28,7 +30,8 @@ export class TestCaseComponent implements OnInit {
     private elastestESService: ElastestESService,
     public route: ActivatedRoute,
     private titlesService: TitlesService,
-    private router: Router
+    private router: Router,
+    private tJobExecService: TJobExecService,
   ) {}
 
   ngOnInit() {
@@ -46,10 +49,20 @@ export class TestCaseComponent implements OnInit {
         this.params = params;
         this.testCaseService.getTestCaseById(this.params.testCaseId).subscribe((testCase: TestCaseModel) => {
           this.testCase = testCase;
+          this.getExecutionFiles();
           this.testCase['result'] = this.testCase.getResultIcon();
         });
       });
     }
+  }
+
+  getExecutionFiles(): void {
+    this.tJobExecService.getTJobExecutionFiles(this.params.tJobId, this.params.tJobExecId).subscribe(
+      (tJobsExecFiles: FileModel[]) => {
+        this.testCase.setTestCaseFiles(tJobsExecFiles, 'mp4');
+      },
+      (error) => console.log(error),
+    );
   }
 
   getComponents(): void {

@@ -91,23 +91,11 @@ export class TestSuitesViewComponent implements OnInit {
       (tJobsExecFiles: FileModel[]) => {
         for (let testSuite of this.testSuites) {
           for (let testCase of testSuite.testCases) {
-            tJobsExecFiles = this.setTestCaseFiles(tJobsExecFiles, testCase);
+            tJobsExecFiles = testCase.setTestCaseFiles(tJobsExecFiles);
           }
         }
       },
       (error) => console.log(error),
     );
-  }
-
-  setTestCaseFiles(tJobExecFiles: FileModel[], testCase: TestCaseModel): FileModel[] {
-    let newExecFiles: FileModel[] = [];
-    for (let file of tJobExecFiles) {
-      if (file.name.startsWith(testCase.name + '_')) {
-        testCase.files.push(file);
-      } else {
-        newExecFiles.push(file);
-      }
-    }
-    return newExecFiles;
   }
 }

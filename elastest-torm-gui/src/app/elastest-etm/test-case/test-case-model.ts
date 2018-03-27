@@ -58,4 +58,19 @@ export class TestCaseModel {
 
     return isSuccess;
   }
+
+  setTestCaseFiles(tJobExecFiles: FileModel[], extension?: string): FileModel[] {
+    let newExecFiles: FileModel[] = [];
+    for (let file of tJobExecFiles) {
+      if (
+        (extension && file.name.endsWith(extension) && file.name.startsWith(this.name + '_')) ||
+        !extension && file.name.startsWith(this.name + '_')
+      ) {
+        this.files.push(file);
+      } else {
+        newExecFiles.push(file);
+      }
+    }
+    return newExecFiles;
+  }
 }

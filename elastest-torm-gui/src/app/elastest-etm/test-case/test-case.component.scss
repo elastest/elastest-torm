@@ -30,8 +30,8 @@
 }
 
 :host /deep/ .mat-tab-label{
-  min-width: 95px !important;
-  max-width: 95px;
+  min-width: 80px !important;
+  max-width: 85px;
   text-overflow: ellipsis;
 }
 #miniLogAnalyzerTab {
@@ -39,6 +39,14 @@
 }
 #miniLogAnalyzerCard md-card-content {
   padding: 4px;
+}
+#video{
+  width: 100%;
+  height: auto;
+  margin-top: 2%;
+}
+#videoIcon{
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {
