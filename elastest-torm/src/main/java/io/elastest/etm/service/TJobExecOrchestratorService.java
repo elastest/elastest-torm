@@ -12,8 +12,6 @@ import java.util.concurrent.Future;
 
 import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.search.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -865,33 +863,26 @@ public class TJobExecOrchestratorService {
                     tCase.setFailureMessage(reportTestCase.getFailureMessage());
                     tCase.setFailureType(reportTestCase.getFailureType());
                     tCase.setTestSuite(tSuite);
-                    String url = elasticsearchHost + "/"
-                            + tJobExec.getMonitoringIndex() + "/_search";
-
-                    // Date startDate = this.elasticsearchService
-                    // .findFirstMsgAndGetTimestamp(url,
-                    // this.tcStartMsgPrefix + tCase.getName()
-                    // + " ",
-                    // "test");
-                    // tCase.setStartDate(startDate);
-                    //
-                    // Date endDate = this.elasticsearchService
-                    // .findFirstMsgAndGetTimestamp(url,
-                    // this.tcFinishMsgPrefix + tCase.getName()
-                    // + " ",
-                    // "test");
-                    // tCase.setEndDate(endDate);
-
                     try {
-                        SearchResponse response = this.elasticsearchService
-                                .findMessageSync(tJobExec.getMonitoringIndex(),
-                                        this.tcFinishMsgPrefix
-                                                + tCase.getName(),
+                        Date startDate = this.elasticsearchService
+                                .findFirstMsgAndGetTimestamp(
+                                        tJobExec.getMonitoringIndex(),
+                                        this.tcStartMsgPrefix + tCase.getName()
+                                                + " ",
                                         "test");
+                        tCase.setStartDate(startDate);
 
-                        logger.debug("response: {}", response);
+                        Date endDate = this.elasticsearchService
+                                .findFirstMsgAndGetTimestamp(
+                                        tJobExec.getMonitoringIndex(),
+                                        this.tcFinishMsgPrefix + tCase.getName()
+                                                + " ",
+                                        "test");
+                        tCase.setEndDate(endDate);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.debug(
+                                "Cannot save start/end date for Test Case {}",
+                                tCase.getName(), e);
                     }
 
                     testCaseRepo.save(tCase);

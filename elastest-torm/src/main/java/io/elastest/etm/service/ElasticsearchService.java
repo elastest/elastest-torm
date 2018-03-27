@@ -13,11 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import io.elastest.etm.utils.ParserService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,9 +20,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -44,9 +37,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -131,10 +125,6 @@ public class ElasticsearchService {
 
         this.esClient.indices().createAsync(request, listener);
     }
-
-    /* ************** */
-    /* *** Search *** */
-    /* ************** */
 
     public void enableFieldData(String url, String field) {
         String group = field + 's';
@@ -223,17 +213,9 @@ public class ElasticsearchService {
         return factory;
     }
 
-    public ObjectNode findMessage(String url, String msg, String component)
-            throws RestClientException, IndexAlreadyExistException,
-            IOException {
-        String body = "{\"size\":10000,\"query\":{\"bool\":{\"must\":[{\"term\":{\"stream_type\":\"log\"}},{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"term\":{\"component\":\""
-                + component
-                + "\"}},{\"term\":{\"stream\":\"default_log\"}}]}}]}},{\"match\":{\"message\":{\"query\":\"*"
-                + msg
-                + "*\",\"type\":\"phrase_prefix\"}}}]}},\"sort\":[{\"@timestamp\":\"asc\"},{\"_uid\":\"asc\"}]}";
-
-        return this.responseAsObjectNode(this.postCall(url, body).getBody());
-    }
+    /* ************** */
+    /* *** Search *** */
+    /* ************** */
 
     public SearchRequest getFindMessageSearchRequest(String index, String msg,
             String component) {
@@ -264,7 +246,7 @@ public class ElasticsearchService {
         sourceBuilder.size(10000);
         sourceBuilder
                 .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
-        sourceBuilder.sort(new FieldSortBuilder("_uid").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
 
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(sourceBuilder);
@@ -279,48 +261,23 @@ public class ElasticsearchService {
         return this.esClient.search(searchRequest);
     }
 
-    public Date findFirstMsgAndGetTimestamp(String url, String msg,
-            String component) {
-        try {
-            ObjectNode responseMsg = this.findMessage(url, msg, component);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode hits = responseMsg.get("hits");
-            if (hits != null) {
-                JsonNode hitsHits = hits.get("hits");
-                if (hitsHits != null && hitsHits.isArray()) {
-                    List<JsonNode> hitsList = mapper.convertValue(hitsHits,
-                            ArrayList.class);
-                    if (hitsList.size() > 0) {
-                        JsonNode firstResult = hitsList.get(0);
-                        if (firstResult != null) {
-                            JsonNode source = firstResult.get("_source");
-                            if (source != null) {
-                                String timestamp = source.get("@timestamp")
-                                        .toString();
+    public Date findFirstMsgAndGetTimestamp(String index, String msg,
+            String component) throws IOException, ParseException {
+        SearchResponse response = this.findMessageSync(index, msg, component);
+        SearchHits hits = response.getHits();
+        if (hits != null && hits.getTotalHits() > 0) {
+            SearchHit firstResult = hits.getAt(0);
+            String timestamp = firstResult.getSourceAsMap().get("@timestamp")
+                    .toString();
 
-                                DateFormat df = new SimpleDateFormat(
-                                        "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                                Date date = df.parse(timestamp);
+            DateFormat df = new SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            Date date = df.parse(timestamp);
 
-                                return date;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (RestClientException e) {
-
-        } catch (IndexAlreadyExistException e) {
-
-        } catch (IOException e) {
-        } catch (ParseException e) {
-
+            return date;
         }
-        return null;
-    }
 
-    public ObjectNode responseAsObjectNode(String response) throws IOException {
-        return ParserService.fromStringToJson(response);
+        return null;
     }
 
     /****************/
