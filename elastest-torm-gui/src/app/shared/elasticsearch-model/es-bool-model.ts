@@ -50,16 +50,13 @@ export class ESBoolClausesModel {
         let matchObj: any = {};
         switch (match.type) {
           case 'phrase':
-          console.log('aaa')
             matchObj['match_phrase'] = match.convertToESFormat();
             break;
           case 'phrase_prefix':
-          console.log('bbbb')
             matchObj['match_phrase_prefix'] = match.convertToESFormat();
             break;
           case 'boolean':
           default:
-          console.log('ccc')
             matchObj.match = match.convertToESFormat();
         }
         formatted.push(matchObj);

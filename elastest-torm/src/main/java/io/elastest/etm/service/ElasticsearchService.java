@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -85,6 +86,43 @@ public class ElasticsearchService {
     /* ************* */
     /* *** Index *** */
     /* ************* */
+    
+    
+    public void createMonitoringIndex(String[] indicesList) {
+        logger.info("Creating ES indices...");
+        for (String index : indicesList) {
+            // Create Index
+            String url = this.esApiUrl + "/" + index;
+            logger.info("Creating index: {}", index);
+
+            String type = "_doc";
+            String[] properties = { "component", "stream", "level", "et_type" };
+
+            Map<String, String> mappings = new HashMap<>();
+            mappings.put(type,
+                    "{ \"" + type + "\": { \"properties\": {"
+                            + "\"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                            + "\"et_type\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
+                            + "} }" + "}");
+
+            try {
+                CreateIndexResponse a = this
+                        .createIndexSync(index, mappings, null, null);
+                logger.debug("index response: {}", a);
+            } catch (Exception e) {
+                logger.error("Error creating index {}", index, e);
+            } finally {
+                // Enable Fielddata for components, streams and levels
+                this.enablePropertiesGroupFieldData(url, type,
+                        properties);
+            }
+            logger.info("Index {} created", index);
+        }
+        logger.info("ES indices created!");
+    }
+
 
     public CreateIndexRequest createIndexRequest(String index,
             Map<String, String> mappings, String alias, String timeout) {
@@ -110,7 +148,7 @@ public class ElasticsearchService {
 
     public CreateIndexResponse createIndexSync(String index,
             Map<String, String> mappings, String alias, String timeout)
-            throws IOException {
+            throws Exception {
         CreateIndexRequest request = this.createIndexRequest(index, mappings,
                 alias, timeout);
 

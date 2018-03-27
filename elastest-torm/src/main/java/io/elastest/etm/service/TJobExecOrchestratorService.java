@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,9 +48,6 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 public class TJobExecOrchestratorService {
     private static final Logger logger = LoggerFactory
             .getLogger(TJobExecOrchestratorService.class);
-
-    @Value("${et.edm.elasticsearch.api}")
-    private String elasticsearchHost;
 
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
@@ -103,7 +99,8 @@ public class TJobExecOrchestratorService {
     public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
-        createMonitoringIndex(tJobExec);
+        elasticsearchService
+                .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
@@ -124,7 +121,8 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
 
-        createMonitoringIndex(tJobExec);
+        elasticsearchService
+                .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
@@ -893,58 +891,6 @@ public class TJobExecOrchestratorService {
                 tJobExec.getTestSuites().add(tSuite);
             }
         }
-    }
-
-    public void createMonitoringIndex(TJobExecution tJobExec) {
-        logger.info("Creating ES indices...");
-        String[] indicesList = tJobExec.getMonitoringIndicesList();
-        for (String index : indicesList) {
-            // Create Index
-            String url = elasticsearchHost + "/" + index;
-            logger.info("Creating index: {}", index);
-
-            String type = "_doc";
-
-            String[] properties = { "component", "stream", "level", "et_type" };
-
-            String body = "{ \"mappings\": {" + "\"" + type
-                    + "\": { \"properties\": {"
-                    + "\"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                    + "\"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                    + "\"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                    + "\"et_type\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
-                    + "} }" + "} }";
-
-            // Map<String, String> mappings = new HashMap<>();
-            // mappings.put("components",
-            // "{ \"components\": { \"properties\": { \"component\": { \"type\":
-            // \"text\", \"fielddata\": true } } } }");
-            // mappings.put("streams",
-            // "{ \"streams\": { \"properties\": { \"stream\": { \"type\":
-            // \"text\", \"fielddata\": true } } } }");
-            // mappings.put("levels",
-            // "{ \"levels\": { \"properties\": { \"level\": { \"type\":
-            // \"text\", \"fielddata\": true } } } }");
-            // mappings.put("types",
-            // "{ \"types\": { \"properties\": { \"type\": { \"type\": \"text\",
-            // \"fielddata\": true } } } }");
-
-            try {
-                elasticsearchService.putCall(url, body);
-                // CreateIndexResponse a = elasticsearchService
-                // .createIndexSync(index, mappings, null, null);
-            } catch (RestClientException e) {
-                logger.error("Error creating index {}", index, e);
-            } catch (Exception e) {
-                logger.error("Error creating index {}", index, e);
-            } finally {
-                // Enable Fielddata for components, streams and levels
-                elasticsearchService.enablePropertiesGroupFieldData(url, type,
-                        properties);
-            }
-            logger.info("Index {} created", index);
-        }
-        logger.info("ES indices created!");
     }
 
     public void enableESFieldData(String index, String url, String field) {

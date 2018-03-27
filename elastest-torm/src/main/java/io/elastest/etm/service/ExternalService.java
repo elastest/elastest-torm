@@ -12,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.api.model.TestSupportServices;
@@ -31,7 +29,6 @@ import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
-import io.elastest.etm.service.ElasticsearchService.IndexAlreadyExistException;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
@@ -55,9 +52,6 @@ public class ExternalService {
     @Value("${server.port}")
     private String serverPort;
 
-    @Value("${et.edm.elasticsearch.api}")
-    private String elasticsearchUrl;
-
     @Value("${et.etm.lshttp.port}")
     private String etEtmLsHttpPort;
 
@@ -75,9 +69,6 @@ public class ExternalService {
 
     @Value("${et.etm.dev.gui.port}")
     public String etEtmDevGuiPort;
-
-    @Value("${et.edm.elasticsearch.api}")
-    private String elasticsearchHost;
 
     private Map<Long, ExternalJob> runningExternalJobs;
 
@@ -342,7 +333,7 @@ public class ExternalService {
             exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
         }
 
-        this.createMonitoringIndex(exec);
+        elasticsearchService.createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
     }
@@ -369,7 +360,7 @@ public class ExternalService {
             exec = this.externalTJobExecutionRepository.save(exec);
         }
 
-        this.createMonitoringIndex(exec);
+        elasticsearchService.createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
     }
@@ -402,43 +393,6 @@ public class ExternalService {
                 .findById(exTJobExecId);
         return esmService.getExternalTJobExecutionFilesUrls(
                 exTJobExec.getExTJob().getId(), exTJobExecId);
-    }
-
-    public void createMonitoringIndex(ExternalTJobExecution exec) { // TODO
-                                                                    // Refactor
-                                                                    // Duplicated
-        logger.info("Creating ES indices...");
-        String[] indicesList = exec.getMonitoringIndicesList();
-        for (String index : indicesList) {
-            // Create Index
-            String url = elasticsearchHost + "/" + index;
-            logger.info("Creating index: {}", index);
-
-            String body = "{ \"mappings\": {"
-                    + "\"components\": { \"properties\": { \"component\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
-                    + "\"streams\": { \"properties\": { \"stream\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
-                    + "\"levels\": { \"properties\": { \"level\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } },"
-                    + "\"types\": { \"properties\": { \"type\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\" } } } } }"
-                    + "} }";
-
-            try {
-                elasticsearchService.putCall(url, body);
-                logger.info("Index {} created", index);
-            } catch (IndexAlreadyExistException e) {
-                logger.error("Index {} already exist", index);
-            } catch (HttpClientErrorException e) {
-                logger.error("Index {} already exist", index);
-            } catch (RestClientException e) {
-                logger.error("Error creating index {}", index, e);
-            } finally {
-                // Enable Fielddata for components, streams and levels
-                enableESFieldData(index, url, "component");
-                enableESFieldData(index, url, "stream");
-                enableESFieldData(index, url, "level");
-                enableESFieldData(index, url, "type");
-            }
-        }
-        logger.info("ES indices created!");
     }
 
     public void enableESFieldData(String index, String url, String field) {
