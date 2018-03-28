@@ -41,7 +41,7 @@ export class FilesManagerComponent implements OnInit {
 
   filesUrlPrefix: string;
 
-  loading: boolean = false;
+  loading: boolean = true;
 
   constructor(
     private _dataTableService: TdDataTableService,

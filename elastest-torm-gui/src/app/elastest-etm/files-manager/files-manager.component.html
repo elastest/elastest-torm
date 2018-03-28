@@ -13,14 +13,14 @@
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content>
-          <ng-template #noFiles>
-            <md-spinner *ngIf="subscription || loading; else noFilesMsg" strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
-            <ng-template #noFilesMsg>
-              No files generated during execution
-            </ng-template>
-          </ng-template>
-          <td-data-table *ngIf="executionFiles.length > 0; else noFiles" #filesTable class="scroll_table" [data]="executionFiles" [columns]="filesColumns"
-            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)">
+          <md-spinner strokeWidth="6" *ngIf="loading" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+          <div *ngIf="!loading && executionFiles.length === 0" class="push-top-important messageEmptyCard">
+            <md-icon>assignment</md-icon>
+            <p>No files generated during execution</p>
+          </div>
+          <td-data-table *ngIf="executionFiles && executionFiles.length > 0; else noFiles" #filesTable class="scroll_table" [data]="executionFiles"
+            [columns]="filesColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
+            (sortChange)="sort($event)">
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
               <div layout="row" class="optionsColumn">
                 <!--button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
