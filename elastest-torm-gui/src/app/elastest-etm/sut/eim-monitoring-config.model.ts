@@ -1,4 +1,5 @@
 import { SutModel } from './sut-model';
+import { defaultStreamMap } from '../../shared/defaultESData-model';
 
 export class EimMonitoringConfigModel {
   id: number;
@@ -6,11 +7,11 @@ export class EimMonitoringConfigModel {
   component: string;
   beats: EimBeatsMap;
 
-  constructor(exec: string = '', component: string = '', stream: string = '') {
+  constructor(exec: string = '', component: string = '') {
     this.id = 0;
     this.exec = exec; // Sets on save in Backend (SutService)
     this.component = component;
-    this.beats = new EimBeatsMap(stream);
+    this.beats = new EimBeatsMap();
   }
 }
 
@@ -19,10 +20,10 @@ export class EimBeatsMap {
   filebeat: EimBeatConfigModel;
   metricbeat: EimBeatConfigModel;
 
-  constructor(stream: string = '') {
-    this.packetbeat = new EimBeatConfigModel('packetbeat', stream);
-    this.filebeat = new EimBeatConfigModel('filebeat', stream);
-    this.metricbeat = new EimBeatConfigModel('metricbeat', stream);
+  constructor() {
+    this.packetbeat = new EimBeatConfigModel('packetbeat', 'et_packetbeat');
+    this.filebeat = new EimBeatConfigModel('filebeat', defaultStreamMap.log);
+    this.metricbeat = new EimBeatConfigModel('metricbeat', 'et_metricbeat');
   }
 }
 

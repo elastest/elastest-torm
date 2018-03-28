@@ -33,7 +33,7 @@ export class SutModel {
     this.description = '';
     this.project = undefined;
     this.eimConfig = new EimConfigModel();
-    this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', defaultStreamMap.log);
+    this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut');
     this.instrumentalize = false;
     this.currentSutExec = undefined;
     this.instrumentedBy = '';
