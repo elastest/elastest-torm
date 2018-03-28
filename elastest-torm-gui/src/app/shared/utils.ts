@@ -40,9 +40,12 @@ export function getResultIconByString(result: defaultResult | string): any {
       icon.color = '#c82a0e';
       break;
     case 'STOPPED':
-    case 'NOT_EXECUTED':
       icon.name = 'indeterminate_check_box';
       icon.color = '#c82a0e';
+      break;
+    case 'NOT_EXECUTED':
+      icon.name = 'indeterminate_check_box';
+      icon.color = '#666666';
       break;
     case 'ERROR':
       icon.name = 'do_not_disturb';

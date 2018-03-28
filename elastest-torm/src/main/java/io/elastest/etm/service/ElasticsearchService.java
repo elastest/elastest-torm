@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -155,6 +156,11 @@ public class ElasticsearchService {
             try {
                 this.createIndexSync(index, mappings, null, null);
                 logger.info("Index {} created", index);
+            } catch (ElasticsearchStatusException e) {
+                if (e.getMessage()
+                        .contains("resource_already_exists_exception")) {
+                    logger.info("ES Index {} already exist!", index);
+                }
             } catch (Exception e) {
                 hasFailures = true;
                 logger.error("Error creating index {}", index, e);
