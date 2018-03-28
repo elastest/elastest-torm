@@ -60,9 +60,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
-    // getRowHeight: function (params) {
-    //   return 18 * (Math.floor(params.data.message.length / 45) + 1);
-    // },
+     getRowHeight: function (params) {
+       return 18 * (Math.floor(params.data.message.length / 30) + 1);
+     },
   };
 
   @Input() tJobId: number;
