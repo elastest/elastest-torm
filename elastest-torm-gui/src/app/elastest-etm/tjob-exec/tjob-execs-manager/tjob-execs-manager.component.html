@@ -66,7 +66,7 @@
         <td-data-table *ngIf="tJobExecsFinished.length > 0; else finishedEmpty" #finished class="scroll_table" [data]="tJobExecsFinished"
           [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate'" (click)="viewTJobExec(row)"
+            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'" (click)="viewTJobExec(row)"
               class="hover-pointer">
               <span>
                 <ng-container *ngIf="column.name === 'result'">
@@ -78,6 +78,14 @@
             </div>
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
               {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+            </div>
+            <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
+                <ng-container *ngIf="value !== undefined; else notExecuted">
+                    {{value | timeAgo}}
+                </ng-container>
+                <ng-template #notExecuted>
+                    Not Executed Yet
+                </ng-template>
             </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
