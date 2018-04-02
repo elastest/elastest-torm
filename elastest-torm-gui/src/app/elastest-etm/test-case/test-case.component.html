@@ -11,24 +11,28 @@
           <div>
             <h4>Time</h4>
             <p>{{testCase.time}}</p>
+            <md-divider></md-divider>
           </div>
-          <md-divider></md-divider>
-          <div>
+
+          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Message</h4>
             <p>{{testCase.failureMessage}}</p>
+            <md-divider></md-divider>
           </div>
-          <md-divider></md-divider>
-          <div>
+
+          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Type</h4>
             <p>{{testCase.failureType}}</p>
+            <md-divider></md-divider>
           </div>
-          <md-divider></md-divider>
-          <div>
+
+          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Error Line</h4>
             <p>{{testCase.failureErrorLine}}</p>
+            <md-divider></md-divider>
           </div>
-          <md-divider></md-divider>
-          <div>
+
+          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Detail</h4>
             <p>{{testCase.failureDetail}}
               <p>
