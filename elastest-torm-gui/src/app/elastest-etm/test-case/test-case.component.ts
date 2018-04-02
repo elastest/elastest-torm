@@ -20,7 +20,7 @@ export class TestCaseComponent implements OnInit {
   public params;
   public testCase: TestCaseModel;
   public logAnalyzer: LogAnalyzerModel;
-  public componentsStreams: any[];
+  public componentsStreams: any[] = [];
   public streamTypeTerm: ESTermModel;
 
   @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
@@ -59,10 +59,14 @@ export class TestCaseComponent implements OnInit {
   getExecutionFiles(): void {
     this.tJobExecService.getTJobExecutionFiles(this.params.tJobId, this.params.tJobExecId).subscribe(
       (tJobsExecFiles: FileModel[]) => {
-        this.testCase.setTestCaseFiles(tJobsExecFiles, 'mp4');
+        this.testCase.setTestCaseFiles(tJobsExecFiles);
       },
       (error) => console.log(error),
     );
+  }
+
+  isMP4(file: FileModel): boolean {
+    return file && file.name.endsWith('mp4');
   }
 
   getComponents(): void {

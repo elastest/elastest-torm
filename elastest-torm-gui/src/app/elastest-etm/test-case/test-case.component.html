@@ -46,22 +46,36 @@
     <md-card id="miniLogAnalyzerCard" *ngIf="logAnalyzer && componentsStreams">
       <md-card-content>
         <md-tab-group id="miniLogAnalyzerTab">
-          <md-tab *ngFor="let file of testCase.files">
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Video" id="videoIcon">play_circle_filled</md-icon>
-            </ng-template>
-            <video controls id="video">
-              <!-- <source src="{{file.url}}"  type="video/mp4"> -->
-              <!-- dev way => borrar -->
-              <source src="http://localhost:8091/{{file.url}}" type="video/mp4">
-            </video>
-          </md-tab>
           <md-tab label="Logs">
             <elastest-log-analyzer *ngIf="params" [isEmbed]="true" [tJobId]="params.tJobId" [tJobExecId]="params.tJobExecId" [testCase]="testCase.name"></elastest-log-analyzer>
           </md-tab>
           <md-tab *ngFor="let tab of componentsStreams" label="{{tab.name}}">
             <elastest-log-analyzer #miniLogAnalyzer *ngIf="params" [isEmbed]="true" [componentStreams]="[tab]" [tJobId]="params.tJobId"
               [tJobExecId]="params.tJobExecId" [testCase]="testCase.name"></elastest-log-analyzer>
+          </md-tab>
+          <md-tab label="Files">
+            <div layout="row" id="filesContent" *ngFor="let file of testCase.files">
+              <md-divider></md-divider>
+              <div flex="40" id="fileInfo">
+                <h3>Title</h3>
+                <span>{{file.name}}</span>
+              </div>
+              <div flex="60" id="videoContent">
+                <video controls id="video" *ngIf="isMP4(file)">
+                  <!-- <source src="{{file.url}}"  type="video/mp4"> -->
+                  <!-- TODO dev way => borrar -->
+                  <source src="http://localhost:8091/{{file.url}}" type="video/mp4">
+                </video>
+                <!-- TODO dev way => borrar -->
+                <a md-button [attr.href]="'http://localhost:8091/' + file.url" target="_blank" *ngIf="!isMP4(file)">Open Video
+                  <md-icon>open_in_new</md-icon>
+                </a>
+              </div>
+            </div>
+            <div *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>No Files found</p>
+            </div>
           </md-tab>
         </md-tab-group>
       </md-card-content>

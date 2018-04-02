@@ -29,7 +29,7 @@
   height: 103%;
 }
 
-:host /deep/ .mat-tab-label{
+:host /deep/ .mat-tab-label {
   min-width: 80px !important;
   max-width: 85px;
   text-overflow: ellipsis;
@@ -40,13 +40,22 @@
 #miniLogAnalyzerCard md-card-content {
   padding: 4px;
 }
-#video{
-  width: 100%;
-  height: auto;
-  margin-top: 2%;
+#filesContent {
+  padding: 8px;
 }
-#videoIcon{
+#fileInfo {
+  word-wrap: break-word;
+}
+#video {
+  max-width: 100%;
+  height: auto;
+}
+#videoIcon {
   vertical-align: middle;
+}
+#videoContent{
+  margin: auto;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
