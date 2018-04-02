@@ -25,8 +25,9 @@
     -ms-user-select: text !important;
 
      white-space: normal !important;
-    // overflow: initial !important;
-    // text-overflow: initial !important;
+     word-break: break-word;
+     //overflow: initial !important;
+     //text-overflow: initial !important;
 }
 
 :host /deep/ .ag-theme-material .ag-header-cell-label{
@@ -65,6 +66,7 @@ md-sidenav-container {
 
 #logCard md-card-content{
     height: 100%; //93% with card title
+    padding: 0px;
 }
 
 :host /deep/ .mat-tab-label {

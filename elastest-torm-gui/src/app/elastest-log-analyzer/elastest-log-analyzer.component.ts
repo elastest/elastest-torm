@@ -50,7 +50,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public logRows: any[] = [];
   public logColumns: any[] = [];
   public gridOptions: GridOptions = {
-    rowHeight: 22,
+    //rowHeight: 22,
     headerHeight: 42,
     rowSelection: 'single',
     suppressRowClickSelection: false,
@@ -60,9 +60,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
-     getRowHeight: function (params) {
-       return 18 * (Math.floor(params.data.message.length / 30) + 1);
-     },
+    /*getRowHeight: function(params) {
+      return 18 * (Math.floor(params.data.message.length / 30) + 1);
+    },*/
   };
 
   @Input() tJobId: number;
@@ -96,7 +96,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     private elastestESService: ElastestESService,
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
-    private titlesService: TitlesService
+    private titlesService: TitlesService,
   ) {}
 
   ngOnInit() {
@@ -354,6 +354,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     this.elastestESService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
+        console.log('load log', data);
         let logs: any[] = this.esSearchModel.getDataListFromRaw(data, false);
         this.loadLogByGivenData(logs);
       },
@@ -365,7 +366,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   loadLogByGivenData(data: any[] = []): void {
     this.logRows = data;
-
+    console.log("loadLogByGivenData", data);
     let logsLoaded: boolean = this.logRows.length > 0;
     if (logsLoaded) {
       this.setTableHeader();
@@ -632,6 +633,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadSelectExecutions(data: any, fromExec: any): void {
+    console.log("load select execution", data);
     if (data) {
       // Ok Pressed
       if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
