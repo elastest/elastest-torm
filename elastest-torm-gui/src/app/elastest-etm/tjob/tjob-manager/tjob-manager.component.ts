@@ -38,6 +38,7 @@ export class TjobManagerComponent implements OnInit {
     // { name: 'duration', label: 'Duration' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
+    { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'sutExecution', label: 'Sut Execution' },
     // { name: 'error', label: 'Error' },
     // { name: 'monitoringIndex', label: 'Log Index' },
@@ -72,6 +73,9 @@ export class TjobManagerComponent implements OnInit {
           this.tJob.sut = this.sutEmpty;
         }
         this.tJobExecData = this.tJobService.getTJobExecsList(tJob);
+        this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
+          tJobExec['lastExecutionDate'] = tJobExec.endDate;
+        });
         this.showSpinner = false;
         this.sortTJobsExec(); // Id desc
       });
