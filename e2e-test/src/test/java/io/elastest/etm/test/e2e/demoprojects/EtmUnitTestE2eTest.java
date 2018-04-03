@@ -75,7 +75,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
         //waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                "BUILD FAILURE"));
+                "BUILD SUCCESS"));
     }
 
 }

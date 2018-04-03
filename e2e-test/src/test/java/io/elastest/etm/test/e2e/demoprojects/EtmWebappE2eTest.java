@@ -36,6 +36,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -101,9 +102,9 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     }
 
     @Test
-    @DisplayName("Create WebApp project Chrome Test")
+    @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
 

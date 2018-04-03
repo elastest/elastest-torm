@@ -24,6 +24,7 @@ import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
 import static org.openqa.selenium.remote.DesiredCapabilities.chrome;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -136,6 +137,12 @@ public class EtmBaseTest {
 
     protected void navigateToProject(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
+        
+        WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
+        By projectAvailable = By
+                .id("projects");
+        waitService.until(presenceOfElementLocated(projectAvailable));
+        
         driver.findElement(
                 By.xpath("//td/div[contains(string(), '" + projectName + "')]"))
                 .click();
@@ -250,6 +257,12 @@ public class EtmBaseTest {
 
     protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
         log.info("Run TJob");
+        
+        WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
+        By projectAvailable = By
+                .id("tJobs");
+        waitService.until(presenceOfElementLocated(projectAvailable));
+        
         driver.findElement(By
                 .xpath("//td/div/span[contains(string(), '" + tJobName + "')]"))
                 .click();
