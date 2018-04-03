@@ -14,7 +14,7 @@
     </div>
     <md-card-content #scrollMeTest>
         <td-data-table #tjobsTable *ngIf="tJobs && tJobs.length > 0" class="scroll_table" [data]="tJobs" [columns]="tjobColumns"
-            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" id="tJobs">
             <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
                 <div *ngIf="column.name !== 'options' && column.name !== 'lastExecutionDate' && column.name !== 'result'" (click)="viewTJob(row)"
                     class="hover-pointer">
