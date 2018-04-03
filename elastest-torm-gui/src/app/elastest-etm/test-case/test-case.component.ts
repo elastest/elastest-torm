@@ -3,9 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TestCaseService } from './test-case.service';
 import { TestCaseModel } from './test-case-model';
-import { ESBoolQueryModel, ESTermModel } from '../../shared/elasticsearch-model/es-query-model';
 import { ElastestESService } from '../../shared/services/elastest-es.service';
-import { LogAnalyzerModel } from '../../elastest-log-analyzer/log-analyzer-model';
 import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { ElastestLogAnalyzerComponent } from '../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
@@ -19,9 +17,6 @@ import { FileModel } from '../files-manager/file-model';
 export class TestCaseComponent implements OnInit {
   public params;
   public testCase: TestCaseModel;
-  public logAnalyzer: LogAnalyzerModel;
-  public componentsStreams: any[] = [];
-  public streamTypeTerm: ESTermModel;
 
   @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
@@ -37,10 +32,6 @@ export class TestCaseComponent implements OnInit {
   ngOnInit() {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.getTestCase();
-    this.logAnalyzer = new LogAnalyzerModel();
-    this.streamTypeTerm = new ESTermModel();
-    this.initStreamTypeTerm();
-    this.getComponents();
   }
 
   getTestCase(): void {
@@ -67,21 +58,5 @@ export class TestCaseComponent implements OnInit {
 
   isMP4(file: FileModel): boolean {
     return file && file.name.endsWith('mp4');
-  }
-
-  getComponents(): void {
-    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    componentStreamQuery.bool.must.termList.push(this.streamTypeTerm);
-    let fieldsList: string[] = ['component', 'stream'];
-    this.elastestESService
-      .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), fieldsList, componentStreamQuery.convertToESFormat())
-      .subscribe((componentsStreams: any[]) => {
-        this.componentsStreams = componentsStreams;
-      });
-  }
-
-  private initStreamTypeTerm(): void {
-    this.streamTypeTerm.name = 'stream_type';
-    this.streamTypeTerm.value = 'log';
   }
 }

@@ -354,7 +354,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     this.elastestESService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
-        console.log('load log', data);
         let logs: any[] = this.esSearchModel.getDataListFromRaw(data, false);
         this.loadLogByGivenData(logs);
       },
@@ -366,7 +365,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   loadLogByGivenData(data: any[] = []): void {
     this.logRows = data;
-    console.log("loadLogByGivenData", data);
     let logsLoaded: boolean = this.logRows.length > 0;
     if (logsLoaded) {
       this.setTableHeader();
@@ -633,7 +631,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadSelectExecutions(data: any, fromExec: any): void {
-    console.log("load select execution", data);
     if (data) {
       // Ok Pressed
       if (data.selectedIndices.length > 0 && data.selectedIndices !== '') {
