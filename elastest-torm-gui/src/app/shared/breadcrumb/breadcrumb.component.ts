@@ -87,7 +87,7 @@ export class BreadcrumbComponent implements OnInit, OnChanges {
 
   private getChangesToBeResponsive(): number {
     let itemsToChange: number = 0;
-    let width: number = window.screen.width;
+    let width: number = window.innerWidth;
     let length: number = this.getLengthOfBreadcrumb();
 
     if (width > 860 && width < 960 && length > 50) {

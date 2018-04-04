@@ -18,7 +18,7 @@
             <md-icon>assignment</md-icon>
             <p>No files generated during execution</p>
           </div>
-          <td-data-table *ngIf="executionFiles && executionFiles.length > 0; else noFiles" #filesTable class="scroll_table" [data]="executionFiles"
+          <td-data-table *ngIf="executionFiles && executionFiles.length > 0" #filesTable class="scroll_table" [data]="executionFiles"
             [columns]="filesColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
             (sortChange)="sort($event)">
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
