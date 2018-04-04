@@ -40,29 +40,26 @@
 #miniLogAnalyzerCard md-card-content {
   padding: 4px;
 }
-#filesContent {
-  padding: 8px;
-  padding-top: 0px;
-}
-#fileInfo {
-  word-wrap: break-word;
-  margin-bottom: 10px;
 
-}
 #fileInfo p{
   font-size: 16px;
   font-weight: bold;
 }
-#video {
-  max-width: 90%;
-  height: auto;
-}
+
 #videoIcon {
   vertical-align: middle;
 }
-#videoContent{
+#video {
+  padding-top: 10px;
+  max-width: 90%;
+  height: auto;
+  margin: auto;
+}
+#videoContent, #filesContent{
   margin: auto;
   text-align: center;
+}
+#filesContent{
   padding-bottom: 20px;
   border-bottom: 0.15px solid;
 }

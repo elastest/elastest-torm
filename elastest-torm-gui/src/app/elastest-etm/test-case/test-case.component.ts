@@ -8,6 +8,7 @@ import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { ElastestLogAnalyzerComponent } from '../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { FileModel } from '../files-manager/file-model';
+import { ConfigurationService } from '../../config/configuration-service.service';
 
 @Component({
   selector: 'etm-test-case',
@@ -17,6 +18,8 @@ import { FileModel } from '../files-manager/file-model';
 export class TestCaseComponent implements OnInit {
   public params;
   public testCase: TestCaseModel;
+  public selectedTab: number;
+  private filesUrlPrefix: string;
 
   @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
@@ -27,7 +30,10 @@ export class TestCaseComponent implements OnInit {
     private titlesService: TitlesService,
     private router: Router,
     private tJobExecService: TJobExecService,
-  ) {}
+    private configurationService: ConfigurationService,
+  ) {
+    this.filesUrlPrefix = configurationService.configModel.host.replace('4200', '8091');
+  }
 
   ngOnInit() {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
@@ -40,8 +46,8 @@ export class TestCaseComponent implements OnInit {
         this.params = params;
         this.testCaseService.getTestCaseById(this.params.testCaseId).subscribe((testCase: TestCaseModel) => {
           this.testCase = testCase;
-          this.getExecutionFiles();
           this.testCase['result'] = this.testCase.getResultIcon();
+          this.getExecutionFiles();
         });
       });
     }
@@ -50,13 +56,27 @@ export class TestCaseComponent implements OnInit {
   getExecutionFiles(): void {
     this.tJobExecService.getTJobExecutionFiles(this.params.tJobId, this.params.tJobExecId).subscribe(
       (tJobsExecFiles: FileModel[]) => {
+        tJobsExecFiles.forEach((file: FileModel) => {
+          if (this.isMP4(file)) {
+            file['tabRef'] = this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2; // components and Logs + Files tabs
+          }
+        });
         this.testCase.setTestCaseFiles(tJobsExecFiles);
       },
       (error) => console.log(error),
     );
   }
+  getMP4Files(): FileModel[] {
+    let mp4Files: FileModel[] = [];
+    mp4Files = this.testCase.files.filter((file: FileModel) => this.isMP4(file));
+    return mp4Files;
+  }
 
   isMP4(file: FileModel): boolean {
     return file && file.name.endsWith('mp4');
+  }
+
+  goToTab(num: number) {
+    this.selectedTab = num;
   }
 }
