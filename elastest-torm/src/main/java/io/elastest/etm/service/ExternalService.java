@@ -209,9 +209,9 @@ public class ExternalService {
             if (tJob == null) {
                 tJob = new TJob();
                 tJob.setName(externalJob.getJobName());
-                tJob = tJobService.createTJob(tJob);
                 tJob.setProject(project);
                 tJob.setExternal(true);
+                tJob = tJobService.createTJob(tJob);                
             }
 
             if (externalJob.getTSServices() != null
