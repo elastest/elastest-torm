@@ -212,9 +212,11 @@ public class TestLinkDBService {
 		Execution[] executions = this.getExecsByCaseAndOthers(null, buildId, testCaseId, null, null);
 		return executions;
 	}
-
+	
+	/* **************** */
 	/* **** Builds **** */
-
+    /* **************** */
+	
 	public Build[] getAllBuilds() {
 		Build[] builds = null;
 		String query = "SELECT * FROM builds";
@@ -230,5 +232,8 @@ public class TestLinkDBService {
 		}
 		return builds;
 	}
+	
+	
+	
 
 }

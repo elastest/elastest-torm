@@ -44,6 +44,8 @@ export class TestPlanExecutionComponent implements OnInit {
   execFinishedTimer: Observable<number>;
   execFinishedSubscription: Subscription;
 
+  alreadyLeave: boolean = false;
+
   showStopBtn: boolean = false;
 
   executionCardMsg: string = 'Loading...';
@@ -98,6 +100,7 @@ export class TestPlanExecutionComponent implements OnInit {
   ngOnInit() {}
 
   ngOnDestroy(): void {
+    this.alreadyLeave = true;
     this.end();
   }
 
@@ -252,7 +255,9 @@ export class TestPlanExecutionComponent implements OnInit {
           this.browserCardMsg = 'FINISHED';
           this.browserAndEusDeprovided = true;
           this.showFiles = true;
-          this.viewEndedTJobExec();
+          if (!this.alreadyLeave) {
+            this.viewEndedTJobExec();
+          }
         },
         (error) => console.log(error),
       );
@@ -358,12 +363,16 @@ export class TestPlanExecutionComponent implements OnInit {
     additionalNotes += this.tJobExecUrl;
     this.testLinkService.getBuildTestCaseById(build.id, testCaseId).subscribe(
       (testCase: TLTestCaseModel) => {
-        // New object to detect on changes
-        this.data = {
-          testCase: testCase,
-          build: build,
-          additionalNotes: additionalNotes,
-        };
+        if (testCase !== undefined && testCase !== null) {
+          // New object to detect on changes
+          this.data = {
+            testCase: testCase,
+            build: build,
+            additionalNotes: additionalNotes,
+          };
+        } else {
+          this.saveTLCaseExecution();
+        }
       },
       (error) => console.log(error),
     );

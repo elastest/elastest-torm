@@ -135,9 +135,13 @@ export class TestLinkService {
 
   public getBuildTestCaseById(buildId: string | number, testCaseId: string | number): Observable<TLTestCaseModel> {
     let url: string = this.hostApi + '/testlink/project/plan/build/' + buildId + '/case/' + testCaseId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json()));
+    return this.http.get(url).map((response: Response) => {
+      if (response && response.text()) {
+        return this.eTTestlinkModelsTransformService.jsonToTestCaseModel(response.json());
+      } else {
+        return undefined;
+      }
+    });
   }
 
   /***********************/
