@@ -1,6 +1,6 @@
 <div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs" layout-fill>
   <div flex-gt-sm="40" layout-gt-sm="column" layout-fill>
-    <md-card tdMediaToggle="gt-xs" flex>
+    <md-card tdMediaToggle="gt-xs" flex style="overflow: auto;">
       <div layout="column" layout-fill>
         <md-card-title>
           <div layout="row" *ngIf="exTJobExec">
@@ -27,7 +27,7 @@
         <md-divider></md-divider>
         <md-card-content flex class="push-bottom-none">
           <div *ngIf="!browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished(); else showMessage" layout="column" layout-fill>
-            <div id="testLinkExec" flex [style.overflow]="auto">
+            <div id="testLinkExec" flex>
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
             <div layout="row">
@@ -54,7 +54,7 @@
           </div>
         </md-card-title>
         <md-divider></md-divider>
-        <md-card-content *ngIf="exTJobExec" flex [style.overflow]="auto" class="push-bottom-none">
+        <md-card-content *ngIf="exTJobExec" flex style="overflow: auto;" class="push-bottom-none">
           <div layout-align="center center" layout="column" layout-fill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
               <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
