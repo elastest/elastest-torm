@@ -15,7 +15,7 @@ export class SutModel {
   eimMonitoringConfig: EimMonitoringConfigModel;
   instrumentalize: boolean;
   currentSutExec: string;
-  instrumentedBy: string;
+  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | '';
   port: string;
   managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
@@ -81,6 +81,10 @@ export class SutModel {
 
   public isByCommandsInDockerCompose(): boolean {
     return this.isByCommands() && this.commandsOption === 'IN_DOCKER_COMPOSE';
+  }
+
+  public isInstrumentedByElastest(): boolean {
+    return this.isDeployed() && this.instrumentedBy === 'ELASTEST';
   }
 
   public getSutESIndex(): string {

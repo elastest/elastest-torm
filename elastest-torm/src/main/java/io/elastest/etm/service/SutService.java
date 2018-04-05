@@ -42,15 +42,8 @@ public class SutService {
     }
 
     public SutSpecification prepareSutToSave(SutSpecification sut) {
+        sut = this.prepareEimMonitoringConfig(sut);
         if (sut.getId() == 0) { // If is a new Sut, set
-            if (!sut.isInstrumentedByElastest()) {
-                sut.setEimMonitoringConfig(null);
-            } else {
-                EimMonitoringConfig savedEimMonitoringConfig = this.eimService
-                        .createEimMonitoringConfigAndChilds(
-                                sut.getEimMonitoringConfig());
-                sut.setEimMonitoringConfig(savedEimMonitoringConfig);
-            }
             sut = sutRepository.save(sut); // Save first
             SutExecution sutExec = createSutExecutionBySut(sut);
             sut.setCurrentSutExec(sutExec.getId());
@@ -79,6 +72,18 @@ public class SutService {
                             sut.getEimConfig(), sut.getEimMonitoringConfig());
                 }
             }
+        }
+        return sut;
+    }
+
+    public SutSpecification prepareEimMonitoringConfig(SutSpecification sut) {
+        if (!sut.isInstrumentedByElastest()) {
+            sut.setEimMonitoringConfig(null);
+        } else {
+            EimMonitoringConfig savedEimMonitoringConfig = this.eimService
+                    .createEimMonitoringConfigAndChilds(
+                            sut.getEimMonitoringConfig());
+            sut.setEimMonitoringConfig(savedEimMonitoringConfig);
         }
         return sut;
     }

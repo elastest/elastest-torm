@@ -302,6 +302,9 @@ export class SutFormComponent implements OnInit, DoCheck {
       );
     } else {
       this.sut.eimConfig = undefined;
+      if (!this.sut.isInstrumentedByElastest()) {
+        this.sut.eimMonitoringConfig = undefined;
+      }
       this.save(exit);
     }
   }
