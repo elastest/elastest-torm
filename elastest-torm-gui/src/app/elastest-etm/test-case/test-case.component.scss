@@ -35,7 +35,10 @@
   text-overflow: ellipsis;
 }
 #miniLogAnalyzerTab {
-  height: 98%;
+  height: 100%;
+}
+#miniLogAnalyzerCard {
+  height: 100%;
 }
 #miniLogAnalyzerCard md-card-content {
   padding: 4px;
@@ -62,31 +65,4 @@
 #filesContent{
   padding-bottom: 20px;
   border-bottom: 0.15px solid;
-}
-
-@media (max-width: 768px) {
-  #miniLogAnalyzerCard,
-  #miniLogAnalyzerCard md-card-content {
-    height: 490px;
-  }
-}
-
-@media (max-width: 1024px) {
-  #miniLogAnalyzerCard,
-  #miniLogAnalyzerCard md-card-content {
-    height: 490px;
-  }
-}
-
-@media (max-width: 1440px) {
-  #miniLogAnalyzerCard,
-  #miniLogAnalyzerCard md-card-content {
-    height: 590px;
-  }
-}
-@media (min-width: 2560px) {
-  #miniLogAnalyzerCard,
-  #miniLogAnalyzerCard md-card-content {
-    height: 890px;
-  }
 }
