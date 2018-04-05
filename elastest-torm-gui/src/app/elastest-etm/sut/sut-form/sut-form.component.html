@@ -198,21 +198,26 @@
             </td-expansion-panel>
           </div>
           <!-- Deployed: Instrumented By SuT Admin Info -->
-          <div layout="row" class="push-top" *ngIf="deployedChecked && adminInsCheck">
-            <div *ngIf="showGetInfoBtn()">
+          <div layout="column" class="push-top" *ngIf="deployedChecked && adminInsCheck">
+            <div *ngIf="showGetInfoBtn(); else showMonitoringInfo">
               <button md-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck" (click)="preSave(false)"
                 title="Save and get monitoring details">SAVE AND GET MONITORING DETAILS</button>
             </div>
-            <md-list *ngIf="!showGetInfoBtn()">
-              <md-list-item *ngIf="sut.eimConfig.logstashIp">
-                <strong>Logstash IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
-              <md-list-item *ngIf="sut.eimConfig.logstashBeatsPort">
-                <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBeatsPort}}</md-list-item>
-              <md-list-item *ngIf="sut.eimConfig.logstashHttpApiUrl">
-                <strong>HTTP Api Url:&nbsp;</strong> {{sut.eimConfig.logstashHttpApiUrl}}</md-list-item>
-              <md-list-item *ngIf="sut.currentSutExec">
-                <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</md-list-item>
-            </md-list>
+            <ng-template #showMonitoringInfo>
+              <div class="md-title">Monitoring Configuration</div>
+              <md-list class="noPaddingChilds">
+                <md-list-item *ngIf="sut.eimConfig.logstashIp">
+                  <strong>Logstash Container IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
+                <md-list-item *ngIf="sut.eimConfig.logstashBindedBeatsHost">
+                  <strong>Logstash Beats Host:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsHost}}</md-list-item>
+                <md-list-item *ngIf="sut.eimConfig.logstashBindedBeatsPort">
+                  <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsPort}}</md-list-item>
+                <md-list-item *ngIf="sut.eimConfig.logstashHttpApiUrl">
+                  <strong>HTTP Api Url:&nbsp;</strong> {{sut.eimConfig.logstashHttpApiUrl}}</md-list-item>
+                <md-list-item *ngIf="sut.currentSutExec">
+                  <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</md-list-item>
+              </md-list>
+            </ng-template>
           </div>
 
           <!-- Parameters -->

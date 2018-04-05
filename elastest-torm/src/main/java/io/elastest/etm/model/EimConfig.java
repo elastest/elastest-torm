@@ -20,170 +20,295 @@ import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class EimConfig {
-	public interface BasicAttEimConfig {
-	}
+    public interface BasicAttEimConfig {
+    }
 
-	@Id
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	@JsonProperty("id")
-	private Long id = null;
+    @Id
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    @JsonProperty("id")
+    private Long id = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "user")
-	@JsonProperty("user")
-	private String user = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "user")
+    @JsonProperty("user")
+    private String user = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "privateKey", columnDefinition = "TEXT", length = 65535)
-	@JsonProperty("privateKey")
-	private String privateKey = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "privateKey", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("privateKey")
+    private String privateKey = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "ip")
-	@JsonProperty("ip")
-	private String ip = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "ip")
+    @JsonProperty("ip")
+    private String ip = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "agentId")
-	@JsonProperty("agentId")
-	private String agentId = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "agentId")
+    @JsonProperty("agentId")
+    private String agentId = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "logstashIp")
-	@JsonProperty("logstashIp")
-	private String logstashIp = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashIp")
+    @JsonProperty("logstashIp")
+    private String logstashIp = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "logstashBeatsPort")
-	@JsonProperty("logstashBeatsPort")
-	private String logstashBeatsPort = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashTcpHost")
+    @JsonProperty("logstashTcpHost")
+    private String logstashTcpHost = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "logstashHttpPort")
-	@JsonProperty("logstashHttpPort")
-	private String logstashHttpPort = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashTcpPort")
+    @JsonProperty("logstashTcpPort")
+    private String logstashTcpPort = null;
 
-	@JsonView({ BasicAttEimConfig.class, SutView.class, ExternalProjectView.class, BasicAttProject.class })
-	@Column(name = "logstashHttpApiUrl")
-	@JsonProperty("logstashHttpApiUrl")
-	private String logstashHttpApiUrl = null;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBeatsHost")
+    @JsonProperty("logstashBeatsHost")
+    private String logstashBeatsHost = null;
 
-	@JsonView({ BasicAttEimConfig.class })
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "eimConfig")
-	@JoinColumn(name = "sutSpecification")
-	@JsonIgnoreProperties(value = "eimConfig")
-	private SutSpecification sutSpecification;
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBeatsPort")
+    @JsonProperty("logstashBeatsPort")
+    private String logstashBeatsPort = null;
 
-	// Getters and setters
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBindedTcpHost")
+    @JsonProperty("logstashBindedTcpHost")
+    private String logstashBindedTcpHost = null;
 
-	public EimConfig(Long id, String user, String privateKey, String ip, String agentId, String logstashIp,
-			String logstashBeatsPort, String logstashHttpPort, String logstashHttpApiUrl) {
-		this.id = id == null ? 0 : id;
-		this.user = user;
-		this.privateKey = privateKey;
-		this.ip = ip;
-		this.agentId = agentId;
-		this.logstashIp = logstashIp;
-		this.logstashBeatsPort = logstashBeatsPort;
-		this.logstashHttpPort = logstashHttpPort;
-		this.logstashHttpApiUrl = logstashHttpApiUrl;
-	}
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBindedTcpPort")
+    @JsonProperty("logstashBindedTcpPort")
+    private String logstashBindedTcpPort = null;
 
-	public EimConfig() {
-	}
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBindedBeatsHost")
+    @JsonProperty("logstashBindedBeatsHost")
+    private String logstashBindedBeatsHost = null;
 
-	/**
-	 * Get id
-	 * 
-	 * @return id
-	 **/
-	public Long getId() {
-		return id;
-	}
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashBindedBeatsPort")
+    @JsonProperty("logstashBindedBeatsPort")
+    private String logstashBindedBeatsPort = null;
 
-	public void setId(Long id) {
-		this.id = id == null ? 0 : id;
-	}
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashHttpPort")
+    @JsonProperty("logstashHttpPort")
+    private String logstashHttpPort = null;
 
-	public String getUser() {
-		return user;
-	}
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "logstashHttpApiUrl")
+    @JsonProperty("logstashHttpApiUrl")
+    private String logstashHttpApiUrl = null;
 
-	public void setUser(String user) {
-		this.user = user;
-	}
+    @JsonView({ BasicAttEimConfig.class })
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "eimConfig")
+    @JoinColumn(name = "sutSpecification")
+    @JsonIgnoreProperties(value = "eimConfig")
+    private SutSpecification sutSpecification;
 
-	public String getPrivateKey() {
-		return privateKey;
-	}
+    public EimConfig() {
+    }
 
-	public void setPrivateKey(String privateKey) {
-		this.privateKey = privateKey;
-	}
+    public EimConfig(Long id, String user, String privateKey, String ip,
+            String agentId, String logstashIp, String logstashTcpHost,
+            String logstashTcpPort, String logstashBeatsHost,
+            String logstashBeatsPort, String logstashBindedTcpHost,
+            String logstashBindedTcpPort, String logstashBindedBeatsHost,
+            String logstashBindedBeatsPort, String logstashHttpPort,
+            String logstashHttpApiUrl) {
+        this.id = id == null ? 0 : id;
+        this.user = user;
+        this.privateKey = privateKey;
+        this.ip = ip;
+        this.agentId = agentId;
+        this.logstashIp = logstashIp;
+        this.logstashTcpHost = logstashTcpHost;
+        this.logstashTcpPort = logstashTcpPort;
+        this.logstashBeatsHost = logstashBeatsHost;
+        this.logstashBeatsPort = logstashBeatsPort;
+        this.logstashBindedTcpHost = logstashBindedTcpHost;
+        this.logstashBindedTcpPort = logstashBindedTcpPort;
+        this.logstashBindedBeatsHost = logstashBindedBeatsHost;
+        this.logstashBindedBeatsPort = logstashBindedBeatsPort;
+        this.logstashHttpPort = logstashHttpPort;
+        this.logstashHttpApiUrl = logstashHttpApiUrl;
+    }
+    /* *************************** */
+    /* *** Getters and setters *** */
+    /* *************************** */
 
-	public String getIp() {
-		return ip;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getAgentId() {
-		return agentId;
-	}
+    public String getUser() {
+        return user;
+    }
 
-	public void setAgentId(String agentId) {
-		this.agentId = agentId;
-	}
+    public void setUser(String user) {
+        this.user = user;
+    }
 
-	public String getLogstashIp() {
-		return logstashIp;
-	}
+    public String getPrivateKey() {
+        return privateKey;
+    }
 
-	public void setLogstashIp(String logstashIp) {
-		this.logstashIp = logstashIp;
-	}
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
 
-	public String getLogstashBeatsPort() {
-		return logstashBeatsPort;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public void setLogstashBeatsPort(String logstashBeatsPort) {
-		this.logstashBeatsPort = logstashBeatsPort;
-	}
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
-	public String getLogstashHttpApiUrl() {
-		return logstashHttpApiUrl;
-	}
+    public String getAgentId() {
+        return agentId;
+    }
 
-	public void setLogstashHttpApiUrl(String logstashHttpApiUrl) {
-		this.logstashHttpApiUrl = logstashHttpApiUrl;
-	}
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
 
-	public String getLogstashHttpPort() {
-		return logstashHttpPort;
-	}
+    public String getLogstashIp() {
+        return logstashIp;
+    }
 
-	public void setLogstashHttpPort(String logstashHttpPort) {
-		this.logstashHttpPort = logstashHttpPort;
-	}
+    public void setLogstashIp(String logstashIp) {
+        this.logstashIp = logstashIp;
+    }
 
-	public SutSpecification getSutSpecification() {
-		return sutSpecification;
-	}
+    public String getLogstashTcpHost() {
+        return logstashTcpHost;
+    }
 
-	public void setSutSpecification(SutSpecification sutSpecification) {
-		this.sutSpecification = sutSpecification;
-	}
+    public void setLogstashTcpHost(String logstashTcpHost) {
+        this.logstashTcpHost = logstashTcpHost;
+    }
 
-	@Override
-	public String toString() {
-		return "EimConfig [id=" + id + ", user=" + user + ", privateKey=" + privateKey + ", ip=" + ip + ", agentId="
-				+ agentId + ", logstashIp=" + logstashIp + ", logstashBeatsPort=" + logstashBeatsPort
-				+ ", logstashHttpPort=" + logstashHttpPort + ", sutSpecification=" + sutSpecification + "]";
-	}
+    public String getLogstashTcpPort() {
+        return logstashTcpPort;
+    }
+
+    public void setLogstashTcpPort(String logstashTcpPort) {
+        this.logstashTcpPort = logstashTcpPort;
+    }
+
+    public String getLogstashBeatsHost() {
+        return logstashBeatsHost;
+    }
+
+    public void setLogstashBeatsHost(String logstashBeatsHost) {
+        this.logstashBeatsHost = logstashBeatsHost;
+    }
+
+    public String getLogstashBeatsPort() {
+        return logstashBeatsPort;
+    }
+
+    public void setLogstashBeatsPort(String logstashBeatsPort) {
+        this.logstashBeatsPort = logstashBeatsPort;
+    }
+
+    public String getLogstashBindedTcpHost() {
+        return logstashBindedTcpHost;
+    }
+
+    public void setLogstashBindedTcpHost(String logstashBindedTcpHost) {
+        this.logstashBindedTcpHost = logstashBindedTcpHost;
+    }
+
+    public String getLogstashBindedTcpPort() {
+        return logstashBindedTcpPort;
+    }
+
+    public void setLogstashBindedTcpPort(String logstashBindedTcpPort) {
+        this.logstashBindedTcpPort = logstashBindedTcpPort;
+    }
+
+    public String getLogstashBindedBeatsHost() {
+        return logstashBindedBeatsHost;
+    }
+
+    public void setLogstashBindedBeatsHost(String logstashBindedBeatsHost) {
+        this.logstashBindedBeatsHost = logstashBindedBeatsHost;
+    }
+
+    public String getLogstashBindedBeatsPort() {
+        return logstashBindedBeatsPort;
+    }
+
+    public void setLogstashBindedBeatsPort(String logstashBindedBeatsPort) {
+        this.logstashBindedBeatsPort = logstashBindedBeatsPort;
+    }
+
+    public String getLogstashHttpPort() {
+        return logstashHttpPort;
+    }
+
+    public void setLogstashHttpPort(String logstashHttpPort) {
+        this.logstashHttpPort = logstashHttpPort;
+    }
+
+    public String getLogstashHttpApiUrl() {
+        return logstashHttpApiUrl;
+    }
+
+    public void setLogstashHttpApiUrl(String logstashHttpApiUrl) {
+        this.logstashHttpApiUrl = logstashHttpApiUrl;
+    }
+
+    public SutSpecification getSutSpecification() {
+        return sutSpecification;
+    }
+
+    public void setSutSpecification(SutSpecification sutSpecification) {
+        this.sutSpecification = sutSpecification;
+    }
+
+    @Override
+    public String toString() {
+        return "EimConfig [id=" + id + ", user=" + user + ", privateKey="
+                + privateKey + ", ip=" + ip + ", agentId=" + agentId
+                + ", logstashIp=" + logstashIp + ", logstashTcpHost="
+                + logstashTcpHost + ", logstashTcpPort=" + logstashTcpPort
+                + ", logstashBeatsHost=" + logstashBeatsHost
+                + ", logstashBeatsPort=" + logstashBeatsPort
+                + ", logstashBindedTcpHost=" + logstashBindedTcpHost
+                + ", logstashBindedTcpPort=" + logstashBindedTcpPort
+                + ", logstashBindedBeatsHost=" + logstashBindedBeatsHost
+                + ", logstashBindedBeatsPort=" + logstashBindedBeatsPort
+                + ", logstashHttpPort=" + logstashHttpPort
+                + ", logstashHttpApiUrl=" + logstashHttpApiUrl
+                + ", sutSpecification=" + sutSpecification + "]";
+    }
 
 }

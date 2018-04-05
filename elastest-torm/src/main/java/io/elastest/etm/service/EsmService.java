@@ -76,12 +76,27 @@ public class EsmService {
     public String etEsmApi;
     @Value("${et.eim.api}")
     public String etEimApi;
+
     @Value("${et.etm.lsbeats.host}")
     public String etEtmLsbeatsHost;
     @Value("${et.etm.lsbeats.port}")
     public String etEtmLsbeatsPort;
     @Value("${et.etm.lshttp.api}")
     public String etEtmLshttpApi;
+    @Value("${et.etm.lstcp.host}")
+    public String etEtmLstcpHost;
+    @Value("${et.etm.lstcp.port}")
+    public String etEtmLstcpPort;
+
+    @Value("${et.etm.binded.lsbeats.host}")
+    public String etEtmBindedLsBeatsHost;
+    @Value("${et.etm.binded.lsbeats.port}")
+    public String etEtmBindedLsBeatsPort;
+    @Value("${et.etm.binded.lstcp.host}")
+    public String etEtmBindedLsTcpHost;
+    @Value("${et.etm.binded.lstcp.port}")
+    public String etEtmBindedLsTcpPort;
+
     @Value("${et.etm.rabbit.host}")
     public String etEtmRabbitHost;
     @Value("${et.etm.rabbit.port}")
@@ -94,10 +109,6 @@ public class EsmService {
     public String etEmpInfluxdbHost;
     @Value("${et.emp.influxdb.graphite.port}")
     public String etEmpInfluxdbGraphitePort;
-    @Value("${et.etm.lstcp.host}")
-    public String etEtmLstcpHost;
-    @Value("${et.etm.lstcp.port}")
-    public String etEtmLstcpPort;
 
     @Value("${exec.mode}")
     public String execMode;
@@ -1186,12 +1197,23 @@ public class EsmService {
         supportServiceInstance.getParameters().put("ET_ETM_API", etEtmApi);
         supportServiceInstance.getParameters().put("ET_ESM_API", etEsmApi);
         supportServiceInstance.getParameters().put("ET_EIM_API", etEimApi);
+
         supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST",
                 etEtmLsbeatsHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT",
                 etEtmLsbeatsPort);
         supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API",
                 etEtmLshttpApi);
+
+        supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSBEATS_HOST",
+                etEtmBindedLsBeatsHost);
+        supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSBEATS_PORT",
+                etEtmBindedLsBeatsPort);
+        supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSTCP_HOST",
+                etEtmBindedLsTcpHost);
+        supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSTCP_PORT",
+                etEtmBindedLsTcpPort);
+
         supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST",
                 etEtmRabbitHost);
         supportServiceInstance.getParameters().put("ET_ETM_RABBIT_PORT",

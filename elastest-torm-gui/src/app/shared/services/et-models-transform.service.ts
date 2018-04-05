@@ -238,7 +238,6 @@ export class ETModelsTransformServices {
       newSut.project = sut.project;
     }
     newSut.eimConfig = new EimConfigModel(sut.eimConfig);
-    newSut.eimConfig = new EimConfigModel(sut.eimConfig);
     newSut.instrumentalize = sut.instrumentalize;
     if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
       sut.instrumentalize = false;

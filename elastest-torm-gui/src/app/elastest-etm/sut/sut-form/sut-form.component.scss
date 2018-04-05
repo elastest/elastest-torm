@@ -1,4 +1,7 @@
 #composeSpec {
-    font-family: "Lucida Console", monospace
-  }
-  
+  font-family: 'Lucida Console', monospace;
+}
+
+:host /deep/ .noPaddingChilds .mat-list-item-content {
+  padding: 0px !important;
+}

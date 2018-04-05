@@ -37,6 +37,18 @@ public class ContextInfo {
     @JsonProperty("logstashBeatsPort")
     private String logstashBeatsPort;
 
+    @JsonProperty("logstashBindedTcpHost")
+    private String logstashBindedTcpHost;
+
+    @JsonProperty("logstashBindedTcpPort")
+    private String logstashBindedTcpPort;
+
+    @JsonProperty("logstashBindedBeatsHost")
+    private String logstashBindedBeatsHost;
+
+    @JsonProperty("logstashBindedBeatsPort")
+    private String logstashBindedBeatsPort;
+
     @JsonProperty("logstashIp")
     private String logstashIp;
 
@@ -51,13 +63,13 @@ public class ContextInfo {
 
     @JsonProperty("eusSSInstance")
     private SupportServiceInstance eusSSInstance;
-    
+
     @JsonProperty("testLinkStarted")
     private boolean testLinkStarted;
-    
+
     @JsonProperty("empGrafanaUrl")
     private String empGrafanaUrl;
-    
+
     @JsonProperty("edmCommandUrl")
     private String edmCommandUrl;
 
@@ -141,6 +153,38 @@ public class ContextInfo {
 
     public void setLogstashBeatsPort(String logstashBeatsPort) {
         this.logstashBeatsPort = logstashBeatsPort;
+    }
+
+    public String getLogstashBindedTcpHost() {
+        return logstashBindedTcpHost;
+    }
+
+    public void setLogstashBindedTcpHost(String logstashBindedTcpHost) {
+        this.logstashBindedTcpHost = logstashBindedTcpHost;
+    }
+
+    public String getLogstashBindedTcpPort() {
+        return logstashBindedTcpPort;
+    }
+
+    public void setLogstashBindedTcpPort(String logstashBindedTcpPort) {
+        this.logstashBindedTcpPort = logstashBindedTcpPort;
+    }
+
+    public String getLogstashBindedBeatsHost() {
+        return logstashBindedBeatsHost;
+    }
+
+    public void setLogstashBindedBeatsHost(String logstashBindedBeatsHost) {
+        this.logstashBindedBeatsHost = logstashBindedBeatsHost;
+    }
+
+    public String getLogstashBindedBeatsPort() {
+        return logstashBindedBeatsPort;
+    }
+
+    public void setLogstashBindedBeatsPort(String logstashBindedBeatsPort) {
+        this.logstashBindedBeatsPort = logstashBindedBeatsPort;
     }
 
     public String getLogstashIp() {

@@ -77,7 +77,21 @@ public class EtmContextApiController implements EtmContextApi {
 
         ContextInfo context = etmContextService.getContextInfo();
         logstashInfo.put("logstashIp", context.getLogstashIp());
+
+        logstashInfo.put("logstashTcpHost", context.getLogstashTcpHost());
+        logstashInfo.put("logstashTcpPort", context.getLogstashTcpPort());
+        logstashInfo.put("logstashBeatsHost", context.getLogstashBeatsHost());
         logstashInfo.put("logstashBeatsPort", context.getLogstashBeatsPort());
+
+        logstashInfo.put("logstashBindedTcpHost",
+                context.getLogstashBindedTcpHost());
+        logstashInfo.put("logstashBindedTcpPort",
+                context.getLogstashBindedTcpPort());
+        logstashInfo.put("logstashBindedBeatsHost",
+                context.getLogstashBindedBeatsHost());
+        logstashInfo.put("logstashBindedBeatsPort",
+                context.getLogstashBindedBeatsPort());
+
         logstashInfo.put("logstashHttpApiUrl", context.getLogstashHttpUrl());
         logstashInfo.put("logstashHttpPort", context.getLogstashHttpPort());
 

@@ -15,6 +15,7 @@ services:
             - ./docker-compose.env
         environment:
             - EXEC_MODE=normal
+            - ET_PUBLIC_HOST=localhost
             - ET_IMAGES=elastest/platform
             - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19999/
             - ET_EDM_MYSQL_HOST=edm-mysql
@@ -30,6 +31,8 @@ services:
             - ET_ETM_LSHTTP_API=http://etm-logstash:5003/
             - ET_ETM_LSTCP_HOST=etm-logstash
             - ET_ETM_LSTCP_PORT=5000
+            - ET_ETM_BINDED_LSBEATS_PORT=37502
+            - ET_ETM_BINDED_LSTCP_PORT=37500
             - ET_ETM_RABBIT_HOST=etm-rabbitmq
             - ET_ETM_RABBIT_PORT=5672
             - ET_ETM_INCONTAINER=true
@@ -38,7 +41,7 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services
-            - ET_PUBLIC_HOST=localhost
+
             - ET_SHARED_FOLDER=/shared-data/
             - ET_PROXY_PORT=37000
             - ET_PROXY_HOST=etm-proxy

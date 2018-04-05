@@ -293,7 +293,17 @@ export class SutFormComponent implements OnInit, DoCheck {
         (data: any) => {
           this.sut.eimConfig.ip = this.sut.specification;
           this.sut.eimConfig.logstashIp = data.logstashIp;
+
+          this.sut.eimConfig.logstashTcpHost = data.logstashTcpHost;
+          this.sut.eimConfig.logstashTcpPort = data.logstashTcpPort;
+          this.sut.eimConfig.logstashBeatsHost = data.logstashBeatsHost;
           this.sut.eimConfig.logstashBeatsPort = data.logstashBeatsPort;
+
+          this.sut.eimConfig.logstashBindedTcpHost = data.logstashBindedTcpHost;
+          this.sut.eimConfig.logstashBindedTcpPort = data.logstashBindedTcpPort;
+          this.sut.eimConfig.logstashBindedBeatsHost = data.logstashBindedBeatsHost;
+          this.sut.eimConfig.logstashBindedBeatsPort = data.logstashBindedBeatsPort;
+
           this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
           this.sut.eimConfig.logstashHttpApiUrl = data.logstashHttpApiUrl;
           this.save(exit);
