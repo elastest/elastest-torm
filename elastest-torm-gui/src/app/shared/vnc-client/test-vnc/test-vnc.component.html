@@ -5,8 +5,9 @@
         VNC
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content flex style="overflow: auto;">
-        <vnc-client [host]="host" [port]="port" [password]="password" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="true"></vnc-client>
+      <md-card-content *ngIf="ready" flex style="overflow: auto;">
+        <vnc-client [host]="host" [port]="port" [password]="password" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="showStatus"
+          [showConnectionBtns]="showConnectionBtns" flex></vnc-client>
       </md-card-content>
     </div>
   </md-card>
