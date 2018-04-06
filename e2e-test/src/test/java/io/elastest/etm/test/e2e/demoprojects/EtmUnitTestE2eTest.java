@@ -22,6 +22,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,7 @@ import io.github.bonigarcia.SeleniumExtension;
 @Tag("e2e")
 @DisplayName("ETM E2E test of Unit Test project")
 @ExtendWith(SeleniumExtension.class)
+@Disabled
 public class EtmUnitTestE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
