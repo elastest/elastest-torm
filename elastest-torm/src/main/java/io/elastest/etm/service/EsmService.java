@@ -1173,6 +1173,12 @@ public class EsmService {
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars());
 
+        logger.info("TSS to provsion {}", supportServiceInstance.getServiceShortName());
+        if (supportServiceInstance.getServiceName().equals("ESS")) {
+            supportServiceInstance.getParameters()
+            .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
+        }
+        
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST",
                 etEtmLstcpHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT",
