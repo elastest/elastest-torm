@@ -2,6 +2,8 @@ version: '3'
 services:
     eim:
       image: elastest/eim:latest
+      depends_on:
+            - edm-mysql
       stdin_open: true
       tty: true
       environment:
