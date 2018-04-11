@@ -57,7 +57,7 @@
         <md-card-content *ngIf="exTJobExec" flex style="overflow: auto;" class="push-bottom-none">
           <div layout-align="center center" layout="column" layout-fill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
-              <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
+              <vnc-client [vncUrl]="vncBrowserUrl" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
                 [showStatus]="false" [showConnectionBtns]="false" layout-fill></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>

@@ -82,11 +82,15 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   connect(): void {
-    this.vncUi.connect();
+    if (this.vncUi !== undefined) {
+      this.vncUi.connect();
+    }
   }
 
   disconnect(): void {
-    this.vncUi.disconnect();
+    if (this.vncUi !== undefined) {
+      this.vncUi.disconnect();
+    }
   }
 
   reconnect(): void {

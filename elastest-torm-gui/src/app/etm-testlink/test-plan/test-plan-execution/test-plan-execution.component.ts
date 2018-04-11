@@ -63,11 +63,7 @@ export class TestPlanExecutionComponent implements OnInit {
 
   // Browser
   sessionId: string;
-
   vncBrowserUrl: string;
-  vncHost: string;
-  vncPort: string;
-  vncPassword: string;
   autoconnect: boolean = true;
   viewOnly: boolean = false;
 
@@ -193,8 +189,9 @@ export class TestPlanExecutionComponent implements OnInit {
   loadChromeBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
-    this.eusService.startSession('chrome', '62').subscribe(
+    this.eusService.startSession('chrome', '65').subscribe(
       (sessionId: string) => {
+        console.log(sessionId);
         this.sessionId = sessionId;
         this.showStopBtn = true;
         this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
@@ -202,12 +199,9 @@ export class TestPlanExecutionComponent implements OnInit {
         if (browserLog) {
           this.logsAndMetrics.addMoreFromObj(browserLog);
         }
-        this.eusService.getVncUrlSplitted(sessionId).subscribe(
-          (urlObj: CompleteUrlObj) => {
-            this.vncHost = urlObj.queryParams.host;
-            this.vncPort = urlObj.queryParams.port;
-            this.vncPassword = urlObj.queryParams.password;
-            this.vncBrowserUrl = urlObj.href;
+        this.eusService.getVncUrl(sessionId).subscribe(
+          (vncUrl: string) => {
+            this.vncBrowserUrl = vncUrl;
             this.browserAndEusLoading = false;
             this.startExecution();
           },
