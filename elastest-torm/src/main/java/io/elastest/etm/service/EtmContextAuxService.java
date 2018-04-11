@@ -137,10 +137,10 @@ public class EtmContextAuxService {
         contextInfo.setTestLinkStarted(
                 !etEtmTestLinkHost.equals("none") ? true : false);
 
-        contextInfo.setEdmCommandUrl("http://" + etPublicHost + ":"
-                + etProxyPort + "/" + etEdmCommandContextPath);
+        contextInfo.setEdmCommandUrl("http://" + proxyIp + ":"
+                + proxyPort + "/" + etEdmCommandContextPath);
         contextInfo
-                .setEmpGrafanaUrl("http://" + etPublicHost + ":" + etProxyPort
+                .setEmpGrafanaUrl("http://" + proxyIp + ":" + proxyPort
                         + "/" + etEmpGrafanContextPath + etEmpGrafanaDashboard);
         return contextInfo;
     }
