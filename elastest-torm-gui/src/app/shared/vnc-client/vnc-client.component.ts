@@ -1,6 +1,7 @@
 import { VncUI } from './ui';
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { getUrlObj } from '../utils';
 
 @Component({
   selector: 'vnc-client',
@@ -17,6 +18,8 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() public viewOnly: boolean = false;
   @Input() public showStatus: boolean = true;
   @Input() public showConnectionBtns: boolean = true;
+  @Input() public resize: 'scale' | 'downscale' | 'remote' = 'scale';
+  @Input() public vncUrl: string;
 
   htmlEl: HTMLHtmlElement = document.getElementsByTagName('html')[0];
 
@@ -40,7 +43,11 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.initVnc();
+    if (this.host && this.port) {
+      this.initVnc();
+    } else {
+      this.getInfoFromVncUrl();
+    }
   }
 
   ngOnDestroy(): void {
@@ -49,10 +56,28 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   initVnc(): void {
     if (this.host && this.port) {
-      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, 'scale');
+      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, this.resize);
       this.vncUi.init();
       this.suscribeToStatus();
       this.preventFocus();
+    }
+  }
+
+  getInfoFromVncUrl(): void {
+    if (this.vncUrl !== undefined) {
+      let vncUrlObj: any = getUrlObj(this.vncUrl);
+      let vncQueryParams: any = vncUrlObj.queryParams;
+      this.host = vncUrlObj.hostname;
+      this.port = vncUrlObj.port;
+      this.password = vncQueryParams.password;
+      this.autoconnect = vncQueryParams.autoconnect !== undefined ? vncQueryParams.autoconnect : this.autoconnect;
+      this.viewOnly = vncQueryParams.viewOnly !== undefined ? vncQueryParams.viewOnly : this.viewOnly;
+      this.showStatus = vncQueryParams.showStatus !== undefined ? vncQueryParams.showStatus : this.showStatus;
+      this.showConnectionBtns =
+        vncQueryParams.showConnectionBtns !== undefined ? vncQueryParams.showConnectionBtns : this.showConnectionBtns;
+      this.resize = vncQueryParams.resize !== undefined ? vncQueryParams.resize : this.resize;
+
+      this.initVnc();
     }
   }
 
@@ -138,7 +163,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   switchFocus(): void {
-    if (this.vncUi) {
+    if (this.vncUi && this.vncUi.rfb) {
       if (this.canvasFocused) {
         this.vncUi.rfb.get_keyboard().set_focused(true);
       } else {

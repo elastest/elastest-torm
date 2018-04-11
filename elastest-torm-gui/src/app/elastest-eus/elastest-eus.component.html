@@ -7,9 +7,10 @@
                 <span *ngIf="loading">
                     <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width: 23px; height: 23px; vertical-align:middle;">Loading browsers...</span>
                 <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                    <div *ngFor="let browser of browserVersionsKeys">
+                    <div *ngFor="let browser of browserNamesList">
                         <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
-                        <md-select placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
+                        <md-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50"
+                            (ngModelChange)="selectBrowser(browser)">
                             <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
                                 {{version}}
                             </md-option>
@@ -35,8 +36,7 @@
             </md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-                <div *ngIf="!showSpinner && testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
+                <div *ngIf="testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
                     <md-icon>assignment</md-icon>
                     <p>No Browsers created yet</p>
                 </div>

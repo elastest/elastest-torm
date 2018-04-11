@@ -58,7 +58,7 @@
           <div layout-align="center center" layout="column" layout-fill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
               <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-                [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
+                [showStatus]="false" [showConnectionBtns]="false" layout-fill></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>
               <div class="md-headline text-center">{{browserCardMsg}}</div>

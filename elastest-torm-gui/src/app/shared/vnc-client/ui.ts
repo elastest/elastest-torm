@@ -1361,6 +1361,7 @@ export class VncUI {
     this.applyResizeMode();
     // After doing this once, we remove the callback.
     this.rfb.set_onFBUComplete(function() {});
+    this.updateViewClip();
   }
 
   /*  ------^-------  */

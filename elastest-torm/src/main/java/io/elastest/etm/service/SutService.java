@@ -46,11 +46,13 @@ public class SutService {
         if (sut.getId() == 0) { // If is a new Sut, set
             sut = sutRepository.save(sut); // Save first
             SutExecution sutExec = createSutExecutionBySut(sut);
-            sut.setCurrentSutExec(sutExec.getId());
-            if (sut.isInstrumentalize()) {
+            if (sut.isDeployedOutside()) {
                 String[] index = { sut.getSutMonitoringIndex() };
                 elasticsearchService.createMonitoringIndex(index);
-                sut = this.instrumentalizeSut(sut);
+                sut.setCurrentSutExec(sutExec.getId());
+                if (sut.isInstrumentalize()) {
+                    sut = this.instrumentalizeSut(sut);
+                }
             }
         } else {
             SutSpecification savedSut = sutRepository.getOne(sut.getId());
@@ -91,6 +93,10 @@ public class SutService {
     public SutSpecification instrumentalizeSut(SutSpecification sut) {
         SutExecution sutExec = createSutExecutionBySut(sut);
         sut.setCurrentSutExec(sutExec.getId());
+
+        String[] index = { sut.getSutMonitoringIndex() };
+        elasticsearchService.createMonitoringIndex(index);
+
         sutExec.setUrl(sut.getSpecification());
 
         // Deploy beats

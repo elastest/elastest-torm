@@ -25,7 +25,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   selectedVersion: object = {};
 
   browserVersions: object;
-  browserVersionsKeys: object;
+  browserNamesList: string[];
 
   loading: boolean = true;
 
@@ -38,8 +38,6 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   ];
 
   testData: EusTestModel[] = [];
-  showSpinner: boolean = true;
-
   recordings: EusTestModel[] = [];
 
   @Input() eusUrl: string = 'http://localhost:8040/eus/v1/';
@@ -80,7 +78,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     this.eusService.getStatus().subscribe(
       (ok) => {
         this.browserVersions = ok.json().browsers;
-        this.browserVersionsKeys = Object.keys(this.browserVersions);
+        this.browserNamesList = Object.keys(this.browserVersions);
+        if (this.browserNamesList.length > 0) {
+          this.selectBrowser(this.browserNamesList[0]);
+        }
         this.loading = false;
       },
       (error) => console.error('Error getting EUS status: ' + error),
@@ -135,7 +136,6 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
             }
           }
           this.testData = Array.from(newTestData);
-          this.showSpinner = false;
         }
       };
     }
@@ -231,7 +231,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   selectBrowser(browser: string): void {
     this.selectedBrowser = browser;
     Object.keys(this.selectedVersion).forEach((key) => {
-      if (key != browser) {
+      if (key !== browser) {
         this.selectedVersion[key] = '';
       }
     });

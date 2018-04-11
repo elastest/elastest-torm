@@ -1148,17 +1148,38 @@ public class EsmService {
                 logger.debug("Full path:" + tJobExecFolder + serviceFolderName);
                 File serviceFolder = ResourceUtils
                         .getFile(tJobExecFolder + serviceFolderName);
-                List<String> servicesFilesNames = new ArrayList<>(
-                        Arrays.asList(serviceFolder.list()));
-                for (String serviceFileName : servicesFilesNames) {
-                    filesList.add(new TJobExecutionFile(serviceFileName,
-                            getFileUrl(tJobExecFilePath + serviceFolderName
-                                    + fileSeparator + serviceFileName),
-                            serviceFolderName));
-                }
+
+                filesList.addAll(this.getFilesByFolder(serviceFolder,
+                        tJobExecFilePath + serviceFolderName + fileSeparator,
+                        serviceFolderName, fileSeparator));
             }
         }
 
+        return filesList;
+    }
+
+    public List<TJobExecutionFile> getFilesByFolder(File folder,
+            String relativePath, String serviceName, String fileSeparator)
+            throws IOException {
+        String absolutePath = sharedFolder + relativePath;
+        List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
+
+        List<String> folderFilesNames = new ArrayList<>(
+                Arrays.asList(folder.list()));
+
+        for (String currentFileName : folderFilesNames) {
+            String absoluteFilePath = absolutePath + currentFileName;
+            String relativeFilePath = relativePath + currentFileName;
+            File currentFile = ResourceUtils.getFile(absoluteFilePath);
+            if (currentFile.isDirectory()) {
+                filesList.addAll(this.getFilesByFolder(currentFile,
+                        relativeFilePath + fileSeparator, serviceName,
+                        fileSeparator));
+            } else {
+                filesList.add(new TJobExecutionFile(currentFileName,
+                        getFileUrl(relativeFilePath), serviceName));
+            }
+        }
         return filesList;
     }
 
