@@ -189,7 +189,7 @@ export class TestPlanExecutionComponent implements OnInit {
   loadChromeBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
-    this.eusService.startSession('chrome', '65').subscribe(
+    this.eusService.startSession('chrome', 'latest').subscribe(
       (sessionId: string) => {
         console.log(sessionId);
         this.sessionId = sessionId;
