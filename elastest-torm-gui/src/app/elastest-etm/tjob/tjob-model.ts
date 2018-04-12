@@ -23,6 +23,7 @@ export class TJobModel extends AbstractTJobModel {
   esmServicesString: string;
   esmServices: EsmServiceModel[];
   esmServicesChecked: number;
+  external: boolean;
 
   constructor() {
     super();
@@ -40,6 +41,7 @@ export class TJobModel extends AbstractTJobModel {
     this.esmServicesString = '';
     this.esmServices = [];
     this.esmServicesChecked = 0;
+    this.external = false;
   }
 
   public cloneTJob(): TJobModel {

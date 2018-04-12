@@ -93,6 +93,7 @@ export class ETModelsTransformServices {
         }
       }
     }
+    newTJob.external = tjob.external;
 
     return newTJob;
   }

@@ -94,6 +94,7 @@ public class TJob {
 	@JsonProperty("resultsPath")
 	private String resultsPath = null;
 
+	@JsonView({ BasicAttTJob.class, BasicAttProject.class, BasicAttTJobExec.class })
 	@Column(name = "external")
 	@JsonProperty("external")
 	private boolean external = false;
