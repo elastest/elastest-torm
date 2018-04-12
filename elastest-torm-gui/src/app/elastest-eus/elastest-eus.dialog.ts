@@ -10,6 +10,7 @@ export class ElastestEusDialog {
   public message: string;
   public iframeUrl: string;
   public loading: boolean = false;
+  public sessionType: 'live' | 'video' = 'live';
   public closeButton: boolean = false;
 
   constructor(public dialogRef: MdDialogRef<ElastestEusDialog>) {}

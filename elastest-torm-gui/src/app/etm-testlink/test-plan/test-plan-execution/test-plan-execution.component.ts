@@ -157,7 +157,11 @@ export class TestPlanExecutionComponent implements OnInit {
 
     responseObj.observable.subscribe((finished: boolean) => {
       if (finished) {
-        this.end();
+        // this.end();
+        if (!this.alreadyLeave) {
+          // On Navigate to ended exec ngondestroy will deprovision EUS and browser
+          this.viewEndedTJobExec();
+        }
       }
     });
   }
@@ -249,9 +253,6 @@ export class TestPlanExecutionComponent implements OnInit {
           this.browserCardMsg = 'FINISHED';
           this.browserAndEusDeprovided = true;
           this.showFiles = true;
-          if (!this.alreadyLeave) {
-            this.viewEndedTJobExec();
-          }
         },
         (error) => console.log(error),
       );

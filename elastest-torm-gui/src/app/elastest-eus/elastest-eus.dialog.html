@@ -1,10 +1,13 @@
 <h2 md-dialog-title class="push-bottom-sm">{{ title }}</h2>
 <md-dialog-content style="max-height: 84vh">
-    <img *ngIf="loading === true; else showBrowser" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
-    <ng-template #showBrowser>
-        <div layout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
+    <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
+    <ng-template #showContent>
+        <div *ngIf="sessionType && sessionType === 'live'; else showVideo" layout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
             <vnc-client *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
         </div>
+        <ng-template #showVideo>
+            <iframe *ngIf="iframeUrl" [src]="iframeUrl | safe" width="800" height="600" id="eus_iframe"></iframe>
+        </ng-template>
     </ng-template>
     {{message}}
 </md-dialog-content>

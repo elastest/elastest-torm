@@ -141,12 +141,13 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewSession(url: string, testModel: EusTestModel, titleSuffix: string): void {
+  viewSession(url: string, testModel: EusTestModel, titleSuffix: string, sessionType: 'live' | 'video' = 'live'): void {
     let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     let title: string = this.capitalize(testModel.browser) + ' ' + testModel.version;
     title += titleSuffix;
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
+    dialog.componentInstance.sessionType = sessionType;
     dialog.componentInstance.closeButton = true;
   }
 
@@ -166,9 +167,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   viewRecording(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
       (ok) => {
-        let videoUrl = 'http://' + this.eusHost + ':' + this.eusPort + ok.text();
+        let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + ok.text();
         console.log('Video URL: ' + videoUrl);
-        this.viewSession(videoUrl, testModel, ' - recorded test');
+        this.viewSession(videoUrl, testModel, ' - recorded test', 'video');
       },
       (error) => console.error(error),
     );
