@@ -92,7 +92,7 @@ public class EtmContextService {
     public String etEtmLsBeatsHost;
     @Value("${et.etm.lsbeats.port}")
     public String etEtmLsBeatsPort;
-    @Value("${et.etm.binded.lstcp.port")
+    @Value("${et.etm.binded.lstcp.port}")
     public String etEtmBindedLstcpPort;
     @Value("${et.etm.binded.lsbeats.port}")
     public String etEtmBindedLsbeatsPort;
