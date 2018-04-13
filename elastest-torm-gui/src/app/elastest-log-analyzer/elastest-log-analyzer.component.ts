@@ -65,6 +65,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     },*/
   };
 
+  private charsByLine: number = 0;
+
   @Input() tJobId: number;
   @Input() tJobExecId: number;
   @Input() testCase: string;
@@ -532,7 +534,16 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public saveColumnsConfig(showPopup: boolean = true, persist: boolean = false): void {
+  public saveColumnsConfig(event: any, showPopup: boolean = true, persist: boolean = false): void {
+    if (event && event.column.colId === 'message' && event.finished) {
+      this.charsByLine = Math.ceil((event.column.actualWidth - 30) / (13 / 1.8));
+      this.gridOptions.api.forEachNode((rowNode: RowNode) => {
+        let height: number = 22 * (rowNode.data.message.length / this.charsByLine + 1);
+        height < 25 ? (height = 25) : (height = height);
+        rowNode.setRowHeight(height);
+      });
+      this.gridOptions.api.onRowHeightChanged();
+    }
     this.logAnalyzer.laConfig.columnsState = this.gridColumnApi.getColumnState();
     if (persist) {
       this.logAnalyzerService.saveLogAnalyzerConfig(this.logAnalyzer.laConfig).subscribe(
