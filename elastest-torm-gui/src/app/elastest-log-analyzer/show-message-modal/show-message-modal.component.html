@@ -1,27 +1,28 @@
-<h2 md-dialog-title>Log entry</h2>
+<h2 md-dialog-title id="dialogTitle">Log entry</h2>
+<div layout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
+  <div layout="row" class="push-bottom-sm">
+    <div flex="100" id="">
+      <md-list class="">
+        <h4>Message</h4>
+        <p class="monospaced" id="message">{{row.message}}</p>
+        <md-divider></md-divider>
+      </md-list>
 
-<md-dialog-content>
-  <div layout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
-    <div layout="column">
-      <md-card-subtitle>
-        Message
-      </md-card-subtitle>
-      <md-input-container flex="100">
-        <textarea [(ngModel)]="row.message" mdInput rows="12" [style.width.%]="99" id="message" class="monospaced" readonly></textarea>
-      </md-input-container>
     </div>
-    <ng-container *ngFor="let column of columns">
-      <ng-container *ngIf="column.field !== 'message'">
-        <div class="push-top" layout="column">
-          <md-card-subtitle>
-            {{column.field}}
-          </md-card-subtitle>
-          <span class="monospaced">{{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}</span>
-        </div>
-      </ng-container>
-    </ng-container>
   </div>
-</md-dialog-content>
+  <div flex="70" *ngFor="let column of columns">
+      <md-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
+        <md-list-item>
+          <h5>{{column.field}}</h5>
+          <p class="monospaced" id="message">{{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}</p>
+        </md-list-item>
+        <md-divider></md-divider>
+      </md-list>
+  
+    </div>
+</div>
+
+
 
 <md-dialog-actions>
   <button md-raised-button color="accent" md-dialog-close>Close</button>

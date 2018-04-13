@@ -521,8 +521,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public openMessageModal($event: RowDoubleClickedEvent): void {
     let dialogRef: MdDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
       data: { row: $event.data, columns: this.logColumns },
-      height: '80%',
-      width: '90%',
+      height: '90%',
+      width: '80%',
     });
   }
 
