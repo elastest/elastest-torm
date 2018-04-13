@@ -48,8 +48,6 @@ public class EtmContextService {
 
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
-    @Value("${et.shared.folder}")
-    public String etSharedFolder;
 
     @Value("${server.port}")
     public String serverPort;

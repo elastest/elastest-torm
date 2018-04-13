@@ -327,8 +327,7 @@ public class DockerService2 {
                 .withNetworkMode(dockerExec.getNetwork());
 
         Volume sharedDataVolume = null;
-        if (dockerExec.gettJobexec().getTjob().getSut() != null && dockerExec
-                .gettJobexec().getTjob().getSut().isSutInNewContainer()) {
+        if (sut != null && sut.isSutInNewContainer()) {
             sharedDataVolume = new Volume(sharedFolder);
         }
 

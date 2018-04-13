@@ -7,6 +7,9 @@ import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEven
 import { ExternalService } from '../external/external.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { ExternalTJobExecModel } from '../external/external-tjob-execution/external-tjob-execution-model';
+import { ElastestEusDialog } from '../../elastest-eus/elastest-eus.dialog';
+import { MdDialogRef } from '@angular/material';
+import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 
 @Component({
   selector: 'etm-files-manager',
@@ -48,6 +51,7 @@ export class FilesManagerComponent implements OnInit {
     private tJobExecService: TJobExecService,
     private externalService: ExternalService,
     private configurationService: ConfigurationService,
+    private eusDialog: ElastestEusDialogService,
   ) {
     this.filesUrlPrefix = configurationService.configModel.host;
   }
@@ -135,5 +139,19 @@ export class FilesManagerComponent implements OnInit {
       this.subscription.unsubscribe();
       this.subscription = undefined;
     }
+  }
+
+  viewSession(url: string): void {
+    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    // let title: string = this.capitalize(testModel.browser) + ' ' + testModel.version;
+    // title += titleSuffix;
+    // dialog.componentInstance.title = title;
+    dialog.componentInstance.iframeUrl = url;
+    dialog.componentInstance.sessionType = 'video';
+    dialog.componentInstance.closeButton = true;
+  }
+
+  isEusMetadata(name: string): boolean {
+    return name.endsWith('.eus');
   }
 }

@@ -38,9 +38,6 @@ public class TJobService {
     @Value("${registry.contextPath}")
     private String registryContextPath;
 
-    @Value("${et.shared.folder}")
-    private String sharedFolder;
-
     private final TJobRepository tJobRepo;
     private final TJobExecRepository tJobExecRepositoryImpl;
     private final TJobExecOrchestratorService tJobExecOrchestratorService;

@@ -25,8 +25,11 @@
               <div layout="row" class="optionsColumn">
                 <!--button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
                   id="download_file"-->
-                <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn-lg" target="_blank">
+                <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
                   <md-icon>open_in_new</md-icon>
+                </a>
+                <a md-button (click)="viewSession(filesUrlPrefix + row.url)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
+                  <md-icon>open_in_browser</md-icon>
                 </a>
                 <!--/button-->
               </div>

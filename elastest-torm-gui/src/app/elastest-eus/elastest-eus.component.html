@@ -61,9 +61,9 @@
             <md-card-content class="push-bottom-none">
                 <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
                     <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" title="open in new tab">open_in_new</i>
-                        <i class="material-icons" (click)="viewRecording(row)" id="view_recording" title="open as dialog">open_in_browser</i>
-                        <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" title="delete recording">delete</i>
+                        <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" mdTooltip="Open in new tab">open_in_new</i>
+                        <i class="material-icons" (click)="viewRecording(row)" id="view_recording" mdTooltip="Open as dialog">open_in_browser</i>
+                        <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
                     </ng-template>
                 </td-data-table>
             </md-card-content>

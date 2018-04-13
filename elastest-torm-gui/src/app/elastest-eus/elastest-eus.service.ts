@@ -56,18 +56,13 @@ export class EusService {
     return obs;
   }
 
-  public getRecording(sessionId: string, hubContainerName: string): Observable<Response> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName;
+  public getRecording(sessionId: string): Observable<Response> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
     return this.http.get(url);
   }
 
-  public getSessionRecordings(sessionId: string, hubContainerName: string): Observable<Response> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName;
-    return this.http.get(url);
-  }
-
-  public deleteRecording(sessionId: string, hubContainerName: string): Observable<Response> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName;
+  public deleteRecording(sessionId: string): Observable<Response> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
     return this.http.delete(url);
   }
 

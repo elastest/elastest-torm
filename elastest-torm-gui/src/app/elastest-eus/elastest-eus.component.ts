@@ -159,7 +159,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   getRecordingUrl(testModel: EusTestModel): void {
-    this.eusService.getRecording(testModel.id, testModel.hubContainerName).subscribe(
+    this.eusService.getRecording(testModel.id).subscribe(
       (ok: Response) => {
         window.open('http://' + this.eusHost + ':' + this.eusPort + ok.text());
       },
@@ -168,7 +168,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   viewRecording(testModel: EusTestModel): void {
-    this.eusService.getRecording(testModel.id, testModel.hubContainerName).subscribe(
+    this.eusService.getRecording(testModel.id).subscribe(
       (ok: Response) => {
         let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + ok.text();
         console.log('Video URL: ' + videoUrl);
@@ -179,7 +179,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   deleteRecording(testModel: EusTestModel): void {
-    this.eusService.deleteRecording(testModel.id, testModel.hubContainerName).subscribe(
+    this.eusService.deleteRecording(testModel.id).subscribe(
       (ok: Response) => {
         let entry: EusTestModel;
         let newTestData: EusTestModel[] = [];
