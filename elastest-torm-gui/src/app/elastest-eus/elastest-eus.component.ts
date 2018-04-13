@@ -211,8 +211,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       dialog.afterClosed().subscribe((ok: Response) => this.stopSession(), (error) => console.error(error));
 
       this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser]).subscribe(
-        (id) => {
-          this.sessionId = id;
+        (eusTestModel: EusTestModel) => {
+          this.sessionId = eusTestModel.id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
             (url) => {
               dialog.componentInstance.loading = false;

@@ -16,6 +16,7 @@ import { Observable } from 'rxjs/Observable';
 import { EsmServiceInstanceModel } from '../../../../elastest-esm/esm-service-instance.model';
 import { EtmMonitoringViewComponent } from '../../../etm-monitoring-view/etm-monitoring-view.component';
 import { PullingObjectModel } from '../../../../shared/pulling-obj.model';
+import { EusTestModel } from '../../../../elastest-eus/elastest-eus-test-model';
 
 @Component({
   selector: 'etm-external-tjob-execution-new',
@@ -131,15 +132,15 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
   loadChromeBrowser(): void {
     this.browserLoadingMsg = 'Waiting for Browser...';
     this.eusService.startSession('chrome', '62').subscribe(
-      (sessionId: string) => {
-        this.sessionId = sessionId;
+      (eusTestModel: EusTestModel) => {
+        this.sessionId = eusTestModel.id;
         this.showStopBtn = true;
-        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
+        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = this.sessionId;
         let browserLog: any = this.exTJobExec.getBrowserLogObj();
         if (browserLog) {
           this.logsAndMetrics.addMoreFromObj(browserLog);
         }
-        this.eusService.getVncUrlSplitted(sessionId).subscribe(
+        this.eusService.getVncUrlSplitted(this.sessionId).subscribe(
           (urlObj: CompleteUrlObj) => {
             this.vncHost = urlObj.queryParams.host;
             this.vncPort = urlObj.queryParams.port;

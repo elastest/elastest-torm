@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { EusService } from '../../../../elastest-eus/elastest-eus.service';
 import { CompleteUrlObj } from '../../../../shared/utils';
 import { IExternalExecutionSaveModel } from '../../models/external-execution-save.model';
+import { EusTestModel } from '../../../../elastest-eus/elastest-eus-test-model';
 
 @Component({
   selector: 'etm-external-test-execution-form',
@@ -55,9 +56,9 @@ export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
 
   loadChromeBrowser(): void {
     this.eusService.startSession('chrome', '62').subscribe(
-      (sessionId: string) => {
-        this.sessionId = sessionId;
-        this.eusService.getVncUrlSplitted(sessionId).subscribe(
+      (eusTestModel: EusTestModel) => {
+        this.sessionId = eusTestModel.id;
+        this.eusService.getVncUrlSplitted(eusTestModel.id).subscribe(
           (urlObj: CompleteUrlObj) => {
             this.vncHost = urlObj.queryParams.host;
             this.vncPort = urlObj.queryParams.port;

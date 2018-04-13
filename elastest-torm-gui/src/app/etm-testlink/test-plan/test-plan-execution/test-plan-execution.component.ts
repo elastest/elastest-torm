@@ -20,6 +20,7 @@ import { PullingObjectModel } from '../../../shared/pulling-obj.model';
 import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { TestPlanModel } from '../../models/test-plan-model';
+import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -63,6 +64,7 @@ export class TestPlanExecutionComponent implements OnInit {
 
   // Browser
   sessionId: string;
+  hubContainerName: string;
   vncBrowserUrl: string;
   autoconnect: boolean = true;
   viewOnly: boolean = false;
@@ -193,17 +195,18 @@ export class TestPlanExecutionComponent implements OnInit {
   loadChromeBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
-    this.eusService.startSession('chrome', 'latest').subscribe(
-      (sessionId: string) => {
-        console.log(sessionId);
-        this.sessionId = sessionId;
+    let extraCapabilities: any = { manualRecording: true };
+    this.eusService.startSession('chrome', 'latest', extraCapabilities).subscribe(
+      (eusTestModel: EusTestModel) => {
+        this.sessionId = eusTestModel.id;
+        this.hubContainerName = eusTestModel.hubContainerName;
         this.showStopBtn = true;
-        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
+        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = this.sessionId;
         let browserLog: any = this.exTJobExec.getBrowserLogObj();
         if (browserLog) {
           this.logsAndMetrics.addMoreFromObj(browserLog);
         }
-        this.eusService.getVncUrl(sessionId).subscribe(
+        this.eusService.getVncUrl(this.sessionId).subscribe(
           (vncUrl: string) => {
             this.vncBrowserUrl = vncUrl;
             this.browserAndEusLoading = false;
@@ -327,13 +330,19 @@ export class TestPlanExecutionComponent implements OnInit {
   loadNextTestLinkCase(): void {
     let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
     if (nextCase !== undefined) {
-      this.initCurrentExternalTestExecution(nextCase);
-      this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
-        (savedExTestExec: ExternalTestExecutionModel) => {
-          this.currentExternalTestExecution = savedExTestExec;
-          this.startTestLinkTestCaseExecution(nextCase.externalId);
+      let videoName: string = nextCase.name.split(' ').join('-') + '_' + this.sessionId;
+      this.eusService.startRecording(this.sessionId, this.hubContainerName, videoName).subscribe(
+        (ok) => {
+          this.initCurrentExternalTestExecution(nextCase);
+          this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+            (savedExTestExec: ExternalTestExecutionModel) => {
+              this.currentExternalTestExecution = savedExTestExec;
+              this.startTestLinkTestCaseExecution(nextCase.externalId);
+            },
+            (error: Error) => console.log(error),
+          );
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     } else {
       this.finishTJobExecution();
@@ -386,7 +395,12 @@ export class TestPlanExecutionComponent implements OnInit {
           this.externalService.modifyExternalTestExecution(this.currentExternalTestExecution).subscribe(
             (savedExTestExec: ExternalTestExecutionModel) => {
               this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
-              this.loadNextTestLinkCase();
+              this.eusService.stopRecording(this.sessionId, this.hubContainerName).subscribe(
+                (ok) => {
+                  this.loadNextTestLinkCase();
+                },
+                (error: Error) => console.log(error),
+              );
             },
             (error) => console.log(error),
           );

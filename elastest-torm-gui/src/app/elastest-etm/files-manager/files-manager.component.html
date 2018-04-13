@@ -13,28 +13,36 @@
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content>
-          <md-spinner strokeWidth="6" *ngIf="loading" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-          <div *ngIf="!loading && executionFiles.length === 0" class="push-top-important messageEmptyCard">
-            <md-icon>assignment</md-icon>
-            <p>No files generated during execution</p>
-          </div>
-          <td-data-table *ngIf="executionFiles && executionFiles.length > 0" #filesTable class="scroll_table" [data]="executionFiles"
-            [columns]="filesColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
-            (sortChange)="sort($event)">
-            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div layout="row" class="optionsColumn">
-                <!--button md-button (click)="downloadFile(row)" class="iconBtn-lg" title="Download file"
-                  id="download_file"-->
-                <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
-                  <md-icon>open_in_new</md-icon>
-                </a>
-                <a md-button (click)="viewSession(filesUrlPrefix + row.url)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
-                  <md-icon>open_in_browser</md-icon>
-                </a>
-                <!--/button-->
-              </div>
+          <md-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+          <ng-template #showContent>
+            <div *ngIf="showNoFilesMessage(); else showFilesTable" class="push-top-important messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>No files generated during execution</p>
+            </div>
+
+            <ng-template #showFilesTable>
+              <td-data-table #filesTable class="scroll_table" [data]="filteredExecutionFiles" [columns]="filesColumns" [selectable]="false"
+                [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+                <ng-template *ngFor="let column of filesColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+                  <div *ngIf="column.name !== 'options'; else optionsColumn">
+                    {{value}}
+                  </div>
+
+                  <ng-template #optionsColumn tdDataTableTemplate="options">
+                    <div layout="row" class="optionsColumn">
+                      <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
+                        <md-icon>open_in_new</md-icon>
+                      </a>
+                      <a md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
+                        <md-icon>open_in_browser</md-icon>
+                      </a>
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </td-data-table>
             </ng-template>
-          </td-data-table>
+          </ng-template>
+
         </md-card-content>
       </md-card>
     </div>

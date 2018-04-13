@@ -29,13 +29,8 @@ export class FilesManagerComponent implements OnInit {
   ];
 
   executionFiles: FileModel[] = [];
+  filteredExecutionFiles: FileModel[] = [];
 
-  filteredData: any[] = [];
-  filteredTotal: number = 0;
-  searchTerm: string = '';
-  fromRow: number = 1;
-  currentPage: number = 1;
-  pageSize: number = 5;
   sortBy: string = 'serviceName';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
@@ -63,33 +58,6 @@ export class FilesManagerComponent implements OnInit {
   ngOnDestroy() {
     this.loading = false;
     this.endSubscription();
-  }
-
-  sort(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
-    this.filter();
-  }
-
-  search(searchTerm: string): void {
-    this.searchTerm = searchTerm;
-    this.filter();
-  }
-
-  page(pagingEvent: IPageChangeEvent): void {
-    this.fromRow = pagingEvent.fromRow;
-    this.currentPage = pagingEvent.page;
-    this.pageSize = pagingEvent.pageSize;
-    this.filter();
-  }
-
-  filter(): void {
-    let newData: any[] = this.executionFiles;
-    newData = this._dataTableService.filterData(newData, this.searchTerm, true);
-    this.filteredTotal = newData.length;
-    newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
-    newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
-    this.filteredData = newData;
   }
 
   waitForExecutionFiles(): void {
@@ -127,9 +95,7 @@ export class FilesManagerComponent implements OnInit {
 
   prepareDataTable(servicesInstances: FileModel[]): void {
     this.executionFiles = servicesInstances;
-    this.filteredData = this.executionFiles;
-    this.filteredTotal = this.executionFiles.length;
-    this.filter();
+    this.filterFiles();
     this.loading = false;
   }
 
@@ -141,11 +107,9 @@ export class FilesManagerComponent implements OnInit {
     }
   }
 
-  viewSession(url: string): void {
+  viewSession(url: string, title: string = 'Recorded Video'): void {
     let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
-    // let title: string = this.capitalize(testModel.browser) + ' ' + testModel.version;
-    // title += titleSuffix;
-    // dialog.componentInstance.title = title;
+    dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.sessionType = 'video';
     dialog.componentInstance.closeButton = true;
@@ -153,5 +117,19 @@ export class FilesManagerComponent implements OnInit {
 
   isEusMetadata(name: string): boolean {
     return name.endsWith('.eus');
+  }
+
+  filterFiles(): void {
+    if (this.executionFiles && this.executionFiles.length >= 0) {
+      for (let file of this.executionFiles) {
+        if (!this.isEusMetadata(file.name)) {
+          this.filteredExecutionFiles.push(file);
+        }
+      }
+    }
+  }
+
+  showNoFilesMessage(): boolean {
+    return this.filteredExecutionFiles && this.filteredExecutionFiles.length === 0;
   }
 }
