@@ -495,7 +495,7 @@ public class EsmService {
             case "ESS":
                 logger.debug("Set timeout for {} container", supportServiceInstance.getServiceName());
                 supportServiceInstance.getParameters()
-                        .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
+                        .put("ESM_DOCKER_DELETE_TIMEOUT", "3600");
                 break;
             case "EUS":
                 logger.debug("Set timeout for {} container", supportServiceInstance.getServiceName());
