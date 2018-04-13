@@ -4,4 +4,5 @@ export class EusTestModel {
   version: string;
   creationTime: string;
   url: string;
+  hubContainerName: string;
 }

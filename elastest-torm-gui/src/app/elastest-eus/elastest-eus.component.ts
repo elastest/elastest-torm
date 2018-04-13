@@ -6,6 +6,7 @@ import { ElastestEusDialogService } from './elastest-eus.dialog.service';
 import { EusService } from './elastest-eus.service';
 import { EusTestModel } from './elastest-eus-test-model';
 import { ConfigurationService } from '../config/configuration-service.service';
+import { Response } from '@angular/http';
 
 @Component({
   selector: 'app-elastest-eus',
@@ -76,7 +77,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
 
     this.eusService.getStatus().subscribe(
-      (ok) => {
+      (ok: Response) => {
         this.browserVersions = ok.json().browsers;
         this.browserNamesList = Object.keys(this.browserVersions);
         if (this.browserNamesList.length > 0) {
@@ -117,6 +118,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.version = json.newSession.version;
           testModel.creationTime = json.newSession.creationTime;
           testModel.url = json.newSession.url;
+          testModel.hubContainerName = json.newSession.hubContainerName;
           this.testData.push(testModel);
           this.testData = Array.from(this.testData);
         } else if (json.recordedSession) {
@@ -125,6 +127,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.browser = json.recordedSession.browser;
           testModel.version = json.recordedSession.version;
           testModel.creationTime = json.recordedSession.creationTime;
+          testModel.hubContainerName = json.recordedSession.hubContainerName;
           this.recordings.push(testModel);
           this.recordings = Array.from(this.recordings);
         } else if (json.removeSession) {
@@ -156,8 +159,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   getRecordingUrl(testModel: EusTestModel): void {
-    this.eusService.getRecording(testModel.id).subscribe(
-      (ok) => {
+    this.eusService.getRecording(testModel.id, testModel.hubContainerName).subscribe(
+      (ok: Response) => {
         window.open('http://' + this.eusHost + ':' + this.eusPort + ok.text());
       },
       (error) => console.error(error),
@@ -165,8 +168,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   viewRecording(testModel: EusTestModel): void {
-    this.eusService.getRecording(testModel.id).subscribe(
-      (ok) => {
+    this.eusService.getRecording(testModel.id, testModel.hubContainerName).subscribe(
+      (ok: Response) => {
         let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + ok.text();
         console.log('Video URL: ' + videoUrl);
         this.viewSession(videoUrl, testModel, ' - recorded test', 'video');
@@ -176,8 +179,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   deleteRecording(testModel: EusTestModel): void {
-    this.eusService.deleteRecording(testModel.id).subscribe(
-      (ok) => {
+    this.eusService.deleteRecording(testModel.id, testModel.hubContainerName).subscribe(
+      (ok: Response) => {
         let entry: EusTestModel;
         let newTestData: EusTestModel[] = [];
         for (entry of this.recordings) {
@@ -205,7 +208,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       dialog.componentInstance.loading = true;
       dialog.componentInstance.closeButton = true;
 
-      dialog.afterClosed().subscribe((ok) => this.stopSession(), (error) => console.error(error));
+      dialog.afterClosed().subscribe((ok: Response) => this.stopSession(), (error) => console.error(error));
 
       this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser]).subscribe(
         (id) => {
@@ -226,7 +229,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   stopSession(): void {
-    this.eusService.stopSession(this.sessionId).subscribe((ok) => (this.vncUrl = null), (error) => console.error(error));
+    this.eusService
+      .stopSession(this.sessionId)
+      .subscribe((ok: Response) => (this.vncUrl = null), (error) => console.error(error));
   }
 
   selectBrowser(browser: string): void {
