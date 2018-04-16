@@ -62,3 +62,11 @@ export function getResultIconByString(result: defaultResult | string): any {
 
   return icon;
 }
+
+// Usage!
+// sleep(500).then(() => {
+// Do something after the sleep!
+// })
+export function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}

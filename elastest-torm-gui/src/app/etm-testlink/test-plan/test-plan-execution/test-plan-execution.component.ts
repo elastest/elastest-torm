@@ -21,6 +21,7 @@ import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-insta
 import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { TestPlanModel } from '../../models/test-plan-model';
 import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
+import { Response } from '@angular/http';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -396,7 +397,7 @@ export class TestPlanExecutionComponent implements OnInit {
             (savedExTestExec: ExternalTestExecutionModel) => {
               this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
               this.eusService.stopRecording(this.sessionId, this.hubContainerName).subscribe(
-                (ok) => {
+                (ok: Response) => {
                   this.loadNextTestLinkCase();
                 },
                 (error: Error) => console.log(error),
