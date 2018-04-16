@@ -284,20 +284,22 @@ export class VncUI {
     * ------v------*/
 
   addResizeHandlers(): void {
-    window.onresize = function() {
-      if (this.resizeTimeout) {
-        clearTimeout(this.resizeTimeout);
-      }
-      this.resizeTimeout = setTimeout(
-        (() => {
-          this.applyResizeMode();
-          this.updateViewClip();
-        }).bind(this),
-        500,
-      );
-    }.bind(this);
+    window.onresize = this.onResize.bind(this);
     // window.addEventListener('resize', this.applyResizeMode);
     // window.addEventListener('resize', this.updateViewClip);
+  }
+
+  onResize(): void {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    this.resizeTimeout = setTimeout(
+      (() => {
+        this.applyResizeMode();
+        this.updateViewClip();
+      }).bind(this),
+      500,
+    );
   }
 
   addControlbarHandlers() {
@@ -1361,7 +1363,7 @@ export class VncUI {
     this.applyResizeMode();
     // After doing this once, we remove the callback.
     this.rfb.set_onFBUComplete(function() {});
-    this.updateViewClip();
+    this.onResize();
   }
 
   /*  ------^-------  */

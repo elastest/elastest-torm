@@ -1,5 +1,5 @@
 import { TitlesService } from '../shared/services/titles.service';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, HostListener } from '@angular/core';
 import { MdDialogRef, MdDialog, MdDialogConfig } from '@angular/material';
 import { ElastestEusDialog } from './elastest-eus.dialog';
 import { ElastestEusDialogService } from './elastest-eus.dialog.service';
@@ -92,8 +92,20 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.end();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    this.end();
+  }
+
+  end(): void {
     if (this.websocket) {
       this.websocket.close();
+    }
+    if (this.sessionId && this.sessionId !== '') {
+      this.stopSession();
     }
   }
 
