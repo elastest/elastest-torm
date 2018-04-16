@@ -1,6 +1,7 @@
 export interface ConfigModel {
   hostName: string;
   host: string;
+  proxyHost: string;
   hostApi: string;
   hostElasticsearch: string;
   hostEIM: string;

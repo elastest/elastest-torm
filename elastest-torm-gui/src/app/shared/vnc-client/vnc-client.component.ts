@@ -20,6 +20,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() public showConnectionBtns: boolean = true;
   @Input() public resize: 'scale' | 'downscale' | 'remote' = 'scale';
   @Input() public vncUrl: string;
+  @Input() public bgColor: string = '#666666';
 
   htmlEl: HTMLHtmlElement = document.getElementsByTagName('html')[0];
 

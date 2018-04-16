@@ -12,6 +12,8 @@ export class ConfigurationService {
   host: string;
   hostApi: string;
 
+  devHost: string = 'localhost:4200';
+
   constructor(private http: Http) {
     console.log('Starting configuration.');
     this.protocol = window.location.protocol;
@@ -28,9 +30,15 @@ export class ConfigurationService {
           servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
             ? new URL(servicesInfo.eusSSInstance.urls.api)
             : null;
+
+        let proxyHost: string = this.host;
+        if (this.host.startsWith(this.devHost)) {
+          proxyHost = this.host.replace(this.devHost, 'localhost:37000');
+        }
         this.configModel = {
           hostName: window.location.hostname,
           host: (this.protocol === 'https:' ? 'https://' : 'http://') + this.host,
+          proxyHost: (this.protocol === 'https:' ? 'https://' : 'http://') + proxyHost,
           hostApi: this.hostApi,
           hostElasticsearch: servicesInfo.elasticSearchUrl + '/',
           hostEIM: (this.protocol === 'https:' ? 'https://' : 'http://') + environment.hostEIM + '/',
