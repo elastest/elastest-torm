@@ -35,15 +35,17 @@ export class TitlesService {
     this.breadcrumbService.addFriendlyNameForRoute('/test-engines', 'Test Engines');
     this.breadcrumbService.addFriendlyNameForRoute('/support-services', 'Test Support Services');
     this.breadcrumbService.addFriendlyNameForRoute('/loganalyzer', 'Log Analyzer');
-    this.breadcrumbService.addFriendlyNameForRouteRegex('/loganalyzer?.*', '/ Log Analyzer');
+    this.breadcrumbService.addFriendlyNameForRouteRegex('/loganalyzer?.*', ' Log Analyzer');
     this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/sut/new)$', 'New SuT');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/tjob/new)$', 'New TJob');
+    this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/exec/new)$', '/ New Execution');
 
     breadcrumbService.hideRouteRegex('.*edit$');
     breadcrumbService.hideRouteRegex('.*sut$');
     breadcrumbService.hideRouteRegex('.*tjob$');
+    breadcrumbService.hideRouteRegex('.*exec$');
     breadcrumbService.hideRouteRegex('.*tjob-exec$');
     breadcrumbService.hideRouteRegex('.*testlink/projects$');
     breadcrumbService.hideRouteRegex('.*suites$');
