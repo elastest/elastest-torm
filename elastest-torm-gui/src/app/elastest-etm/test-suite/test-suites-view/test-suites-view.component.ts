@@ -21,7 +21,7 @@ export class TestSuitesViewComponent implements OnInit {
   testCaseColumns: any[] = [
     { name: 'result', label: 'Result' },
     { name: 'name', label: 'Name' },
-    { name: 'time', label: 'Time' },
+    { name: 'time', label: 'Time (s)' },
     { name: 'failureMessage', label: 'Failure Msg' },
     { name: 'failureType', label: 'Failure Type' },
     { name: 'failureErrorLine', label: 'Failure Error Line' },
