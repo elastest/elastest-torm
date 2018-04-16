@@ -132,8 +132,11 @@
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="runTestPlan(row)" class="iconBtn-lg" title="Run Test Plan">
+              <button md-button (click)="runTestPlan(row)" class="iconBtn" mdTooltip="Run Test Plan">
                 <md-icon>play_circle_outline</md-icon>
+              </button>
+              <button *ngIf="exProject" md-button (click)="editTestPlan(row)" class="iconBtn" mdTooltip="Edit Test Plan">
+                <md-icon>mode_edit</md-icon>
               </button>
             </div>
           </ng-template>
