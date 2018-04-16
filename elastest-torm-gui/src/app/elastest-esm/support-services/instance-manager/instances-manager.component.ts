@@ -37,6 +37,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   timer: Observable<number>;
   subscription: Subscription;
+  deleting: any = {};
 
 
   constructor(
@@ -97,6 +98,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
                 if (this.subscription !== undefined) {
                   this.subscription.unsubscribe();
                   this.subscription = undefined;
+                  this.deleting = {};
                 }
               }
               this.prepareDataTable(esmServicesInstances);
@@ -134,6 +136,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   }
 
   deprovisionService(serviceInstance: EsmServiceInstanceModel) {
+    this.deleting[serviceInstance.serviceName] = true;
     this.esmService.deprovisionServiceInstance(serviceInstance.id)
       .subscribe(
       () => {

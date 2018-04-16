@@ -26,20 +26,22 @@
                         [sortOrder]="sortOrder" (sortChange)="sort($event)">
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                             <div layout="row" class="optionsColumn">
-                                <button md-button *ngIf="row.serviceReady; else waitServiceReady" (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail"
+                                <button md-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)" (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail"
                                     id="view_service">
                                     <md-icon>remove_red_eye</md-icon>
                                 </button>
-                                <ng-template #waitServiceReady>
-                                    <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
-                                </ng-template>
-                                <button md-button *ngIf="row.serviceReady;" (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service"
+                                <button md-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)" (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service"
                                     id="delete_service">
                                     <md-icon>delete</md-icon>
                                 </button>
                             </div>
+                            <ng-container *ngIf="!row.serviceReady || deleting && deleting[row.serviceName]" >
+                                <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
+                            </ng-container>
                         </ng-template>
                     </td-data-table>
+
+                   
                 </md-card-content>
             </md-card>
         </div>
