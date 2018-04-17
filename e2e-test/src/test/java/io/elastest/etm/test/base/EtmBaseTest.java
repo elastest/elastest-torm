@@ -117,6 +117,24 @@ public class EtmBaseTest {
         }
     }
 
+    protected void navigateToElement(WebDriver driver, String id,
+            String xpath) {
+        this.getElement(driver, id, xpath).get(0).click();
+    }
+
+    protected boolean elementExists(WebDriver driver, String id, String xpath) {
+        return this.getElement(driver, id, xpath).size() != 0;
+    }
+
+    protected List<WebElement> getElement(WebDriver driver, String id,
+            String xpath) {
+        WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
+        By elementAvailable = By.id(id);
+        waitService.until(presenceOfElementLocated(elementAvailable));
+
+        return driver.findElements(By.xpath(xpath));
+    }
+
     /* *************** */
     /* *** Project *** */
     /* *************** */
@@ -137,23 +155,22 @@ public class EtmBaseTest {
 
     protected void navigateToProject(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
+        log.info("Navigate to {} project", projectName);
         
-        WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
-        By projectAvailable = By
-                .id("projects");
-        waitService.until(presenceOfElementLocated(projectAvailable));
-        
-        driver.findElement(
-                By.xpath("//td/div[contains(string(), '" + projectName + "')]"))
-                .click();
+        String id = "projects";
+        String xpath = "//td-data-table[@id='" + id
+                + "']//*/td/div[contains(string(), '" + projectName + "')]";
+        this.navigateToElement(driver, id, xpath);
+
     }
 
     protected boolean projectExists(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
-        return driver
-                .findElements(By.xpath(
-                        "//td/div[contains(string(), '" + projectName + "')]"))
-                .size() != 0;
+
+        String id = "projects";
+        String xpath = "//td-data-table[@id='" + id
+                + "']//*/td/div[contains(string(), '" + projectName + "')]";
+        return this.elementExists(driver, id, xpath);
     }
 
     /* *************** */
@@ -198,19 +215,18 @@ public class EtmBaseTest {
             boolean imageCommands, String commands,
             Map<String, String> parameters, List<String> tssList) {
         log.info("Wait for the \"New TJob\" button ");
-        
+
         WebDriverWait waitService = new WebDriverWait(driver, 10); // seconds
         By serviceDetailButton = By
                 .xpath("//button[contains(string(), 'New TJob')]");
         waitService.until(visibilityOfElementLocated(serviceDetailButton));
         driver.findElement(serviceDetailButton).click();
-        
+
         WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
-        By serviceFieldTJobName = By
-                .name("tJobName");
+        By serviceFieldTJobName = By.name("tJobName");
         waitService2.until(visibilityOfElementLocated(serviceFieldTJobName));
         driver.findElement(serviceFieldTJobName).sendKeys(tJobName);
-        
+
         if (testResultPath != null) {
             driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
         }
@@ -257,12 +273,11 @@ public class EtmBaseTest {
 
     protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
         log.info("Run TJob");
-        
+
         WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
-        By projectAvailable = By
-                .id("tJobs");
+        By projectAvailable = By.id("tJobs");
         waitService.until(presenceOfElementLocated(projectAvailable));
-        
+
         driver.findElement(By
                 .xpath("//td/div/span[contains(string(), '" + tJobName + "')]"))
                 .click();

@@ -96,7 +96,7 @@
           <md-icon>assignment</md-icon>
           <p>No Test Suites created</p>
         </div>
-        <td-data-table #suiteTable *ngIf="testSuites.length > 0" class="scroll_table" [data]="testSuites" [columns]="suiteColumns"
+        <td-data-table #suiteTable id="tlTestSuites" *ngIf="testSuites.length > 0" class="scroll_table" [data]="testSuites" [columns]="suiteColumns"
           [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of suiteColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'suites', row.id]" class="hover-pointer">{{value}}</div>
@@ -122,8 +122,8 @@
           <md-icon>assignment</md-icon>
           <p>No Test Plans created</p>
         </div>
-        <td-data-table #planTable *ngIf="testPlans.length > 0" class="scroll_table" [data]="testPlans" [columns]="planColumns" [selectable]="false"
-          [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <td-data-table #planTable id="tlTestPlans" *ngIf="testPlans.length > 0" class="scroll_table" [data]="testPlans" [columns]="planColumns"
+          [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of planColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
             <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'plans', row.id]" class="hover-pointer">
               <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
