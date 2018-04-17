@@ -307,7 +307,7 @@ public class DockerService2 {
             try {
                 logConfig = getEMSLogConfig(type, prefix, suffix, dockerExec);
             } catch (Exception e) {
-                logger.error("", e);
+                logger.error("Cannot get Ems Log config", e);
             }
         } else {
             logConfig = getDefaultLogConfig(logstashTcpPort, prefix, suffix,
@@ -394,8 +394,8 @@ public class DockerService2 {
         // Get Parameters and insert into Env Vars¡
         String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashHost;
         if (tJob.isSelectedService("ems")) {
-            envVar = "FILTER_CONTAINERS" + "=" + "\"^sut\\d*_.*_" + execution
-                    + "|^test\\d*_.*_" + execution + "\"";
+            envVar = "FILTER_CONTAINERS" + "=" + "\"^sut\\\\d*_.*_" + execution
+                    + "|^test\\\\d*_.*_" + execution + "\"";
             envList.add(envVar);
 
             // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
@@ -673,7 +673,9 @@ public class DockerService2 {
                 ElastestConstants.SUT_FOLDER);
         try {
             filesService.removeExecFilesFolder(sutPath);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            logger.debug("The SuT folder could not be deleted: {}",
+                    e.getMessage());
         }
     }
 
