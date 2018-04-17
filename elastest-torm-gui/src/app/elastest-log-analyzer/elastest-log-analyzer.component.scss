@@ -25,9 +25,12 @@
     -ms-user-select: text !important;
 
      white-space: normal !important;
-     word-break: break-word;
+     //word-break: break-word;
+     text-overflow: none;
+     word-break: break-all;
+ 
      //overflow: initial !important;
-     //text-overflow: initial !important;
+     text-overflow: initial !important;
 }
 
 :host /deep/ .ag-theme-material .ag-header-cell-label{

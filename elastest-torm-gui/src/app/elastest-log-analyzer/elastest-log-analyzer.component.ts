@@ -46,7 +46,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public logAnalyzer: LogAnalyzerModel;
   public streamType: string = 'log';
   public streamTypeTerm: ESTermModel = new ESTermModel();
-
   public filters: string[] = ['@timestamp', 'message', 'level', 'et_type', 'component', 'stream', 'stream_type', 'exec'];
 
   public logRows: any[] = [];
@@ -561,10 +560,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public saveColumnsConfig(event: any, showPopup: boolean = true, persist: boolean = false): void {
     if (event && event.column.colId === 'message' && event.finished) {
-      this.charsByLine = Math.ceil((event.column.actualWidth - 30) / (13 / 1.8));
+      this.charsByLine = Math.trunc((event.column.actualWidth - 13) / 7.85);
+      console.log(event.column.actualWidth);
       this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-        let height: number = 22 * (rowNode.data.message.length / this.charsByLine + 1);
-        height < 25 ? (height = 25) : (height = height);
+        let height: number = 20 * Math.ceil(rowNode.data.message.length / this.charsByLine);
+        height < 20 ? (height = 20) : (height = height);
         rowNode.setRowHeight(height);
       });
       this.gridOptions.api.onRowHeightChanged();
