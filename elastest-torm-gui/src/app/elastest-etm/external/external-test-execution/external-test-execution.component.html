@@ -18,11 +18,6 @@
             <md-icon>library_books</md-icon>
           </button>
         </span>
-        <span>
-          <button md-button (click)="logsAndMetrics.openMonitoringConfig()" mdTooltip="Open Monitoring Config" class="iconBtn">
-            <md-icon>settings</md-icon>
-          </button>
-        </span>
       </div>
     </md-card-title>
     <md-divider></md-divider>
@@ -65,9 +60,51 @@
     </ng-container>
   </div>
   <div flex="50">
+    <md-card id="miniLogAnalyzerCard">
+      <md-card-content layout-fill layout="column">
+        <md-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+          <md-tab label="Logs">
+            <elastest-log-analyzer #miniLogAnalyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [exTJob]="exTestCase.exTJob.id"
+              [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name" [exTestExec]="exTestExec.id"></elastest-log-analyzer>
+          </md-tab>
+          <div *ngIf="miniLogAnalyzer">
+            <md-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
+              <elastest-log-analyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [componentStreams]="[component]" [exTJob]="exTestCase.exTJob.id"
+                [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name" [exTestExec]="exTestExec.id"></elastest-log-analyzer>
+            </md-tab>
+          </div>
 
+          <md-tab label="Files">
+            <div layout="row" *ngFor="let file of files">
+              <div flex id="filesContent">
+                <div>
+                  <p>Title</p>
+                  <span>{{file.name}}</span>
+                </div>
+                <a md-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                  Open Video
+                  <md-icon>open_in_new</md-icon>
+                </a>
+              </div>
+            </div>
+            <div *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>No Files found</p>
+            </div>
+          </md-tab>
+          <md-tab *ngFor="let file of getMP4Files()">
+            <ng-template md-tab-label>
+              <md-icon mdTooltip="Video" id="videoIcon">play_circle_filled</md-icon>
+            </ng-template>
+            <div id="videoContent">
+              <video controls id="video">
+                <source src="{{filesUrlPrefix}}{{file.url}}" type="video/mp4">
+              </video>
+            </div>
+          </md-tab>
+
+        </md-tab-group>
+      </md-card-content>
+    </md-card>
   </div>
 </div>
-
-<!-- logs & Metrics -->
-<etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>

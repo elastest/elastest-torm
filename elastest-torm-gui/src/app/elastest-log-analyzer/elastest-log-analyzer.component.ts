@@ -30,6 +30,8 @@ import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { TJobExecService } from '../elastest-etm/tjob-exec/tjobExec.service';
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { TitlesService } from '../shared/services/titles.service';
+import { ExternalService } from '../elastest-etm/external/external.service';
+import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -72,6 +74,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   @Input() testCase: string;
   @Input() isEmbed: boolean = false;
   @Input() componentStreams: any;
+  @Input() exTJob: number;
+  @Input() exTJobExec: number;
+  @Input() exTestCase: number;
+  @Input() exTestExec: number;
 
   @ViewChild('fromDate') fromDate: ElementRef;
   @ViewChild('toDate') toDate: ElementRef;
@@ -99,6 +105,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
     private titlesService: TitlesService,
+    private externalService: ExternalService,
   ) {}
 
   ngOnInit() {
@@ -128,7 +135,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   /***** INIT *****/
 
-  initLogAnalyzer() {
+  initLogAnalyzer(): void {
     let params: any = this.router.parseUrl(this.router.url).queryParams;
     let fromExec: any;
     if ((params.tjob && params.exec) || (this.tJobId !== undefined && this.tJobExecId !== undefined)) {
@@ -138,26 +145,40 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         exec: params.exec ? params.exec : this.tJobExecId ? this.tJobExecId : undefined,
         testCase: params.testCase ? params.testCase : this.testCase ? this.testCase : undefined,
       };
-    } else if (params.exTJob && params.exTJobExec) {
+    } else if ((params.exTJob && params.exTJobExec) || (this.exTJob !== undefined && this.exTJobExec !== undefined)) {
       fromExec = {
         type: 'external',
-        exTJob: params.exTJob,
-        exTJobExec: params.exTJobExec,
-        exTestCase: params.exTestCase,
-        exTestExec: params.exTestExec,
+        exTJob: params.exTJob ? params.exTJob : this.exTJob ? this.exTJob : undefined,
+        exTJobExec: params.exTJobExec ? params.exTJobExec : this.exTJobExec ? this.exTJobExec : undefined,
+        exTestCase: params.exTestCase ? params.exTestCase : this.exTestCase ? this.exTestCase : undefined,
+        exTestExec: params.exTestExec ? params.exTestExec : this.exTestExec ? this.exTestExec : undefined,
       };
     }
     if (!this.isEmbed) {
       this.openSelectExecutions(fromExec);
     } else {
-      this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tjobExec: TJobExecModel) => {
-        let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
-          fromDate: tjobExec.startDate,
-          selectedIndices: [tjobExec.monitoringIndex],
-          toDate: tjobExec.endDate,
-        };
-        this.loadSelectExecutions(data, fromExec);
-      });
+      if (this.tJobId && this.tJobExecId) {
+        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
+          (tjobExec: TJobExecModel) => {
+            let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
+              fromDate: tjobExec.startDate,
+              selectedIndices: [tjobExec.monitoringIndex],
+              toDate: tjobExec.endDate,
+            };
+            this.loadSelectExecutions(data, fromExec);
+          },
+          (error) => console.log(error),
+        );
+      } else if (this.exTJob && this.exTJobExec) {
+        this.externalService.getExternalTJobExecById(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
+          let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
+            fromDate: exTJobExec.startDate,
+            selectedIndices: [exTJobExec.monitoringIndex],
+            toDate: exTJobExec.endDate,
+          };
+          this.loadSelectExecutions(data, fromExec);
+        });
+      }
     }
   }
   // Function to init some parameters of ag-grid
@@ -371,9 +392,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     if (logsLoaded) {
       this.setTableHeader();
       this.mark.removeAllPatterns();
-      this.popup('Logs has been loaded');
+      if (!this.isEmbed) {
+        this.popup('Logs has been loaded');
+      }
     } else {
-      this.popup("There aren't logs to load", 'OK');
+      if (!this.isEmbed) {
+        this.popup("There aren't logs to load", 'OK');
+      }
     }
     this.updateButtons(logsLoaded);
     if (this.logAnalyzer.usingTail) {
@@ -766,7 +791,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.elastestESService
       .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), fieldsList, componentStreamQuery.convertToESFormat())
       .subscribe((componentsStreams: any[]) => {
-        this.logAnalyzer.setComponentsStreams(componentsStreams);
+        let components: any[] = componentsStreams;
+        if (this.isEmbed && this.exTJob !== undefined && this.exTJobExec !== undefined) {
+          components = componentsStreams.filter((component) => {
+            return component.name !== 'test';
+          });
+        }
+        this.logAnalyzer.setComponentsStreams(components);
         this.componentsTree.treeModel.update();
       });
   }

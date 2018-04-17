@@ -56,9 +56,11 @@ export class TestCaseComponent implements OnInit {
   getExecutionFiles(): void {
     this.tJobExecService.getTJobExecutionFiles(this.params.tJobId, this.params.tJobExecId).subscribe(
       (tJobsExecFiles: FileModel[]) => {
+        let i: number = 0;
         tJobsExecFiles.forEach((file: FileModel) => {
           if (this.isMP4(file)) {
-            file['tabRef'] = this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2; // components and Logs + Files tabs
+            file['tabRef'] = this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2 + i; // components and Logs + Files tabs
+            i++;
           }
         });
         this.testCase.setTestCaseFiles(tJobsExecFiles);

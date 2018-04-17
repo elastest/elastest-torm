@@ -1,6 +1,7 @@
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTestExecutionModel } from '../external-test-execution/external-test-execution-model';
 import { ServiceType } from '../external-project/external-project-model';
+import { FileModel } from '../../files-manager/file-model';
 
 export class ExternalTestCaseModel {
   id: number;
@@ -29,5 +30,15 @@ export class ExternalTestCaseModel {
       type = this.exTJob.getServiceType();
     }
     return type;
+  }
+
+  setTestCaseFiles(tJobExecFiles: FileModel[]): FileModel[] {
+    let execFilesFiltered: FileModel[] = [];
+    for (let file of tJobExecFiles) {
+      if (file.name.startsWith(this.name.split(' ').join('-') + '_')) {
+        execFilesFiltered.push(file);
+      }
+    }
+    return execFilesFiltered;
   }
 }

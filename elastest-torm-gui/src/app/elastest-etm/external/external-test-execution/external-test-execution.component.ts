@@ -8,6 +8,10 @@ import { ServiceType } from '../external-project/external-project-model';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
+import { ElastestLogAnalyzerComponent } from '../../../elastest-log-analyzer/elastest-log-analyzer.component';
+import { TJobExecService } from '../../tjob-exec/tjobExec.service';
+import { FileModel } from '../../files-manager/file-model';
+import { ConfigurationService } from '../../../config/configuration-service.service';
 
 @Component({
   selector: 'etm-external-test-execution',
@@ -15,12 +19,14 @@ import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-
   styleUrls: ['./external-test-execution.component.scss'],
 })
 export class ExternalTestExecutionComponent implements OnInit {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
   exTestExecId: number;
   exTestExec: ExternalTestExecutionModel;
   exTestCase: ExternalTestCaseModel;
-
+  files: FileModel[] = [];
+  filesUrlPrefix: string;
+  selectedTab: number = 0;
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
 
@@ -31,7 +37,9 @@ export class ExternalTestExecutionComponent implements OnInit {
     private externalService: ExternalService,
     private route: ActivatedRoute,
     private router: Router,
+    private configurationService: ConfigurationService,
   ) {
+    this.filesUrlPrefix = configurationService.configModel.host.replace('4200', '8091');
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.exTestExecId = params.execId;
@@ -56,15 +64,39 @@ export class ExternalTestExecutionComponent implements OnInit {
         this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
           this.exTestExec.exTJobExec,
         );
-
-        this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
-        let browserLog: any = this.exTJobExec.getBrowserLogObj();
-        if (browserLog) {
-          this.logsAndMetrics.updateLog(browserLog, false);
-        }
+        this.getExecutionFiles();
       },
       (error) => console.log(error),
     );
+  }
+
+  getExecutionFiles(): void {
+    this.externalService.getExternalTJobExecutionFiles(this.exTestExec.exTJobExec.id).subscribe(
+      (tJobsExecFiles: any) => {
+        let i: number = 0;
+        tJobsExecFiles.forEach((file: FileModel) => {
+          if (this.isMP4(file)) {
+            file['tabRef'] = this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2 + i; // components and Logs + Files tabs
+          }
+        });
+        this.files = this.exTestCase.setTestCaseFiles(tJobsExecFiles);
+      },
+      (error) => console.log(error),
+    );
+  }
+
+  getMP4Files(): FileModel[] {
+    let mp4Files: FileModel[] = [];
+    mp4Files = this.files.filter((file: FileModel) => this.isMP4(file));
+    return mp4Files;
+  }
+
+  isMP4(file: FileModel): boolean {
+    return file && file.name.endsWith('mp4');
+  }
+
+  goToTab(num: number): void {
+    this.selectedTab = num;
   }
 
   viewInLogAnalyzer(): void {

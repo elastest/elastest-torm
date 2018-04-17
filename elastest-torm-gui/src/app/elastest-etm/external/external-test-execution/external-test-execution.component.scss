@@ -1,0 +1,43 @@
+:host /deep/ .mat-tab-body-wrapper {
+  height: 100%;
+}
+:host /deep/ .mat-sidenav-content {
+  padding: 0px !important;
+  height: 103%;
+}
+:host /deep/ .mat-tab-label {
+  min-width: 80px !important;
+  max-width: 85px;
+  text-overflow: ellipsis;
+}
+#miniLogAnalyzerTab {
+  height: 100%;
+}
+#miniLogAnalyzerCard {
+  height: 97%;
+}
+#miniLogAnalyzerCard md-card-content {
+  padding: 4px;
+}
+#fileInfo p {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#videoIcon {
+  vertical-align: middle;
+}
+#video {
+  max-width: 90%;
+  height: auto;
+  margin: auto;
+}
+#videoContent,
+#filesContent {
+  margin: auto;
+  text-align: center;
+}
+#filesContent {
+  padding-bottom: 20px;
+  border-bottom: 0.15px solid;
+}
