@@ -236,8 +236,7 @@ public class EsmService {
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
         JsonNode configJson = serviceDefJson.get("manifest") != null
-                ? serviceDefJson.get("manifest").get("config")
-                : null;
+                ? serviceDefJson.get("manifest").get("config") : null;
         String config = configJson != null ? serviceDefJson.toString() : "";
 
         esmServiceClient
@@ -279,8 +278,7 @@ public class EsmService {
         JsonNode objs = esmServiceClient.getRegisteredServices();
         for (JsonNode esmService : objs) {
             JsonNode configJson = esmService.get("manifest") != null
-                    ? esmService.get("manifest").get("config")
-                    : null;
+                    ? esmService.get("manifest").get("config") : null;
             String config = configJson != null ? configJson.toString() : "";
             services.add(new SupportService(
                     esmService.get("id").toString().replaceAll("\"", ""),
@@ -412,8 +410,7 @@ public class EsmService {
 
         try {
             Long execId = tJobExec != null && tJobExec.getId() != null
-                    ? tJobExec.getId()
-                    : null;
+                    ? tJobExec.getId() : null;
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
@@ -442,8 +439,7 @@ public class EsmService {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
                         tJobExec != null && tJobExec.getId() != null
-                                ? tJobServicesInstances
-                                : servicesInstances);
+                                ? tJobServicesInstances : servicesInstances);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -468,9 +464,9 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
                             + tJobFolderPrefix + tJobId + fileSeparator
-                            + tJobExecFolderPefix + tJobExecId + fileSeparator
-                            + supportServiceInstance.getServiceName()
-                                    .toLowerCase()
+                            + tJobExecFolderPefix + tJobExecId
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
                             + fileSeparator);
         }
 
@@ -493,12 +489,14 @@ public class EsmService {
                     tJobExecId.toString());
             switch (supportServiceInstance.getServiceName()) {
             case "ESS":
-                logger.debug("Set timeout for {} container", supportServiceInstance.getServiceName());
+                logger.debug("Set timeout for {} container",
+                        supportServiceInstance.getServiceName());
                 supportServiceInstance.getParameters()
                         .put("ESM_DOCKER_DELETE_TIMEOUT", "3600");
                 break;
             case "EUS":
-                logger.debug("Set timeout for {} container", supportServiceInstance.getServiceName());
+                logger.debug("Set timeout for {} container",
+                        supportServiceInstance.getServiceName());
                 supportServiceInstance.getParameters()
                         .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
                 break;
@@ -555,8 +553,7 @@ public class EsmService {
 
         try {
             Long execId = exTJobExec != null && exTJobExec.getId() != null
-                    ? exTJobExec.getId()
-                    : null;
+                    ? exTJobExec.getId() : null;
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
@@ -637,7 +634,7 @@ public class EsmService {
             // Puts only Exec Monitoring index (without sut)
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
                     exTJobExec.getExternalTJobExecMonitoringIndex());
-            
+
             switch (supportServiceInstance.getServiceName()) {
             case "ESS":
                 supportServiceInstance.getParameters()
@@ -1225,7 +1222,7 @@ public class EsmService {
             SupportServiceInstance supportServiceInstance) {
 
         supportServiceInstance.getParameters()
-                .putAll(etmContextAuxService.getMonitoringEnvVars());
+                .putAll(etmContextAuxService.getMonitoringEnvVars(true));
 
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST",
                 etEtmLstcpHost);

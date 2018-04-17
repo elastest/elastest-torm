@@ -137,25 +137,33 @@ public class EtmContextAuxService {
         contextInfo.setTestLinkStarted(
                 !etEtmTestLinkHost.equals("none") ? true : false);
 
-        contextInfo.setEdmCommandUrl("http://" + proxyIp + ":"
-                + proxyPort + "/" + etEdmCommandContextPath);
-        contextInfo
-                .setEmpGrafanaUrl("http://" + proxyIp + ":" + proxyPort
-                        + "/" + etEmpGrafanContextPath + etEmpGrafanaDashboard);
+        contextInfo.setEdmCommandUrl("http://" + proxyIp + ":" + proxyPort + "/"
+                + etEdmCommandContextPath);
+        contextInfo.setEmpGrafanaUrl("http://" + proxyIp + ":" + proxyPort + "/"
+                + etEmpGrafanContextPath + etEmpGrafanaDashboard);
         return contextInfo;
     }
 
     public Map<String, String> getMonitoringEnvVars() {
+        return this.getMonitoringEnvVars(false);
+    }
+
+    public Map<String, String> getMonitoringEnvVars(boolean isTss) {
         Map<String, String> monEnvs = new HashMap<String, String>();
 
         ContextInfo context = this.getContextInfo();
-
         monEnvs.put("ET_MON_LSHTTP_API", context.getLogstashHttpUrl());
         monEnvs.put("ET_MON_LSHTTPS_API", context.getLogstashSSLHttpUrl());
-        monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashBeatsHost());
         monEnvs.put("ET_MON_LSBEATS_PORT", context.getLogstashBeatsPort());
-        monEnvs.put("ET_MON_LSTCP_HOST", context.getLogstashTcpHost());
         monEnvs.put("ET_MON_LSTCP_PORT", context.getLogstashTcpPort());
+
+        if (!isTss) {
+            monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashBeatsHost());
+            monEnvs.put("ET_MON_LSTCP_HOST", context.getLogstashTcpHost());
+        } else {
+            monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashIp());
+            monEnvs.put("ET_MON_LSTCP_HOST", context.getLogstashIp());
+        }
 
         return monEnvs;
     }
