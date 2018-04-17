@@ -394,8 +394,10 @@ public class DockerService2 {
         // Get Parameters and insert into Env Vars¡
         String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashHost;
         if (tJob.isSelectedService("ems")) {
-            envVar = "FILTER_CONTAINERS" + "=" + "\"^sut\\\\d*_.*_" + execution
-                    + "|^test\\\\d*_.*_" + execution + "\"";
+            String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
+            String testRegex = "^test" + regexSuffix;
+            String sutRegex = "^sut" + regexSuffix;
+            envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
             envList.add(envVar);
 
             // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
