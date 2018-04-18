@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package io.elastest.etm.test.e2e.testlink;
+package io.elastest.etm.test.base.testlink;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -23,9 +23,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 
-import io.elastest.etm.test.base.EtmBaseTest;
-
-public class EtmTestLinkBaseTest extends EtmBaseTest {
+public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
 
@@ -41,6 +39,14 @@ public class EtmTestLinkBaseTest extends EtmBaseTest {
         log.info("Open TestLink Page");
 
         driver.findElement(By.xpath("//a[@id='openTestLink']")).click();
+    }
+
+    protected String getTestlinkPageUrl(WebDriver driver) {
+        this.navigateToTestlinkSection(driver);
+        log.info("Getting TestLink Page");
+
+        return driver.findElement(By.xpath("//a[@id='openTestLink']"))
+                .getAttribute("href");
     }
 
     protected void syncTestlink(WebDriver driver) {
@@ -119,7 +125,7 @@ public class EtmTestLinkBaseTest extends EtmBaseTest {
 
         return this.elementExists(driver, id, xpath);
     }
-    
+
     /* ***************** */
     /* *** Test Case *** */
     /* ***************** */
@@ -142,7 +148,7 @@ public class EtmTestLinkBaseTest extends EtmBaseTest {
 
         return this.elementExists(driver, id, xpath);
     }
-    
+
     /* ****************** */
     /* *** Test Build *** */
     /* ****************** */

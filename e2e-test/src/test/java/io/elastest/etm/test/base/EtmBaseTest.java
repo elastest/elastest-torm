@@ -44,6 +44,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
+import io.elastest.etm.test.utils.RestClient;
 import io.github.bonigarcia.DriverCapabilities;
 
 public class EtmBaseTest {
@@ -52,6 +53,8 @@ public class EtmBaseTest {
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
+    protected String apiPath = "api";
+    protected String tormApiUrl;
 
     protected String eUser = null;
     protected String ePassword = null;
@@ -59,6 +62,8 @@ public class EtmBaseTest {
     protected boolean secureElastest = false;
 
     protected WebDriver driver;
+
+    protected RestClient restClient;
 
     @DriverCapabilities
     DesiredCapabilities capabilities = chrome();
@@ -91,8 +96,13 @@ public class EtmBaseTest {
                     + split_url[1];
         }
 
+        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
+                ? this.apiPath : "/" + this.apiPath);
+
         log.info("Using URL {} to connect to {} TORM", tormUrl,
                 secureElastest ? "secure" : "unsecure");
+
+        this.restClient = new RestClient(this.tormApiUrl);
     }
 
     @AfterEach
@@ -156,7 +166,7 @@ public class EtmBaseTest {
     protected void navigateToProject(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
         log.info("Navigate to {} project", projectName);
-        
+
         String id = "projects";
         String xpath = "//td-data-table[@id='" + id
                 + "']//*/td/div[contains(string(), '" + projectName + "')]";
