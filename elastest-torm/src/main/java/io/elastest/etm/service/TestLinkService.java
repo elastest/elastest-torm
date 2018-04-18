@@ -227,6 +227,10 @@ public class TestLinkService {
         return suites;
     }
 
+    public TestSuite[] getAllTestSuites() {
+        return this.testLinkDBService.getAllTestSuites();
+    }
+
     public TestSuite getTestSuiteById(Integer suiteId) {
         List<Integer> testSuitesIds = new ArrayList<>();
         testSuitesIds.add(suiteId);

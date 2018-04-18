@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -72,9 +73,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
         if (this.tlTestProjectExists(driver, project.getName())) {
             return this.getTLTestProject(driver, project.getName());
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonPj = mapper.writeValueAsString(project);
-
+            String jsonPj = this.objectToJson(project);
             ResponseEntity<String> response = this.restClient
                     .post(tlApiPath + "/project", jsonPj);
 
@@ -105,9 +104,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
         if (this.tlTestSuiteExists(driver, suite.getName())) {
             return this.getTLTestSuite(driver, suite.getName());
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonSuite = mapper.writeValueAsString(suite);
-
+            String jsonSuite = this.objectToJson(suite);
             ResponseEntity<String> response = this.restClient.post(tlApiPath
                     + "/project/" + suite.getTestProjectId() + "/suite",
                     jsonSuite);
@@ -139,9 +136,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
         if (this.tlTestCaseExists(driver, testCase.getName())) {
             return this.getTLTestCase(driver, testCase.getName());
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonCase = mapper.writeValueAsString(testCase);
-
+            String jsonCase = this.objectToJson(testCase);
             ResponseEntity<String> response = this.restClient.post(
                     tlApiPath + "/project/" + testCase.getTestProjectId()
                             + "/suite/" + testCase.getTestSuiteId() + "/case",
@@ -149,6 +144,17 @@ public class TestLinkBaseTest extends EtmBaseTest {
 
             return this.getObjectFromJson(response.getBody(), TestCase.class);
         }
+    }
+
+    protected Integer addTLTestCaseToTestPlan(WebDriver driver,
+            TestCase testCase, Integer planId)
+            throws JsonParseException, JsonMappingException, IOException {
+        String jsonCase = this.objectToJson(testCase);
+        ResponseEntity<String> response = this.restClient.post(
+                tlApiPath + "/testlink/project/plan/" + planId + "/case/add",
+                jsonCase);
+
+        return this.getObjectFromJson(response.getBody(), Integer.class);
     }
 
     /* **************** */
@@ -172,8 +178,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
         if (this.tlTestPlanExists(driver, testPlan.getName())) {
             return this.getTLTestPlan(driver, testPlan.getName());
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonPlan = mapper.writeValueAsString(testPlan);
+            String jsonPlan = this.objectToJson(testPlan);
 
             ResponseEntity<String> response = this.restClient
                     .post(tlApiPath + "/project/plan", jsonPlan);
@@ -204,9 +209,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
         if (this.tlBuildExists(driver, build.getName())) {
             return this.getTLBuild(driver, build.getName());
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonBuild = mapper.writeValueAsString(build);
-
+            String jsonBuild = this.objectToJson(build);
             ResponseEntity<String> response = this.restClient
                     .post(tlApiPath + "/project/plan/build", jsonBuild);
 
@@ -227,4 +230,8 @@ public class TestLinkBaseTest extends EtmBaseTest {
         return null;
     }
 
+    protected String objectToJson(Object obj) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(obj);
+    }
 }

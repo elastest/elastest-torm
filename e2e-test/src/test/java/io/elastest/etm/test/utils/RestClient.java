@@ -3,7 +3,6 @@ package io.elastest.etm.test.utils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -12,7 +11,6 @@ public class RestClient {
     private String server;
     private RestTemplate rest;
     private HttpHeaders headers;
-    private HttpStatus status;
 
     public RestClient(String server) {
         this.server = server;
@@ -26,7 +24,6 @@ public class RestClient {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
         ResponseEntity<String> responseEntity = rest.exchange(server + uri,
                 HttpMethod.GET, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
         return responseEntity;
     }
 
@@ -35,7 +32,6 @@ public class RestClient {
                 headers);
         ResponseEntity<String> responseEntity = rest.exchange(server + uri,
                 HttpMethod.POST, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
         return responseEntity;
     }
 
@@ -44,7 +40,6 @@ public class RestClient {
                 headers);
         ResponseEntity<String> responseEntity = rest.exchange(server + uri,
                 HttpMethod.PUT, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
 
         return responseEntity;
     }
@@ -53,15 +48,6 @@ public class RestClient {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
         ResponseEntity<String> responseEntity = rest.exchange(server + uri,
                 HttpMethod.DELETE, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
         return responseEntity;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(HttpStatus status) {
-        this.status = status;
     }
 }

@@ -147,7 +147,7 @@ public class TestLinkDBService {
 
         return suites;
     }
-    
+
     public TestPlan[] getPlanListFromResultList(
             List<HashMap<String, Object>> resultList) {
         TestPlan[] plans = null;
@@ -174,7 +174,8 @@ public class TestLinkDBService {
 
     public TestSuite[] getAllTestSuites() {
         TestSuite[] suites = null;
-        String query = "SELECT * FROM testsuites";
+        String query = "SELECT * FROM nodes_hierarchy nodes INNER JOIN testsuites testsuite"
+                + " ON testsuite.id = nodes.id AND nodes.node_type_id = (SELECT id FROM node_types WHERE description = 'testsuite')";
         try {
             ResultSet rs = stmt.executeQuery(query);
             List<HashMap<String, Object>> resultList;
@@ -198,7 +199,8 @@ public class TestLinkDBService {
 
     public TestPlan[] getAllTestPlans() {
         TestPlan[] plans = null;
-        String query = "SELECT * FROM testplans";
+        String query = "SELECT * FROM nodes_hierarchy nodes INNER JOIN testplans testplan"
+                + " ON testplan.id = nodes.id AND nodes.node_type_id = (SELECT id FROM node_types WHERE description = 'testplan')";
         try {
             ResultSet rs = stmt.executeQuery(query);
             List<HashMap<String, Object>> resultList;

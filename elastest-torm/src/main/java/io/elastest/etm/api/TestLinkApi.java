@@ -108,6 +108,15 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestSuite[]> getProjectTestSuites(
             @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId);
 
+    @ApiOperation(value = "Returns All Test Suites", notes = "Returns All Test Suites.", response = TestSuite.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestSuite.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/suite", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<TestSuite[]> getAllTestSuites();
+
     @ApiOperation(value = "Creates a new Test Suite", notes = "Creates a new Test Suite", response = TestSuite.class, tags = {
             "TestLink", })
     @ApiResponses(value = {

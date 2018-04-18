@@ -87,6 +87,11 @@ public class TestLinkApiController implements TestLinkApi {
 
     }
 
+    public ResponseEntity<TestSuite[]> getAllTestSuites() {
+        return new ResponseEntity<TestSuite[]>(
+                testLinkService.getAllTestSuites(), HttpStatus.OK);
+    }
+
     public ResponseEntity<TestSuite> createSuite(
             @ApiParam(value = "Object with the Test Suite data to create.", required = true) @Valid @RequestBody TestSuite body) {
         TestSuite suite = null;
