@@ -26,7 +26,7 @@ elastest_lib.pipeline({
                 
             stage ("E2E tests")
                 try {
-                   sh "cd e2e-test; mvn -B clean test -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
                 } catch(e) {
                     sh '''\
                        docker ps --all
