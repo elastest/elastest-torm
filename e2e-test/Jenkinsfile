@@ -19,24 +19,36 @@ elastest_lib.pipeline({
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
             sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
           
-            stage ('prepare')
+            stage('build ElasTest plugin')
+            	git 'https://github.com/elastest/elastest-jenkins.git'
+            	sh "mvn clean package -B"
+            
+            stage ('prepare test')
                 git 'https://github.com/elastest/elastest-torm.git'
                 elastest.connect2ElastestNetwork()
                 def elastestURL = elastest.getEtmUrl()
+                def etCustmizedJenkinsImage = docker.image('elastest/etm-jenkins')
                 
+            
             stage ("E2E tests")
-                try {
-                   sh "cd e2e-test; mvn -B clean test -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
-                } catch(e) {
-                    sh '''\
-                       docker ps --all
-                       docker ps --filter name=etm -q
-                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-                    '''
-                } finally {
-                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-                }
+            	etCustmizedJenkinsImage.withRun() { c1 ->
+            		echo "${c.id}"                        
+                    def ciUrl = "http://" + containerIp(c.id) + ":8080"
+                    echo "Jenkins URL: " + ciUrl                    
+                    
+	                try {
+	                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+	                } catch(e) {
+	                    sh '''\
+	                       docker ps --all
+	                       docker ps --filter name=etm -q
+	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+	                    '''
+	                } finally {
+	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+	                }
+	            }
         }
   })
   

@@ -23,11 +23,12 @@ import static java.util.logging.Level.ALL;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
 import static org.openqa.selenium.remote.DesiredCapabilities.chrome;
-import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +37,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -53,6 +57,12 @@ public class EtmBaseTest {
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
+    
+    protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
+    protected String jenkinsCIUrl =  "http://172.17.0.2:8080";
+    //protected String pluginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
+    protected String pluginPath = "../elastest-jenkins/target/elastest.hpi";
+    protected String pluginSettings = "/configureTools/";
     protected String apiPath = "api";
     protected String tormApiUrl;
 
@@ -90,6 +100,7 @@ public class EtmBaseTest {
             }
 
         }
+        
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
             secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
@@ -101,8 +112,16 @@ public class EtmBaseTest {
 
         log.info("Using URL {} to connect to {} TORM", tormUrl,
                 secureElastest ? "secure" : "unsecure");
+        
+        String jenkinsCIUrl = getProperty("ciUrl");
+        if (jenkinsCIUrl != null) {
+            this.jenkinsCIUrl = jenkinsCIUrl;
+        }
+        
+        jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
+        pluginSettings = this.jenkinsCIUrl + pluginSettings;
 
-        this.restClient = new RestClient(this.tormApiUrl);
+         this.restClient = new RestClient(this.tormApiUrl);
     }
 
     @AfterEach
@@ -116,6 +135,13 @@ public class EtmBaseTest {
         }
     }
 
+    protected void navigateTo(WebDriver driver, String url) {
+        log.info("Navigate to Jenkins");
+        driver.manage().window().setSize(new Dimension(1024, 1024));
+        driver.manage().timeouts().implicitlyWait(5, SECONDS);
+        driver.get(url);
+    }
+    
     protected void navigateToTorm(WebDriver driver) {
         log.info("Navigate to TORM");
         driver.manage().window().setSize(new Dimension(1024, 1024));
@@ -336,5 +362,142 @@ public class EtmBaseTest {
         waitService.until(visibilityOfElementLocated(serviceDetailButton));
         driver.findElement(serviceDetailButton).click();
     }
+    
+    protected void installElasTestPlugin(WebDriver webDriver) {
+        WebDriverWait waitService = new WebDriverWait(driver, 60);
+       
+        // Install plugin
+        log.info("Installing plugin");
+        By inputFileName = By.name("name");
+        webDriver.findElement(inputFileName).sendKeys(pluginPath);        
+        By uploadButton = By.xpath("//button[contains(string(), 'Upload')]");
+        webDriver.findElement(uploadButton).click();
+        
+        // Check the plugin installation is ok
+        log.info("Checking installation status");
+        By installationStatus = By.xpath("//table/tbody/tr/td[contains(string(), 'Success')]");
+        waitService.until(visibilityOfElementLocated(installationStatus));        
+        log.info("Plugin installation finished");
+        
+        log.info("Navigate to main page");
+        By homeLink = By.linkText("Jenkins");
+        webDriver.findElement(homeLink).click();
+    }
+    
+    protected void pluginConfiguration(WebDriver driver) {
+        WebDriverWait waitService = new WebDriverWait(driver, 10);
+        
+        // Fill configuration
+        log.info("Filling the configuration");
+        driver.findElement(By.name("_.elasTestUrl")).clear(); 
+        driver.findElement(By.name("_.elasTestUrl")).sendKeys(secureElastest ? secureTorm : tormUrl);
+        if (eUser != null && ePassword != null) {
+            driver.findElement(By.name("_.username")).sendKeys(eUser);
+            driver.findElement(By.name("_.password")).sendKeys(ePassword);
+        }
+        
+        // Test connection
+        driver.findElement(By.xpath("//button[contains(string(), 'Test Connection')]")).click();
+        By testConnectionResult = By.xpath("//div[contains(string(), 'Success')]");
+        waitService.until(visibilityOfElementLocated(testConnectionResult));
+        log.info("Successfull conection");
+        
+        driver.findElement(By.xpath("//button[contains(string(), 'Save')]")).click();
+    }
+    
+    protected void createFreestyleJob(WebDriver driver, String jobName) {
+        WebDriverWait waitService = new WebDriverWait(driver, 60);
+        
+        log.info("Creating a Freestyle Job");
+        driver.findElement(By.id("name")).sendKeys(jobName);
+       
+        log.info("Select the Job's type");
+        driver.findElement(By.xpath("//li[contains(string(), 'Freestyle project')]")).click();
+        driver.findElement(By.id("ok-button")).click();
 
+        driver.findElement(By.xpath("//input[@type='radio'][following-sibling::text()[position()=1][contains(string(), 'Git')]]")).click();
+        driver.findElement(By.xpath("//*[@id=\"main-panel\"]/div/div/div/form/table/tbody/tr[133]/td[3]/div/div[1]/table/tbody/tr[1]/td[3]/input")).sendKeys("https://github.com/elastest/demo-projects.git");
+        
+        WebElement myelement = driver.findElement(By.xpath("//div/span/span/button[contains(string(), 'Add build step')]"));
+        JavascriptExecutor jse2 = (JavascriptExecutor)driver;
+        jse2.executeScript("arguments[0].scrollIntoView()", myelement);
+   
+        By byAddStepButton = By.xpath("//div/span/span/button[contains(string(), 'Add build step')]");
+        waitService.until(ExpectedConditions.elementToBeClickable(byAddStepButton));
+        driver.findElement(byAddStepButton).click();
+  
+        By byItemShell = By.xpath("//ul/li/a[contains(string(), 'Execute shell')]");
+        waitService.until(visibilityOfElementLocated(byItemShell));
+        driver.findElement(byItemShell).click();
+        
+        //By byTextArea = By.xpath("//textarea[@name='command']");
+        //waitService.until(visibilityOfElementLocated(byTextArea));
+        //driver.findElements(By.xpath("//textarea[@name='command']")).get(0).sendKeys("cd unit-java-test; mvn test");
+        driver.findElement(By.xpath("//button[contains(string(), 'Save')]")).click();
+        driver.findElement(By.linkText("Configure")).click();
+               
+        //WebElement myelement2 = driver.findElement(byDom("document.getElementsByName(\"command\")[0]"));
+        //JavascriptExecutor jse22 = (JavascriptExecutor)driver;
+        //jse2.executeScript("arguments[0].scrollIntoView()", myelement2);
+        
+        //By byTextArea = By.xpath("//textarea[contains(@name, 'command')]");
+        //By byTextArea = By.xpath("//*[contains(@id, 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea[contains(@name, 'command')]");
+        //waitService.until(visibilityOfElementLocated(byDom("document.getElementsByName(\"command\")[0]")));
+        //driver.findElement(byTextArea).sendKeys("cd unit-java-test; mvn test");
+        driver.findElement(By.xpath("//*[contains(@id, 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea")).sendKeys("cd unit-java-test; mvn test");
+        driver.findElement(By.xpath("//button[contains(string(), 'Save')]")).click();
+    
+    }
+    
+    
+    protected void createPipelineJob(WebDriver driver, String jobName, String script) {        
+        log.info("Creating a Freestyle Job");
+        driver.findElement(By.id("name")).sendKeys(jobName);
+
+        log.info("Select the Job's type");
+        driver.findElement(By.xpath("//li[contains(string(), 'Pipeline')]"))
+                .click();
+        driver.findElement(By.id("ok-button")).click();
+
+        driver.findElement(By.xpath("//*[@id=\"workflow-editor-1\"]/textarea")).sendKeys(script);
+
+        driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
+                .click();
+    }
+    
+    protected void executeJob(WebDriver driver) throws InterruptedException {
+        log.info("Run Job");
+        driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]")).click();
+        
+        log.info("Waiting for thes start of Job execution");
+        By newBuildHistory = By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
+        WebDriverWait waitService = new WebDriverWait(driver, 10);
+        waitService.until(visibilityOfElementLocated(newBuildHistory));        
+        driver.findElement(By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a")).click();
+        
+    }
+
+    protected void deleteJob(WebDriver drive, String jobName) {
+        //http://172.17.0.2:8080/job/FJob1/doDelete
+    }
+    
+    public By byDom(String domExpression) {
+        final Object o = ((JavascriptExecutor) driver).executeScript("return " + domExpression + ";");
+
+        if (o instanceof WebElement) {
+            return new By() {
+                @Override
+                public List<WebElement> findElements(SearchContext searchContext) {
+                    return new ArrayList<WebElement>() {
+                        {
+                            add((WebElement) o);
+                        }
+                    };
+                }
+            };
+        } else {
+            return null;
+        }
+    }
+    
 }
