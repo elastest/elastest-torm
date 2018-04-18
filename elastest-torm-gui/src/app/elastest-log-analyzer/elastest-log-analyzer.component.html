@@ -165,6 +165,7 @@
               <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
                 <md-icon>restore</md-icon> Load Default
               </button>
+              <md-slide-toggle [(ngModel)]="autoRowHeight" id="toggleRowHeight" (click)="toggleRowHeight()">Auto row height</md-slide-toggle>
             </div>
           </md-tab>
         </md-tab-group>

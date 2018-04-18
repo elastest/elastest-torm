@@ -26,10 +26,7 @@
 
      white-space: normal !important;
      //word-break: break-word;
-     text-overflow: none;
      word-break: break-all;
- 
-     //overflow: initial !important;
      text-overflow: initial !important;
 }
 
@@ -202,4 +199,9 @@ md-sidenav-container {
 
 .dontShow{
     display: none;
+}
+
+#toggleRowHeight{
+    margin: auto;
+    margin-top: 20px;
 }

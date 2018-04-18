@@ -20,6 +20,7 @@ import {
   GridOptions,
   GridReadyEvent,
   RowNode,
+  Column,
 } from 'ag-grid/main';
 import { ITreeOptions, IActionMapping } from 'angular-tree-component';
 import { TreeComponent } from 'angular-tree-component';
@@ -50,8 +51,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public logRows: any[] = [];
   public logColumns: any[] = [];
+  public autoRowHeight: boolean = true;
   public gridOptions: GridOptions = {
-    //rowHeight: 22,
+    rowHeight: 22,
     headerHeight: 42,
     rowSelection: 'single',
     suppressRowClickSelection: false,
@@ -558,16 +560,32 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
+  toggleRowHeight(): void {
+    if (!this.autoRowHeight) {
+      let messageColumn: any = this.gridOptions.columnApi.getAllDisplayedColumns().filter((column: Column) => {
+        return column.getColId() === 'message';
+      })[0];
+      if (messageColumn && messageColumn.actualWidth) {
+        this.setRowHeight(messageColumn.actualWidth);
+      }
+    } else {
+      this.gridOptions.api.resetRowHeights();
+    }
+  }
+
+  public setRowHeight(columnWidth: number): void {
+    this.charsByLine = Math.trunc((columnWidth - 13) / 7.85);
+    this.gridOptions.api.forEachNode((rowNode: RowNode) => {
+      let height: number = 20 * Math.ceil(rowNode.data.message.length / this.charsByLine);
+      height < 20 ? (height = 20) : (height = height);
+      rowNode.setRowHeight(height);
+    });
+    this.gridOptions.api.onRowHeightChanged();
+  }
+
   public saveColumnsConfig(event: any, showPopup: boolean = true, persist: boolean = false): void {
-    if (event && event.column.colId === 'message' && event.finished) {
-      this.charsByLine = Math.trunc((event.column.actualWidth - 13) / 7.85);
-      console.log(event.column.actualWidth);
-      this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-        let height: number = 20 * Math.ceil(rowNode.data.message.length / this.charsByLine);
-        height < 20 ? (height = 20) : (height = height);
-        rowNode.setRowHeight(height);
-      });
-      this.gridOptions.api.onRowHeightChanged();
+    if (this.autoRowHeight && event && event.column.colId === 'message' && event.finished) {
+      this.setRowHeight(event.column.actualWidth);
     }
     this.logAnalyzer.laConfig.columnsState = this.gridColumnApi.getColumnState();
     if (persist) {
