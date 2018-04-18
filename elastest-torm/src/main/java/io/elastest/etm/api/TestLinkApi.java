@@ -247,7 +247,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = TestPlan.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "/testlink/project/{projectId}/plan", produces = {
+    @RequestMapping(value = "/testlink/project/plan", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestPlan> createPlan(
@@ -328,12 +328,10 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = Build.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "/testlink/project/{projectName}/plan/{planId}/build", produces = {
+    @RequestMapping(value = "/testlink/project/plan/build", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<Build> createBuild(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
-            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body);
 
     @ApiOperation(value = "Returns the Test Cases of a Build", notes = "Returns the Test Cases of a Build", response = TestCase.class, responseContainer = "List", tags = {

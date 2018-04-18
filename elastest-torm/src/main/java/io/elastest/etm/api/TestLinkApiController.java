@@ -221,8 +221,7 @@ public class TestLinkApiController implements TestLinkApi {
     public ResponseEntity<Build> getBuildByName(
             @ApiParam(value = "Name of the build.", required = true) @PathVariable("buildName") String buildName) {
         return new ResponseEntity<Build>(
-                testLinkService.getPlanBuildByName(buildName),
-                HttpStatus.OK);
+                testLinkService.getPlanBuildByName(buildName), HttpStatus.OK);
     }
 
     public ResponseEntity<Build> getLatestPlanBuild(
@@ -233,8 +232,6 @@ public class TestLinkApiController implements TestLinkApi {
     }
 
     public ResponseEntity<Build> createBuild(
-            @ApiParam(value = "Name of the project.", required = true) @PathVariable("projectName") String projectName,
-            @ApiParam(value = "ID of the plan.", required = true) @PathVariable("planId") Integer planId,
             @ApiParam(value = "Object with the Test Plan data to create.", required = true) @Valid @RequestBody Build body) {
         Build build = null;
         try {

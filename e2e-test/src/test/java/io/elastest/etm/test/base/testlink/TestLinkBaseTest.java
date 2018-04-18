@@ -19,15 +19,22 @@ package io.elastest.etm.test.base.testlink;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.IOException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
+import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
+import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.EtmBaseTest;
 
 public class TestLinkBaseTest extends EtmBaseTest {
@@ -47,19 +54,23 @@ public class TestLinkBaseTest extends EtmBaseTest {
     /* *** Project *** */
     /* *************** */
 
-    protected boolean tlTestProjectExists(WebDriver driver,
-            String projectName) {
-
+    protected TestProject getTLTestProject(WebDriver driver, String projectName)
+            throws JsonParseException, JsonMappingException, IOException {
         ResponseEntity<String> response = this.restClient
                 .get(tlApiPath + "/project/name/" + projectName);
 
-        return response.getBody() != null;
+        return this.getObjectFromJson(response.getBody(), TestProject.class);
     }
 
-    protected boolean createTlTestProject(WebDriver driver, TestProject project)
-            throws JsonProcessingException {
+    protected boolean tlTestProjectExists(WebDriver driver, String projectName)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestProject(driver, projectName) != null;
+    }
+
+    protected TestProject createTlTestProject(WebDriver driver,
+            TestProject project) throws IOException {
         if (this.tlTestProjectExists(driver, project.getName())) {
-            return true;
+            return this.getTLTestProject(driver, project.getName());
         } else {
             ObjectMapper mapper = new ObjectMapper();
             String jsonPj = mapper.writeValueAsString(project);
@@ -67,7 +78,8 @@ public class TestLinkBaseTest extends EtmBaseTest {
             ResponseEntity<String> response = this.restClient
                     .post(tlApiPath + "/project", jsonPj);
 
-            return response.getBody() != null;
+            return this.getObjectFromJson(response.getBody(),
+                    TestProject.class);
         }
     }
 
@@ -75,47 +87,144 @@ public class TestLinkBaseTest extends EtmBaseTest {
     /* *** Suite *** */
     /* ************* */
 
-    protected boolean tlTestSuiteExists(WebDriver driver, String suiteName) {
-
+    protected TestSuite getTLTestSuite(WebDriver driver, String suiteName)
+            throws JsonParseException, JsonMappingException, IOException {
         ResponseEntity<String> response = this.restClient
-                .get(tlApiPath + "/testlink/project/suite/name/" + suiteName);
+                .get(tlApiPath + "/project/suite/name/" + suiteName);
 
-        return response.getBody() != null;
+        return this.getObjectFromJson(response.getBody(), TestSuite.class);
+    }
+
+    protected boolean tlTestSuiteExists(WebDriver driver, String suiteName)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestSuite(driver, suiteName) != null;
+    }
+
+    protected TestSuite createTlTestSuite(WebDriver driver, TestSuite suite)
+            throws IOException {
+        if (this.tlTestSuiteExists(driver, suite.getName())) {
+            return this.getTLTestSuite(driver, suite.getName());
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonSuite = mapper.writeValueAsString(suite);
+
+            ResponseEntity<String> response = this.restClient.post(tlApiPath
+                    + "/project/" + suite.getTestProjectId() + "/suite",
+                    jsonSuite);
+
+            return this.getObjectFromJson(response.getBody(), TestSuite.class);
+        }
     }
 
     /* **************** */
     /* *** TestCase *** */
     /* **************** */
 
-    protected boolean tlTestCaseExists(WebDriver driver, String caseName) {
-        ResponseEntity<String> response = this.restClient.get(
-                tlApiPath + "/testlink/project/suite/case/name/" + caseName);
+    protected TestCase getTLTestCase(WebDriver driver, String caseName)
+            throws JsonParseException, JsonMappingException, IOException {
 
-        return response.getBody() != null;
+        ResponseEntity<String> response = this.restClient
+                .get(tlApiPath + "/project/suite/case/name/" + caseName);
+
+        return this.getObjectFromJson(response.getBody(), TestCase.class);
+    }
+
+    protected boolean tlTestCaseExists(WebDriver driver, String caseName)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestCase(driver, caseName) != null;
+    }
+
+    protected TestCase createTlTestCase(WebDriver driver, TestCase testCase)
+            throws IOException {
+        if (this.tlTestCaseExists(driver, testCase.getName())) {
+            return this.getTLTestCase(driver, testCase.getName());
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonCase = mapper.writeValueAsString(testCase);
+
+            ResponseEntity<String> response = this.restClient.post(
+                    tlApiPath + "/project/" + testCase.getTestProjectId()
+                            + "/suite/" + testCase.getTestSuiteId() + "/case",
+                    jsonCase);
+
+            return this.getObjectFromJson(response.getBody(), TestCase.class);
+        }
     }
 
     /* **************** */
     /* *** TestPlan *** */
     /* **************** */
 
-    protected boolean tlTestPlanExists(WebDriver driver, String planName) {
-
+    protected TestPlan getTLTestPlan(WebDriver driver, String planName)
+            throws JsonParseException, JsonMappingException, IOException {
         ResponseEntity<String> response = this.restClient
                 .get(tlApiPath + "/project/plan/name/" + planName);
+        return this.getObjectFromJson(response.getBody(), TestPlan.class);
+    }
 
-        return response.getBody() != null;
+    protected boolean tlTestPlanExists(WebDriver driver, String planName)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestPlan(driver, planName) != null;
+    }
+
+    protected TestPlan createTlTestPlan(WebDriver driver, TestPlan testPlan)
+            throws IOException {
+        if (this.tlTestPlanExists(driver, testPlan.getName())) {
+            return this.getTLTestPlan(driver, testPlan.getName());
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonPlan = mapper.writeValueAsString(testPlan);
+
+            ResponseEntity<String> response = this.restClient
+                    .post(tlApiPath + "/project/plan", jsonPlan);
+
+            return this.getObjectFromJson(response.getBody(), TestPlan.class);
+        }
     }
 
     /* ************* */
     /* *** Build *** */
     /* ************* */
 
-    protected boolean tlBuildExists(WebDriver driver, String buildName) {
+    protected Build getTLBuild(WebDriver driver, String buildName)
+            throws JsonParseException, JsonMappingException, IOException {
+        ResponseEntity<String> response = this.restClient
+                .get(tlApiPath + "/project/plan/build/name/" + buildName);
 
-        ResponseEntity<String> response = this.restClient.get(
-                tlApiPath + "/testlink/project/plan/build/name/" + buildName);
+        return this.getObjectFromJson(response.getBody(), Build.class);
+    }
 
-        return response.getBody() != null;
+    protected boolean tlBuildExists(WebDriver driver, String buildName)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLBuild(driver, buildName) != null;
+    }
+
+    protected Build createTlBuild(WebDriver driver, Build build)
+            throws IOException {
+        if (this.tlBuildExists(driver, build.getName())) {
+            return this.getTLBuild(driver, build.getName());
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonBuild = mapper.writeValueAsString(build);
+
+            ResponseEntity<String> response = this.restClient
+                    .post(tlApiPath + "/project/plan/build", jsonBuild);
+
+            return this.getObjectFromJson(response.getBody(), Build.class);
+        }
+    }
+
+    /* ************* */
+    /* *** Utils *** */
+    /* ************* */
+
+    protected <T> T getObjectFromJson(String json, Class<T> clazz)
+            throws JsonParseException, JsonMappingException, IOException {
+        if (json != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, clazz);
+        }
+        return null;
     }
 
 }

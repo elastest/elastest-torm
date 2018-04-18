@@ -174,7 +174,7 @@ export class TestLinkService {
   }
 
   public createTestPlan(plan: TestPlanModel): Observable<TLTestCaseModel> {
-    let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan';
+    let url: string = this.hostApi + '/testlink/project/plan';
     return this.http.post(url, plan).map((response: Response) => response.json());
   }
 
@@ -224,7 +224,7 @@ export class TestLinkService {
   }
 
   public createBuild(build: BuildModel): Observable<TLTestCaseModel> {
-    let url: string = this.hostApi + '/testlink/project/' + 'dummyprojectId' + '/plan/' + build.testPlanId + '/build';
+    let url: string = this.hostApi + '/testlink/project/plan/build';
     return this.http.post(url, build).map((response: Response) => response.json());
   }
 

@@ -20,14 +20,14 @@ import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
@@ -63,13 +63,17 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     @DisplayName("Create TestLink Project")
     void createTLProjectTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException, JsonProcessingException {
+            throws InterruptedException, IOException {
         this.driver = driver;
         TestProject project = new TestProject(0, "Test Sample Project", "TSP",
                 "This is a note", false, false, false, false, true, true);
-        boolean created = this.createTlTestProject(driver, project);
-        log.info("Has been created the Project {}?: {}", project.getName(),
-                created);
+        project = this.createTlTestProject(driver, project);
+        if (project != null) {
+            log.info("Project {} has been created with id {}!",
+                    project.getName(), project.getId());
+        } else {
+            log.error("Project hasn't been created");
+        }
     }
 
 }
