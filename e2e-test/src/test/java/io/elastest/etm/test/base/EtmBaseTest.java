@@ -59,10 +59,9 @@ public class EtmBaseTest {
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
-    protected String jenkinsCIUrl = "http://172.17.0.2:8080";
-    // protected String pluginPath =
-    // "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
-    protected String pluginPath = "../elastest-jenkins/target/elastest.hpi";
+    protected String jenkinsCIUrl =  "http://172.17.0.2:8080";
+    //protected String pluginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
+    protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-jenkins/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
     protected String apiPath = "api";
     protected String tormApiUrl;
@@ -118,7 +117,12 @@ public class EtmBaseTest {
         if (jenkinsCIUrl != null) {
             this.jenkinsCIUrl = jenkinsCIUrl;
         }
-
+        
+        String pluginPath = getProperty("ePluginPath");
+        if (pluginPath != null) {
+            this.pluginPath = pluginPath;
+        }
+                
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
 

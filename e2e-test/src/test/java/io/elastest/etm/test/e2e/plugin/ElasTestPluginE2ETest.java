@@ -59,7 +59,7 @@ public class ElasTestPluginE2ETest extends EtmBaseTest {
 
     
     @Test
-    @DisplayName("Install ElasTest Jenkins Plugin")
+    @DisplayName("Standar Job Plugin")
     @Disabled
     void testInstallElasTestPlugin(
             ChromeDriver driver)
@@ -77,8 +77,8 @@ public class ElasTestPluginE2ETest extends EtmBaseTest {
     }
    
     @Test
-    @DisplayName("Install ElasTest Jenkins Plugin")    
-    void testFreeStyleJob(
+    @DisplayName("Pipeline plugin")    
+    void testPipelineJob(
             ChromeDriver driver)
             throws InterruptedException {
         this.driver = driver;        
