@@ -17,10 +17,12 @@
 package io.elastest.etm.test.base.testlink;
 
 import static java.lang.invoke.MethodHandles.lookup;
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 public class EtmTestLinkBaseTest extends TestLinkBaseTest {
@@ -57,8 +59,17 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void syncTestlink(WebDriver driver) {
         this.navigateToTestlinkSection(driver);
+        String id = "syncTestLink";
+        String xpath = "//button[@id='" + id + "']";
+
         log.info("Synchronizing TestLink With ElasTest");
-        driver.findElement(By.xpath("//button[@id='syncTestLink']")).click();
+        this.getElement(driver, id, xpath).get(0).click();
+
+        // Wait to sync ends 
+        WebDriverWait waitService = new WebDriverWait(driver, 45);
+        waitService.until(elementToBeClickable(
+                this.getElement(driver, id, xpath).get(0)));
+
     }
 
     /* *************** */
@@ -127,10 +138,18 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void executeTLEtmPlanCurrentCase(WebDriver driver) {
-        driver.findElement(By.xpath("//button[@id='status-PASSED-input']"))
-                .click();
-        driver.findElement(By.xpath("//button[@id='saveAndNext']")).click();
+        String passedRadioBtnId = "status-PASSED-input";
+        String passedRadioBtnXpath = "//button[@id='" + passedRadioBtnId + "']";
 
+        // Great Timeout for wait to pull and start eus/browser containers
+        this.getElement(driver, passedRadioBtnId, passedRadioBtnXpath, 120)
+                .get(0).click();
+
+        String saveAndNextBtnId = "saveAndNext";
+        String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
+
+        this.getElement(driver, saveAndNextBtnId, saveAndNextBtnXpath).get(0)
+                .click();
     }
 
     /* ****************** */
