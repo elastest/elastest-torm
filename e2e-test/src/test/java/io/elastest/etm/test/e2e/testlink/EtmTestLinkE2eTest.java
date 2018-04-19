@@ -80,16 +80,27 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         String planName = sampleTLData.getPlan().getName();
         String buildName = sampleTLData.getBuild().getName();
 
+        log.info("Checking if TL Project exists in ElasTest");
         this.tlEtmProjectExists(driver, projectName);
+        log.info("Checking if TL Suite exists in ElasTest");
         this.tlEtmSuiteExistsByAbsolute(driver, projectName, suiteName);
+        log.info("Checking if TL Plan exists in ElasTest");
         this.tlEtmPlanExistsByAbsolute(driver, projectName, planName);
+        log.info("Checking if TL Build exists in ElasTest");
         this.tlEtmBuildExistsByAbsolute(driver, projectName, planName,
                 buildName);
 
         for (TestCase currentCase : sampleTLData.getTestCases()) {
             String caseName = currentCase.getName();
+            log.info("Checking if TL Test Case '{}' exists in Suite - ElasTest",
+                    caseName);
             this.tlEtmSuiteCaseExists(driver, projectName, suiteName, caseName);
+            log.info(
+                    "Checking if TL Test Case '{}' is associated to a Plan in ElasTest",
+                    caseName);
             this.tlEtmPlanCaseExists(driver, projectName, planName, caseName);
+            log.info("Checking if TL Test Case '{}' exists in Build - ElasTest",
+                    caseName);
             this.tlEtmBuildCaseExists(driver, projectName, planName, buildName,
                     caseName);
         }

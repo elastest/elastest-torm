@@ -30,8 +30,8 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     String projectsTableId = "tlProjects";
     String plansTableId = "tlTestPlans";
     String suitesTableId = "tlTestSuites";
-    String casesTableId = "tlTestCases";
-    String buildsTableId = "tlTestBuilds";
+    String casesTableId = "tlCases";
+    String buildsTableId = "tlBuilds";
 
     protected void navigateToTestlinkSection(WebDriver driver) {
         this.navigateToTorm(driver);
