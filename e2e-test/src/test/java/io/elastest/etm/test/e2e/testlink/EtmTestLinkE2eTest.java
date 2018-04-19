@@ -112,6 +112,10 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         String projectName = sampleTLData.getProject().getName();
         String planName = sampleTLData.getPlan().getName();
         this.executeTLEtmPlanWithNavigate(driver, projectName, planName);
+
+        for (int i = 0; i < sampleTLData.getTestCases().size(); i++) {
+            this.executeTLEtmPlanCurrentCase(driver);
+        }
     }
 
     protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)
