@@ -58,7 +58,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
         this.driver = driver;
 
         navigateToTorm(driver);
-        createNewProject(driver, "Unit Tests");
+        createNewETProject(driver, "Unit Tests");
 
         String tJobName = "Unit Test";
         String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";

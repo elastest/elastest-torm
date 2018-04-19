@@ -56,10 +56,10 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
-        if (!projectExists(driver, projectName)) {
+        if (!etProjectExists(driver, projectName)) {
             navigateToTorm(driver);
 
-            createNewProject(driver, projectName);
+            createNewETProject(driver, projectName);
 
             // Create SuT
             String sutDesc = "OpenVidu Description";
@@ -79,7 +79,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
 
         this.createProjectAndSut(driver);
 
-        navigateToProject(driver, projectName);
+        navigateToETProject(driver, projectName);
 
         String tJobName = "Videocall Test";
         String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";

@@ -50,10 +50,10 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
     final String projectName = "REST API";
     
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
-        if (!projectExists(driver, projectName)) {
+        if (!etProjectExists(driver, projectName)) {
             navigateToTorm(driver);
 
-            createNewProject(driver, projectName);
+            createNewETProject(driver, projectName);
 
             // Create SuT
             String sutName = "REST App";
@@ -74,7 +74,7 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
 
         this.createProjectAndSut(driver);
         
-        navigateToProject(driver, projectName);
+        navigateToETProject(driver, projectName);
         
         // Create TJob
         String tJobName = "Rest Test";

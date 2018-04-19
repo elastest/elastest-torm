@@ -174,7 +174,7 @@ public class EtmBaseTest {
     /* *************** */
     /* *** Project *** */
     /* *************** */
-    protected void createNewProject(WebDriver driver, String projectName) {
+    protected void createNewETProject(WebDriver driver, String projectName) {
         log.info("Create project");
         driver.findElement(
                 By.xpath("//button[contains(string(), 'New Project')]"))
@@ -184,12 +184,12 @@ public class EtmBaseTest {
                 .click();
     }
 
-    protected void removeProject(WebDriver driver, String projectName) {
+    protected void removeETProject(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
         // TODO
     }
 
-    protected void navigateToProject(WebDriver driver, String projectName) {
+    protected void navigateToETProject(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
         log.info("Navigate to {} project", projectName);
 
@@ -200,7 +200,7 @@ public class EtmBaseTest {
 
     }
 
-    protected boolean projectExists(WebDriver driver, String projectName) {
+    protected boolean etProjectExists(WebDriver driver, String projectName) {
         this.navigateToTorm(driver);
 
         String id = "projects";

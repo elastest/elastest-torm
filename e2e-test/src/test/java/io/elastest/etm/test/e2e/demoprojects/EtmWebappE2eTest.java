@@ -58,8 +58,8 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
         navigateToTorm(driver);
-        if (!projectExists(driver, projectName)) {
-            createNewProject(driver, projectName);
+        if (!etProjectExists(driver, projectName)) {
+            createNewETProject(driver, projectName);
             // Create SuT
             String sutDesc = "Webapp Description";
             String sutImage = "elastest/demo-web-java-test-sut";
@@ -78,7 +78,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         this.createProjectAndSut(driver);
 
-        navigateToProject(driver, projectName);
+        navigateToETProject(driver, projectName);
 
         String tJobName = "Chrome Test";
         String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
@@ -110,7 +110,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         this.createProjectAndSut(driver);
 
-        navigateToProject(driver, projectName);
+        navigateToETProject(driver, projectName);
 
         String tJobName = "Firefox Test";
         String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";

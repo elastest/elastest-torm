@@ -27,6 +27,12 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
 
+    String projectsTableId = "tlProjects";
+    String plansTableId = "tlTestPlans";
+    String suitesTableId = "tlTestSuites";
+    String casesTableId = "tlTestCases";
+    String buildsTableId = "tlTestBuilds";
+
     protected void navigateToTestlinkSection(WebDriver driver) {
         this.navigateToTorm(driver);
         log.info("Navigate to TestLink Section");
@@ -51,8 +57,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void syncTestlink(WebDriver driver) {
         this.navigateToTestlinkSection(driver);
-        log.info("Sync TestLink With ElasTest");
-
+        log.info("Synchronizing TestLink With ElasTest");
         driver.findElement(By.xpath("//button[@id='syncTestLink']")).click();
     }
 
@@ -60,115 +65,173 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* *** Project *** */
     /* *************** */
 
-    protected void navigateToTLProject(WebDriver driver, String projectName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlProjects";
-        String xpath = "//td-data-table[@id='" + id
+    protected String getTLEtmProjectXpath(String projectName) {
+        return "//td-data-table[@id='" + this.projectsTableId
                 + "']//*/td/div[contains(string(), '" + projectName + "')]";
-
-        this.navigateToElement(driver, id, xpath);
     }
 
-    protected boolean tlProjectExists(WebDriver driver, String projectName) {
+    protected void navigateToTLEtmProject(WebDriver driver, String projectName) {
         this.navigateToTestlinkSection(driver);
 
-        String id = "tlProjects";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + projectName + "')]";
+        String xpath = this.getTLEtmProjectXpath(projectName);
+        this.navigateToElement(driver, this.projectsTableId, xpath);
+    }
 
-        return this.elementExists(driver, id, xpath);
+    protected boolean tlEtmProjectExists(WebDriver driver, String projectName) {
+        this.navigateToTestlinkSection(driver);
+
+        String xpath = this.getTLEtmProjectXpath(projectName);
+        return this.elementExists(driver, this.projectsTableId, xpath);
     }
 
     /* ***************** */
     /* *** Test Plan *** */
     /* ***************** */
 
-    protected void navigateToTLPlan(WebDriver driver, String planName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestPlans";
-        String xpath = "//td-data-table[@id='" + id
+    protected String getTLEtmPlanXpath(String planName) {
+        return "//td-data-table[@id='" + this.plansTableId
                 + "']//*/td/div[contains(string(), '" + planName + "')]";
-        this.navigateToElement(driver, id, xpath);
     }
 
-    protected boolean tlPlanExists(WebDriver driver, String planName) {
-        this.navigateToTestlinkSection(driver);
+    protected void navigateToTLEtmPlan(WebDriver driver, String planName) {
+        String xpath = this.getTLEtmPlanXpath(planName);
+        this.navigateToElement(driver, this.plansTableId, xpath);
+    }
 
-        String id = "tlTestPlans";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + planName + "')]";
+    protected void navigateToTLEtmPlanByAbsolute(WebDriver driver,
+            String projectName, String planName) {
+        this.navigateToTLEtmProject(driver, projectName);
+        this.navigateToTLEtmPlan(driver, planName);
+    }
 
-        return this.elementExists(driver, id, xpath);
+    protected boolean tlEtmPlanExists(WebDriver driver, String planName) {
+        String xpath = this.getTLEtmPlanXpath(planName);
+        return this.elementExists(driver, this.plansTableId, xpath);
+    }
+
+    protected boolean tlEtmPlanExistsByAbsolute(WebDriver driver,
+            String projectName, String planName) {
+        this.navigateToTLEtmProject(driver, projectName);
+        return this.tlEtmPlanExists(driver, planName);
     }
 
     /* ****************** */
     /* *** Test Suite *** */
     /* ****************** */
 
-    protected void navigateToTLSuite(WebDriver driver, String suiteName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestSuites";
-        String xpath = "//td-data-table[@id='" + id
+    protected String getTLEtmSuiteXpath(String suiteName) {
+        return "//td-data-table[@id='" + suitesTableId
                 + "']//*/td/div[contains(string(), '" + suiteName + "')]";
-        this.navigateToElement(driver, id, xpath);
     }
 
-    protected boolean tlSuiteExists(WebDriver driver, String suiteName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestSuites";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + suiteName + "')]";
-
-        return this.elementExists(driver, id, xpath);
+    protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
+        String xpath = this.getTLEtmSuiteXpath(suiteName);
+        this.navigateToElement(driver, suitesTableId, xpath);
     }
 
-    /* ***************** */
-    /* *** Test Case *** */
-    /* ***************** */
-
-    protected void navigateToTLCase(WebDriver driver, String caseName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestCases";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + caseName + "')]";
-        this.navigateToElement(driver, id, xpath);
+    protected void navigateToTLEtmSuiteByAbsolute(WebDriver driver,
+            String projectName, String suiteName) {
+        this.navigateToTLEtmProject(driver, projectName);
+        this.navigateToTLEtmSuite(driver, suiteName);
     }
 
-    protected boolean tlCaseExists(WebDriver driver, String caseName) {
-        this.navigateToTestlinkSection(driver);
+    protected boolean tlEtmSuiteExists(WebDriver driver, String suiteName) {
+        String xpath = this.getTLEtmSuiteXpath(suiteName);
+        return this.elementExists(driver, suitesTableId, xpath);
+    }
 
-        String id = "tlTestCases";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + caseName + "')]";
-
-        return this.elementExists(driver, id, xpath);
+    protected boolean tlEtmSuiteExistsByAbsolute(WebDriver driver,
+            String projectName, String suiteName) {
+        this.navigateToTLEtmProject(driver, projectName);
+        return this.tlEtmSuiteExists(driver, suiteName);
     }
 
     /* ****************** */
     /* *** Test Build *** */
     /* ****************** */
 
-    protected void navigateToTLBuild(WebDriver driver, String buildName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestBuilds";
-        String xpath = "//td-data-table[@id='" + id
+    protected String getTLEtmBuildXpath(String buildName) {
+        return "//td-data-table[@id='" + buildsTableId
                 + "']//*/td/div[contains(string(), '" + buildName + "')]";
-        this.navigateToElement(driver, id, xpath);
     }
 
-    protected boolean BuildExists(WebDriver driver, String buildName) {
-        this.navigateToTestlinkSection(driver);
-
-        String id = "tlTestBuilds";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + buildName + "')]";
-
-        return this.elementExists(driver, id, xpath);
+    protected void navigateToTLEtmBuild(WebDriver driver, String buildName) {
+        String xpath = this.getTLEtmBuildXpath(buildName);
+        this.navigateToElement(driver, buildsTableId, xpath);
     }
+
+    protected void navigateToTLEtmBuildByAbsolute(WebDriver driver,
+            String projectName, String planName, String buildName) {
+        this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
+        this.navigateToTLEtmBuild(driver, buildName);
+    }
+
+    protected boolean tlEtmBuildExists(WebDriver driver, String buildName) {
+        String xpath = this.getTLEtmBuildXpath(buildName);
+        return this.elementExists(driver, buildsTableId, xpath);
+    }
+
+    protected boolean tlEtmBuildExistsByAbsolute(WebDriver driver,
+            String projectName, String planName, String buildName) {
+        this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
+        return this.tlEtmBuildExists(driver, buildName);
+    }
+
+    /* ***************** */
+    /* *** Test Case *** */
+    /* ***************** */
+
+    protected String getTLEtmCaseXpath(String caseName) {
+        return "//td-data-table[@id='" + casesTableId
+                + "']//*/td/div[contains(string(), '" + caseName + "')]";
+    }
+
+    protected void navigateToTLEtmCase(WebDriver driver, String caseName) {
+        String xpath = this.getTLEtmCaseXpath(caseName);
+        this.navigateToElement(driver, casesTableId, xpath);
+    }
+
+    protected void navigateToTLEtmSuiteCase(WebDriver driver, String projectName,
+            String suiteName, String caseName) {
+        this.navigateToTLEtmSuiteByAbsolute(driver, projectName, suiteName);
+        this.navigateToTLEtmCase(driver, caseName);
+    }
+
+    protected void navigateToTLEtmPlanCase(WebDriver driver, String projectName,
+            String planName, String caseName) {
+        this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
+        this.navigateToTLEtmCase(driver, caseName);
+    }
+
+    protected void navigateToTLEtmBuildCase(WebDriver driver, String projectName,
+            String planName, String buildName, String caseName) {
+        this.navigateToTLEtmBuildByAbsolute(driver, projectName, planName,
+                buildName);
+        this.navigateToTLEtmCase(driver, caseName);
+    }
+
+    protected boolean tlEtmCaseExists(WebDriver driver, String caseName) {
+        String xpath = this.getTLEtmCaseXpath(caseName);
+        return this.elementExists(driver, casesTableId, xpath);
+    }
+
+    protected boolean tlEtmSuiteCaseExists(WebDriver driver, String projectName,
+            String suiteName, String caseName) {
+        this.navigateToTLEtmSuiteByAbsolute(driver, projectName, suiteName);
+        return this.tlEtmCaseExists(driver, caseName);
+    }
+
+    protected boolean tlEtmPlanCaseExists(WebDriver driver, String projectName,
+            String planName, String caseName) {
+        this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
+        return this.tlEtmCaseExists(driver, caseName);
+    }
+
+    protected boolean tlEtmBuildCaseExists(WebDriver driver, String projectName,
+            String planName, String buildName, String caseName) {
+        this.navigateToTLEtmBuildByAbsolute(driver, projectName, planName,
+                buildName);
+        return this.tlEtmCaseExists(driver, caseName);
+    }
+
 }

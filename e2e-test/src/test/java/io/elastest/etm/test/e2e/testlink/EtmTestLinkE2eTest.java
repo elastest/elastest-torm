@@ -21,8 +21,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -39,6 +37,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.base.testlink.TestLinkBaseTest;
+import io.elastest.etm.test.utils.SampleTLData;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -67,37 +66,76 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     // }
 
     @Test
-    @DisplayName("Create TestLink Data")
-    void createTLDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
+    @DisplayName("Create TestLink Data and Test In ElasTest")
+    void tlDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException, IOException {
+        log.info("Creating Sample Data in TestLink...");
+        SampleTLData sampleTLData = this.createSampleTLDataTest(driver);
+
+        log.info("Syncronizing Sample Data in TestLink...");
+        this.syncTestlink(driver);
+
+        String projectName = sampleTLData.getProject().getName();
+        String suiteName = sampleTLData.getSuite().getName();
+        String planName = sampleTLData.getPlan().getName();
+        String buildName = sampleTLData.getBuild().getName();
+
+        this.tlEtmProjectExists(driver, projectName);
+        this.tlEtmSuiteExistsByAbsolute(driver, projectName, suiteName);
+        this.tlEtmPlanExistsByAbsolute(driver, projectName, planName);
+        this.tlEtmBuildExistsByAbsolute(driver, projectName, planName,
+                buildName);
+
+        for (TestCase currentCase : sampleTLData.getTestCases()) {
+            String caseName = currentCase.getName();
+            this.tlEtmSuiteCaseExists(driver, projectName, suiteName, caseName);
+            this.tlEtmPlanCaseExists(driver, projectName, planName, caseName);
+            this.tlEtmBuildCaseExists(driver, projectName, planName, buildName,
+                    caseName);
+        }
+
+    }
+
+    protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)
             throws InterruptedException, IOException {
         this.driver = driver;
 
+        SampleTLData sampleTLData = new SampleTLData();
+
         // Create Project
-        TestProject project = new TestProject(0, "Test Sample Project", "TSP",
+        String pjName = "Test Sample Project";
+        log.info("Creating TL Project with name: {}", pjName);
+        TestProject project = new TestProject(0, pjName, "TSP",
                 "This is a note", false, false, false, false, true, true);
         project = this.createTlTestProject(driver, project);
 
         // Create Suite
-        TestSuite suite = new TestSuite(0, project.getId(), "Test Sample Suite",
+        String suiteName = "Test Sample Suite";
+        log.info("Creating TL Suite with name: {}", suiteName);
+        TestSuite suite = new TestSuite(0, project.getId(), suiteName,
                 "There are the suite details", null, null, true,
                 ActionOnDuplicate.BLOCK);
         suite = this.createTlTestSuite(driver, suite);
 
         // Create Plan
-        TestPlan plan = new TestPlan(0, "Test Sample Plan", project.getName(),
+        String planName = "Test Sample Plan";
+        log.info("Creating TL Plan with name: {}", planName);
+        TestPlan plan = new TestPlan(0, planName, project.getName(),
                 "This is a note", true, true);
         plan = this.createTlTestPlan(driver, plan);
 
         // Create Build
-        Build build = new Build(0, plan.getId(), "Test Sample build",
-                "This is a note");
+        String buildName = "Test Sample build";
+        log.info("Creating TL Build with name: {}", buildName);
+        Build build = new Build(0, plan.getId(), buildName, "This is a note");
         build = this.createTlBuild(driver, build);
 
         // Create TestCases
         int numberOfCases = 2;
-        List<TestCase> testCases = new ArrayList<>();
+
         for (int i = 0; i < numberOfCases; i++) {
             String caseName = "Test Sample Case " + (i + 1);
+            log.info("Creating TL Case with name: {}", caseName);
             TestCase testCase = new TestCase();
             testCase.setId(0);
             testCase.setName(caseName);
@@ -109,9 +147,16 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
 
             testCase = this.createTlTestCase(driver, testCase);
             testCase.setTestProjectId(project.getId());
-            testCases.add(testCase);
+            sampleTLData.getTestCases().add(testCase);
+            log.info("Associating TL Case '{}' to Test Plan", caseName);
             this.addTLTestCaseToTestPlan(driver, testCase, plan.getId());
         }
+
+        sampleTLData.setProject(project);
+        sampleTLData.setSuite(suite);
+        sampleTLData.setPlan(plan);
+        sampleTLData.setBuild(build);
+        return sampleTLData;
     }
 
 }
