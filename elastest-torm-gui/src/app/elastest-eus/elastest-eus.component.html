@@ -59,13 +59,19 @@
             <md-card-title>Recordings</md-card-title>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
-                    <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
-                        <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" mdTooltip="Open in new tab">open_in_new</i>
-                        <i class="material-icons" (click)="viewRecording(row)" id="view_recording" mdTooltip="Open as dialog">open_in_browser</i>
-                        <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
-                    </ng-template>
-                </td-data-table>
+                <div *ngIf="recordings.length === 0; else showRecordingsTable" class="push-top-important messageEmptyCard">
+                    <md-icon>assignment</md-icon>
+                    <p>No Recordings created yet</p>
+                </div>
+                <ng-template #showRecordingsTable>
+                    <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
+                        <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
+                            <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" mdTooltip="Open in new tab">open_in_new</i>
+                            <i class="material-icons" (click)="viewRecording(row)" id="view_recording" mdTooltip="Open as dialog">open_in_browser</i>
+                            <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
+                        </ng-template>
+                    </td-data-table>
+                </ng-template>
             </md-card-content>
         </md-card>
     </div>

@@ -676,8 +676,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   public openSelectExecutions(fromExec?: any): void {
     let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
       data: fromExec,
-      height: '80%',
-      width: '90%',
+      height: '90%',
+      width: '80%',
     });
     dialogRef.afterClosed().subscribe((data: any) => {
       this.loadSelectExecutions(data, fromExec);
