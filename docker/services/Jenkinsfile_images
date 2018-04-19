@@ -356,5 +356,23 @@ node('docker'){
                     sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                     testetmjavasutrepoimage.push()
                 }
+                
+	        stage "Jenkins image build"
+	
+	          "Create Jenkins docker image"
+	        
+	            echo ("Creating elastest/etm-jenkins image..")                
+	            sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest .'
+	
+	        stage "Publish Jenkins docker image"
+	
+	            echo ("Publish elastest/etm-jenkins image")
+	            def etmjenkinsimage = docker.image('elastest/etm-jenkins:latest')
+	            //this is work arround as withDockerRegistry is not working properly 
+	            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+	                usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+	                sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+	                etmjenkinsimage.push()
+	            }
         }
 }
