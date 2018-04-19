@@ -2,7 +2,8 @@
 <md-dialog-content>
   <div layout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
-      <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
+      <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild" #nameControl="ngModel"
+        required>
         <md-option *ngFor="let build of builds" [value]="build">
           {{build.name}}
         </md-option>

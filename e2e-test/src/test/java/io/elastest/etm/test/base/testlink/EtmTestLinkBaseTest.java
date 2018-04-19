@@ -22,6 +22,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -128,9 +129,16 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void executeTLEtmPlan(WebDriver driver) {
-        String id = "runTestPlan";
-        String xpath = "//button[@id='" + id + "']";
-        this.getElement(driver, id, xpath).get(0).click();
+        String runPlanBtnId = "runTestPlan";
+        String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
+        this.getElement(driver, runPlanBtnId, runPlanBtnXpath).get(0).click();
+
+        String selectBuildId = "selectBuild";
+        String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
+
+        Select buildSelect = new Select(this
+                .getElement(driver, selectBuildId, selectBuildXpath).get(0));
+        buildSelect.selectByIndex(0);
     }
 
     protected void executeTLEtmPlanWithNavigate(WebDriver driver,
