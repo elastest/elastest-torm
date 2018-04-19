@@ -489,6 +489,8 @@ public class EtmBaseTest {
                 @Override
                 public List<WebElement> findElements(SearchContext searchContext) {
                     return new ArrayList<WebElement>() {
+                        private static final long serialVersionUID = 1L;
+
                         {
                             add((WebElement) o);
                         }
@@ -499,5 +501,5 @@ public class EtmBaseTest {
             return null;
         }
     }
-    
+
 }

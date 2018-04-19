@@ -21,6 +21,8 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,7 +31,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
+import br.eti.kinoshita.testlinkjavaapi.constants.ActionOnDuplicate;
+import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
+import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
+import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.base.testlink.TestLinkBaseTest;
 import io.github.bonigarcia.DockerBrowser;
@@ -50,29 +57,60 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
 
     protected TestLinkBaseTest tlBaseTest;
 
-    @Test
-    @DisplayName("Get TestLink Url")
-    void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
-        String url = this.getTestlinkPageUrl(driver);
-        log.info("The obtained TestLink url is {}", url);
-    }
+    // @Test
+    // @DisplayName("Get TestLink Url")
+    // void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
+    // throws InterruptedException {
+    // this.driver = driver;
+    // String url = this.getTestlinkPageUrl(driver);
+    // log.info("The obtained TestLink url is {}", url);
+    // }
 
     @Test
-    @DisplayName("Create TestLink Project")
-    void createTLProjectTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+    @DisplayName("Create TestLink Data")
+    void createTLDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
         this.driver = driver;
+
+        // Create Project
         TestProject project = new TestProject(0, "Test Sample Project", "TSP",
                 "This is a note", false, false, false, false, true, true);
         project = this.createTlTestProject(driver, project);
-        if (project != null) {
-            log.info("Project {} has been created with id {}!",
-                    project.getName(), project.getId());
-        } else {
-            log.error("Project hasn't been created");
+
+        // Create Suite
+        TestSuite suite = new TestSuite(0, project.getId(), "Test Sample Suite",
+                "There are the suite details", null, null, true,
+                ActionOnDuplicate.BLOCK);
+        suite = this.createTlTestSuite(driver, suite);
+
+        // Create Plan
+        TestPlan plan = new TestPlan(0, "Test Sample Plan", project.getName(),
+                "This is a note", true, true);
+        plan = this.createTlTestPlan(driver, plan);
+
+        // Create Build
+        Build build = new Build(0, plan.getId(), "Test Sample build",
+                "This is a note");
+        build = this.createTlBuild(driver, build);
+
+        // Create TestCases
+        int numberOfCases = 2;
+        List<TestCase> testCases = new ArrayList<>();
+        for (int i = 0; i < numberOfCases; i++) {
+            String caseName = "Test Sample Case " + (i + 1);
+            TestCase testCase = new TestCase();
+            testCase.setId(0);
+            testCase.setName(caseName);
+            testCase.setTestSuiteId(suite.getId());
+            testCase.setTestProjectId(project.getId());
+            testCase.setAuthorLogin("admin");
+            testCase.setSummary("This is a Summary");
+            testCase.setPreconditions("This is a precondition");
+
+            testCase = this.createTlTestCase(driver, testCase);
+            testCase.setTestProjectId(project.getId());
+            testCases.add(testCase);
+            this.addTLTestCaseToTestPlan(driver, testCase, plan.getId());
         }
     }
 

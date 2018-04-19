@@ -143,14 +143,15 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase> getTestcase(
             @ApiParam(value = "Id of Test case.", required = true) @PathVariable("caseId") Integer caseId);
 
-    @ApiOperation(value = "Returns a Test Case By Given Name", notes = "Returns a test case By Given Name.", response = TestCase.class, tags = {
+    @ApiOperation(value = "Returns a Test Case By Given Name And Suite Id", notes = "Returns a test case By Given Name And Suite Id.", response = TestCase.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/suite/case/name/{caseName}", produces = {
+    @RequestMapping(value = "/testlink/project/suite/{suiteId}/case/name/{caseName}", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TestCase> getTestCaseByName(
+            @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Name of Test case.", required = true) @PathVariable("caseName") String caseName);
 
     @ApiOperation(value = "Returns all Test Cases", notes = "Returns all Test Cases", response = TestCase.class, responseContainer = "List", tags = {
@@ -182,17 +183,16 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase[]> getPlanTestCases(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId);
 
-    @ApiOperation(value = "Creates a new Test Case", notes = "Creates a new Test Suite", response = TestSuite.class, tags = {
+    @ApiOperation(value = "Creates a new Test Case", notes = "Creates a new Test Case", response = TestCase.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "/testlink/project/{projectId}/suite/{suiteId}/case", produces = {
+    @RequestMapping(value = "/testlink/project/suite/{suiteId}/case", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<TestCase> createTestCase(
-            @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body);
 

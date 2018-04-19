@@ -290,15 +290,25 @@ public class TestLinkService {
 
     public TestCase getTestCaseById(Integer caseId) {
         TestCase testCase = this.api.getTestCase(caseId, null, null);
-        testCase = this.getSuiteTestCaseById(testCase.getTestSuiteId(), caseId);
+        Integer suiteId = testCase.getTestSuiteId();
+        testCase = this.getSuiteTestCaseById(suiteId, caseId);
+        // The Suite Test Case hasn't suite Id and project Id
+        TestSuite suite = this.getTestSuiteById(suiteId);
+        testCase.setTestSuiteId(suiteId);
+        testCase.setTestProjectId(suite.getTestProjectId());
         return testCase;
     }
 
-    public TestCase getTestCaseByName(String caseName) {
-        TestCase[] testCases = this.getAllTestCases();
+    public TestCase getTestCaseByNameAndSuiteId(String caseName,
+            Integer suiteId) {
+        TestSuite suite = this.getTestSuiteById(suiteId);
+        TestCase[] testCases = this.getSuiteTestCases(suiteId);
         if (testCases != null) {
             for (TestCase currentCase : testCases) {
                 if (caseName.equals(currentCase.getName())) {
+                    // The Suite Test Case hasn't suite Id and project Id
+                    currentCase.setTestSuiteId(suiteId);
+                    currentCase.setTestProjectId(suite.getTestProjectId());
                     return currentCase;
                 }
             }
@@ -383,14 +393,14 @@ public class TestLinkService {
         return cases;
     }
 
-    public TestCase createTestCase(TestCase testCase) {
-        return this.api.createTestCase(testCase.getName(),
-                testCase.getTestSuiteId(), testCase.getTestProjectId(),
-                testCase.getAuthorLogin(), testCase.getSummary(),
-                testCase.getSteps(), testCase.getPreconditions(),
-                testCase.getTestCaseStatus(), testCase.getTestImportance(),
-                testCase.getExecutionType(), testCase.getOrder(),
-                testCase.getInternalId(), testCase.getCheckDuplicatedName(),
+    public TestCase createTestCase(TestCase testCase, Integer suiteId) {
+        return this.api.createTestCase(testCase.getName(), suiteId,
+                testCase.getTestProjectId(), testCase.getAuthorLogin(),
+                testCase.getSummary(), testCase.getSteps(),
+                testCase.getPreconditions(), testCase.getTestCaseStatus(),
+                testCase.getTestImportance(), testCase.getExecutionType(),
+                testCase.getOrder(), testCase.getInternalId(),
+                testCase.getCheckDuplicatedName(),
                 testCase.getActionOnDuplicatedName());
     }
 

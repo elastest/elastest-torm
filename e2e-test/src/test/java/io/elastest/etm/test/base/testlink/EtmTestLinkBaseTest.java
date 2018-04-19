@@ -162,7 +162,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToElement(driver, id, xpath);
     }
 
-    protected boolean tlBuildExists(WebDriver driver, String buildName) {
+    protected boolean BuildExists(WebDriver driver, String buildName) {
         this.navigateToTestlinkSection(driver);
 
         String id = "tlTestBuilds";

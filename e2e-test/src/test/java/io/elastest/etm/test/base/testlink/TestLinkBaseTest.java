@@ -20,12 +20,14 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -117,32 +119,42 @@ public class TestLinkBaseTest extends EtmBaseTest {
     /* *** TestCase *** */
     /* **************** */
 
-    protected TestCase getTLTestCase(WebDriver driver, String caseName)
+    protected TestCase getTLTestCase(WebDriver driver, String caseName,
+            Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
+        ResponseEntity<String> response = this.restClient.get(tlApiPath
+                + "/project/suite/" + suiteId + "/case/name/" + caseName);
 
-        ResponseEntity<String> response = this.restClient
-                .get(tlApiPath + "/project/suite/case/name/" + caseName);
-
-        return this.getObjectFromJson(response.getBody(), TestCase.class);
+        return this.getTestCaseFromJson(response.getBody());
     }
 
-    protected boolean tlTestCaseExists(WebDriver driver, String caseName)
+    protected TestCase getTLTestCase(WebDriver driver, TestCase testCase)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestCase(driver, caseName) != null;
+        return this.getTLTestCase(driver, testCase.getName(),
+                testCase.getTestSuiteId());
+    }
+
+    protected boolean tlTestCaseExists(WebDriver driver, String caseName,
+            Integer suiteId)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestCase(driver, caseName, suiteId) != null;
+    }
+
+    protected boolean tlTestCaseExists(WebDriver driver, TestCase testCase)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestCase(driver, testCase) != null;
     }
 
     protected TestCase createTlTestCase(WebDriver driver, TestCase testCase)
             throws IOException {
-        if (this.tlTestCaseExists(driver, testCase.getName())) {
-            return this.getTLTestCase(driver, testCase.getName());
+        if (this.tlTestCaseExists(driver, testCase)) {
+            return this.getTLTestCase(driver, testCase);
         } else {
             String jsonCase = this.objectToJson(testCase);
-            ResponseEntity<String> response = this.restClient.post(
-                    tlApiPath + "/project/" + testCase.getTestProjectId()
-                            + "/suite/" + testCase.getTestSuiteId() + "/case",
+            ResponseEntity<String> response = this.restClient.post(tlApiPath
+                    + "/project/suite/" + testCase.getTestSuiteId() + "/case",
                     jsonCase);
-
-            return this.getObjectFromJson(response.getBody(), TestCase.class);
+            return this.getTestCaseFromJson(response.getBody());
         }
     }
 
@@ -151,8 +163,7 @@ public class TestLinkBaseTest extends EtmBaseTest {
             throws JsonParseException, JsonMappingException, IOException {
         String jsonCase = this.objectToJson(testCase);
         ResponseEntity<String> response = this.restClient.post(
-                tlApiPath + "/testlink/project/plan/" + planId + "/case/add",
-                jsonCase);
+                tlApiPath + "/project/plan/" + planId + "/case/add", jsonCase);
 
         return this.getObjectFromJson(response.getBody(), Integer.class);
     }
@@ -225,13 +236,27 @@ public class TestLinkBaseTest extends EtmBaseTest {
             throws JsonParseException, JsonMappingException, IOException {
         if (json != null) {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(Include.NON_EMPTY);
             return mapper.readValue(json, clazz);
         }
         return null;
     }
 
+    protected TestCase getTestCaseFromJson(String json)
+            throws JsonParseException, JsonMappingException, IOException {
+        // Fix for fails on get keyword
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tcMap = this.getObjectFromJson(json, Map.class);
+        if (tcMap != null && tcMap.containsKey("keywords")) {
+            tcMap.remove("keywords");
+        }
+
+        return this.getObjectFromJson(this.objectToJson(tcMap), TestCase.class);
+    }
+
     protected String objectToJson(Object obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
         return mapper.writeValueAsString(obj);
     }
 }

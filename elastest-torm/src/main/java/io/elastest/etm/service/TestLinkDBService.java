@@ -46,6 +46,9 @@ public class TestLinkDBService {
     Connection conn;
     Statement stmt;
 
+    private String defaultSuitesQuery = "SELECT * FROM nodes_hierarchy nodes INNER JOIN testsuites testsuite"
+            + " ON testsuite.id = nodes.id AND nodes.node_type_id = (SELECT id FROM node_types WHERE description = 'testsuite')";
+
     @PostConstruct
     public void init() {
         String url = "jdbc:mysql://" + mysqlHost + ":" + mysqlport + "/"
@@ -174,8 +177,7 @@ public class TestLinkDBService {
 
     public TestSuite[] getAllTestSuites() {
         TestSuite[] suites = null;
-        String query = "SELECT * FROM nodes_hierarchy nodes INNER JOIN testsuites testsuite"
-                + " ON testsuite.id = nodes.id AND nodes.node_type_id = (SELECT id FROM node_types WHERE description = 'testsuite')";
+        String query = this.defaultSuitesQuery;
         try {
             ResultSet rs = stmt.executeQuery(query);
             List<HashMap<String, Object>> resultList;
@@ -187,6 +189,27 @@ public class TestLinkDBService {
             logger.error(e.getMessage());
         }
         return suites;
+    }
+
+    public TestSuite getTestSuiteById(Integer suiteId) {
+        TestSuite[] suites = null;
+        TestSuite suite = null;
+        String query = this.defaultSuitesQuery
+                + " WHERE description = 'testsuite')";
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            List<HashMap<String, Object>> resultList;
+            resultList = this.convertResultSetToList(rs);
+            suites = this.getSuiteListFromResultList(resultList);
+            if (suites != null && suites.length > 0) {
+                suite = suites[0];
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return suite;
     }
 
     /* *************** */
