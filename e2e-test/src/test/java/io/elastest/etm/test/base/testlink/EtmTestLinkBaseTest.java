@@ -65,7 +65,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         log.info("Synchronizing TestLink With ElasTest");
         this.getElement(driver, id, xpath).get(0).click();
 
-        // Wait to sync ends 
+        // Wait to sync ends
         WebDriverWait waitService = new WebDriverWait(driver, 45);
         waitService.until(elementToBeClickable(
                 this.getElement(driver, id, xpath).get(0)));
@@ -128,7 +128,9 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void executeTLEtmPlan(WebDriver driver) {
-        driver.findElement(By.xpath("//button[@id='runTestPlan']")).click();
+        String id = "runTestPlan";
+        String xpath = "//button[@id='" + id + "']";
+        this.getElement(driver, id, xpath).get(0).click();
     }
 
     protected void executeTLEtmPlanWithNavigate(WebDriver driver,
@@ -142,7 +144,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String passedRadioBtnXpath = "//button[@id='" + passedRadioBtnId + "']";
 
         // Great Timeout for wait to pull and start eus/browser containers
-        this.getElement(driver, passedRadioBtnId, passedRadioBtnXpath, 120)
+        this.getElement(driver, passedRadioBtnId, passedRadioBtnXpath, 240)
                 .get(0).click();
 
         String saveAndNextBtnId = "saveAndNext";

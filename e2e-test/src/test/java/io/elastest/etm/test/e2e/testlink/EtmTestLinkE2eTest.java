@@ -105,15 +105,18 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
                     caseName);
         }
 
+        this.executeSampleTestPlan(driver, sampleTLData);
     }
 
     void executeSampleTestPlan(RemoteWebDriver driver,
             SampleTLData sampleTLData) {
         String projectName = sampleTLData.getProject().getName();
         String planName = sampleTLData.getPlan().getName();
+        log.info("Executing Plan '{}' ", planName);
         this.executeTLEtmPlanWithNavigate(driver, projectName, planName);
 
         for (int i = 0; i < sampleTLData.getTestCases().size(); i++) {
+            log.info("Executing TestCase nº {} ", i + 1);
             this.executeTLEtmPlanCurrentCase(driver);
         }
     }
