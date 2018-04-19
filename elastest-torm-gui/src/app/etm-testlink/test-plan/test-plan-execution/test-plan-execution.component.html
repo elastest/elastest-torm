@@ -31,7 +31,7 @@
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
             <div layout="row">
-              <button md-raised-button color="accent" *ngIf="tlExecutionForm" [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
+              <button md-raised-button color="accent" id="saveAndNext" *ngIf="tlExecutionForm" [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
                 (click)="saveTLCaseExecution()">Save & Next</button>
             </div>
           </div>
@@ -57,8 +57,8 @@
         <md-card-content *ngIf="exTJobExec" flex style="overflow: auto;" class="push-bottom-none">
           <div layout-align="center center" layout="column" layout-fill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
-              <vnc-client [vncUrl]="vncBrowserUrl" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-                [showStatus]="false" [showConnectionBtns]="false" [bgColor]="'#ffffff'" layout-fill></vnc-client>
+              <vnc-client [vncUrl]="vncBrowserUrl" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="false" [showConnectionBtns]="false"
+                [bgColor]="'#ffffff'" layout-fill></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>
               <div class="md-headline text-center">{{browserCardMsg}}</div>

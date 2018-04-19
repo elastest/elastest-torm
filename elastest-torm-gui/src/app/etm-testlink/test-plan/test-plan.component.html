@@ -10,7 +10,7 @@
               mdTooltip="Edit Test Plan">
               <md-icon>mode_edit</md-icon>
             </button>
-            <button md-raised-button color="accent" (click)="runTestPlan()" mdTooltip="Run Test Plan" [disabled]="testPlanCases.length === 0">
+            <button md-raised-button id="runTestPlan" color="accent" (click)="runTestPlan()" mdTooltip="Run Test Plan" [disabled]="testPlanCases.length === 0">
               <md-icon>play_circle_outline</md-icon>
               Execute Test Plan
             </button>

@@ -107,8 +107,12 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
 
     }
 
+    void executeSampleTestPlan(RemoteWebDriver driver) {
+
+    }
+
     protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)
-            throws InterruptedException, IOException {
+            throws IOException {
         this.driver = driver;
 
         SampleTLData sampleTLData = new SampleTLData();

@@ -67,7 +67,7 @@
       <div layout="row">
         <md-radio-group [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
           required>
-          <md-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [value]="status" class="push-right-sm">{{status}}</md-radio-button>
+          <md-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [id]="'status-' + status" [value]="status" class="push-right-sm">{{status}}</md-radio-button>
         </md-radio-group>
       </div>
 

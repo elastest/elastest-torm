@@ -70,7 +70,8 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
                 + "']//*/td/div[contains(string(), '" + projectName + "')]";
     }
 
-    protected void navigateToTLEtmProject(WebDriver driver, String projectName) {
+    protected void navigateToTLEtmProject(WebDriver driver,
+            String projectName) {
         this.navigateToTestlinkSection(driver);
 
         String xpath = this.getTLEtmProjectXpath(projectName);
@@ -113,6 +114,23 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
             String projectName, String planName) {
         this.navigateToTLEtmProject(driver, projectName);
         return this.tlEtmPlanExists(driver, planName);
+    }
+
+    protected void executeTLEtmPlan(WebDriver driver) {
+        driver.findElement(By.xpath("//button[@id='runTestPlan']")).click();
+    }
+
+    protected void executeTLEtmPlanWithNavigate(WebDriver driver,
+            String projectName, String planName) {
+        this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
+        this.executeTLEtmPlan(driver);
+    }
+
+    protected void executeTLEtmPlanCurrentCase(WebDriver driver) {
+        driver.findElement(By.xpath("//button[@id='status-PASSED-input']"))
+                .click();
+        driver.findElement(By.xpath("//button[@id='saveAndNext']")).click();
+
     }
 
     /* ****************** */
@@ -191,8 +209,8 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToElement(driver, casesTableId, xpath);
     }
 
-    protected void navigateToTLEtmSuiteCase(WebDriver driver, String projectName,
-            String suiteName, String caseName) {
+    protected void navigateToTLEtmSuiteCase(WebDriver driver,
+            String projectName, String suiteName, String caseName) {
         this.navigateToTLEtmSuiteByAbsolute(driver, projectName, suiteName);
         this.navigateToTLEtmCase(driver, caseName);
     }
@@ -203,8 +221,9 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTLEtmCase(driver, caseName);
     }
 
-    protected void navigateToTLEtmBuildCase(WebDriver driver, String projectName,
-            String planName, String buildName, String caseName) {
+    protected void navigateToTLEtmBuildCase(WebDriver driver,
+            String projectName, String planName, String buildName,
+            String caseName) {
         this.navigateToTLEtmBuildByAbsolute(driver, projectName, planName,
                 buildName);
         this.navigateToTLEtmCase(driver, caseName);
