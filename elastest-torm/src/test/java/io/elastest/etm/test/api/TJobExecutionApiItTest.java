@@ -34,7 +34,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 
 @RunWith(JUnitPlatform.class)
@@ -134,10 +133,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         while (true) {
             exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
             log.info("TJobExecution: " + exec);
-            if (exec.getResult() != ResultEnum.IN_PROGRESS) {
-
-                log.info("Test results:" + exec.getTestSuites());
-
+            if (exec.isFinished()) {
+                log.info("Test results: {}", exec.getTestSuites().toString());
                 break;
             }
             sleep(500);

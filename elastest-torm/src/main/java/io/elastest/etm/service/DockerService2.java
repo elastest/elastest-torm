@@ -108,7 +108,7 @@ public class DockerService2 {
             try {
                 stopDockerContainer(containerId);
                 removeDockerContainer(containerId);
-                logger.info(containerName + " removed");
+                logger.info("Container {} removed", containerName);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -178,20 +178,9 @@ public class DockerService2 {
             String imageName, List<String> envs, String containerName,
             String networkName, Ports portBindings, int listenPort)
             throws TJobStoppedException {
-        try {
-            dockerClient.pullImageCmd(imageName)
-                    .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException | NotFoundException ie) {
-            if (imageExistsLocally(imageName, dockerClient)) {
-                logger.info("Docker image exits locally.");
-            } else {
-                throw ie;
-            }
-        } catch (DockerClientException e) {
-            logger.info("Error on Pulling " + imageName
-                    + " image. Probably because the user has stopped the execution");
-            throw new TJobStoppedException();
-        }
+
+        this.doPull(dockerClient, imageName);
+
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageName).withName(containerName)
                 .withEnv(envs).withNetworkMode(networkName)
@@ -349,25 +338,10 @@ public class DockerService2 {
             throws TJobStoppedException {
         DockerClient dockerClient = this.getDockerClient();
 
-        try {
-            logger.debug("Try to Pulling {} Image ({})", name, image);
-            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback())
-                    .awaitCompletion();
-            logger.debug("{} image pulled succesfully!", name);
-        } catch (InternalServerErrorException | NotFoundException
-                | InterruptedException e) {
-            if (imageExistsLocally(image, dockerClient)) {
-                logger.info("Docker image exits locally.");
-            } else {
-                logger.error("Error pulling the {} image: {}", name, image,
-                        e.getMessage());
-            }
-        } catch (DockerClientException e) {
-            logger.info(
-                    "Error on Pulling {} image ({}). Probably because the user has stopped the execution",
-                    name, image);
-            throw new TJobStoppedException();
-        }
+        logger.debug("Try to Pulling {} Image ({})", name, image);
+        this.doPull(dockerClient, image);
+        logger.debug("{} image pulled succesfully!", name);
+
     }
 
     /********************/
@@ -492,21 +466,8 @@ public class DockerService2 {
         envList.add(envVar);
         envList.add(envVar2);
 
-        try {
-            dockerExec.getDockerClient().pullImageCmd(checkImage)
-                    .exec(new PullImageResultCallback()).awaitSuccess();
-        } catch (InternalServerErrorException | NotFoundException ie) {
-            if (imageExistsLocally(checkImage, dockerExec.getDockerClient())) {
-                logger.info("Docker image exits locally.");
-            } else {
-                logger.error("Error pulling the image: {}", ie.getMessage());
-                throw ie;
-            }
-        } catch (DockerClientException e) {
-            logger.info(
-                    "Error on Pulling CheckSut. Probably because the user has stopped the execution");
-            throw new TJobStoppedException();
-        }
+        this.doPull(dockerExec.getDockerClient(), checkImage);
+
         String checkName = getCheckName(dockerExec);
         String checkContainerId = dockerExec.getDockerClient()
                 .createContainerCmd(checkImage).withEnv(envList)
@@ -683,7 +644,29 @@ public class DockerService2 {
 
     /*****************/
     /***** Utils *****/
-    /*****************/
+    /**
+     * @throws TJobStoppedException
+     ***************/
+
+    public void doPull(DockerClient dockerClient, String image)
+            throws TJobStoppedException {
+        try {
+            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback())
+                    .awaitSuccess();
+        } catch (InternalServerErrorException | NotFoundException ie) {
+            if (imageExistsLocally(image, dockerClient)) {
+                logger.info("Docker image exits locally.");
+            } else {
+                logger.error("Error pulling the image: {}", ie.getMessage());
+                throw ie;
+            }
+        } catch (DockerClientException e) {
+            logger.info(
+                    "Error on Pulling {}. Probably because the user has stopped the execution",
+                    image);
+            throw new TJobStoppedException();
+        }
+    }
 
     public String getContainerIpWithDockerExecution(String containerId,
             DockerExecution dockerExec) throws Exception {
