@@ -4,7 +4,7 @@
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
       <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild" #nameControl="ngModel"
         required>
-        <md-option *ngFor="let build of builds" [value]="build">
+        <md-option *ngFor="let build of builds; let i = index" id="build{{i}}" [value]="build">
           {{build.name}}
         </md-option>
       </md-select>
@@ -18,6 +18,6 @@
   </ng-template>
 </md-dialog-content>
 <md-dialog-actions>
-  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTestPlan()" [disabled]="selectedBuild === undefined">Run Test Plan</button>
+  <button md-raised-button color="accent" [md-dialog-close]="true" id="runPlanModalBtn" (click)="runTestPlan()" [disabled]="selectedBuild === undefined">Run Test Plan</button>
   <button md-button md-dialog-close>Cancel</button>
 </md-dialog-actions>
