@@ -13,7 +13,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -60,22 +59,22 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
     }
 
     @Test
-    @Disabled
     public void testExecuteTJobWithSut()
-            throws InterruptedException, ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
-
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
         testExecuteTJob(true);
     }
 
     @Test
     public void testExecuteTJobWithoutSut()
-            throws InterruptedException, ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
-
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
         testExecuteTJob(false);
     }
 
-    private void testExecuteTJob(boolean withSut) throws InterruptedException,
-            ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
+    private void testExecuteTJob(boolean withSut)
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
 
         log.info("Start the test testExecuteTJob "
                 + (withSut ? "with" : "without") + " SuT");
@@ -110,18 +109,9 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
         log.info("TJobExecution creation response: " + response);
 
+        int waitTime = 240;
         if (withSut) {
-
-            String queueToSuscribe = "/topic/" + "sut.default_log."
-                    + exec.getId() + ".log";
-            log.info("Sut log queue '" + queueToSuscribe + "'");
-
-            WaitForMessagesHandler handler = new WaitForMessagesHandler();
-            stompSession.subscribe(queueToSuscribe, handler);
-
-            handler.waitForCompletion(5, TimeUnit.SECONDS);
-
-            log.info("Sut log queue received a message");
+            waitTime = 360;
         }
 
         String queueToSuscribe = "/topic/" + "test.default_log." + exec.getId()
@@ -133,7 +123,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
                         || msg.contains("BUILD FAILURE"));
 
         stompSession.subscribe(queueToSuscribe, handler);
-        handler.waitForCompletion(180, TimeUnit.SECONDS);
+        handler.waitForCompletion(waitTime, TimeUnit.SECONDS);
 
         assertAll("Validating TJobExecution Properties",
                 () -> assertNotNull(response.getBody()),

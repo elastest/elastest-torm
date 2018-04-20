@@ -84,7 +84,7 @@ public class EtmApiItTest {
     /* *** TJob *** */
     /* ************ */
 
-    protected TJob getSampleTJob(long projectId, long sutId) {
+    protected TJob getSampleTJob(long projectId) {
         Project project = new Project();
         project.setId(projectId);
 
@@ -95,18 +95,28 @@ public class EtmApiItTest {
         TJob tJob = new TJob();
         tJob.setId(new Long(0));
         tJob.setName("testApp1");
-        tJob.setImageName("elastest/test-etm-test1");
+        tJob.setImageName("elastest/test-etm-alpinegitjava");
+        tJob.setResultsPath(
+                "/demo-projects/unit-java-test/target/surefire-reports/");
+        tJob.setCommands(
+                "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test;mvn -B test");
         tJob.setParameters(Arrays.asList(param));
-        tJob.setResultsPath("/app1TestJobsJenkins/target/surefire-reports/");
         tJob.setProject(project);
+
+        tJob.setSelectedServices("[]");
+
+        return tJob;
+    }
+
+    protected TJob getSampleTJobWithSut(long projectId, long sutId) {
+        TJob tJob = this.getSampleTJob(projectId);
 
         if (sutId > -1) {
             SutSpecification sut = new SutSpecification();
             sut.setId(sutId);
+            sut = getSutById(sut.getId());
             tJob.setSut(sut);
         }
-
-        tJob.setSelectedServices("[]");
 
         return tJob;
     }
@@ -136,7 +146,12 @@ public class EtmApiItTest {
 
     protected TJob createTJob(long projectId, long sutId)
             throws JsonProcessingException {
-        TJob tJob = this.getSampleTJob(projectId, sutId);
+        TJob tJob = null;
+        if (sutId > 0) {
+            tJob = this.getSampleTJobWithSut(projectId, sutId);
+        } else {
+            tJob = this.getSampleTJob(projectId);
+        }
         ResponseEntity<TJob> response = createTJobByGiven(tJob);
         log.info("TJob creation response: " + response);
 
@@ -282,8 +297,10 @@ public class EtmApiItTest {
         sut.setName("sut_definition_1");
         sut.setDescription("This is a SuT description example");
         sut.setProject(project);
-        sut.setSpecification("https://github.com/EduJGURJC/springbootdemo");
-        sut.setSutType(SutTypeEnum.REPOSITORY);
+        sut.setSpecification("elastest/test-etm-alpinegitjava");
+        sut.setSutType(SutTypeEnum.MANAGED);
+        sut.setManagedDockerType(ManagedDockerType.COMMANDS);
+        sut.setCommands("env");
         sut.setInstrumentalize(false);
         sut.setCurrentSutExec(null);
         sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
@@ -298,7 +315,7 @@ public class EtmApiItTest {
         Map<String, Long> urlParams = new HashMap<>();
         urlParams.put("sutId", sutId);
 
-        log.info("DELETE /api/sut/{sutId}");
+        log.info("DELETE /api/sut/{}", sutId);
         ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}",
                 HttpMethod.DELETE, null, Long.class, urlParams);
         log.info("Deleted sutSpecification:" + response.getBody());
@@ -307,4 +324,16 @@ public class EtmApiItTest {
 
     }
 
+    public SutSpecification getSutById(Long sutId) {
+        log.info("Start the method getSutById");
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("sutId", sutId);
+
+        log.info("GET /api/sut/{}", sutId);
+        ResponseEntity<SutSpecification> response = httpClient.getForEntity(
+                "/api/sut/{sutId}", SutSpecification.class, urlParams);
+
+        return response.getBody();
+    }
 }

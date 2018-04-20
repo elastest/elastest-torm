@@ -53,7 +53,7 @@ public class TJobApiItTest extends EtmApiItTest {
     public void testCreateTJob() throws JsonProcessingException {
         log.info("Start the test testCreateTJob");
 
-        TJob tJob = getSampleTJob(projectId, -1);
+        TJob tJob = getSampleTJob(projectId);
         ResponseEntity<TJob> response = createTJobByGiven(tJob);
         log.info("TJob creation response: " + response);
 

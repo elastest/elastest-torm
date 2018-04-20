@@ -179,20 +179,4 @@ public class SutApiItTest extends EtmApiItTest {
                 () -> assertNotNull(response.getBody().getId()),
                 () -> assertTrue(response.getBody().getId() > 0));
     }
-
-    public SutSpecification getSutById(Long sutId) {
-
-        log.info("Start the method getSutById");
-
-        Map<String, Long> urlParams = new HashMap<>();
-        urlParams.put("sutId", sutId);
-
-        log.info("GET /api/sut/{sutId}");
-        ResponseEntity<SutSpecification> response = httpClient.getForEntity(
-                "/api/sut/{sutId}", SutSpecification.class, urlParams);
-
-        return response.getBody();
-
-    }
-
 }
