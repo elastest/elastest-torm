@@ -30,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -60,20 +62,20 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
     @Test
     @Disabled
     public void testExecuteTJobWithSut()
-            throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
 
         testExecuteTJob(true);
     }
 
     @Test
     public void testExecuteTJobWithoutSut()
-            throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
 
         testExecuteTJob(false);
     }
 
     private void testExecuteTJob(boolean withSut) throws InterruptedException,
-            ExecutionException, TimeoutException, MultipleFailuresError {
+            ExecutionException, TimeoutException, MultipleFailuresError, JsonProcessingException {
 
         log.info("Start the test testExecuteTJob "
                 + (withSut ? "with" : "without") + " SuT");

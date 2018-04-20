@@ -15,6 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
@@ -22,176 +26,225 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 public class EtmApiItTest {
 
-	private static final Logger log = LoggerFactory.getLogger(EtmApiItTest.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(EtmApiItTest.class);
 
-	@Autowired
-	TestRestTemplate httpClient;
+    @Autowired
+    TestRestTemplate httpClient;
 
-	@LocalServerPort
-	int serverPort;
+    @LocalServerPort
+    int serverPort;
 
-	protected String baseUrl() {
-		return "http://localhost:"+serverPort;
-	}
-	
-	protected TJob createTJob(long projectId) {
-		return createTJob(projectId, -1);
-	}
-	
-	protected TJob createTJob(long projectId, long sutId) {
+    protected String baseUrl() {
+        return "http://localhost:" + serverPort;
+    }
 
-		String requestJson = "{" + 
-				"\"id\": 0," + 
-				"\"imageName\": \"elastest/test-etm-test1\"," +
-				"\"name\": \"testApp1\"," + 
-				"\"parameters\": [{\"Param1\":\"Value1\"}]," +
-				"\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/\"," +
-				"\"project\": { \"id\":" + projectId + "}" +
-				
-				(sutId == -1? "": ", \"sut\":{ \"id\":" +sutId+"}")
-				
-				+ "}";
+    protected TJob createTJob(long projectId) {
+        return createTJob(projectId, -1);
+    }
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+    protected TJob createTJob(long projectId, long sutId) {
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+        String requestJson = "{" + "\"id\": 0,"
+                + "\"imageName\": \"elastest/test-etm-test1\","
+                + "\"name\": \"testApp1\","
+                + "\"parameters\": [{\"Param1\":\"Value1\"}],"
+                + "\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/\","
+                + "\"project\": { \"id\":" + projectId + "}" +
 
-		log.info("POST /api/tjob");
-		ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob", entity, TJob.class);
-		
-		if(response.getStatusCode() != HttpStatus.OK){
-			log.warn("Error creating TJob: "+response);
-		}
-		
-		log.info("TJob created:" + response.getBody());
+                (sutId == -1 ? "" : ", \"sut\":{ \"id\":" + sutId + "}")
 
-		return response.getBody();
+                + "}";
 
-	}
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-	protected void deleteTJob(Long tJobId) {
-		
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("tjobId", tJobId);
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
 
-		log.info("DELETE /api/tjob/{tjobId");
-		ResponseEntity<Long> response = httpClient.exchange("/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
-				urlParams);
-		log.info("Deleted tjob:" + response.getBody().longValue());
+        log.info("POST /api/tjob");
+        ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob",
+                entity, TJob.class);
 
-	}
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.warn("Error creating TJob: " + response);
+        }
 
-	protected Project createProject(String projectName) {
+        log.info("TJob created:" + response.getBody());
 
-		String requestJson = "{ \"id\": 0,\"name\": \"" + projectName + "\"}";
+        return response.getBody();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+    }
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+    protected void deleteTJob(Long tJobId) {
 
-		log.info("POST /project");
-		ResponseEntity<Project> response = httpClient.postForEntity("/api/project", entity, Project.class);
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tjobId", tJobId);
 
-		return response.getBody();
+        log.info("DELETE /api/tjob/{tjobId");
+        ResponseEntity<Long> response = httpClient.exchange(
+                "/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
+                urlParams);
+        log.info("Deleted tjob:" + response.getBody().longValue());
 
-	}
+    }
 
-	protected void deleteProject(Long projectToDeleteId) {
+    protected Project createProject(String projectName) {
 
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("projectId", projectToDeleteId);
+        String requestJson = "{ \"id\": 0,\"name\": \"" + projectName + "\"}";
 
-		log.info("DELETE /project");
-		ResponseEntity<Long> response = httpClient.exchange("/api/project/{projectId}", HttpMethod.DELETE, null,
-				Long.class, urlParams);
-		log.info("Deleted project:" + response.getBody());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-	}
-	
-	protected TJob getTJobById(Long tJobId) {
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
 
-		log.info("Start the method getTJobById");
+        log.info("POST /project");
+        ResponseEntity<Project> response = httpClient
+                .postForEntity("/api/project", entity, Project.class);
 
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("tJobId", tJobId);
+        return response.getBody();
 
-		log.info("GET /api/tjob/{tJobId}");
-		ResponseEntity<TJob> response = httpClient.getForEntity("/api/tjob/{tJobId}", TJob.class, urlParams);
+    }
 
-		return response.getBody();
+    protected void deleteProject(Long projectToDeleteId) {
 
-	}
-	
-	protected void deleteTJobExecution(Long tJobExecId, Long tJobId){
-		
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("tJobExecId", tJobExecId);
-		urlParams.put("tJobId", tJobId);
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("projectId", projectToDeleteId);
+
+        log.info("DELETE /project");
+        ResponseEntity<Long> response = httpClient.exchange(
+                "/api/project/{projectId}", HttpMethod.DELETE, null, Long.class,
+                urlParams);
+        log.info("Deleted project:" + response.getBody());
+
+    }
+
+    protected TJob getTJobById(Long tJobId) {
+
+        log.info("Start the method getTJobById");
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tJobId", tJobId);
+
+        log.info("GET /api/tjob/{tJobId}");
+        ResponseEntity<TJob> response = httpClient
+                .getForEntity("/api/tjob/{tJobId}", TJob.class, urlParams);
+
+        return response.getBody();
+
+    }
+
+    protected void deleteTJobExecution(Long tJobExecId, Long tJobId) {
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tJobExecId", tJobExecId);
+        urlParams.put("tJobId", tJobId);
 
         log.info("DELETE /api/tjob/{tJobId}/exec/{tJobExecId}");
-        ResponseEntity<Long> response = httpClient.exchange("/api/tjob/{tJobId}/exec/{tJobExecId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted tJobExec:" + response.getBody().longValue());        
-        
-	}
-	
-	protected ResponseEntity<TJobExecution> getTJobExecutionById(Long tJobExecId, Long tJobId){
-		
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("tJobExecId", tJobExecId);
-		urlParams.put("tJobId", tJobId);
+        ResponseEntity<Long> response = httpClient.exchange(
+                "/api/tjob/{tJobId}/exec/{tJobExecId}", HttpMethod.DELETE, null,
+                Long.class, urlParams);
+        log.info("Deleted tJobExec:" + response.getBody().longValue());
+
+    }
+
+    protected ResponseEntity<TJobExecution> getTJobExecutionById(
+            Long tJobExecId, Long tJobId) {
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tJobExecId", tJobExecId);
+        urlParams.put("tJobId", tJobId);
 
         log.info("GET /api/tjob/{tJobId}/exec/{tJobExecId}");
-        ResponseEntity<TJobExecution> response = httpClient.getForEntity("/api/tjob/{tJobId}/exec/{tJobExecId}", TJobExecution.class, urlParams);
-        
-        return response;        
-	}
-	
-	protected SutSpecification createSut(long projectId){		
+        ResponseEntity<TJobExecution> response = httpClient.getForEntity(
+                "/api/tjob/{tJobId}/exec/{tJobExecId}", TJobExecution.class,
+                urlParams);
 
-		String requestJson ="{"
-				  + "\"description\": \"This is a SuT description example\","
-				  + "\"id\": 0,"
-				  + "\"name\": \"sut_definition_1\","
-				  + "\"project\": { \"id\":"+ projectId + "},"
-				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"sutType\": \"REPOSITORY\","
-				  + "\"instrumentalize\": \"" + false + "\","
-				  + "\"currentSutExec\": \"" + null + "\","
-                  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
-                  + "\"port\": \"" + null + "\","
-                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
-                  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
-                  +"}";
-	
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-	
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-		
-		log.info("POST /api/sut");
-		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
-		log.info("Sut created:" + response.getBody());
+        return response;
+    }
 
-		return response.getBody();
+    protected ResponseEntity<SutSpecification> createSutByGiven(
+            SutSpecification sut) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
+        String requestJson = mapper.writeValueAsString(sut);
 
-	}
-	
-	protected Long deleteSut(Long sutId){
-		
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("sutId", sutId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
+
+        log.info("POST /api/sut");
+        ResponseEntity<SutSpecification> response = httpClient
+                .postForEntity("/api/sut", entity, SutSpecification.class);
+        log.info("Sut created:" + response.getBody());
+
+        return response;
+    }
+
+    protected void modifySutByGiven(SutSpecification sut)
+            throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
+        String requestJson = mapper.writeValueAsString(sut);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
+
+        log.info("PUT /api/sut");
+        httpClient.put("/api/sut", entity, SutSpecification.class);
+    }
+
+    protected SutSpecification getSampleSut(long projectId) {
+        Project project = new Project();
+        project.setId(projectId);
+
+        SutSpecification sut = new SutSpecification();
+        sut.setId(new Long(0));
+        sut.setName("sut_definition_1");
+        sut.setDescription("This is a SuT description example");
+        sut.setProject(project);
+        sut.setSpecification("https://github.com/EduJGURJC/springbootdemo");
+        sut.setSutType(SutTypeEnum.REPOSITORY);
+        sut.setInstrumentalize(false);
+        sut.setCurrentSutExec(null);
+        sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
+        sut.setPort(null);
+        sut.setManagedDockerType(ManagedDockerType.IMAGE);
+        sut.setCommandsOption(CommandsOptionEnum.DEFAULT);
+        return sut;
+    }
+
+    protected SutSpecification createSut(long projectId)
+            throws JsonProcessingException {
+        SutSpecification sut = this.getSampleSut(projectId);
+        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+        log.info("Sut creation response: " + response);
+
+        return response.getBody();
+    }
+
+    protected Long deleteSut(Long sutId) {
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("sutId", sutId);
 
         log.info("DELETE /api/sut/{sutId}");
-        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted sutSpecification:" + response.getBody());  
-        
+        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}",
+                HttpMethod.DELETE, null, Long.class, urlParams);
+        log.info("Deleted sutSpecification:" + response.getBody());
+
         return response.getBody();
-        
-	}
+
+    }
 
 }

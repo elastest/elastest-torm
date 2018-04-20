@@ -161,25 +161,38 @@ public class EtmBaseTest {
 
     protected void navigateToElement(WebDriver driver, String id,
             String xpath) {
-        this.getElement(driver, id, xpath).get(0).click();
+        this.getElementByXpath(driver, id, xpath).get(0).click();
     }
 
     protected boolean elementExists(WebDriver driver, String id, String xpath) {
-        return this.getElement(driver, id, xpath).size() != 0;
+        return this.getElementByXpath(driver, id, xpath).size() != 0;
     }
 
-    protected List<WebElement> getElement(WebDriver driver, String id,
+    protected List<WebElement> getElementByXpath(WebDriver driver, String id,
             String xpath) {
-        return this.getElement(driver, id, xpath, 30);
+        return this.getElementByXpath(driver, id, xpath, 30);
     }
 
-    protected List<WebElement> getElement(WebDriver driver, String id,
+    protected List<WebElement> getElementByXpath(WebDriver driver, String id,
             String xpath, int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
         By elementAvailable = By.id(id);
         waitService.until(presenceOfElementLocated(elementAvailable));
 
         return driver.findElements(By.xpath(xpath));
+    }
+
+    protected List<WebElement> getElementsByTagName(WebDriver driver,
+            String tagName) {
+        return this.getElementsByTagName(driver, tagName, 30);
+    }
+
+    protected List<WebElement> getElementsByTagName(WebDriver driver,
+            String tagName, int secondsTimeout) {
+        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
+        waitService.until(presenceOfElementLocated(By.tagName(tagName)));
+
+        return driver.findElements(By.tagName(tagName));
     }
 
     /* *************** */

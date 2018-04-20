@@ -8,6 +8,7 @@ elastest_lib.setContext(this)
 def elastest= elastest_lib.getElastestMethods()
 
 elastest_lib.setMode('experimental-lite')
+elastest_lib.setTestLink(true)
 
 //definition of nodes is managed by the library. Just declare the steps of your pipeline
 //inside the elastest_lib.pipeline({...})

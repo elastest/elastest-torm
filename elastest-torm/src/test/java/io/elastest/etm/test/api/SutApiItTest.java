@@ -23,182 +23,175 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.elastest.etm.ElasTestTormApp;
+import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SutApiItTest extends EtmApiItTest {
 
-	static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
-	
-	@LocalServerPort
+    static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);
+
+    @LocalServerPort
     int serverPort;
-	
-	@Autowired
-	TestRestTemplate httpClient;
-	
-	long projectId;	
-	
-	@BeforeEach
+
+    @Autowired
+    TestRestTemplate httpClient;
+
+    long projectId;
+
+    @BeforeEach
     void setup() {
         log.info("App started on port {}", serverPort);
         projectId = createProject("Project").getId();
     }
-	
-	@AfterEach
-	void reset(){
-		deleteProject(projectId);
-	}	
-	
-	@Test
-	public void testCreateSut(){
-		
-		log.info("Start the test testCreateSutSpecification" );		
-		
-		String requestJson ="{"
-				  + "\"description\": \"This is a SuT description example\","
-				  + "\"id\": 0,"
-				  + "\"name\": \"sut_definition_1\","
-				  + "\"project\": { \"id\":"+ projectId + "},"
-				  + "\"specification\": \"https://github.com/EduJGURJC/springbootdemo\","
-				  + "\"sutType\": \"REPOSITORY\","
-				  + "\"instrumentalize\": \"" + false + "\","
-				  + "\"currentSutExec\": \"" + null + "\","
-				  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
-				  + "\"port\": \"" + null + "\","
-				  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
-				  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
-				+"}";
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-		
-		log.info("POST /api/sut");
-		ResponseEntity<SutSpecification> response = httpClient.postForEntity("/api/sut", entity, SutSpecification.class);
-		
-		log.info("Sut creation response: " + response);
-		
-		assertEquals(HttpStatus.OK,response.getStatusCode());
-		
-		deleteSut(response.getBody().getId());
+    @AfterEach
+    void reset() {
+        deleteProject(projectId);
+    }
 
-		assertAll("Validating sutSpecification Properties", 
-				() -> assertTrue(response.getBody().getName().equals("sut_definition_1")),
-				() -> assertNotNull(response.getBody().getId()),
-				() -> assertTrue(response.getBody().getId() > 0)
-				);
-	}
-	
-	@Test
-	public void testModifySut(){
-		log.info("Start the test testModifySut" );
-		
-		SutSpecification sutSpec = createSut(projectId);
-		sutSpec.setName("sut_definition_2");
-						
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		
-		log.info("Sut to modify:" +sutSpec.toString());
-		
-		String requestJson ="{"
-				  + "\"description\": \"" + sutSpec.getDescription() + "\","
-				  + "\"id\": " +sutSpec.getId() + ","
-				  + "\"name\": \"" + sutSpec.getName() + "\","
-				  + "\"project\": { \"id\":"+ sutSpec.getProject().getId() + "},"
-				  + "\"specification\": \"" + sutSpec.getSpecification() + "\","  
-				  + "\"sutType\": \"" + sutSpec.getSutType() + "\","
-				  + "\"instrumentalize\": \"" + false + "\","
-				  + "\"currentSutExec\": \"" + null + "\","
-                  + "\"instrumentedBy\": \"" + InstrumentedByEnum.WITHOUT + "\","
-                  + "\"port\": \"" + null + "\","
-                  + "\"managedDockerType\": \"" + ManagedDockerType.IMAGE + "\","
-                  + "\"commandsOption\": \"" + CommandsOptionEnum.DEFAULT + "\""
-                  +"}";
+    @Test
+    public void testCreateSut() throws JsonProcessingException {
+        log.info("Start the test testCreateSut");
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-	
-		log.info("PUT /api/sut");
-		httpClient.put("/api/sut", entity, SutSpecification.class);
-		
-		SutSpecification sutSpecModified = getSutById(sutSpec.getId());
-		
+        SutSpecification sut = getSampleSut(projectId);
 
-		deleteSut(sutSpec.getId());
+        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+        log.info("Sut creation response: " + response);
 
-		assertAll("Validating sutSpecification Properties", 
-				() -> assertTrue(sutSpecModified.getName().equals("sut_definition_2")),
-				() -> assertNotNull(sutSpecModified.getId()),
-				() -> assertTrue(sutSpecModified.getId() > 0)
-				);
-	}
-	
-	@Test
-	public void testGetSuts(){
-		log.info("Start the test testGetSuts" );
-		
-		List<SutSpecification> tSutsToGet = new ArrayList<>();
-		
-		for (int i = 0; i < 3; i++){
-			tSutsToGet.add(createSut(projectId));
-		}
-        
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        deleteSut(response.getBody().getId());
+
+        assertAll("Validating sutSpecification Properties",
+                () -> assertTrue(response.getBody().getName()
+                        .equals("sut_definition_1")),
+                () -> assertNotNull(response.getBody().getId()),
+                () -> assertTrue(response.getBody().getId() > 0));
+    }
+
+    @Test
+    public void testModifySut() throws JsonProcessingException {
+        log.info("Start the test testModifySut");
+
+        SutSpecification sut = createSut(projectId);
+        sut.setName("sut_definition_2");
+
+        log.info("Sut to modify:" + sut.toString());
+        modifySutByGiven(sut);
+        SutSpecification modifiedSut = getSutById(sut.getId());
+
+        deleteSut(sut.getId());
+
+        assertAll("Validating sutSpecification Properties",
+                () -> assertTrue(
+                        modifiedSut.getName().equals("sut_definition_2")),
+                () -> assertNotNull(modifiedSut.getId()),
+                () -> assertTrue(modifiedSut.getId() > 0));
+    }
+
+    @Test
+    public void testGetSuts() throws JsonProcessingException {
+        log.info("Start the test testGetSuts");
+
+        List<SutSpecification> tSutsToGet = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            tSutsToGet.add(createSut(projectId));
+        }
+
         log.debug("GET /api/sut");
-        ResponseEntity<SutSpecification[]> response = httpClient.getForEntity("/api/sut", SutSpecification[].class);
+        ResponseEntity<SutSpecification[]> response = httpClient
+                .getForEntity("/api/sut", SutSpecification[].class);
         SutSpecification[] suts = response.getBody();
-        
-        for (SutSpecification sut: suts){
-        	deleteSut(sut.getId());
-		}
-                        
+
+        for (SutSpecification sut : suts) {
+            deleteSut(sut.getId());
+        }
+
         log.info("Suts Array size:" + suts.length);
         assertTrue(suts.length > 0);
-	}
-	
+    }
 
-	@Test
-	public void testDeleteSut(){
-		log.info("Start the test testDeleteSut" );
-		
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("sutId", createSut(projectId).getId());
+    @Test
+    public void testDeleteSut() throws JsonProcessingException {
+        log.info("Start the test testDeleteSut");
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("sutId", createSut(projectId).getId());
 
         log.info("DELETE /api/sut/{sutId}");
-        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}", HttpMethod.DELETE, null, Long.class, urlParams);
+        ResponseEntity<Long> response = httpClient.exchange("/api/sut/{sutId}",
+                HttpMethod.DELETE, null, Long.class, urlParams);
         log.info("Deleted sut:" + response.getBody().longValue());
-        
-        assertTrue(response.getBody().longValue() == urlParams.get("sutId"));
-	}
-	
-	public SutSpecification getSutById(Long sutId){
-		
-		log.info("Start the method getSutById" );
 
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("sutId", sutId);
-	
-		log.info("GET /api/sut/{sutId}");
-		ResponseEntity<SutSpecification> response = httpClient.getForEntity("/api/sut/{sutId}", SutSpecification.class, urlParams);
-		
-		return response.getBody();
-		
-	}
-	
-	
+        assertTrue(response.getBody().longValue() == urlParams.get("sutId"));
+    }
+
+    @Test
+    public void testCreateSutWithCommandsContainer()
+            throws JsonProcessingException {
+        log.info("Start the test testCreateSutWithCommandsContainer");
+
+        Project project = new Project();
+        project.setId(projectId);
+
+        SutSpecification sut = new SutSpecification();
+        sut.setId(new Long(0));
+        sut.setName("sut_definition_Webapp");
+        sut.setDescription("Webapp Description");
+        sut.setProject(project);
+        sut.setSutType(SutTypeEnum.MANAGED);
+        sut.setManagedDockerType(ManagedDockerType.IMAGE);
+        sut.setSpecification("elastest/demo-web-java-test-sut");
+        sut.setCommandsOption(CommandsOptionEnum.DEFAULT);
+        sut.setInstrumentalize(false);
+        sut.setCurrentSutExec(null);
+        sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
+        sut.setPort("8080");
+
+        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+        log.info("Sut creation response: " + response);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        deleteSut(response.getBody().getId());
+
+        assertAll("Validating sutSpecification Properties",
+                () -> assertTrue(response.getBody().getName()
+                        .equals("sut_definition_1")),
+                () -> assertNotNull(response.getBody().getId()),
+                () -> assertTrue(response.getBody().getId() > 0));
+    }
+
+    public SutSpecification getSutById(Long sutId) {
+
+        log.info("Start the method getSutById");
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("sutId", sutId);
+
+        log.info("GET /api/sut/{sutId}");
+        ResponseEntity<SutSpecification> response = httpClient.getForEntity(
+                "/api/sut/{sutId}", SutSpecification.class, urlParams);
+
+        return response.getBody();
+
+    }
 
 }

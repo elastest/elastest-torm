@@ -22,7 +22,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -64,12 +63,12 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String xpath = "//button[@id='" + id + "']";
 
         log.info("Synchronizing TestLink With ElasTest");
-        this.getElement(driver, id, xpath).get(0).click();
+        this.getElementByXpath(driver, id, xpath).get(0).click();
 
         // Wait to sync ends
         WebDriverWait waitService = new WebDriverWait(driver, 45);
         waitService.until(elementToBeClickable(
-                this.getElement(driver, id, xpath).get(0)));
+                this.getElementByXpath(driver, id, xpath).get(0)));
 
     }
 
@@ -131,14 +130,20 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     protected void executeTLEtmPlan(WebDriver driver) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
-        this.getElement(driver, runPlanBtnId, runPlanBtnXpath).get(0).click();
+        this.getElementByXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
+                .click();
 
         String selectBuildId = "selectBuild";
         String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
+        this.getElementByXpath(driver, selectBuildId, selectBuildXpath).get(0)
+                .click();
 
-        Select buildSelect = new Select(this
-                .getElement(driver, selectBuildId, selectBuildXpath).get(0));
-        buildSelect.selectByIndex(0);
+        this.getElementsByTagName(driver, "md-option").get(0).click();
+
+        String runPlanModalBtnId = "runPlanModalBtn";
+        String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";
+        this.getElementByXpath(driver, runPlanModalBtnId, runPlanModalXpath)
+                .get(0).click();
     }
 
     protected void executeTLEtmPlanWithNavigate(WebDriver driver,
@@ -152,14 +157,14 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String passedRadioBtnXpath = "//button[@id='" + passedRadioBtnId + "']";
 
         // Great Timeout for wait to pull and start eus/browser containers
-        this.getElement(driver, passedRadioBtnId, passedRadioBtnXpath, 240)
-                .get(0).click();
+        this.getElementByXpath(driver, passedRadioBtnId, passedRadioBtnXpath,
+                240).get(0).click();
 
         String saveAndNextBtnId = "saveAndNext";
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
-        this.getElement(driver, saveAndNextBtnId, saveAndNextBtnXpath).get(0)
-                .click();
+        this.getElementByXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath)
+                .get(0).click();
     }
 
     /* ****************** */
