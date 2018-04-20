@@ -674,16 +674,15 @@ public class EsmService {
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
             logger.info("Manifest services {}:" + serviceName);
-            String baseRegex = "[0-9a-f]{32}_" + serviceName + "_Ip";
-            Pattern pattern = Pattern.compile(baseRegex);
+            String serviceIpFieldSufix = serviceName + "_Ip";            
             String serviceIp = null;
             boolean ipFound = false;
 
             while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
                 logger.info("Instance data fields {}:" + fieldName);
-                Matcher matcher = pattern.matcher(fieldName);
-                if (matcher.matches()) {
+                
+                if (fieldName.contains(serviceIpFieldSufix)) {
 
                     String ssrvContainerName = fieldName.substring(0,
                             fieldName.indexOf("_Ip"));
