@@ -19,12 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.Project;
@@ -35,130 +34,114 @@ import io.elastest.etm.model.TJob;
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TJobApiItTest extends EtmApiItTest {
 
-	static final Logger log = LoggerFactory.getLogger(TJobApiItTest.class);
+    static final Logger log = LoggerFactory.getLogger(TJobApiItTest.class);
 
-	long projectId;
+    long projectId;
 
-	@BeforeEach
-	void setup() {
-		log.info("App started on port {}", serverPort);
-		projectId = createProject("P00000000").getId();
-	}
+    @BeforeEach
+    void setup() {
+        log.info("App started on port {}", serverPort);
+        projectId = createProject("P00000000").getId();
+    }
 
-	@AfterEach
-	void reset() {
-		deleteProject(projectId);
-	}
+    @AfterEach
+    void reset() {
+        deleteProject(projectId);
+    }
 
-	@Test
-	public void testCreateTJob() {
-		log.info("Start the test testCreateTJob");
+    @Test
+    public void testCreateTJob() throws JsonProcessingException {
+        log.info("Start the test testCreateTJob");
 
-		String requestJson = "{" + "\"id\": 0," + "\"imageName\": \"elastest/test-etm-test1\","
-				+ "\"name\": \"testApp1\"," + "\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/\","
-				+ "\"project\": { \"id\":" + projectId + "}" + "}";
+        TJob tJob = getSampleTJob(projectId, -1);
+        ResponseEntity<TJob> response = createTJobByGiven(tJob);
+        log.info("TJob creation response: " + response);
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+        deleteTJob(response.getBody().getId());
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+        assertAll("Validating tJob Properties",
+                () -> assertTrue(
+                        response.getBody().getName().equals("testApp1")),
+                () -> assertNotNull(response.getBody().getId()));
+    }
 
-		log.info("POST /api/tjob");
-		ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob", entity, TJob.class);
-		log.info("TJob created:" + response.getBody());
+    @Test
+    public void testModifyTJob() throws JsonProcessingException {
+        log.info("Start the test testCreateTJob");
 
-		deleteTJob(response.getBody().getId());
+        TJob tJob = createTJob(projectId);
+        tJob.setName("testApp2");
 
-		assertAll("Validating tJob Properties", 
-				() -> assertTrue(response.getBody().getName().equals("testApp1")),
-				() -> assertNotNull(response.getBody().getId()));
+        modifyTJob(tJob);
+        TJob tJobModified = getTJobById(tJob.getId());
 
-	}
+        deleteTJob(tJobModified.getId());
 
-	@Test
-	public void testModifyTJob() {
-		log.info("Start the test testCreateTJob");
+        assertAll("Validating TJob Properties",
+                () -> assertTrue(tJobModified.getName().equals("testApp2")),
+                () -> assertNotNull(tJobModified.getId()));
+    }
 
-		TJob tjob = createTJob(projectId);
-		String requestJson = "{" + "\"id\":" + tjob.getId() + "," + "\"imageName\": \"" + tjob.getImageName() + "\","
-				+ "\"name\": \"testApp2\"," + "\"project\": { \"id\":" + projectId + "}" + "}";
+    @Test
+    public void testGetTJobs() throws JsonProcessingException {
+        log.info("Start the test testGetTJobs");
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+        List<TJob> tJobsToGet = new ArrayList<>();
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+        for (int i = 0; i < 3; i++) {
+            tJobsToGet.add(createTJob(projectId));
+        }
 
-		log.info("PUT /api/tjob");
-		httpClient.put("/api/tjob", entity, TJob.class);
+        log.debug("GET /tjob");
+        ResponseEntity<TJob[]> response = httpClient.getForEntity("/api/tjob",
+                TJob[].class);
+        TJob[] tJobs = response.getBody();
 
-		TJob tJobModified = getTJobById(tjob.getId());
+        for (TJob tjob : tJobs) {
+            deleteTJob(tjob.getId());
+        }
 
-		deleteTJob(tJobModified.getId());
+        log.info("TJobs Array size:" + tJobs.length);
+        assertTrue(tJobs.length > 0);
 
-		assertAll("Validating TJob Properties", 
-				() -> assertTrue(tJobModified.getName().equals("testApp2")),
-				() -> assertNotNull(tJobModified.getId()));
-	}
+    }
 
+    @Test
+    public void testGetTJobById() throws JsonProcessingException {
 
+        log.info("Start the test testGetTJobById");
 
-	@Test
-	public void testGetTJobs() {
-		log.info("Start the test testGetTJobs");
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("id", createTJob(projectId).getId());
 
-		List<TJob> tJobsToGet = new ArrayList<>();
+        log.info("GET /tjob/{id}");
+        ResponseEntity<Project> response = httpClient
+                .getForEntity("/api/tjob/{id}", Project.class, urlParams);
 
-		for (int i = 0; i < 3; i++) {
-			tJobsToGet.add(createTJob(projectId));
-		}
+        deleteTJob(response.getBody().getId());
 
-		log.debug("GET /tjob");
-		ResponseEntity<TJob[]> response = httpClient.getForEntity("/api/tjob", TJob[].class);
-		TJob[] tJobs = response.getBody();
+        assertAll("Validating TJob Properties",
+                () -> assertNotNull(response.getBody()),
+                () -> assertTrue(response.getBody().getId()
+                        .equals(urlParams.get("id"))));
 
-		for (TJob tjob : tJobs) {
-			deleteTJob(tjob.getId());
-		}
+    }
 
-		log.info("TJobs Array size:" + tJobs.length);
-		assertTrue(tJobs.length > 0);
+    @Test
+    public void testDeleteTJob() throws JsonProcessingException {
+        log.info("Start the test testDeleteTJob");
 
-	}
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tjobId", createTJob(projectId).getId());
 
-	@Test
-	public void testGetTJobById() {
+        log.info("DELETE /api/tjob/{tjobId");
+        ResponseEntity<Long> response = httpClient.exchange(
+                "/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
+                urlParams);
+        log.info("Deleted tjob:" + response.getBody().longValue());
 
-		log.info("Start the test testGetTJobById");
+        assertTrue(response.getBody().longValue() == urlParams.get("tjobId"));
 
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("id", createTJob(projectId).getId());
-
-		log.info("GET /tjob/{id}");
-		ResponseEntity<Project> response = httpClient.getForEntity("/api/tjob/{id}", Project.class, urlParams);
-
-		deleteTJob(response.getBody().getId());
-
-		assertAll("Validating TJob Properties", () -> assertNotNull(response.getBody()),
-				() -> assertTrue(response.getBody().getId().equals(urlParams.get("id"))));
-
-	}
-
-	@Test
-	public void testDeleteTJob() {
-		log.info("Start the test testDeleteTJob");
-
-		Map<String, Long> urlParams = new HashMap<>();
-		urlParams.put("tjobId", createTJob(projectId).getId());
-
-		log.info("DELETE /api/tjob/{tjobId");
-		ResponseEntity<Long> response = httpClient.exchange("/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
-				urlParams);
-		log.info("Deleted tjob:" + response.getBody().longValue());
-
-		assertTrue(response.getBody().longValue() == urlParams.get("tjobId"));
-
-	}
-	
-	
+    }
 
 }

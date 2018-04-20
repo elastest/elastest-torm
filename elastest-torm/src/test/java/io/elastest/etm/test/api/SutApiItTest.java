@@ -143,6 +143,43 @@ public class SutApiItTest extends EtmApiItTest {
         assertTrue(response.getBody().longValue() == urlParams.get("sutId"));
     }
 
+    @Test
+    public void testCreateSutWithCommandsContainer()
+            throws JsonProcessingException {
+        log.info("Start the test testCreateSutWithCommandsContainer");
+
+        Project project = new Project();
+        project.setId(projectId);
+        String name = "sut_definition_Webapp";
+        
+        SutSpecification sut = new SutSpecification();
+        sut.setId(new Long(0));
+        sut.setName(name);
+        sut.setDescription("Webapp Description");
+        sut.setProject(project);
+        sut.setSutType(SutTypeEnum.MANAGED);
+        sut.setManagedDockerType(ManagedDockerType.IMAGE);
+        sut.setSpecification("elastest/demo-web-java-test-sut");
+        sut.setCommandsOption(CommandsOptionEnum.DEFAULT);
+        sut.setInstrumentalize(false);
+        sut.setCurrentSutExec(null);
+        sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
+        sut.setPort("8080");
+
+        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+        log.info("Sut creation response: " + response);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        deleteSut(response.getBody().getId());
+
+        assertAll("Validating sutSpecification Properties",
+                () -> assertTrue(response.getBody().getName()
+                        .equals(name)),
+                () -> assertNotNull(response.getBody().getId()),
+                () -> assertTrue(response.getBody().getId() > 0));
+    }
+
     public SutSpecification getSutById(Long sutId) {
 
         log.info("Start the method getSutById");

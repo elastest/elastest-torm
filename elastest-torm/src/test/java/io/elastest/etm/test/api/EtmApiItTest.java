@@ -1,5 +1,6 @@
 package io.elastest.etm.test.api;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
@@ -43,55 +45,9 @@ public class EtmApiItTest {
         return "http://localhost:" + serverPort;
     }
 
-    protected TJob createTJob(long projectId) {
-        return createTJob(projectId, -1);
-    }
-
-    protected TJob createTJob(long projectId, long sutId) {
-
-        String requestJson = "{" + "\"id\": 0,"
-                + "\"imageName\": \"elastest/test-etm-test1\","
-                + "\"name\": \"testApp1\","
-                + "\"parameters\": [{\"Param1\":\"Value1\"}],"
-                + "\"resultsPath\": \"/app1TestJobsJenkins/target/surefire-reports/\","
-                + "\"project\": { \"id\":" + projectId + "}" +
-
-                (sutId == -1 ? "" : ", \"sut\":{ \"id\":" + sutId + "}")
-
-                + "}";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
-                headers);
-
-        log.info("POST /api/tjob");
-        ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob",
-                entity, TJob.class);
-
-        if (response.getStatusCode() != HttpStatus.OK) {
-            log.warn("Error creating TJob: " + response);
-        }
-
-        log.info("TJob created:" + response.getBody());
-
-        return response.getBody();
-
-    }
-
-    protected void deleteTJob(Long tJobId) {
-
-        Map<String, Long> urlParams = new HashMap<>();
-        urlParams.put("tjobId", tJobId);
-
-        log.info("DELETE /api/tjob/{tjobId");
-        ResponseEntity<Long> response = httpClient.exchange(
-                "/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
-                urlParams);
-        log.info("Deleted tjob:" + response.getBody().longValue());
-
-    }
+    /* *************** */
+    /* *** Project *** */
+    /* *************** */
 
     protected Project createProject(String projectName) {
 
@@ -124,6 +80,102 @@ public class EtmApiItTest {
 
     }
 
+    /* ************ */
+    /* *** TJob *** */
+    /* ************ */
+
+    protected TJob getSampleTJob(long projectId, long sutId) {
+        Project project = new Project();
+        project.setId(projectId);
+
+        Parameter param = new Parameter();
+        param.setName("Param1");
+        param.setValue("Value1");
+
+        TJob tJob = new TJob();
+        tJob.setId(new Long(0));
+        tJob.setName("testApp1");
+        tJob.setImageName("elastest/test-etm-test1");
+        tJob.setParameters(Arrays.asList(param));
+        tJob.setResultsPath("/app1TestJobsJenkins/target/surefire-reports/");
+        tJob.setProject(project);
+
+        if (sutId > -1) {
+            SutSpecification sut = new SutSpecification();
+            sut.setId(sutId);
+            tJob.setSut(sut);
+        }
+
+        tJob.setSelectedServices("[]");
+
+        return tJob;
+    }
+
+    protected TJob createTJob(long projectId) throws JsonProcessingException {
+        return createTJob(projectId, -1);
+    }
+
+    protected ResponseEntity<TJob> createTJobByGiven(TJob tJob)
+            throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
+        String requestJson = mapper.writeValueAsString(tJob);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
+
+        log.info("POST /api/tjob");
+        ResponseEntity<TJob> response = httpClient.postForEntity("/api/tjob",
+                entity, TJob.class);
+
+        return response;
+    }
+
+    protected TJob createTJob(long projectId, long sutId)
+            throws JsonProcessingException {
+        TJob tJob = this.getSampleTJob(projectId, sutId);
+        ResponseEntity<TJob> response = createTJobByGiven(tJob);
+        log.info("TJob creation response: " + response);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.warn("Error creating TJob: " + response);
+        }
+
+        return response.getBody();
+
+    }
+
+    protected void modifyTJob(TJob tJob) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
+        String requestJson = mapper.writeValueAsString(tJob);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
+
+        log.info("PUT /api/tjob");
+        httpClient.put("/api/tjob", entity, TJob.class);
+    }
+
+    protected void deleteTJob(Long tJobId) {
+
+        Map<String, Long> urlParams = new HashMap<>();
+        urlParams.put("tjobId", tJobId);
+
+        log.info("DELETE /api/tjob/{tjobId");
+        ResponseEntity<Long> response = httpClient.exchange(
+                "/api/tjob/{tjobId}", HttpMethod.DELETE, null, Long.class,
+                urlParams);
+        log.info("Deleted tjob:" + response.getBody().longValue());
+
+    }
+
     protected TJob getTJobById(Long tJobId) {
 
         log.info("Start the method getTJobById");
@@ -138,6 +190,10 @@ public class EtmApiItTest {
         return response.getBody();
 
     }
+
+    /* **************** */
+    /* *** TJobExec *** */
+    /* **************** */
 
     protected void deleteTJobExecution(Long tJobExecId, Long tJobId) {
 
@@ -168,6 +224,10 @@ public class EtmApiItTest {
         return response;
     }
 
+    /* *********** */
+    /* *** SuT *** */
+    /* *********** */
+
     protected ResponseEntity<SutSpecification> createSutByGiven(
             SutSpecification sut) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -186,6 +246,15 @@ public class EtmApiItTest {
         log.info("Sut created:" + response.getBody());
 
         return response;
+    }
+
+    protected SutSpecification createSut(long projectId)
+            throws JsonProcessingException {
+        SutSpecification sut = this.getSampleSut(projectId);
+        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+        log.info("Sut creation response: " + response);
+
+        return response.getBody();
     }
 
     protected void modifySutByGiven(SutSpecification sut)
@@ -222,15 +291,6 @@ public class EtmApiItTest {
         sut.setManagedDockerType(ManagedDockerType.IMAGE);
         sut.setCommandsOption(CommandsOptionEnum.DEFAULT);
         return sut;
-    }
-
-    protected SutSpecification createSut(long projectId)
-            throws JsonProcessingException {
-        SutSpecification sut = this.getSampleSut(projectId);
-        ResponseEntity<SutSpecification> response = createSutByGiven(sut);
-        log.info("Sut creation response: " + response);
-
-        return response.getBody();
     }
 
     protected Long deleteSut(Long sutId) {

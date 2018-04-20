@@ -2,9 +2,7 @@ package io.elastest.etm.test.api;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +23,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.model.TJob;
 import io.elastest.etm.service.EsmService;
 
 @RunWith(JUnitPlatform.class)
@@ -52,8 +49,6 @@ public class EsmApiItTest extends EtmApiItTest{
 	@Disabled
 	public void testGetElastestServices(){		
 		log.info("Start the test testGetElastestServices");
-
-		List<TJob> tJobsToGet = new ArrayList<>();
 
 		log.debug("GET /esm/service");
 		ResponseEntity<String[]> objNode = httpClient.getForEntity("/api/esm/service", String[].class);
