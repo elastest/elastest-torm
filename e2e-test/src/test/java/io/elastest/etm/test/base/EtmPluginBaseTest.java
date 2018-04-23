@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -18,6 +17,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import io.elastest.etm.test.utils.Shell;
+
 public class EtmPluginBaseTest extends EtmBaseTest {
     
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
@@ -25,7 +26,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     // protected String pluginPath =
     // "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
     protected String pluginOriginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
-    protected String pluginTargetPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
+    protected String pluginTargetPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
 //    protected String pluginOriginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
 //    protected String pluginTargetPath = "/home/frdiaz/git/elastest/elastest-torm/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
     protected String pluginPath = "/opt/selenoid/video";
@@ -52,8 +53,13 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         WebDriverWait waitService = new WebDriverWait(driver, 60);
 
         // Copy hpi file to the folder accessible by the Browser
+        log.info("PWD: ");
+        Shell.runAndWait("sh", "-c", "pwd");
+        log.info("LS: ");
+        Shell.runAndWait("sh", "-c", "ls -lrt target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest");
+                      
         Path sourcePathFile = Paths.get(pluginOriginPath);
-        Path targetPathFile = Paths.get(pluginTargetPath);        
+        Path targetPathFile = Paths.get(pluginTargetPath);
         Files.copy(sourcePathFile, targetPathFile, StandardCopyOption.REPLACE_EXISTING);
 
         // Install plugin
