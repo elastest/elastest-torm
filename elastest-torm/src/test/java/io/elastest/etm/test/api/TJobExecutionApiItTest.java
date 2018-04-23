@@ -1,6 +1,7 @@
 package io.elastest.etm.test.api;
 
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 
 @RunWith(JUnitPlatform.class)
@@ -71,7 +73,14 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         testExecuteTJob(false);
     }
 
-    private void testExecuteTJob(boolean withSut)
+    @Test
+    public void testExecuteTJobWithoutSutAndStop()
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        testExecuteTJob(false, true);
+    }
+
+    private void testExecuteTJob(boolean withSut, boolean withStop)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
 
@@ -108,21 +117,28 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
         log.info("TJobExecution creation response: " + response);
 
-        int waitTime = 240;
-        if (withSut) {
-            waitTime = 360;
+        if (withStop) {
+            log.info("Sending stop signal to Execution {}...",exec.getId());
+            httpClient.delete("/api/tjob/" + tJob.getId() + "/exec/"
+                    + exec.getId() + "/stop");
+        } else {
+            // Wait for end execution
+            int waitTime = 240;
+            if (withSut) {
+                waitTime = 360;
+            }
+
+            String queueToSuscribe = "/topic/" + "test.default_log."
+                    + exec.getId() + ".log";
+            log.info("TJob log queue '" + queueToSuscribe + "'");
+
+            WaitForMessagesHandler handler = new WaitForMessagesHandler(
+                    msg -> msg.contains("BUILD SUCCESS")
+                            || msg.contains("BUILD FAILURE"));
+
+            stompSession.subscribe(queueToSuscribe, handler);
+            handler.waitForCompletion(waitTime, TimeUnit.SECONDS);
         }
-
-        String queueToSuscribe = "/topic/" + "test.default_log." + exec.getId()
-                + ".log";
-        log.info("TJob log queue '" + queueToSuscribe + "'");
-
-        WaitForMessagesHandler handler = new WaitForMessagesHandler(
-                msg -> msg.contains("BUILD SUCCESS")
-                        || msg.contains("BUILD FAILURE"));
-
-        stompSession.subscribe(queueToSuscribe, handler);
-        handler.waitForCompletion(waitTime, TimeUnit.SECONDS);
 
         assertAll("Validating TJobExecution Properties",
                 () -> assertNotNull(response.getBody()),
@@ -140,9 +156,19 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             sleep(500);
         }
 
+        if (withStop) {
+            assertEquals(ResultEnum.STOPPED, exec.getResult());
+        }
+
         deleteTJobExecution(exec.getId(), tJob.getId());
         deleteTJob(tJob.getId());
         log.info("Finished.");
+    }
+
+    private void testExecuteTJob(boolean withSut)
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        this.testExecuteTJob(withSut, false);
     }
 
     private void sleep(int waitTime) {

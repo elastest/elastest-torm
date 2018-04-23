@@ -83,57 +83,6 @@ public class ElasticsearchService {
 
     }
 
-    public ResponseEntity<String> putCall(String url, String body)
-            throws IndexAlreadyExistException, RestClientException {
-        RestTemplate restTemplate = new RestTemplate(
-                clientHttpRequestFactory(5000, 5000));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request = new HttpEntity<String>(body, headers);
-
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url,
-                    HttpMethod.PUT, request, String.class);
-
-            HttpStatus statusCode = responseEntity.getStatusCode();
-
-            if (!HttpStatus.OK.equals(statusCode)) {
-                throw new IndexAlreadyExistException();
-            }
-            return responseEntity;
-        } catch (RestClientException e) {
-            throw e;
-        }
-    }
-
-    public ResponseEntity<String> postCall(String url, String body)
-            throws IndexAlreadyExistException, RestClientException {
-        RestTemplate restTemplate = new RestTemplate(
-                clientHttpRequestFactory(5000, 5000));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request = new HttpEntity<String>(body, headers);
-
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url,
-                    HttpMethod.POST, request, String.class);
-
-            return responseEntity;
-        } catch (RestClientException e) {
-            throw e;
-        }
-    }
-
-    public ClientHttpRequestFactory clientHttpRequestFactory(int readTimeout,
-            int connectTimeout) {
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setReadTimeout(readTimeout);
-        factory.setConnectTimeout(connectTimeout);
-        return factory;
-    }
-
     /* ************* */
     /* *** Index *** */
     /* ************* */
