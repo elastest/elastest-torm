@@ -117,7 +117,7 @@ export class TestProjectComponent implements OnInit {
     if (this.exProject) {
       this.testLinkService.getExternalTJobByTestPlanId(testPlan.id).subscribe(
         (exTJob: ExternalTJobModel) => {
-          this.router.navigate(['/external/project', this.exProject.id, 'tjob', 'edit', exTJob.id]);
+          this.router.navigate(['/external/projects', this.exProject.id, 'tjob', 'edit', exTJob.id]);
         },
         (error) => console.log(error),
       );

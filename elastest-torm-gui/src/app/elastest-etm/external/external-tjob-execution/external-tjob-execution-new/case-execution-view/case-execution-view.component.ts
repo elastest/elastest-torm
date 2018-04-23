@@ -61,7 +61,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
     if (this.exTJobExec) {
       this.tJobExecUrl =
         document.location.origin +
-        '/#/external/project/' +
+        '/#/external/projects/' +
         this.exTJob.exProject.id +
         '/tjob/' +
         this.exTJob.id +
@@ -74,7 +74,7 @@ export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
   getCurrentTestExecutionUrl(label: string): string {
     let testExecUrl: string =
       document.location.origin +
-      '/#/external/project/' +
+      '/#/external/projects/' +
       this.exTJob.exProject.id +
       '/tjob/' +
       this.exTJob.id +

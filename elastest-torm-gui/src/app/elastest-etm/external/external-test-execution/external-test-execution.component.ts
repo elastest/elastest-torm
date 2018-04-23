@@ -49,6 +49,7 @@ export class ExternalTestExecutionComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('External Test Execution');
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.exTestExec = new ExternalTestExecutionModel();
     this.loadExternalTestExec();
   }

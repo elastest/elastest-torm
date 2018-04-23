@@ -59,7 +59,6 @@ export class TjobManagerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('TJob');
     this.tJob = new TJobModel();
     this.reloadTJob();
   }
@@ -68,6 +67,7 @@ export class TjobManagerComponent implements OnInit {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId'])).subscribe((tJob: TJobModel) => {
         this.tJob = tJob;
+        this.titlesService.setHeadTitle('TJob ' + this.tJob.name);
         this.titlesService.setPathName(this.router.routerState.snapshot.url);
         if (this.tJob.sut.id === 0) {
           this.tJob.sut = this.sutEmpty;

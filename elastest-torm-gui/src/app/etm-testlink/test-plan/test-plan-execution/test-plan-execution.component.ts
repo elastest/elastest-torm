@@ -445,6 +445,6 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   viewEndedTJobExec(): void {
-    this.router.navigate(['/external/project/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
+    this.router.navigate(['/external/projects/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
   }
 }

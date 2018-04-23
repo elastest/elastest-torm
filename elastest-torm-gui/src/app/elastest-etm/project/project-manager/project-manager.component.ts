@@ -28,7 +28,6 @@ export class ProjectManagerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Project');
     this.project = new ProjectModel();
     this.loadProject();
   }
@@ -40,6 +39,7 @@ export class ProjectManagerComponent implements OnInit {
         .subscribe((project: ProjectModel) => {
           this.project = project;
           this.projectId = project.id.toString();
+          this.titlesService.setHeadTitle(this.project.name);
           this.titlesService.setPathName(this.router.routerState.snapshot.url);
         });
     }

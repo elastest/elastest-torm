@@ -490,7 +490,7 @@ const routes: Routes = [
           // },
 
           {
-            path: 'project',
+            path: 'projects',
             children: [
               // {
               //     path: '',

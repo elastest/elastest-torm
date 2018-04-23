@@ -38,7 +38,6 @@ export class ExternalTjobExecutionComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('TJob Execution');
     this.exTJobExec = new ExternalTJobExecModel();
     this.loadExternalTJobExec();
   }
@@ -48,7 +47,8 @@ export class ExternalTjobExecutionComponent implements OnInit {
       this.exTJobExec = exTJobExec;
 
       // this.statusIcon = this.exTJobExec.getResultIcon();
-      //this.titlesService.setPathName( this.router.routerState.snapshot.url);
+      this.titlesService.setHeadTitle('Plan Execution ' + this.exTJobExec.id);
+      this.titlesService.setPathName( this.router.routerState.snapshot.url);
 
       this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
         (exTestExecs: ExternalTestExecutionModel[]) => {

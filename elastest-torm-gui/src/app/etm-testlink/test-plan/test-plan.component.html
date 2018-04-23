@@ -6,7 +6,7 @@
           <span>Test Plan {{testPlan.name}}</span>
           <span flex></span>
           <div *ngIf="exTJob != undefined">
-            <button md-button [routerLink]="['/external/project/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
+            <button md-button [routerLink]="['/external/projects/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
               mdTooltip="Edit Test Plan">
               <md-icon>mode_edit</md-icon>
             </button>

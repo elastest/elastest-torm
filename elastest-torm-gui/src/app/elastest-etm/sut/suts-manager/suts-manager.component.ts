@@ -117,7 +117,7 @@ export class SutsManagerComponent implements OnInit {
 
   newSut(): void {
     if (this.parentType === 'ExternalProjectModel') {
-      this.router.navigate(['/external/project', this.exProject.id, 'sut', 'new']);
+      this.router.navigate(['/external/projects', this.exProject.id, 'sut', 'new']);
     } else if (this.parentType === 'ProjectModel') {
       this.router.navigate(['/projects', this.project.id, 'sut', 'new']);
     }
@@ -133,7 +133,7 @@ export class SutsManagerComponent implements OnInit {
 
   editSut(sut: SutModel): void {
     if (this.parentType === 'ExternalProjectModel') {
-      this.router.navigate(['/external/project', this.exProject.id, 'sut', 'edit', sut.id]);
+      this.router.navigate(['/external/projects', this.exProject.id, 'sut', 'edit', sut.id]);
     } else if (this.parentType === 'ProjectModel') {
       this.router.navigate(['/projects', this.project.id, 'sut', 'edit', sut.id]);
     }

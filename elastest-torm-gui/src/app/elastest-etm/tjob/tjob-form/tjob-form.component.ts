@@ -56,18 +56,20 @@ export class TJobFormComponent implements OnInit, DoCheck {
   }
 
   init(): void {
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.tJob = new TJobModel();
     this.action = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       this.esmService.getSupportServices().subscribe((response) => {
         this.esmServicesCatalog = response;
         if (this.action === 'edit') {
+          this.titlesService.setHeadTitle("Edit TJob");
           this.editMode = true;
           this.route.params
             .switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
             .subscribe((tJob: TJobModel) => {
               this.tJob = tJob;
-              this.titlesService.setPathName(this.router.routerState.snapshot.url, 'Edit: ' + this.tJob.getRouteString());
+              this.titlesService.setPathName(this.router.routerState.snapshot.url, '/ Edit TJob ' + this.tJob.getRouteString());
               this.currentSut = tJob.sut.id > 0 ? tJob.sut.name : 'None';
               this.useImageCommand = !this.tJob.withCommands();
               for (let tJobEsmService of this.tJob.esmServices) {
@@ -88,6 +90,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
               }
             });
         } else if (this.action === 'new') {
+          this.titlesService.setHeadTitle("New TJob");
           this.route.params
             .switchMap((params: Params) => this.projectService.getProject(params['projectId'], true))
             .subscribe((project: ProjectModel) => {

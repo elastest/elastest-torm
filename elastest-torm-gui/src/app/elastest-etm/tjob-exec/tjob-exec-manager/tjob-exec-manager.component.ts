@@ -63,7 +63,6 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('TJob Execution');
     this.tJobExec = new TJobExecModel();
     this.loadTJobExec();
   }
@@ -74,6 +73,7 @@ export class TjobExecManagerComponent implements OnInit {
         this.tJobExec = tJobExec;
 
         this.statusIcon = this.tJobExec.getResultIcon();
+        this.titlesService.setHeadTitle('Execution ' + this.tJobExec.id);
         this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
         this.tJobService.getTJob(this.tJobId.toString())

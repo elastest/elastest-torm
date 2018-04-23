@@ -4,7 +4,7 @@
       <md-card-title>
         <div layout="row" *ngIf="exTJobExec">
           <span>
-            <button md-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/project/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
+            <button md-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/projects/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
               class="onlyIconBtn" title="Navigate to result page">
               <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
             </button>
