@@ -27,10 +27,10 @@ public class UtilTools {
     private static String hostIp;
 
     @Value("${os.name}")
-    private String windowsSO;
+    private static String windowsSO;
 
     @Value("${et.etm.incontainer}")
-    private String inContainer;
+    private static String inContainer;
 
     /*
      * public boolean pingHost(String host, int port, int timeout) { try (Socket
@@ -39,7 +39,7 @@ public class UtilTools {
      * Either timeout or unreachable or failed DNS lookup. } }
      */
 
-    public String getElasTestHostOnWin() {
+    public static String getElasTestHostOnWin() {
         return "localhost";
     }
 
@@ -48,7 +48,7 @@ public class UtilTools {
      * 
      * @return
      */
-    public String getDockerHostUrlOnWin() {
+    public static String getDockerHostUrlOnWin() {
         BufferedReader reader = null;
         String dockerHostUrl = "";
 
@@ -77,33 +77,33 @@ public class UtilTools {
      * 
      * @return
      */
-    public String getDockerHostIpOnWin() {
+    public static String getDockerHostIpOnWin() {
         BufferedReader reader = null;
         String dockerHostIp = "";
-
-        try {
-            Process child = Runtime.getRuntime().exec("docker-machine ip");
-            reader = new BufferedReader(
-                    new InputStreamReader(child.getInputStream()));
-            dockerHostIp = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        } finally {
+        if (windowsSO != null && windowsSO.toLowerCase().contains("win")) {
             try {
-                if (reader != null)
-                    reader.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                Process child = Runtime.getRuntime().exec("docker-machine ip");
+                reader = new BufferedReader(
+                        new InputStreamReader(child.getInputStream()));
+                dockerHostIp = reader.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            } finally {
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
-
         return dockerHostIp;
     }
 
-    public String getHostIp() {
+    public static String getHostIp() {
         if (hostIp == null) {
-            if (inContainer.equals("true")) {
+            if (inContainer != null && inContainer.equals("true")) {
                 try {
                     String ipRoute = Shell.runAndWait("sh", "-c",
                             "/sbin/ip route");
@@ -121,18 +121,20 @@ public class UtilTools {
         return hostIp;
     }
 
-    public String getDockerHostIp() {
-        if (windowsSO.toLowerCase().contains("win")) {
+    public static String getDockerHostIp() {
+        if (windowsSO != null && windowsSO.toLowerCase().contains("win")) {
             return getDockerHostIpOnWin();
         } else
             return getHostIp();
     }
 
-    public String getMyIp() {
+    public static String getMyIp() {
         String myIp = "";
         try {
             InetAddress ip = InetAddress.getLocalHost();
-            System.out.println("Current IP address : " + hostIp);
+            if (hostIp != null) {
+                logger.debug("Current IP address : " + hostIp);
+            }
             myIp = ip.getHostAddress();
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -141,7 +143,8 @@ public class UtilTools {
         return myIp;
     }
 
-    public String convertJsonString(Object obj, Class<?> serializationView) {
+    public static String convertJsonString(Object obj,
+            Class<?> serializationView) {
         String jsonString = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -159,11 +162,11 @@ public class UtilTools {
      * 
      * @return the new unique id
      */
-    public String generateUniqueId() {
+    public static String generateUniqueId() {
         return UUID.randomUUID().toString();
     }
 
-    public int findRandomOpenPort() throws IOException {
+    public static int findRandomOpenPort() throws IOException {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         }
