@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
@@ -52,7 +54,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         // Copy hpi file to the folder accessible by the Browser
         Path sourcePathFile = Paths.get(pluginOriginPath);
         Path targetPathFile = Paths.get(pluginTargetPath);        
-        Files.copy(sourcePathFile, targetPathFile);
+        Files.copy(sourcePathFile, targetPathFile, StandardCopyOption.REPLACE_EXISTING);
 
         // Install plugin
         log.info("Installing plugin");
