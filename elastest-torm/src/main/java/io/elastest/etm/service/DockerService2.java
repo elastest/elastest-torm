@@ -176,17 +176,36 @@ public class DockerService2 {
 
     public String runDockerContainer(DockerClient dockerClient,
             String imageName, List<String> envs, String containerName,
-            String networkName, Ports portBindings, int listenPort)
+            String networkName, Ports portBindings, Integer listenPort)
             throws TJobStoppedException {
 
         this.doPull(dockerClient, imageName);
 
-        CreateContainerResponse container = dockerClient
-                .createContainerCmd(imageName).withName(containerName)
-                .withEnv(envs).withNetworkMode(networkName)
-                .withExposedPorts(ExposedPort.tcp(listenPort))
-                .withPortBindings(portBindings).withPublishAllPorts(true)
-                .exec();
+        CreateContainerCmd createContainer = dockerClient
+                .createContainerCmd(imageName);
+        if (containerName != null && !"".equals(containerName)) {
+            createContainer = createContainer.withName(containerName);
+        }
+
+        if (envs != null) {
+            createContainer = createContainer.withEnv(envs);
+        }
+
+        if (networkName != null && !"".equals(networkName)) {
+            createContainer = createContainer.withNetworkMode(networkName);
+        }
+
+        if (listenPort != null) {
+            createContainer = createContainer
+                    .withExposedPorts(ExposedPort.tcp(listenPort));
+        }
+
+        if (portBindings != null) {
+            createContainer = createContainer.withPortBindings(portBindings);
+        }
+
+        createContainer = createContainer.withPublishAllPorts(true);
+        CreateContainerResponse container = createContainer.exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
         this.insertCreatedContainer(container.getId(), containerName);
@@ -204,7 +223,7 @@ public class DockerService2 {
 
     public void stopDockerContainer(String containerId) {
         DockerClient dockerClient = this.getDockerClient();
-        dockerClient.stopContainerCmd(containerId).exec();
+        this.stopDockerContainer(dockerClient, containerId);
     }
 
     public void stopDockerContainer(DockerClient dockerClient,
@@ -790,7 +809,7 @@ public class DockerService2 {
         int listenPort = 37000;
         String bindedPort = null;
         try {
-            listenPort = utilTools.findRandomOpenPort();
+            listenPort = UtilTools.findRandomOpenPort();
             List<String> envVariables = new ArrayList<>();
             envVariables.add("LISTEN_PORT=" + listenPort);
             envVariables.add("FORWARD_PORT=" + port);

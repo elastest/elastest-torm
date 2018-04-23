@@ -21,7 +21,6 @@ import io.elastest.etm.test.extensions.MockitoExtension;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith({ MockitoExtension.class })
-
 public class EtmContextServiceTest {
 
     @InjectMocks
