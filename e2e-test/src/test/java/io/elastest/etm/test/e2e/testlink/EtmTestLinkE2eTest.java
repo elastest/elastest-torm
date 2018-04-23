@@ -112,6 +112,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
             SampleTLData sampleTLData) {
         String projectName = sampleTLData.getProject().getName();
         String planName = sampleTLData.getPlan().getName();
+
         log.info("Executing Plan '{}' ", planName);
         this.executeTLEtmPlanWithNavigate(driver, projectName, planName);
 

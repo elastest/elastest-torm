@@ -28,7 +28,7 @@ elastest_lib.pipeline({
                 
             stage ("E2E tests")
                 try {
-                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest -DeUser="+elastest.getElasTestUser()+" -DePass="+elastest.getElasTestPassword()
+                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest
                 } catch(e) {
                     sh '''\
                        docker logs elastest_etm-testlink_1
@@ -36,6 +36,7 @@ elastest_lib.pipeline({
                        docker ps --filter name=etm -q
                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                       docker volume ls | grep -i elastest
                     '''
                 } finally {
                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
