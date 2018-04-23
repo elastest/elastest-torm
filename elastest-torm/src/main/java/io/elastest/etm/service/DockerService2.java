@@ -896,6 +896,11 @@ public class DockerService2 {
 
     public boolean existsContainer(String containerName) {
         DockerClient dockerClient = this.getDockerClient();
+        return this.existsContainer(containerName, dockerClient);
+    }
+
+    public boolean existsContainer(String containerName,
+            DockerClient dockerClient) {
         boolean exists = true;
         try {
             dockerClient.inspectContainerCmd(containerName).exec();
@@ -919,17 +924,6 @@ public class DockerService2 {
             }
         }
         return id;
-    }
-
-    public boolean existsContainer(String containerName,
-            DockerClient dockerClient) {
-        boolean exists = true;
-        try {
-            dockerClient.inspectContainerCmd(containerName).exec();
-        } catch (NotFoundException e) {
-            exists = false;
-        }
-        return exists;
     }
 
     public InspectContainerResponse getContainerInfoByName(
