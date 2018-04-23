@@ -7,6 +7,7 @@ elastest_lib.setContext(this)
 //initialization of the runnable object to access elastest methods inside the pipeline
 def elastest= elastest_lib.getElastestMethods()
 
+`elastest_lib.setAuthenticatedElastest(true)`
 elastest_lib.setMode('experimental-lite')
 elastest_lib.setTestLink(true)
 
@@ -27,7 +28,7 @@ elastest_lib.pipeline({
                 
             stage ("E2E tests")
                 try {
-                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+                   sh "cd e2e-test; mvn -B clean test -Dtest=Etm* -DetEtmApi="+elastestURL+" -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest -DeUser=elastest.getElasTestUser() -DePass=elastest.getElasTestPassword()"
                 } catch(e) {
                     sh '''\
                        docker logs elastest_etm-testlink_1

@@ -1,6 +1,7 @@
 package io.elastest.etm.test.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +48,11 @@ public class UtilToolsTest {
     }
 
     @Test
+    public void testGenerateUniqueId() {
+        assertNotNull(UtilTools.generateUniqueId());
+    }
+
+    @Test
     public void testFindRandomOpenPort() {
         boolean works = true;
         try {
@@ -61,6 +67,11 @@ public class UtilToolsTest {
     @Test
     public void testDoPing() throws IOException {
         assertNotNull(UtilTools.doPing("localhost"));
+    }
+
+    @Test
+    public void testCheckIfUrlIsUp() {
+        assertFalse(UtilTools.checkIfUrlIsUp("incorrectUrl"));
     }
 
 }
