@@ -3,7 +3,6 @@ package io.elastest.etm.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -81,14 +80,15 @@ public class EtmContextAuxService {
     @Value("${et.edm.command.context-path}")
     private String etEdmCommandContextPath;
 
-    @Autowired
-    DockerService2 dockerService;
+    private DockerService2 dockerService;
 
-    public EtmContextAuxService() {
+    public EtmContextAuxService(DockerService2 dockerService) {
+        this.dockerService = dockerService;
     }
 
     public ContextInfo getContextInfo() {
         ContextInfo contextInfo = new ContextInfo();
+        
         // Logstash
         contextInfo.setLogstashPath(etEtmLogstashPathWithProxy);
 

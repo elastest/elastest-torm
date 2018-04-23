@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +27,8 @@ public class EtmContextService {
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
 
-    @Autowired
     EsmService esmService;
-    @Autowired
     EtmContextAuxService etmContextAuxService;
-    @Autowired
     DockerService2 dockerService;
 
     @Value("${et.public.host}")
@@ -94,7 +90,7 @@ public class EtmContextService {
     public String etEtmBindedLstcpPort;
     @Value("${et.etm.binded.lsbeats.port}")
     public String etEtmBindedLsbeatsPort;
-    @Value("${et.etm.lshttp.api}")        
+    @Value("${et.etm.lshttp.api}")
     public String etEtmLsHttpApi;
     @Value("${et.etm.lshttp.port}")
     public String etEtmLsHttpPort;
@@ -105,8 +101,13 @@ public class EtmContextService {
 
     HelpInfo helpInfo;
 
-    public EtmContextService(LogAnalyzerRepository logAnalyzerRepository) {
+    public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
+            EsmService esmService, EtmContextAuxService etmContextAuxService,
+            DockerService2 dockerService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
+        this.esmService = esmService;
+        this.etmContextAuxService = etmContextAuxService;
+        this.dockerService = dockerService;
     }
 
     public ContextInfo getContextInfo() {
@@ -118,14 +119,15 @@ public class EtmContextService {
 
     private SupportServiceInstance getEusApiUrl() {
         SupportServiceInstance eusInstance = null;
-        for (Map.Entry<String, SupportServiceInstance> entry : esmService
-                .getServicesInstances().entrySet()) {
-            if (entry.getValue().getService_id().equals(EUS_TSS_ID)) {
-                eusInstance = entry.getValue();
-                break;
+        if (esmService.getServicesInstances() != null) {
+            for (Map.Entry<String, SupportServiceInstance> entry : esmService
+                    .getServicesInstances().entrySet()) {
+                if (entry.getValue().getService_id().equals(EUS_TSS_ID)) {
+                    eusInstance = entry.getValue();
+                    break;
+                }
             }
         }
-
         return eusInstance;
     }
 

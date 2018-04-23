@@ -73,6 +73,9 @@ public class ContextInfo {
     @JsonProperty("edmCommandUrl")
     private String edmCommandUrl;
 
+    public ContextInfo() {
+    }
+
     // Getters & Setters
 
     public String getElasticSearchUrl() {
