@@ -27,12 +27,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
-import io.elastest.etm.test.base.EtmBaseTest;
+import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -45,7 +44,7 @@ import io.github.bonigarcia.SeleniumExtension;
 @Tag("e2e")
 @DisplayName("E2E test for the ElasTest Jenkins plugin")
 @ExtendWith(SeleniumExtension.class)
-public class ElasTestPluginE2ETest extends EtmBaseTest {
+public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     
