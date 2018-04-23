@@ -28,6 +28,9 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,10 +62,13 @@ public class EtmBaseTest {
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
-    protected String jenkinsCIUrl =  "http://172.17.0.2:8080";
-    //protected String pluginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
-    //protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/target/elastest.hpi";
-    protected String pluginPath = "e2e-test-with-plugin/target/elastest.hpi";
+    protected String jenkinsCIUrl = "http://172.17.0.2:8080";
+    // protected String pluginPath =
+    // "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
+    protected String pluginOriginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/target/elastest.hpi";
+    protected String pluginTargetPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
+    protected String pluginPath = "/opt/selenoid/video";
+    // protected String pluginPath = "e2e-test-with-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
     protected String apiPath = "api";
     protected String tormApiUrl;
@@ -108,8 +114,9 @@ public class EtmBaseTest {
                     + split_url[1];
         }
 
-        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
-                ? this.apiPath : "/" + this.apiPath);
+        this.tormApiUrl = this.tormUrl
+                + (this.tormUrl.endsWith("/") ? this.apiPath
+                        : "/" + this.apiPath);
 
         log.info("Using URL {} to connect to {} TORM", tormUrl,
                 secureElastest ? "secure" : "unsecure");
@@ -118,12 +125,12 @@ public class EtmBaseTest {
         if (jenkinsCIUrl != null) {
             this.jenkinsCIUrl = jenkinsCIUrl;
         }
-        
+
         String pluginPath = getProperty("ePluginPath");
         if (pluginPath != null) {
             this.pluginPath = pluginPath;
         }
-                
+
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
 
@@ -292,8 +299,8 @@ public class EtmBaseTest {
         }
 
         // Select SuT
-        driver.findElement(By
-                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"))
+        driver.findElement(By.xpath(
+                "//md-select/div/span[contains(string(), 'Select a SuT')]"))
                 .click();
         if (sutName != null) {
             driver.findElement(By.xpath(
@@ -387,8 +394,13 @@ public class EtmBaseTest {
         driver.findElement(serviceDetailButton).click();
     }
 
-    protected void installElasTestPlugin(WebDriver webDriver) {
+    protected void installElasTestPlugin(WebDriver webDriver) throws IOException {
         WebDriverWait waitService = new WebDriverWait(driver, 60);
+
+        // Copy hpi file to the folder accessible by the Browser
+        Path sourcePathFile = Paths.get(pluginOriginPath);
+        Path targetPathFile = Paths.get(pluginTargetPath);        
+        Files.copy(sourcePathFile, targetPathFile);
 
         // Install plugin
         log.info("Installing plugin");
@@ -447,11 +459,11 @@ public class EtmBaseTest {
                 .click();
         driver.findElement(By.id("ok-button")).click();
 
-        driver.findElement(By
-                .xpath("//input[@type='radio'][following-sibling::text()[position()=1][contains(string(), 'Git')]]"))
+        driver.findElement(By.xpath(
+                "//input[@type='radio'][following-sibling::text()[position()=1][contains(string(), 'Git')]]"))
                 .click();
-        driver.findElement(By
-                .xpath("//*[@id=\"main-panel\"]/div/div/div/form/table/tbody/tr[133]/td[3]/div/div[1]/table/tbody/tr[1]/td[3]/input"))
+        driver.findElement(By.xpath(
+                "//*[@id=\"main-panel\"]/div/div/div/form/table/tbody/tr[133]/td[3]/div/div[1]/table/tbody/tr[1]/td[3]/input"))
                 .sendKeys("https://github.com/elastest/demo-projects.git");
 
         WebElement myelement = driver.findElement(By.xpath(
@@ -490,8 +502,8 @@ public class EtmBaseTest {
         // waitService.until(visibilityOfElementLocated(byDom("document.getElementsByName(\"command\")[0]")));
         // driver.findElement(byTextArea).sendKeys("cd unit-java-test; mvn
         // test");
-        driver.findElement(By
-                .xpath("//*[contains(@id, 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea"))
+        driver.findElement(By.xpath(
+                "//*[contains(@id, 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea"))
                 .sendKeys("cd unit-java-test; mvn test");
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
@@ -525,8 +537,8 @@ public class EtmBaseTest {
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
         WebDriverWait waitService = new WebDriverWait(driver, 10);
         waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+        driver.findElement(By.xpath(
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
                 .click();
 
     }

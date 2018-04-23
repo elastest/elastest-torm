@@ -66,7 +66,7 @@ public class ElasTestPluginE2ETest extends EtmBaseTest {
     @Disabled
     void testInstallElasTestPlugin(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws Exception {
         this.driver = driver;        
         navigateTo(driver, jenkinsPluginManagerAd);
         installElasTestPlugin(driver);
@@ -83,7 +83,7 @@ public class ElasTestPluginE2ETest extends EtmBaseTest {
     @DisplayName("Pipeline plugin")    
     void testPipelineJob(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws Exception {
         this.driver = driver;        
         navigateTo(driver, jenkinsPluginManagerAd);
         installElasTestPlugin(driver);
