@@ -201,7 +201,7 @@ public class EtmBaseTest {
     }
 
     protected void navigateToETProject(WebDriver driver, String projectName) {
-        this.navigateToTorm(driver);
+        this.navigateToRoot(driver);
         log.info("Navigate to {} project", projectName);
 
         String id = "projects";

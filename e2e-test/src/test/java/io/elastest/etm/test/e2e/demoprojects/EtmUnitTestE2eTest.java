@@ -18,7 +18,6 @@ package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 

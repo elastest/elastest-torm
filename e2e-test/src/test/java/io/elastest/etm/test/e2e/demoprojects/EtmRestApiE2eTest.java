@@ -48,11 +48,10 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "REST API";
-    
-    void createProjectAndSut(WebDriver driver) throws InterruptedException {
-        if (!etProjectExists(driver, projectName)) {
-            navigateToTorm(driver);
 
+    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        navigateToTorm(driver);
+        if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
 
             // Create SuT
@@ -73,9 +72,9 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
         this.driver = driver;
 
         this.createProjectAndSut(driver);
-        
+
         navigateToETProject(driver, projectName);
-        
+
         // Create TJob
         String tJobName = "Rest Test";
         String sutName = "REST App";
@@ -90,8 +89,8 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
         runTJobFromProjectPage(driver, tJobName);
 
         WebDriverWait waitLogs = new WebDriverWait(driver, 180);
-        //log.info("Wait for metrics");
-        //waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        // log.info("Wait for metrics");
+        // waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
                 "BUILD SUCCESS"));
