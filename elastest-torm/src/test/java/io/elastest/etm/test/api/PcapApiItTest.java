@@ -39,12 +39,12 @@ public class PcapApiItTest {
     public void startStopPcapTest()
             throws InterruptedException, TJobStoppedException {
         String execId = UtilTools.generateUniqueId();
-        
+
         log.info("Starting sut");
         String sutContainerId = this.dockerService.runDockerContainer(
-                "elastest/test-etm-sut3", null, "sut_" + execId,
-                "elastest_elastest", null, null);
-        
+                "elastest/test-etm-sut3", null, "sut_" + execId, null, null,
+                null);
+
         log.info("Starting pcap");
         boolean started = this.startPcap(execId);
         Thread.sleep(5000);
