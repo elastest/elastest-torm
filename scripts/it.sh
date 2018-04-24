@@ -18,6 +18,7 @@ sysctl -a | grep max_map
 
 echo "Remove etm* containers"
 
+docker rm -f 6f33059e3b33
 docker ps -a
 docker ps -a | grep "etm" | awk '{print $1}' | xargs docker rm -f
 docker ps -a
