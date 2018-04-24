@@ -154,7 +154,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void executeTLEtmPlanCurrentCase(WebDriver driver) {
         String passedRadioBtnId = "status-PASSED-input";
-        String passedRadioBtnXpath = "//button[@id='" + passedRadioBtnId + "']";
+        String passedRadioBtnXpath = "//*[@id='" + passedRadioBtnId + "']";
 
         // Great Timeout for wait to pull and start eus/browser containers
         this.getElementByXpath(driver, passedRadioBtnId, passedRadioBtnXpath,
