@@ -18,7 +18,8 @@ elastest_lib.pipeline({
     stage ('docker container')
         def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
         mycontainer.pull()
-        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+        mycontainer.inside("-u 0 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+            sh 'apt-get install docker-ce -y'
             sh 'docker version'
             sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
           
