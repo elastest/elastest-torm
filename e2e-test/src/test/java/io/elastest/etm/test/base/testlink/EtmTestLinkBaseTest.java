@@ -21,7 +21,9 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClick
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -157,6 +159,15 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String passedRadioBtnXpath = "//*[@id='" + passedRadioBtnId + "']";
 
         // Great Timeout for wait to pull and start eus/browser containers
+        try {
+            Thread.sleep(240000);
+        } catch (InterruptedException e) {
+        }
+        WebElement myelement = driver
+                .findElement(By.xpath(passedRadioBtnXpath));
+        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+        jse2.executeScript("arguments[0].scrollIntoView()", myelement);
+
         this.getElementByXpath(driver, passedRadioBtnId, passedRadioBtnXpath,
                 240).get(0).click();
 
