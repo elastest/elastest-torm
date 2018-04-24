@@ -7,7 +7,6 @@ elastest_lib.setContext(this)
 //initialization of the runnable object to access elastest methods inside the pipeline
 def elastest= elastest_lib.getElastestMethods()
 
-elastest_lib.setAuthenticatedElastest(true)
 elastest_lib.setMode('experimental-lite')
 elastest_lib.setTestLink(true)
 
@@ -18,9 +17,7 @@ elastest_lib.pipeline({
     stage ('docker container')
         def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
         mycontainer.pull()
-        mycontainer.inside("-u 0 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
-            sh 'apt-get install docker-ce -y'
-            sh 'docker version'
+        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
             sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
           
             stage ('prepare')
