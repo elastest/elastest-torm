@@ -215,6 +215,14 @@ public class DockerService2 {
         return container.getId();
     }
 
+    public String runDockerContainer(String imageName, List<String> envs,
+            String containerName, String networkName, Ports portBindings,
+            Integer listenPort) throws TJobStoppedException {
+        DockerClient dockerClient = this.getDockerClient();
+        return this.runDockerContainer(dockerClient, imageName, envs,
+                containerName, networkName, portBindings, listenPort);
+    }
+
     public void removeDockerContainer(String containerId) {
         DockerClient dockerClient = this.getDockerClient();
         dockerClient.removeContainerCmd(containerId).exec();
@@ -355,10 +363,8 @@ public class DockerService2 {
 
     public void pullETExecImage(String image, String name)
             throws TJobStoppedException {
-        DockerClient dockerClient = this.getDockerClient();
-
         logger.debug("Try to Pulling {} Image ({})", name, image);
-        this.doPull(dockerClient, image);
+        this.doPull(image);
         logger.debug("{} image pulled succesfully!", name);
 
     }
@@ -687,6 +693,11 @@ public class DockerService2 {
         }
     }
 
+    public void doPull(String image) throws TJobStoppedException {
+        DockerClient dockerClient = this.getDockerClient();
+        this.doPull(dockerClient, image);
+    }
+
     public String getContainerIpWithDockerExecution(String containerId,
             DockerExecution dockerExec) throws Exception {
         String ip = dockerExec.getDockerClient()
@@ -805,7 +816,6 @@ public class DockerService2 {
 
     public SocatBindedPort bindingPort(String containerIp, String port,
             String networkName) throws Exception {
-        DockerClient dockerClient = this.getDockerClient();
         int listenPort = 37000;
         String bindedPort = null;
         try {
@@ -820,9 +830,9 @@ public class DockerService2 {
             portBindings.bind(exposedListenPort,
                     Ports.Binding.bindPort(listenPort));
 
-            bindedPort = this.runDockerContainer(dockerClient, etSocatImage,
-                    envVariables, "container" + listenPort, networkName,
-                    portBindings, listenPort);
+            bindedPort = this.runDockerContainer(etSocatImage, envVariables,
+                    "container" + listenPort, networkName, portBindings,
+                    listenPort);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());

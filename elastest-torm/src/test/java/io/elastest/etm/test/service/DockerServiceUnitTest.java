@@ -43,7 +43,6 @@ public class DockerServiceUnitTest {
         DockerClientConfig config = DefaultDockerClientConfig
                 .createDefaultConfigBuilder()
                 .withDockerHost("unix:///var/run/docker.sock").build();
-
         dockerClient = DockerClientBuilder.getInstance(config).build();
     }
 

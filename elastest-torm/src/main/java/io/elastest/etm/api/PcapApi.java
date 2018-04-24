@@ -19,22 +19,38 @@ import io.swagger.annotations.ApiResponses;
 
 @Api(value = "/pcap")
 public interface PcapApi extends EtmApiRoot {
-	@ApiOperation(value = "Starts pcap monitoring of a SuT with a given Execution Id", notes = "Starts pcap monitoring of a SuT with a given Execution Id"
-			+ " at least must receive as input a JSON with the following fields: String execID", response = Boolean.class, tags = {
-					"Pcap", })
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Creation successful", response = Boolean.class),
-			@ApiResponse(code = 405, message = "Invalid input") })
-	@RequestMapping(value = "/pcap", produces = { "application/json" }, consumes = {
-			"text/plain" }, method = RequestMethod.POST)
-	ResponseEntity<Boolean> startPcap(
-			@ApiParam(value = "Execution Id", required = true) @Valid @RequestBody String execId);
+    @ApiOperation(value = "Starts pcap monitoring of a SuT with a given Execution Id", notes = "Starts pcap monitoring of a SuT with a given Execution Id"
+            + " at least must receive as input a JSON with the following fields: String execID", response = Boolean.class, tags = {
+                    "Pcap", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Creation successful", response = Boolean.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/pcap", produces = {
+            "application/json" }, consumes = {
+                    "text/plain" }, method = RequestMethod.POST)
+    ResponseEntity<Boolean> startPcap(
+            @ApiParam(value = "Execution Id", required = true) @Valid @RequestBody String execId);
 
-	@ApiOperation(value = "Stops pcap monitoring of a SuT with a given Execution Id", notes = "Stops pcap monitoring of a SuT with a given Execution Id"
-			+ " at least must receive as input a JSON with the following fields: String execID", response = void.class, tags = {
-					"Pcap", })
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Creation successful", response = void.class),
-			@ApiResponse(code = 405, message = "Invalid input") })
-	@RequestMapping(value = "/pcap/{execId}", produces = { "application/octet-stream" }, method = RequestMethod.DELETE)
-	void stopPcap(
-			@ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId, HttpServletResponse response);
+    @ApiOperation(value = "Stops pcap monitoring of a SuT with a given Execution Id", notes = "Stops pcap monitoring of a SuT with a given Execution Id"
+            + " at least must receive as input a JSON with the following fields: String execID", response = void.class, tags = {
+                    "Pcap", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Creation successful", response = void.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/pcap/{execId}", produces = {
+            "application/octet-stream" }, method = RequestMethod.DELETE)
+    void stopPcap(
+            @ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId,
+            HttpServletResponse response);
+
+    @ApiOperation(value = "Gets pcap container Name with a given Execution Id", notes = "Gets pcap container Name with a given Execution Id"
+            + " at least must receive as input a JSON with the following fields: String execID", response = String.class, tags = {
+                    "Pcap", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Creation successful", response = String.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/pcap/{execId}", produces = {
+            "application/octet-stream" }, method = RequestMethod.GET)
+    ResponseEntity<String> getPcapContainerName(
+            @ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId);
 }

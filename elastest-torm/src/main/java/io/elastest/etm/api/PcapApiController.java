@@ -17,23 +17,31 @@ import io.swagger.annotations.ApiParam;
 
 @Controller
 public class PcapApiController implements PcapApi {
-	@Autowired
-	PcapService pcapService;
+    @Autowired
+    PcapService pcapService;
 
-	public ResponseEntity<Boolean> startPcap(
-			@ApiParam(value = "Execution Id", required = true) @Valid @RequestBody String execId) {
-		Boolean started = pcapService.startPcap(execId);
-		return new ResponseEntity<Boolean>(started, HttpStatus.OK);
-	}
+    public ResponseEntity<Boolean> startPcap(
+            @ApiParam(value = "Execution Id", required = true) @Valid @RequestBody String execId) {
+        Boolean started = pcapService.startPcap(execId);
+        return new ResponseEntity<Boolean>(started, HttpStatus.OK);
+    }
 
-	public void stopPcap(@ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId,
-			HttpServletResponse response) {
-		response.setStatus(HttpStatus.OK.value());
-		try {
-			pcapService.stopContainerAndSendFileTo(execId, response.getOutputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    public void stopPcap(
+            @ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId,
+            HttpServletResponse response) {
+        response.setStatus(HttpStatus.OK.value());
+        try {
+            pcapService.stopContainerAndSendFileTo(execId,
+                    response.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ResponseEntity<String> getPcapContainerName(
+            @ApiParam(value = "Execution Id.", required = true) @PathVariable("execId") String execId) {
+        return new ResponseEntity<>(
+                this.pcapService.getPcapContainerName(execId), HttpStatus.OK);
+    }
 
 }

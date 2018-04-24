@@ -16,6 +16,10 @@ elastest_lib.setTestLink(true)
 elastest_lib.pipeline({
     
     stage ('docker container')
+	sh '''\
+                       docker version
+                       docker volume inspect $(docker volume ls | grep elastest)
+	'''
         def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
         mycontainer.pull()
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
@@ -36,8 +40,6 @@ elastest_lib.pipeline({
                        docker ps --filter name=etm -q
                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-                       docker version
-                       docker volume inspect $(docker volume ls | grep elastest)
                     '''
                 } finally {
                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
