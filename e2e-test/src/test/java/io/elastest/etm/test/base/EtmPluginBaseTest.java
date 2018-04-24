@@ -22,14 +22,14 @@ import io.elastest.etm.test.utils.Shell;
 public class EtmPluginBaseTest extends EtmBaseTest {
     
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
-    protected String jenkinsCIUrl = "http://172.17.0.1:8080";
+    protected String jenkinsCIUrl = "http://172.17.0.4:8080";
     // protected String pluginPath =
     // "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
     protected String pluginOriginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginTargetPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
 //    protected String pluginOriginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
 //    protected String pluginTargetPath = "/home/frdiaz/git/elastest/elastest-torm/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
-    protected String pluginPath = "/opt/selenoid/video";
+    protected String pluginPath = "/data/elastest.hpi"; //"/opt/selenoid/video/elastest.hpi";
     // protected String pluginPath = "e2e-test-with-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
     
