@@ -36,6 +36,7 @@ elastest_lib.pipeline({
                        docker ps --filter name=etm -q
                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                       docker version
                        docker volume inspect $(docker volume ls | grep elastest)
                     '''
                 } finally {
