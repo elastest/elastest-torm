@@ -53,14 +53,14 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         WebDriverWait waitService = new WebDriverWait(driver, 60);
 
         // Copy hpi file to the folder accessible by the Browser
-        log.info("PWD: ");
-        Shell.runAndWait("sh", "-c", "pwd");
-        log.info("LS: ");
-        Shell.runAndWait("sh", "-c", "ls -lrt target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest");
+//        log.info("PWD: ");
+//        Shell.runAndWait("sh", "-c", "pwd");
+//        log.info("LS: ");
+//        Shell.runAndWait("sh", "-c", "ls -lrt target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest");
                       
-        Path sourcePathFile = Paths.get(pluginOriginPath);
-        Path targetPathFile = Paths.get(pluginTargetPath);
-        Files.copy(sourcePathFile, targetPathFile, StandardCopyOption.REPLACE_EXISTING);
+//        Path sourcePathFile = Paths.get(pluginOriginPath);
+//        Path targetPathFile = Paths.get(pluginTargetPath);
+//        Files.copy(sourcePathFile, targetPathFile, StandardCopyOption.REPLACE_EXISTING);
 
         // Install plugin
         log.info("Installing plugin");
