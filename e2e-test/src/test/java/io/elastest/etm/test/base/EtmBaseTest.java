@@ -57,7 +57,6 @@ public class EtmBaseTest {
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
 
-    
     protected String apiPath = "api";
     protected String tormApiUrl;
 
@@ -102,9 +101,8 @@ public class EtmBaseTest {
                     + split_url[1];
         }
 
-        this.tormApiUrl = this.tormUrl
-                + (this.tormUrl.endsWith("/") ? this.apiPath
-                        : "/" + this.apiPath);
+        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
+                ? this.apiPath : "/" + this.apiPath);
 
         log.info("Using URL {} to connect to {} TORM", tormUrl,
                 secureElastest ? "secure" : "unsecure");
@@ -139,6 +137,13 @@ public class EtmBaseTest {
         } else {
             driver.get(tormUrl);
         }
+    }
+
+    protected void navigateToRoot(WebDriver driver) {
+        log.info("Navigate to Root Path (/)");
+        driver.findElement(By
+                .xpath("//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
+                .click();
     }
 
     protected void navigateToElement(WebDriver driver, String id,
@@ -274,8 +279,8 @@ public class EtmBaseTest {
         }
 
         // Select SuT
-        driver.findElement(By.xpath(
-                "//md-select/div/span[contains(string(), 'Select a SuT')]"))
+        driver.findElement(By
+                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"))
                 .click();
         if (sutName != null) {
             driver.findElement(By.xpath(
@@ -379,8 +384,8 @@ public class EtmBaseTest {
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
         WebDriverWait waitService = new WebDriverWait(driver, 10);
         waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By.xpath(
-                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+        driver.findElement(By
+                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
                 .click();
 
     }
