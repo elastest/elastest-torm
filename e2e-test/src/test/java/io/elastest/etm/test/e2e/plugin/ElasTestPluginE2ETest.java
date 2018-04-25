@@ -107,6 +107,8 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
                 "BUILD SUCCESS"));
         } catch (Exception te) {
             navigateTo(driver, linkElasTest);
+            waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
+                    "BUILD SUCCESS"));
         }
     }
 }
