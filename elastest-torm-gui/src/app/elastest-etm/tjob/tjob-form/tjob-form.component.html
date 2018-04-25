@@ -117,7 +117,7 @@
             <md-card-subtitle>Logs</md-card-subtitle>
             <ng-container *ngIf="tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null">
               <span class="push-right" *ngFor="let log of tJob.execDashboardConfigModel.allLogsTypes.logsList; let i = index">
-                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [checked]="logChecked(log)" (change)="log.changeActive($event)">{{log.name}}</md-checkbox>
+                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [checked]="log.activated" (change)="log.changeActive($event)">{{log.name}}</md-checkbox>
               </span>
             </ng-container>
           </div>

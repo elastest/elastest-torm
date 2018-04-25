@@ -61,10 +61,10 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
-        
+
         log.info("Opening ElasTest");
         this.navigateToTorm(driver);
-        
+
         String url = this.getTestlinkPageUrl(driver);
         log.info("The obtained TestLink url is {}", url);
     }
@@ -127,6 +127,8 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
             log.info("Executing TestCase nº {} ", i + 1);
             this.executeTLEtmPlanCurrentCase(driver);
         }
+        log.info("Wait To ETM Plan Execution Ends");
+        this.waitToTLEtmPlanExecutionEnds(driver);
     }
 
     protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)

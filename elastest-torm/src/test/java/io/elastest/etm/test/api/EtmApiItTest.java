@@ -99,7 +99,7 @@ public class EtmApiItTest {
         tJob.setResultsPath(
                 "/demo-projects/unit-java-test/target/surefire-reports/");
         tJob.setCommands(
-                "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test;mvn -B test");
+                "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test;mvn -B -Dtest=CalcTest test");
         tJob.setParameters(Arrays.asList(param));
         tJob.setProject(project);
 

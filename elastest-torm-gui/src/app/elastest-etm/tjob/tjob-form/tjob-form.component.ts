@@ -11,6 +11,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { SupportServiceConfigModel } from '../../../elastest-esm/support-service.model';
+import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
 
 @Component({
   selector: 'etm-tjob-form',
@@ -63,7 +64,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
       this.esmService.getSupportServices().subscribe((response) => {
         this.esmServicesCatalog = response;
         if (this.action === 'edit') {
-          this.titlesService.setHeadTitle("Edit TJob");
+          this.titlesService.setHeadTitle('Edit TJob');
           this.editMode = true;
           this.route.params
             .switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
@@ -90,7 +91,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
               }
             });
         } else if (this.action === 'new') {
-          this.titlesService.setHeadTitle("New TJob");
+          this.titlesService.setHeadTitle('New TJob');
           this.route.params
             .switchMap((params: Params) => this.projectService.getProject(params['projectId'], true))
             .subscribe((project: ProjectModel) => {
@@ -110,6 +111,16 @@ export class TJobFormComponent implements OnInit, DoCheck {
     if (this.useImageCommand) {
       this.tJob.commands = '';
     }
+
+    if (this.tJob.execDashboardConfigModel.allLogsTypes) {
+      for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+        if (this.isSutLog(log) && this.hideSut(log)) {
+          let $event: object = { checked: false };
+          log.changeActive($event);
+        }
+      }
+    }
+
     this.tJob.esmServices = this.esmServicesCatalog;
     console.log('Services ' + JSON.stringify(this.tJob.esmServices));
 
@@ -125,18 +136,14 @@ export class TJobFormComponent implements OnInit, DoCheck {
     window.history.back();
   }
 
-  logChecked(log: any): boolean {
-    if (this.hideSut(log)) {
-      return false;
-    } else {
-      return log.activated;
-    }
-  }
-
-  hideSut(log: any): boolean {
+  hideSut(log: LogFieldModel): boolean {
     return (
-      log.name.startsWith('sut') &&
+      this.isSutLog(log) &&
       (this.tJob.sut === this.sutEmpty || this.tJob.sut === undefined || (this.action !== 'new' && !this.tJob.hasSut()))
     );
+  }
+
+  isSutLog(log: LogFieldModel): boolean {
+    return log.name.startsWith('sut');
   }
 }
