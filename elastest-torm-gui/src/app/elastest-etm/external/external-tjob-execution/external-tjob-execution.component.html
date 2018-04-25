@@ -4,7 +4,7 @@
       <md-card-title>
         <div layout="row" layout-align="space-between end">
           <span>
-            <md-icon *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
+            <md-icon id="tJobExecResultIcon" *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
               mdTooltip="{{exTJobExec.result}}">
               {{exTJobExec.getResultIcon().name}}</md-icon>
           </span>
