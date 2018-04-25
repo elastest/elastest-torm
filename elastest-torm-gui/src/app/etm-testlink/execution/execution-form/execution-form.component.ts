@@ -61,6 +61,8 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     this.tcExec.executionType = this.testCase.executionType;
     this.tcExec.testPlanId = this.build.testPlanId;
     this.tcExec.buildId = this.build.id;
+    // Default Status value
+    this.tcExec.status = 'PASSED';
 
     this.resultObj = getResultIconByString(this.testCase.executionStatus);
   }
