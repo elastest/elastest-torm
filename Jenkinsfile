@@ -9,12 +9,6 @@ node('TESTDOCKER'){
             
         git 'https://github.com/elastest/elastest-torm.git'
 
-        stage "Test and deploy epm-client"
-            echo ("Test and deploy epm-client")
-            withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
-                sh 'cd ./epm-client; mvn deploy -Djenkins=true;'
-            }
-        
         stage "Build elastest-torm-gui"
             echo ("Build elastest-torm-gui")
             sh 'cd ./elastest-torm-gui; npm install; mvn package;'
