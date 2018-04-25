@@ -4,10 +4,6 @@ import static java.lang.System.getProperty;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
@@ -17,24 +13,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import io.elastest.etm.test.utils.Shell;
-
 public class EtmPluginBaseTest extends EtmBaseTest {
-    
+
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
-    protected String jenkinsCIUrl = "http://172.17.0.4:8080";
-    // protected String pluginPath =
-    // "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
-    protected String pluginOriginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
-    protected String pluginTargetPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
-//    protected String pluginOriginPath = "/home/frdiaz/git/elastest/elastest-jenkins/target/elastest.hpi";
-//    protected String pluginTargetPath = "/home/frdiaz/git/elastest/elastest-torm/e2e-test/target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest/elastest.hpi";
-    protected String pluginPath = pluginOriginPath;//"/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";//"/opt/selenoid/video/elastest.hpi";
-    // protected String pluginPath = "e2e-test-with-plugin/target/elastest.hpi";
+    protected String jenkinsCIUrl = "http://172.17.0.1:8080";
+    protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
-    
+
     @BeforeEach
-    void pluginSetup() {        
+    void pluginSetup() {
         String jenkinsCIUrl = getProperty("ciUrl");
         if (jenkinsCIUrl != null) {
             this.jenkinsCIUrl = jenkinsCIUrl;
@@ -48,19 +35,10 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
     }
-    
-    protected void installElasTestPlugin(WebDriver webDriver) throws IOException {
-        WebDriverWait waitService = new WebDriverWait(driver, 60);
 
-        // Copy hpi file to the folder accessible by the Browser
-//        log.info("PWD: ");
-//        Shell.runAndWait("sh", "-c", "pwd");
-//        log.info("LS: ");
-//        Shell.runAndWait("sh", "-c", "ls -lrt target/surefire-reports/io.elastest.etm.test.e2e.plugin.ElasTestPluginE2ETest");
-                      
-//        Path sourcePathFile = Paths.get(pluginOriginPath);
-//        Path targetPathFile = Paths.get(pluginTargetPath);
-//        Files.copy(sourcePathFile, targetPathFile, StandardCopyOption.REPLACE_EXISTING);
+    protected void installElasTestPlugin(WebDriver webDriver)
+            throws IOException {
+        WebDriverWait waitService = new WebDriverWait(driver, 60);
 
         // Install plugin
         log.info("Installing plugin");
@@ -88,9 +66,11 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Filling the configuration");
         driver.findElement(By.name("_.elasTestUrl")).clear();
         driver.findElement(By.name("_.elasTestUrl"))
-                .sendKeys(secureElastest ? secureTorm : tormUrl);
+                .sendKeys(tormUrl);
         if (eUser != null && ePassword != null) {
+            driver.findElement(By.name("_.username")).clear();
             driver.findElement(By.name("_.username")).sendKeys(eUser);
+            driver.findElement(By.name("_.password")).clear();
             driver.findElement(By.name("_.password")).sendKeys(ePassword);
         }
 

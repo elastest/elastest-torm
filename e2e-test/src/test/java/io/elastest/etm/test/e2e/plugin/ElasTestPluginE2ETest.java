@@ -38,64 +38,66 @@ import io.github.bonigarcia.SeleniumExtension;
  *
  * @author franciscoRdiaz(https://github.com/franciscoRdiaz)
  * @since 0.1.1
- */ 
+ */
 @Tag("e2e")
 @DisplayName("E2E test for the ElasTest Jenkins plugin")
 @ExtendWith(SeleniumExtension.class)
 public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    
-    final String unitTestScript= "node{\n" + 
-            "    elastest(tss: ['EUS']) {\n" + 
-            "        stage ('Executing Test') {\n" + 
-            "            echo 'Print env variables'\n" + 
-            "            sh 'env'\n" + 
-            "            mvnHome = tool 'M3.3.9'\n" + 
-            "            echo 'Cloning repository'\n" + 
-            "            git 'https://github.com/elastest/demo-projects'\n" + 
-            "            echo 'Run test'\n" + 
-            "            sh \"cd ./unit-java-test/;'${mvnHome}/bin/mvn' test\"\n" ;//+ 
 
-    
+    final String unitTestScript = "node{\n" + "    elastest(tss: ['EUS']) {\n"
+            + "        stage ('Executing Test') {\n"
+            + "            echo 'Print env variables'\n"
+            + "            sh 'env'\n" + "            mvnHome = tool 'M3.3.9'\n"
+            + "            echo 'Cloning repository'\n"
+            + "            git 'https://github.com/elastest/demo-projects'\n"
+            + "            echo 'Run test'\n"
+            + "            sh \"cd ./unit-java-test/;'${mvnHome}/bin/mvn' test\"\n";// +
+
     @Test
     @DisplayName("Standar Job Plugin")
     @Disabled
-    void testInstallElasTestPlugin(
-            ChromeDriver driver)
-            throws Exception {
-        this.driver = driver;        
+    void testInstallElasTestPlugin(ChromeDriver driver) throws Exception {
+        this.driver = driver;
         navigateTo(driver, jenkinsPluginManagerAd);
         installElasTestPlugin(driver);
         navigateTo(driver, pluginSettings);
         pluginConfiguration(driver);
         navigateTo(driver, jenkinsCIUrl);
-        
-        //Creation of a new Free style Job
+
+        // Creation of a new Free style Job
         driver.findElement(By.linkText("New Item")).click();
-        createFreestyleJob(driver, "FJob1");        
+        createFreestyleJob(driver, "FJob1");
     }
-   
+
     @Test
-    @DisplayName("Pipeline plugin")    
-    void testPipelineJob(
-           ChromeDriver driver)
-            throws Exception {
-        this.driver = driver;        
+    @DisplayName("Pipeline plugin")
+    void testPipelineJob(ChromeDriver driver) throws Exception {
+        this.driver = driver;
         navigateTo(driver, jenkinsPluginManagerAd);
         installElasTestPlugin(driver);
         navigateTo(driver, pluginSettings);
         pluginConfiguration(driver);
         navigateTo(driver, jenkinsCIUrl);
-        
-        //Creation of a new Free style Job
+
+        // Creation of a new Pipeline Job
         driver.findElement(By.linkText("New Item")).click();
         createPipelineJob(driver, "PJob_1", unitTestScript);
-        
-        executeJob(driver);        
-        driver.findElement(By.linkText("Open in ElasTest")).click();
-        
-        WebDriverWait waitLogs = new WebDriverWait(driver, 180);        
+
+        executeJob(driver);
+        if (secureElastest) {
+            String split_url[] = driver
+                    .findElement(By.linkText("Open in ElasTest"))
+                    .getAttribute("href").split("//");
+            String linkSecureTormUrl = split_url[0] + "//" + eUser + ":"
+                    + ePassword + "@" + split_url[1];
+            navigateTo(driver, linkSecureTormUrl);
+        } else {
+            driver.findElement(By.linkText("Open in ElasTest")).click();
+        }
+
+        WebDriverWait waitLogs = new WebDriverWait(driver, 180);
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
                 "BUILD SUCCESS"));
