@@ -155,27 +155,11 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void executeTLEtmPlanCurrentCase(WebDriver driver) {
-        String passedRadioBtnId = "status-PASSED-input";
-        String passedRadioBtnXpath = "//*[@id='" + passedRadioBtnId + "']";
-
-        // Great Timeout for wait to pull and start eus/browser containers
-        try {
-            Thread.sleep(240000);
-        } catch (InterruptedException e) {
-        }
-        WebElement myelement = driver
-                .findElement(By.xpath(passedRadioBtnXpath));
-        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
-        jse2.executeScript("arguments[0].scrollIntoView()", myelement);
-
-        this.getElementByXpath(driver, passedRadioBtnId, passedRadioBtnXpath,
-                240).get(0).click();
-
         String saveAndNextBtnId = "saveAndNext";
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
-        this.getElementByXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath)
-                .get(0).click();
+        this.getElementByXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
+                180).get(0).click();
     }
 
     /* ****************** */
