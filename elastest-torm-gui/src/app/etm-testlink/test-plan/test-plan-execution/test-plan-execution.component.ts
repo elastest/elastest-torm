@@ -22,6 +22,7 @@ import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { TestPlanModel } from '../../models/test-plan-model';
 import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { Response } from '@angular/http';
+import { TitlesService } from '../../../shared/services/titles.service';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -87,6 +88,7 @@ export class TestPlanExecutionComponent implements OnInit {
     private esmService: EsmService,
     private eusService: EusService,
     private testLinkService: TestLinkService,
+    private titlesService: TitlesService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
@@ -96,7 +98,9 @@ export class TestPlanExecutionComponent implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
+  }
 
   ngOnDestroy(): void {
     this.alreadyLeave = true;
