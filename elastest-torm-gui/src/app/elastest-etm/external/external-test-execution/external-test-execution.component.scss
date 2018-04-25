@@ -14,7 +14,7 @@
   height: 100%;
 }
 #miniLogAnalyzerCard {
-  height: 97%;
+  height: calc(100% - 170px);
 }
 #miniLogAnalyzerCard md-card-content {
   padding: 4px;
@@ -28,12 +28,12 @@
   vertical-align: middle;
 }
 #video {
+  padding-top: 10px;
   max-width: 90%;
   height: auto;
   margin: auto;
 }
-#videoContent,
-#filesContent {
+#videoContent, #filesContent{
   margin: auto;
   text-align: center;
 }
