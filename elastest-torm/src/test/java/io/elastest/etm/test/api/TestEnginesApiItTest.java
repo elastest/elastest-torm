@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -45,6 +46,7 @@ public class TestEnginesApiItTest {
     }
 
     @Test
+    @Disabled
     public void TestEnginesTest() throws TimedOut, Exception {
         log.debug("Getting Test Engines List");
         List<String> testEngines = this.getTestEngines();
