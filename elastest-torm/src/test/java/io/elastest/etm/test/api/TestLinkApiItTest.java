@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,7 @@ public class TestLinkApiItTest extends EtmApiItTest {
     protected String tlApiPath = "/api/testlink";
 
     @Test
+    @Disabled
     @DisplayName("Create TestLink Data and Test In ElasTest (Integration Test)")
     void createSampleTLDataTest() throws InterruptedException, IOException {
         log.info("Creating Sample Data in TestLink...");
