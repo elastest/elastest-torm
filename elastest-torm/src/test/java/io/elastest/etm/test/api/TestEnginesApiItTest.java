@@ -35,6 +35,7 @@ public class TestEnginesApiItTest {
     TestRestTemplate httpClient;
 
     @Test
+    @Disabled
     public void TestEnginesTest() throws TimedOut, Exception {
         List<String> testEngines = this.getTestEngines();
         assertNotNull(testEngines);
