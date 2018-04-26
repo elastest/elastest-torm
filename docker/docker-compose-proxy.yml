@@ -1,7 +1,7 @@
 version: '3'
 services:
     etm-proxy:
-        image: elastest/etm-proxy
+        image: elastest/etm-proxy:0.9.0
         expose:
             - 80
             - 443

@@ -1,7 +1,7 @@
 version: '3'
 services:        
     etm-logstash:        
-        image: elastest/etm-logstash
+        image: elastest/etm-logstash:0.9.0
         ports:
             - 5002:5002
             - 5000:5000
@@ -20,7 +20,7 @@ services:
             - elastest       
                                   
     etm-rabbitmq:
-        image: elastest/etm-rabbitmq
+        image: elastest/etm-rabbitmq:0.9.0
         hostname: my-rabbit
         ports:
             - 15672:15672
@@ -32,7 +32,7 @@ services:
             - elastest
 
     etm-filebeat:
-        image: elastest/etm-filebeat
+        image: elastest/etm-filebeat:0.9.0
         depends_on:
             - etm-logstash
         environment:

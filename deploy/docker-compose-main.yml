@@ -9,7 +9,7 @@ services:
             - etm-filebeat
         links:
             - etm-rabbitmq
-        image: elastest/etm
+        image: elastest/etm:0.9.0
         env_file:
             - ./docker-compose.env
         environment:
