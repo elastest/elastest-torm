@@ -35,7 +35,6 @@ public class TestEnginesApiItTest {
     TestRestTemplate httpClient;
 
     @Test
-    @Disabled
     public void TestEnginesTest() throws TimedOut, Exception {
         List<String> testEngines = this.getTestEngines();
         assertNotNull(testEngines);
@@ -45,7 +44,7 @@ public class TestEnginesApiItTest {
         this.startTestEngine(testEngineName);
         assertTrue(this.isRunning(testEngineName));
 
-        Waiter waiter = new Waiter(180) {
+        Waiter waiter = new Waiter(180000) {
             @Override
             public boolean until() throws Exception {
                 return isWorking(testEngineName);

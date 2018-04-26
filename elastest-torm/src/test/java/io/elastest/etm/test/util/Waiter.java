@@ -60,7 +60,7 @@ public abstract class Waiter {
      *            the timeout in milliseconds.
      */
     public Waiter(int timeout) {
-        this(DEFAULT_TIMEOUT, DEFAULT_SLEEP, DEFAULT_TIMEOUT_MESSAGE);
+        this(timeout, DEFAULT_SLEEP, DEFAULT_TIMEOUT_MESSAGE);
     }
 
     /**
