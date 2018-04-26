@@ -122,7 +122,7 @@ public class EtmBaseTest {
     }
 
     protected void navigateTo(WebDriver driver, String url) {
-        log.info("Navigate to Jenkins");
+        log.info("Navigate to: {}", url);
         driver.manage().window().setSize(new Dimension(1024, 1024));
         driver.manage().timeouts().implicitlyWait(5, SECONDS);
         driver.get(url);
