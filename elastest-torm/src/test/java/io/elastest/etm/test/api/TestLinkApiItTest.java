@@ -8,6 +8,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ import io.elastest.etm.ElasTestTormApp;;
 public class TestLinkApiItTest extends EtmApiItTest {
     final Logger log = getLogger(lookup().lookupClass());
 
-    protected String tlApiPath = "/testlink";
+    protected String tlApiPath = "/api/testlink";
 
     @Test
     @DisplayName("Create TestLink Data and Test In ElasTest (Integration Test)")
@@ -96,11 +97,16 @@ public class TestLinkApiItTest extends EtmApiItTest {
             this.addTLTestCaseToTestPlan(testCase, plan.getId());
             cases.add(testCase);
         }
-
+        log.debug("TL Data: ");
+        log.debug("Project:{} ", project);
         assertNotNull(project);
+        log.debug("Suite:{} ", suite);
         assertNotNull(suite);
+        log.debug("Plan:{} ", plan);
         assertNotNull(plan);
+        log.debug("build:{} ", build);
         assertNotNull(build);
+        log.debug("Cases:{} ", cases);
         assertThat(cases.size() > 0);
     }
 
@@ -168,8 +174,11 @@ public class TestLinkApiItTest extends EtmApiItTest {
 
     protected TestCase getTLTestCase(String caseName, Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.httpClient.getForEntity(tlApiPath + "/project/suite/"
-                + suiteId + "/case/name/" + caseName, TestCase.class).getBody();
+        String jsonTCase = this.httpClient
+                .getForEntity(tlApiPath + "/project/suite/" + suiteId
+                        + "/case/name/" + caseName, String.class)
+                .getBody();
+        return this.getTestCaseFromJson(jsonTCase);
     }
 
     protected TestCase getTLTestCase(TestCase testCase)
@@ -193,12 +202,13 @@ public class TestLinkApiItTest extends EtmApiItTest {
             return this.getTLTestCase(testCase);
         } else {
             String jsonCase = this.objectToJson(testCase);
-            return this.httpClient
+            String jsonSavedCase = this.httpClient
                     .postForEntity(
                             tlApiPath + "/project/suite/"
                                     + testCase.getTestSuiteId() + "/case",
-                            jsonCase, TestCase.class)
+                            jsonCase, String.class)
                     .getBody();
+            return this.getTestCaseFromJson(jsonSavedCase);
         }
     }
 
@@ -269,6 +279,28 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* ************* */
     /* *** Utils *** */
     /* ************* */
+
+    protected <T> T getObjectFromJson(String json, Class<T> clazz)
+            throws JsonParseException, JsonMappingException, IOException {
+        if (json != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(Include.NON_EMPTY);
+            return mapper.readValue(json, clazz);
+        }
+        return null;
+    }
+
+    protected TestCase getTestCaseFromJson(String json)
+            throws JsonParseException, JsonMappingException, IOException {
+        // Fix for fails on get keyword
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tcMap = this.getObjectFromJson(json, Map.class);
+        if (tcMap != null && tcMap.containsKey("keywords")) {
+            tcMap.remove("keywords");
+        }
+
+        return this.getObjectFromJson(this.objectToJson(tcMap), TestCase.class);
+    }
 
     protected String objectToJson(Object obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
