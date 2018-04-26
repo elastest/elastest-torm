@@ -1,10 +1,12 @@
 package io.elastest.etm.test.api;
 
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
+import static java.lang.invoke.MethodHandles.lookup;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,6 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.opentest4j.MultipleFailuresError;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpEntity;
@@ -42,9 +43,7 @@ import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TJobExecutionApiItTest extends EtmApiItTest {
-
-    private static final Logger log = LoggerFactory
-            .getLogger(TJobExecutionApiItTest.class);
+    final Logger log = getLogger(lookup().lookupClass());
 
     long projectId;
 
