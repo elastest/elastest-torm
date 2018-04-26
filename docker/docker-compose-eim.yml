@@ -1,7 +1,7 @@
 version: '3'
 services:
     eim:
-      image: elastest/eim:0.9.0
+      image: elastest/eim:latest
       depends_on:
             - edm-mysql
       stdin_open: true
