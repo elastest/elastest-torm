@@ -17,7 +17,7 @@ elastest_lib.pipeline({
         mycontainer.pull()
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
             sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-            def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi'
+            def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-test/elastest-plugin/target/elastest.hpi'
             def pluginDirectory = 'elastest-plugin'
             def testRepositoryDirectory = 'elastest'
           
@@ -67,7 +67,7 @@ elastest_lib.pipeline({
                             
         	                try {
         	                    echo "Run tests"
-        	                    sh "cd elastest/e2e-test; mvn -B clean test -DetEtmApi=http://172.17.0.1:37000 -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+        	                    sh "cd elastest/e2e-test; mvn -B clean test -DePluginPath -DetEtmApi=http://172.17.0.1:37000 -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
         	                } catch(e) {
         	                    sh '''\
         	                       docker ps --all
