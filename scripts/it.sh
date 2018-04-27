@@ -75,10 +75,10 @@ mvnExit=$?
 # Clean up environment
 
 cd ../docker
-docker-compose -f docker-compose-complementary.yml logs
+docker-compose -f docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml logs
 docker network disconnect "${projectName}"_elastest ${containerId}
 
-docker-compose -f docker-compose-complementary.yml down
+docker-compose -f docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml down
 
 # Exit code of mvn command
 
