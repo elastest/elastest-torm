@@ -2,7 +2,6 @@ package io.elastest.etm.test.api;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -337,18 +336,17 @@ public class EtmApiItTest {
         return response.getBody();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public List<SutExecution> getAllSutExecBySut(Long sutId) {
+    public SutExecution[] getAllSutExecBySut(Long sutId) {
         log.info("Start the method getAllSutExecBySut");
 
         Map<String, Long> urlParams = new HashMap<>();
         urlParams.put("sutId", sutId);
 
         log.info("GET /api/sut/{}/exec", sutId);
-        ResponseEntity<List> response = httpClient
-                .getForEntity("/api/sut/{sutId}/exec", List.class, urlParams);
+        ResponseEntity<SutExecution[]> response = httpClient.getForEntity(
+                "/api/sut/{sutId}/exec", SutExecution[].class, urlParams);
 
-        return (List<SutExecution>) response.getBody();
+        return response.getBody();
     }
 
     public SutExecution getSutExec(Long sutId, Long sutExecId) {
@@ -366,15 +364,8 @@ public class EtmApiItTest {
         return response.getBody();
     }
 
-    protected Long deleteSuTExec(Long sutExecId) {
-        Map<String, Long> urlParams = new HashMap<>();
-        urlParams.put("sutExecId", sutExecId);
-
+    protected void deleteSuTExec(Long sutExecId) {
         log.info("DELETE /api/sut/exec/{}", sutExecId);
-        ResponseEntity<Long> response = httpClient.exchange("/api/sut/exec/{}",
-                HttpMethod.DELETE, null, Long.class, urlParams);
-        log.info("Deleted sut execution:" + response.getBody());
-
-        return response.getBody();
+        httpClient.delete("/api/sut/exec/" + sutExecId);
     }
 }

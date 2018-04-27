@@ -34,6 +34,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.elastest.etm.ElasTestTormApp;
+import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
@@ -62,39 +64,47 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
     public void testExecuteTJobWithSut()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
-        testExecuteTJob(true);
+        log.info("Start the test testExecuteTJobWithSut");
+        testExecuteTJob(true, false);
     }
 
     @Test
     public void testExecuteTJobWithoutSut()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
-        testExecuteTJob(false);
+        log.info("Start the test testExecuteTJobWithoutSut");
+        testExecuteTJob(false, false);
     }
 
     @Test
     public void testExecuteTJobWithoutSutAndStop()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
+        log.info("Start the test testExecuteTJobWithoutSutAndStop");
         testExecuteTJob(false, true);
     }
 
-    private void testExecuteTJob(boolean withSut, boolean withStop)
+    @Test
+    public void testSutExecution()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
+        log.info("Start the test testSutExecution");
+        SutSpecification sut = createSut(projectId);
+        Long sutId = sut.getId();
+        TJob tJob = createTJob(projectId, sutId);
+        testExecuteTJob(tJob, false);
 
-        log.info("Start the test testExecuteTJob "
-                + (withSut ? "with" : "without") + " SuT");
+        SutExecution[] sutExecs = this.getAllSutExecBySut(sutId);
+        assertThat(sutExecs.length > 0);
+        SutExecution sutExec = this.getSutExec(sutId, sutExecs[0].getId());
+        assertNotNull(sutExec);
 
-        TJob tJob;
+        this.deleteSuTExec(sutExec.getId());
+    }
 
-        if (withSut) {
-            Long sutId = createSut(projectId).getId();
-            tJob = createTJob(projectId, sutId);
-        } else {
-            tJob = createTJob(projectId);
-        }
-
+    private void testExecuteTJob(TJob tJob, boolean withStop)
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
         StompSession stompSession = connectToRabbitMQ(serverPort);
 
         log.info("POST /api/tjob/{tjobId}/exec");
@@ -123,9 +133,6 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         } else {
             // Wait for end execution
             int waitTime = 240;
-            if (withSut) {
-                waitTime = 360;
-            }
 
             String queueToSuscribe = "/topic/" + "test.default_log."
                     + exec.getId() + ".log";
@@ -166,10 +173,17 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         log.info("Finished.");
     }
 
-    private void testExecuteTJob(boolean withSut)
+    private void testExecuteTJob(boolean withSut, boolean withStop)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
-        this.testExecuteTJob(withSut, false);
+        TJob tJob;
+        if (withSut) {
+            Long sutId = createSut(projectId).getId();
+            tJob = createTJob(projectId, sutId);
+        } else {
+            tJob = createTJob(projectId);
+        }
+        this.testExecuteTJob(tJob, withStop);
     }
 
     private void sleep(int waitTime) {
