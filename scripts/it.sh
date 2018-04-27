@@ -58,7 +58,8 @@ ELASTEST_DOCKER_NETWORK=${projectName}_elastest
 ET_IN_PROD=true
 ET_PROXY_PORT=37000
 ET_ETM_LOGSTASH_CONTAINER_NAME=${projectName}_etm-logstash_1
-ET_ETM_TESTLINK_HOST=$(containerIp "etm-testlink")
+# TestLink Container Name
+ET_ETM_TESTLINK_HOST=$(docker ps | awk '{print $NF}' | grep ".*etm-testlink.*")
 
 # Execute Integration tests
 
