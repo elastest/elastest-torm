@@ -2,6 +2,7 @@ package io.elastest.etm.test.api;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -47,7 +48,15 @@ public class TestLinkApiItTest extends EtmApiItTest {
     protected String tlApiPath = "/api/testlink";
 
     @Test
-    // @Disabled
+    @DisplayName("Get TestLink Url")
+    void getTestLinkUrlTest() throws InterruptedException, IOException {
+        String url = this.httpClient
+                .getForEntity(tlApiPath + "/url", String.class).getBody();
+
+        assertNotNull(url);
+    }
+
+    @Test
     @DisplayName("Create TestLink Data and Test In ElasTest (Integration Test)")
     void createSampleTLDataTest() throws InterruptedException, IOException {
         log.info("Creating Sample Data in TestLink...");
@@ -103,6 +112,9 @@ public class TestLinkApiItTest extends EtmApiItTest {
             this.addTLTestCaseToTestPlan(testCase, plan.getId());
             cases.add(testCase);
         }
+
+        assertTrue(this.syncTestLink());
+
         log.debug("TL Data: ");
         log.debug("Project:{} ", project);
         assertNotNull(project);
@@ -116,7 +128,9 @@ public class TestLinkApiItTest extends EtmApiItTest {
         assertThat(cases.size() > 0);
     }
 
+    /* ******************************************************* */
     /* ************************* Api ************************* */
+    /* ******************************************************* */
 
     /* *************** */
     /* *** Project *** */
@@ -281,6 +295,11 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* ************* */
     /* *** Utils *** */
     /* ************* */
+
+    protected boolean syncTestLink() {
+        return this.httpClient.getForEntity(tlApiPath + "/sync", boolean.class)
+                .getBody();
+    }
 
     protected <T> T getObjectFromJson(String json, Class<T> clazz)
             throws JsonParseException, JsonMappingException, IOException {

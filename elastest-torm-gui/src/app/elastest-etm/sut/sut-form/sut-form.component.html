@@ -5,11 +5,11 @@
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content class="push-bottom-none">
-    <ng-container *ngIf="sut === undefined; else showForm">
-      <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
-    </ng-container>
-    <ng-template #showForm>
-      <form #sutForm="ngForm">
+    <form #sutForm="ngForm">
+      <ng-container *ngIf="sut === undefined; else showForm">
+        <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+      </ng-container>
+      <ng-template #showForm>
         <!-- Common fields -->
         <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
           <md-input-container flex-gt-md="45" flex-md="45">
@@ -230,8 +230,8 @@
             </div>
           </td-expansion-panel>
         </div>
-      </form>
-    </ng-template>
+      </ng-template>
+    </form>
   </md-card-content>
   <md-divider></md-divider>
 

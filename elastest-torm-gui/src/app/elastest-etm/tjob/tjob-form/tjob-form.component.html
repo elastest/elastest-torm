@@ -5,11 +5,11 @@
   </md-card-title>
   <md-divider></md-divider>
   <md-card-content class="push-bottom-none">
-    <ng-container *ngIf="tJob === undefined; else showForm">
-      <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
-    </ng-container>
-    <ng-template #showForm>
-      <form #tJobForm="ngForm">
+    <form #tJobForm="ngForm">
+      <ng-container *ngIf="tJob === undefined; else showForm">
+        <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+      </ng-container>
+      <ng-template #showForm>
         <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
           <md-input-container flex-gt-md="20" flex-md="20">
             <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name"
@@ -122,10 +122,8 @@
             </ng-container>
           </div>
         </td-expansion-panel>
-
-
-      </form>
-    </ng-template>
+      </ng-template>
+    </form>
   </md-card-content>
   <md-divider></md-divider>
   <md-card-actions>
