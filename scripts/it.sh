@@ -32,7 +32,7 @@ echo $COMPOSE_PROJECT_NAME
 
 docker pull elastest/esm
 
-docker-compose -f ../docker/docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml -p $projectName up --quiet-pull -d
+docker-compose -f ../docker/docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml -p $projectName up -d
     
 # Connect test container to docker-compose network
 
