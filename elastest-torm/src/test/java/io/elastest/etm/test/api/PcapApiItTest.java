@@ -61,6 +61,11 @@ public class PcapApiItTest {
         assertFalse(this.dockerService.existsContainer(containerName));
     }
 
+    @Test
+    public void stopFailsTest() {
+        this.stopPcap("dummy");
+    }
+
     public boolean startPcap(String execId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);

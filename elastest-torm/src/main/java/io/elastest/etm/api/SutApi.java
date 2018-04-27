@@ -48,7 +48,7 @@ public interface SutApi extends EtmApiRoot {
         @ApiResponse(code = 200, message = "SUT Execution deleteted successfully", response = Long.class),
         @ApiResponse(code = 400, message = "Invalid SUT Execution ID supplied", response = Long.class),
         @ApiResponse(code = 404, message = "SUT Execution not found", response = Long.class) })    
-    @RequestMapping(value = "/sut/{sutId}/exec/{sutExecId}",
+    @RequestMapping(value = "/sut/exec/{sutExecId}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
     ResponseEntity<Long> deleteSuTExec(@ApiParam(value = "Id of the SUT Execution to delete.",required=true ) @PathVariable("sutExecId") Long sutExecId);

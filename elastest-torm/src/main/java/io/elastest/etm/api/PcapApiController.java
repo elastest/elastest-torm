@@ -33,7 +33,7 @@ public class PcapApiController implements PcapApi {
         try {
             pcapService.stopContainerAndSendFileTo(execId,
                     response.getOutputStream());
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
     }
