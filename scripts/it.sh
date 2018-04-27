@@ -32,7 +32,7 @@ echo $COMPOSE_PROJECT_NAME
 
 docker pull elastest/esm
 
-docker-compose -f ../docker/docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml -p $projectName up -d
+docker-compose -f ../docker/docker-compose-complementary.yml -f ../docker/docker-compose-testlink.yml -p $projectName up --quiet-pull -d
     
 # Connect test container to docker-compose network
 
@@ -65,6 +65,8 @@ ET_ETM_TESTLINK_HOST=$(containerIp "etm-testlink")
 echo "Starting maven integration tests"
 
 cd ../elastest-torm
+
+docker ps -a
 
 mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} -Det.etm.incontainer=${ET_ETM_INCONTAINER} -Delastest.docker.network=${ELASTEST_DOCKER_NETWORK} -Det.in.prod=${ET_IN_PROD} -Det.proxy.port=${ET_PROXY_PORT} -Det.etm.logstash.container.name=${ET_ETM_LOGSTASH_CONTAINER_NAME} -Det.etm.testlink.host=${ET_ETM_TESTLINK_HOST} package
 
