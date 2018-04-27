@@ -675,6 +675,7 @@ public class DockerService2 {
 
     public void doPull(DockerClient dockerClient, String image)
             throws TJobStoppedException {
+        image = image.contains(":") ? image : image.concat(ElastestConstants.TAG_LATEST);
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback())
                     .awaitSuccess();

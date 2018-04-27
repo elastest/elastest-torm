@@ -10,5 +10,6 @@ public interface ElastestConstants {
     public static final String TJOB_FOLDER_PREFIX = "tjob_";
     public static final String TJOB_EXEC_FOLDER_PREFIX = "exec_";
     public static final String SUT_FOLDER = "sut";
+    public static final String TAG_LATEST = ":latest";
 
 }
