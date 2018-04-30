@@ -1,0 +1,41 @@
+node{
+    elastest(tss: ['EUS']) {
+        stage("Setting environment") {
+            echo 'Environment variables'
+            sh "env"
+            git "https://github.com/elastest/full-teaching-experiment.git"
+        }
+        stage("Start Sut") {
+            sh "cd docker-compose/full-teaching-et-network; export BUG_TAG=bug1; docker-compose -p ${env.ET_SUT_CONTAINER_NAME} --no-ansi up -d"
+            sh "sleep 20"
+        }
+        stage("Run Tests") {
+            try {
+                def sutContainerNamePrefix = env.ET_SUT_CONTAINER_NAME.replaceAll("_","")
+                def fullteachingContainerName = sutContainerNamePrefix + "_full-teaching_1"
+                echo "Container name: " + fullteachingContainerName
+                def sutIp = containerIp(fullteachingContainerName)
+                echo 'Sut ip: '+ sutIp
+
+                echo 'Running test'
+                sh "mvn -Dapp.url=https://" + sutIp +":5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B test"
+
+            } finally {
+                echo 'Stopping SUT'
+                sh "cd docker-compose/full-teaching-env; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} down"
+            }
+        }
+    }
+}
+
+
+def containerIp(containerName) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
+}
