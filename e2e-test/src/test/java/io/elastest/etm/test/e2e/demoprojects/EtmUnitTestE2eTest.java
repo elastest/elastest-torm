@@ -53,9 +53,11 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
+        String projectName = "Unit Tests";
 
-        navigateToTorm(driver);
-        createNewETProject(driver, "Unit Tests");
+        navigateToTorm(driver);   
+        createNewETProject(driver, projectName);
+        Thread.sleep(2000);
 
         String tJobName = "Unit Test";
         String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";

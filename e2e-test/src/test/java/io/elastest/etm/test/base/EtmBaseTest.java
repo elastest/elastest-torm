@@ -279,13 +279,9 @@ public class EtmBaseTest {
         }
 
         // Select SuT
-        WebElement sutSelect=  driver.findElement(By
-                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"));
-        
-        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
-        jse2.executeScript("arguments[0].scrollIntoView()", sutSelect);
-        sutSelect.click();
-        
+        driver.findElement(By
+                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"))
+                .click();
         if (sutName != null) {
             driver.findElement(By.xpath(
                     "//md-option[contains(string(), '" + sutName + "')]"))
