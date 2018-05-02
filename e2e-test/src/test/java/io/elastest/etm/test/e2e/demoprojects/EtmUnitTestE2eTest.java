@@ -22,6 +22,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentI
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +50,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
 
     @Test
     @DisplayName("Create Unit Test project Test")
+    @Disabled
     void testCreateUnitTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
