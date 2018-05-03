@@ -250,7 +250,8 @@ public class TJobExecOrchestratorService {
         String resultMsg = "";
         ResultEnum finishStatus = ResultEnum.SUCCESS;
 
-        if (tJobExec.getTestSuites() != null) {
+        if (tJobExec.getTestSuites() != null
+                && tJobExec.getTestSuites().size() > 0) {
             for (TestSuite testSuite : tJobExec.getTestSuites()) {
                 if (testSuite.getFinalStatus() == ResultEnum.FAIL) { // Else
                                                                      // always
