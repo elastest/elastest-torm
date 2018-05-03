@@ -45,9 +45,6 @@ export class TestSuitesViewComponent implements OnInit {
   }
 
   viewInLogAnalyzer(suite: TestSuiteModel, testCase: TestCaseModel): void {
-    console.log('tjob', this.tJobExec);
-    console.log('testcase', testCase);
-    console.log('suite', suite);
     if (this.tJobExec && suite) {
       this.router.navigate(
         [
