@@ -76,3 +76,4 @@ workflow-cps-global-lib:2.9
 workflow-step-api:2.14
 docker-java-api:3.0.14
 plain-credentials:1.4
+simple-theme-plugin:0.4
