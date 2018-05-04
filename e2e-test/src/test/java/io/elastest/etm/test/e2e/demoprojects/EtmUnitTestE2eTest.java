@@ -22,7 +22,6 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentI
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +49,6 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
 
     @Test
     @DisplayName("Create Unit Test project Test")
-    @Disabled
     void testCreateUnitTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
@@ -73,7 +71,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+        WebDriverWait waitLogs = new WebDriverWait(driver, 240);
         //log.info("Wait for metrics");
         //waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
