@@ -58,7 +58,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
 
   init(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
-    this.tJob = new TJobModel();
+    // this.tJob = new TJobModel();
     this.action = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
       this.esmService.getSupportServices().subscribe((response) => {

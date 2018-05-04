@@ -6,8 +6,7 @@
             <vnc-client id="eusBrowser" *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
         </div>
         <ng-template #showVideo>
-            <!-- <iframe *ngIf="iframeUrl" [src]="iframeUrl | safe" width="800" height="600" id="eus_iframe"></iframe> -->
-            <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 82vh" controls></video>
+            <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 80vh" controls></video>
         </ng-template>
     </ng-template>
     {{message}}
