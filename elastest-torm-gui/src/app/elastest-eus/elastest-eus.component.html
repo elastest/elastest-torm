@@ -65,10 +65,10 @@
                 </div>
                 <ng-template #showRecordingsTable>
                     <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
-                        <ng-template tdDataTableTemplate="url" let-value="value" let-row="row" let-column="column">
+                        <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
+                            <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
                             <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" mdTooltip="Open in new tab">open_in_new</i>
                             <i class="material-icons" (click)="viewRecording(row)" id="view_recording" mdTooltip="Open as dialog">open_in_browser</i>
-                            <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
                         </ng-template>
                     </td-data-table>
                 </ng-template>

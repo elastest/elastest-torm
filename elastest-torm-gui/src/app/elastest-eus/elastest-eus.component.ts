@@ -35,7 +35,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     { name: 'browser', label: 'Browser' },
     { name: 'version', label: 'Version' },
     { name: 'creationTime', label: 'Creation Time' },
-    { name: 'url', label: 'Actions' },
+    { name: 'actions', label: 'Actions' },
   ];
 
   testData: EusTestModel[] = [];
