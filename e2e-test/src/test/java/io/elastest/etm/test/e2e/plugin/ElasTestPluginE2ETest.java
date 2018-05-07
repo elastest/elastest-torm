@@ -78,6 +78,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
     void testPipelineJob(ChromeDriver driver) throws Exception {
         this.driver = driver;
         navigateTo(driver, jenkinsPluginManagerAd);
+        loginOnJenkins(driver);
         installElasTestPlugin(driver);
         navigateTo(driver, pluginSettings);
         pluginConfiguration(driver);

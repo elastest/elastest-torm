@@ -19,9 +19,13 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     protected String jenkinsCIUrl = "http://172.17.0.1:8080";
     protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
+    protected String jenkinsUser = "admin";
+    protected String jenkinsPass = "admin";
 
     @BeforeEach
     void pluginSetup() {
+    	
+    	// Setup Jenkins URL
         String jenkinsCIUrl = getProperty("ciUrl");
         if (jenkinsCIUrl != null) {
             this.jenkinsCIUrl = jenkinsCIUrl;
@@ -34,6 +38,18 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
+        
+        // Setup Jenkins credentials
+        String jenkinsUser = getProperty("ciUser");
+        if (jenkinsUser != null) {
+            this.jenkinsUser = jenkinsUser;
+        }
+
+        String jenkinsPass = getProperty("ciPass");
+        if (jenkinsPass != null) {
+            this.jenkinsPass = jenkinsPass;
+        }
+        
     }
 
     protected void installElasTestPlugin(WebDriver webDriver)
@@ -165,6 +181,15 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
+    }
+    
+    protected void loginOnJenkins(WebDriver driver) {
+    	//j_username
+    	//j_password
+    	log.info("Login on Jenkins.");
+    	driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
+    	driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
+    	driver.findElement(By.xpath("//span/button")).click();    	
     }
 
 }
