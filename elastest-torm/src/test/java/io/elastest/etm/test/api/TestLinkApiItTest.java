@@ -67,6 +67,11 @@ public class TestLinkApiItTest extends EtmApiItTest {
         TestProject project = new TestProject(0, pjName, "TSP",
                 "This is a note", false, false, false, false, true, true);
         project = this.createTlTestProject(project);
+        assertNotNull(project);
+        project = this.getTLTestProjectById(project.getId());
+        assertNotNull(project);
+        project = this.getTLTestProjectByName(project.getName());
+        assertNotNull(project);
 
         // Create Suite
         String suiteName = "Test Sample Suite";
@@ -136,7 +141,7 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* *** Project *** */
     /* *************** */
 
-    protected TestProject getTLTestProject(String projectName)
+    protected TestProject getTLTestProjectByName(String projectName)
             throws JsonParseException, JsonMappingException, IOException {
         return this.httpClient
                 .getForEntity(tlApiPath + "/project/name/" + projectName,
@@ -144,15 +149,21 @@ public class TestLinkApiItTest extends EtmApiItTest {
                 .getBody();
     }
 
+    protected TestProject getTLTestProjectById(Integer projectId)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.httpClient.getForEntity(tlApiPath + "/project/" + projectId,
+                TestProject.class).getBody();
+    }
+
     protected boolean tlTestProjectExists(String projectName)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestProject(projectName) != null;
+        return this.getTLTestProjectByName(projectName) != null;
     }
 
     protected TestProject createTlTestProject(TestProject project)
             throws IOException {
         if (this.tlTestProjectExists(project.getName())) {
-            return this.getTLTestProject(project.getName());
+            return this.getTLTestProjectByName(project.getName());
         } else {
             return this.httpClient.postForEntity(tlApiPath + "/project",
                     project, TestProject.class).getBody();
@@ -163,7 +174,7 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* *** Suite *** */
     /* ************* */
 
-    protected TestSuite getTLTestSuite(String suiteName)
+    protected TestSuite getTLTestSuiteByName(String suiteName)
             throws JsonParseException, JsonMappingException, IOException {
         return this.httpClient
                 .getForEntity(tlApiPath + "/project/suite/name/" + suiteName,
@@ -171,14 +182,22 @@ public class TestLinkApiItTest extends EtmApiItTest {
                 .getBody();
     }
 
+    protected TestSuite getTLTestSuiteById(Integer suiteId)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.httpClient
+                .getForEntity(tlApiPath + "/project/suite/" + suiteId,
+                        TestSuite.class)
+                .getBody();
+    }
+
     protected boolean tlTestSuiteExists(String suiteName)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestSuite(suiteName) != null;
+        return this.getTLTestSuiteByName(suiteName) != null;
     }
 
     protected TestSuite createTlTestSuite(TestSuite suite) throws IOException {
         if (this.tlTestSuiteExists(suite.getName())) {
-            return this.getTLTestSuite(suite.getName());
+            return this.getTLTestSuiteByName(suite.getName());
         } else {
             return this.httpClient.postForEntity(tlApiPath + "/project/"
                     + suite.getTestProjectId() + "/suite", suite,
