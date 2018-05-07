@@ -1,11 +1,13 @@
 package io.elastest.etm.test.api;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -33,8 +35,8 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 public class EtmApiItTest {
 
-    private static final Logger log = LoggerFactory
-            .getLogger(EtmApiItTest.class);
+    final Logger log = getLogger(lookup().lookupClass());
+
 
     @Autowired
     TestRestTemplate httpClient;
