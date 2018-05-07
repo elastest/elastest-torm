@@ -242,19 +242,14 @@ public class TestLinkService {
         return null;
     }
 
-    public TestSuite getTestSuiteByName(String suiteName) {
-        TestSuite[] suites = null;
-        try {
-            suites = this.testLinkDBService.getAllTestSuites();
-            if (suites != null) {
-                for (TestSuite currentSuite : suites) {
-                    if (suiteName.equals(currentSuite.getName())) {
-                        return currentSuite;
-                    }
+    public TestSuite getTestSuiteByName(String suiteName, Integer projectId) {
+        TestSuite[] suites = this.getProjectTestSuites(projectId);
+        if (suites != null) {
+            for (TestSuite currentSuite : suites) {
+                if (suiteName.equals(currentSuite.getName())) {
+                    return this.getTestSuiteById(currentSuite.getId());
                 }
             }
-        } catch (TestLinkAPIException e) {
-            // EMPTY
         }
         return null;
 

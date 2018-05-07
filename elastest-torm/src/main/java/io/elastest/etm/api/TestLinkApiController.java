@@ -75,9 +75,10 @@ public class TestLinkApiController implements TestLinkApi {
     }
 
     public ResponseEntity<TestSuite> getSuiteByName(
+            @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Name of the suite.", required = true) @PathVariable("suiteName") String suiteName) {
         return new ResponseEntity<TestSuite>(
-                testLinkService.getTestSuiteByName(suiteName), HttpStatus.OK);
+                testLinkService.getTestSuiteByName(suiteName, projectId), HttpStatus.OK);
     }
 
     public ResponseEntity<TestSuite[]> getProjectTestSuites(
