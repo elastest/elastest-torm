@@ -68,10 +68,6 @@ public class TestLinkApiItTest extends EtmApiItTest {
                 "This is a note", false, false, false, false, true, true);
         project = this.createTlTestProject(project);
         assertNotNull(project);
-        project = this.getTLTestProjectById(project.getId());
-        assertNotNull(project);
-        project = this.getTLTestProjectByName(project.getName());
-        assertNotNull(project);
 
         // Create Suite
         String suiteName = "Test Sample Suite";
@@ -131,6 +127,31 @@ public class TestLinkApiItTest extends EtmApiItTest {
         assertNotNull(build);
         log.debug("Cases:{} ", cases);
         assertThat(cases.size() > 0);
+
+        log.debug("Testing other api methods...");
+
+        log.debug("Getting Project By Id ({})", project.getId());
+        project = this.getTLTestProjectById(project.getId());
+        assertNotNull(project);
+        log.debug("Getting Project By Name ({})", project.getName());
+        project = this.getTLTestProjectByName(project.getName());
+        assertNotNull(project);
+
+        log.debug("Getting Suite By Id ({})", suite.getId());
+        suite = this.getTLTestSuiteById(suite.getId());
+        assertNotNull(suite);
+//        log.debug("Getting Suite By Name ({})", suite.getName());
+//        suite = this.getTLTestSuiteByName(suite.getName());
+//        assertNotNull(suite);
+
+        for (TestCase tCase : cases) {
+            log.debug("Getting Test Case By Id ({})", tCase.getId());
+            tCase = this.getTLTestCaseById(tCase.getId());
+            assertNotNull(tCase);
+//            log.debug("Getting Test Case By Name ({})", tCase.getName());
+//            tCase = this.getTLTestCaseByName(tCase.getName(), suite.getId());
+//            assertNotNull(tCase);
+        }
     }
 
     /* ******************************************************* */
@@ -209,7 +230,16 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* *** TestCase *** */
     /* **************** */
 
-    protected TestCase getTLTestCase(String caseName, Integer suiteId)
+    protected TestCase getTLTestCaseById(Integer caseId)
+            throws JsonParseException, JsonMappingException, IOException {
+        String jsonTCase = this.httpClient
+                .getForEntity(tlApiPath + "/project/suite/case/" + caseId,
+                        String.class)
+                .getBody();
+        return this.getTestCaseFromJson(jsonTCase);
+    }
+
+    protected TestCase getTLTestCaseByName(String caseName, Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
         String jsonTCase = this.httpClient
                 .getForEntity(tlApiPath + "/project/suite/" + suiteId
@@ -220,13 +250,13 @@ public class TestLinkApiItTest extends EtmApiItTest {
 
     protected TestCase getTLTestCase(TestCase testCase)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestCase(testCase.getName(),
+        return this.getTLTestCaseByName(testCase.getName(),
                 testCase.getTestSuiteId());
     }
 
     protected boolean tlTestCaseExists(String caseName, Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestCase(caseName, suiteId) != null;
+        return this.getTLTestCaseByName(caseName, suiteId) != null;
     }
 
     protected boolean tlTestCaseExists(TestCase testCase)
