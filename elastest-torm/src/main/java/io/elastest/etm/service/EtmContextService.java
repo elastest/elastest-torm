@@ -90,6 +90,8 @@ public class EtmContextService {
     public String etEtmBindedLstcpPort;
     @Value("${et.etm.binded.lsbeats.port}")
     public String etEtmBindedLsbeatsPort;
+    @Value("${et.etm.binded.internal.lsbeats.port}")
+    public String etEtmBindedInternalLsbeatsPort;
     @Value("${et.etm.lshttp.api}")
     public String etEtmLsHttpApi;
     @Value("${et.etm.lshttp.port}")
@@ -174,6 +176,8 @@ public class EtmContextService {
                         "http://" + etPublicHost + ":" + etEtmLsHttpPort);
                 monEnvs.put("ET_MON_LSBEATS_HOST", etPublicHost);
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
+                monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
+                        etEtmBindedInternalLsbeatsPort);
                 monEnvs.put("ET_MON_LSTCP_HOST", etPublicHost);
                 monEnvs.put("ET_MON_LSTCP_PORT", etEtmBindedLstcpPort);
             }
