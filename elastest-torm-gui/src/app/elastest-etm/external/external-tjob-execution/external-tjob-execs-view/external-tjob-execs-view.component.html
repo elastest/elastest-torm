@@ -8,23 +8,31 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
-        <td-data-table #buildTable id="externalExecutions" class="scroll_table" [data]="exTJobExecs" [columns]="execsColumns" [selectable]="false" [clickable]="true"
-          [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
-            <div *ngIf="column.name !== 'options'" [routerLink]="['/external/projects/',row.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]"
-              class="hover-pointer">
-              <ng-container *ngIf="column.name === 'result'">
-                <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color" mdTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</md-icon>
-              </ng-container>
-              {{value}}
-            </div>
-          </ng-template>
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
-            </div>
-          </ng-template>
-        </td-data-table>
+        <div *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable" class="push-top-important messageEmptyCard">
+          <md-icon>assignment</md-icon>
+          <p>No executions</p>
+        </div>
+
+        <ng-template #showBuildTable>
+          <td-data-table #buildTable id="externalExecutions" class="scroll_table" [data]="exTJobExecs" [columns]="execsColumns" [selectable]="false"
+            [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+            <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
+              <div *ngIf="column.name !== 'options'" [routerLink]="['/external/projects/',row.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]"
+                class="hover-pointer">
+                <ng-container *ngIf="column.name === 'result'">
+                  <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+                  <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color"
+                    mdTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</md-icon>
+                </ng-container>
+                {{value}}
+              </div>
+            </ng-template>
+            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+              <div layout="row" class="optionsColumn">
+              </div>
+            </ng-template>
+          </td-data-table>
+        </ng-template>
       </md-card-content>
     </md-card>
   </div>

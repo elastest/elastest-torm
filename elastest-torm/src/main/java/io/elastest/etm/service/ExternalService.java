@@ -326,7 +326,7 @@ public class ExternalService {
         SupportService eus = this.startEus();
 
         if (eus != null) {
-            String instanceId = utilTools.generateUniqueId();
+            String instanceId = UtilTools.generateUniqueId();
             esmService.provisionExternalTJobExecServiceInstanceAsync(
                     eus.getId(), exec, instanceId);
             exec.getEnvVars().put("EUS_ID", eus.getId());
@@ -352,7 +352,7 @@ public class ExternalService {
         SupportService eus = this.startEus();
 
         if (eus != null) {
-            String instanceId = utilTools.generateUniqueId();
+            String instanceId = UtilTools.generateUniqueId();
             esmService.provisionExternalTJobExecServiceInstanceAsync(
                     eus.getId(), exec, instanceId);
             exec.getEnvVars().put("EUS_ID", eus.getId());
