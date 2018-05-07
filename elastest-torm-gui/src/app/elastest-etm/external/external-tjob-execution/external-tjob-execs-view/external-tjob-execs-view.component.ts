@@ -25,11 +25,20 @@ export class ExternalTjobExecsViewComponent implements OnInit {
   }
 
   loadExternalTJobExecs(): void {
-    this.externalService.getExternalTJobExecsByExternalTJobId(this.exTJobId).subscribe(
-      (exTJobExecs: ExternalTJobExecModel[]) => {
-        this.exTJobExecs = exTJobExecs.reverse();
-      },
-      (error) => console.log(error),
-    );
+    if (this.exTJobId !== undefined && this.exTJobId !== null) {
+      this.externalService.getExternalTJobExecsByExternalTJobId(this.exTJobId).subscribe(
+        (exTJobExecs: ExternalTJobExecModel[]) => {
+          this.exTJobExecs = exTJobExecs.reverse();
+        },
+        (error) => console.log(error),
+      );
+    } else {
+      this.externalService.getAllExternalTJobExecs().subscribe(
+        (exTJobExecs: ExternalTJobExecModel[]) => {
+          this.exTJobExecs = exTJobExecs.reverse();
+        },
+        (error) => console.log(error),
+      );
+    }
   }
 }
