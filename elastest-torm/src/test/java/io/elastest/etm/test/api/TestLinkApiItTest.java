@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,7 @@ public class TestLinkApiItTest extends EtmApiItTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Create TestLink Data and Test In ElasTest (Integration Test)")
     void createSampleTLDataTest() throws InterruptedException, IOException {
         log.info("Creating Sample Data in TestLink...");
@@ -140,17 +142,17 @@ public class TestLinkApiItTest extends EtmApiItTest {
         log.debug("Getting Suite By Id ({})", suite.getId());
         suite = this.getTLTestSuiteById(suite.getId());
         assertNotNull(suite);
-//        log.debug("Getting Suite By Name ({})", suite.getName());
-//        suite = this.getTLTestSuiteByName(suite.getName());
-//        assertNotNull(suite);
+        log.debug("Getting Suite By Name ({})", suite.getName());
+        suite = this.getTLTestSuiteByName(suite.getName(), project.getId());
+        assertNotNull(suite);
 
         for (TestCase tCase : cases) {
             log.debug("Getting Test Case By Id ({})", tCase.getId());
             tCase = this.getTLTestCaseById(tCase.getId());
             assertNotNull(tCase);
-//            log.debug("Getting Test Case By Name ({})", tCase.getName());
-//            tCase = this.getTLTestCaseByName(tCase.getName(), suite.getId());
-//            assertNotNull(tCase);
+            // log.debug("Getting Test Case By Name ({})", tCase.getName());
+            // tCase = this.getTLTestCaseByName(tCase.getName(), suite.getId());
+            // assertNotNull(tCase);
         }
     }
 
@@ -195,11 +197,12 @@ public class TestLinkApiItTest extends EtmApiItTest {
     /* *** Suite *** */
     /* ************* */
 
-    protected TestSuite getTLTestSuiteByName(String suiteName)
+    protected TestSuite getTLTestSuiteByName(String suiteName,
+            Integer projectId)
             throws JsonParseException, JsonMappingException, IOException {
         return this.httpClient
-                .getForEntity(tlApiPath + "/project/suite/name/" + suiteName,
-                        TestSuite.class)
+                .getForEntity(tlApiPath + "/project/" + projectId
+                        + "/suite/name/" + suiteName, TestSuite.class)
                 .getBody();
     }
 
@@ -211,14 +214,16 @@ public class TestLinkApiItTest extends EtmApiItTest {
                 .getBody();
     }
 
-    protected boolean tlTestSuiteExists(String suiteName)
+    protected boolean tlTestSuiteExists(TestSuite suite)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestSuiteByName(suiteName) != null;
+        return this.getTLTestSuiteByName(suite.getName(),
+                suite.getId()) != null;
     }
 
     protected TestSuite createTlTestSuite(TestSuite suite) throws IOException {
-        if (this.tlTestSuiteExists(suite.getName())) {
-            return this.getTLTestSuiteByName(suite.getName());
+        if (this.tlTestSuiteExists(suite)) {
+            return this.getTLTestSuiteByName(suite.getName(),
+                    suite.getTestProjectId());
         } else {
             return this.httpClient.postForEntity(tlApiPath + "/project/"
                     + suite.getTestProjectId() + "/suite", suite,
