@@ -20,8 +20,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.concurrent.TimeoutException;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -87,15 +85,16 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         // Creation of a new Pipeline Job
         driver.findElement(By.linkText("New Item")).click();
         createPipelineJob(driver, "PJob_1", unitTestScript);
-       
+
         executeJob(driver);
-        
-        String linkElasTest = driver.findElement(By.linkText("Open in ElasTest"))
+
+        String linkElasTest = driver
+                .findElement(By.linkText("Open in ElasTest"))
                 .getAttribute("href");
         if (secureElastest) {
             String split_url[] = linkElasTest.split("//");
-            linkElasTest = split_url[0] + "//" + eUser + ":"
-                    + ePassword + "@" + split_url[1];
+            linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
+                    + split_url[1];
             navigateTo(driver, linkElasTest);
         } else {
             driver.findElement(By.linkText("Open in ElasTest")).click();
@@ -104,12 +103,12 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         WebDriverWait waitLogs = new WebDriverWait(driver, 180);
         log.info("Wait for build sucess traces");
         try {
-            waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                "BUILD SUCCESS"));
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
             navigateTo(driver, linkElasTest);
-            waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                    "BUILD SUCCESS"));
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
         }
     }
 }

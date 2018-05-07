@@ -24,8 +24,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
     @BeforeEach
     void pluginSetup() {
-    	
-    	// Setup Jenkins URL
+
+        // Setup Jenkins URL
         String jenkinsCIUrl = getProperty("ciUrl");
         if (jenkinsCIUrl != null) {
             this.jenkinsCIUrl = jenkinsCIUrl;
@@ -38,7 +38,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
-        
+
         // Setup Jenkins credentials
         String jenkinsUser = getProperty("ciUser");
         if (jenkinsUser != null) {
@@ -49,7 +49,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         if (jenkinsPass != null) {
             this.jenkinsPass = jenkinsPass;
         }
-        
+
     }
 
     protected void installElasTestPlugin(WebDriver webDriver)
@@ -81,8 +81,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         // Fill configuration
         log.info("Filling the configuration");
         driver.findElement(By.name("_.elasTestUrl")).clear();
-        driver.findElement(By.name("_.elasTestUrl"))
-                .sendKeys(tormUrl);
+        driver.findElement(By.name("_.elasTestUrl")).sendKeys(tormUrl);
         if (eUser != null && ePassword != null) {
             driver.findElement(By.name("_.username")).clear();
             driver.findElement(By.name("_.username")).sendKeys(eUser);
@@ -138,26 +137,10 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         waitService.until(visibilityOfElementLocated(byItemShell));
         driver.findElement(byItemShell).click();
 
-        // By byTextArea = By.xpath("//textarea[@name='command']");
-        // waitService.until(visibilityOfElementLocated(byTextArea));
-        // driver.findElements(By.xpath("//textarea[@name='command']")).get(0).sendKeys("cd
-        // unit-java-test; mvn test");
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
         driver.findElement(By.linkText("Configure")).click();
 
-        // WebElement myelement2 =
-        // driver.findElement(byDom("document.getElementsByName(\"command\")[0]"));
-        // JavascriptExecutor jse22 = (JavascriptExecutor)driver;
-        // jse2.executeScript("arguments[0].scrollIntoView()", myelement2);
-
-        // By byTextArea = By.xpath("//textarea[contains(@name, 'command')]");
-        // By byTextArea = By.xpath("//*[contains(@id,
-        // 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea[contains(@name,
-        // 'command')]");
-        // waitService.until(visibilityOfElementLocated(byDom("document.getElementsByName(\"command\")[0]")));
-        // driver.findElement(byTextArea).sendKeys("cd unit-java-test; mvn
-        // test");
         driver.findElement(By.xpath(
                 "//*[contains(@id, 'yui-gen')]/table/tbody/tr[3]/td[3]/textarea"))
                 .sendKeys("cd unit-java-test; mvn test");
@@ -182,14 +165,12 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
     }
-    
+
     protected void loginOnJenkins(WebDriver driver) {
-    	//j_username
-    	//j_password
-    	log.info("Login on Jenkins.");
-    	driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
-    	driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
-    	driver.findElement(By.xpath("//span/button")).click();    	
+        log.info("Login on Jenkins.");
+        driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
+        driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
+        driver.findElement(By.xpath("//span/button")).click();
     }
 
 }
