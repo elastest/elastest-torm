@@ -1,0 +1,40 @@
+node{
+    elastest(tss: ['EUS']) {
+        stage ('Executing Test') {
+            echo 'Print env variables'
+            sh 'env'
+            
+            def sutImage = docker.image('elastest/demo-web-java-test-sut')
+            def beatImage = docker.image('elastest/etm-dockbeat:latest')
+            echo 'Start beat'
+            beatImage.withRun("-e LOGSTASHHOST=${env.ET_MON_LSBEATS_HOST} -e LOGSTASHPORT=${env.ET_MON_INTERNAL_LSBEATS_PORT} -v /var/run/docker.sock:/var/run/docker.sock --network=elastest_elastest") { c1 ->
+                sh 'sleep 5'
+                echo 'Start SUT'
+                sutImage.withRun("--name ${env.ET_SUT_CONTAINER_NAME} --log-driver=syslog --log-opt syslog-address=tcp://${env.ET_MON_LSTCP_HOST}:${env.ET_MON_LSTCP_PORT} --log-opt tag=${env.ET_SUT_LOG_TAG} --network=elastest_elastest") { c ->
+                    echo "${c.id}"
+                    sh 'sleep 5'
+                    def sutIp = containerIp("${env.ET_SUT_CONTAINER_NAME}")
+                    withEnv(['ET_SUT_HOST=' + sutIp]) {
+                        echo 'Set up test environment'
+                        mvnHome = tool 'M3.3.9'
+                        echo 'Cloning repository'
+                        git 'https://github.com/elastest/demo-projects'
+                        echo 'Run test'
+                        sh "cd ./web-java-test/;'${mvnHome}/bin/mvn' -Dtest=WebAppTest test"
+                    }
+                }
+            }
+        }        
+    }
+}
+
+def containerIp(containerName) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
+}
