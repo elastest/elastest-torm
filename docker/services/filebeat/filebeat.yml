@@ -48,7 +48,7 @@ filebeat.autodiscover:
 output.logstash:
   enabled: true
   # The Logstash hosts
-  hosts: ["${ET_ETM_LSHTTP_HOST}:${ET_ETM_LSHTTP_PORT:5044}"]
+  hosts: ["${ET_MON_LSBEATS_HOST}:${ET_MON_LSBEATS_PORT:5044}"]
 
 #================================ Logging =====================================
 

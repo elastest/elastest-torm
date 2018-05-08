@@ -7,10 +7,10 @@ node{
                 def sutImage = docker.image('elastest/demo-openvidu-test-sut2')
                 def beatImage = docker.image('elastest/etm-dockbeat:latest')
                 echo 'Start beat'
-                beatImage.withRun("-e LOGSTASHHOST=${env.ET_SUT_MON_LSBEATS_HOST}  -v /var/run/docker.sock:/var/run/docker.sock --network=elastest_elastest") { c1 ->
+                beatImage.withRun("-e LOGSTASHHOST=${env.ET_MON_LSBEATS_HOST} -e LOGSTASHPORT=${env.ET_MON_INTERNAL_LSBEATS_PORT} -v /var/run/docker.sock:/var/run/docker.sock --network=elastest_elastest") { c1 ->
                     sh 'sleep 5'
                     echo 'Start SUT'
-                    sutImage.withRun("--name ${env.ET_SUT_CONTAINER_NAME} --log-driver=syslog --log-opt syslog-address=tcp://${env.ET_SUT_MON_LSTCP_HOST}:${env.ET_SUT_MON_LSTCP_PORT} --log-opt tag=${env.ET_SUT_LOG_TAG} --network=elastest_elastest") { c ->
+                    sutImage.withRun("--name ${env.ET_SUT_CONTAINER_NAME} --log-driver=syslog --log-opt syslog-address=tcp://${env.ET_MON_LSTCP_HOST}:${env.ET_MON_LSTCP_PORT} --log-opt tag=${env.ET_SUT_LOG_TAG} --network=elastest_elastest") { c ->
                         echo "${c.id}"
                         sh 'sleep 5'
                         def sutIp = containerIp("${env.ET_SUT_CONTAINER_NAME}")
