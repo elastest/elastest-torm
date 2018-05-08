@@ -3,11 +3,12 @@ services:
     etm-logstash:        
         image: elastest/etm-logstash:latest
         expose:
-            - 5002
             - 5000
-            - 5037
+            - 5002
             - 5003
             - 5044
+            - 5037
+            - 5001
         depends_on:
             - etm-rabbitmq
             - edm-elasticsearch

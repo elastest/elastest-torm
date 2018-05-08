@@ -43,35 +43,51 @@ public class EtmContextAuxService {
     @Value("${exec.mode}")
     String execMode;
 
-    // Logstash
+    /* **************** */
+    /* *** Logstash *** */
+    /* **************** */
+
+    /* ** Beats ** */
     @Value("${et.etm.lsbeats.host}")
-    public String etEtmLsBeatsHost;
+    public String lsBeatsHost;
     @Value("${et.etm.lsbeats.port}")
-    public String etEtmLsBeatsPort;
+    public String lsBeatsPort;
     @Value("${et.etm.internal.lsbeats.port}")
-    public String etEtmInternalLsbeatsPort;
-    @Value("${et.etm.lshttp.api}")
-    public String etEtmLsHttpApi;
-    @Value("${et.etm.lshttp.port}")
-    public String etEtmLsHttpPort;
-    @Value("${et.etm.lstcp.host}")
-    public String etEtmLsTcpHost;
-    @Value("${et.etm.lstcp.port}")
-    public String etEtmLsTcpPort;
-    @Value("${et.etm.logstash.path.with-proxy}")
-    public String etEtmLogstashPathWithProxy;
+    public String internalLsBeatsPort;
 
     @Value("${et.etm.binded.lsbeats.host}")
-    public String etEtmBindedLsBeatsHost;
+    public String bindedLsBeatsHost;
     @Value("${et.etm.binded.lsbeats.port}")
-    public String etEtmBindedLsBeatsPort;
+    public String bindedLsBeatsPort;
     @Value("${et.etm.binded.internal.lsbeats.port}")
-    public String etEtmBindedInternalLsbeatsPort;
+    public String bindedInternalLsBeatsPort;
+
+    /* ** Http ** */
+    @Value("${et.etm.lshttp.api}")
+    public String lsHttpApi;
+    @Value("${et.etm.lshttp.port}")
+    public String lsHttpPort;
+
+    /* ** Tcp ** */
+    @Value("${et.etm.lstcp.host}")
+    public String lsTcpHost;
+    @Value("${et.etm.lstcp.port}")
+    public String lsTcpPort;
 
     @Value("${et.etm.binded.lstcp.host}")
-    public String etEtmBindedLsTcpHost;
+    public String bindedLsTcpHost;
     @Value("${et.etm.binded.lstcp.port}")
-    public String etEtmBindedLsTcpPort;
+    public String bindedLsTcpPort;
+
+    @Value("${et.etm.internal.lstcp.port}")
+    public String internalLsTcpPort;
+
+    @Value("${et.etm.binded.internal.lstcp.port}")
+    public String bindedInternalLsTcpPort;
+
+    /* ** Others ** */
+    @Value("${et.etm.logstash.path.with-proxy}")
+    public String logstashPathWithProxy;
 
     @Value("${et.etm.logstash.container.name}")
     private String etEtmLogstashContainerName;
@@ -93,21 +109,23 @@ public class EtmContextAuxService {
         ContextInfo contextInfo = new ContextInfo();
 
         // Logstash
-        contextInfo.setLogstashPath(etEtmLogstashPathWithProxy);
+        contextInfo.setLogstashPath(logstashPathWithProxy);
 
-        contextInfo.setLogstashTcpHost(etEtmLsTcpHost);
-        contextInfo.setLogstashTcpPort(etEtmLsTcpPort);
-        contextInfo.setLogstashBeatsHost(etEtmLsBeatsHost);
-        contextInfo.setLogstashBeatsPort(etEtmLsBeatsPort);
-        contextInfo.setInternalLogstashBeatsPort(etEtmInternalLsbeatsPort);
-        contextInfo.setLogstashHttpPort(etEtmLsHttpPort);
+        contextInfo.setLogstashTcpHost(lsTcpHost);
+        contextInfo.setLogstashTcpPort(lsTcpPort);
+        contextInfo.setLogstashInternalTcpPort(internalLsTcpPort);
+        contextInfo.setLogstashBeatsHost(lsBeatsHost);
+        contextInfo.setLogstashBeatsPort(lsBeatsPort);
+        contextInfo.setInternalLogstashBeatsPort(internalLsBeatsPort);
+        contextInfo.setLogstashHttpPort(lsHttpPort);
 
-        contextInfo.setLogstashBindedTcpHost(etEtmBindedLsTcpHost);
-        contextInfo.setLogstashBindedTcpPort(etEtmBindedLsTcpPort);
-        contextInfo.setLogstashBindedBeatsHost(etEtmBindedLsBeatsHost);
-        contextInfo.setLogstashBindedBeatsPort(etEtmBindedLsBeatsPort);
-        contextInfo.setLogstashBindedInternalBeatsPort(
-                etEtmBindedInternalLsbeatsPort);
+        contextInfo.setLogstashBindedTcpHost(bindedLsTcpHost);
+        contextInfo.setLogstashBindedTcpPort(bindedLsTcpPort);
+        contextInfo.setLogstashBindedInternalTcpPort(bindedInternalLsTcpPort);
+        contextInfo.setLogstashBindedBeatsHost(bindedLsBeatsHost);
+        contextInfo.setLogstashBindedBeatsPort(bindedLsBeatsPort);
+        contextInfo
+                .setLogstashBindedInternalBeatsPort(bindedInternalLsBeatsPort);
 
         String logstashHost = dockerService.getContainerIpByNetwork(
                 etEtmLogstashContainerName, elastestNetwork);
@@ -127,10 +145,10 @@ public class EtmContextAuxService {
             proxyIp = dockerService.getHostIpByNetwork(elastestNetwork);
         }
 
-        contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort
-                + etEtmLogstashPathWithProxy);
+        contextInfo.setLogstashHttpUrl(
+                "http://" + proxyIp + ":" + proxyPort + logstashPathWithProxy);
         contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
-                + proxySslPort + etEtmLogstashPathWithProxy);
+                + proxySslPort + logstashPathWithProxy);
 
         contextInfo.setLogstashIp(logstashHost);
 
@@ -164,6 +182,8 @@ public class EtmContextAuxService {
         monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
                 context.getInternalLogstashBeatsPort());
         monEnvs.put("ET_MON_LSTCP_PORT", context.getLogstashTcpPort());
+        monEnvs.put("ET_MON_INTERNAL_LSTCP_PORT",
+                context.getLogstashInternalTcpPort());
 
         if (!isTss) {
             monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashBeatsHost());

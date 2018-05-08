@@ -31,6 +31,9 @@ public class ContextInfo {
     @JsonProperty("logstashTcpPort")
     private String logstashTcpPort;
 
+    @JsonProperty("logstashInternalTcpPort")
+    private String logstashInternalTcpPort;
+
     @JsonProperty("logstashBeatsHost")
     private String logstashBeatsHost;
 
@@ -45,6 +48,9 @@ public class ContextInfo {
 
     @JsonProperty("logstashBindedTcpPort")
     private String logstashBindedTcpPort;
+
+    @JsonProperty("logstashBindedInternalTcpPort")
+    private String logstashBindedInternalTcpPort;
 
     @JsonProperty("logstashBindedBeatsHost")
     private String logstashBindedBeatsHost;
@@ -148,6 +154,14 @@ public class ContextInfo {
         this.logstashTcpPort = logstashTcpPort;
     }
 
+    public String getLogstashInternalTcpPort() {
+        return logstashInternalTcpPort;
+    }
+
+    public void setLogstashInternalTcpPort(String logstashInternalTcpPort) {
+        this.logstashInternalTcpPort = logstashInternalTcpPort;
+    }
+
     public String getLogstashBeatsHost() {
         return logstashBeatsHost;
     }
@@ -160,16 +174,16 @@ public class ContextInfo {
         return logstashBeatsPort;
     }
 
+    public void setLogstashBeatsPort(String logstashBeatsPort) {
+        this.logstashBeatsPort = logstashBeatsPort;
+    }
+
     public String getInternalLogstashBeatsPort() {
         return internalLogstashBeatsPort;
     }
 
     public void setInternalLogstashBeatsPort(String internalLogstashBeatsPort) {
         this.internalLogstashBeatsPort = internalLogstashBeatsPort;
-    }
-
-    public void setLogstashBeatsPort(String logstashBeatsPort) {
-        this.logstashBeatsPort = logstashBeatsPort;
     }
 
     public String getLogstashBindedTcpHost() {
@@ -186,6 +200,15 @@ public class ContextInfo {
 
     public void setLogstashBindedTcpPort(String logstashBindedTcpPort) {
         this.logstashBindedTcpPort = logstashBindedTcpPort;
+    }
+
+    public String getLogstashBindedInternalTcpPort() {
+        return logstashBindedInternalTcpPort;
+    }
+
+    public void setLogstashBindedInternalTcpPort(
+            String logstashBindedInternalTcpPort) {
+        this.logstashBindedInternalTcpPort = logstashBindedInternalTcpPort;
     }
 
     public String getLogstashBindedBeatsHost() {
@@ -276,5 +299,4 @@ public class ContextInfo {
     public void setEdmCommandUrl(String edmCommandUrl) {
         this.edmCommandUrl = edmCommandUrl;
     }
-
 }
