@@ -361,17 +361,20 @@ public class TJobExecOrchestratorService {
 
     private void setTJobExecEnvVars(TJobExecution tJobExec,
             boolean externalTJob, boolean withPublicPrefix) {
+        Map<String, String> envVars = new HashMap<>();
+        envVars.putAll(tJobExec.getEnvVars());
         // Get TSS Env Vars
         for (String tSSInstanceId : tJobExec.getServicesInstances()) {
             SupportServiceInstance ssi = esmService.gettJobServicesInstances()
                     .get(tSSInstanceId);
-            tJobExec.getEnvVars().putAll(esmService.getTSSInstanceEnvVars(ssi,
-                    externalTJob, withPublicPrefix));
+            envVars.putAll(esmService.getTSSInstanceEnvVars(ssi, externalTJob,
+                    withPublicPrefix));
         }
 
         // Get monitoring Env Vars
-        tJobExec.getEnvVars().putAll(
+        envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
+        tJobExec.setEnvVars(envVars);
     }
 
     /**
