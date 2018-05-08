@@ -4,24 +4,31 @@
             <md-card-title>Manual Web Browsers</md-card-title>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">
-                <span *ngIf="loading">
-                    <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width: 23px; height: 23px; vertical-align:middle;">Loading browsers...</span>
-                <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                    <div *ngFor="let browser of browserNamesList">
-                        <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
-                        <md-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50"
-                            (ngModelChange)="selectBrowser(browser)">
-                            <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
-                                {{version}}
-                            </md-option>
-                        </md-select>
-                        <br>
-                        <br>
-                    </div>
-                </md-radio-group>
-                <div layout="row" class="push-top">
-                    <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start Web Browser</button>
+                <div *ngIf="loading; else showBrowsersSelection" layout="row" layout-align="start center">
+                    <span>
+                        <md-spinner strokeWidth="6" color="accent"></md-spinner>
+                    </span>
+                    <span class="md-title push-left-sm">
+                        Loading browsers...</span>
                 </div>
+                <ng-template #showBrowsersSelection>
+                    <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
+                        <div *ngFor="let browser of browserNamesList">
+                            <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser | capitalize}}</md-radio-button>
+                            <md-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]" name="version" flex-gt-xs="50"
+                                (ngModelChange)="selectBrowser(browser)">
+                                <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
+                                    {{version}}
+                                </md-option>
+                            </md-select>
+                            <br>
+                            <br>
+                        </div>
+                    </md-radio-group>
+                    <div layout="row" class="push-top">
+                        <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start Web Browser</button>
+                    </div>
+                </ng-template>
             </md-card-content>
         </md-card>
     </div>
