@@ -198,7 +198,6 @@ public class TestLinkApiItTest extends EtmApiItTest {
     protected TestSuite getTLTestSuiteByName(String suiteName,
             Integer projectId)
             throws JsonParseException, JsonMappingException, IOException {
-        log.error("aaaaaaaa {} {}", suiteName, projectId);
         return this.httpClient
                 .getForEntity(tlApiPath + "/project/" + projectId
                         + "/suite/name/" + suiteName, TestSuite.class)

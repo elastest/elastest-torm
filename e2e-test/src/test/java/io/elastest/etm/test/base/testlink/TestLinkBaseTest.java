@@ -88,23 +88,33 @@ public class TestLinkBaseTest extends EtmBaseTest {
     /* *** Suite *** */
     /* ************* */
 
-    protected TestSuite getTLTestSuite(WebDriver driver, String suiteName)
+    protected TestSuite getTLTestSuiteByName(String suiteName,
+            Integer projectId)
             throws JsonParseException, JsonMappingException, IOException {
-        ResponseEntity<String> response = this.restClient
-                .get(tlApiPath + "/project/suite/name/" + suiteName);
+        ResponseEntity<String> response = this.restClient.get(tlApiPath
+                + "/project/" + projectId + "/suite/name/" + suiteName);
 
         return this.getObjectFromJson(response.getBody(), TestSuite.class);
     }
 
-    protected boolean tlTestSuiteExists(WebDriver driver, String suiteName)
+    protected TestSuite getTLTestSuiteById(Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
-        return this.getTLTestSuite(driver, suiteName) != null;
+        ResponseEntity<String> response = this.restClient
+                .get(tlApiPath + "/project/suite/" + suiteId);
+
+        return this.getObjectFromJson(response.getBody(), TestSuite.class);
     }
 
-    protected TestSuite createTlTestSuite(WebDriver driver, TestSuite suite)
-            throws IOException {
-        if (this.tlTestSuiteExists(driver, suite.getName())) {
-            return this.getTLTestSuite(driver, suite.getName());
+    protected boolean tlTestSuiteExists(TestSuite suite)
+            throws JsonParseException, JsonMappingException, IOException {
+        return this.getTLTestSuiteByName(suite.getName(),
+                suite.getTestProjectId()) != null;
+    }
+
+    protected TestSuite createTlTestSuite(TestSuite suite) throws IOException {
+        if (this.tlTestSuiteExists(suite)) {
+            return this.getTLTestSuiteByName(suite.getName(),
+                    suite.getTestProjectId());
         } else {
             String jsonSuite = this.objectToJson(suite);
             ResponseEntity<String> response = this.restClient.post(tlApiPath

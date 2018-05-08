@@ -150,7 +150,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         TestSuite suite = new TestSuite(0, project.getId(), suiteName,
                 "There are the suite details", null, null, true,
                 ActionOnDuplicate.BLOCK);
-        suite = this.createTlTestSuite(driver, suite);
+        suite = this.createTlTestSuite(suite);
 
         // Create Plan
         String planName = "Test Sample Plan";
