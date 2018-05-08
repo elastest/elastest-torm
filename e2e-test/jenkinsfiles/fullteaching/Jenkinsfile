@@ -6,13 +6,15 @@ node{
             git "https://github.com/elastest/full-teaching-experiment.git"
         }
         stage("Start Sut") {
-            sh "cd docker-compose/full-teaching-et-network; export BUG_TAG=bug1; docker-compose -p ${env.ET_SUT_CONTAINER_NAME} --no-ansi up -d"
-            sh "sleep 20"
+	        def filebeatImage = docker.image('elastest/etm-filebeat:latest')
+            filebeatImage.withRun("-e ET_ETM_LSHTTP_HOST=${env.ET_MON_LSBEATS_HOST} -e ET_ETM_LSHTTP_PORT=${env.ET_MON_LSBEATS_PORT} -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/containers:/var/lib/docker/containers --network=elastest_elastest") { c1 ->
+            	sh "cd docker-compose/full-teaching-et-network; export BUG_TAG=bug1; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} up -d"
+            	sh "sleep 20"
+            }
         }
         stage("Run Tests") {
             try {
-                def sutContainerNamePrefix = env.ET_SUT_CONTAINER_NAME.replaceAll("_","")
-                def fullteachingContainerName = sutContainerNamePrefix + "_full-teaching_1"
+                def fullteachingContainerName = env.ET_SUT_CONTAINER_NAME + "_full-teaching_1"
                 echo "Container name: " + fullteachingContainerName
                 def sutIp = containerIp(fullteachingContainerName)
                 echo 'Sut ip: '+ sutIp
