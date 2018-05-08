@@ -65,6 +65,9 @@ public class EtmContextAuxService {
     public String etEtmBindedLsBeatsHost;
     @Value("${et.etm.binded.lsbeats.port}")
     public String etEtmBindedLsBeatsPort;
+    @Value("${et.etm.binded.internal.lsbeats.port}")
+    public String etEtmBindedInternalLsbeatsPort;
+
     @Value("${et.etm.binded.lstcp.host}")
     public String etEtmBindedLsTcpHost;
     @Value("${et.etm.binded.lstcp.port}")
@@ -88,7 +91,7 @@ public class EtmContextAuxService {
 
     public ContextInfo getContextInfo() {
         ContextInfo contextInfo = new ContextInfo();
-        
+
         // Logstash
         contextInfo.setLogstashPath(etEtmLogstashPathWithProxy);
 
@@ -96,12 +99,15 @@ public class EtmContextAuxService {
         contextInfo.setLogstashTcpPort(etEtmLsTcpPort);
         contextInfo.setLogstashBeatsHost(etEtmLsBeatsHost);
         contextInfo.setLogstashBeatsPort(etEtmLsBeatsPort);
+        contextInfo.setInternalLogstashBeatsPort(etEtmInternalLsbeatsPort);
         contextInfo.setLogstashHttpPort(etEtmLsHttpPort);
 
         contextInfo.setLogstashBindedTcpHost(etEtmBindedLsTcpHost);
         contextInfo.setLogstashBindedTcpPort(etEtmBindedLsTcpPort);
         contextInfo.setLogstashBindedBeatsHost(etEtmBindedLsBeatsHost);
         contextInfo.setLogstashBindedBeatsPort(etEtmBindedLsBeatsPort);
+        contextInfo.setLogstashBindedInternalBeatsPort(
+                etEtmBindedInternalLsbeatsPort);
 
         String logstashHost = dockerService.getContainerIpByNetwork(
                 etEtmLogstashContainerName, elastestNetwork);
@@ -155,6 +161,8 @@ public class EtmContextAuxService {
         monEnvs.put("ET_MON_LSHTTP_API", context.getLogstashHttpUrl());
         monEnvs.put("ET_MON_LSHTTPS_API", context.getLogstashSSLHttpUrl());
         monEnvs.put("ET_MON_LSBEATS_PORT", context.getLogstashBeatsPort());
+        monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
+                context.getInternalLogstashBeatsPort());
         monEnvs.put("ET_MON_LSTCP_PORT", context.getLogstashTcpPort());
 
         if (!isTss) {

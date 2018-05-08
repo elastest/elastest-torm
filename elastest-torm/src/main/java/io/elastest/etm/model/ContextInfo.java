@@ -37,6 +37,9 @@ public class ContextInfo {
     @JsonProperty("logstashBeatsPort")
     private String logstashBeatsPort;
 
+    @JsonProperty("internalLogstashBeatsPort")
+    private String internalLogstashBeatsPort;
+
     @JsonProperty("logstashBindedTcpHost")
     private String logstashBindedTcpHost;
 
@@ -48,6 +51,9 @@ public class ContextInfo {
 
     @JsonProperty("logstashBindedBeatsPort")
     private String logstashBindedBeatsPort;
+
+    @JsonProperty("logstashBindedInternalBeatsPort")
+    private String logstashBindedInternalBeatsPort;
 
     @JsonProperty("logstashIp")
     private String logstashIp;
@@ -154,6 +160,14 @@ public class ContextInfo {
         return logstashBeatsPort;
     }
 
+    public String getInternalLogstashBeatsPort() {
+        return internalLogstashBeatsPort;
+    }
+
+    public void setInternalLogstashBeatsPort(String internalLogstashBeatsPort) {
+        this.internalLogstashBeatsPort = internalLogstashBeatsPort;
+    }
+
     public void setLogstashBeatsPort(String logstashBeatsPort) {
         this.logstashBeatsPort = logstashBeatsPort;
     }
@@ -188,6 +202,15 @@ public class ContextInfo {
 
     public void setLogstashBindedBeatsPort(String logstashBindedBeatsPort) {
         this.logstashBindedBeatsPort = logstashBindedBeatsPort;
+    }
+
+    public String getLogstashBindedInternalBeatsPort() {
+        return logstashBindedInternalBeatsPort;
+    }
+
+    public void setLogstashBindedInternalBeatsPort(
+            String logstashBindedInternalBeatsPort) {
+        this.logstashBindedInternalBeatsPort = logstashBindedInternalBeatsPort;
     }
 
     public String getLogstashIp() {
