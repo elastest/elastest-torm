@@ -52,6 +52,10 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "FullTeaching";
+    String tJobImage = "elastest/test-etm-alpinegitjava";
+    final int timeout = 600;
+
+    /* *** SuT 1 *** */
     final String sut1Name = "FullTeaching";
     String sut1Desc = "FullTeaching Software under Test";
     String sut1Compose = "version: '3'\r\n" + "services:\r\n"
@@ -83,19 +87,39 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
 
     String sut1MainService = "full-teaching";
     String sut1Port = "5000";
-    String tJobImage = "elastest/test-etm-alpinegitjava";
-    final int timeout = 600;
 
-    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+    /* *** SuT 2 *** */
+    final String sut2Name = "MySQL FullTeaching";
+    String sut2Desc = "MySql FullTeaching Software under Test";
+    String sut2Compose = "version: '3'\r\n" + "services:\r\n"
+            + " full-teaching-mysql:\r\n" + "   image: mysql:5.7.21\r\n"
+            + "   expose:\r\n" + "     - 3306\r\n" + "   environment:\r\n"
+            + "     - MYSQL_ROOT_PASSWORD=pass\r\n"
+            + "     - MYSQL_DATABASE=full_teaching\r\n"
+            + "     - MYSQL_USER=ft-root\r\n"
+            + "     - MYSQL_PASSWORD=pass\r\n";
+
+    String sut2MainService = "full-teaching-mysql";
+    String sut2Port = "3306";
+
+    void createProjectAndSut(WebDriver driver, int sutNum)
+            throws InterruptedException {
         navigateToTorm(driver);
         // Create Project
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
         }
         // Create SuT
-        if (!etSutExistsIntoProject(driver, projectName, sut1Name)) {
-            createNewSutDeployedByElastestWithCompose(driver, sut1Name,
-                    sut1Desc, sut1Compose, sut1MainService, sut1Port, null);
+        if (sutNum == 1) {
+            if (!etSutExistsIntoProject(driver, projectName, sut1Name)) {
+                createNewSutDeployedByElastestWithCompose(driver, sut1Name,
+                        sut1Desc, sut1Compose, sut1MainService, sut1Port, null);
+            }
+        } else {
+            if (!etSutExistsIntoProject(driver, projectName, sut2Name)) {
+                createNewSutDeployedByElastestWithCompose(driver, sut2Name,
+                        sut2Desc, sut2Compose, sut2MainService, sut2Port, null);
+            }
         }
     }
 
@@ -108,7 +132,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         String tJobTestResultPath = "/full-teaching/spring/backend/target/surefire-reports/";
         String commands = "git clone https://github.com/pabloFuente/full-teaching; cd full-teaching/spring/backend; mvn -Dtest=FullTeachingTestE2ESleep -B test;";
         this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
-                tJobImage, commands, sut1Name, "SUCCESS");
+                tJobImage, commands, 1, sut1Name, "SUCCESS");
     }
 
     @Test
@@ -120,7 +144,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EREST -B test;";
         this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
-                tJobImage, commands, sut1Name, "SUCCESS");
+                tJobImage, commands, 1, sut1Name, "SUCCESS");
     }
 
     @Test
@@ -133,7 +157,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EVideoSession -B test;";
 
         this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
-                tJobImage, commands, sut1Name, "SUCCESS");
+                tJobImage, commands, 1, sut1Name, "SUCCESS");
     }
 
     @Test
@@ -146,20 +170,34 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EChat -B test;";
 
         this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
-                tJobImage, commands, sut1Name, "SUCCESS");
+                tJobImage, commands, 1, sut1Name, "SUCCESS");
+    }
+
+    @Test
+    @DisplayName("Create and Executes Fullteaching Unit + Integration Tests")
+    void testUnitIntegrationTests(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        String tJobName = "Unit + Integration Tests";
+        String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
+        String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dspring.datasource.url=jdbc:mysql://$ET_SUT_HOST:3306/full_teaching test;";
+
+        this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
+                tJobImage, commands, 2, sut2Name, "SUCCESS");
     }
 
     public void fullTeachingBaseTest(RemoteWebDriver driver, String tJobName,
             String tJobTestResultPath, String tJobImage, String commands,
-            String sutName, String result) throws InterruptedException {
+            int sutNum, String sutName, String result)
+            throws InterruptedException {
         this.driver = driver;
-        this.createProjectAndSut(driver);
+        this.createProjectAndSut(driver, sutNum);
 
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
             List<String> tssList = new ArrayList<>();
             tssList.add("EUS");
 
-            createNewTJob(driver, tJobName, tJobTestResultPath, sut1Name,
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
                     tJobImage, false, commands, null, tssList);
         } else {
             navigateToETProject(driver, projectName);
