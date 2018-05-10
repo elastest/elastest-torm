@@ -196,7 +196,7 @@ public class EtmBaseTest {
     }
 
     protected void removeETProject(WebDriver driver, String projectName) {
-        this.navigateToTorm(driver);
+        this.navigateToRoot(driver);
         // TODO
     }
 
@@ -208,21 +208,37 @@ public class EtmBaseTest {
         String xpath = "//td-data-table[@id='" + id
                 + "']//*/td/div[contains(string(), '" + projectName + "')]";
         this.navigateToElement(driver, id, xpath);
-
     }
 
     protected boolean etProjectExists(WebDriver driver, String projectName) {
-        this.navigateToTorm(driver);
-
+        log.info("Checking if Project {} exists", projectName);
+        this.navigateToRoot(driver);
         String id = "projects";
-        String xpath = "//td-data-table[@id='" + id
-                + "']//*/td/div[contains(string(), '" + projectName + "')]";
-        return this.elementExists(driver, id, xpath);
+        String xpath = "//td-data-table[@id='" + id + "']";
+
+        // If exist PJ table (if there are some pj)
+        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
+            xpath = xpath + "//*/td/div[contains(string(), '" + projectName
+                    + "')]";
+            return this.elementExists(driver, id, xpath);
+        } else {
+            return false;
+        }
     }
 
     /* *************** */
     /* ***** Sut ***** */
     /* *************** */
+    protected void createSutAndInsertCommonFields(WebDriver driver,
+            String sutName, String desc) {
+        log.info("Create new SuT");
+        driver.findElement(By.xpath("//button[contains(string(), 'New SuT')]"))
+                .click();
+
+        driver.findElement(By.name("sutName")).sendKeys(sutName);
+        driver.findElement(By.name("sutDesc")).sendKeys(desc);
+    }
+
     protected void createNewSutDeployedByElastestWithCommands(
             WebDriver driver) {
 
@@ -231,12 +247,7 @@ public class EtmBaseTest {
     protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
             String sutName, String desc, String image, String port,
             Map<String, String> params) {
-        log.info("Create new SuT");
-        driver.findElement(By.xpath("//button[contains(string(), 'New SuT')]"))
-                .click();
-
-        driver.findElement(By.name("sutName")).sendKeys(sutName);
-        driver.findElement(By.name("sutDesc")).sendKeys(desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
 
         driver.findElement(By.name("managedSut")).click();
         driver.findElement(By.name("dockerImageRadio")).click();
@@ -253,9 +264,66 @@ public class EtmBaseTest {
                 .click();
     }
 
+    protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
+            String sutName, String desc, String compose, String mainServiceName,
+            String port, Map<String, String> params) {
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
+
+        driver.findElement(By.name("managedSut")).click();
+        driver.findElement(By.name("dockerComposeRadio")).click();
+        driver.findElement(By.id("composeSpec")).sendKeys(compose);
+        driver.findElement(By.name("mainService")).sendKeys(mainServiceName);
+
+        if (port != null && !"".equals(port)) {
+            driver.findElement(By.name("port")).sendKeys(port);
+        }
+
+        // Parameters TODO
+
+        // Save
+        driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
+                .click();
+    }
+
+    protected boolean etSutExistsIntoProject(WebDriver driver,
+            String projectName, String sutName) {
+        log.info("Checking if Sut {} exists into Project {}", sutName,
+                projectName);
+        this.navigateToETProject(driver, projectName);
+
+        String id = "sutsTable";
+        String xpath = "//td-data-table[@id='" + id + "']";
+
+        // If sut table exist
+        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
+            xpath += "//*/td/div[contains(string(), '" + sutName + "')]";
+            return this.elementExists(driver, id, xpath);
+        } else {
+            return false;
+        }
+    }
+
     /* ************** */
     /* **** TJob **** */
     /* ************** */
+
+    protected boolean etTJobExistsIntoProject(WebDriver driver,
+            String projectName, String tJobName) {
+        log.info("Checking if TJob {} exists into Project {}", tJobName,
+                projectName);
+        this.navigateToETProject(driver, projectName);
+
+        String id = "tJobs";
+        String xpath = "//td-data-table[@id='" + id + "']";
+
+        // If tjob table exist
+        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
+            xpath += "//*/td/div[contains(string(), '" + tJobName + "')]";
+            return this.elementExists(driver, id, xpath);
+        } else {
+            return false;
+        }
+    }
 
     protected void createNewTJob(WebDriver driver, String tJobName,
             String testResultPath, String sutName, String dockerImage,
