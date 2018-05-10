@@ -83,7 +83,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
 
     String sut1MainService = "full-teaching";
     String sut1Port = "5000";
-
+    String tJobImage = "elastest/test-etm-alpinegitjava";
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
@@ -104,32 +104,11 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testTeacherandStudentTesting(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
-        this.driver = driver;
-        this.createProjectAndSut(driver);
-
         String tJobName = "Teacher and Student Testing";
-        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/full-teaching/spring/backend/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/pabloFuente/full-teaching; cd full-teaching/spring/backend; mvn -Dtest=FullTeachingTestE2ESleep -B test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
-
-            createNewTJob(driver, tJobName, tJobTestResultPath, sut1Name,
-                    tJobImage, false, commands, null, tssList);
-        } else {
-            navigateToETProject(driver, projectName);
-        }
-
-        // Run TJob
-        runTJobFromProjectPage(driver, tJobName);
-
-        WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-        log.info("Wait for metrics");
-        waitLogs.until(presenceOfElementLocated(By.className("tick")));
-        log.info("Wait for build sucess traces");
-        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                "BUILD SUCCESS"));
+        String tJobTestResultPath = "/full-teaching/spring/backend/target/surefire-reports/";
+        String commands = "git clone https://github.com/pabloFuente/full-teaching; cd full-teaching/spring/backend; mvn -Dtest=FullTeachingTestE2ESleep -B test;";
+        this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
+                tJobImage, commands, sut1Name, "SUCCESS");
     }
 
     @Test
@@ -137,14 +116,46 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testE2eRestOperations(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
+        String tJobName = "E2E REST operations";
+        String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
+        String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EREST -B test;";
+        this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
+                tJobImage, commands, sut1Name, "SUCCESS");
+    }
+
+    @Test
+    @DisplayName("Create and Executes Fullteaching E2E Teacher + Student VIDEO-SESSION")
+    void testE2eTeacherStudentVideoSession(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        String tJobName = "E2E Teacher + Student VIDEO-SESSION";
+        String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
+        String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EVideoSession -B test;";
+
+        this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
+                tJobImage, commands, sut1Name, "SUCCESS");
+    }
+
+    @Test
+    @DisplayName("Create and Executes Fullteaching E2E Teacher + Student CHAT")
+    void testE2eTeacherStudentChat(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            throws InterruptedException {
+        String tJobName = "E2E Teacher + Student CHAT";
+        String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
+        String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EChat -B test;";
+
+        this.fullTeachingBaseTest(driver, tJobName, tJobTestResultPath,
+                tJobImage, commands, sut1Name, "SUCCESS");
+    }
+
+    public void fullTeachingBaseTest(RemoteWebDriver driver, String tJobName,
+            String tJobTestResultPath, String tJobImage, String commands,
+            String sutName, String result) throws InterruptedException {
         this.driver = driver;
         this.createProjectAndSut(driver);
 
-        String tJobName = "E2E REST operations";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EREST -B test;";
             List<String> tssList = new ArrayList<>();
             tssList.add("EUS");
 
@@ -162,6 +173,6 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                "BUILD SUCCESS"));
+                "BUILD " + result));
     }
 }
