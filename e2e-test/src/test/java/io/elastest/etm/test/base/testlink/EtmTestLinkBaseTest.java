@@ -18,6 +18,7 @@ package io.elastest.etm.test.base.testlink;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
@@ -27,7 +28,7 @@ import org.slf4j.Logger;
 
 public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
-    final Logger log = getLogger(lookup().lookupClass());
+    public final Logger log = getLogger(lookup().lookupClass());
 
     String projectsTableId = "tlProjects";
     String plansTableId = "tlTestPlans";
@@ -127,7 +128,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         return this.tlEtmPlanExists(driver, planName);
     }
 
-    protected void executeTLEtmPlan(WebDriver driver) {
+    protected void startTLEtmPlanExecution(WebDriver driver) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
         this.getElementByXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
@@ -146,20 +147,26 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
                 .get(0).click();
     }
 
-    protected void executeTLEtmPlanWithNavigate(WebDriver driver,
+    protected void startTLEtmPlanExecutionWithNavigate(WebDriver driver,
             String projectName, String planName) {
         this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
-        this.executeTLEtmPlan(driver);
+        this.startTLEtmPlanExecution(driver);
     }
 
-    protected void executeTLEtmPlanCurrentCase(WebDriver driver) {
+    protected void waitForBrowserStarted(WebDriver driver) {
+        WebDriverWait waitElement = new WebDriverWait(driver, 240); // seconds
+        By vncCanvas = By.id("vnc_canvas");
+        waitElement.until(visibilityOfElementLocated(vncCanvas));
+    }
+
+    protected void saveTLEtmPlanCurrentCaseExecution(WebDriver driver) {
         String saveAndNextBtnId = "saveAndNext";
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
         this.getElementByXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
                 180).get(0).click();
         try {
-            // Wait for save TestCase 
+            // Wait for save TestCase
             Thread.sleep(2000);
         } catch (InterruptedException e) {
         }

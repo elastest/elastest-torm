@@ -61,7 +61,6 @@ public class TestLinkBaseTest extends EtmBaseTest {
             throws JsonParseException, JsonMappingException, IOException {
         ResponseEntity<String> response = this.restClient
                 .get(tlApiPath + "/project/name/" + projectName);
-
         return this.getObjectFromJson(response.getBody(), TestProject.class);
     }
 

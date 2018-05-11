@@ -285,6 +285,22 @@ public class EtmBaseTest {
                 .click();
     }
 
+    protected void createNewSutDeployedOutsideWithManualInstrumentation(
+            WebDriver driver, String sutName, String desc, String ip,
+            Map<String, String> params) {
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
+
+        driver.findElement(By.name("managedSut")).click();
+        driver.findElement(By.name("dockerImageRadio")).click();
+        driver.findElement(By.name("specification")).sendKeys(ip);
+
+        // Parameters TODO
+
+        // Save
+        driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
+                .click();
+    }
+
     protected boolean etSutExistsIntoProject(WebDriver driver,
             String projectName, String sutName) {
         log.info("Checking if Sut {} exists into Project {}", sutName,

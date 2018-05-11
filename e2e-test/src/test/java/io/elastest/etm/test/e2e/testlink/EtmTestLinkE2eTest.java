@@ -17,9 +17,6 @@
 package io.elastest.etm.test.e2e.testlink;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import java.io.IOException;
 
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +24,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import br.eti.kinoshita.testlinkjavaapi.constants.ActionOnDuplicate;
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
@@ -36,7 +32,6 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
-import io.elastest.etm.test.base.testlink.TestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
@@ -51,11 +46,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of TestLink")
 @ExtendWith(SeleniumExtension.class)
 public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
-
-    protected TestLinkBaseTest tlBaseTest;
-
     @Test
     @DisplayName("Get TestLink Url")
     void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
@@ -121,11 +111,11 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         String planName = sampleTLData.getPlan().getName();
 
         log.info("Executing Plan '{}' ", planName);
-        this.executeTLEtmPlanWithNavigate(driver, projectName, planName);
+        this.startTLEtmPlanExecutionWithNavigate(driver, projectName, planName);
 
         for (int i = 0; i < sampleTLData.getTestCases().size(); i++) {
             log.info("Executing TestCase nº {} ", i + 1);
-            this.executeTLEtmPlanCurrentCase(driver);
+            this.saveTLEtmPlanCurrentCaseExecution(driver);
         }
         log.info("Wait To ETM Plan Execution Ends");
         this.waitToTLEtmPlanExecutionEnds(driver);
