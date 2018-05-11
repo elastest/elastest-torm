@@ -19,12 +19,21 @@
             <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
               <div *ngIf="column.name !== 'options'" [routerLink]="['/external/projects/',row.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]"
                 class="hover-pointer">
-                <ng-container *ngIf="column.name === 'result'">
+                <ng-container *ngIf="column.name !== 'result'; else resultColumn">
+                  <ng-container *ngIf="column.name !== 'startDate' && column.name !== 'endDate'; else dateColumn">
+                    {{value}}
+                  </ng-container>
+                  <ng-template #dateColumn>
+                    <div *ngIf="column.name === 'startDate' || column.name === 'endDate'">
+                      {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+                    </div>
+                  </ng-template>
+                </ng-container>
+                <ng-template #resultColumn>
                   <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
                   <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color"
                     mdTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</md-icon>
-                </ng-container>
-                {{value}}
+                </ng-template>
               </div>
             </ng-template>
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">

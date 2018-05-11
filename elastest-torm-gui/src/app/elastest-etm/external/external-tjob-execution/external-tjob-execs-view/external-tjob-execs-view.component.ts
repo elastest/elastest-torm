@@ -13,8 +13,10 @@ export class ExternalTjobExecsViewComponent implements OnInit {
 
   execsColumns: any[] = [
     { name: 'id', label: 'Id' },
-    { name: 'exTJob.id', label: 'External TJob Id' },
     { name: 'result', label: 'Result' },
+    { name: 'startDate', label: 'Start Date' },
+    { name: 'endDate', label: 'End Date' },
+    { name: 'exTJob.id', label: 'External TJob Id' },
     // { name: 'options', label: 'Options' },
   ];
 
