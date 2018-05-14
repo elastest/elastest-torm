@@ -114,10 +114,13 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   loadPlanAndBuild(): void {
-    this.testLinkService.getTestPlanById(this.params['planId']).subscribe((plan: TestPlanModel) => {
-      this.testPlan = plan;
-      this.loadBuild();
-    });
+    this.testLinkService.getTestPlanById(this.params['planId']).subscribe(
+      (plan: TestPlanModel) => {
+        this.testPlan = plan;
+        this.loadBuild();
+      },
+      (error: Error) => console.log(error, 'params:', this.params),
+    );
   }
 
   loadBuild(): void {
