@@ -1,21 +1,24 @@
 package io.elastest.etm.service;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.http.HTTPException;
 
+import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.xml.sax.SAXException;
 
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
@@ -26,6 +29,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.utils.TestResultParser;
 
 @Service
 public class TJobService {
@@ -144,11 +148,30 @@ public class TJobService {
         return tJobExec;
     }
 
-    public void endExternalTJobExecution(long tJobExecId, int result) {
+    public void endExternalTJobExecution(long tJobExecId, int result,
+            List<String> testResultsReportsAsString) {
         logger.info("Finishing the external Job.");
         TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
         tJobExec.setResult(ResultEnum.values()[result]);
         tJobExecRepositoryImpl.save(tJobExec);
+
+        // Parsing test results
+        List<ReportTestSuite> testResultsReports = new ArrayList<>();
+        TestResultParser testResultParser = new TestResultParser();
+        for (String testSuite : testResultsReportsAsString) {
+
+            try {
+                testResultsReports.add(testResultParser
+                        .testSuiteStringToReportTestSuite(testSuite));
+            } catch (ParserConfigurationException | SAXException
+                    | IOException e) {
+                //TODO Create a manual TestSuite with an error message
+                logger.error("Error on parse testSuite {}", e);
+            }
+        }
+
+        tJobExecOrchestratorService.saveTestResults(testResultsReports,
+                tJobExec);
         try {
             tJobExecOrchestratorService.deprovideServices(tJobExec);
         } catch (Exception e) {

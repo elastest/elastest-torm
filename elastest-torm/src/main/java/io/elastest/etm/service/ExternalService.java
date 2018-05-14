@@ -150,8 +150,9 @@ public class ExternalService {
 
     public void endExtTJobExecution(ExternalJob externalJob) {
         tJobService.endExternalTJobExecution(externalJob.gettJobExecId(),
-                externalJob.getResult());
+                externalJob.getResult(), externalJob.getTestResults());
         runningExternalJobs.remove(externalJob.gettJobExecId());
+       
     }
 
     public ExternalJob isReadyTJobForExternalExecution(Long tJobExecId) {
