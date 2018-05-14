@@ -53,7 +53,7 @@ export class TestLinkService {
     let url: string = this.hostApi + '/testlink/project';
     return this.http
       .get(url)
-      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectsList(response.json()));
+      .map((response: Response) => this.eTTestlinkModelsTransformService.jsonToTestProjectsList(response.json()).reverse());
   }
 
   public getProjectByName(project: TestProjectModel): Observable<TestProjectModel> {

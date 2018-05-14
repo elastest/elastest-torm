@@ -167,7 +167,8 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
                 180).get(0).click();
         try {
             // Wait for save TestCase
-            Thread.sleep(2000);
+            log.debug("Sleep to wait for save TestCase");
+            Thread.sleep(4500);
         } catch (InterruptedException e) {
         }
     }

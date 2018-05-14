@@ -64,12 +64,13 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
         String fullteachingIp = getProperty("fullteachingIp");
         String fullteachingPort = getProperty("fullteachingPort");
 
-        fullteachingUrl = fullteachingIp + ":" + fullteachingPort;
+        fullteachingUrl = "https://" + fullteachingIp + ":" + fullteachingPort;
     }
 
     @Test
     @DisplayName("Create TestLink Fullteaching Data and Test In ElasTest")
-    void tlFullteachingDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
+    void tlFullteachingDataTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
         log.info("Creating Fullteaching Data in TestLink...");
         SampleTLData fullteachingTLData = this
@@ -97,14 +98,16 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
                 buildName);
 
         String caseName = fullteachingTLData.getTestCases().get(0).getName();
-        log.info("Checking if Fullteaching Test Case '{}' exists in Suite - ElasTest",
+        log.info(
+                "Checking if Fullteaching Test Case '{}' exists in Suite - ElasTest",
                 caseName);
         this.tlEtmSuiteCaseExists(driver, projectName, suiteName, caseName);
         log.info(
                 "Checking if Fullteaching Test Case '{}' is associated to a Plan in ElasTest",
                 caseName);
         this.tlEtmPlanCaseExists(driver, projectName, planName, caseName);
-        log.info("Checking if Fullteaching Test Case '{}' exists in Build - ElasTest",
+        log.info(
+                "Checking if Fullteaching Test Case '{}' exists in Build - ElasTest",
                 caseName);
         this.tlEtmBuildCaseExists(driver, projectName, planName, buildName,
                 caseName);
@@ -137,30 +140,30 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
         log.info("Click browser navigation bar and navigate");
         new Actions(driver).moveToElement(canvas, 80, 16).click()
                 .sendKeys(fullteachingUrl + RETURN).build().perform();
-        int navigationTimeSec = 5;
+        int navigationTimeSec = 9;
         log.info("Waiting {} seconds (simulation of manual navigation)",
                 navigationTimeSec);
         sleep(SECONDS.toMillis(navigationTimeSec));
 
         log.info("Click To Log In button");
-        new Actions(driver).moveToElement(canvas, 395, 29).click().build()
+        new Actions(driver).moveToElement(canvas, 325, 29).click().build()
                 .perform();
-        sleep(SECONDS.toMillis(1));
+        sleep(SECONDS.toMillis(2));
 
         log.info("Click To Email and type value");
-        new Actions(driver).moveToElement(canvas, 166, 98).click()
+        new Actions(driver).moveToElement(canvas, 166, 76).click()
                 .sendKeys("teacher@gmail.com" + RETURN).build().perform();
         sleep(SECONDS.toMillis(1));
 
         log.info("Click To Password and type value");
-        new Actions(driver).moveToElement(canvas, 166, 129).click()
+        new Actions(driver).moveToElement(canvas, 166, 98).click()
                 .sendKeys("pass" + RETURN).build().perform();
         sleep(SECONDS.toMillis(1));
 
         log.info("Click To Modal window Log In button");
-        new Actions(driver).moveToElement(canvas, 233, 160).click().build()
+        new Actions(driver).moveToElement(canvas, 188, 130).click().build()
                 .perform();
-        sleep(SECONDS.toMillis(1));
+        sleep(SECONDS.toMillis(navigationTimeSec));
 
         this.saveTLEtmPlanCurrentCaseExecution(driver);
     }
