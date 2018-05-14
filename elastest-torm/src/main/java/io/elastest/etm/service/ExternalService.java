@@ -211,7 +211,7 @@ public class ExternalService {
                 tJob.setName(externalJob.getJobName());
                 tJob.setProject(project);
                 tJob.setExternal(true);
-                tJob = tJobService.createTJob(tJob);                
+                tJob = tJobService.createTJob(tJob);
             }
 
             if (externalJob.getTSServices() != null
@@ -333,7 +333,8 @@ public class ExternalService {
             exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
         }
 
-        elasticsearchService.createMonitoringIndex(exec.getMonitoringIndicesList());
+        elasticsearchService
+                .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
     }
@@ -349,18 +350,23 @@ public class ExternalService {
         exec.generateMonitoringIndex();
         exec = this.externalTJobExecutionRepository.save(exec);
 
-        SupportService eus = this.startEus();
+        //
 
-        if (eus != null) {
-            String instanceId = UtilTools.generateUniqueId();
-            esmService.provisionExternalTJobExecServiceInstanceAsync(
-                    eus.getId(), exec, instanceId);
-            exec.getEnvVars().put("EUS_ID", eus.getId());
-            exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
-            exec = this.externalTJobExecutionRepository.save(exec);
+        if (exTJob.getExProject().getType().equals(TypeEnum.TESTLINK)) {
+            SupportService eus = this.startEus();
+
+            if (eus != null) {
+                String instanceId = UtilTools.generateUniqueId();
+                esmService.provisionExternalTJobExecServiceInstanceAsync(
+                        eus.getId(), exec, instanceId);
+                exec.getEnvVars().put("EUS_ID", eus.getId());
+                exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
+                exec = this.externalTJobExecutionRepository.save(exec);
+            }
         }
 
-        elasticsearchService.createMonitoringIndex(exec.getMonitoringIndicesList());
+        elasticsearchService
+                .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
     }

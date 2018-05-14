@@ -18,13 +18,11 @@ import { MdDialog } from '@angular/material';
 @Component({
   selector: 'etm-projects-manager',
   templateUrl: './projects-manager.component.html',
-  styleUrls: ['./projects-manager.component.scss']
+  styleUrls: ['./projects-manager.component.scss'],
 })
 export class ProjectsManagerComponent implements OnInit, AfterViewInit {
-
-  @Input()
-  isNested: boolean = false;
-  tableStyle: string = "without_scroll_table";
+  @Input() isNested: boolean = false;
+  tableStyle: string = 'without_scroll_table';
 
   // Project data
   projectColumns: any[] = [
@@ -46,34 +44,33 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   constructor(
     private titlesService: TitlesService,
-    private _dataTableService: TdDataTableService, private projectService: ProjectService, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    private _dataTableService: TdDataTableService,
+    private projectService: ProjectService,
+    private router: Router,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Projects');
-      this.tableStyle = "without_scroll_table";
+      this.tableStyle = 'without_scroll_table';
     } else {
-      this.tableStyle = "scroll_table";
+      this.tableStyle = 'scroll_table';
     }
 
     this.loadProjects();
   }
 
   loadProjects() {
-    this.projectService.getProjects()
-      .subscribe(
-      (projects) => {
-        this.projectData = projects;
-        this.showSpinner = false;
-      },
-    );
+    this.projectService.getProjects().subscribe((projects) => {
+      this.projectData = projects;
+      this.showSpinner = false;
+    });
   }
 
-  ngAfterViewInit(): void {
-  }
+  ngAfterViewInit(): void {}
 
   editProject(project: ProjectModel) {
     this.router.navigate(['/projects/edit', project.id]);
@@ -88,21 +85,24 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
       cancelButton: 'Cancel',
       acceptButton: 'Yes, delete',
     };
-    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
-      if (accept) {
-        this.deletingInProgress = true;
-        this.projectService.deleteProject(project).subscribe(
-          (project) => {
-            this.loadProjects();
-            this.deletingInProgress = false;
-          },
-          (error) => {
-            this.deletingInProgress = false;
-            console.log(error)
-          }
-        );
-      }
-    });
+    this._dialogService
+      .openConfirm(iConfirmConfig)
+      .afterClosed()
+      .subscribe((accept: boolean) => {
+        if (accept) {
+          this.deletingInProgress = true;
+          this.projectService.deleteProject(project).subscribe(
+            (project) => {
+              this.loadProjects();
+              this.deletingInProgress = false;
+            },
+            (error) => {
+              this.deletingInProgress = false;
+              console.log(error);
+            },
+          );
+        }
+      });
   }
 
   viewProject(project: ProjectModel) {
