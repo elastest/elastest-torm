@@ -45,6 +45,12 @@ public class ExternalJob {
     
     @JsonProperty("isReady")
     private boolean isReady;
+    
+    @JsonProperty("testResultFilePattern")
+    private String testResultFilePattern;
+
+    @JsonProperty("testResults")
+    private List<String> testResults;
 
     public ExternalJob() {
     }
@@ -64,6 +70,8 @@ public class ExternalJob {
         this.envVars = envVars;
         this.result = result;
         this.isReady = isReady;
+        this.testResultFilePattern = testResultFilePattern;
+        this.testResults = testResults;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
@@ -152,6 +160,22 @@ public class ExternalJob {
     public void setReady(boolean isReady) {
         this.isReady = isReady;
     }
+    
+    public String getTestResultFilePattern() {
+        return testResultFilePattern;
+    }
+
+    public void setTestResultFilePattern(String testResultFilePattern) {
+        this.testResultFilePattern = testResultFilePattern;
+    }
+
+    public List<String> getTestResults() {
+        return testResults;
+    }
+
+    public void setTestResults(List<String> testResults) {
+        this.testResults = testResults;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -172,13 +196,17 @@ public class ExternalJob {
                 && Objects.equals(this.tSServices, externalJob.tSServices)
                 && Objects.equals(this.envVars, externalJob.envVars)
                 && this.result == externalJob.result
-                && this.isReady == externalJob.isReady;
+                && this.isReady == externalJob.isReady
+                && Objects.equals(this.testResultFilePattern,
+                        externalJob.testResultFilePattern)
+                && Objects.equals(this.testResults, externalJob.testResults);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
-                logstashPort, servicesIp, tSServices, envVars, result, isReady);
+                logstashPort, servicesIp, tSServices, envVars, result, isReady,
+                testResultFilePattern, testResults);
     }
 
     @Override
@@ -203,6 +231,10 @@ public class ExternalJob {
                 .append("\n");
         sb.append("    result: ").append(toIndentedString(result)).append("\n");
         sb.append("    isReady: ").append(toIndentedString(isReady))
+                .append("\n");
+        sb.append("    testResultFilePattern: ")
+                .append(toIndentedString(testResultFilePattern)).append("\n");
+        sb.append("    testResults: ").append(toIndentedString(testResults))
                 .append("\n");
         sb.append("}");
 
