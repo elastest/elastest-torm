@@ -81,7 +81,6 @@ elastest_lib.pipeline({
                 } finally {
                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                 }
-        	}
         }
   })
   
