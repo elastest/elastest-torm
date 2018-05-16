@@ -57,37 +57,31 @@ elastest_lib.pipeline({
                 def etCustmizedJenkinsImage = elastest.ctx.docker.image('elastest/etm-jenkins:latest')
                 echo 'Object for the Jenkins image declared'
             
-                etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network="elastest_elastest"') { c1 ->
-                    stage ("TestLink Fullteaching test")
-                    	
-                    	    echo "Jenkins Url: " + jenkinsUrl
-                    		echo "${c1.id}"                        
-                            def ciUrl = "http://" + containerIp(c1.id) + ":8080"
-                            echo "Jenkins URL: " + ciUrl                    
-                            
-        	                try {
+                
+            stage ("TestLink Fullteaching test")
+                try {
 				    echo "Start Fullteaching"
 				    sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest up -d"
 				    echo "Wait for fullteaching started"
 				    sh "sleep 20"
 
-		                    def fullteachingIp = containerIp("elastest_full-teaching_1")
-		                    echo "Fullteaching IP: " + fullteachingUrl  
+                    def fullteachingIp = containerIp("elastest_full-teaching_1")
+                    echo "Fullteaching IP: " + fullteachingUrl  
 
 
-        	                    echo "Run EtmTestLinkFullteachingE2eTest"
-        	                    sh "mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp=fullteachingUrl -DfullteachingPort=5000 -DePluginPath=" + pluginPath + " -DetEtmApi=http://172.17.0.1:37000 -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
-        	                } catch(e) {
-        	                    sh '''\
-        	                       docker ps --all
-        	                       docker ps --filter name=etm -q
-        	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-        	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-        	                    '''
-        	                } finally {
-        	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-        	                }
-    	            }
+	                    echo "Run EtmTestLinkFullteachingE2eTest"
+	                    sh "mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp=fullteachingUrl -DfullteachingPort=5000 -DePluginPath=" + pluginPath + " -DetEtmApi=http://172.17.0.1:37000 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+	                } catch(e) {
+	                    sh '''\
+	                       docker ps --all
+	                       docker ps --filter name=etm -q
+	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+	                    '''
+	                } finally {
+	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+	                }
+            	}
         }
   })
   
