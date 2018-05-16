@@ -69,19 +69,19 @@ elastest_lib.pipeline({
                     echo "Fullteaching IP: " + fullteachingUrl  
 
 
-	                    echo "Run EtmTestLinkFullteachingE2eTest"
-	                    sh "mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp=fullteachingUrl -DfullteachingPort=5000 -DePluginPath=" + pluginPath + " -DetEtmApi=http://172.17.0.1:37000 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
-	                } catch(e) {
-	                    sh '''\
-	                       docker ps --all
-	                       docker ps --filter name=etm -q
-	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-	                    '''
-	                } finally {
-	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-	                }
-            	}
+                    echo "Run EtmTestLinkFullteachingE2eTest"
+                    sh "mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp=fullteachingUrl -DfullteachingPort=5000 -DePluginPath=" + pluginPath + " -DetEtmApi=http://172.17.0.1:37000 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+                } catch(e) {
+                    sh '''\
+                       docker ps --all
+                       docker ps --filter name=etm -q
+                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                    '''
+                } finally {
+                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                }
+        	}
         }
   })
   
