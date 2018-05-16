@@ -158,20 +158,22 @@ public class TJobService {
         // Parsing test results
         List<ReportTestSuite> testResultsReports = new ArrayList<>();
         TestResultParser testResultParser = new TestResultParser();
-        for (String testSuite : testResultsReportsAsString) {
-
-            try {
-                testResultsReports.add(testResultParser
-                        .testSuiteStringToReportTestSuite(testSuite));
-            } catch (ParserConfigurationException | SAXException
-                    | IOException e) {
-                //TODO Create a manual TestSuite with an error message
-                logger.error("Error on parse testSuite {}", e);
+        if (testResultsReportsAsString != null) {
+            for (String testSuite : testResultsReportsAsString) {
+    
+                try {
+                    testResultsReports.add(testResultParser
+                            .testSuiteStringToReportTestSuite(testSuite));
+                } catch (ParserConfigurationException | SAXException
+                        | IOException e) {
+                    //TODO Create a manual TestSuite with an error message
+                    logger.error("Error on parse testSuite {}", e);
+                }
             }
-        }
 
-        tJobExecOrchestratorService.saveTestResults(testResultsReports,
-                tJobExec);
+            tJobExecOrchestratorService.saveTestResults(testResultsReports,
+                    tJobExec);
+        }
         try {
             tJobExecOrchestratorService.deprovideServices(tJobExec);
         } catch (Exception e) {
