@@ -39,12 +39,14 @@
 
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="optionsColumn">
-                    <button md-button (click)="runTJob(row, row.project)" class="iconBtn-lg" title="Run TJob">
-                        <md-icon>play_circle_outline</md-icon>
-                    </button>
-                    <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
-                        <md-icon>mode_edit</md-icon>
-                    </button>
+                    <span *ngIf="!row.external">
+                        <button md-button (click)="runTJob(row, row.project)" class="iconBtn-lg" title="Run TJob">
+                            <md-icon>play_circle_outline</md-icon>
+                        </button>
+                        <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
+                            <md-icon>mode_edit</md-icon>
+                        </button>
+                    </span>
                     <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
                         <md-icon>delete</md-icon>
                     </button>

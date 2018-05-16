@@ -31,12 +31,14 @@
           <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
-                <md-icon>play_circle_outline</md-icon>
-              </button>
-              <button md-button (click)="editTJob()" class="iconBtn-lg" title="Edit TJob">
-                <md-icon>mode_edit</md-icon>
-              </button>
+              <span *ngIf="!tJob.external">
+                <button md-button (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
+                  <md-icon>play_circle_outline</md-icon>
+                </button>
+                <button md-button (click)="editTJob()" class="iconBtn-lg" title="Edit TJob">
+                  <md-icon>mode_edit</md-icon>
+                </button>
+              </span>
               <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
                 <md-icon>delete</md-icon>
               </button>
