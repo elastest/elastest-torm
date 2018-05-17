@@ -99,6 +99,7 @@ export function getMetricbeatNetworkSubtypes(): SubtypesObjectModel[] {
 
 export enum MetricbeatType {
   system,
+  docker,
 }
 
 export function getMetricBeatFieldGroupList(): MetricFieldGroupModel[] {
