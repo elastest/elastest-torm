@@ -427,12 +427,12 @@ public class DockerService2 {
 
         dockerExec.getDockerClient().startContainerCmd(container.getId())
                 .exec();
+        this.insertCreatedContainer(container.getId(), containerName);
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        this.insertCreatedContainer(container.getId(), containerName);
-
     }
 
     /***********************/
@@ -675,7 +675,8 @@ public class DockerService2 {
 
     public void doPull(DockerClient dockerClient, String image)
             throws TJobStoppedException {
-        image = image.contains(":") ? image : image.concat(ElastestConstants.TAG_LATEST);
+        image = image.contains(":") ? image
+                : image.concat(ElastestConstants.TAG_LATEST);
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback())
                     .awaitSuccess();
@@ -890,6 +891,24 @@ public class DockerService2 {
         return filteredList;
     }
 
+    public String getTagByCompleteImageName(String imageName) {
+        if (imageName == null) {
+            return imageName;
+        }
+        String tag = imageName.split(":")[1];
+        if (tag == null) {
+            tag = "latest";
+        }
+        return tag;
+    }
+
+    public String getImageNameByCompleteImageName(String imageName) {
+        if (imageName == null) {
+            return imageName;
+        }
+        return imageName.split(":")[0];
+    }
+
     /***************************/
     /***** Get TestResults *****/
     /***************************/
@@ -965,6 +984,34 @@ public class DockerService2 {
             }
         }
         return response;
+    }
+
+    public List<Container> getRunningContainersByImageName(String imageName) {
+        imageName += ":";
+        DockerClient dockerClient = getDockerClient();
+        List<Container> allContainers = dockerClient.listContainersCmd()
+                .withShowAll(true).exec();
+        List<Container> imageContainers = new ArrayList<>();
+        for (Container currentContainer : allContainers) {
+            if (currentContainer.getImage().startsWith(imageName)) {
+                imageContainers.add(currentContainer);
+            }
+        }
+        return imageContainers;
+    }
+
+    public List<Container> getRunningContainersByImageNameAndVersion(
+            String imageName, String version) {
+        DockerClient dockerClient = getDockerClient();
+        List<Container> allContainers = dockerClient.listContainersCmd()
+                .withShowAll(true).exec();
+        List<Container> imageContainers = new ArrayList<>();
+        for (Container currentContainer : allContainers) {
+            if (currentContainer.getImage().equals(imageName)) {
+                imageContainers.add(currentContainer);
+            }
+        }
+        return imageContainers;
     }
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {

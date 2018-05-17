@@ -1,3 +1,4 @@
+import { TransformService } from './elastest-etm/help/transform.service';
 import { TestLinkService } from './etm-testlink/testlink.service';
 import { ExternalService } from './elastest-etm/external/external.service';
 import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
@@ -252,6 +253,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ETExternalModelsTransformService,
     TestLinkService,
     ExternalService,
+    TransformService,
     ConfigurationService,
     {
       provide: APP_INITIALIZER,

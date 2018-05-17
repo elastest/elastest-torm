@@ -1,9 +1,12 @@
+import { TransformService } from '../elastest-etm/help/transform.service';
+
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { ConfigModel } from './config-model';
 import { ETM_API } from '../../config/api.config';
 import { Observable } from 'rxjs/Rx';
+import { CoreServiceModel } from '../elastest-etm/models/core-service.model';
 
 @Injectable()
 export class ConfigurationService {
@@ -14,7 +17,7 @@ export class ConfigurationService {
 
   devHost: string = 'localhost:4200';
 
-  constructor(private http: Http) {
+  constructor(private http: Http, private transformService: TransformService) {
     console.log('Starting configuration.');
     this.protocol = window.location.protocol;
     this.host = window.location.host;
@@ -101,5 +104,10 @@ export class ConfigurationService {
   public getHelpInfo(): Observable<any> {
     let url: string = this.configModel.hostApi + '/context/help/info';
     return this.http.get(url).map((response) => response.json());
+  }
+
+  public getCoreServicesInfo(): Observable<CoreServiceModel[]> {
+    let url: string = this.configModel.hostApi + '/context/coreservices/info';
+    return this.http.get(url).map((response) => this.transformService.jsonToCoreServicesList(response.json()));
   }
 }

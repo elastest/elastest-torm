@@ -1,5 +1,6 @@
 package io.elastest.etm.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.model.Container;
 
 import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
@@ -146,17 +148,77 @@ public class EtmContextService {
 
         imagesNames.forEach((imageName) -> {
             try {
-                InspectImageResponse imageInfo = dockerService
-                        .getImageInfoByName(imageName);
-                VersionInfo imageVersionInfo = new VersionInfo(
-                        imageInfo.getConfig().getLabels().get("git_commit"),
-                        imageInfo.getConfig().getLabels().get("commit_date"),
-                        imageInfo.getConfig().getLabels().get("version"));
+                VersionInfo imageVersionInfo = getImageVersionInfo(imageName);
                 helpInfo.getVersionsInfo().put(imageName, imageVersionInfo);
             } catch (Exception e) {
                 logger.error("Unable to retrieve ElasTest Help Information.");
             }
         });
+    }
+
+    private VersionInfo getImageVersionInfo(String imageName) {
+        InspectImageResponse imageInfo = dockerService
+                .getImageInfoByName(imageName);
+        return new VersionInfo(
+                imageInfo.getConfig().getLabels().get("git_commit"),
+                imageInfo.getConfig().getLabels().get("commit_date"),
+                imageInfo.getConfig().getLabels().get("version"));
+    }
+
+    private VersionInfo getImageVersionInfoByContainer(Container container) {
+        return new VersionInfo(container.getLabels().get("git_commit"),
+                container.getLabels().get("commit_date"),
+                container.getLabels().get("version"));
+    }
+
+    public List<CoreServiceInfo> getCoreServicesInfo() {
+        List<CoreServiceInfo> coreServices = new ArrayList<>();
+        List<String> imagesNames = Arrays.asList(etImages.split(","));
+        imagesNames.forEach((imageName) -> {
+            try {
+                CoreServiceInfo coreService = new CoreServiceInfo();
+                String version = dockerService
+                        .getTagByCompleteImageName(imageName);
+                Container container;
+                if (version.equals("unspecified")) {
+                    container = dockerService
+                            .getRunningContainersByImageName(imageName).get(0);
+                } else {
+                    container = dockerService
+                            .getRunningContainersByImageNameAndVersion(
+                                    imageName, version)
+                            .get(0);
+                }
+                String serviceName = imageName.split("/")[1].split(":")[0];
+                coreService.setName(serviceName);
+
+                VersionInfo versionInfo = getImageVersionInfoByContainer(
+                        container);
+                versionInfo.setTag(version);
+               
+                coreService.setVersionInfo(versionInfo);
+
+                coreService.setImageName(dockerService
+                        .getImageNameByCompleteImageName(imageName));
+                coreService.setDataByContainer(container);
+
+                coreServices.add(coreService);
+            } catch (Exception e) {
+                logger.error(
+                        "Unable to retrieve ElasTest Core Service {} Information.",
+                        imageName);
+            }
+        });
+        return coreServices;
+    }
+
+    public boolean isPlatformDevImage(String imageName, String version) {
+        return isPlatformImage(imageName) && version.equals("dev");
+    }
+
+    public boolean isPlatformImage(String imageName) {
+        return imageName.startsWith("elastest/platform")
+                && !imageName.startsWith("elastest/platform-services");
     }
 
     public Map<String, String> getTJobExecMonitoringEnvVars(

@@ -182,7 +182,7 @@ public class ExternalService {
         for (Map.Entry<String, VersionInfo> entry : helpInfo.getVersionsInfo()
                 .entrySet()) {
             if (entry.getKey().split(":")[0].equals("elastest/platform")) {
-                version = entry.getValue().getName();
+                version = entry.getValue().getTag();
                 logger.debug("ElasTest version {}", version);
                 break;
             }

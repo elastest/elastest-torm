@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
+import io.elastest.etm.service.CoreServiceInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -86,6 +88,15 @@ public interface EtmContextApi extends EtmApiRoot {
     @RequestMapping(value = "/context/help/info", produces = {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<HelpInfo> getHelpInfo();
+
+    @ApiOperation(value = "Return Core Services information about ElasTest", notes = "Return information such as the version of ElasTest components.", response = CoreServiceInfo.class, responseContainer = "List", tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = CoreServiceInfo.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/info", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    public ResponseEntity<List<CoreServiceInfo>> getCoreServicesInfo();
 
     /* ***************** */
     /* LogAnalyzerConfig */

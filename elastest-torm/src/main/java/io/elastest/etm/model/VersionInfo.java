@@ -11,14 +11,14 @@ public class VersionInfo {
     private String commitId;
     @JsonProperty("date")
     private String date;
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("tag")
+    private String tag;
     
-    public VersionInfo(String commitId, String date, String name) {
+    public VersionInfo(String commitId, String date, String tag) {
         super();
         this.commitId = commitId;
         this.date = date;
-        this.name = name;
+        this.tag = tag;
     }
     public String getCommitId() {
         return commitId;
@@ -32,13 +32,10 @@ public class VersionInfo {
     public void setDate(String date) {
         this.date = date;
     }
-    public String getName() {
-        return name;
+    public String getTag() {
+        return tag;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
-    
-    
-
 }

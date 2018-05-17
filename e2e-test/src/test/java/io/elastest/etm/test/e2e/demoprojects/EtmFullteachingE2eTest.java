@@ -71,7 +71,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
             + "     - KMS_STUN_PORT=19302\r\n"
             + "     - openvidu.secret=MY_SECRET\r\n"
             + "     - openvidu.publicurl=docker\r\n" + " full-teaching:\r\n"
-            + "   image: codeurjc/full-teaching:latest\r\n"
+            + "   image: codeurjc/full-teaching:demo\r\n"
             + "   depends_on:\r\n" + "     - full-teaching-mysql\r\n"
             + "     - full-teaching-openvidu-server-kms\r\n" + "   expose:\r\n"
             + "     - 5000\r\n" + "   environment:\r\n"

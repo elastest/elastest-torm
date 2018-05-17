@@ -1,6 +1,7 @@
 package io.elastest.etm.api;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -19,6 +20,7 @@ import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.LogAnalyzerConfig.BasicAttLogAnalyzerConfig;
+import io.elastest.etm.service.CoreServiceInfo;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
 import io.swagger.annotations.ApiParam;
@@ -103,6 +105,12 @@ public class EtmContextApiController implements EtmContextApi {
     public ResponseEntity<HelpInfo> getHelpInfo() {
         return new ResponseEntity<HelpInfo>(etmContextService.getHelpInfo(),
                 HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<CoreServiceInfo>> getCoreServicesInfo() {
+        return new ResponseEntity<List<CoreServiceInfo>>(
+                etmContextService.getCoreServicesInfo(), HttpStatus.OK);
     }
 
     @JsonView(BasicAttLogAnalyzerConfig.class)
