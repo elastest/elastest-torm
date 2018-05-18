@@ -443,19 +443,21 @@ public class TJobExecOrchestratorService {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
-        String resultMsg = "Executing dockerized SuT";
+        String resultMsg = "Starting dockerized SuT";
         updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
-
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
+
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
         try {
             // By Docker Image
             if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
+                logger.debug("Is Sut By Docker Image");
                 startSutByDockerImage(dockerExec);
             }
             // By Docker Compose
             else {
+                logger.debug("Is Sut By Docker Compose");
                 startSutByDockerCompose(dockerExec);
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
@@ -463,12 +465,10 @@ public class TJobExecOrchestratorService {
             String sutContainerId = dockerExec.getAppContainerId();
             String sutIP = dockerService.getContainerIpWithDockerExecution(
                     sutContainerId, dockerExec);
-
             // If port is defined, wait for SuT ready
             if (sut.getPort() != null) {
                 String sutPort = sut.getPort();
-
-                resultMsg = "Waiting for SuT service ready in port " + sutPort;
+                resultMsg = "Waiting for dockerized SuT";
                 logger.info(resultMsg);
                 updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
@@ -479,6 +479,9 @@ public class TJobExecOrchestratorService {
                 }
 
                 // Wait for SuT started
+                resultMsg = "Waiting for SuT service ready at ip " + sutIP
+                        + " and port " + sutPort;
+                logger.debug(resultMsg);
                 dockerService.checkSut(dockerExec, sutIP, sutPort);
                 endCheckSutExec(dockerExec);
             }
@@ -516,21 +519,29 @@ public class TJobExecOrchestratorService {
                     dockerExec);
             sutPrefix = this.dockerService.getSutPrefix(dockerExec);
             isDockerCompose = true;
-
+            logger.debug(
+                    "Is SuT in new container With Docker Compose. Main Service Container Name: {}",
+                    containerName);
         }
         // If is unique Docker image Sut
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
             containerName = dockerService.getSutPrefix(dockerExec);
             sutPrefix = containerName;
+            logger.debug(
+                    "Is SuT in new container With Docker Image. Container Name: {}",
+                    containerName);
         }
         // Wait for created
         this.dockerService.waitForContainerCreated(containerName, dockerExec,
                 timeout);
 
-        // Insert main sut/service into ET network
+        String containerId = this.dockerService
+                .getContainerIdByName(containerName);
+        // Insert main sut/service into ET network if it's necessary
         this.dockerService.insertIntoNetwork(dockerExec.getNetwork(),
-                this.dockerService.getContainerIdByName(containerName));
+                containerId);
+
         // Get Main sut/service ip from ET network
         String sutIp = dockerService.waitForContainerIpWithDockerExecution(
                 containerName, dockerExec, timeout);
@@ -543,7 +554,7 @@ public class TJobExecOrchestratorService {
             this.dockerService.getContainersByNamePrefixByGivenList(
                     containersList, sutPrefix, ContainersListActionEnum.ADD);
         } else {
-            String containerId = this.dockerService
+            containerId = this.dockerService
                     .getContainerIdByName(containerName);
             this.dockerService.insertCreatedContainer(containerId,
                     containerName);

@@ -38,6 +38,7 @@ import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
@@ -804,9 +805,22 @@ public class DockerService2 {
     }
 
     public void insertIntoNetwork(String networkId, String containerId) {
+        boolean isAreadyInNetwork = this.isContainerIntoNetwork(networkId,
+                containerId);
+        if (!isAreadyInNetwork) {
+            DockerClient client = getDockerClient();
+            client.connectToNetworkCmd().withNetworkId(networkId)
+                    .withContainerId(containerId).exec();
+        }
+    }
+
+    public boolean isContainerIntoNetwork(String networkId,
+            String containerId) {
         DockerClient client = getDockerClient();
-        client.connectToNetworkCmd().withNetworkId(networkId)
-                .withContainerId(containerId).exec();
+        Map<String, ContainerNetwork> networksMap = client
+                .inspectContainerCmd(containerId).exec().getNetworkSettings()
+                .getNetworks();
+        return networksMap.get(networkId) != null;
     }
 
     public String getLogstashHost(DockerExecution dockerExec) {
