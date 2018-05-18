@@ -15,7 +15,7 @@
       </md-card-title>
 
       <md-card-content>
-        <div class="md-title">ElasTest Component</div>
+        <div class="md-title">ElasTest Main Services</div>
         <td-data-table #versionsInfo id="coreServicesInfo" class="without_scroll_table" [data]="coreServices" [columns]="coreServiceColumns"
           [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of coreServiceColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">

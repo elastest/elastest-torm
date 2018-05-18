@@ -41,8 +41,11 @@ public class EtmContextService {
     public String etEtmRabbitPathWithProxy;
     @Value("${exec.mode}")
     String execMode;
+    
     @Value("${et.images}")
     String etImages;
+    @Value("${et.core.images}")
+    String etCoreImages;
 
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
@@ -173,7 +176,7 @@ public class EtmContextService {
 
     public List<CoreServiceInfo> getCoreServicesInfo() {
         List<CoreServiceInfo> coreServices = new ArrayList<>();
-        List<String> imagesNames = Arrays.asList(etImages.split(","));
+        List<String> imagesNames = Arrays.asList(etCoreImages.split(","));
         imagesNames.forEach((imageName) -> {
             try {
                 CoreServiceInfo coreService = new CoreServiceInfo();
@@ -207,6 +210,23 @@ public class EtmContextService {
                 logger.error(
                         "Unable to retrieve ElasTest Core Service {} Information.",
                         imageName);
+                
+                CoreServiceInfo coreService = new CoreServiceInfo();
+                String version = dockerService
+                        .getTagByCompleteImageName(imageName);
+                VersionInfo versionInfo = getImageVersionInfo(imageName);
+                versionInfo.setTag(version);
+                
+                String serviceName = imageName.split("/")[1].split(":")[0];
+                coreService.setName(serviceName);
+               
+                coreService.setVersionInfo(versionInfo);
+
+                coreService.setImageName(dockerService
+                        .getImageNameByCompleteImageName(imageName));
+                coreService.setStatus("Not Started");
+
+                coreServices.add(coreService);
             }
         });
         return coreServices;
