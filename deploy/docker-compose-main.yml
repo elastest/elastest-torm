@@ -15,6 +15,7 @@ services:
         environment:
             - EXEC_MODE=experimental
             - ET_IMAGES=elastest/platform
+            - ET_CORE_IMAGES=elastest/platform
             - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19999/
             - ET_EDM_MYSQL_HOST=edm-mysql
             - ET_EDM_MYSQL_PORT=3306
