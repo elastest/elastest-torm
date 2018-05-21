@@ -312,7 +312,7 @@ public class TJobExecOrchestratorService {
             }
             endDockbeatExec(dockerExec);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error on end all execs", e);
             throw new Exception("end error"); // TODO Customize Exception
         }
     }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.PreDestroy;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.http.HTTPException;
 
@@ -46,18 +47,42 @@ public class TJobService {
     private final TJobExecRepository tJobExecRepositoryImpl;
     private final TJobExecOrchestratorService tJobExecOrchestratorService;
     private final EsmService esmService;
+    private DatabaseSessionManager dbmanager;
 
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
-            EsmService esmService) {
+            EsmService esmService, DatabaseSessionManager dbmanager) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
         this.esmService = esmService;
+        this.dbmanager = dbmanager;
+    }
+
+    @PreDestroy
+    private void preDestroy() {
+        dbmanager.bindSession();
+        this.stopAllRunningTJobs();
+        dbmanager.unbindSession();
+    }
+
+    public void stopAllRunningTJobs() {
+        logger.info("Stopping non-finished TJobExecutions ({} total)",
+                asyncExecs.size());
+        Map<String, Future<Void>> copyOfAsyncExecs = new HashMap<String, Future<Void>>(
+                asyncExecs);
+        for (HashMap.Entry<String, Future<Void>> currentExecMap : copyOfAsyncExecs
+                .entrySet()) {
+            Long currentExecId = getTJobExecByMapName(currentExecMap.getKey());
+            logger.info("Stopping TJobExecution with id {}", currentExecId);
+            this.stopTJobExec(currentExecId);
+        }
+
+        logger.info("End Stopping non-finished TJobExecutions");
     }
 
     public TJob createTJob(TJob tjob) {
@@ -75,6 +100,10 @@ public class TJobService {
 
     public String getMapNameByTJobExec(TJobExecution tJobExec) {
         return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
+    }
+
+    public Long getTJobExecByMapName(String mapName) {
+        return Long.parseLong(mapName.split("_")[1]);
     }
 
     public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters,
@@ -160,13 +189,13 @@ public class TJobService {
         TestResultParser testResultParser = new TestResultParser();
         if (testResultsReportsAsString != null) {
             for (String testSuite : testResultsReportsAsString) {
-    
+
                 try {
                     testResultsReports.add(testResultParser
                             .testSuiteStringToReportTestSuite(testSuite));
                 } catch (ParserConfigurationException | SAXException
                         | IOException e) {
-                    //TODO Create a manual TestSuite with an error message
+                    // TODO Create a manual TestSuite with an error message
                     logger.error("Error on parse testSuite {}", e);
                 }
             }
