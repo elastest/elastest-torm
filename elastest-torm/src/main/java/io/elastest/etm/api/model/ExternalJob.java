@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+
 @ApiModel(description = "Object that contains the exchange information between Jenkins and ElasTest.")
 public class ExternalJob {
 
@@ -51,6 +52,9 @@ public class ExternalJob {
 
     @JsonProperty("testResults")
     private List<String> testResults;
+    
+    @JsonProperty("build")
+    private Build build;
 
     public ExternalJob() {
     }
@@ -175,6 +179,14 @@ public class ExternalJob {
 
     public void setTestResults(List<String> testResults) {
         this.testResults = testResults;
+    }
+
+    public Build getBuild() {
+        return build;
+    }
+
+    public void setBuild(Build build) {
+        this.build = build;
     }
 
     @Override
