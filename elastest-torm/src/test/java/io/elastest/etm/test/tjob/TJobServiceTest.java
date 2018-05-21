@@ -18,6 +18,7 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.service.TJobExecOrchestratorService;
+import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.elastest.etm.test.extensions.MockitoExtension;
@@ -41,12 +42,12 @@ public class TJobServiceTest {
     public void createTJobTest(@Autowired TJob tJob,
             @Mock TJobRepository tJobRepo,
             @Mock TJobExecOrchestratorService epmIntegrationService,
-            @Mock TJobExecRepository tJobExecRepo,
-            @Mock EsmService esmService) {
+            @Mock TJobExecRepository tJobExecRepo, @Mock EsmService esmService,
+            @Mock DatabaseSessionManager dbmanager) {
         // TJob createdTJob =
         when(tJobRepo.save(tJob)).thenReturn(tJob);
         TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
-                epmIntegrationService, esmService);
+                epmIntegrationService, esmService, dbmanager);
         TJob tJob1 = tJobService.createTJob(tJob);
         System.out.println("ImageName:" + tJob1.getImageName());
         assertNotNull(tJob1.getId());
