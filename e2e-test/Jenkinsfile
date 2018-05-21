@@ -3,10 +3,13 @@ elastest_lib.setVersion('dev')
 //initialization of the context for the library
 elastest_lib.setContext(this)
 elastest_lib.setMode('experimental-lite')
-elastest_lib.setOptionals('-sa=172.17.0.1')
+elastest_lib.setOptionals('-sa='+env.SA)
+elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
 elastest_lib.setTestLink(true)
+elastest_lib.setAuthenticatedElastest(true)
 //initialization of the runnable object to access elastest methods inside the pipeline
 def elastest= elastest_lib.getElastestMethods()
+def elastest_network = env.NETWORK
 
 //definition of nodes is managed by the library. Just declare the steps of your pipeline
 //inside the elastest_lib.pipeline({...})
@@ -56,18 +59,24 @@ elastest_lib.pipeline({
                 echo 'Prepare Jenkins'
                 def etCustmizedJenkinsImage = elastest.ctx.docker.image('elastest/etm-jenkins:latest')
                 echo 'Object for the Jenkins image declared'
-            
-                etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network="elastest_elastest"') { c1 ->
+                try {
+                    echo "Try to remove elastest_etm-jenkins_1 container if is started"
+        	        sh 'docker rm -f elastest_etm-jenkins_1'
+                } catch(e) {
+                    echo "elastest_etm-jenkins_1 container not started"
+                }
+                
+                etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+elastest_network) { c1 ->
                     stage ("E2E tests")
                     	
                     	    echo "Jenkins Url: " + jenkinsUrl
                     		echo "${c1.id}"                        
-                            def ciUrl = "http://" + containerIp(c1.id) + ":8080"
+                            def ciUrl = "http://" + containerIp(c1.id, elastest_network) + ":8080"
                             echo "Jenkins URL: " + ciUrl                    
                             
         	                try {
         	                    echo "Run tests"
-        	                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=!EtmTestLinkFullteachingE2eTest -DePluginPath=" + pluginPath + " -DetEtmApi=http://172.17.0.1:37000 -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+        	                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=!EtmTestLinkFullteachingE2eTest -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
         	                } catch(e) {
         	                    sh '''\
         	                       docker ps --all
@@ -82,10 +91,10 @@ elastest_lib.pipeline({
         }
   })
   
-  def containerIp(containerName) {
+  def containerIp(containerName, network) {
     echo "Inside containerIp function"
     containerIp = sh (
-        script: "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" "+ containerName,
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks."+network+".IPAddress}}\" "+ containerName,
         returnStdout: true
     ).trim()
     
