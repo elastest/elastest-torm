@@ -74,7 +74,7 @@ export class TjobManagerComponent implements OnInit {
         }
         this.tJobExecData = this.tJobService.getTJobExecsList(tJob);
         this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
-          tJobExec['lastExecutionDate'] = tJobExec.endDate;
+          tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
         });
         this.showSpinner = false;
         this.sortTJobsExec(); // Id desc

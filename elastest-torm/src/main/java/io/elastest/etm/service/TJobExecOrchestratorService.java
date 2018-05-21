@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
@@ -95,6 +97,35 @@ public class TJobExecOrchestratorService {
         this.etmContextService = etmContextService;
     }
 
+    @PostConstruct
+    private void init() {
+        dbmanager.bindSession();
+        manageZombieJobs();
+        dbmanager.unbindSession();
+    }
+
+    public void manageZombieJobs() {
+        logger.info("Looking for zombie Jobs");
+        // Clean non finished TJob Executions
+        List<TJobExecution> notFinishedOrExecutedExecs = this.tJobExecRepositoryImpl
+                .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
+        if (notFinishedOrExecutedExecs != null) {
+            logger.info("Cleaning non finished TJob Executions ({} total):",
+                    notFinishedOrExecutedExecs.size());
+            for (TJobExecution currentExec : notFinishedOrExecutedExecs) {
+                logger.debug("Cleaning TJobExecution {}...",
+                        currentExec.getId());
+                currentExec = this.forceEndExecution(currentExec);
+                if (!currentExec.isFinished()) {
+                    String resultMsg = "Stopped";
+                    updateTJobExecResultStatus(currentExec,
+                            TJobExecution.ResultEnum.STOPPED, resultMsg);
+                }
+            }
+        }
+        logger.info("End Manage zombie Jobs");
+    }
+
     @Async
     public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
@@ -113,6 +144,7 @@ public class TJobExecOrchestratorService {
         resultMsg = "Executing Test";
         updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+        dbmanager.unbindSession();
     }
 
     @Async
@@ -242,6 +274,7 @@ public class TJobExecOrchestratorService {
                     TJobExecution.ResultEnum.STOPPED, resultMsg);
         }
 
+        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
         return tJobExec;
     }
 

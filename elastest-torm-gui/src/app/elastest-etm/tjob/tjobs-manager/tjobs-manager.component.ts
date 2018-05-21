@@ -153,7 +153,7 @@ export class TJobsManagerComponent implements OnInit {
     for (let tjob of this.tJobs) {
       if (tjob.getLastExecution() !== undefined) {
         lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(tjob.getLastExecution(), true);
-        tjob['lastExecutionDate'] = lastExecution.endDate;
+        tjob['lastExecutionDate'] = lastExecution.endDate ?  lastExecution.endDate :  lastExecution.startDate;
         tjob['result'] = lastExecution.getResultIcon();
       } else {
         lastExecution = new TJobExecModel();

@@ -10,10 +10,9 @@ import { MdDialog } from '@angular/material';
 @Component({
   selector: 'app-tjob-execs-manager',
   templateUrl: './tjob-execs-manager.component.html',
-  styleUrls: ['./tjob-execs-manager.component.scss']
+  styleUrls: ['./tjob-execs-manager.component.scss'],
 })
 export class TJobExecsManagerComponent implements OnInit {
-
   allTJobExecs: TJobExecModel[] = [];
   tJobExecsFinished: TJobExecModel[] = [];
   tJobExecsRunning: TJobExecModel[] = [];
@@ -38,11 +37,14 @@ export class TJobExecsManagerComponent implements OnInit {
   ];
 
   constructor(
-    private titlesService: TitlesService, private tJobExecService: TJobExecService,
-    private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
+    private titlesService: TitlesService,
+    private tJobExecService: TJobExecService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Dashboard');
@@ -51,27 +53,23 @@ export class TJobExecsManagerComponent implements OnInit {
 
   loadTJobExecs(refreshText: string = ''): void {
     this.refreshText = refreshText;
-    this.tJobExecService.getAllTJobExecs()
-      .subscribe((tJobExecs: TJobExecModel[]) => {
-        this.tJobExecsFinished = [];
-        this.tJobExecsRunning = [];
+    this.tJobExecService.getAllTJobExecs().subscribe((tJobExecs: TJobExecModel[]) => {
+      this.tJobExecsFinished = [];
+      this.tJobExecsRunning = [];
 
-        this.allTJobExecs = tJobExecs;
-        tJobExecs = tJobExecs.reverse(); // To sort Descending
-        tJobExecs.map(
-          (tJobExec: TJobExecModel) => {
-            if (tJobExec.finished()) {
-              tJobExec['lastExecutionDate'] = tJobExec.endDate;
-              this.tJobExecsFinished.push(tJobExec);
-            } else {
-              this.tJobExecsRunning.push(tJobExec);
-            }
-          }
-        );
-        this.refreshText = this.defaultRefreshText;
+      this.allTJobExecs = tJobExecs;
+      tJobExecs = tJobExecs.reverse(); // To sort Descending
+      tJobExecs.map((tJobExec: TJobExecModel) => {
+        if (tJobExec.finished()) {
+          tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
+          this.tJobExecsFinished.push(tJobExec);
+        } else {
+          this.tJobExecsRunning.push(tJobExec);
+        }
       });
+      this.refreshText = this.defaultRefreshText;
+    });
   }
-
 
   deleteTJobExec(tJobExec: TJobExecModel) {
     let iConfirmConfig: IConfirmConfig = {
@@ -82,22 +80,27 @@ export class TJobExecsManagerComponent implements OnInit {
       cancelButton: 'Cancel',
       acceptButton: 'Yes, delete',
     };
-    this._dialogService.openConfirm(iConfirmConfig).afterClosed().subscribe((accept: boolean) => {
-      if (accept) {
-        this.deletingInProgress = true;
-        this.tJobExecService.deleteTJobExecution(tJobExec.tJob, tJobExec).subscribe(
-          (exec: TJobExecModel) => {
-            this.deletingInProgress = false;
-            this.tJobExecService.popupService.openSnackBar('TJob Execution Nº' + tJobExec.id + ' has been removed successfully!');
-            this.loadTJobExecs();
-          },
-          (error) => {
-            this.deletingInProgress = true;
-            this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
-          }
-        );
-      }
-    });
+    this._dialogService
+      .openConfirm(iConfirmConfig)
+      .afterClosed()
+      .subscribe((accept: boolean) => {
+        if (accept) {
+          this.deletingInProgress = true;
+          this.tJobExecService.deleteTJobExecution(tJobExec.tJob, tJobExec).subscribe(
+            (exec: TJobExecModel) => {
+              this.deletingInProgress = false;
+              this.tJobExecService.popupService.openSnackBar(
+                'TJob Execution Nº' + tJobExec.id + ' has been removed successfully!',
+              );
+              this.loadTJobExecs();
+            },
+            (error) => {
+              this.deletingInProgress = true;
+              this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
+            },
+          );
+        }
+      });
   }
 
   viewTJobExec(tJobExec: TJobExecModel) {
@@ -105,9 +108,6 @@ export class TJobExecsManagerComponent implements OnInit {
   }
 
   viewInLogAnalyzer(tJobExec: TJobExecModel): void {
-    this.router.navigate(
-      ['/loganalyzer'],
-      { queryParams: { tjob: tJobExec.tJob.id, exec: tJobExec.id } }
-    );
+    this.router.navigate(['/loganalyzer'], { queryParams: { tjob: tJobExec.tJob.id, exec: tJobExec.id } });
   }
 }

@@ -200,6 +200,39 @@ public class TJobExecution {
             }
             return null;
         }
+
+        public static boolean isFinished(ResultEnum result) {
+            return result.equals(SUCCESS) || result.equals(FAIL)
+                    || result.equals(ERROR) || result.equals(STOPPED);
+        }
+
+        public static boolean isNotExecuted(ResultEnum result) {
+            return result.equals(NOT_EXECUTED);
+        }
+
+        public static boolean isFinishedOrNotExecuted(ResultEnum result) {
+            return isFinished(result) || isNotExecuted(result);
+        }
+
+        public static List<ResultEnum> getNotFinishedOrExecutedResultList() {
+            List<ResultEnum> resultList = new ArrayList<>();
+            for (ResultEnum currentResult : ResultEnum.values()) {
+                if (!isFinishedOrNotExecuted(currentResult)) {
+                    resultList.add(currentResult);
+                }
+            }
+            return resultList;
+        }
+
+        public static List<ResultEnum> getFinishedAndNotExecutedResultList() {
+            List<ResultEnum> resultList = new ArrayList<>();
+            for (ResultEnum currentResult : ResultEnum.values()) {
+                if (isFinishedOrNotExecuted(currentResult)) {
+                    resultList.add(currentResult);
+                }
+            }
+            return resultList;
+        }
     }
 
     /**
@@ -462,5 +495,9 @@ public class TJobExecution {
                 || result.equals(ResultEnum.FAIL)
                 || result.equals(ResultEnum.ERROR)
                 || result.equals(ResultEnum.STOPPED);
+    }
+
+    public boolean isWithSut() {
+        return this.tJob != null && this.tJob.isWithSut();
     }
 }

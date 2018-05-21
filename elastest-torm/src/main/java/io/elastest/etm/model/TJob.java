@@ -371,4 +371,8 @@ public class TJob {
 		}
 		return services;
 	}
+	
+	public boolean isWithSut(){
+	    return this.sut != null;
+	}
 }

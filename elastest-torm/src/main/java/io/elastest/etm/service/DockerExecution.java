@@ -7,99 +7,104 @@ import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.TJobExecution;
 
 public class DockerExecution {
-	private DockerClient dockerClient;
-	private CreateContainerResponse testcontainer, appContainer;
-	private String testContainerId, appContainerId;
+    private DockerClient dockerClient;
+    private CreateContainerResponse testcontainer, appContainer;
+    private String testContainerId, appContainerId;
 
-	private String network;
-	private TJobExecution tJobexec;
-	private boolean withSut;
-	private SutExecution sutExec;
-	private int testContainerExitCode;
-	
-	public DockerExecution() {
-	}
+    private String network;
+    private TJobExecution tJobexec;
+    private boolean withSut;
+    private SutExecution sutExec;
+    private int testContainerExitCode;
 
-	public DockerExecution(TJobExecution tJobExec) {
-		this.tJobexec = tJobExec;
-		this.withSut = tJobExec.getTjob().getSut() != null;
-	}
+    public DockerExecution() {
+    }
 
-	/* Getters and Setters */
+    public DockerExecution(TJobExecution tJobExec, boolean withSut) {
+        this.tJobexec = tJobExec;
+        this.withSut = withSut;
+    }
 
-	public CreateContainerResponse getTestcontainer() {
-		return testcontainer;
-	}
+    public DockerExecution(TJobExecution tJobExec) {
+        this.tJobexec = tJobExec;
+        this.withSut = tJobExec.isWithSut();
+    }
 
-	public DockerClient getDockerClient() {
-		return dockerClient;
-	}
+    /* Getters and Setters */
 
-	public void setDockerClient(DockerClient dockerClient) {
-		this.dockerClient = dockerClient;
-	}
+    public CreateContainerResponse getTestcontainer() {
+        return testcontainer;
+    }
 
-	public void setTestcontainer(CreateContainerResponse testcontainer) {
-		this.testcontainer = testcontainer;
-	}
+    public DockerClient getDockerClient() {
+        return dockerClient;
+    }
 
-	public CreateContainerResponse getAppContainer() {
-		return appContainer;
-	}
+    public void setDockerClient(DockerClient dockerClient) {
+        this.dockerClient = dockerClient;
+    }
 
-	public void setAppContainer(CreateContainerResponse appContainer) {
-		this.appContainer = appContainer;
-	}
+    public void setTestcontainer(CreateContainerResponse testcontainer) {
+        this.testcontainer = testcontainer;
+    }
 
-	public String getTestContainerId() {
-		return testContainerId;
-	}
+    public CreateContainerResponse getAppContainer() {
+        return appContainer;
+    }
 
-	public void setTestContainerId(String testContainerId) {
-		this.testContainerId = testContainerId;
-	}
+    public void setAppContainer(CreateContainerResponse appContainer) {
+        this.appContainer = appContainer;
+    }
 
-	public String getAppContainerId() {
-		return appContainerId;
-	}
+    public String getTestContainerId() {
+        return testContainerId;
+    }
 
-	public void setAppContainerId(String appContainerId) {
-		this.appContainerId = appContainerId;
-	}
+    public void setTestContainerId(String testContainerId) {
+        this.testContainerId = testContainerId;
+    }
 
-	public String getNetwork() {
-		return network;
-	}
+    public String getAppContainerId() {
+        return appContainerId;
+    }
 
-	public void setNetwork(String network) {
-		this.network = network;
-	}
+    public void setAppContainerId(String appContainerId) {
+        this.appContainerId = appContainerId;
+    }
 
-	public Long getExecutionId() {
-		return tJobexec.getId();
-	}
+    public String getNetwork() {
+        return network;
+    }
 
-	public TJobExecution gettJobexec() {
-		return tJobexec;
-	}
+    public void setNetwork(String network) {
+        this.network = network;
+    }
 
-	public void settJobexec(TJobExecution tJobexec) {
-		this.tJobexec = tJobexec;
-	}
+    public Long getExecutionId() {
+        return tJobexec.getId();
+    }
 
-	public boolean isWithSut() {
-		return withSut;
-	}
+    public TJobExecution gettJobexec() {
+        return tJobexec;
+    }
 
-	public void setWithSut(boolean withSut) {
-		this.withSut = withSut;
-	}
+    public void settJobexec(TJobExecution tJobexec) {
+        this.tJobexec = tJobexec;
+    }
 
-	public SutExecution getSutExec() {
-		return sutExec;
-	}
+    public boolean isWithSut() {
+        return withSut;
+    }
 
-	public void setSutExec(SutExecution sutExec) {
+    public void setWithSut(boolean withSut) {
+        this.withSut = withSut;
+    }
+
+    public SutExecution getSutExec() {
+        return sutExec;
+    }
+
+    public void setSutExec(SutExecution sutExec) {
         this.sutExec = sutExec;
     }
 
