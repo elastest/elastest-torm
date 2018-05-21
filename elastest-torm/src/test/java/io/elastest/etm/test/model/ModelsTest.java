@@ -109,7 +109,7 @@ public class ModelsTest {
     public void testCreateExternalJob() {
         ExternalJob extJob = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false);
+                0, false, null, null, null);
         assertTrue(extJob.getJobName().equals("Job1"));
     }
 
@@ -117,10 +117,10 @@ public class ModelsTest {
     public void testEqualsExternalJobs() {
         ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false);
+                0, false, null, null, null);
         ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false);
+                0, false, null, null, null);
         assertTrue(extJob1.equals(extJob2));
         assertEquals(extJob1.hashCode(), extJob2.hashCode());
     }
