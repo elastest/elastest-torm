@@ -1,8 +1,15 @@
 package io.elastest.etm.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Build {
     
+    @JsonProperty("workspace")
     String workspace;
+    
+    public Build() {
+        
+    }
     
     public Build(String workspace) {
         this.workspace = workspace;        

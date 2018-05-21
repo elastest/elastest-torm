@@ -62,7 +62,9 @@ public class ExternalJob {
     public ExternalJob(String jobName, String executionUrl,
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
-            Map<String, String> envVars, int result, boolean isReady) {
+            Map<String, String> envVars, int result, boolean isReady,
+            String testResultFilePattern, List<String> testResults,
+            Build build) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -76,6 +78,7 @@ public class ExternalJob {
         this.isReady = isReady;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
+        this.build = build;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
