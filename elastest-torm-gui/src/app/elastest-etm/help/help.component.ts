@@ -32,7 +32,6 @@ export class HelpComponent implements OnInit {
     this.titlesService.setHeadTitle('Help');
 
     this.configurationService.getCoreServicesInfo().subscribe((coreServices: CoreServiceModel[]) => {
-      console.log(coreServices);
       this.coreServices = coreServices;
       this.initCurrentETVersion();
     });

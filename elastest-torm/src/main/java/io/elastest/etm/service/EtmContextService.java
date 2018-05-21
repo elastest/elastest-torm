@@ -41,7 +41,7 @@ public class EtmContextService {
     public String etEtmRabbitPathWithProxy;
     @Value("${exec.mode}")
     String execMode;
-    
+
     @Value("${et.images}")
     String etImages;
     @Value("${et.core.images}")
@@ -198,7 +198,7 @@ public class EtmContextService {
                 VersionInfo versionInfo = getImageVersionInfoByContainer(
                         container);
                 versionInfo.setTag(version);
-               
+
                 coreService.setVersionInfo(versionInfo);
 
                 coreService.setImageName(dockerService
@@ -208,18 +208,18 @@ public class EtmContextService {
                 coreServices.add(coreService);
             } catch (Exception e) {
                 logger.error(
-                        "Unable to retrieve ElasTest Core Service {} Information.",
+                        "Unable to retrieve ElasTest Core Service {} Information. Probably not started. Obtaining information from Image",
                         imageName);
-                
+
                 CoreServiceInfo coreService = new CoreServiceInfo();
                 String version = dockerService
                         .getTagByCompleteImageName(imageName);
                 VersionInfo versionInfo = getImageVersionInfo(imageName);
                 versionInfo.setTag(version);
-                
+
                 String serviceName = imageName.split("/")[1].split(":")[0];
                 coreService.setName(serviceName);
-               
+
                 coreService.setVersionInfo(versionInfo);
 
                 coreService.setImageName(dockerService

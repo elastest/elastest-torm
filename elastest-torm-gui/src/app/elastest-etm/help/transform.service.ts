@@ -35,7 +35,9 @@ export class TransformService {
     newVersionInfo = new VersionInfo();
     if (versionInfo !== undefined && versionInfo !== null) {
       newVersionInfo.commitId = versionInfo.commitId;
-      newVersionInfo.date = new Date(versionInfo.date);
+      if (versionInfo.date !== undefined && versionInfo.date !== 'unspecified') {
+        newVersionInfo.date = new Date(versionInfo.date);
+      }
       newVersionInfo.tag = versionInfo.tag;
     }
     return newVersionInfo;

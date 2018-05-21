@@ -33,7 +33,7 @@
               </ng-container>
 
               <ng-container *ngIf="column.name === 'versionInfo.date'">
-                {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+                {{value | date:'dd/MM/yyyy HH:mm:ss' || 'unespecified' }}
               </ng-container>
 
             </ng-template>
