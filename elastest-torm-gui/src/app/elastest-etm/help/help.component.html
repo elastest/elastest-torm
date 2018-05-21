@@ -15,7 +15,25 @@
       </md-card-title>
 
       <md-card-content>
-        <div class="md-title">ElasTest Main Services</div>
+        <div class="md-title" layout="row">
+          <span> ElasTest Main Services </span>
+          <span flex></span>
+          <span>
+            <div layout="row">
+              <span *ngIf="lastRefresh" class="md-subhead tc-grey-600 pad-right-sm">
+                <span>Last refresh: </span>
+                <span>
+                  {{lastRefresh | timeAgo }} ({{lastRefresh | date:'HH:mm:ss' }})</span>
+              </span>
+
+              <md-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" md-tooltip="Refresh now">sync</md-icon>
+              <span class="md-subhead pad-right-sm">AutoRefresh:</span>
+              <md-checkbox #autorefresh [checked]="autorefreshEnabled" name="autorefresh" (change)="switchAutorefresh(autorefresh.checked)"
+                md-tooltip="Enable AutoRefresh">
+              </md-checkbox>
+            </div>
+          </span>
+        </div>
         <td-data-table #versionsInfo id="coreServicesInfo" class="without_scroll_table" [data]="coreServices" [columns]="coreServiceColumns"
           [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of coreServiceColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
@@ -33,7 +51,7 @@
               </ng-container>
 
               <ng-container *ngIf="column.name === 'versionInfo.date'">
-                {{value | date:'dd/MM/yyyy HH:mm:ss' || 'unespecified' }}
+                {{value | date:'dd/MM/yyyy HH:mm' || 'unespecified' }}
               </ng-container>
 
             </ng-template>

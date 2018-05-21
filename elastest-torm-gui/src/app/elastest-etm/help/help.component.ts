@@ -1,3 +1,4 @@
+import { Observable, Subscription } from 'rxjs/Rx';
 import { TitlesService } from '../../shared/services/titles.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { Component, OnInit } from '@angular/core';
@@ -11,8 +12,11 @@ import { VersionInfo } from '../models/version-info.model';
 })
 export class HelpComponent implements OnInit {
   coreServices: CoreServiceModel[] = [];
-  elastestModulesNames: string[];
   etCurrentVersion: string;
+
+  autorefreshEnabled: boolean = true;
+  lastRefresh: Date;
+  coreServicesSubscription: Subscription;
 
   // SuT Data
   coreServiceColumns: any[] = [
@@ -30,10 +34,15 @@ export class HelpComponent implements OnInit {
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Help');
+    this.init();
+    this.startCoreServicesSubscription();
+  }
 
+  init(): void {
     this.configurationService.getCoreServicesInfo().subscribe((coreServices: CoreServiceModel[]) => {
       this.coreServices = coreServices;
       this.initCurrentETVersion();
+      this.lastRefresh = new Date();
     });
   }
 
@@ -46,5 +55,20 @@ export class HelpComponent implements OnInit {
         }
       }
     }
+  }
+
+  switchAutorefresh(enableAutorefresh: boolean): void {
+    this.autorefreshEnabled = enableAutorefresh;
+  }
+
+  startCoreServicesSubscription(): void {
+    let timer: Observable<number>;
+
+    timer = Observable.interval(8000);
+    this.coreServicesSubscription = timer.subscribe(() => {
+      if (this.autorefreshEnabled) {
+        this.init();
+      }
+    });
   }
 }

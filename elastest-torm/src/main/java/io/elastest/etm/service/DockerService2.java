@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -99,6 +100,16 @@ public class DockerService2 {
     public UtilTools utilTools;
 
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
+
+    @PostConstruct
+    public void initialize() {
+        try {
+            logger.info("Pulling dockbeat image...");
+            this.pullETExecImage(dockbeatImage, "Dockbeat");
+        } catch (TJobStoppedException e) {
+            logger.error("Error on pulling Dockbeat Image", e);
+        }
+    }
 
     @PreDestroy
     public void removeAllContainers() {

@@ -125,6 +125,7 @@ import { EdmContainerComponent } from './elastest-edm/edm-container/edm-containe
 import { EmpContainerComponent } from './elastest-emp/emp-container/emp-container.component';
 import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
 import { SelectBuildModalComponent } from './etm-testlink/test-plan/select-build-modal/select-build-modal.component';
+import { TimeAgoPipe } from 'time-ago-pipe';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -197,6 +198,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     EmpContainerComponent,
     TestPlanExecutionComponent,
     SelectBuildModalComponent,
+    TimeAgoPipe,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -275,7 +277,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExecuteCaseModalComponent,
     MonitoringConfigurationComponent,
     SelectBuildModalComponent,
-    ElastestLogAnalyzerComponent
+    ElastestLogAnalyzerComponent,
   ],
   bootstrap: [AppComponent],
 })

@@ -60,7 +60,8 @@
     "sockjs-client": "^1.1.4",
     "stompjs": "^2.3.3",
     "zone.js": "^0.8.5",
-    "angular-tree-component": "7.0.2-beta1"
+    "angular-tree-component": "7.0.2-beta1",
+    "time-ago-pipe": "1.3.2"
   },
   "devDependencies": {
     "@angular/cli": "1.0.3",
