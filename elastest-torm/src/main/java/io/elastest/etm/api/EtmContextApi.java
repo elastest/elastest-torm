@@ -98,6 +98,48 @@ public interface EtmContextApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<List<CoreServiceInfo>> getCoreServicesInfo();
 
+    @ApiOperation(value = "Return All Logs of a Core Service", notes = "Return All Logs of a Core Service.", response = String.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/{coreServiceName}/logs", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    public ResponseEntity<String> getAllCoreServiceLogs(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName);
+
+    @ApiOperation(value = "Return All Logs of a Core Service and follow", notes = "Return All Logs of a Core Service and follow.", response = String.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/{coreServiceName}/logs/follow", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    public ResponseEntity<String> getAllCoreServiceLogsAndFollow(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName);
+
+    @ApiOperation(value = "Return Some Logs of a Core Service", notes = "Return Some Logs of a Core Service.", response = String.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/{coreServiceName}/logs/{amount}", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    public ResponseEntity<String> getSomeCoreServiceLogs(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount);
+
+    @ApiOperation(value = "Return Some Logs of a Core Service and follow", notes = "Return Some Logs of a Core Service and follow.", response = String.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/{coreServiceName}/logs/{amount}/follow", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    public ResponseEntity<String> getSomeCoreServiceLogsAndFollow(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount);
+
     /* ***************** */
     /* LogAnalyzerConfig */
     /* ***************** */

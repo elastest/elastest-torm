@@ -37,7 +37,7 @@
         <td-data-table #versionsInfo id="coreServicesInfo" class="without_scroll_table" [data]="coreServices" [columns]="coreServiceColumns"
           [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of coreServiceColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
-            <ng-container *ngIf="column.name !== 'status' && column.name !== 'versionInfo.date' && column.name !== 'containerNames' && column.name !== 'networks'; else specialFields">
+            <ng-container *ngIf="column.name !== 'status' && column.name !== 'versionInfo.date' && column.name !== 'containerNames' && column.name !== 'networks' && column.name !== 'options'; else specialFields">
               {{value}}
             </ng-container>
             <ng-template #specialFields>
@@ -54,10 +54,24 @@
                 {{value | date:'dd/MM/yyyy HH:mm' || 'unespecified' }}
               </ng-container>
 
+              <ng-container *ngIf="column.name === 'options'">
+                <div layout="row" class="optionsColumn">
+                  <button md-button (click)="loadCoreServiceLogs(row.name)" md-tooltip="View logs" class="iconBtn-lg" [disabled]="loadingLogs">
+                    <md-icon>library_books</md-icon>
+                  </button>
+                </div>
+              </ng-container>
+
             </ng-template>
           </ng-template>
         </td-data-table>
       </md-card-content>
     </md-card>
+    <div *ngIf="coreServiceLogs">
+      <logs-view *ngIf="!loadingLogs; else showLoadingLogs" [model]="coreServiceLogs" [live]="false" [remove]="removeLogCard.bind(this)"></logs-view>
+      <ng-template #showLoadingLogs>
+        <md-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+      </ng-template>
+    </div>
   </div>
 </div>

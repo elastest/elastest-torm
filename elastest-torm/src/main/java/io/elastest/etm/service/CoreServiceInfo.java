@@ -94,4 +94,12 @@ public class CoreServiceInfo {
         }
     }
 
+    public String getFirstContainerNameCleaned() {
+        String containerName = this.getContainerNames().get(0);
+        if (containerName != null && containerName.startsWith("/")) {
+            containerName = containerName.substring(1);
+        }
+        return containerName;
+    }
+
 }

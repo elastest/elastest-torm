@@ -232,6 +232,44 @@ public class EtmContextService {
         return coreServices;
     }
 
+    public String getAllCoreServiceLogs(String coreServiceName,
+            boolean withFollow) throws Exception {
+        CoreServiceInfo coreService = getCoreServiceIfExist(coreServiceName);
+        if (coreService != null) {
+            String containerName = coreService.getFirstContainerNameCleaned();
+            if (containerName != null) {
+                return this.dockerService.getAllContainerLogs(containerName,
+                        withFollow);
+            }
+        }
+        throw new Exception("Error on get " + coreServiceName
+                + " logs. Invalid Core Service Name");
+    }
+
+    public String getSomeCoreServiceLogs(String coreServiceName, int amount,
+            boolean withFollow) throws Exception {
+        CoreServiceInfo coreService = getCoreServiceIfExist(coreServiceName);
+        if (coreService != null) {
+            String containerName = coreService.getFirstContainerNameCleaned();
+            if (containerName != null) {
+                return this.dockerService.getSomeContainerLogs(containerName,
+                        amount, withFollow);
+            }
+        }
+        throw new Exception("Error on get " + coreServiceName
+                + " logs. Invalid Core Service Name");
+    }
+
+    public CoreServiceInfo getCoreServiceIfExist(String coreServiceName) {
+        List<CoreServiceInfo> coreServices = this.getCoreServicesInfo();
+        for (CoreServiceInfo currentCoreService : coreServices) {
+            if (currentCoreService.getName().equals(coreServiceName)) {
+                return currentCoreService;
+            }
+        }
+        return null;
+    }
+
     public boolean isPlatformDevImage(String imageName, String version) {
         return isPlatformImage(imageName) && version.equals("dev");
     }
@@ -280,5 +318,4 @@ public class EtmContextService {
     public LogAnalyzerConfig getLogAnalyzerConfig() {
         return this.logAnalyzerRepository.findOne(new Long(1));
     }
-
 }

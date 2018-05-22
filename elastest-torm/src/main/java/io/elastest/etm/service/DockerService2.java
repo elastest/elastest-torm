@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,10 +31,12 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -41,6 +45,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.Ports;
@@ -932,6 +937,77 @@ public class DockerService2 {
             return imageName;
         }
         return imageName.split(":")[0];
+    }
+
+    public String getAllContainerLogs(String containerId, boolean withFollow) {
+        DockerClient dockerClient = this.getDockerClient();
+        LogContainerCmd logContainerCmd = dockerClient
+                .logContainerCmd(containerId);
+
+        if (withFollow) {
+            logContainerCmd = logContainerCmd.withFollowStream(true);
+        }
+
+        return this.getContainerLogsByGivenLogContainerCmd(logContainerCmd);
+    }
+
+    public String getSomeContainerLogs(String containerId, int amount,
+            boolean withFollow) {
+        DockerClient dockerClient = this.getDockerClient();
+        LogContainerCmd logContainerCmd = dockerClient
+                .logContainerCmd(containerId).withTail(amount);
+
+        if (withFollow) {
+            logContainerCmd = logContainerCmd.withFollowStream(true);
+        }
+
+        return this.getContainerLogsByGivenLogContainerCmd(logContainerCmd);
+    }
+
+    public String getContainerLogsByGivenLogContainerCmd(
+            LogContainerCmd logContainerCmd) {
+        StringBuilder logs = new StringBuilder();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        logContainerCmd = logContainerCmd.withStdOut(true).withStdErr(true);
+        logContainerCmd.exec(new ResultCallback<Frame>() {
+
+            @Override
+            public void close() throws IOException {
+
+            }
+
+            @Override
+            public void onStart(Closeable closeable) {
+            }
+
+            @Override
+            public void onNext(Frame f) {
+                logs.append(new String(f.getPayload()));
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                logger.error("Error on get container logs: {}",
+                        throwable.getMessage());
+
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(
+                    "Interrupted when waiting for complete result callback on docker logs",
+                    e);
+        }
+        return logs.toString();
     }
 
     /***************************/

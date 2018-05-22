@@ -113,6 +113,62 @@ public class EtmContextApiController implements EtmContextApi {
                 etmContextService.getCoreServicesInfo(), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<String> getAllCoreServiceLogs(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName) {
+        String logs = null;
+        try {
+            logs = etmContextService.getAllCoreServiceLogs(coreServiceName,
+                    false);
+            return new ResponseEntity<String>(logs, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> getAllCoreServiceLogsAndFollow(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName) {
+        String logs = null;
+        try {
+            logs = etmContextService.getAllCoreServiceLogs(coreServiceName,
+                    true);
+            return new ResponseEntity<String>(logs, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<String> getSomeCoreServiceLogs(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) {
+        String logs = null;
+        try {
+            logs = etmContextService.getSomeCoreServiceLogs(coreServiceName,
+                    amount, false);
+            return new ResponseEntity<String>(logs, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<String> getSomeCoreServiceLogsAndFollow(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) {
+        String logs = null;
+        try {
+            logs = etmContextService.getSomeCoreServiceLogs(coreServiceName,
+                    amount, true);
+            return new ResponseEntity<String>(logs, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /* ******************** */
+    /* *** Log Analyzer *** */
+    /* ******************** */
+
     @JsonView(BasicAttLogAnalyzerConfig.class)
     public ResponseEntity<LogAnalyzerConfig> saveLogAnalyzerConfig(
             @ApiParam(value = "Data to create a LogAnalizerConfig", required = true) @Valid @RequestBody LogAnalyzerConfig body) {

@@ -106,8 +106,28 @@ export class ConfigurationService {
     return this.http.get(url).map((response) => response.json());
   }
 
+  /* ********************* */
+  /* *** Core services *** */
+  /* ********************* */
+
   public getCoreServicesInfo(): Observable<CoreServiceModel[]> {
     let url: string = this.configModel.hostApi + '/context/coreservices/info';
     return this.http.get(url).map((response) => this.transformService.jsonToCoreServicesList(response.json()));
+  }
+
+  public getAllCoreServiceLogs(coreServiceName: string, withFollow: boolean): Observable<string> {
+    let url: string = this.configModel.hostApi + '/context/coreservices/' + coreServiceName + '/logs';
+    if (withFollow) {
+      url += '/follow';
+    }
+    return this.http.get(url).map((response) => response['_body']);
+  }
+
+  public getSomeCoreServiceLogs(coreServiceName: string, amount: number, withFollow: boolean): Observable<string> {
+    let url: string = this.configModel.hostApi + '/context/coreservices/' + coreServiceName + '/logs/' + amount;
+    if (withFollow) {
+      url += '/follow';
+    }
+    return this.http.get(url).map((response) => response['_body']);
   }
 }
