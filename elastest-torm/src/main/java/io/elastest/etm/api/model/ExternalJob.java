@@ -53,9 +53,6 @@ public class ExternalJob {
     @JsonProperty("testResults")
     private List<String> testResults;
     
-    @JsonProperty("build")
-    private Build build;
-
     public ExternalJob() {
     }
 
@@ -63,8 +60,7 @@ public class ExternalJob {
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> envVars, int result, boolean isReady,
-            String testResultFilePattern, List<String> testResults,
-            Build build) {
+            String testResultFilePattern, List<String> testResults) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -78,7 +74,6 @@ public class ExternalJob {
         this.isReady = isReady;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
-        this.build = build;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
@@ -182,14 +177,6 @@ public class ExternalJob {
 
     public void setTestResults(List<String> testResults) {
         this.testResults = testResults;
-    }
-
-    public Build getBuild() {
-        return build;
-    }
-
-    public void setBuild(Build build) {
-        this.build = build;
     }
 
     @Override
