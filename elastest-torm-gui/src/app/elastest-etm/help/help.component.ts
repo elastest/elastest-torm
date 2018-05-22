@@ -89,7 +89,7 @@ export class HelpComponent implements OnInit {
   }
 
   startCoreServicesSubscription(): void {
-    let timer: Observable<number> = Observable.interval(7000);
+    let timer: Observable<number> = Observable.interval(6000);
     this.coreServicesSubscription = timer.subscribe(() => {
       if (this.autorefreshEnabled) {
         this.init();
@@ -125,13 +125,13 @@ export class HelpComponent implements OnInit {
         let lastDateString: string = this.coreServiceLogs.traces[last].timestamp;
         if (lastDateString) {
           let lastDate: Date = new Date(lastDateString);
-          // Time in seconds with UP round
-          let since: number = Math.ceil(lastDate.getTime() / 1000);
+          // Time in seconds
+          let since: number = lastDate.getTime() / 1000;
           this.configurationService.getCoreServiceLogsSince(this.coreServiceLogs.name, since, false).subscribe(
             (logs: string) => {
-              this.coreServiceLogs.traces = this.coreServiceLogs.traces.concat(
-                this.configurationService.logsWithTimestampToLogViewTraces(logs),
-              );
+              let logsAsTraces: any[] = this.configurationService.logsWithTimestampToLogViewTraces(logs);
+              logsAsTraces = this.discardDuplicatedTraces(logsAsTraces, lastDate, this.coreServiceLogs.traces[last].message);
+              this.coreServiceLogs.traces = this.coreServiceLogs.traces.concat(logsAsTraces);
             },
             (error: Error) => {
               this.popupService.openSnackBar('Error on get next' + this.coreServiceLogs.name + ' logs');
@@ -141,6 +141,25 @@ export class HelpComponent implements OnInit {
         }
       }
     }
+  }
+
+  discardDuplicatedTraces(traces: any[], lastDate: Date, lastMessage: string): any[] {
+    console.log(traces, lastDate, lastMessage);
+    let firstDateString: string = traces[0].timestamp;
+    let newTraces: any[] = traces;
+    if (firstDateString) {
+      let firstDate: Date = new Date(firstDateString);
+      if (firstDate.getTime() < lastDate.getTime()) {
+        newTraces = this.discardDuplicatedTraces(traces.slice(1), lastDate, lastMessage);
+      } else if (firstDate.getTime() === lastDate.getTime()) {
+        if (traces[0].message === lastMessage) {
+          newTraces = traces.slice(1);
+        } else {
+          newTraces = this.discardDuplicatedTraces(traces.slice(1), lastDate, lastMessage);
+        }
+      }
+    }
+    return newTraces;
   }
 
   removeLogCard(): void {
