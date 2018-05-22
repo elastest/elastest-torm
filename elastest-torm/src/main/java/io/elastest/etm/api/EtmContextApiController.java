@@ -107,6 +107,10 @@ public class EtmContextApiController implements EtmContextApi {
                 HttpStatus.OK);
     }
 
+    /* ********************* */
+    /* *** Core Services *** */
+    /* ********************* */
+
     @Override
     public ResponseEntity<List<CoreServiceInfo>> getCoreServicesInfo() {
         return new ResponseEntity<List<CoreServiceInfo>>(
@@ -159,6 +163,20 @@ public class EtmContextApiController implements EtmContextApi {
         try {
             logs = etmContextService.getSomeCoreServiceLogs(coreServiceName,
                     amount, true);
+            return new ResponseEntity<String>(logs, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> getCoreServiceLogsSince(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Since timestamp.", required = true) @PathVariable("since") Long since) {
+        String logs = null;
+        try {
+            logs = etmContextService.getCoreServiceLogsSince(coreServiceName,
+                    since.intValue(), false);
             return new ResponseEntity<String>(logs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);

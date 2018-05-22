@@ -964,13 +964,43 @@ public class DockerService2 {
         return this.getContainerLogsByGivenLogContainerCmd(logContainerCmd);
     }
 
+    /*
+     * since time in seconds
+     */
+    public String getContainerLogsSinceDate(String containerId, int since,
+            boolean withFollow) {
+        DockerClient dockerClient = this.getDockerClient();
+        LogContainerCmd logContainerCmd = dockerClient
+                .logContainerCmd(containerId).withSince(since).withTailAll();
+        if (withFollow) {
+            logContainerCmd = logContainerCmd.withFollowStream(true);
+        }
+
+        return this.getContainerLogsByGivenLogContainerCmd(logContainerCmd);
+    }
+
     public String getContainerLogsByGivenLogContainerCmd(
             LogContainerCmd logContainerCmd) {
         StringBuilder logs = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
 
-        logContainerCmd = logContainerCmd.withStdOut(true).withStdErr(true);
-        logContainerCmd.exec(new ResultCallback<Frame>() {
+        logContainerCmd = logContainerCmd.withStdOut(true).withStdErr(true)
+                .withTimestamps(true);
+        logContainerCmd.exec(getLogsResultCallback(latch, logs));
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(
+                    "Interrupted when waiting for complete result callback on docker logs",
+                    e);
+        }
+        return logs.toString();
+    }
+
+    public ResultCallback<Frame> getLogsResultCallback(CountDownLatch latch,
+            StringBuilder logs) {
+        return new ResultCallback<Frame>() {
 
             @Override
             public void close() throws IOException {
@@ -998,16 +1028,7 @@ public class DockerService2 {
                 latch.countDown();
             }
 
-        });
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(
-                    "Interrupted when waiting for complete result callback on docker logs",
-                    e);
-        }
-        return logs.toString();
+        };
     }
 
     /***************************/

@@ -62,4 +62,26 @@ export class TransformService {
     }
     return newPort;
   }
+
+  /* ************ */
+  /* *** Logs *** */
+  /* ************ */
+  logsWithTimestampToLogViewTraces(logs: string): any[] {
+    // "logs" is a multiple traces into a single string
+    let traces: { message: string; timestamp: string }[] = [];
+    logs.split('\n').map((trace: string) => {
+      let splitedTrace: RegExpMatchArray = trace.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d*Z)\s(.*$)/);
+      if (splitedTrace && splitedTrace.length > 0) {
+        if (splitedTrace.length === 3) {
+          traces.push({ message: splitedTrace[2], timestamp: splitedTrace[1] });
+        } else {
+          traces.push({ message: splitedTrace[0], timestamp: undefined });
+        }
+      } else {
+        // traces.push({ message: trace, timestamp: undefined });
+      }
+    });
+
+    return traces;
+  }
 }

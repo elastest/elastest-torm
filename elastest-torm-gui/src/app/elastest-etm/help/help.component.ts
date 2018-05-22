@@ -2,7 +2,7 @@ import { CardLogModel } from '../../shared/logs-view/models/card-log.model';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TitlesService } from '../../shared/services/titles.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CoreServiceModel } from '../models/core-service.model';
 import { VersionInfo } from '../models/version-info.model';
 import { PopupService } from '../../shared/services/popup.service';
@@ -23,6 +23,7 @@ export class HelpComponent implements OnInit {
   coreServiceLogs: CardLogModel;
   loadingLogs: boolean = false;
   numberOfLogs: number = 100;
+  subscribeToNextLogs: boolean = false;
 
   // SuT Data
   coreServiceColumns: any[] = [
@@ -49,6 +50,21 @@ export class HelpComponent implements OnInit {
     this.startCoreServicesSubscription();
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.unsubscribe();
+  }
+
+  unsubscribe(): void {
+    this.coreServicesSubscription.unsubscribe();
+    this.subscribeToNextLogs = false;
+  }
+
   init(): void {
     this.configurationService.getCoreServicesInfo().subscribe((coreServices: CoreServiceModel[]) => {
       this.coreServices = coreServices;
@@ -73,13 +89,11 @@ export class HelpComponent implements OnInit {
   }
 
   startCoreServicesSubscription(): void {
-    let timer: Observable<number> = Observable.interval(8000);
+    let timer: Observable<number> = Observable.interval(7000);
     this.coreServicesSubscription = timer.subscribe(() => {
       if (this.autorefreshEnabled) {
         this.init();
-        // if (this.coreServiceLogs !== undefined && this.coreServiceLogs.name !== undefined) {
-        //   this.loadCoreServiceLogs(this.coreServiceLogs.name);
-        // }
+        this.loadNextCoreServiceLogs();
       }
     });
   }
@@ -88,20 +102,45 @@ export class HelpComponent implements OnInit {
     this.loadingLogs = true;
     this.coreServiceLogs = new CardLogModel();
     this.coreServiceLogs.hidePrevBtn = true;
-    this.coreServiceLogs.name = coreServiceName + ' (showing the last ' + this.numberOfLogs + ' max)';
+    this.coreServiceLogs.name = coreServiceName;
     this.configurationService.getSomeCoreServiceLogs(coreServiceName, this.numberOfLogs, false).subscribe(
       (logs: string) => {
-        logs.split('\n').map((message: string) => {
-          this.coreServiceLogs.traces.push({ message: message });
-        });
+        this.coreServiceLogs.traces = this.configurationService.logsWithTimestampToLogViewTraces(logs);
         this.loadingLogs = false;
+        this.subscribeToNextLogs = true;
       },
       (error: Error) => {
         this.popupService.openSnackBar('Error on get ' + coreServiceName + ' logs');
         console.log(error);
         this.loadingLogs = false;
+        this.subscribeToNextLogs = false;
       },
     );
+  }
+
+  loadNextCoreServiceLogs(): void {
+    if (this.subscribeToNextLogs && this.coreServiceLogs !== undefined && this.coreServiceLogs.name !== undefined) {
+      if (this.coreServiceLogs.traces && this.coreServiceLogs.traces.length > 0) {
+        let last: number = this.coreServiceLogs.traces.length - 1;
+        let lastDateString: string = this.coreServiceLogs.traces[last].timestamp;
+        if (lastDateString) {
+          let lastDate: Date = new Date(lastDateString);
+          // Time in seconds with UP round
+          let since: number = Math.ceil(lastDate.getTime() / 1000);
+          this.configurationService.getCoreServiceLogsSince(this.coreServiceLogs.name, since, false).subscribe(
+            (logs: string) => {
+              this.coreServiceLogs.traces = this.coreServiceLogs.traces.concat(
+                this.configurationService.logsWithTimestampToLogViewTraces(logs),
+              );
+            },
+            (error: Error) => {
+              this.popupService.openSnackBar('Error on get next' + this.coreServiceLogs.name + ' logs');
+              console.log(error);
+            },
+          );
+        }
+      }
+    }
   }
 
   removeLogCard(): void {

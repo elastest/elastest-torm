@@ -130,4 +130,16 @@ export class ConfigurationService {
     }
     return this.http.get(url).map((response) => response['_body']);
   }
+
+  public getCoreServiceLogsSince(coreServiceName: string, since: number, withFollow: boolean): Observable<string> {
+    let url: string = this.configModel.hostApi + '/context/coreservices/' + coreServiceName + '/logs/since/' + since;
+    if (withFollow) {
+      url += '/follow';
+    }
+    return this.http.get(url).map((response) => response['_body']);
+  }
+
+  public logsWithTimestampToLogViewTraces(logs: string): any[] {
+    return this.transformService.logsWithTimestampToLogViewTraces(logs);
+  }
 }

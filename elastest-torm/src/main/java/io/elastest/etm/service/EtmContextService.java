@@ -174,6 +174,10 @@ public class EtmContextService {
                 container.getLabels().get("version"));
     }
 
+    /* ********************* */
+    /* *** Core Services *** */
+    /* ********************* */
+
     public List<CoreServiceInfo> getCoreServicesInfo() {
         List<CoreServiceInfo> coreServices = new ArrayList<>();
         List<String> imagesNames = Arrays.asList(etCoreImages.split(","));
@@ -260,6 +264,20 @@ public class EtmContextService {
                 + " logs. Invalid Core Service Name");
     }
 
+    public String getCoreServiceLogsSince(String coreServiceName, int since,
+            boolean withFollow) throws Exception {
+        CoreServiceInfo coreService = getCoreServiceIfExist(coreServiceName);
+        if (coreService != null) {
+            String containerName = coreService.getFirstContainerNameCleaned();
+            if (containerName != null) {
+                return this.dockerService.getContainerLogsSinceDate(
+                        containerName, since, withFollow);
+            }
+        }
+        throw new Exception("Error on get " + coreServiceName
+                + " logs. Invalid Core Service Name");
+    }
+
     public CoreServiceInfo getCoreServiceIfExist(String coreServiceName) {
         List<CoreServiceInfo> coreServices = this.getCoreServicesInfo();
         for (CoreServiceInfo currentCoreService : coreServices) {
@@ -278,6 +296,10 @@ public class EtmContextService {
         return imageName.startsWith("elastest/platform")
                 && !imageName.startsWith("elastest/platform-services");
     }
+
+    /* ******************** */
+    /* *** Log Analyzer *** */
+    /* ******************** */
 
     public Map<String, String> getTJobExecMonitoringEnvVars(
             TJobExecution tJobExec) {

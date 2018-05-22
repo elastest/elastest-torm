@@ -140,6 +140,17 @@ public interface EtmContextApi extends EtmApiRoot {
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
             @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount);
 
+    @ApiOperation(value = "Return Logs of a Core Service since timestamp", notes = "Return Some Logs of a Core Service since timestamp.", response = String.class, tags = {
+            "CONTEXT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class),
+            @ApiResponse(code = 400, message = "Information not found.") })
+    @RequestMapping(value = "/context/coreservices/{coreServiceName}/logs/since/{since}", produces = {
+            "text/plain" }, method = RequestMethod.GET)
+    public ResponseEntity<String> getCoreServiceLogsSince(
+            @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
+            @ApiParam(value = "Since timestamp.", required = true) @PathVariable("since") Long since);
+
     /* ***************** */
     /* LogAnalyzerConfig */
     /* ***************** */
