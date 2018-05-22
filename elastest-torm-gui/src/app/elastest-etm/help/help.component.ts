@@ -101,7 +101,8 @@ export class HelpComponent implements OnInit {
   loadCoreServiceLogs(coreServiceName: string): void {
     this.loadingLogs = true;
     this.coreServiceLogs = new CardLogModel();
-    this.coreServiceLogs.hidePrevBtn = true;
+    this.coreServiceLogs.previousFunctionObj = {function: this.loadPreviousLogs.bind(this)}
+    // this.coreServiceLogs.hidePrevBtn = true;
     this.coreServiceLogs.name = coreServiceName;
     this.configurationService.getSomeCoreServiceLogs(coreServiceName, this.numberOfLogs, false).subscribe(
       (logs: string) => {
@@ -144,7 +145,6 @@ export class HelpComponent implements OnInit {
   }
 
   discardDuplicatedTraces(traces: any[], lastDate: Date, lastMessage: string): any[] {
-    console.log(traces, lastDate, lastMessage);
     let firstDateString: string = traces[0].timestamp;
     let newTraces: any[] = traces;
     if (firstDateString) {
@@ -160,6 +160,25 @@ export class HelpComponent implements OnInit {
       }
     }
     return newTraces;
+  }
+
+  loadPreviousLogs(): void {
+    this.loadingLogs = true;
+    this.subscribeToNextLogs = false;
+
+    this.configurationService.getAllCoreServiceLogs(this.coreServiceLogs.name, false).subscribe(
+      (logs: string) => {
+        this.coreServiceLogs.traces = this.configurationService.logsWithTimestampToLogViewTraces(logs);
+        this.loadingLogs = false;
+        this.subscribeToNextLogs = true;
+      },
+      (error: Error) => {
+        this.popupService.openSnackBar('Error on get ' + this.coreServiceLogs.name + ' logs');
+        console.log(error);
+        this.loadingLogs = false;
+        this.subscribeToNextLogs = false;
+      },
+    );
   }
 
   removeLogCard(): void {

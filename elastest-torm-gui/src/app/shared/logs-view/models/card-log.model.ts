@@ -9,6 +9,7 @@ export class CardLogModel implements LogViewModel {
   hidePrevBtn: boolean;
   etType: string;
   monitoringIndex: string;
+  previousFunctionObj: { function: Function };
 
   constructor() {
     this.name = '';
@@ -21,6 +22,9 @@ export class CardLogModel implements LogViewModel {
     this.monitoringIndex = '';
   }
 
-  loadPrevious(): void {}
+  loadPrevious(): void {
+    this.previousFunctionObj.function();
+    this.prevLoaded = true;
+  }
   getAllLogs(): void {}
 }
