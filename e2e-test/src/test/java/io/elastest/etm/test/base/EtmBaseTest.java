@@ -97,14 +97,18 @@ public class EtmBaseTest {
 
         }
 
+        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
+                ? this.apiPath : "/" + this.apiPath);
+
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
             secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
                     + split_url[1];
-        }
 
-        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
-                ? this.apiPath : "/" + this.apiPath);
+            this.tormApiUrl = secureTorm + (secureTorm.endsWith("/")
+                    ? this.apiPath : "/" + this.apiPath);
+
+        }
 
         log.info("Using URL {} to connect to {} TORM", tormUrl,
                 secureElastest ? "secure" : "unsecure");
