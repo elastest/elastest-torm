@@ -5,6 +5,7 @@ import {
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
   MetricFieldGroupModel,
+  MetricbeatType,
 } from '../metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/metrics-chart-card/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
@@ -322,7 +323,8 @@ export class ElastestESService {
     let parsedData: SingleMetricModel = undefined;
     let typeArr: string = trace['et_type'].split('_');
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
-      if (typeArr[0] === 'system') {
+      if (typeArr[0] in MetricbeatType) {
+        console.log(trace)
         let subtypeValueObj: any = trace[trace['et_type']][metricsField.subtype];
         switch (typeArr[1]) {
           case 'cpu':

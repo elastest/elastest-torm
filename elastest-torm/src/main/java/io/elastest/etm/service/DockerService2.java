@@ -347,6 +347,8 @@ public class DockerService2 {
                     dockerExec);
         }
 
+        logger.debug("aaaaaa {}", logConfig.getConfig());
+
         // Pull Image
         this.pullETExecImage(image, type);
 
@@ -582,8 +584,11 @@ public class DockerService2 {
             String tagSuffix, DockerExecution dockerExec) {
         Map<String, String> configMap = new HashMap<String, String>();
         configMap.put("syslog-address", "tcp://" + host + ":" + port);
-        configMap.put("tag", tagPrefix + dockerExec.getExecutionId() + "_"
-                + tagSuffix + "_exec");
+        if (tagSuffix != null && !tagSuffix.equals("")) {
+            tagSuffix = "_" + tagSuffix;
+        }
+        configMap.put("tag",
+                tagPrefix + dockerExec.getExecutionId() + tagSuffix + "_exec");
 
         LogConfig logConfig = new LogConfig();
         logConfig.setType(LoggingType.SYSLOG);
