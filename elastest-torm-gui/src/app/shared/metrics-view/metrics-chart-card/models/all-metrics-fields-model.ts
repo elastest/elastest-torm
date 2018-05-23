@@ -85,6 +85,11 @@ export let metricbeatMemorySubtypes: SubtypesObjectModel[] = [
   new SubtypesObjectModel('used_pct', 'percent'),
 ];
 
+export let metricbeatMemoryForDockerSubtypes: SubtypesObjectModel[] = [
+  new SubtypesObjectModel('usage_max', 'bytes'),
+  new SubtypesObjectModel('usage_pct', 'percent'),
+];
+
 export function getMetricbeatNetworkSubtypes(): SubtypesObjectModel[] {
   let subtypeList: string[] = ['in', 'out'];
   let netSubtypes: SubtypesObjectModel[] = [];
@@ -108,7 +113,11 @@ export function getMetricBeatFieldGroupList(): MetricFieldGroupModel[] {
     if (isNaN(parseInt(etType))) {
       // enums returns position and value
       list.push(new MetricFieldGroupModel(etType + '_cpu', metricbeatCpuSubtypes));
-      list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemorySubtypes));
+      if (etType === 'docker') {
+        list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemoryForDockerSubtypes));
+      } else {
+        list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemorySubtypes));
+      }
       // list.push(new MetricFieldGroupModel(etType + '_network', getMetricbeatNetworkSubtypes())); //Disabled (traces with same millisecond)
     }
   }
