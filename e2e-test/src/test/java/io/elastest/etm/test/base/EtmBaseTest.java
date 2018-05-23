@@ -85,10 +85,12 @@ public class EtmBaseTest {
         }
         String elastestUser = getProperty("eUser");
         if (elastestUser != null) {
+            log.info("Elastest User received: {}", elastestUser);
             eUser = elastestUser;
 
             String elastestPassword = getProperty("ePass");
             if (elastestPassword != null) {
+                log.info("Elastest Password received: {}", elastestPassword);
                 ePassword = elastestPassword;
                 secureElastest = true;
             }
@@ -246,7 +248,7 @@ public class EtmBaseTest {
 
     protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
             String sutName, String desc, String image, String port,
-            Map<String, String> params) {
+            Map<String, String> params) throws InterruptedException {
         this.createSutAndInsertCommonFields(driver, sutName, desc);
 
         driver.findElement(By.name("managedSut")).click();
@@ -262,6 +264,7 @@ public class EtmBaseTest {
         // Save
         driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
                 .click();
+        Thread.sleep(1000);
     }
 
     protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
