@@ -22,7 +22,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -69,8 +68,8 @@ public class TJobExecution {
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sut_execution")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sut_execution")    
     @JsonProperty("sutExecution")
     private SutExecution sutExecution = null;
 

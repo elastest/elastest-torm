@@ -347,8 +347,6 @@ public class DockerService2 {
                     dockerExec);
         }
 
-        logger.debug("aaaaaa {}", logConfig.getConfig());
-
         // Pull Image
         this.pullETExecImage(image, type);
 
