@@ -419,6 +419,9 @@ public class TJobExecOrchestratorService {
         return servicesWithoutEMS;
     }
 
+    /*
+     * Gets the Env vars of given TJob TSS Instance
+     */
     private Map<String, String> getTJobExecTssEnvVars(boolean externalTJob,
             boolean withPublicPrefix, String tSSInstanceId) {
         SupportServiceInstance ssi = esmService.gettJobServicesInstances()
@@ -427,6 +430,9 @@ public class TJobExecOrchestratorService {
                 withPublicPrefix);
     }
 
+    /*
+     * Sets the Env vars of given TSS Instance into tJobExec
+     */
     private void setTJobExecTssEnvVars(TJobExecution tJobExec,
             boolean externalTJob, boolean withPublicPrefix,
             String tSSInstanceId) {
