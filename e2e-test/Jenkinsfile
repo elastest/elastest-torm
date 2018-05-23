@@ -3,7 +3,9 @@ elastest_lib.setVersion('dev')
 //initialization of the context for the library
 elastest_lib.setContext(this)
 elastest_lib.setMode('experimental-lite')
-elastest_lib.setOptionals('-sa='+env.SA)
+if (env.WITH_SA == 'true') {
+	elastest_lib.setOptionals('-sa='+env.SA)
+}
 elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
 elastest_lib.setTestLink(true)
 elastest_lib.setAuthenticatedElastest(true)
