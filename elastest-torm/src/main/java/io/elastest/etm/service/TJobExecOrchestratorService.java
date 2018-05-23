@@ -21,8 +21,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.dockerjava.api.model.Container;
 
@@ -37,6 +38,7 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
@@ -365,31 +367,74 @@ public class TJobExecOrchestratorService {
         String resultMsg = "Starting Test Support Service: ";
         ObjectMapper mapper = new ObjectMapper();
         try {
-            List<ObjectNode> services = Arrays
-                    .asList(mapper.readValue(tJobServices, ObjectNode[].class));
-            for (ObjectNode service : services) {
-                if (service.get("selected").toString()
-                        .equals(Boolean.toString(true))) {
+            List<TJobSupportService> services = Arrays.asList(
+                    mapper.readValue(tJobServices, TJobSupportService[].class));
+            // Start EMS first if is selected
+            List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
+                    services, tJobExec);
 
+            for (TJobSupportService service : servicesWithoutEMS) {
+                if (service.isSelected()) {
                     updateTJobExecResultStatus(tJobExec,
                             TJobExecution.ResultEnum.STARTING_TSS,
-                            resultMsg + service.get("name").toString()
-                                    .replaceAll("\"", ""));
+                            resultMsg + service.getName());
 
-                    String instanceId = esmService
-                            .provisionTJobExecServiceInstanceSync(service
-                                    .get("id").toString().replaceAll("\"", ""),
-                                    tJobExec);
-
-                    tJobExec.getServicesInstances().add(instanceId);
+                    this.provideService(service, tJobExec);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // TODO stop execution
+            logger.error("Error on provide TSS", e);
         }
         // catch (RuntimeException re) {
         // logger.error("Error provisioning TSS", re);
         // }
+    }
+
+    private String provideService(TJobSupportService service,
+            TJobExecution tJobExec) {
+        String instanceId = esmService.provisionTJobExecServiceInstanceSync(
+                service.getId(), tJobExec);
+
+        tJobExec.getServicesInstances().add(instanceId);
+        return instanceId;
+    }
+
+    public List<TJobSupportService> provideEmsTssIfSelected(
+            List<TJobSupportService> services, TJobExecution tJobExec)
+            throws JsonParseException, JsonMappingException, IOException {
+        List<TJobSupportService> servicesWithoutEMS = new ArrayList<>(services);
+        int pos = 0;
+        for (TJobSupportService service : services) {
+            if (service.getName().toLowerCase().equals("ems")
+                    && service.isSelected()) {
+                String instanceId = this.provideService(service, tJobExec);
+                servicesWithoutEMS.remove(pos);
+                this.setTJobExecTssEnvVars(tJobExec,
+                        tJobExec.getTjob().isExternal(), false, instanceId);
+                break;
+            }
+            pos++;
+        }
+        return servicesWithoutEMS;
+    }
+
+    private Map<String, String> getTJobExecTssEnvVars(boolean externalTJob,
+            boolean withPublicPrefix, String tSSInstanceId) {
+        SupportServiceInstance ssi = esmService.gettJobServicesInstances()
+                .get(tSSInstanceId);
+        return esmService.getTSSInstanceEnvVars(ssi, externalTJob,
+                withPublicPrefix);
+    }
+
+    private void setTJobExecTssEnvVars(TJobExecution tJobExec,
+            boolean externalTJob, boolean withPublicPrefix,
+            String tSSInstanceId) {
+        Map<String, String> envVars = new HashMap<>();
+        envVars.putAll(tJobExec.getEnvVars());
+        envVars.putAll(this.getTJobExecTssEnvVars(externalTJob,
+                withPublicPrefix, tSSInstanceId));
+        tJobExec.setEnvVars(envVars);
     }
 
     private void setTJobExecEnvVars(TJobExecution tJobExec,
@@ -398,12 +443,9 @@ public class TJobExecOrchestratorService {
         envVars.putAll(tJobExec.getEnvVars());
         // Get TSS Env Vars
         for (String tSSInstanceId : tJobExec.getServicesInstances()) {
-            SupportServiceInstance ssi = esmService.gettJobServicesInstances()
-                    .get(tSSInstanceId);
-            envVars.putAll(esmService.getTSSInstanceEnvVars(ssi, externalTJob,
-                    withPublicPrefix));
+            envVars.putAll(this.getTJobExecTssEnvVars(externalTJob,
+                    withPublicPrefix, tSSInstanceId));
         }
-
         // Get monitoring Env Vars
         envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));

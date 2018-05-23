@@ -1,5 +1,8 @@
 package io.elastest.etm.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
@@ -18,14 +21,14 @@ public class SupportService {
     private String shortName;
 
     @JsonProperty("config")
-    private String config;
+    private Map<String, Object> config = new HashMap<String, Object>();
 
     public SupportService() {
 
     }
 
     public SupportService(String id, String name, String shortName,
-            String config) {
+            Map<String, Object> config) {
         super();
         this.id = id;
         this.name = name;
@@ -81,12 +84,18 @@ public class SupportService {
      * @return The config of the TSS
      **/
     @ApiModelProperty(example = "EUS", value = "The config of the TSS.")
-    public String getConfig() {
+    public Map<String, Object> getConfig() {
         return config;
     }
 
-    public void setConfig(String config) {
+    public void setConfig(Map<String, Object> config) {
         this.config = config;
+    }
+
+    @Override
+    public String toString() {
+        return "SupportService [id=" + id + ", name=" + name + ", shortName="
+                + shortName + ", config=" + config + "]";
     }
 
 }

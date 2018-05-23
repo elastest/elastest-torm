@@ -196,4 +196,60 @@ public class EtmContextAuxService {
         return monEnvs;
     }
 
+    public Map<String, String> getMonitoringEnvVarsFromEms(
+            Map<String, String> emsEnvVars) {
+        Map<String, String> monEnvs = new HashMap<String, String>();
+
+        if (emsEnvVars != null) {
+            String emsLsBeatsHost = emsEnvVars.get("ET_EMS_LSBEATS_HOST");
+            String emsLsBeatsPort = emsEnvVars.get("ET_EMS_LSBEATS_PORT");
+            String emsHttpInEventsApi = emsEnvVars
+                    .get("ET_EMS_HTTPINEVENTS_API");
+            // String emsTcpTestLogsHost = emsEnvVars
+            // .get("ET_EMS_TCP_TESTLOGS_HOST");
+            // String emsTcpTestLogsPort = emsEnvVars
+            // .get("ET_EMS_TCP_TESTLOGS_PORT");
+            // String emsTcpSutLogsHost = emsEnvVars
+            // .get("ET_EMS_TCP_SUTLOGS_HOST");
+            // String emsTcpSutLogsPort = emsEnvVars
+            // .get("ET_EMS_TCP_SUTLOGS_PORT");
+            // String emsWebsocketOutApi = emsEnvVars
+            // .get("ET_EMS_WEBSOCKET_OUT_API");
+            // String emsEmsApi = emsEnvVars.get("ET_EMS_API");
+
+            if (emsLsBeatsHost != null) {
+                monEnvs.put("ET_MON_LSBEATS_HOST", emsLsBeatsHost);
+            }
+
+            if (emsLsBeatsPort != null) {
+                monEnvs.put("ET_MON_LSBEATS_PORT", emsLsBeatsPort);
+            }
+
+            if (emsHttpInEventsApi != null) {
+                monEnvs.put("ET_MON_LSHTTP_API", emsHttpInEventsApi);
+            }
+
+            // We have a single TCP host/port
+
+            // if (emsTcpTestLogsHost != null) {
+            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpTestLogsHost);
+            // }
+            //
+            // if (emsTcpTestLogsPort != null) {
+            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpTestLogsPort);
+            // }
+            //
+            // if (emsTcpSutLogsHost != null) {
+            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpSutLogsHost);
+            // }
+            //
+            // if (emsTcpSutLogsPort != null) {
+            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpSutLogsPort);
+            // }
+
+        }
+
+        return monEnvs;
+    }
+
 }

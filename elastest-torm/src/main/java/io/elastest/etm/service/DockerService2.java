@@ -609,6 +609,7 @@ public class DockerService2 {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         String host = null;
         String port = null;
+        // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
         if ("tjob".equals(type.toLowerCase())) {
             host = tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_HOST");
             port = tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_PORT");

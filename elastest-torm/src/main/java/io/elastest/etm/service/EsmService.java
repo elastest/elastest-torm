@@ -13,8 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -26,6 +24,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -276,10 +277,21 @@ public class EsmService {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
         JsonNode objs = esmServiceClient.getRegisteredServices();
+        ObjectMapper mapper = new ObjectMapper();
+
         for (JsonNode esmService : objs) {
             JsonNode configJson = esmService.get("manifest") != null
                     ? esmService.get("manifest").get("config") : null;
-            String config = configJson != null ? configJson.toString() : "";
+            Map<String, Object> config = null;
+            if (configJson != null) {
+                try {
+                    Map treeToValue = mapper.treeToValue(configJson, Map.class);
+                    config = treeToValue;
+                } catch (JsonProcessingException e) {
+                    logger.error("Error on getRegisteredServices", e);
+                }
+            }
+
             services.add(new SupportService(
                     esmService.get("id").toString().replaceAll("\"", ""),
                     esmService.get("name").toString().replaceAll("\"", ""),
@@ -416,6 +428,8 @@ public class EsmService {
 
             this.setTJobExecTSSFilesConfig(newServiceInstance, tJobExec);
             this.fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
+            this.fillEMSMonitoringEnvVariablesToTSS(newServiceInstance,
+                    tJobExec, tJobExec.getTjob().isExternal(), false);
 
             if (tJobExec != null && execId != null) {
                 tJobServicesInstances.put(instanceId, newServiceInstance);
@@ -674,14 +688,14 @@ public class EsmService {
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
             logger.info("Manifest services {}:" + serviceName);
-            String serviceIpFieldSufix = serviceName + "_Ip";            
+            String serviceIpFieldSufix = serviceName + "_Ip";
             String serviceIp = null;
             boolean ipFound = false;
 
             while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
                 logger.info("Instance data fields {}:" + fieldName);
-                
+
                 if (fieldName.contains(serviceIpFieldSufix)) {
 
                     String ssrvContainerName = fieldName.substring(0,
@@ -1277,6 +1291,24 @@ public class EsmService {
                 "ET_EMP_INFLUXDB_GRAPHITE_PORT", etEmpInfluxdbGraphitePort);
 
         supportServiceInstance.getParameters().put("USE_TORM", "true");
+    }
+
+    private void fillEMSMonitoringEnvVariablesToTSS(
+            SupportServiceInstance supportServiceInstance,
+            TJobExecution tJobExec, boolean externalTJob,
+            boolean withPublicPrefix) {
+        try {
+            if (tJobExec.getTjob().isEmsTssSelected()) {
+                // IF EMS is started, TJobExec have EMS env vars
+                Map<String, String> emsEnvVars = tJobExec.getEnvVars();
+
+                supportServiceInstance.getParameters()
+                        .putAll(etmContextAuxService
+                                .getMonitoringEnvVarsFromEms(emsEnvVars));
+            }
+        } catch (Exception e) {
+            logger.error("Error on fill EMS monitoring env vars to TSS", e);
+        }
     }
 
     public Map<String, String> getTSSInstanceContext(String tSSInstanceId,
