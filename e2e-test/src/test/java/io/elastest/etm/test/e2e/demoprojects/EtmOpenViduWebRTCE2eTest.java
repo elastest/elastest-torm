@@ -61,8 +61,8 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
 
             // Create SuT
             String sutDesc = "OpenVidu Description";
-            String sutImage = "elastest/demo-openvidu-test-sut2";
-            String sutPort = "8443";
+            String sutImage = "openvidu/testapp:2.0.0";
+            String sutPort = "4443";
             createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
                     sutImage, sutPort, null);
         }
