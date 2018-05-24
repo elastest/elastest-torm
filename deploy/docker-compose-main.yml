@@ -47,6 +47,7 @@ services:
             - ET_ETM_TESTLINK_PORT=80
             - ET_DOCKER_IMG_SOCAT=elastest/etm-socat:latest
             - ET_DOCKER_IMG_DOCKBEAT=elastest/etm-dockbeat:latest
+            - ET_INTERNET_DISABLED=false
         entrypoint: /run.sh
         expose:
             - 8091
