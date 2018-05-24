@@ -51,6 +51,9 @@ public class EsmService {
     public String etEsmSsDescFilesPath;
     @Value("${et.shared.folder}")
     public String etSharedFolder;
+    @Value("${et.internet.disabled}")
+    public String etInternetDisabled;
+    
     @Value("${et.public.host}")
     public String etPublicHost;
     @Value("${server.port}")
@@ -1239,11 +1242,14 @@ public class EsmService {
                 etEtmLstcpHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT",
                 etEtmLstcpPort);
-
+        
         supportServiceInstance.getParameters().put("ET_CONTEXT_API",
                 "http://" + utilTools.getMyIp() + ":" + serverPort
                         + "/api/context/tss/"
                         + supportServiceInstance.getInstanceId());
+        
+        supportServiceInstance.getParameters().put("ET_INTERNET_DISABLED",
+                etInternetDisabled);        
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST",
                 etPublicHost);
         supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API",
