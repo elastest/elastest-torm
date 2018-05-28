@@ -11,15 +11,22 @@
     </div>
   </div>
   <div flex="70" *ngFor="let column of columns">
-      <md-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
-        <md-list-item>
-          <h5>{{column.field}}</h5>
-          <p class="monospaced" id="message">{{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}</p>
-        </md-list-item>
-        <md-divider></md-divider>
-      </md-list>
-  
-    </div>
+    <md-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
+      <md-list-item>
+        <h5>{{column.field}}</h5>
+        <p class="monospaced">
+          <ng-container *ngIf="column.field !== '@timestamp'; else timestamp">
+            {{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}
+          </ng-container>
+          <ng-template #timestamp>
+            {{row[column.field] ? (row[column.field] | date:'dd/MM/yyyy HH:mm:ss') : 'Field ' + column.field + ' is empty'}}
+          </ng-template>
+        </p>
+      </md-list-item>
+      <md-divider></md-divider>
+    </md-list>
+
+  </div>
 </div>
 
 

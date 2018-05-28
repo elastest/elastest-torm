@@ -709,10 +709,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           } else {
             this.testCaseName = fromExec.exTestCase;
           }
-          this.filterTestCase(this.testCaseName);
-        } else {
-          this.loadLog();
         }
+        this.loadLog();
       } else {
         this.popup('No execution was selected. Selected all by default');
         this.loadLog();
