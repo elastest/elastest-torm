@@ -53,7 +53,7 @@ public class EsmService {
     public String etSharedFolder;
     @Value("${et.internet.disabled}")
     public String etInternetDisabled;
-    
+
     @Value("${et.public.host}")
     public String etPublicHost;
     @Value("${server.port}")
@@ -429,8 +429,13 @@ public class EsmService {
 
             this.setTJobExecTSSFilesConfig(newServiceInstance, tJobExec);
             this.fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
+            boolean tJobIsExternal = false;
+            if (tJobExec != null && tJobExec.getTjob() != null) {
+                tJobIsExternal = tJobExec.getTjob().isExternal();
+
+            }
             this.fillEMSMonitoringEnvVariablesToTSS(newServiceInstance,
-                    tJobExec, tJobExec.getTjob().isExternal(), false);
+                    tJobExec, tJobIsExternal, false);
 
             if (tJobExec != null && execId != null) {
                 tJobServicesInstances.put(instanceId, newServiceInstance);
@@ -1242,14 +1247,14 @@ public class EsmService {
                 etEtmLstcpHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT",
                 etEtmLstcpPort);
-        
+
         supportServiceInstance.getParameters().put("ET_CONTEXT_API",
                 "http://" + utilTools.getMyIp() + ":" + serverPort
                         + "/api/context/tss/"
                         + supportServiceInstance.getInstanceId());
-        
+
         supportServiceInstance.getParameters().put("ET_INTERNET_DISABLED",
-                etInternetDisabled);        
+                etInternetDisabled);
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST",
                 etPublicHost);
         supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API",
@@ -1302,13 +1307,15 @@ public class EsmService {
             TJobExecution tJobExec, boolean externalTJob,
             boolean withPublicPrefix) {
         try {
-            if (tJobExec.getTjob().isEmsTssSelected()) {
-                // IF EMS is started, TJobExec have EMS env vars
-                Map<String, String> emsEnvVars = tJobExec.getEnvVars();
+            if (tJobExec != null && tJobExec.getTjob() != null) {
+                if (tJobExec.getTjob().isEmsTssSelected()) {
+                    // IF EMS is started, TJobExec have EMS env vars
+                    Map<String, String> emsEnvVars = tJobExec.getEnvVars();
 
-                supportServiceInstance.getParameters()
-                        .putAll(etmContextAuxService
-                                .getMonitoringEnvVarsFromEms(emsEnvVars));
+                    supportServiceInstance.getParameters()
+                            .putAll(etmContextAuxService
+                                    .getMonitoringEnvVarsFromEms(emsEnvVars));
+                }
             }
         } catch (Exception e) {
             logger.error("Error on fill EMS monitoring env vars to TSS", e);
