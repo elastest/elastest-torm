@@ -161,6 +161,16 @@ public class EtmBaseTest {
         return this.getElementByXpath(driver, id, xpath).size() != 0;
     }
 
+    protected List<WebElement> getElementById(WebDriver driver, String id,
+            int secondsTimeout) {
+        String xpath = "//*[@id='" + id + "']";
+        return this.getElementByXpath(driver, id, xpath, secondsTimeout);
+    }
+
+    protected List<WebElement> getElementById(WebDriver driver, String id) {
+        return this.getElementById(driver, id, 30);
+    }
+
     protected List<WebElement> getElementByXpath(WebDriver driver, String id,
             String xpath) {
         return this.getElementByXpath(driver, id, xpath, 30);
