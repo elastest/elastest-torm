@@ -49,7 +49,7 @@ elastest_lib.pipeline({
 
 
                     echo "Run EtmTestLinkFullteachingE2eTest"
-                    sh "mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp="+ fullteachingIp +" -DfullteachingPort=5000 -DetEtmApi=http://172.17.0.1:37000 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
+                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=EtmTestLinkFullteachingE2eTest -DfullteachingIp="+ fullteachingIp +" -DfullteachingPort=5000 -DetEtmApi=http://172.17.0.1:37000 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network=elastest_elastest"
                 } catch(e) {
                     echo 'Err: ' + e.toString()
                     sh '''\
@@ -59,6 +59,7 @@ elastest_lib.pipeline({
                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
                     '''
                 } finally {
+				    sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest down"
                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                 }
         }
