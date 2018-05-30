@@ -19,7 +19,17 @@ export function getUrlObj(url: string): CompleteUrlObj {
   return urlObj;
 }
 
-export type defaultResult = 'SUCCESS' | 'PASSED' | 'FAIL' | 'FAILED' | 'STOPPED' | 'NOT_EXECUTED' | 'ERROR' | 'BLOCKED' | '';
+export type defaultResult =
+  | 'SUCCESS'
+  | 'PASSED'
+  | 'FAIL'
+  | 'FAILED'
+  | 'STOPPED'
+  | 'NOT_EXECUTED'
+  | 'ERROR'
+  | 'BLOCKED'
+  | 'SKIPPED'
+  | '';
 
 export function getResultIconByString(result: defaultResult | string): any {
   let icon: any = {
@@ -44,6 +54,7 @@ export function getResultIconByString(result: defaultResult | string): any {
       icon.color = '#c82a0e';
       break;
     case 'NOT_EXECUTED':
+    case 'SKIPPED':
       icon.name = 'indeterminate_check_box';
       icon.color = '#666666';
       break;

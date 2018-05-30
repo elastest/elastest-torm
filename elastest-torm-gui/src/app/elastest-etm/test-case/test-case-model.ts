@@ -31,6 +31,8 @@ export class TestCaseModel {
     let result: defaultResult = 'FAIL';
     if (this.isSuccess()) {
       result = 'SUCCESS';
+    } else if (this.isSkipped()) {
+      result = 'SKIPPED';
     }
     icon = getResultIconByString(result);
 
@@ -38,27 +40,49 @@ export class TestCaseModel {
   }
 
   public isSuccess(): boolean {
-    let isSuccess: boolean = true;
-
-    if (this.failureDetail !== undefined && this.failureDetail !== null) {
+    if (this.isFailed() || this.isSkipped()) {
       return false;
     }
-
-    if (this.failureType !== undefined && this.failureType !== null) {
-      return false;
-    }
-
-    if (this.failureErrorLine !== undefined && this.failureErrorLine !== null) {
-      return false;
-    }
-
-    if (this.failureMessage !== undefined && this.failureMessage !== null) {
-      return false;
-    }
-
-    return isSuccess;
+    return true;
   }
 
+  public isFailed(): boolean {
+    if (!this.isSkipped()) {
+      if (this.failureDetail !== undefined && this.failureDetail !== null) {
+        return true;
+      }
+
+      if (this.failureType !== undefined && this.failureType !== null) {
+        return true;
+      }
+
+      if (this.failureErrorLine !== undefined && this.failureErrorLine !== null) {
+        return true;
+      }
+
+      if (this.failureMessage !== undefined && this.failureMessage !== null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public isSkipped(): boolean {
+    let skipped: boolean = false;
+
+    if (
+      this.failureType !== undefined &&
+      this.failureType !== null &&
+      this.failureType === 'skipped' &&
+      this.failureMessage !== undefined &&
+      this.failureMessage !== null &&
+      this.failureMessage === 'skipped'
+    ) {
+      skipped = true;
+    }
+
+    return skipped;
+  }
   setTestCaseFiles(tJobExecFiles: FileModel[]): FileModel[] {
     let newExecFiles: FileModel[] = [];
     for (let file of tJobExecFiles) {
