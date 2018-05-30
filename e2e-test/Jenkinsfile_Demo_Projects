@@ -15,48 +15,57 @@ def elastest_network = env.NETWORK
 //inside the elastest_lib.pipeline({...})
 elastest_lib.pipeline({
     
-    stage ('docker container')
-        def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
-        mycontainer.pull()
-        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
-            sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-            def testRepositoryDirectory = 'elastest'
-                  
-            stage ('prepare test')
-                def testDirectoryExists = fileExists 'elastest'
-                if (testDirectoryExists) {
-                    echo 'The elastest directory exists'
-                } else {
-                    echo 'There is no elastset directory'
-                    sh 'mkdir elastest'
-                }
+    try {
+        stage ('docker container')
+            def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
+            mycontainer.pull()
+            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
+                def testRepositoryDirectory = 'elastest'
+                    
+                stage ('prepare test')
+                    def testDirectoryExists = fileExists 'elastest'
+                    if (testDirectoryExists) {
+                        echo 'The elastest directory exists'
+                    } else {
+                        echo 'There is no elastset directory'
+                        sh 'mkdir elastest'
+                    }
+                    
+                    dir(testRepositoryDirectory) {
+                        echo 'Existing files before cloning the git repository'
+                        git 'https://github.com/elastest/elastest-torm.git'
+                    }
                 
-                dir(testRepositoryDirectory) {
-                	echo 'Existing files before cloning the git repository'
-                    git 'https://github.com/elastest/elastest-torm.git'
-                }
-             
-                echo 'Prepare network'
-                elastest.connect2ElastestNetwork()
-                def elastestURL = elastest.getEtmUrl()
-                
-                stage ("DemoProjects E2E test")
-                	try {
-	                    echo "Run tests"
-	                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.demoprojects.** -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
-	                } catch(e) {
-                        echo 'Err: ' + e.toString()
-	                    sh '''\
-	                       docker ps --all
-	                       docker ps --filter name=etm -q
-	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-	                    '''
-	                } finally {
-	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-	                }
-        }
-  })
+                    echo 'Prepare network'
+                    elastest.connect2ElastestNetwork()
+                    def elastestURL = elastest.getEtmUrl()
+                    
+                    stage ("DemoProjects E2E test")
+                        try {
+                            echo "Run tests"
+                            sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.demoprojects.** -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+                        } catch(e) {
+                            echo 'Err: ' + e.toString()
+                            sh '''\
+                            docker ps --all
+                            docker ps --filter name=etm -q
+                            docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                            docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                            '''
+                            throw e
+                        } finally {
+                            step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                        }
+            }
+    } catch (err) {
+        echo 'Error!!! Send email to the people responsible for the builds.'
+        emailext body: "${BUILD_URL}",
+        replyTo: '${BUILD_USER_EMAIL}', 
+        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+        to: 'Please go to ${MAIL_LIST}  and verify the build'
+    }
+})
   
   def containerIp(containerName, network) {
     echo "Inside containerIp function"
