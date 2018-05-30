@@ -68,20 +68,28 @@ elastest_lib.pipeline({
                     echo "elastest_etm-jenkins_1 container not started"
                 }
                 
-                stage ("E2E tests")                        
-	                try {
-	                    echo "Run tests"
-	                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=!EtmTestLinkFullteachingE2eTest,!io.elastest.etm.test.e2e.demoprojects.**,!io.elastest.etm.test.e2e.plugin.** -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
-	                } catch(e) {
-	                    sh '''\
-	                       docker ps --all
-	                       docker ps --filter name=etm -q
-	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-	                    '''
-	                } finally {
-	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-	                }
+                etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+elastest_network) { c1 ->
+                    stage ("E2E tests")
+                    	
+                    	    echo "Jenkins Url: " + jenkinsUrl
+                    		echo "${c1.id}"                        
+                            def ciUrl = "http://" + containerIp(c1.id, elastest_network) + ":8080"
+                            echo "Jenkins URL: " + ciUrl                    
+                            
+        	                try {
+        	                    echo "Run tests"
+        	                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+        	                } catch(e) {
+        	                    sh '''\
+        	                       docker ps --all
+        	                       docker ps --filter name=etm -q
+        	                       docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+        	                       docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+        	                    '''
+        	                } finally {
+        	                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+        	                }
+    	            }
         }
   })
   
