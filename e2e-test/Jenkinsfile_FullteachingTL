@@ -20,24 +20,10 @@ elastest_lib.pipeline({
             def pluginPath = '/home/ubuntu/workspace/elastest-torm/etm-e2e-test/elastest-plugin/target/elastest.hpi'
             def pluginDirectory = 'elastest-plugin'
             def testRepositoryDirectory = 'elastest'
-          
-            stage('build ElasTest plugin')
-            	def pluginDirectoryExists = fileExists 'elastest-plugin'
-                if (pluginDirectoryExists) {
-                    echo 'The elastset-plugin exists'
-                } else {
-                    echo 'There is no elastset-plugin directory'
-                    sh 'mkdir elastest-plugin'
-                }
-            	dir(pluginDirectory) {
-            	    git 'https://github.com/elastest/elastest-jenkins.git'
-            	    echo 'Build ElasTest plugin'
-            	    sh 'cd elastest-plugin; pwd; ls -lrt; mvn clean package -B'
-            	}
-            
+                  
             stage ('prepare test')
                 def testDirectoryExists = fileExists 'elastest'
-                if (pluginDirectoryExists) {
+                if (testDirectoryExists) {
                     echo 'The elastest directory exists'
                 } else {
                     echo 'There is no elastset directory'
@@ -52,11 +38,6 @@ elastest_lib.pipeline({
                 echo 'Prepare network'
                 elastest.connect2ElastestNetwork()
                 def elastestURL = elastest.getEtmUrl()
-                
-                echo 'Prepare Jenkins'
-                def etCustmizedJenkinsImage = elastest.ctx.docker.image('elastest/etm-jenkins:latest')
-                echo 'Object for the Jenkins image declared'
-            
                 
             stage ("TestLink Fullteaching test")
                 try {
