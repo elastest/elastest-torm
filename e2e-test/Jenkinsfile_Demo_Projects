@@ -19,9 +19,7 @@ elastest_lib.pipeline({
         def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
         mycontainer.pull()
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
-             sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-            def pluginPath = '/home/ubuntu/workspace/elastest-torm/etm-e2e-test/elastest-plugin/target/elastest.hpi'
-            def pluginDirectory = 'elastest-plugin'
+            sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
             def testRepositoryDirectory = 'elastest'
                   
             stage ('prepare test')
