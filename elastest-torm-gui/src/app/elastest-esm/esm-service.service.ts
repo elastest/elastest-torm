@@ -20,6 +20,7 @@ export class EsmService {
     return this.http.get(url).map((response) => this.transformIntoEsmServiceModel(response));
   }
 
+  // TODO api call to /prov without tJobExec (backend)
   provisionServiceInstance(serviceId: string) {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
     return this.http.post(url, null).map((response) => response['_body']);

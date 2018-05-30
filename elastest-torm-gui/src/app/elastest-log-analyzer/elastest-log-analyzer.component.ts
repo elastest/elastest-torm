@@ -119,7 +119,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.logAnalyzer.laConfig = logAnalyzerConfig;
         }
       },
-      // (error) => console.log(error),
+      (error) => {
+        // Do nothing
+      },
     );
     this.initStreamTypeTerm();
     this.initESModel();
@@ -624,8 +626,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         }
       },
       (error) => {
-        this.popup('Error on load saved configuration');
-        console.log(error);
+        this.popup('Error on load saved configuration. Possibly there is not saved config to load');
       },
     );
   }

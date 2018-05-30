@@ -63,6 +63,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     @DisplayName("Create TestLink Data and Test In ElasTest")
     void tlDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
+        this.driver = driver;
         log.info("Creating Sample Data in TestLink...");
         SampleTLData sampleTLData = this.createSampleTLDataTest(driver);
 
@@ -123,8 +124,6 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
 
     protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)
             throws IOException {
-        this.driver = driver;
-
         SampleTLData sampleTLData = new SampleTLData();
 
         // Create Project
