@@ -13,7 +13,7 @@
                     <span>: Execution {{tJobExecId}}</span>
                 <span flex></span>
                 <div>
-                    <button md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" title="View in Log Analyzer">
+                    <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" title="View in Log Analyzer">
                         <md-icon>library_books</md-icon>
                     </button>
                     <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg" title="Open Monitoring Config">
@@ -65,7 +65,7 @@
     </div>
 </div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
+<div id="testSuitesView" layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
     <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
 </div>
 
