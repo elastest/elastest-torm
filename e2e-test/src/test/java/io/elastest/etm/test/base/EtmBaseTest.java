@@ -102,7 +102,7 @@ public class EtmBaseTest {
 
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
-            secureTorm = "https://" + eUser + ":" + ePassword + "@"
+            secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
                     + split_url[1];
 
             this.tormApiUrl = secureTorm + (secureTorm.endsWith("/")
