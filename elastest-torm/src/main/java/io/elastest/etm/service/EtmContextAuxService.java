@@ -205,6 +205,9 @@ public class EtmContextAuxService {
             String emsLsBeatsPort = emsEnvVars.get("ET_EMS_LSBEATS_PORT");
             String emsHttpInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPINEVENTS_API");
+            
+            String emsHttpsInEventsApi = emsEnvVars
+                    .get("ET_EMS_HTTPSINEVENTS_API");
             // String emsTcpTestLogsHost = emsEnvVars
             // .get("ET_EMS_TCP_TESTLOGS_HOST");
             // String emsTcpTestLogsPort = emsEnvVars
@@ -227,6 +230,10 @@ public class EtmContextAuxService {
 
             if (emsHttpInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTP_API", emsHttpInEventsApi);
+            }
+            
+            if (emsHttpsInEventsApi != null) {
+                monEnvs.put("ET_MON_LSHTTPS_API", emsHttpsInEventsApi);
             }
 
             // We have a single TCP host/port

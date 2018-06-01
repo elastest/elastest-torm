@@ -1412,7 +1412,7 @@ public class EsmService {
 
                 String protocol = entry.getValue().findValue("protocol")
                         .toString().toLowerCase().replaceAll("\"", "");
-                if (protocol.equals("http") || protocol.equals("ws")) {
+                if (protocol.equals("http") || protocol.equals("https") || protocol.equals("ws")) {
                     String envNameAPI = prefix + "_API";
                     String path = entry.getValue().get("path").toString()
                             .replaceAll("\"", "");
