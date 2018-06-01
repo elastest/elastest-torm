@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Rx';
 import { EtmLogsGroupComponent } from '../etm-logs-group/etm-logs-group.component';
 import {
   MetricbeatType,
@@ -20,7 +21,7 @@ import { defaultStreamMap } from '../../../shared/defaultESData-model';
 @Component({
   selector: 'monitoring-configuration',
   templateUrl: './monitoring-configuration.component.html',
-  styleUrls: ['./monitoring-configuration.component.scss']
+  styleUrls: ['./monitoring-configuration.component.scss'],
 })
 export class MonitoringConfigurationComponent implements OnInit {
   @ViewChild('logsTree') logsTreeComponent: TreeComponent;
@@ -44,8 +45,9 @@ export class MonitoringConfigurationComponent implements OnInit {
   constructor(
     private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
     private elastestESService: ElastestESService,
-    @Optional() @Inject(MD_DIALOG_DATA) public inputObj: any,
-
+    @Optional()
+    @Inject(MD_DIALOG_DATA)
+    public inputObj: any,
   ) {
     this.tJobExec = inputObj.exec;
     this.logCards = inputObj.logCards;
@@ -72,17 +74,7 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadLogsTree(): void {
-    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    let streamTypeTerm: ESTermModel = new ESTermModel();
-    streamTypeTerm.name = 'stream_type';
-    streamTypeTerm.value = 'log';
-    componentStreamQuery.bool.must.termList.push(streamTypeTerm);
-
-    let fieldsList: string[] = ['component', 'stream'];
-
-    this.elastestESService.getAggTreeOfIndex(
-      this.tJobExec.monitoringIndex, fieldsList, componentStreamQuery.convertToESFormat()
-    ).subscribe(
+    this.elastestESService.getLogsTree(this.tJobExec).subscribe(
       (logTree: any[]) => {
         this.logTree.setByObjArray(logTree);
         if (this.logTree.tree.length === 0) {
@@ -112,11 +104,12 @@ export class MonitoringConfigurationComponent implements OnInit {
       (error) => {
         this.loadingLogs = false;
         this.noLogs = true;
-      }
-      );
+      },
+    );
   }
 
-  cleanMetricTree(metricTree: any[]): any[] { // Delete metricbeat non supported by ET (ej: system_core...)
+  cleanMetricTree(metricTree: any[]): any[] {
+    // Delete metricbeat non supported by ET (ej: system_core...)
     let componentPos: number = 0;
 
     for (let componentStreamType of metricTree) {
@@ -131,7 +124,10 @@ export class MonitoringConfigurationComponent implements OnInit {
                 let deleted: boolean = false;
                 for (let metricbeatType in MetricbeatType) {
                   if (isNaN(parseInt(metricbeatType))) {
-                    if (typeName.startsWith(metricbeatType + '_') && !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)) {
+                    if (
+                      typeName.startsWith(metricbeatType + '_') &&
+                      !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)
+                    ) {
                       deleted = true;
                       break;
                     }
@@ -153,21 +149,7 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadMetricsTree(): void {
-    let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    let notStreamTypeTerm: ESTermModel = new ESTermModel();
-    notStreamTypeTerm.name = 'stream_type';
-    notStreamTypeTerm.value = 'log'; // Must NOT
-    componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
-
-    let notContainerMetric: ESTermModel = new ESTermModel();
-    notContainerMetric.name = 'et_type';
-    notContainerMetric.value = 'container';
-    componentStreamTypeQuery.bool.mustNot.termList.push(notContainerMetric);
-
-    let fieldsList: string[] = ['component', 'stream', 'et_type'];
-    this.elastestESService.getAggTreeOfIndex(
-      this.tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat()
-    ).subscribe(
+    this.elastestESService.getMetricsTree(this.tJobExec).subscribe(
       (metricTree: any[]) => {
         metricTree = this.cleanMetricTree(metricTree);
         this.metricTree.setByObjArray(metricTree);
@@ -186,9 +168,8 @@ export class MonitoringConfigurationComponent implements OnInit {
       (error) => {
         this.loadingMetrics = false;
         this.noMetrics = true;
-      }
-
-      );
+      },
+    );
   }
 
   loadSubtypesAndInitMetricTree(): void {
@@ -199,9 +180,11 @@ export class MonitoringConfigurationComponent implements OnInit {
         for (let typeTree of streamType.children) {
           let etType: string = typeTree.name;
           let currentMetricFieldGroupList: MetricFieldGroupModel[] = [];
-          if (isMetricFieldGroup(etType, this.metricbeatFieldGroupList)) { // If is Metricbeat etType
+          if (isMetricFieldGroup(etType, this.metricbeatFieldGroupList)) {
+            // If is Metricbeat etType
             currentMetricFieldGroupList = this.metricbeatFieldGroupList;
-          } else if (isMetricFieldGroup(etType, metricFieldGroupList)) { // If it's Dockbeat etType
+          } else if (isMetricFieldGroup(etType, metricFieldGroupList)) {
+            // If it's Dockbeat etType
             currentMetricFieldGroupList = metricFieldGroupList;
           }
           for (let metricFieldGroup of currentMetricFieldGroupList) {
@@ -221,7 +204,6 @@ export class MonitoringConfigurationComponent implements OnInit {
               break;
             }
           }
-
         }
       }
     }
@@ -289,5 +271,4 @@ export class MonitoringConfigurationComponent implements OnInit {
     };
     this.dialogRef.close(response);
   }
-
 }

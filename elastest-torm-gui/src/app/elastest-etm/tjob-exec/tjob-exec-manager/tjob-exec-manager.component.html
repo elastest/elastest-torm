@@ -11,18 +11,22 @@
                         <span *ngIf="tJob"> "{{tJob.name}}"</span>
                     </a>
                     <span>: Execution {{tJobExecId}}</span>
-                <span flex></span>
-                <div>
-                    <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" title="View in Log Analyzer">
-                        <md-icon>library_books</md-icon>
-                    </button>
-                    <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg" title="Open Monitoring Config">
-                        <md-icon>settings</md-icon>
-                    </button>
-                    <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution" class="onlyIconBtn iconBtn-lg">
-                        <md-icon>delete</md-icon>
-                    </button>
-                </div>
+                    <span flex></span>
+                    <div>
+                        <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" mdTooltip="View in Log Analyzer">
+                            <md-icon>library_books</md-icon>
+                        </button>
+                        <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
+                            <md-icon>settings</md-icon>
+                        </button>
+                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress" stopRowClick mdTooltip="Delete TJob Execution"
+                            class="onlyIconBtn iconBtn-lg">
+                            <md-icon>delete</md-icon>
+                        </button>
+                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress" stopRowClick mdTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
+                            <md-icon>cloud_download</md-icon>
+                        </button>
+                    </div>
                 </div>
 
             </md-card-title>
@@ -42,11 +46,11 @@
                         <h4>{{ tJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
                     <ng-container>
-                        <span  flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
+                        <span flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>None</h4>
                         </span>
-                        <span  flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
+                        <span flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
                             <h4>{{tJobExec.sutExec.id}}</h4>
                         </span>

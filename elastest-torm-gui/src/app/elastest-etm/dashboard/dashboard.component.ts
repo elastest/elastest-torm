@@ -1,3 +1,4 @@
+import { PopupService } from '../../shared/services/popup.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { TitlesService } from '../../shared/services/titles.service';
 import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
@@ -53,9 +54,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private elastestRabbitmqService: ElastestRabbitmqService,
     private route: ActivatedRoute,
     private router: Router,
-    private elastestESService: ElastestESService,
+    private popupService: PopupService,
     private esmService: EsmService,
-    private configurationService: ConfigurationService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
@@ -150,7 +150,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
                   this.tJobExec = finishedTJobExec;
                   this.statusIcon = this.tJobExec.getResultIcon();
                 });
-              this.elastestESService.popupService.openSnackBar('TJob Execution Finished with status ' + this.tJobExec.result);
+              this.popupService.openSnackBar('TJob Execution Finished with status ' + this.tJobExec.result);
             }
           },
           (error) => console.log(error),
@@ -178,7 +178,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
       if (!this.tJobExec.stopped()) {
         msg = 'The execution has finished before stopping it';
       }
-      this.elastestESService.popupService.openSnackBar(msg);
+      this.popupService.openSnackBar(msg);
     }, (error) => (this.disableStopBtn = false));
   }
 }

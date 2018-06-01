@@ -19,6 +19,8 @@ import { Injectable } from '@angular/core';
 import { PopupService } from './popup.service';
 import { Observable, Subject } from 'rxjs/Rx';
 import { defaultStreamMap } from '../defaultESData-model';
+import { ESBoolQueryModel, ESTermModel } from '../elasticsearch-model/es-query-model';
+import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 
 @Injectable()
 export class ElastestESService {
@@ -638,5 +640,42 @@ export class ElastestESService {
     );
 
     return aggTreeObs;
+  }
+
+  getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
+    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
+    let streamTypeTerm: ESTermModel = new ESTermModel();
+    streamTypeTerm.name = 'stream_type';
+    streamTypeTerm.value = 'log';
+    componentStreamQuery.bool.must.termList.push(streamTypeTerm);
+
+    let fieldsList: string[] = ['component', 'stream'];
+
+    return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamQuery.convertToESFormat());
+  }
+
+  getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
+    let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
+    let notStreamTypeTerm: ESTermModel = new ESTermModel();
+    notStreamTypeTerm.name = 'stream_type';
+    notStreamTypeTerm.value = 'log'; // Must NOT
+    componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
+
+    let notContainerMetric: ESTermModel = new ESTermModel();
+    notContainerMetric.name = 'et_type';
+    notContainerMetric.value = 'container';
+    componentStreamTypeQuery.bool.mustNot.termList.push(notContainerMetric);
+
+    let fieldsList: string[] = ['component', 'stream', 'et_type'];
+    return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat());
+  }
+}
+
+export class LogTraces {
+  name: string;
+  traces: any[];
+
+  constructor() {
+    this.traces = [];
   }
 }

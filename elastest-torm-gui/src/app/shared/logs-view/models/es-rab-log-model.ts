@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Rx';
 import { ElastestESService } from '../../services/elastest-es.service';
 import { LogViewModel } from '../log-view-model';
 
@@ -32,9 +33,13 @@ export class ESRabLogModel implements LogViewModel {
   }
 
   getAllLogs(): void {
-    this.elastestESService.searchAllLogs(this.monitoringIndex, this.stream, this.component).subscribe((data) => {
+    this.getAllLogsSubscription().subscribe((data) => {
       this.traces = data;
     });
+  }
+
+  getAllLogsSubscription(): Observable<any> {
+    return this.elastestESService.searchAllLogs(this.monitoringIndex, this.stream, this.component);
   }
 
   loadPrevious(): void {
