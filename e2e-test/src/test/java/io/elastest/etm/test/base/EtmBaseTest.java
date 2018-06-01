@@ -102,7 +102,7 @@ public class EtmBaseTest {
 
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
-            secureTorm = split_url[0] + "s//" + eUser + ":" + ePassword + "@"
+            secureTorm = "https://" + eUser + ":" + ePassword + "@"
                     + split_url[1];
 
             this.tormApiUrl = secureTorm + (secureTorm.endsWith("/")
@@ -110,7 +110,7 @@ public class EtmBaseTest {
 
         }
 
-        log.info("Using URL {} to connect to {} TORM", tormUrl,
+        log.info("Using URL {} to connect to {} TORM", tormApiUrl,
                 secureElastest ? "secure" : "unsecure");
 
         this.restClient = new RestClient(this.tormApiUrl);
