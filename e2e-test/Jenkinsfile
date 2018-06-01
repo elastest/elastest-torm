@@ -63,10 +63,10 @@ elastest_lib.pipeline({
             }
     } catch (err) {
         echo 'Error!!! Send email to the people responsible for the builds.'
-        emailext body: "${BUILD_URL}",
+        emailext body: "Please go to  ${BUILD_URL}  and verify the build",
         replyTo: '${BUILD_USER_EMAIL}', 
         subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
-        to: 'Please go to ${MAIL_LIST} and verify the build'
+        to: '${MAIL_LIST}'
     }
 })
   
