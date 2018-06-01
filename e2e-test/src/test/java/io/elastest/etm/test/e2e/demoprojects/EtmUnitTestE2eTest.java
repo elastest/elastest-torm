@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -46,6 +47,15 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmUnitTestE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
+    String projectName = "Unit Tests";
+    
+    
+    void createProject(WebDriver driver) throws InterruptedException {
+        navigateToTorm(driver);
+        if (!etProjectExists(driver, projectName)) {
+            createNewETProject(driver, projectName);
+        }
+    }
 
     @Test
     @DisplayName("Create Unit Test project Test")
@@ -53,11 +63,10 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
-        String projectName = "Unit Tests";
 
-        navigateToTorm(driver);   
-        createNewETProject(driver, projectName);
-        Thread.sleep(2000);
+        this.createProject(driver);
+
+        navigateToETProject(driver, projectName);
 
         String tJobName = "Unit Test";
         String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
