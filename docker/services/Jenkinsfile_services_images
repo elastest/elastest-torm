@@ -2,233 +2,241 @@ node('docker'){
     
     stage "Elastest-torm images build"
 
-        def mycontainer = docker.image('elastest/ci-docker-compose-siblings')
-        mycontainer.pull() // make sure we have the latest available from Docker Hub
-        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2") {
-            
-            git 'https://github.com/elastest/elastest-torm'
-            
-            stage "Logstash image build"
-    
-              "Create logstash docker image"
-            
-                echo ("Creating elastest/etm-logstash image..")                
-                sh 'cd ./docker/services/logstash; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-logstash:latest .'
-    
-            stage "Publish Logstash docker image"
-    
-                echo ("Publish elastest/etm-logstash image")
-                def logstashimage = docker.image('elastest/etm-logstash:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    logstashimage.push()
-                }
-
-            stage "RabbitMQ image build"
-    
-              "Create rabbitmq docker image"
-            
-                echo ("Creating elastest/etm-rabbitmq image..")                
-                sh 'cd ./docker/services/rabbitmq; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-rabbitmq:latest .'
-    
-            stage "Publish RabbitMQ docker image"
-    
-                echo ("Publish elastest/etm-rabbitmq image")
-                def rabbitmqimage = docker.image('elastest/etm-rabbitmq:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    rabbitmqimage.push()
-                }
-
-            stage "Elasticsearch image build"
-    
-              "Create elasticsearch docker image"
-            
-                echo ("Creating elastest/etm-elasticsearch image..")                
-                sh 'cd ./docker/services/elasticsearch; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-elasticsearch:latest .'
-    
-            stage "Publish Elasticsearch docker image"
-    
-                echo ("Publish elastest/etm-elasticsearch image")
-                def elasticsearchimage = docker.image('elastest/etm-elasticsearch:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    elasticsearchimage.push()
-                }
-
-            stage "Dockbeat image build"
-    
-              "Create dockbeat docker image"
-            
-                echo ("Creating elastest/etm-dockbeat image..")                
-                sh 'cd ./docker/services/dockbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockbeat:latest .'
-    
-            stage "Publish Dockbeat docker image"
-    
-                echo ("Publish elastest/etm-dockbeat image")
-                def dockbeatimage = docker.image('elastest/etm-dockbeat:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    dockbeatimage.push()
-                }
-
-
-            stage "Filebeat image build"
-    
-              "Create filebeat docker image"
-            
-                echo ("Creating elastest/etm-filebeat image..")                
-                sh 'cd ./docker/services/filebeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-filebeat:latest .'
-    
-            stage "Publish Filebeat docker image"
-    
-                echo ("Publish elastest/etm-filebeat image")
-                def filebeatimage = docker.image('elastest/etm-filebeat:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    filebeatimage.push()
-                }
-
-
-
-            stage "Metricbeat image build"
-    
-              "Create etm-metricbeat docker image"
-            
-                echo ("Creating elastest/etm-metricbeat image..")                
-                sh 'cd ./docker/services/metricbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-metricbeat:latest .'
-    
-            stage "Publish Metricbeat docker image"
-    
-                echo ("Publish elastest/etm-metricbeat image")
-                def metricbeatimage = docker.image('elastest/etm-metricbeat:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    metricbeatimage.push()
-                }
-
-            
-            stage "Testlink image build"
-    
-              "Create Testlink docker image"
-            
-                echo ("Creating elastest/etm-testlink image..")                
-                sh 'cd ./docker/services/testlink; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-testlink:latest .'
-    
-            stage "Publish Testlink docker image"
-    
-                echo ("Publish elastest/etm-testlink image")
-                def testlinkimage = docker.image('elastest/etm-testlink:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    testlinkimage.push()
-                }
-
-
-
-            stage "Check Service Up image build"
-    
-              "Create check-service-up docker image"
-            
-                echo ("Creating elastest/etm-check-service-up image..")                
-                sh 'cd ./docker/services/check-service-up; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-check-service-up:latest .'
-    
-            stage "Publish Check Service Up docker image"
-    
-                echo ("Publish elastest/etm-check-service-up image")
-                def checkserviceupimage = docker.image('elastest/etm-check-service-up:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    checkserviceupimage.push()
-                }
-                 
-            stage "Nginx Proxy image build"
-    
-              "Create Nginx Proxy docker image"
-            
-                echo ("Creating elastest/etm-proxy image..")                
-                sh 'cd ./docker/services/nginx; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-proxy:latest .'
-    
-            stage "Publish Nginx docker image"
-    
-                echo ("Publish elastest/etm-proxy image")
-                def proxyimage = docker.image('elastest/etm-proxy:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    proxyimage.push()
-                }
+        try {
+            def mycontainer = docker.image('elastest/ci-docker-compose-siblings')
+            mycontainer.pull() // make sure we have the latest available from Docker Hub
+            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2") {
                 
-            stage "Socat image build"
-    
-              "Create socat docker image"
-            
-                echo ("Creating elastest/etm-socat image..")                
-                sh 'cd ./docker/services/socat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-socat:latest .'
-    
-            stage "Publish Socat docker image"
-    
-                echo ("Publish elastest/etm-socat image")
-                def socatimage = docker.image('elastest/etm-socat:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    socatimage.push()
-                }
+                git 'https://github.com/elastest/elastest-torm'
+                
+                stage "Logstash image build"
+        
+                "Create logstash docker image"
+                
+                    echo ("Creating elastest/etm-logstash image..")                
+                    sh 'cd ./docker/services/logstash; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-logstash:latest .'
+        
+                stage "Publish Logstash docker image"
+        
+                    echo ("Publish elastest/etm-logstash image")
+                    def logstashimage = docker.image('elastest/etm-logstash:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        logstashimage.push()
+                    }
 
-            stage "dockpcap image build"
-    
-              "Create etm-dockpcap docker image"
-            
-                echo ("Creating elastest/etm-dockpcap image..")                
-                sh 'cd ./docker/services/dockpcap; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockpcap:latest .'
-    
-            stage "Publish dockpcap docker image"
-    
-                echo ("Publish elastest/etm-dockpcap image")
-                def dockpcapimage = docker.image('elastest/etm-dockpcap:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    dockpcapimage.push()
-                }
+                stage "RabbitMQ image build"
+        
+                "Create rabbitmq docker image"
+                
+                    echo ("Creating elastest/etm-rabbitmq image..")                
+                    sh 'cd ./docker/services/rabbitmq; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-rabbitmq:latest .'
+        
+                stage "Publish RabbitMQ docker image"
+        
+                    echo ("Publish elastest/etm-rabbitmq image")
+                    def rabbitmqimage = docker.image('elastest/etm-rabbitmq:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        rabbitmqimage.push()
+                    }
+
+                stage "Elasticsearch image build"
+        
+                "Create elasticsearch docker image"
+                
+                    echo ("Creating elastest/etm-elasticsearch image..")                
+                    sh 'cd ./docker/services/elasticsearch; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-elasticsearch:latest .'
+        
+                stage "Publish Elasticsearch docker image"
+        
+                    echo ("Publish elastest/etm-elasticsearch image")
+                    def elasticsearchimage = docker.image('elastest/etm-elasticsearch:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        elasticsearchimage.push()
+                    }
+
+                stage "Dockbeat image build"
+        
+                "Create dockbeat docker image"
+                
+                    echo ("Creating elastest/etm-dockbeat image..")                
+                    sh 'cd ./docker/services/dockbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockbeat:latest .'
+        
+                stage "Publish Dockbeat docker image"
+        
+                    echo ("Publish elastest/etm-dockbeat image")
+                    def dockbeatimage = docker.image('elastest/etm-dockbeat:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        dockbeatimage.push()
+                    }
+
+
+                stage "Filebeat image build"
+        
+                "Create filebeat docker image"
+                
+                    echo ("Creating elastest/etm-filebeat image..")                
+                    sh 'cd ./docker/services/filebeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-filebeat:latest .'
+        
+                stage "Publish Filebeat docker image"
+        
+                    echo ("Publish elastest/etm-filebeat image")
+                    def filebeatimage = docker.image('elastest/etm-filebeat:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        filebeatimage.push()
+                    }
+
+
+
+                stage "Metricbeat image build"
+        
+                "Create etm-metricbeat docker image"
+                
+                    echo ("Creating elastest/etm-metricbeat image..")                
+                    sh 'cd ./docker/services/metricbeat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-metricbeat:latest .'
+        
+                stage "Publish Metricbeat docker image"
+        
+                    echo ("Publish elastest/etm-metricbeat image")
+                    def metricbeatimage = docker.image('elastest/etm-metricbeat:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        metricbeatimage.push()
+                    }
 
                 
-	    stage "Jenkins image build"
+                stage "Testlink image build"
+        
+                "Create Testlink docker image"
+                
+                    echo ("Creating elastest/etm-testlink image..")                
+                    sh 'cd ./docker/services/testlink; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-testlink:latest .'
+        
+                stage "Publish Testlink docker image"
+        
+                    echo ("Publish elastest/etm-testlink image")
+                    def testlinkimage = docker.image('elastest/etm-testlink:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testlinkimage.push()
+                    }
 
-                "Create Jenkins docker image"
-	        
-                echo ("Creating elastest/etm-jenkins image..")                
-                sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest .'
-	
-            stage "Publish Jenkins docker image"
-	
-                echo ("Publish elastest/etm-jenkins image")
-                def etmjenkinsimage = docker.image('elastest/etm-jenkins:latest')
-                //this is work arround as withDockerRegistry is not working properly 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-	            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-	            sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-	            etmjenkinsimage.push()
-	        }
+
+
+                stage "Check Service Up image build"
+        
+                "Create check-service-up docker image"
+                
+                    echo ("Creating elastest/etm-check-service-up image..")                
+                    sh 'cd ./docker/services/check-service-up; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-check-service-up:latest .'
+        
+                stage "Publish Check Service Up docker image"
+        
+                    echo ("Publish elastest/etm-check-service-up image")
+                    def checkserviceupimage = docker.image('elastest/etm-check-service-up:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        checkserviceupimage.push()
+                    }
+                    
+                stage "Nginx Proxy image build"
+        
+                "Create Nginx Proxy docker image"
+                
+                    echo ("Creating elastest/etm-proxy image..")                
+                    sh 'cd ./docker/services/nginx; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-proxy:latest .'
+        
+                stage "Publish Nginx docker image"
+        
+                    echo ("Publish elastest/etm-proxy image")
+                    def proxyimage = docker.image('elastest/etm-proxy:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        proxyimage.push()
+                    }
+                    
+                stage "Socat image build"
+        
+                "Create socat docker image"
+                
+                    echo ("Creating elastest/etm-socat image..")                
+                    sh 'cd ./docker/services/socat; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-socat:latest .'
+        
+                stage "Publish Socat docker image"
+        
+                    echo ("Publish elastest/etm-socat image")
+                    def socatimage = docker.image('elastest/etm-socat:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        socatimage.push()
+                    }
+
+                stage "dockpcap image build"
+        
+                "Create etm-dockpcap docker image"
+                
+                    echo ("Creating elastest/etm-dockpcap image..")                
+                    sh 'cd ./docker/services/dockpcap; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-dockpcap:latest .'
+        
+                stage "Publish dockpcap docker image"
+        
+                    echo ("Publish elastest/etm-dockpcap image")
+                    def dockpcapimage = docker.image('elastest/etm-dockpcap:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        dockpcapimage.push()
+                    }
+
+                    
+            stage "Jenkins image build"
+
+                    "Create Jenkins docker image"
+                
+                    echo ("Creating elastest/etm-jenkins image..")                
+                    sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest .'
+        
+                stage "Publish Jenkins docker image"
+        
+                    echo ("Publish elastest/etm-jenkins image")
+                    def etmjenkinsimage = docker.image('elastest/etm-jenkins:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    etmjenkinsimage.push()
+                }
+            }
+        } catch (err) {
+            echo 'Error!!! Send email to the people responsible for the builds.'
+            emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
+            replyTo: '${BUILD_USER_EMAIL}', 
+            subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+            to: '${MAIL_LIST}'
         }
 }
