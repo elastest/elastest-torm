@@ -97,23 +97,26 @@ public class EtmBaseTest {
 
         }
 
-        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
-                ? this.apiPath : "/" + this.apiPath);
+        this.tormApiUrl = this.tormUrl
+                + (this.tormUrl.endsWith("/") ? this.apiPath
+                        : "/" + this.apiPath);
 
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
             secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
                     + split_url[1];
 
-            this.tormApiUrl = secureTorm + (secureTorm.endsWith("/")
-                    ? this.apiPath : "/" + this.apiPath);
+            this.tormApiUrl = secureTorm
+                    + (secureTorm.endsWith("/") ? this.apiPath
+                            : "/" + this.apiPath);
 
         }
 
         log.info("Using URL {} to connect to {} TORM", tormApiUrl,
                 secureElastest ? "secure" : "unsecure");
 
-        this.restClient = new RestClient(this.tormApiUrl);
+        this.restClient = new RestClient(this.tormApiUrl, eUser, ePassword,
+                secureElastest);
     }
 
     @AfterEach
@@ -147,8 +150,8 @@ public class EtmBaseTest {
 
     protected void navigateToRoot(WebDriver driver) {
         log.info("Navigate to Root Path (/)");
-        driver.findElement(By
-                .xpath("//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
+        driver.findElement(By.xpath(
+                "//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
                 .click();
     }
 
@@ -380,8 +383,8 @@ public class EtmBaseTest {
         }
 
         // Select SuT
-        driver.findElement(By
-                .xpath("//md-select/div/span[contains(string(), 'Select a SuT')]"))
+        driver.findElement(By.xpath(
+                "//md-select/div/span[contains(string(), 'Select a SuT')]"))
                 .click();
         if (sutName != null) {
             driver.findElement(By.xpath(
@@ -485,8 +488,8 @@ public class EtmBaseTest {
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
         WebDriverWait waitService = new WebDriverWait(driver, 10);
         waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+        driver.findElement(By.xpath(
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
                 .click();
 
     }
