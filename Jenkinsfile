@@ -65,6 +65,8 @@ node('TESTDOCKER'){
             replyTo: '${BUILD_USER_EMAIL}', 
             subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
             to: '${MAIL_LIST}'
+
+            throw err
         }
 }
 
