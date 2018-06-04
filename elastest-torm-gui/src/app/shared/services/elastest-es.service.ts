@@ -4,8 +4,9 @@ import {
   getMetricbeatFieldGroupIfItsMetricbeatType,
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
-  MetricFieldGroupModel,
   MetricbeatType,
+  metricFieldGroupList,
+  MetricFieldGroupModel,
 } from '../metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { MetricsFieldModel } from '../metrics-view/metrics-chart-card/models/metrics-field-model';
 import { SingleMetricModel } from '../metrics-view/models/single-metric-model';
@@ -21,6 +22,7 @@ import { Observable, Subject } from 'rxjs/Rx';
 import { defaultStreamMap } from '../defaultESData-model';
 import { ESBoolQueryModel, ESTermModel } from '../elasticsearch-model/es-query-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
+import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
 
 @Injectable()
 export class ElastestESService {
@@ -654,6 +656,41 @@ export class ElastestESService {
     return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamQuery.convertToESFormat());
   }
 
+  getAllTJobExecLogs(tJobExec: TJobExecModel): Observable<LogTraces[]> {
+    let _logs: Subject<LogTraces[]> = new Subject<LogTraces[]>();
+    let logsObs: Observable<LogTraces[]> = _logs.asObservable();
+    let logs: LogTraces[] = [];
+    this.getLogsTree(tJobExec).subscribe((logsComponentStreams: any[]) => {
+      let allLogs: ESRabLogModel[] = [];
+      for (let componentStream of logsComponentStreams) {
+        for (let stream of componentStream.children) {
+          let currentLog: ESRabLogModel = new ESRabLogModel(this);
+          currentLog.component = componentStream.name;
+          currentLog.stream = stream.name;
+          currentLog.monitoringIndex = tJobExec.monitoringIndex;
+          allLogs.push(currentLog);
+        }
+      }
+      this.getAllLogsByGiven(allLogs, _logs, logs);
+    });
+    return logsObs;
+  }
+
+  getAllLogsByGiven(logsObjList: ESRabLogModel[], _logs: Subject<LogTraces[]>, logs: LogTraces[]): void {
+    if (logsObjList.length > 0) {
+      let currentLog: ESRabLogModel = logsObjList.shift();
+      currentLog.getAllLogsSubscription().subscribe((data: any[]) => {
+        let logTraces: LogTraces = new LogTraces();
+        logTraces.name = currentLog.component + '-' + currentLog.stream;
+        logTraces.traces = data;
+        logs.push(logTraces);
+        this.getAllLogsByGiven(logsObjList, _logs, logs);
+      });
+    } else {
+      _logs.next(logs);
+    }
+  }
+
   getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
     let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
     let notStreamTypeTerm: ESTermModel = new ESTermModel();
@@ -661,13 +698,80 @@ export class ElastestESService {
     notStreamTypeTerm.value = 'log'; // Must NOT
     componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
 
-    let notContainerMetric: ESTermModel = new ESTermModel();
-    notContainerMetric.name = 'et_type';
-    notContainerMetric.value = 'container';
-    componentStreamTypeQuery.bool.mustNot.termList.push(notContainerMetric);
+    let nonContainerMetric: ESTermModel = new ESTermModel();
+    nonContainerMetric.name = 'et_type';
+    nonContainerMetric.value = 'container';
+    componentStreamTypeQuery.bool.mustNot.termList.push(nonContainerMetric);
 
     let fieldsList: string[] = ['component', 'stream', 'et_type'];
     return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat());
+  }
+
+  /* *************** */
+  /* *** Metrics *** */
+  /* *************** */
+
+  getAllTJobExecMetrics(tJobExec: TJobExecModel): Observable<MetricTraces[]> {
+    let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
+    let metricsObs: Observable<MetricTraces[]> = _metrics.asObservable();
+    let metrics: MetricTraces[] = [];
+    this.getMetricsTree(tJobExec).subscribe((metricsComponentStreamTypes: any[]) => {
+      let allMetrics: ESRabComplexMetricsModel[] = [];
+      for (let componentStreamType of metricsComponentStreamTypes) {
+        for (let streamType of componentStreamType.children) {
+          for (let etType of streamType.children) {
+            let currentMetricFieldGroupList: MetricFieldGroupModel[] = [];
+            if (isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)) {
+              // If is Metricbeat etType
+              currentMetricFieldGroupList = this.metricbeatFieldGroupList;
+            } else if (isMetricFieldGroup(etType.name, metricFieldGroupList)) {
+              // If it's Dockbeat etType
+              currentMetricFieldGroupList = metricFieldGroupList;
+            }
+
+            for (let metricFieldGroup of currentMetricFieldGroupList) {
+              if (metricFieldGroup.etType === etType.name) {
+                for (let subtype of metricFieldGroup.subtypes) {
+                  let currentMetric: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this);
+                  currentMetric.component = componentStreamType.name;
+                  currentMetric.stream = streamType.name;
+                  currentMetric.name = etType.name + '.' + subtype.subtype;
+                  currentMetric.monitoringIndex = tJobExec.monitoringIndex;
+
+                  allMetrics.push(currentMetric);
+                }
+              }
+            }
+          }
+        }
+      }
+      this.getAllMetricsByGiven(allMetrics, _metrics, metrics);
+    });
+    return metricsObs;
+  }
+
+  getAllMetricsByGiven(
+    metricsObjList: ESRabComplexMetricsModel[],
+    _metrics: Subject<MetricTraces[]>,
+    metrics: MetricTraces[],
+  ): void {
+    if (metricsObjList.length > 0) {
+      let currentMetric: ESRabComplexMetricsModel = metricsObjList.shift();
+      this.searchAllDynamic(
+        currentMetric.monitoringIndex,
+        currentMetric.stream,
+        currentMetric.component,
+        currentMetric.name,
+      ).subscribe((obj: any) => {
+        let metricTraces: MetricTraces = new MetricTraces();
+        metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
+        metricTraces.traces = obj.data;
+        metrics.push(metricTraces);
+        this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
+      });
+    } else {
+      _metrics.next(metrics);
+    }
   }
 }
 
@@ -675,6 +779,14 @@ export class LogTraces {
   name: string;
   traces: any[];
 
+  constructor() {
+    this.traces = [];
+  }
+}
+
+export class MetricTraces {
+  name: string;
+  traces: any[];
   constructor() {
     this.traces = [];
   }

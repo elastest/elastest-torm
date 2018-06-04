@@ -19,11 +19,12 @@
                         <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
                             <md-icon>settings</md-icon>
                         </button>
-                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress" stopRowClick mdTooltip="Delete TJob Execution"
+                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading" stopRowClick mdTooltip="Delete TJob Execution"
                             class="onlyIconBtn iconBtn-lg">
                             <md-icon>delete</md-icon>
                         </button>
-                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress" stopRowClick mdTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
+                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading" stopRowClick mdTooltip="Download as Json"
+                            class="onlyIconBtn iconBtn-lg">
                             <md-icon>cloud_download</md-icon>
                         </button>
                     </div>

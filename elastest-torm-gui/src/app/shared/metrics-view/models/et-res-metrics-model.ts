@@ -35,7 +35,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
 
     metricsField: MetricsFieldModel;
 
-    metricsIndex: string;
+    monitoringIndex: string;
     component: string;
 
     prevTraces: string[];
@@ -65,7 +65,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
         this.colorScheme.domain = ['#ffac2f', '#666666'];
 
         this.component = '';
-        this.metricsIndex = '';
+        this.monitoringIndex = '';
 
         this.prevTraces = [];
         this.prevLoaded = false;
@@ -95,7 +95,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
     }
 
     getAllMetrics() {
-        this.elastestESService.searchAllMetrics(this.metricsIndex, this.metricsField)
+        this.elastestESService.searchAllMetrics(this.monitoringIndex, this.metricsField)
             .subscribe(
             (data) => {
                 this.data = data;
@@ -106,7 +106,7 @@ export class ETRESMetricsModel extends MetricsModel { // ElasTest RabbitMq Elast
 
     loadPrevious() {
         let compareTrace: any = this.getOldTrace();
-        this.elastestESService.getPrevMetricsFromTrace(this.metricsIndex, compareTrace, this.metricsField)
+        this.elastestESService.getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, this.metricsField)
             .subscribe(
             (data) => {
                 if (data.length > 0) {

@@ -11,7 +11,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   elastestESService: ElastestESService;
   allMetricsFields: AllMetricsFields;
   activatedFieldsList: boolean[];
-  metricsIndex: string;
+  monitoringIndex: string;
   component: string;
   stream: string;
 
@@ -24,7 +24,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.elastestESService = elastestESService;
     this.allMetricsFields = new AllMetricsFields(true, ignoreComponent); // Object with a list of all metrics
     this.initActivatedFieldsList();
-    this.metricsIndex = '';
+    this.monitoringIndex = '';
     this.component = '';
     this.stream = '';
 
@@ -78,7 +78,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   getAllMetrics(): void {
     for (let metric of this.allMetricsFields.fieldsList) {
-      this.elastestESService.searchAllMetrics(this.metricsIndex, metric).subscribe((data: LineChartMetricModel[]) => {
+      this.elastestESService.searchAllMetrics(this.monitoringIndex, metric).subscribe((data: LineChartMetricModel[]) => {
         switch (metric.unit) {
           case 'percent':
             this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
@@ -221,7 +221,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
       let position: number = 0;
       for (let metric of this.allMetricsFields.fieldsList) {
         this.elastestESService
-          .getPrevMetricsFromTrace(this.metricsIndex, compareTrace, metric)
+          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, metric)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addData(metric, data[0].series);
@@ -240,7 +240,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
       );
       if (individualChart) {
         this.elastestESService
-          .getPrevMetricsFromTrace(this.metricsIndex, compareTrace, individualChart)
+          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, individualChart)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addSimpleMetricTraces(data);
@@ -377,7 +377,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   loadLastTraces(size: number = 10): void {
     for (let metric of this.allMetricsFields.fieldsList) {
-      // this.elastestESService.getLastMetricTraces(this.metricsIndex, metric, size);
+      // this.elastestESService.getLastMetricTraces(this.monitoringIndex, metric, size);
     } // TODO
   }
 }

@@ -6,7 +6,7 @@ import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monito
 
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
 import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
-import { ElastestESService, LogTraces } from '../../../shared/services/elastest-es.service';
+import { ElastestESService, LogTraces, MetricTraces } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -31,6 +31,7 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExecId: number;
   tJobExec: TJobExecModel;
   tJob: TJobModel;
+  downloading: boolean = false;
 
   statusIcon: any = {
     name: '',
@@ -136,58 +137,41 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   downloadAsJson(): void {
+    this.downloading = true;
     let jsonObj: object = {
       tJobExec: this.tJobExec,
     };
 
-    this.loadAllLogs().subscribe((logsTraces: LogTraces[]) => {
-      jsonObj['logs'] = logsTraces;
-      let objAsBlob: Blob = new Blob([JSON.stringify(jsonObj)], { type: 'text/json;charset=utf-8;' });
+    try {
+      this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe(
+        (logsTraces: LogTraces[]) => {
+          jsonObj['logs'] = logsTraces;
 
-      let url: string = window.URL.createObjectURL(objAsBlob);
-      let a: any = document.createElement('a');
-      document.body.appendChild(a);
-      a.setAttribute('style', 'display: none');
-      a.href = url;
-      a.download = 'execution.json';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove(); // remove the element
-    });
-  }
+          // Todo metrics and disable btn while processing
+          this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
+            jsonObj['metrics'] = metricsTraces;
 
-  loadAllLogs(): Observable<LogTraces[]> {
-    let _logs: Subject<LogTraces[]> = new Subject<LogTraces[]>();
-    let logsObs: Observable<LogTraces[]> = _logs.asObservable();
-    let logs: LogTraces[] = [];
-    this.elastestESService.getLogsTree(this.tJobExec).subscribe((logsComponentStreams: any[]) => {
-      let allLogs: ESRabLogModel[] = [];
-      for (let componentStream of logsComponentStreams) {
-        for (let stream of componentStream.children) {
-          let currentLog: ESRabLogModel = new ESRabLogModel(this.elastestESService);
-          currentLog.component = componentStream.name;
-          currentLog.stream = stream.name;
-          currentLog.monitoringIndex = this.tJobExec.monitoringIndex;
-          allLogs.push(currentLog);
-        }
-      }
-      this.loadAllLogsByGiven(allLogs, _logs, logs);
-    });
-    return logsObs;
-  }
-
-  loadAllLogsByGiven(logsObjList: ESRabLogModel[], _logs: Subject<LogTraces[]>, logs: LogTraces[]): void {
-    if (logsObjList.length > 0) {
-      let currentLog: ESRabLogModel = logsObjList.shift();
-      currentLog.getAllLogsSubscription().subscribe((data: any[]) => {
-        let logTraces: LogTraces = new LogTraces();
-        logTraces.name = currentLog.component + '-' + currentLog.stream;
-        logTraces.traces = data;
-        logs.push(logTraces);
-        this.loadAllLogsByGiven(logsObjList, _logs, logs);
-      });
-    } else {
-      _logs.next(logs);
+            // Create tmp url and link element for download
+            let objAsBlob: Blob = new Blob([JSON.stringify(jsonObj)], { type: 'text/json;charset=utf-8;' });
+            let url: string = window.URL.createObjectURL(objAsBlob);
+            let a: any = document.createElement('a');
+            document.body.appendChild(a);
+            a.setAttribute('style', 'display: none');
+            a.href = url;
+            a.download = 'execution.json';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove(); // remove the tmp element
+            this.downloading = false;
+          });
+        },
+        (error: Error) => {
+          this.downloading = false;
+        },
+      );
+    } catch (e) {
+      this.downloading = false;
+      this.elastestESService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
     }
   }
 }

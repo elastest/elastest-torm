@@ -38,7 +38,7 @@ export class ESRabLogModel implements LogViewModel {
     });
   }
 
-  getAllLogsSubscription(): Observable<any> {
+  getAllLogsSubscription(): Observable<any[]> {
     return this.elastestESService.searchAllLogs(this.monitoringIndex, this.stream, this.component);
   }
 

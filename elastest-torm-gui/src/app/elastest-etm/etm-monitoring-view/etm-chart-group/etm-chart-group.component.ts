@@ -72,7 +72,7 @@ export class EtmChartGroupComponent implements OnInit {
     this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
     this.allInOneMetrics.name = 'All Metrics';
     this.allInOneMetrics.hidePrevBtn = !this.live;
-    this.allInOneMetrics.metricsIndex = this.tJobExec.monitoringIndex;
+    this.allInOneMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
     let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
     this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
     if (!this.live) {
@@ -91,7 +91,7 @@ export class EtmChartGroupComponent implements OnInit {
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-        individualMetrics.metricsIndex = this.tJobExec.monitoringIndex;
+        individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
         if (metric.component === '') {
           // If no component, is a default metric
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
@@ -105,7 +105,7 @@ export class EtmChartGroupComponent implements OnInit {
           if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
             this.elastestESService
-              .searchAllDynamic(individualMetrics.metricsIndex, metric.stream, metric.component, metricName)
+              .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
         }
@@ -170,7 +170,7 @@ export class EtmChartGroupComponent implements OnInit {
 
     if (!this.alreadyExist(individualMetrics.name)) {
       individualMetrics.addSimpleMetricTraces(obj.data);
-      individualMetrics.metricsIndex = this.tJobExec.monitoringIndex;
+      individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
       this.initCustomMetric(metric, individualMetrics);
 
       return true;
