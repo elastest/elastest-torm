@@ -67,18 +67,20 @@ elastest_lib.pipeline({
                     } catch(e) {
                         echo "elastest_etm-jenkins_1 container not started"
                     }
+
+                    def test_network =  env.SHARED_ELASTEST ? "bridge" : elastest_network
                     
-                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+elastest_network) { c1 ->
+                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
                         stage ("E2E tests")
                             
                                 echo "Jenkins Url: " + jenkinsUrl
                                 echo "${c1.id}"                        
-                                def ciUrl = "http://" + containerIp(c1.id, elastest_network) + ":8080"
+                                def ciUrl = "http://" + containerIp(c1.id, test_network) + ":8080"
                                 echo "Jenkins URL: " + ciUrl                    
                                 
                                 try {
                                     echo "Run tests"
-                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
                                 } catch(e) {
                                     sh '''\
                                     docker ps --all
