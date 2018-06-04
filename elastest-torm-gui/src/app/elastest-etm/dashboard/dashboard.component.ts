@@ -26,6 +26,8 @@ import { TJobService } from '../tjob/tjob.service';
 export class DashboardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
 
+  elastestMode: string;
+
   tJobId: number;
   tJob: TJobModel;
   withSut: boolean = false;
@@ -56,7 +58,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private popupService: PopupService,
     private esmService: EsmService,
+    private configurationService: ConfigurationService,
   ) {
+    this.elastestMode = this.configurationService.configModel.elasTestExecMode;
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.tJobId = params.tJobId;
