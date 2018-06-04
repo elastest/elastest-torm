@@ -1,3 +1,4 @@
+import { FilesService } from '../../../shared/services/files.service';
 import { Observable, Subject } from 'rxjs/Rx';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { IConfirmConfig } from '@covalent/core';
@@ -58,6 +59,7 @@ export class TjobExecManagerComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
+    private filesService: FilesService,
     public dialog: MdDialog,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -152,16 +154,7 @@ export class TjobExecManagerComponent implements OnInit {
             jsonObj['metrics'] = metricsTraces;
 
             // Create tmp url and link element for download
-            let objAsBlob: Blob = new Blob([JSON.stringify(jsonObj)], { type: 'text/json;charset=utf-8;' });
-            let url: string = window.URL.createObjectURL(objAsBlob);
-            let a: any = document.createElement('a');
-            document.body.appendChild(a);
-            a.setAttribute('style', 'display: none');
-            a.href = url;
-            a.download = 'execution.json';
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove(); // remove the tmp element
+            this.filesService.downloadObjectAsJson(jsonObj);
             this.downloading = false;
           });
         },

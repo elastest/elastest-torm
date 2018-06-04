@@ -1,3 +1,4 @@
+import { FilesService } from './shared/services/files.service';
 import { TransformService } from './elastest-etm/help/transform.service';
 import { TestLinkService } from './etm-testlink/testlink.service';
 import { ExternalService } from './elastest-etm/external/external.service';
@@ -250,6 +251,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     PopupService,
     TitlesService,
     BreadcrumbService,
+    FilesService,
     ETModelsTransformServices,
     ETTestlinkModelsTransformService,
     ETExternalModelsTransformService,

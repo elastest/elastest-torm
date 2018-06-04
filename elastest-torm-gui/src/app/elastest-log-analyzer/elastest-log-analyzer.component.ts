@@ -45,9 +45,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   public esSearchModel: ESSearchModel;
   public logAnalyzer: LogAnalyzerModel;
-  public streamType: string = 'log';
-  public streamTypeTerm: ESTermModel = new ESTermModel();
-  public filters: string[] = ['@timestamp', 'message', 'level', 'et_type', 'component', 'stream', 'stream_type', 'exec'];
 
   public logRows: any[] = [];
   public logColumns: any[] = [];
@@ -99,15 +96,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   withTestCase: boolean = false;
   testCaseName: string = undefined;
 
+  elastestESService: ElastestESService;
+
   constructor(
     public dialog: MdDialog,
     public router: Router,
-    private elastestESService: ElastestESService,
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
     private titlesService: TitlesService,
     private externalService: ExternalService,
-  ) {}
+  ) {
+    this.elastestESService = this.logAnalyzerService.elastestESService;
+  }
 
   ngOnInit() {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
@@ -123,7 +123,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         // Do nothing
       },
     );
-    this.initStreamTypeTerm();
+    this.logAnalyzerService.initStreamTypeTerm();
     this.initESModel();
   }
 
@@ -196,23 +196,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  initStreamTypeTerm(): void {
-    this.streamTypeTerm.name = 'stream_type';
-    this.streamTypeTerm.value = this.streamType;
-  }
-
   initESModel(): void {
-    this.esSearchModel = this.initAndGetESModel();
-  }
-
-  initAndGetESModel(): ESSearchModel {
-    let esSearchModel: ESSearchModel = new ESSearchModel();
-
-    // Add term stream_type === 'log'
-    esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
-    esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
-    esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
-    return esSearchModel;
+    this.esSearchModel = this.logAnalyzerService.initAndGetESModel();
   }
 
   /**********************/
@@ -239,7 +224,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logAnalyzer.toDate = this.getToDate();
 
     this.esSearchModel.indices = this.logAnalyzer.selectedIndices;
-    this.esSearchModel.filterPathList = this.filters;
+    this.esSearchModel.filterPathList = this.logAnalyzerService.filters;
     this.esSearchModel.body.size = this.logAnalyzer.maxResults;
 
     this.setRange();
@@ -255,23 +240,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     includedFrom: boolean = true,
     includedTo: boolean = true,
   ): void {
-    this.esSearchModel.body.boolQuery.bool.must.range = new ESRangeModel();
-    this.esSearchModel.body.boolQuery.bool.must.range.field = '@timestamp';
-
-    if (includedFrom) {
-      this.esSearchModel.body.boolQuery.bool.must.range.gte = from;
-    } else {
-      this.esSearchModel.body.boolQuery.bool.must.range.gt = from;
-    }
-
-    if (includedTo) {
-      this.esSearchModel.body.boolQuery.bool.must.range.lte = to;
-    } else {
-      this.esSearchModel.body.boolQuery.bool.must.range.lt = to;
-    }
+    this.esSearchModel = this.logAnalyzerService.setRangeToEsSearchModelByGiven(
+      this.esSearchModel,
+      from,
+      to,
+      includedFrom,
+      includedTo,
+    );
   }
-
-  setRangeByGivenToGivenEsSearchModel(): void {}
 
   setTerms(): void {
     if (!this.logAnalyzer.componentsStreams.empty()) {
@@ -284,18 +260,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   setMatch(msg: string = this.logAnalyzer.messageFilter): void {
-    this.setMatchByGivenEsSearchModel(msg, this.esSearchModel);
-  }
-
-  setMatchByGivenEsSearchModel(msg: string = '', esSearchModel: ESSearchModel): void {
-    /* Message field by default */
-    if (msg !== '') {
-      let messageMatch: ESMatchModel = new ESMatchModel();
-      messageMatch.field = 'message';
-      messageMatch.query = '*' + msg + '*';
-      messageMatch.type = 'phrase_prefix';
-      esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
-    }
+    this.logAnalyzerService.setMatchByGivenEsSearchModel(msg, this.esSearchModel);
   }
 
   setTableHeader(): void {
@@ -721,8 +686,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   filterTestCase(testCase: string): void {
-    let startMsg: string = '##### Start test: ' + testCase;
-    let endMsg: string = '##### Finish test: ' + testCase;
+    let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
+    let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
 
     // Search Start Msg
     this.searchTraceByGivenMsg(startMsg).subscribe(
@@ -786,23 +751,20 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   searchTraceByGivenMsg(msg: string): Observable<any> {
-    this.prepareLoadLogBasic();
-
-    this.setMatch(msg);
-
-    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: object = this.esSearchModel.getSearchBody();
-
-    // Remove Match Filter
-    this.esSearchModel.body.boolQuery.bool.must.matchList.pop();
     this.prepareLoadLog();
 
-    return this.elastestESService.search(searchUrl, searchBody);
+    return this.logAnalyzerService.searchTraceByGivenMsg(
+      msg,
+      this.logAnalyzer.selectedIndices,
+      this.getFromDate(),
+      this.getToDate(),
+      this.logAnalyzer.maxResults,
+    );
   }
 
   loadComponentStreams(): void {
     let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    componentStreamQuery.bool.must.termList.push(this.streamTypeTerm);
+    componentStreamQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
 
     let fieldsList: string[] = ['component', 'stream'];
     this.elastestESService
@@ -821,7 +783,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   loadLevels(): void {
     let levelsQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    levelsQuery.bool.must.termList.push(this.streamTypeTerm);
+    levelsQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
 
     this.elastestESService
       .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), ['level'], levelsQuery.convertToESFormat())
