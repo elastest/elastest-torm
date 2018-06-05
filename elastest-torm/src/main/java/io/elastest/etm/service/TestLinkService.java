@@ -122,6 +122,7 @@ public class TestLinkService {
 
                 String url = this.getTestLinkUrl()
                         + "/lib/api/xmlrpc/v1/xmlrpc.php";
+                logger.info("Teslink api url: {}", url);
 
                 try {
                     testlinkURL = new URL(url);
@@ -131,6 +132,9 @@ public class TestLinkService {
 
                 try {
                     api = new TestLinkAPI(testlinkURL, devKey);
+                    if (api == null) {
+                        logger.error("Api object hasn't been created");
+                    }
                 } catch (TestLinkAPIException te) {
                     logger.error(te.getMessage());
                 }
