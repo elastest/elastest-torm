@@ -802,7 +802,7 @@ export class ElastestESService {
         (obj: any) => {
           let metricTraces: MetricTraces = new MetricTraces();
           metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
-          metricTraces.traces = obj.data;
+          metricTraces.traces = this.getMetricsObjFromRawSource(obj.data);
           metrics.push(metricTraces);
           this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, timeRange);
         },
@@ -856,6 +856,21 @@ export class ElastestESService {
       }
     }
     return processedLogs;
+  }
+
+  getMetricsObjFromRawSource(raw: any[]): any {
+    let processedMetrics: any = {};
+    if (raw !== undefined && raw !== null) {
+      for (let metricTrace of raw) {
+        let metricKey: string = metricTrace.name;
+        if (processedMetrics[metricKey] === undefined || processedMetrics[metricKey] === null) {
+          processedMetrics[metricKey] = [];
+        }
+
+        processedMetrics[metricKey] = processedMetrics[metricKey].concat(metricTrace.series);
+      }
+    }
+    return processedMetrics;
   }
 
   getRangeByGiven(
