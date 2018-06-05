@@ -338,7 +338,7 @@ export class ElastestESService {
     let parsedData: SingleMetricModel = undefined;
     let typeArr: string = trace['et_type'].split('_');
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
-      if (typeArr[0] in MetricbeatType) {
+      if (typeArr[0] in MetricbeatType && trace[trace['et_type']]) {
         let subtypeValueObj: any = trace[trace['et_type']][metricsField.subtype];
         switch (typeArr[1]) {
           case 'cpu':
