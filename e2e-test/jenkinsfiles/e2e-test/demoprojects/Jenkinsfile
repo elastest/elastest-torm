@@ -1,0 +1,68 @@
+@Library('ciElastestConnect@fullyconfigurable') _
+elastest_lib.setVersion('dev')
+//initialization of the context for the library
+elastest_lib.setContext(this)
+elastest_lib.setMode('experimental-lite')
+elastest_lib.setOptionals('-sa='+env.SA)
+elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
+elastest_lib.setTestLink(true)
+elastest_lib.setAuthenticatedElastest(true)
+//initialization of the runnable object to access elastest methods inside the pipeline
+def elastest= elastest_lib.getElastestMethods()
+def elastest_network = env.NETWORK
+
+//definition of nodes is managed by the library. Just declare the steps of your pipeline
+//inside the elastest_lib.pipeline({...})
+elastest_lib.pipeline({
+    
+    try {
+        stage ('docker container')
+            def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
+            mycontainer.pull()
+            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
+                                    
+                stage ('prepare test')
+                    git 'https://github.com/elastest/elastest-torm.git'
+                                    
+                    echo 'Prepare network'
+                    elastest.connect2ElastestNetwork()
+                    def elastestURL = elastest.getEtmUrl()
+                    
+                stage ("Run tests")
+                    try {                        
+                        sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.demoprojects.** -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+                    } catch(e) {
+                        echo 'Err: ' + e.toString()
+                        sh '''\
+                        docker ps --all
+                        docker ps --filter name=etm -q
+                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                        '''
+                        throw e
+                    } finally {
+                        step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                    }
+            }
+    } catch (err) {
+        echo 'Error!!! Send email to the people responsible for the builds.'
+        emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
+        replyTo: '${BUILD_USER_EMAIL}', 
+        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+        to: '${MAIL_LIST}'
+
+        throw err
+    }
+})
+  
+  def containerIp(containerName, network) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks."+network+".IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
+}
