@@ -20,7 +20,7 @@ import { Injectable } from '@angular/core';
 import { PopupService } from './popup.service';
 import { Observable, Subject } from 'rxjs/Rx';
 import { defaultStreamMap } from '../defaultESData-model';
-import { ESBoolQueryModel, ESTermModel } from '../elasticsearch-model/es-query-model';
+import { ESBoolQueryModel, ESTermModel, ESRangeModel } from '../elasticsearch-model/es-query-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
 
@@ -60,12 +60,18 @@ export class ElastestESService {
     return terms;
   }
 
-  searchAllLogs(index: string, stream: string, component: string, theQuery?: any): Observable<string[]> {
+  searchAllLogs(
+    index: string,
+    stream: string,
+    component: string,
+    timeRange?: ESRangeModel,
+    theQuery?: any,
+  ): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
     let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
-    this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe((data) => {
+    this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
       _logs.next(this.convertToLogTraces(data));
     });
 
@@ -121,11 +127,16 @@ export class ElastestESService {
 
   // Metrics
 
-  searchAllMetrics(index: string, metricsField: MetricsFieldModel, theQuery?: any): Observable<LineChartMetricModel[]> {
+  searchAllMetrics(
+    index: string,
+    metricsField: MetricsFieldModel,
+    timeRange?: ESRangeModel,
+    theQuery?: any,
+  ): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
     let terms: any[] = this.getTermsByMetricsField(metricsField);
-    this.elasticsearchService.searchAllByTerm(index, terms, theQuery).subscribe((data) => {
+    this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
     });
 
@@ -239,7 +250,7 @@ export class ElastestESService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'usage':
-          let perMemoryUsage: number = trace.memory.usage * 100 / trace.memory.limit;
+          let perMemoryUsage: number = (trace.memory.usage * 100) / trace.memory.limit;
           if (perMemoryUsage >= 0) {
             parsedData = this.getBasicSingleMetric(trace);
             parsedData.value = perMemoryUsage;
@@ -452,7 +463,14 @@ export class ElastestESService {
     return terms;
   }
 
-  searchAllDynamic(index: string, stream: string, component: string, metricName?: string, theQuery?: any): Observable<any> {
+  searchAllDynamic(
+    index: string,
+    stream: string,
+    component: string,
+    metricName?: string,
+    timeRange?: ESRangeModel,
+    theQuery?: any,
+  ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
@@ -466,7 +484,7 @@ export class ElastestESService {
       terms.push({ term: { et_type: metricType } });
     }
 
-    this.elasticsearchService.searchAllByTerm(index, terms, theQuery, filters).subscribe((data: any[]) => {
+    this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery, filters).subscribe((data: any[]) => {
       if (data.length > 0) {
         let convertedData: any;
         let firstElement: any = data[0];
@@ -489,10 +507,12 @@ export class ElastestESService {
         } else if (this.isAtomicMetricTrace(firstElement)) {
           this.addDynamicAtomicMetric(_obs, obj, data);
         } else {
-          this.popupService.openSnackBar('Cannot add the traces obtained with the parameters provided', 'OK');
+          let errorStr: string = 'Cannot add the traces obtained with the parameters provided';
+          _obs.error(errorStr);
         }
       } else {
-        this.popupService.openSnackBar('Nothing found', 'OK');
+        let errorStr: string = 'Nothing found';
+        _obs.error(errorStr);
       }
     });
 
@@ -557,6 +577,8 @@ export class ElastestESService {
     if (metricsTraces[0].series.length > 0) {
       // If chart is not empty, add it
       _obs.next(obj);
+    } else {
+      _obs.error(new Error('There is no metric traces to add to the graph ' + metricsTraces[0].name));
     }
   }
 
@@ -644,6 +666,10 @@ export class ElastestESService {
     return aggTreeObs;
   }
 
+  /* ************** */
+  /* **** Logs **** */
+  /* ************** */
+
   getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
     let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
     let streamTypeTerm: ESTermModel = new ESTermModel();
@@ -679,17 +705,26 @@ export class ElastestESService {
   getAllLogsByGiven(logsObjList: ESRabLogModel[], _logs: Subject<LogTraces[]>, logs: LogTraces[]): void {
     if (logsObjList.length > 0) {
       let currentLog: ESRabLogModel = logsObjList.shift();
-      currentLog.getAllLogsSubscription().subscribe((data: any[]) => {
-        let logTraces: LogTraces = new LogTraces();
-        logTraces.name = currentLog.component + '-' + currentLog.stream;
-        logTraces.traces = data;
-        logs.push(logTraces);
-        this.getAllLogsByGiven(logsObjList, _logs, logs);
-      });
+      currentLog.getAllLogsSubscription().subscribe(
+        (data: any[]) => {
+          let logTraces: LogTraces = new LogTraces();
+          logTraces.name = currentLog.component + '-' + currentLog.stream;
+          logTraces.traces = data;
+          logs.push(logTraces);
+          this.getAllLogsByGiven(logsObjList, _logs, logs);
+        },
+        (error: Error) => {
+          this.getAllLogsByGiven(logsObjList, _logs, logs);
+        },
+      );
     } else {
       _logs.next(logs);
     }
   }
+
+  /* *************** */
+  /* *** Metrics *** */
+  /* *************** */
 
   getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
     let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
@@ -707,11 +742,7 @@ export class ElastestESService {
     return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat());
   }
 
-  /* *************** */
-  /* *** Metrics *** */
-  /* *************** */
-
-  getAllTJobExecMetrics(tJobExec: TJobExecModel): Observable<MetricTraces[]> {
+  getAllTJobExecMetrics(tJobExec: TJobExecModel, timeRange?: ESRangeModel): Observable<MetricTraces[]> {
     let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
     let metricsObs: Observable<MetricTraces[]> = _metrics.asObservable();
     let metrics: MetricTraces[] = [];
@@ -745,7 +776,7 @@ export class ElastestESService {
           }
         }
       }
-      this.getAllMetricsByGiven(allMetrics, _metrics, metrics);
+      this.getAllMetricsByGiven(allMetrics, _metrics, metrics, timeRange);
     });
     return metricsObs;
   }
@@ -754,24 +785,101 @@ export class ElastestESService {
     metricsObjList: ESRabComplexMetricsModel[],
     _metrics: Subject<MetricTraces[]>,
     metrics: MetricTraces[],
+    timeRange?: ESRangeModel,
   ): void {
     if (metricsObjList.length > 0) {
       let currentMetric: ESRabComplexMetricsModel = metricsObjList.shift();
+      let terms: any[] = this.getDynamicTerms(currentMetric.stream, currentMetric.component);
+      let theQuery: object = this.elasticsearchService.getDefaultQueryByRawTermList(terms);
+
       this.searchAllDynamic(
         currentMetric.monitoringIndex,
         currentMetric.stream,
         currentMetric.component,
         currentMetric.name,
-      ).subscribe((obj: any) => {
-        let metricTraces: MetricTraces = new MetricTraces();
-        metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
-        metricTraces.traces = obj.data;
-        metrics.push(metricTraces);
-        this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
-      });
+        timeRange,
+      ).subscribe(
+        (obj: any) => {
+          let metricTraces: MetricTraces = new MetricTraces();
+          metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
+          metricTraces.traces = obj.data;
+          metrics.push(metricTraces);
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, timeRange);
+        },
+        (error: Error) => {
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, timeRange);
+        },
+      );
     } else {
       _metrics.next(metrics);
     }
+  }
+
+  // Utils
+  getContentListFromRaw(raw: any): any[] {
+    let data: any[] = [];
+    if (raw && raw.hits && raw.hits.hits) {
+      data = raw.hits.hits;
+    }
+    return data;
+  }
+
+  getDataListFromRaw(raw: any, onlySource: boolean = true): any[] {
+    let data: any[] = [];
+    let sourcesList: any[] = this.getContentListFromRaw(raw);
+    for (let elem of sourcesList) {
+      if (!onlySource) {
+        for (let key in elem) {
+          if (key !== '_source') {
+            elem._source[key] = elem[key]; // Add key and value into source
+          }
+        }
+      }
+      data.push(elem._source);
+    }
+
+    return data;
+  }
+
+  getLogsObjFromRawSource(raw: any[]): any {
+    let processedLogs: any = {};
+    if (raw !== undefined && raw !== null) {
+      for (let logTrace of raw) {
+        let logKey: string = logTrace.component + '-' + logTrace.stream;
+        if (processedLogs[logKey] === undefined || processedLogs[logKey] === null) {
+          processedLogs[logKey] = [];
+        }
+        processedLogs[logKey].push({
+          timestamp: logTrace['@timestamp'],
+          message: logTrace.message,
+        });
+      }
+    }
+    return processedLogs;
+  }
+
+  getRangeByGiven(
+    from: Date | string,
+    to: Date | string,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): ESRangeModel {
+    let range: ESRangeModel = new ESRangeModel();
+    range.field = '@timestamp';
+
+    if (includedFrom) {
+      range.gte = from;
+    } else {
+      range.gt = from;
+    }
+
+    if (includedTo) {
+      range.lte = to;
+    } else {
+      range.lt = to;
+    }
+
+    return range;
   }
 }
 

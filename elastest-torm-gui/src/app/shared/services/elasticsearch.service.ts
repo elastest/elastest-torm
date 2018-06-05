@@ -7,7 +7,7 @@ import { Subject, Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 import { ESSearchModel } from '../elasticsearch-model/elasticsearch-model';
 import { ESBoolModel } from '../elasticsearch-model/es-bool-model';
-import { ESTermModel, ESTermsModel } from '../elasticsearch-model/es-query-model';
+import { ESTermModel, ESTermsModel, ESRangeModel } from '../elasticsearch-model/es-query-model';
 
 @Injectable()
 export class ElasticSearchService {
@@ -106,7 +106,13 @@ export class ElasticSearchService {
    * @param terms
    * @param theQuery optional
    */
-  searchAllByTerm(index: string, terms: any[], theQuery?: any, filterPath?: string[]): Observable<string[]> {
+  searchAllByTerm(
+    index: string,
+    terms: any[],
+    timeRange?: ESRangeModel,
+    theQuery?: any,
+    filterPath?: string[],
+  ): Observable<string[]> {
     let size: number = 1000;
     let url: string = this.esUrl + index;
     let searchUrl: string = url + '/_search';
@@ -114,7 +120,7 @@ export class ElasticSearchService {
     searchUrl = this.addFilterToSearchUrl(searchUrl, filterPath);
 
     if (theQuery === undefined || theQuery === null) {
-      theQuery = this.getDefaultQueryByRawTermList(terms);
+      theQuery = this.getDefaultQueryByRawTermList(terms, timeRange);
     }
     theQuery['size'] = size;
     let _logs: Subject<string[]> = new Subject<string[]>();
@@ -128,7 +134,7 @@ export class ElasticSearchService {
           let sortIdList: any[] = data.hits.hits[lastReceivedPos].sort;
           theQuery['search_after'] = sortIdList;
 
-          this.searchAllByTerm(index, terms, theQuery, filterPath).subscribe(
+          this.searchAllByTerm(index, terms, timeRange, theQuery, filterPath).subscribe(
             (result) => {
               _logs.next(data.hits.hits.concat(result));
             },
@@ -151,10 +157,10 @@ export class ElasticSearchService {
    * @param terms
    * @param theQuery optional
    */
-  searchAllMessagesByTerm(index: string, terms: any[], theQuery?: any): Observable<string[]> {
+  searchAllMessagesByTerm(index: string, terms: any[], timeRange?: ESRangeModel, theQuery?: any): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
-    this.searchAllByTerm(index, terms, theQuery).subscribe((data) => {
+    this.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
       let messages: string[] = this.returnMessages(data);
       _logs.next(messages);
     });
@@ -171,7 +177,7 @@ export class ElasticSearchService {
     return messagesList;
   }
 
-  inverseSearch(index: string, terms: any[], data: any, _logs: Subject<string[]>): void {
+  inverseSearch(index: string, terms: any[], data: any, _logs: Subject<string[]>, timeRange?: ESRangeModel): void {
     let dataReceived: number = data.hits.hits.length;
     if (dataReceived > 0) {
       let sortIdList: any[] = data.hits.hits[0].sort;
@@ -186,7 +192,7 @@ export class ElasticSearchService {
         },
       };
 
-      this.searchAllByTerm(index, terms, newQuery).subscribe((messages) => {
+      this.searchAllByTerm(index, terms, timeRange, newQuery).subscribe((messages) => {
         let orderedMessages: string[] = messages.reverse();
         _logs.next(orderedMessages);
       });
@@ -380,14 +386,18 @@ export class ElasticSearchService {
     return esSearchModel.getSearchBody();
   }
 
-  getDefaultQueryByTermList(terms: ESTermModel[]): object {
+  getDefaultQueryByTermList(terms: ESTermModel[], timeRange?: ESRangeModel): object {
     let bool: ESBoolModel = new ESBoolModel();
     bool.must.termList = terms;
+
+    if (timeRange !== undefined && timeRange !== null) {
+      bool.must.range = timeRange;
+    }
 
     return this.getDefaultQuery(bool);
   }
 
-  getDefaultQueryByRawTermList(terms: object[]): object {
+  getDefaultQueryByRawTermList(terms: object[], timeRange?: ESRangeModel): object {
     let termList: ESTermModel[] = [];
     for (let currentRawTerm of terms) {
       let currentTerm: ESTermModel = new ESTermModel();
@@ -399,7 +409,7 @@ export class ElasticSearchService {
       termList.push(currentTerm);
     }
 
-    return this.getDefaultQueryByTermList(termList);
+    return this.getDefaultQueryByTermList(termList, timeRange);
   }
 
   addFilterToSearchUrl(searchUrl: string, filterPath?: string[]): string {

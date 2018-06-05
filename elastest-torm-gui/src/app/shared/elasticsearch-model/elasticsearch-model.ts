@@ -168,30 +168,4 @@ export class ESSearchModel {
   getSearchPath(): string {
     return this.searchPath;
   }
-
-  // Utils
-  getContentListFromRaw(raw: any): any[] {
-    let data: any[] = [];
-    if (raw && raw.hits && raw.hits.hits) {
-      data = raw.hits.hits;
-    }
-    return data;
-  }
-
-  getDataListFromRaw(raw: any, onlySource: boolean = true): any[] {
-    let data: any[] = [];
-    let sourcesList: any[] = this.getContentListFromRaw(raw);
-    for (let elem of sourcesList) {
-      if (!onlySource) {
-        for (let key in elem) {
-          if (key !== '_source') {
-            elem._source[key] = elem[key]; // Add key and value into source
-          }
-        }
-      }
-      data.push(elem._source);
-    }
-
-    return data;
-  }
 }

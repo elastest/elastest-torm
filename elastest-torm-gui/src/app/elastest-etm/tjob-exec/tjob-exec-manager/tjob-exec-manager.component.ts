@@ -19,6 +19,9 @@ import { MdDialog } from '@angular/material';
 import { SafeUrl } from '@angular/platform-browser';
 import { Http } from '@angular/http';
 import { timestamp } from 'rxjs/operators';
+import { TestSuiteModel } from '../../test-suite/test-suite-model';
+import { TestCaseModel } from '../../test-case/test-case-model';
+import { sleep } from '../../../shared/utils';
 
 @Component({
   selector: 'app-tjob-exec-manager',
@@ -145,18 +148,26 @@ export class TjobExecManagerComponent implements OnInit {
     };
 
     try {
-      this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe(
-        (logsTraces: LogTraces[]) => {
-          jsonObj['logs'] = logsTraces;
-
-          // Todo metrics and disable btn while processing
-          this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
-            jsonObj['metrics'] = metricsTraces;
-
-            // Create tmp url and link element for download
-            this.filesService.downloadObjectAsJson(jsonObj);
+      this.tJobExecService.loadTestSuitesInfoToDownload(this.tJobExec, [...this.tJobExec.testSuites]).subscribe(
+        (someTestSuiteWithDate: boolean) => {
+          if (someTestSuiteWithDate) {
             this.downloading = false;
-          });
+            jsonObj['tJobExec'] = this.tJobExec;
+            this.filesService.downloadObjectAsJson(jsonObj);
+          } else {
+            this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe((logsTraces: LogTraces[]) => {
+              jsonObj['logs'] = logsTraces;
+
+              // Todo metrics and disable btn while processing
+              this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
+                jsonObj['metrics'] = metricsTraces;
+
+                // Create tmp url and link element for download
+                this.filesService.downloadObjectAsJson(jsonObj);
+                this.downloading = false;
+              });
+            });
+          }
         },
         (error: Error) => {
           this.downloading = false;

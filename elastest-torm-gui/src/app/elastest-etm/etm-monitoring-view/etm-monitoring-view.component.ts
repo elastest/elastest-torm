@@ -114,7 +114,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           (obj: any) => {
             _addMoreSubject.next(obj);
           },
-          (error: Error) => _addMoreSubject.error('Could not load more'),
+          (error: Error) => _addMoreSubject.error('Could not load more: ' + error),
         );
     } else {
       _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
