@@ -847,17 +847,20 @@ public class EsmService {
 
                 ((ObjectNode) node).put("port", auxPort);
 
-                if (node.get("protocol") != null
-                        && (node.get("protocol").toString().contains("http"))
-                        || node.get("protocol").toString().contains("ws")) {
+                if (node.get("protocol") != null && (node.get("protocol")
+                        .toString().contains("http")
+                        || node.get("protocol").toString().contains("https")
+                        || node.get("protocol").toString().contains("ws"))) {
                     serviceInstance.setServicePort(auxPort);
                     serviceInstance.getUrls().put(nodeName,
                             createServiceInstanceUrl(node,
                                     serviceInstance.getServiceIp()));
                 }
             } else if (node.get("port") != null && node.get("protocol") != null
-                    && (node.get("protocol").toString().contains("http"))
-                    || node.get("protocol").toString().contains("ws")) {
+                    && (node.get("protocol").toString().contains("http")
+                            || node.get("protocol").toString().contains("https")
+                            || node.get("protocol").toString()
+                                    .contains("ws"))) {
                 serviceInstance.setServicePort(Integer.parseInt(
                         node.get("port").toString().replaceAll("\"", "")));
                 serviceInstance.getUrls().put(nodeName,
@@ -1060,7 +1063,8 @@ public class EsmService {
                 for (Map.Entry<String, String> urlHash : tSSInstance.getUrls()
                         .entrySet()) {
                     up = true;
-                    if (urlHash.getValue().contains("http")) {
+                    if (urlHash.getValue().contains("http")
+                            || urlHash.getValue().contains("https")) {
                         URL url;
 
                         try {
@@ -1412,10 +1416,14 @@ public class EsmService {
 
                 String protocol = entry.getValue().findValue("protocol")
                         .toString().toLowerCase().replaceAll("\"", "");
-                if (protocol.equals("http") || protocol.equals("https") || protocol.equals("ws")) {
+                if (protocol.equals("http") || protocol.equals("https")
+                        || protocol.equals("ws")) {
                     String envNameAPI = prefix + "_API";
-                    String path = entry.getValue().get("path").toString()
-                            .replaceAll("\"", "");
+                    JsonNode pathNode = entry.getValue().get("path");
+                    String path = "/";
+                    if (pathNode != null) {
+                        path = pathNode.toString().replaceAll("\"", "");
+                    }
                     if (!path.startsWith("/")) {
                         path = "/" + path;
                     }

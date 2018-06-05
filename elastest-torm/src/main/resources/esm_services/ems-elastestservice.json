@@ -33,7 +33,8 @@
     },
     "manifest": {
         "id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
-        "manifest_content": "version: '2.1'\nservices:\n    ems:\n        image: elastest/ems:0.5.0-alpha1\n        networks:\n            - elastest_elastest\n    elasticsearch:\n        container_name: ems-elasticsearch\n        image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0\n        environment:\n            - http.host=0.0.0.0 \n            - transport.host=127.0.0.1\n        networks:\n            - elastest_elastest\n      \nnetworks:\n  elastest_elastest:\n    external: true ",
+        "manifest_content": "version: '2.1'\nservices:\n    ems:\n        image: elastest/ems:latest\n        expose:\n            - \"5044\"\n            - \"8888\"\n            - \"8181\"\n            - \"3232\"\n            - \"5000\"\n            - \"5001\"\n        networks:\n            - elastest_elastest\n      \nnetworks:\n  elastest_elastest:\n    external: true ",
+
         "manifest_type": "docker-compose",
         "plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
         "service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
@@ -59,7 +60,31 @@
                     {
                         "name": "httpinevents",
                         "protocol": "http",
-                        "port": 8181
+                        "port": 8181,
+                        "path": "/"
+                    },
+                    {
+                        "name": "httpsinevents",
+                        "protocol": "https",
+                        "port": 8182,
+                        "path": "/"
+                    },
+                    {
+                        "name": "tcp_testlogs",
+                        "protocol": "tcp",
+                        "port": 5000
+                    },
+                    {
+                        "name": "tcp_sutlogs",
+                        "protocol": "tcp",
+                        "port": 5001
+                    },
+                    {
+                        "name": "websocket_out",
+                        "protocol": "http",
+                        "port": 3232,
+                        "path": "/"
+
                     }
                 ]
             }
