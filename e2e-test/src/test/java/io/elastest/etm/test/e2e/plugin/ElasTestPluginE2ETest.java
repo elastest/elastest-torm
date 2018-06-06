@@ -18,6 +18,7 @@ package io.elastest.etm.test.e2e.plugin;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.Disabled;
@@ -100,9 +101,14 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
             driver.findElement(By.linkText("Open in ElasTest")).click();
         }
 
-        WebDriverWait waitLogs = new WebDriverWait(driver, 180);
+        WebDriverWait waitLogs = new WebDriverWait(driver, 240);
         log.info("Wait for build sucess traces");
         try {
+            waitLogs.until(presenceOfElementLocated(
+                    By.xpath("//span[text()='Finished: SUCCESS']")));
+            //waitLogs.until(textToBePresentInElementLocated(
+            //      By.tagName("logs-view"), "BUILD SUCCESS"));
+            navigateTo(driver, linkElasTest);
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
