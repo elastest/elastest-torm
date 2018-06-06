@@ -106,9 +106,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         try {
             waitLogs.until(presenceOfElementLocated(
                     By.xpath("//span[text()='Finished: SUCCESS']")));
-            //waitLogs.until(textToBePresentInElementLocated(
-            //      By.tagName("logs-view"), "BUILD SUCCESS"));
-            navigateTo(driver, linkElasTest);
+            driver.navigate().refresh();
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
