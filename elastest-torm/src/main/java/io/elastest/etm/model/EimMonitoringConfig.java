@@ -18,8 +18,10 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -263,11 +265,20 @@ public class EimMonitoringConfig {
             this.metricbeat = metricbeat;
         }
 
+        @Override
+        public String toString() {
+            return "ApiEimMonitoringConfig [exec=" + exec + ", component="
+                    + component + ", packetbeat=" + packetbeat + ", filebeat="
+                    + filebeat + ", metricbeat=" + metricbeat + "]";
+        }
+
     }
 
     public class ApiEimBeatConfig {
         String stream;
         List<String> paths;
+
+        @JsonInclude(Include.NON_EMPTY)
         List<String> dockerized;
 
         public ApiEimBeatConfig() {
@@ -295,6 +306,12 @@ public class EimMonitoringConfig {
 
         public void setDockerized(List<String> dockerized) {
             this.dockerized = dockerized;
+        }
+
+        @Override
+        public String toString() {
+            return "ApiEimBeatConfig [stream=" + stream + ", paths=" + paths
+                    + ", dockerized=" + dockerized + "]";
         }
 
     }

@@ -60,7 +60,7 @@ public class EimBeatConfig {
             SutView.class, ExternalProjectView.class, BasicAttProject.class })
     @ElementCollection
     @CollectionTable(name = "EimBeatDockerized", joinColumns = @JoinColumn(name = "EimBeatConfig"))
-    List<String> dockerized;
+    List<String> dockerized = null;
 
     @JsonView({ EimBeatConfigView.class })
     @ManyToOne(fetch = FetchType.LAZY)

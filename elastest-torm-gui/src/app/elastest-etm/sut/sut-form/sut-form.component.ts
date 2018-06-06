@@ -174,8 +174,11 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.sut.eimMonitoringConfig &&
       this.sut.eimMonitoringConfig.beats &&
       ((this.sut.eimMonitoringConfig.beats.metricbeat &&
-        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized !== undefined) ||
-        (this.sut.eimMonitoringConfig.beats.filebeat && this.sut.eimMonitoringConfig.beats.filebeat.dockerized !== undefined))
+        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized !== undefined &&
+        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized.length > 0) ||
+        (this.sut.eimMonitoringConfig.beats.filebeat &&
+          this.sut.eimMonitoringConfig.beats.filebeat.dockerized !== undefined &&
+          this.sut.eimMonitoringConfig.beats.filebeat.dockerized.length > 0))
     ) {
       this.dockerizedSut = true;
     }
