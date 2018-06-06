@@ -110,7 +110,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
-            navigateTo(driver, linkElasTest);
+            driver.navigate().refresh();
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         }

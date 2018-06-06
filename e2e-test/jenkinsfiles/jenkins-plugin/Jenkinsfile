@@ -23,7 +23,7 @@ elastest_lib.pipeline({
             mycontainer.pull()
             mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
                 sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/etm-e2e-test-jenkins/elastest-plugin/target/elastest.hpi'
+                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/etm-e2e-jenkins/elastest-plugin/target/elastest.hpi'
                 def pluginDirectory = 'elastest-plugin'
                 def testRepositoryDirectory = 'elastest'
             
@@ -92,7 +92,8 @@ elastest_lib.pipeline({
                                     '''
                                     throw e
                                 } finally {
-                                    sh 'curl ' + elastest.getEtmUrl() + '/elasticsearch/_search?q=_index:1'
+                                    echo 'elasticsearch url: http://' + elastest.getElasTestUser() + ':' + elastest.getElasTestPassword() + '@' + sa + ':37000/elasticsearch/_search?q=_index:1'
+                                    sh 'curl http://' + elastest.getElasTestUser() + ':' + elastest.getElasTestPassword() + '@' + sa + ':37000/elasticsearch/_search?q=_index:1'
                                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                                 }
                         }
