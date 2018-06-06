@@ -12,6 +12,7 @@ elastest_lib.setAuthenticatedElastest(true)
 //initialization of the runnable object to access elastest methods inside the pipeline
 def elastest= elastest_lib.getElastestMethods()
 def elastest_network = env.NETWORK
+def shared_elastest = env.SHARED_ELASTEST
 
 //definition of nodes is managed by the library. Just declare the steps of your pipeline
 //inside the elastest_lib.pipeline({...})
@@ -68,7 +69,7 @@ elastest_lib.pipeline({
                         echo "elastest_etm-jenkins_1 container not started"
                     }
 
-                    def test_network =  env.SHARED_ELASTEST ? "bridge" : elastest_network
+                    def test_network =  shared_elastest ? "bridge" : elastest_network
                     
                     etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
                         stage ("E2E tests")
@@ -82,6 +83,7 @@ elastest_lib.pipeline({
                                     echo "Run tests"
                                     sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
                                 } catch(e) {
+                                    sh 'curl ' + elastest.getEtmUrl() + '/elasticsearch/_search?q=_index:1'
                                     sh '''\
                                     docker ps --all
                                     docker ps --filter name=etm -q
@@ -90,6 +92,7 @@ elastest_lib.pipeline({
                                     '''
                                     throw e
                                 } finally {
+                                    sh 'curl ' + elastest.getEtmUrl() + '/elasticsearch/_search?q=_index:1'
                                     step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                                 }
                         }
