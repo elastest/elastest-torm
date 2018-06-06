@@ -22,8 +22,8 @@ export class EimBeatsMap {
 
   constructor() {
     this.packetbeat = new EimBeatConfigModel('packetbeat', 'et_packetbeat');
-    this.filebeat = new EimBeatConfigModel('filebeat', defaultStreamMap.log);
-    this.metricbeat = new EimBeatConfigModel('metricbeat', 'et_metricbeat');
+    this.filebeat = new EimBeatConfigModel('filebeat', defaultStreamMap.log, ['/var/lib/docker/containers/']);
+    this.metricbeat = new EimBeatConfigModel('metricbeat', 'et_metricbeat', ['/var/run/docker.sock']);
   }
 }
 
@@ -32,11 +32,13 @@ export class EimBeatConfigModel {
   name: string;
   stream: string;
   paths: string[];
+  dockerized: string[];
 
-  constructor(name: string = '', stream: string = '') {
+  constructor(name: string = '', stream: string = '', dockerizedList: string[] = undefined) {
     this.id = 0;
     this.name = name;
     this.stream = stream;
     this.paths = [];
+    this.dockerized = dockerizedList;
   }
 }

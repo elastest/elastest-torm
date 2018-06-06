@@ -52,10 +52,12 @@ export class SutFormComponent implements OnInit, DoCheck {
   currentCommandsModeHelpHead: string = this.commandsContainerHelpHead;
 
   commandsContainerHelpDesc: string = 'Launch your SuT in the "Commands" text area above.';
-  dockerImageHelpDesc: string = 'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
+  dockerImageHelpDesc: string =
+    'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
     ' The only mandatory requirement is that your "Commands" must end with "docker run --name $ET_SUT_CONTAINER_NAME ..." command.' +
     ' Use Example: "docker run --rm --name $ET_SUT_CONTAINER_NAME myimage"';
-  dockerComposeHelpDesc: string = 'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
+  dockerComposeHelpDesc: string =
+    'You need to use a docker image with docker installed into, such "elastest/test-etm-alpinedockerjava".' +
     ' The only mandatory requirement is that your "Commands" must end with "docker-compose ... -p $ET_SUT_CONTAINER_NAME up" command.' +
     ' Use Example: "docker-compose -f docker-compose.yml -p $ET_SUT_CONTAINER_NAME up"';
 
@@ -72,6 +74,13 @@ export class SutFormComponent implements OnInit, DoCheck {
   elasTestExecMode: string;
 
   eimLogsPathHelpDesc: string = 'You can use *.log to get all logs from specific path. Example: "/var/log/*.log"';
+
+  // EIM Dockerized
+  dockerizedSut: boolean = false;
+
+  eimDockerContainerLogsPathHelpDesc: string =
+    'The path where docker writes the containers logs. By default it is /var/lib/docker/containers/';
+  eimDockerSockPathHelpDesc: string = 'The path of docker.sock. By default it is /var/run/docker.sock';
 
   constructor(
     private titlesService: TitlesService,
@@ -159,6 +168,17 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
+
+    if (
+      this.elastestInsCheck &&
+      this.sut.eimMonitoringConfig &&
+      this.sut.eimMonitoringConfig.beats &&
+      ((this.sut.eimMonitoringConfig.beats.metricbeat &&
+        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized !== undefined) ||
+        (this.sut.eimMonitoringConfig.beats.filebeat && this.sut.eimMonitoringConfig.beats.filebeat.dockerized !== undefined))
+    ) {
+      this.dockerizedSut = true;
+    }
   }
 
   initInstrumentalized(): void {
@@ -328,6 +348,12 @@ export class SutFormComponent implements OnInit, DoCheck {
     if (!this.sut.isByDockerCompose() && !this.sut.isByCommandsInDockerCompose()) {
       this.sut.mainService = '';
     }
+
+    if (this.sut.isInstrumentedByElastest && !this.dockerizedSut) {
+      this.sut.eimMonitoringConfig.beats.filebeat.dockerized = undefined;
+      this.sut.eimMonitoringConfig.beats.metricbeat.dockerized = undefined;
+    }
+
     this.sutService.createSut(this.sut).subscribe(
       (sut: SutModel) => this.postSave(sut, exit),
       (error) => {
@@ -348,5 +374,9 @@ export class SutFormComponent implements OnInit, DoCheck {
 
   cancel(): void {
     window.history.back();
+  }
+
+  switchDockerized($event): void {
+    this.dockerizedSut = $event.checked;
   }
 }

@@ -176,14 +176,19 @@ public class EimMonitoringConfig {
 
         ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
         packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
+        packetbeat.setDockerized(
+                this.getBeats().get("packetbeat").getDockerized());
         packetbeat.setStream(this.getBeats().get("packetbeat").getStream());
 
         ApiEimBeatConfig filebeat = new ApiEimBeatConfig();
         filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
+        filebeat.setDockerized(this.getBeats().get("filebeat").getDockerized());
         filebeat.setStream(this.getBeats().get("filebeat").getStream());
 
         ApiEimBeatConfig metricbeat = new ApiEimBeatConfig();
         metricbeat.setPaths(this.getBeats().get("metricbeat").getPaths());
+        metricbeat.setDockerized(
+                this.getBeats().get("metricbeat").getDockerized());
         metricbeat.setStream(this.getBeats().get("metricbeat").getStream());
 
         apiEimMonitoringConfig.setPacketbeat(packetbeat);
@@ -263,6 +268,7 @@ public class EimMonitoringConfig {
     public class ApiEimBeatConfig {
         String stream;
         List<String> paths;
+        List<String> dockerized;
 
         public ApiEimBeatConfig() {
         }
@@ -281,6 +287,14 @@ public class EimMonitoringConfig {
 
         public void setPaths(List<String> paths) {
             this.paths = paths;
+        }
+
+        public List<String> getDockerized() {
+            return dockerized;
+        }
+
+        public void setDockerized(List<String> dockerized) {
+            this.dockerized = dockerized;
         }
 
     }

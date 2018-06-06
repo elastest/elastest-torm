@@ -304,6 +304,7 @@ export class ETModelsTransformServices {
             newEimMonitoringConfigModel.beats[key].id = currentBeat.id;
             newEimMonitoringConfigModel.beats[key].name = currentBeat.name;
             newEimMonitoringConfigModel.beats[key].paths = currentBeat.paths;
+            newEimMonitoringConfigModel.beats[key].dockerized = currentBeat.dockerized;
             newEimMonitoringConfigModel.beats[key].stream = currentBeat.stream;
           }
         }

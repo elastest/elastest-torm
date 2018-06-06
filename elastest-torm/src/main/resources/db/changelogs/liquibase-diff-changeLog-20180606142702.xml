@@ -1,0 +1,14 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1528288031197-1">
+        <createTable tableName="EimBeatDockerized">
+            <column name="EimBeatConfig" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dockerized" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1528288031197-2">
+        <addForeignKeyConstraint baseColumnNames="EimBeatConfig" baseTableName="EimBeatDockerized" constraintName="FKe1h49p5560qi1xys403wsqk9y" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="EimBeatConfig"/>
+    </changeSet>
+</databaseChangeLog>
