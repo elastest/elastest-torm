@@ -182,6 +182,7 @@ public class TJobService {
         logger.info("Finishing the external Job.");
         TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
         tJobExec.setResult(ResultEnum.values()[result]);
+        tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
         tJobExec.setEndDate(new Date());
         tJobExecRepositoryImpl.save(tJobExec);
 
