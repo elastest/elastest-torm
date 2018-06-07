@@ -54,7 +54,7 @@ elastest_lib.pipeline({
                         docker ps --filter name=etm -q | xargs -L 1 docker logs || true
                         docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
                         '''
-                        throw e
+                        //throw e
                     } finally {
                         try{
                             sh "cd e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest down"

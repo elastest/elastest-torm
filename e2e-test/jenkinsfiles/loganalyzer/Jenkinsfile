@@ -42,7 +42,7 @@ elastest_lib.pipeline({
                         docker ps --filter name=etm -q | xargs -L 1 docker logs || true
                         docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
                         '''
-                        throw e
+                        //throw e
                     } finally {
                         step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                     }
