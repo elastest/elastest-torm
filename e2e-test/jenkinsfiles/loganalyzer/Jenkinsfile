@@ -13,49 +13,44 @@ elastest_lib.setAuthenticatedElastest(true)
 def elastest= elastest_lib.getElastestMethods()
 def elastest_network = env.NETWORK
 
+echo 'Clean exited containers'
+sh 'docker ps -a -f name=elastest | grep Exited |  awk "{print $1}" | xargs docker rm -f'
+
 //definition of nodes is managed by the library. Just declare the steps of your pipeline
 //inside the elastest_lib.pipeline({...})
 elastest_lib.pipeline({
     
-    try {
-            
-        stage ('docker container')
-            def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
-            mycontainer.pull()
-            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
-                sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'                
-                
-                stage ("Prepare test") 
-                    git 'https://github.com/elastest/elastest-torm.git'
-                    echo 'Prepare network'
-                    elastest.connect2ElastestNetwork()
-                    def elastestURL = elastest.getEtmUrl()
-                
-                stage ("E2E tests")                        
-                    try {
-                        echo "Run tests"
-                        sh "cd e2e-test; mvn -B clean test -Dtest=EtmLogAnalyzerE2eTest -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
-                    } catch(e) {
-                        sh '''\
-                        docker ps --all
-                        docker ps --filter name=etm -q
-                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
-                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
-                        '''
-                        //throw e
-                    } finally {
-                        step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
-                    }
-            }
-    } catch (err) {
-        echo 'Error!!! Send email to the people responsible for the builds.'
-        emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
-        replyTo: '${BUILD_USER_EMAIL}', 
-        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
-        to: '${MAIL_LIST}'
 
-        throw err
-    }
+        
+    stage ('docker container')
+        def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
+        mycontainer.pull()
+        mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+            sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'                
+            
+            stage ("Prepare test") 
+                git 'https://github.com/elastest/elastest-torm.git'
+                echo 'Prepare network'
+                elastest.connect2ElastestNetwork()
+                def elastestURL = elastest.getEtmUrl()
+            
+            stage ("E2E tests")                        
+                try {
+                    echo "Run tests"
+                    sh "cd e2e-test; mvn -B clean test -Dtest=EtmLogAnalyzerE2eTest -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+                } catch(e) {
+                    sh '''\
+                    docker ps --all
+                    docker ps --filter name=etm -q
+                    docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                    docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                    '''
+
+                } finally {
+                    step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                }
+        }
+
 })
   
   def containerIp(containerName, network) {
