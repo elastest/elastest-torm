@@ -783,6 +783,7 @@ public class TJobExecOrchestratorService {
     public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
             DockerExecution dockerExec) {
+        TJobExecution tJobExec = dockerExec.gettJobexec();
         HashMap<String, HashMap> serviceContent = service.getValue();
         String loggingKey = "logging";
         // If service has logging, remove it
@@ -793,10 +794,20 @@ public class TJobExecOrchestratorService {
         loggingContent.put("driver", "syslog");
 
         HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
+
+        String host = "";
+        String port = "5000";
+
+        if (tJobExec.getTjob().isSelectedService("ems")) {
+            host = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
+            port = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
+        } else {
+            host = dockerService.getContainerIpByNetwork(
+                    etEtmLogstashContainerName, elastestDockerNetwork);
+        }
         loggingOptionsContent.put("syslog-address",
-                "tcp://" + dockerService.getContainerIpByNetwork(
-                        etEtmLogstashContainerName, elastestDockerNetwork)
-                        + ":5000");
+                "tcp://" + host + ":" + port);
+
         loggingOptionsContent.put("tag",
                 composeProjectName + "_" + service.getKey() + "_exec");
 
