@@ -155,27 +155,42 @@ export class TjobExecManagerComponent implements OnInit {
             jsonObj['tJobExec'] = this.tJobExec;
             this.filesService.downloadObjectAsJson(jsonObj);
           } else {
-            this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe((logsTraces: LogTraces[]) => {
-              jsonObj['logs'] = logsTraces;
-
-              // Todo metrics and disable btn while processing
-              this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
-                jsonObj['metrics'] = metricsTraces;
-
-                // Create tmp url and link element for download
-                this.filesService.downloadObjectAsJson(jsonObj);
-                this.downloading = false;
-              });
-            });
+            this.downloadAsJsonWithoutTestCases();
           }
         },
         (error: Error) => {
-          this.downloading = false;
+          console.log('Error: ' + error, 'Trying to download without testcases');
+          this.downloadAsJsonWithoutTestCases();
         },
       );
     } catch (e) {
       this.downloading = false;
       this.elastestESService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
     }
+  }
+
+  downloadAsJsonWithoutTestCases(): void {
+    let jsonObj: object = {
+      tJobExec: this.tJobExec,
+    };
+
+    this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe(
+      (logsTraces: LogTraces[]) => {
+        jsonObj['logs'] = logsTraces;
+
+        // Todo metrics and disable btn while processing
+        this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
+          jsonObj['metrics'] = metricsTraces;
+
+          // Create tmp url and link element for download
+          this.filesService.downloadObjectAsJson(jsonObj);
+          this.downloading = false;
+        });
+      },
+      (error: Error) => {
+        this.downloading = false;
+        this.elastestESService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
+      },
+    );
   }
 }

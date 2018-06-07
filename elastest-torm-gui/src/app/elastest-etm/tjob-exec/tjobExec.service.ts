@@ -143,11 +143,16 @@ export class TJobExecService {
   ): void {
     if (testSuites.length > 0) {
       let suite: TestSuiteModel = testSuites.shift();
-      this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases]).subscribe((someTestCaseWithDate: boolean) => {
-        someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
+      this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases]).subscribe(
+        (someTestCaseWithDate: boolean) => {
+          someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
 
-        this.loadTestSuitesInfoToDownloadByGiven(tJobExec, testSuites, _suites, someTestSuiteWithDate);
-      });
+          this.loadTestSuitesInfoToDownloadByGiven(tJobExec, testSuites, _suites, someTestSuiteWithDate);
+        },
+        (error: Error) => {
+          _suites.error(error);
+        },
+      );
     } else {
       sleep(1000).then(() => {
         // because sometimes, next is fired before subscription
@@ -175,44 +180,49 @@ export class TJobExecService {
       // Obtain start/finish traces first
       this.logAnalyzerService
         .searchTestCaseStartAndFinishTraces(tCase.name, [tJobExec.monitoringIndex], tJobExec.startDate, tJobExec.endDate)
-        .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
-          let _logs: Subject<any[]> = new Subject<any[]>();
-          let logsObs: Observable<any[]> = _logs.asObservable();
+        .subscribe(
+          (startFinishObj: StartFinishTestCaseTraces) => {
+            let _logs: Subject<any[]> = new Subject<any[]>();
+            let logsObs: Observable<any[]> = _logs.asObservable();
 
-          // Logs
-          this.logAnalyzerService.searchTestCaseLogsByGivenStartFinishTraces(
-            tCase.name,
-            [tJobExec.monitoringIndex],
-            startFinishObj,
-            _logs,
-          );
+            // Logs
+            this.logAnalyzerService.searchTestCaseLogsByGivenStartFinishTraces(
+              tCase.name,
+              [tJobExec.monitoringIndex],
+              startFinishObj,
+              _logs,
+            );
 
-          logsObs.subscribe(
-            (logs: any[]) => {
-              someTestCaseWithDate = true;
-              tCase['logs'] = logs;
-              let timeRange: ESRangeModel = this.logAnalyzerService.elastestESService.getRangeByGiven(
-                startFinishObj.startDate,
-                startFinishObj.finishDate,
-              );
+            logsObs.subscribe(
+              (logs: any[]) => {
+                someTestCaseWithDate = true;
+                tCase['logs'] = logs;
+                let timeRange: ESRangeModel = this.logAnalyzerService.elastestESService.getRangeByGiven(
+                  startFinishObj.startDate,
+                  startFinishObj.finishDate,
+                );
 
-              // Metrics
-              this.logAnalyzerService.elastestESService.getAllTJobExecMetrics(tJobExec, timeRange).subscribe(
-                (metricsTraces: MetricTraces[]) => {
-                  tCase['metrics'] = metricsTraces;
+                // Metrics
+                this.logAnalyzerService.elastestESService.getAllTJobExecMetrics(tJobExec, timeRange).subscribe(
+                  (metricsTraces: MetricTraces[]) => {
+                    tCase['metrics'] = metricsTraces;
 
-                  this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
-                },
-                (error: Error) => {
-                  this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
-                },
-              );
-            },
-            (error: Error) => {
-              this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
-            },
-          );
-        });
+                    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                  },
+                  (error: Error) => {
+                    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                  },
+                );
+              },
+              (error: Error) => {
+                this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+              },
+            );
+          },
+          (error: Error) => {
+            _cases.error(error);
+          },
+        );
     } else {
       _cases.next(someTestCaseWithDate);
     }
