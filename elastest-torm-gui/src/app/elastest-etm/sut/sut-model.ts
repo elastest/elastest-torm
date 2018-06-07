@@ -103,4 +103,26 @@ export class SutModel {
   public mainServiceIsNotEmpty(): boolean {
     return this.mainService !== undefined && this.mainService !== null && this.mainService !== '';
   }
+
+  public isInstrumentedByElastestAndHasBeatsConfig(): boolean {
+    return (
+      this.isInstrumentedByElastest() &&
+      this.eimMonitoringConfig !== undefined &&
+      this.eimMonitoringConfig !== null &&
+      this.eimMonitoringConfig.beats !== undefined &&
+      this.eimMonitoringConfig.beats !== null
+    );
+  }
+
+  public isInstrumentedByElastestAndHasDockerizedBeatsConfig(): boolean {
+    return (
+      this.isInstrumentedByElastestAndHasBeatsConfig() &&
+      ((this.eimMonitoringConfig.beats.metricbeat !== undefined &&
+        this.eimMonitoringConfig.beats.metricbeat.dockerized !== undefined &&
+        this.eimMonitoringConfig.beats.metricbeat.dockerized.length > 0) ||
+        (this.eimMonitoringConfig.beats.filebeat !== undefined &&
+          this.eimMonitoringConfig.beats.filebeat.dockerized !== undefined &&
+          this.eimMonitoringConfig.beats.filebeat.dockerized.length > 0))
+    );
+  }
 }

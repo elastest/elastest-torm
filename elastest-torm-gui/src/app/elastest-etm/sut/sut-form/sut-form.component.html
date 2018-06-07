@@ -265,7 +265,7 @@
 
   <!-- Buttons -->
   <md-card-actions>
-    <button md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary" (click)="preSave()" title="Save and return to previous page">SAVE</button>
+    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary" (click)="preSave()" mdTooltip="Save and return to previous page">SAVE</button>
     <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
   </md-card-actions>
 </md-card>
