@@ -57,6 +57,12 @@ public class EimMonitoringConfig {
     @JsonProperty("component")
     private String component = null;
 
+    @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
+            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "dockerized")
+    @JsonProperty("dockerized")
+    private Boolean dockerized;
+
     @JsonView({ EimMonitoringConfigView.class, SutView.class,
             ExternalProjectView.class, BasicAttProject.class })
     @OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
@@ -79,10 +85,11 @@ public class EimMonitoringConfig {
     }
 
     public EimMonitoringConfig(Long id, String exec, String component,
-            Map<String, EimBeatConfig> beats) {
+            Boolean dockerized, Map<String, EimBeatConfig> beats) {
         this.id = id == null ? 0 : id;
         this.exec = exec;
         this.component = component;
+        this.dockerized = dockerized == null ? false : dockerized;
         this.beats = beats != null ? beats : new HashMap<>();
         this.beatsStatus = BeatsStatusEnum.DEACTIVATED;
     }
@@ -145,6 +152,14 @@ public class EimMonitoringConfig {
         this.component = component;
     }
 
+    public Boolean isDockerized() {
+        return dockerized == null ? false : dockerized;
+    }
+
+    public void setDockerized(Boolean dockerized) {
+        this.dockerized = dockerized == null ? false : dockerized;
+    }
+
     public Map<String, EimBeatConfig> getBeats() {
         return beats;
     }
@@ -175,6 +190,8 @@ public class EimMonitoringConfig {
         ApiEimMonitoringConfig apiEimMonitoringConfig = new ApiEimMonitoringConfig();
         apiEimMonitoringConfig.setExec(this.getExec());
         apiEimMonitoringConfig.setComponent(this.getComponent());
+        apiEimMonitoringConfig
+                .setDockerized(this.isDockerized() ? "yes" : "no");
 
         ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
         packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
@@ -218,6 +235,7 @@ public class EimMonitoringConfig {
     public class ApiEimMonitoringConfig {
         String exec;
         String component;
+        String dockerized;
         ApiEimBeatConfig packetbeat;
         ApiEimBeatConfig filebeat;
         ApiEimBeatConfig metricbeat;
@@ -239,6 +257,14 @@ public class EimMonitoringConfig {
 
         public void setComponent(String component) {
             this.component = component;
+        }
+
+        public String getDockerized() {
+            return dockerized;
+        }
+
+        public void setDockerized(String dockerized) {
+            this.dockerized = dockerized;
         }
 
         public ApiEimBeatConfig getPacketbeat() {

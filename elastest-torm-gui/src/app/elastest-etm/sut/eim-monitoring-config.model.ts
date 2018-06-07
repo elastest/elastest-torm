@@ -5,12 +5,14 @@ export class EimMonitoringConfigModel {
   id: number;
   exec: string;
   component: string;
+  dockerized: boolean;
   beats: EimBeatsMap;
 
-  constructor(exec: string = '', component: string = '') {
+  constructor(exec: string = '', component: string = '', dockerized: boolean = false) {
     this.id = 0;
     this.exec = exec; // Sets on save in Backend (SutService)
     this.component = component;
+    this.dockerized = dockerized;
     this.beats = new EimBeatsMap();
   }
 }

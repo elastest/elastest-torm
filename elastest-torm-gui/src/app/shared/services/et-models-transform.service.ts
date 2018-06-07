@@ -296,6 +296,7 @@ export class ETModelsTransformServices {
       newEimMonitoringConfigModel.id = eimMonitoringConfig.id;
       newEimMonitoringConfigModel.exec = eimMonitoringConfig.exec;
       newEimMonitoringConfigModel.component = eimMonitoringConfig.component;
+      newEimMonitoringConfigModel.dockerized = eimMonitoringConfig.dockerized;
 
       if (eimMonitoringConfig.beats !== undefined) {
         for (let key of Object.keys(eimMonitoringConfig.beats)) {

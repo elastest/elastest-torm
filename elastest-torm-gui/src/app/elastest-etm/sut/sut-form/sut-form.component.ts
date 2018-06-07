@@ -169,18 +169,8 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
 
-    if (
-      this.elastestInsCheck &&
-      this.sut.eimMonitoringConfig &&
-      this.sut.eimMonitoringConfig.beats &&
-      ((this.sut.eimMonitoringConfig.beats.metricbeat &&
-        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized !== undefined &&
-        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized.length > 0) ||
-        (this.sut.eimMonitoringConfig.beats.filebeat &&
-          this.sut.eimMonitoringConfig.beats.filebeat.dockerized !== undefined &&
-          this.sut.eimMonitoringConfig.beats.filebeat.dockerized.length > 0))
-    ) {
-      this.dockerizedSut = true;
+    if (this.elastestInsCheck && this.sut.eimMonitoringConfig && this.sut.eimMonitoringConfig.dockerized) {
+      this.dockerizedSut = this.sut.eimMonitoringConfig.dockerized;
     }
   }
 
@@ -352,11 +342,8 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.sut.mainService = '';
     }
 
-    if (this.sut.isInstrumentedByElastest && !this.dockerizedSut) {
-      if (this.sut.isInstrumentedByElastestAndHasDockerizedBeatsConfig()) {
-        this.sut.eimMonitoringConfig.beats.filebeat.dockerized = undefined;
-        this.sut.eimMonitoringConfig.beats.metricbeat.dockerized = undefined;
-      }
+    if (this.sut.isInstrumentedByElastest && this.sut.eimMonitoringConfig !== undefined) {
+      this.sut.eimMonitoringConfig.dockerized = this.dockerizedSut;
     }
 
     this.sutService.createSut(this.sut).subscribe(
