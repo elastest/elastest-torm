@@ -38,7 +38,7 @@ RUN apt-get update
 RUN apt-get install -y wget
 
 # Get maven 3.3.9
-RUN wget --no-verbose -O /tmp/apache-maven-3.3.9-bin.tar.gz http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+RUN wget --no-verbose -O /tmp/apache-maven-3.3.9-bin.tar.gz http://www.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
 
 # Install maven
 RUN tar xzf /tmp/apache-maven-3.3.9-bin.tar.gz -C /opt/
