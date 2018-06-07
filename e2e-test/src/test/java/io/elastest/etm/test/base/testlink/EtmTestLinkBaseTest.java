@@ -64,12 +64,12 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String xpath = "//button[@id='" + id + "']";
 
         log.info("Synchronizing TestLink With ElasTest");
-        this.getElementByXpath(driver, id, xpath).get(0).click();
+        this.getElementByIdXpath(driver, id, xpath).get(0).click();
 
         // Wait to sync ends
         WebDriverWait waitService = new WebDriverWait(driver, 45);
         waitService.until(elementToBeClickable(
-                this.getElementByXpath(driver, id, xpath).get(0)));
+                this.getElementByIdXpath(driver, id, xpath).get(0)));
 
     }
 
@@ -131,19 +131,19 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     protected void startTLEtmPlanExecution(WebDriver driver) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
-        this.getElementByXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
+        this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
                 .click();
 
         String selectBuildId = "selectBuild";
         String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
-        this.getElementByXpath(driver, selectBuildId, selectBuildXpath).get(0)
+        this.getElementByIdXpath(driver, selectBuildId, selectBuildXpath).get(0)
                 .click();
 
         this.getElementsByTagName(driver, "md-option").get(0).click();
 
         String runPlanModalBtnId = "runPlanModalBtn";
         String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";
-        this.getElementByXpath(driver, runPlanModalBtnId, runPlanModalXpath)
+        this.getElementByIdXpath(driver, runPlanModalBtnId, runPlanModalXpath)
                 .get(0).click();
     }
 
@@ -163,7 +163,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String saveAndNextBtnId = "saveAndNext";
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
-        this.getElementByXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
+        this.getElementByIdXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
                 180).get(0).click();
         try {
             // Wait for save TestCase
@@ -178,7 +178,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String tJobExecResultIconXpath = "//*[@id='" + tJobExecResultIconId
                 + "']";
 
-        this.getElementByXpath(driver, tJobExecResultIconId,
+        this.getElementByIdXpath(driver, tJobExecResultIconId,
                 tJobExecResultIconXpath, 60).get(0).click();
     }
 

@@ -54,25 +54,27 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final String sutName = "OpenVidu Test App";
     final int timeout = 600;
 
-    void createProjectAndSut(WebDriver driver) throws InterruptedException {
+    void createProjectAndSut(WebDriver driver) throws Exception {
         navigateToTorm(driver);
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
-
+        }
+        if (!etSutExistsIntoProject(driver, projectName, sutName)) {
             // Create SuT
             String sutDesc = "OpenVidu Description";
-            String sutImage = "openvidu/testapp:2.0.0";
+            String sutImage = "openvidu/testapp:elastest";
             String sutPort = "4443";
             createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
                     sutImage, sutPort, null);
         }
+
     }
 
     @Test
     @DisplayName("Create OpenVidu WebRTC project Chrome Test")
-    void testCreateChromeTest(
+    void testCreateOpenViduWebRTC(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws Exception {
         this.driver = driver;
         this.createProjectAndSut(driver);
         navigateToETProject(driver, projectName);

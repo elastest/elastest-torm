@@ -201,7 +201,7 @@
             </td-expansion-panel>
 
             <!-- Eim Dockerized Paths -->
-            <td-expansion-panel expand="true" class="push-bottom push-top">
+            <td-expansion-panel expand="{{dockerizedSut}}" class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
                 <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="dockerizedSut" (change)="switchDockerized($event)"></md-checkbox>
                 <span class="md-headline">Dockerized SuT</span>
