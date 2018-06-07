@@ -195,19 +195,27 @@ public class EimMonitoringConfig {
 
         ApiEimBeatConfig packetbeat = new ApiEimBeatConfig();
         packetbeat.setPaths(this.getBeats().get("packetbeat").getPaths());
-        packetbeat.setDockerized(
-                this.getBeats().get("packetbeat").getDockerized());
+
+        if (this.isDockerized()) {
+            packetbeat.setDockerized(
+                    this.getBeats().get("packetbeat").getDockerized());
+        }
         packetbeat.setStream(this.getBeats().get("packetbeat").getStream());
 
         ApiEimBeatConfig filebeat = new ApiEimBeatConfig();
         filebeat.setPaths(this.getBeats().get("filebeat").getPaths());
-        filebeat.setDockerized(this.getBeats().get("filebeat").getDockerized());
+        if (this.isDockerized()) {
+            filebeat.setDockerized(
+                    this.getBeats().get("filebeat").getDockerized());
+        }
         filebeat.setStream(this.getBeats().get("filebeat").getStream());
 
         ApiEimBeatConfig metricbeat = new ApiEimBeatConfig();
         metricbeat.setPaths(this.getBeats().get("metricbeat").getPaths());
-        metricbeat.setDockerized(
-                this.getBeats().get("metricbeat").getDockerized());
+        if (this.isDockerized()) {
+            metricbeat.setDockerized(
+                    this.getBeats().get("metricbeat").getDockerized());
+        }
         metricbeat.setStream(this.getBeats().get("metricbeat").getStream());
 
         apiEimMonitoringConfig.setPacketbeat(packetbeat);
