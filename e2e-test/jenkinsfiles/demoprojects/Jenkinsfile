@@ -13,8 +13,8 @@ node {
     def elastest_network = env.NETWORK
 
     try {
-        echo 'Clean exited containers'
-        sh 'docker ps -a -f name=elastest | grep Exited |  awk "{print $1}" | xargs docker rm -f'
+        echo 'Clean exited containers'        
+        sh 'docker ps -a; docker ps -a -f name=elastest | grep Exited |  awk "{print $1}" | xargs docker rm -f'
     }catch (err) {
         echo 'No containers in Exited state'
     }
