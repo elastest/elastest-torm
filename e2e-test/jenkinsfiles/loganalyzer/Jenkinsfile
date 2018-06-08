@@ -35,6 +35,12 @@ node {
             def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
             mycontainer.pull()
             mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                try {
+                    echo 'Clean exited containers'
+                    sh 'docker ps -a -f name=elastest | grep Exited |  awk "{print $1}" | xargs docker rm -f'
+                }catch (err) {
+                    echo 'No containers in Exited state'
+                }
                 sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'                
                 
                 stage ("Prepare test") 
