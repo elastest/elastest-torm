@@ -201,9 +201,9 @@
             </td-expansion-panel>
 
             <!-- Eim Dockerized Paths -->
-            <td-expansion-panel expand="{{dockerizedSut}}" class="push-bottom push-top">
+            <td-expansion-panel *ngIf="this.sut.eimMonitoringConfig" expand="{{this.sut.eimMonitoringConfig.dockerized}}" class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
-                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="dockerizedSut" (change)="switchDockerized($event)"></md-checkbox>
+                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="this.sut.eimMonitoringConfig.dockerized" (change)="switchDockerized($event)"></md-checkbox>
                 <span class="md-headline">Dockerized SuT</span>
               </ng-template>
               <div class="pad-sm pad-top-xs" layout="column">
@@ -265,7 +265,8 @@
 
   <!-- Buttons -->
   <md-card-actions>
-    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary" (click)="preSave()" mdTooltip="Save and return to previous page">SAVE</button>
+    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary" (click)="preSave()"
+      mdTooltip="Save and return to previous page">SAVE</button>
     <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
   </md-card-actions>
 </md-card>

@@ -76,8 +76,6 @@ export class SutFormComponent implements OnInit, DoCheck {
   eimLogsPathHelpDesc: string = 'You can use *.log to get all logs from specific path. Example: "/var/log/*.log"';
 
   // EIM Dockerized
-  dockerizedSut: boolean = false;
-
   eimDockerContainerLogsPathHelpDesc: string =
     'The path where docker writes the containers logs. By default it is /var/lib/docker/containers/';
   eimDockerSockPathHelpDesc: string = 'The path of docker.sock. By default it is /var/run/docker.sock';
@@ -168,10 +166,6 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
-
-    if (this.elastestInsCheck && this.sut.eimMonitoringConfig && this.sut.eimMonitoringConfig.dockerized) {
-      this.dockerizedSut = this.sut.eimMonitoringConfig.dockerized;
-    }
   }
 
   initInstrumentalized(): void {
@@ -342,10 +336,6 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.sut.mainService = '';
     }
 
-    if (this.sut.isInstrumentedByElastest && this.sut.eimMonitoringConfig !== undefined) {
-      this.sut.eimMonitoringConfig.dockerized = this.dockerizedSut;
-    }
-
     this.sutService.createSut(this.sut).subscribe(
       (sut: SutModel) => this.postSave(sut, exit),
       (error) => {
@@ -369,6 +359,8 @@ export class SutFormComponent implements OnInit, DoCheck {
   }
 
   switchDockerized($event): void {
-    this.dockerizedSut = $event.checked;
+    if (this.sut.eimMonitoringConfig !== undefined) {
+      this.sut.eimMonitoringConfig.dockerized = $event.checked;
+    }
   }
 }
