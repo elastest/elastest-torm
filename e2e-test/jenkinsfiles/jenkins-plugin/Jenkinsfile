@@ -8,7 +8,7 @@ node {
         elastest_lib.setOptionals('-sa='+env.SA)
     }
     elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
-    elastest_lib.setTestLink(true)
+    //elastest_lib.setTestLink(true)
     elastest_lib.setAuthenticatedElastest(true)
     //initialization of the runnable object to access elastest methods inside the pipeline
     def elastest= elastest_lib.getElastestMethods()
