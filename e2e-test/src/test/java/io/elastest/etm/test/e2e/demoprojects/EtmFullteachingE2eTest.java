@@ -105,19 +105,21 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
 
     void createProjectAndSut(WebDriver driver, int sutNum)
             throws InterruptedException {
+        boolean fromDashboard = true;
         navigateToTorm(driver);
         // Create Project
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
+            fromDashboard = false;
         }
         // Create SuT
         if (sutNum == 1) {
-            if (!etSutExistsIntoProject(driver, projectName, sut1Name)) {
+            if (!etSutExistsIntoProject(driver, projectName, sut1Name, fromDashboard)) {
                 createNewSutDeployedByElastestWithCompose(driver, sut1Name,
                         sut1Desc, sut1Compose, sut1MainService, sut1Port, null);
             }
         } else {
-            if (!etSutExistsIntoProject(driver, projectName, sut2Name)) {
+            if (!etSutExistsIntoProject(driver, projectName, sut2Name, fromDashboard)) {
                 createNewSutDeployedByElastestWithCompose(driver, sut2Name,
                         sut2Desc, sut2Compose, sut2MainService, sut2Port, null);
             }

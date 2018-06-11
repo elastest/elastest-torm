@@ -350,10 +350,12 @@ public class EtmBaseTest {
     }
 
     protected boolean etSutExistsIntoProject(WebDriver driver,
-            String projectName, String sutName) {
+            String projectName, String sutName, boolean fromDashboard) {
         log.info("Checking if Sut {} exists into Project {}", sutName,
                 projectName);
-        //this.navigateToETProject(driver, projectName);
+        if (fromDashboard) {
+            this.navigateToETProject(driver, projectName);
+        }
 
         String id = "sutsTable";
         String xpath = "//td-data-table[@id='" + id + "']";
