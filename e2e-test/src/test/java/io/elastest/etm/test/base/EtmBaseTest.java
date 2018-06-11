@@ -256,12 +256,13 @@ public class EtmBaseTest {
 
     protected boolean etProjectExists(WebDriver driver, String projectName) {
         log.info("Checking if Project {} exists", projectName);
-        this.navigateToRoot(driver);
+        //this.navigateToRoot(driver);
         String id = "projects";
         String xpath = "//td-data-table[@id='" + id + "']";
 
         // If exist PJ table (if there are some pj)
-        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
+        
+        if (getElementByXpath(driver, xpath).size() > 0) {
             xpath = xpath + "//*/td/div[contains(string(), '" + projectName
                     + "')]";
             return this.elementExists(driver, id, xpath);
@@ -352,7 +353,7 @@ public class EtmBaseTest {
             String projectName, String sutName) {
         log.info("Checking if Sut {} exists into Project {}", sutName,
                 projectName);
-        this.navigateToETProject(driver, projectName);
+        //this.navigateToETProject(driver, projectName);
 
         String id = "sutsTable";
         String xpath = "//td-data-table[@id='" + id + "']";
