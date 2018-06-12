@@ -1,0 +1,89 @@
+node ('container') { 
+    def elastest_url = env.URL
+    def elastest_user = env.USER
+    def elastest_pass = env.PASS
+    def elastest_network = env.NETWORK
+
+	 stage ('docker container')
+		    def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
+		    mycontainer.pull()
+		    mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+		        sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
+		        def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/etm-e2e-test-plugin/elastest-plugin/target/elastest.hpi'
+		        def pluginDirectory = 'elastest-plugin'
+		        def testRepositoryDirectory = 'elastest'
+		    
+		        stage('build ElasTest plugin')
+		            def pluginDirectoryExists = fileExists 'elastest-plugin'
+		            if (pluginDirectoryExists) {
+		                echo 'The elastset-plugin exists'
+		            } else {
+		                echo 'There is no elastset-plugin directory'
+		                sh 'mkdir elastest-plugin'
+		            }
+		            dir(pluginDirectory) {
+		                git 'https://github.com/elastest/elastest-jenkins.git'
+		                echo 'Build ElasTest plugin'
+		                sh 'cd elastest-plugin; pwd; ls -lrt; mvn clean package -B'
+		            }
+		        
+		        stage ('prepare test')
+		            def testDirectoryExists = fileExists 'elastest'
+		            if (pluginDirectoryExists) {
+		                echo 'The elastest directory exists'
+		            } else {
+		                echo 'There is no elastset directory'
+		                sh 'mkdir elastest'
+		            }
+		            
+		            dir(testRepositoryDirectory) {
+		                echo 'Existing files before cloning the git repository'
+		                git 'https://github.com/elastest/elastest-torm.git'
+		            }
+		        
+		 
+		            echo 'Prepare Jenkins'
+		            def etCustmizedJenkinsImage = docker.image('elastest/etm-jenkins:latest')
+		            echo 'Object for the Jenkins image declared'
+		            try {
+		                echo "Try to remove elastest_etm-jenkins_1 container if is started"
+		                sh 'docker rm -f elastest_etm-jenkins_1'
+		            } catch(e) {
+		                echo "elastest_etm-jenkins_1 container not started"
+		            }
+		            
+		            etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+elastest_network) { c1 ->
+		                stage ("E2E tests")
+		                        echo "${c1.id}"                        
+		                        def ciUrl = "http://" + containerIp(c1.id, elastest_network) + ":8080"
+		                        echo "Jenkins URL: " + ciUrl                    
+		                        
+		                        try {
+                                    echo "Start Fullteaching"
+			                        sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest up -d"
+			                        echo "Wait for fullteaching started"
+			                        sh "sleep 20"
+			
+			                        def fullteachingIp = containerIp("elastest_full-teaching_1")
+			                        echo "Fullteaching IP: " + fullteachingIp  
+		                            echo "Run tests"
+            						sh "cd ./e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-DfullteachingIp="+ fullteachingIp + " -DfullteachingPort=5000 -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+		                        } catch(e) {
+		                            sh '''\
+		                            docker ps --all
+		                            docker ps --filter name=etm -q
+		                            docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+		                            docker ps --filter name=etm -q | xargs -L 1 docker inspect || true                                    
+		                            '''
+		                            throw e
+		                        } finally {
+                                    try{
+			                            sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest down"
+			                        } catch(e) {
+			                            echo 'Error on stop Fullteaching docker compose: ' + e.toString()
+			                        }  
+		                            step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+		                        }
+		                }
+		    }    
+}
