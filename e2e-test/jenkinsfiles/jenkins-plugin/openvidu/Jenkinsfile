@@ -1,10 +1,10 @@
 node{
-    elastest(tss: ['EUS']) {
+    elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml') {
             stage ('Executing Test') {
                 echo 'Print env variables'
                 sh 'env'
                 
-                def sutImage = docker.image('elastest/demo-openvidu-test-sut2')
+                def sutImage = docker.image('openvidu/testapp:elastest')
                 def beatImage = docker.image('elastest/etm-dockbeat:latest')
                 echo 'Start beat'
                 beatImage.withRun("-e LOGSTASHHOST=${env.ET_MON_LSBEATS_HOST} -e LOGSTASHPORT=${env.ET_MON_INTERNAL_LSBEATS_PORT} -v /var/run/docker.sock:/var/run/docker.sock --network=elastest_elastest") { c1 ->
@@ -21,6 +21,7 @@ node{
                             git 'https://github.com/elastest/demo-projects'
                             echo 'Run test'
                             sh "cd ./openvidu-test/;'${mvnHome}/bin/mvn' test"
+                            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
                         }
                     }
                 }
