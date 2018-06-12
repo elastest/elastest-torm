@@ -82,8 +82,7 @@ node {
                     
                     etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
                         stage ("E2E tests")
-                            
-                                echo "Jenkins Url: " + jenkinsUrl
+                                                            
                                 echo "${c1.id}"                        
                                 def ciUrl = "http://" + containerIp(c1.id, test_network) + ":8080"
                                 echo "Jenkins URL: " + ciUrl                    
