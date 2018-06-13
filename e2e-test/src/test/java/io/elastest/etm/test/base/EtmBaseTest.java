@@ -97,16 +97,18 @@ public class EtmBaseTest {
 
         }
 
-        this.tormApiUrl = this.tormUrl + (this.tormUrl.endsWith("/")
-                ? this.apiPath : "/" + this.apiPath);
+        this.tormApiUrl = this.tormUrl
+                + (this.tormUrl.endsWith("/") ? this.apiPath
+                        : "/" + this.apiPath);
 
         if (secureElastest) {
             String split_url[] = tormUrl.split("//");
             secureTorm = split_url[0] + "//" + eUser + ":" + ePassword + "@"
                     + split_url[1];
 
-            this.tormApiUrl = secureTorm + (secureTorm.endsWith("/")
-                    ? this.apiPath : "/" + this.apiPath);
+            this.tormApiUrl = secureTorm
+                    + (secureTorm.endsWith("/") ? this.apiPath
+                            : "/" + this.apiPath);
 
         }
 
@@ -148,8 +150,14 @@ public class EtmBaseTest {
 
     protected void navigateToRoot(WebDriver driver) {
         log.info("Navigate to Root Path (/)");
-        driver.findElement(By
-                .xpath("//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
+        driver.findElement(By.xpath(
+                "//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
+                .click();
+    }
+
+    protected void navigateToProjects(WebDriver driver) {
+        log.info("Navigate to Projects Path (/project)");
+        this.getElementByXpath(driver, "//*[@id=\"nav_projects\"]").get(0)
                 .click();
     }
 
@@ -245,7 +253,7 @@ public class EtmBaseTest {
     }
 
     protected void navigateToETProject(WebDriver driver, String projectName) {
-        this.navigateToRoot(driver);
+        this.navigateToProjects(driver);
         log.info("Navigate to {} project", projectName);
 
         String id = "projects";
@@ -256,12 +264,12 @@ public class EtmBaseTest {
 
     protected boolean etProjectExists(WebDriver driver, String projectName) {
         log.info("Checking if Project {} exists", projectName);
-        //this.navigateToRoot(driver);
+        // this.navigateToRoot(driver);
         String id = "projects";
         String xpath = "//td-data-table[@id='" + id + "']";
 
         // If exist PJ table (if there are some pj)
-        
+
         if (getElementByXpath(driver, xpath).size() > 0) {
             xpath = xpath + "//*/td/div[contains(string(), '" + projectName
                     + "')]";
@@ -516,8 +524,8 @@ public class EtmBaseTest {
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
         WebDriverWait waitService = new WebDriverWait(driver, 10);
         waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+        driver.findElement(By.xpath(
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
                 .click();
 
     }
