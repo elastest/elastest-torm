@@ -363,14 +363,25 @@ public class EtmBaseTest {
                 projectName);
         this.navigateToETProject(driver, projectName);
 
+        try {
+            // Sleep for wait to load tables
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
+
         String id = "sutsTable";
         String xpath = "//td-data-table[@id='" + id + "']";
 
         // If sut table exist
         if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
             xpath += "//*/td/div[contains(string(), '" + sutName + "')]";
-            return this.elementExists(driver, id, xpath);
+            boolean sutExist = this.elementExists(driver, id, xpath);
+            String existStr = sutExist ? "exist" : "does not exist";
+            log.info("Sut {} {} into Project {}", sutName, existStr,
+                    projectName);
+            return sutExist;
         } else {
+            log.warn("Sut table does not exist");
             return false;
         }
     }
@@ -384,6 +395,12 @@ public class EtmBaseTest {
         log.info("Checking if TJob {} exists into Project {}", tJobName,
                 projectName);
         this.navigateToETProject(driver, projectName);
+
+        try {
+            // Sleep for wait to load tables
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
 
         String id = "tJobs";
         String xpath = "//td-data-table[@id='" + id + "']";
