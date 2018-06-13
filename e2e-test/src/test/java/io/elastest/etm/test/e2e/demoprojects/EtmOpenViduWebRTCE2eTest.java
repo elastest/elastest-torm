@@ -61,7 +61,8 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
             createNewETProject(driver, projectName);
             fromDashboard = false;
         }
-        if (!etSutExistsIntoProject(driver, projectName, sutName, fromDashboard)) {
+        if (!etSutExistsIntoProject(driver, projectName, sutName,
+                fromDashboard)) {
             // Create SuT
             String sutDesc = "OpenVidu Description";
             String sutImage = "openvidu/testapp:elastest";
@@ -82,15 +83,16 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
         navigateToETProject(driver, projectName);
 
         String tJobName = "Videocall Test";
-        String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";
-        String tJobImage = "elastest/test-etm-alpinegitjava";
-        String commands = "echo \"Cloning project\"; git clone https://github.com/elastest/demo-projects; cd demo-projects/openvidu-test; echo \"Compiling project\"; mvn -DskipTests=true -B package; echo \"Executing test\"; mvn -B test;";
-        List<String> tssList = new ArrayList<>();
-        tssList.add("EUS");
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String commands = "echo \"Cloning project\"; git clone https://github.com/elastest/demo-projects; cd demo-projects/openvidu-test; echo \"Compiling project\"; mvn -DskipTests=true -B package; echo \"Executing test\"; mvn -B test;";
+            List<String> tssList = new ArrayList<>();
+            tssList.add("EUS");
 
-        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
-                false, commands, null, tssList);
-
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssList);
+        }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 

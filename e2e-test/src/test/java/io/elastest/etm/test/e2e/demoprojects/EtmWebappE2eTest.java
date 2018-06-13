@@ -86,15 +86,16 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         navigateToETProject(driver, projectName);
 
         String tJobName = "Chrome Test";
-        String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-        String tJobImage = "elastest/test-etm-alpinegitjava";
-        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-        List<String> tssList = new ArrayList<>();
-        tssList.add("EUS");
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
+            List<String> tssList = new ArrayList<>();
+            tssList.add("EUS");
 
-        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
-                false, commands, null, tssList);
-
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssList);
+        }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
@@ -118,15 +119,16 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         navigateToETProject(driver, projectName);
 
         String tJobName = "Firefox Test";
-        String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-        String tJobImage = "elastest/test-etm-alpinegitjava";
-        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
-        List<String> tssList = new ArrayList<>();
-        tssList.add("EUS");
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
+            List<String> tssList = new ArrayList<>();
+            tssList.add("EUS");
 
-        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
-                false, commands, null, tssList);
-
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssList);
+        }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 

@@ -82,13 +82,15 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
 
         // Create TJob
         String tJobName = "Rest Test";
-        String sutName = "REST App";
-        String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
-        String tJobImage = "elastest/test-etm-alpinegitjava";
-        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String sutName = "REST App";
+            String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
 
-        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
-                false, commands, null, null);
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, null);
+        }
 
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);

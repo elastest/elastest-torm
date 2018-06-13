@@ -48,8 +48,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     String projectName = "Unit Tests";
-    
-    
+
     void createProject(WebDriver driver) throws InterruptedException {
         navigateToTorm(driver);
         if (!etProjectExists(driver, projectName)) {
@@ -69,20 +68,22 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
         navigateToETProject(driver, projectName);
 
         String tJobName = "Unit Test";
-        String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
-        String sutName = null;
-        String tJobImage = "elastest/test-etm-alpinegitjava";
-        String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
+            String sutName = null;
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
 
-        createNewTJob(driver, tJobName, tJobTestResultPath, sutName, tJobImage,
-                false, commands, null, null);
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, null);
+        }
 
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
         WebDriverWait waitLogs = new WebDriverWait(driver, 240);
-        //log.info("Wait for metrics");
-        //waitLogs.until(presenceOfElementLocated(By.className("tick")));
+        // log.info("Wait for metrics");
+        // waitLogs.until(presenceOfElementLocated(By.className("tick")));
         log.info("Wait for build sucess traces");
         waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
                 "BUILD SUCCESS"));
