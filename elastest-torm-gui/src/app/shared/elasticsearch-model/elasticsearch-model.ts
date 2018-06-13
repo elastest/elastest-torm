@@ -2,11 +2,13 @@ import { ESBoolQueryModel } from './es-query-model';
 export class ESAggsModel {
   name: string;
   field: string;
+  size: number;
   aggs: ESAggsModel;
 
   constructor() {
     this.name = '';
     this.field = '';
+    this.size = 10000;
     this.aggs = undefined;
   }
 
@@ -20,6 +22,7 @@ export class ESAggsModel {
       formatted = { aggs: {} };
       formatted.aggs[this.name] = { terms: {} };
       formatted.aggs[this.name].terms.field = this.field;
+      formatted.aggs[this.name].terms.size = this.size;
       if (this.aggs && !this.aggs.empty()) {
         formatted.aggs[this.name].aggs = this.aggs.convertToESFormat().aggs;
       }
@@ -32,6 +35,7 @@ export class ESAggsModel {
     if (aggModel) {
       this.name = aggModel.name;
       this.field = aggModel.field;
+      this.size = aggModel.size ? aggModel.size : 10000;
       this.aggs = aggModel.aggs;
     }
   }

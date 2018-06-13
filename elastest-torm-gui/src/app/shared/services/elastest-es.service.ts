@@ -644,7 +644,7 @@ export class ElastestESService {
     aggsModel.initNestedByFieldsList(fieldsList);
 
     let aggsObj: any = aggsModel.convertToESFormat();
-    aggsObj.size = 0;
+    aggsObj.size = 10000;
     if (query) {
       aggsObj.query = query;
     }
