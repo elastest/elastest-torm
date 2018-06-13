@@ -10,7 +10,6 @@ import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-
 import { TitlesService } from './shared/services/titles.service';
 import { TestEnginesService } from './elastest-test-engines/test-engines.service';
 import { EsmService } from './elastest-esm/esm-service.service';
-import { RouterModule } from '@angular/router';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
 import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
@@ -28,7 +27,6 @@ import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.module';
 
 import { BreadcrumbService } from './shared/breadcrumb/breadcrumb.service';
-import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
 import { SharedModule } from './shared/shared.module';
 import { StompService } from './shared/services/stomp.service';
 import { StompWSManager } from './shared/services/stomp-ws-manager.service';

@@ -5,7 +5,7 @@ node ('container') {
     def elastest_network = env.NETWORK
 
 	 stage ('docker container')
-		    def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
+		    def mycontainer = docker.image('elastest/ci-docker-e2e-compose:latest')
 		    mycontainer.pull()
 		    mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
 		        sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
@@ -64,10 +64,10 @@ node ('container') {
 			                        echo "Wait for fullteaching started"
 			                        sh "sleep 20"
 			
-			                        def fullteachingIp = containerIp("elastest_full-teaching_1")
+			                        def fullteachingIp = containerIp("elastest_full-teaching_1", "elastest_elastest")
 			                        echo "Fullteaching IP: " + fullteachingIp  
 		                            echo "Run tests"
-            						sh "cd ./e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-DfullteachingIp="+ fullteachingIp + " -DfullteachingPort=5000 -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+            						sh "cd elastest/e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-DfullteachingIp="+ fullteachingIp + " -DfullteachingPort=5000 -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
 		                        } catch(e) {
 		                            sh '''\
 		                            docker ps --all
@@ -86,4 +86,14 @@ node ('container') {
 		                        }
 		                }
 		    }    
+}
+def containerIp(containerName, network) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks."+network+".IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
 }

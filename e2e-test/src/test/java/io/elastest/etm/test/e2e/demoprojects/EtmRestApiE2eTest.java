@@ -48,20 +48,25 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "REST API";
+    final String sutName = "REST App";
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
+        boolean fromDashboard = true;
         navigateToTorm(driver);
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
-
+            fromDashboard = false;
+        }
+        if (!etSutExistsIntoProject(driver, projectName, sutName,
+                fromDashboard)) {
             // Create SuT
-            String sutName = "REST App";
             String sutDesc = "REST App Description";
             String sutImage = "elastest/demo-rest-java-test-sut";
             String sutPort = "8080";
             createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
                     sutImage, sutPort, null);
         }
+
     }
 
     @Test

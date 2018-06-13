@@ -1,4 +1,3 @@
-import { AppModule } from './';
 import { TLTestCaseComponent } from './etm-testlink/test-case/test-case.component';
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
 import { TLTestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
@@ -14,7 +13,6 @@ import { ServiceDetailComponent } from './elastest-esm/support-services/service-
 import { ServiceGuiComponent } from './elastest-esm/support-services/service-gui/service-gui.component';
 import { InstancesManagerComponent } from './elastest-esm/support-services/instance-manager/instances-manager.component';
 import { TestVncComponent } from './shared/vnc-client/test-vnc/test-vnc.component';
-import { VncClientComponent } from './shared/vnc-client/vnc-client.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
@@ -151,9 +149,8 @@ const routes: Routes = [
                                                 path: 'loganalyzer',
                                                 component: ElastestLogAnalyzerComponent,
                                               },
-                                            ]
+                                            ],
                                           },
-                                          
                                         ],
                                       },
                                     ],
