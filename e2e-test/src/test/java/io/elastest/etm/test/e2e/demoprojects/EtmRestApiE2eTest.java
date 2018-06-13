@@ -51,14 +51,11 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
     final String sutName = "REST App";
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
-        boolean fromDashboard = true;
         navigateToTorm(driver);
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
-            fromDashboard = false;
         }
-        if (!etSutExistsIntoProject(driver, projectName, sutName,
-                fromDashboard)) {
+        if (!etSutExistsIntoProject(driver, projectName, sutName)) {
             // Create SuT
             String sutDesc = "REST App Description";
             String sutImage = "elastest/demo-rest-java-test-sut";

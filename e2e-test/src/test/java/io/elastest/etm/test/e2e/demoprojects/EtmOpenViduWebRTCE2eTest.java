@@ -55,14 +55,11 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws Exception {
-        boolean fromDashboard = true;
         navigateToTorm(driver);
         if (!etProjectExists(driver, projectName)) {
             createNewETProject(driver, projectName);
-            fromDashboard = false;
         }
-        if (!etSutExistsIntoProject(driver, projectName, sutName,
-                fromDashboard)) {
+        if (!etSutExistsIntoProject(driver, projectName, sutName)) {
             // Create SuT
             String sutDesc = "OpenVidu Description";
             String sutImage = "openvidu/testapp:elastest";
