@@ -166,8 +166,13 @@ public class EtmBaseTest {
         this.getElementByIdXpath(driver, id, xpath).get(0).click();
     }
 
-    protected boolean elementExists(WebDriver driver, String id, String xpath) {
+    protected boolean elementExistsByIdXpath(WebDriver driver, String id,
+            String xpath) {
         return this.getElementByIdXpath(driver, id, xpath).size() != 0;
+    }
+
+    protected boolean elementExistsByXpath(WebDriver driver, String xpath) {
+        return this.getElementByXpath(driver, xpath).size() != 0;
     }
 
     protected List<WebElement> getElementById(WebDriver driver, String id,
@@ -273,7 +278,8 @@ public class EtmBaseTest {
         if (getElementByXpath(driver, xpath).size() > 0) {
             xpath = xpath + "//*/td/div[contains(string(), '" + projectName
                     + "')]";
-            boolean projectExist = this.elementExists(driver, id, xpath);
+            boolean projectExist = this.elementExistsByIdXpath(driver, id,
+                    xpath);
             String existStr = projectExist ? "already exist" : "does not exist";
             log.info("Project {} {} ", projectName, existStr);
             return projectExist;
@@ -363,6 +369,19 @@ public class EtmBaseTest {
         Thread.sleep(1000);
     }
 
+    protected String getSutsTableXpathFromProjectPage() {
+        String id = "sutsTable";
+        String xpath = "//td-data-table[@id='" + id + "']";
+        return xpath;
+    }
+
+    protected String getSutXpathFromProjectPage(String sutName) {
+        String xpath = getTJobsTableXpathFromProjectPage();
+        xpath += "//*/td/span[text()='" + sutName + "']";
+
+        return xpath;
+    }
+
     protected boolean etSutExistsIntoProject(WebDriver driver,
             String projectName, String sutName) {
         log.info("Checking if Sut {} exists into Project {}", sutName,
@@ -375,13 +394,12 @@ public class EtmBaseTest {
         } catch (InterruptedException e) {
         }
 
-        String id = "sutsTable";
-        String xpath = "//td-data-table[@id='" + id + "']";
+        String sutsTableXpath = getSutsTableXpathFromProjectPage();
 
         // If sut table exist
-        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
-            xpath += "//*/td/span[text()='" + sutName + "']";
-            boolean sutExist = this.elementExists(driver, id, xpath);
+        if (this.driver.findElements(By.xpath(sutsTableXpath)).size() > 0) {
+            String sutXpath = getSutXpathFromProjectPage(sutName);
+            boolean sutExist = this.elementExistsByXpath(driver, sutXpath);
             String existStr = sutExist ? "already exist" : "does not exist";
             log.info("Sut {} {} into Project {}", sutName, existStr,
                     projectName);
@@ -396,6 +414,19 @@ public class EtmBaseTest {
     /* **** TJob **** */
     /* ************** */
 
+    protected String getTJobsTableXpathFromProjectPage() {
+        String id = "tJobs";
+        String xpath = "//td-data-table[@id='" + id + "']";
+        return xpath;
+    }
+
+    protected String getTJobXpathFromProjectPage(String tJobName) {
+        String xpath = getTJobsTableXpathFromProjectPage();
+        xpath += "//*/td/span[text()='" + tJobName + "']";
+
+        return xpath;
+    }
+
     protected boolean etTJobExistsIntoProject(WebDriver driver,
             String projectName, String tJobName) {
         log.info("Checking if TJob {} exists into Project {}", tJobName,
@@ -408,13 +439,12 @@ public class EtmBaseTest {
         } catch (InterruptedException e) {
         }
 
-        String id = "tJobs";
-        String xpath = "//td-data-table[@id='" + id + "']";
+        String tJobsTableXpath = getTJobsTableXpathFromProjectPage();
 
         // If tjob table exist
-        if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
-            xpath += "//*/td/span[text()='" + tJobName + "']";
-            boolean tJobExist = this.elementExists(driver, id, xpath);
+        if (this.driver.findElements(By.xpath(tJobsTableXpath)).size() > 0) {
+            String tJobXpath = getTJobXpathFromProjectPage(tJobName);
+            boolean tJobExist = this.elementExistsByXpath(driver, tJobXpath);
             String existStr = tJobExist ? "already exist" : "does not exist";
             log.info("TJob {} {} into Project {}", tJobName, existStr,
                     projectName);
@@ -491,9 +521,10 @@ public class EtmBaseTest {
         By projectAvailable = By.id("tJobs");
         waitService.until(presenceOfElementLocated(projectAvailable));
 
+        String xpath = getTJobXpathFromProjectPage(tJobName);
+
         // Navigate to tjob
-        driver.findElement(By.xpath("//*/td/span[text()='" + tJobName + "']"))
-                .click();
+        driver.findElement(By.xpath(xpath)).click();
         driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
     }
 

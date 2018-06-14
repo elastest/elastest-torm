@@ -94,7 +94,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTestlinkSection(driver);
 
         String xpath = this.getTLEtmProjectXpath(projectName);
-        return this.elementExists(driver, this.projectsTableId, xpath);
+        return this.elementExistsByIdXpath(driver, this.projectsTableId, xpath);
     }
 
     /* ***************** */
@@ -119,7 +119,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmPlanExists(WebDriver driver, String planName) {
         String xpath = this.getTLEtmPlanXpath(planName);
-        return this.elementExists(driver, this.plansTableId, xpath);
+        return this.elementExistsByIdXpath(driver, this.plansTableId, xpath);
     }
 
     protected boolean tlEtmPlanExistsByAbsolute(WebDriver driver,
@@ -204,7 +204,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmSuiteExists(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
-        return this.elementExists(driver, suitesTableId, xpath);
+        return this.elementExistsByIdXpath(driver, suitesTableId, xpath);
     }
 
     protected boolean tlEtmSuiteExistsByAbsolute(WebDriver driver,
@@ -235,7 +235,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmBuildExists(WebDriver driver, String buildName) {
         String xpath = this.getTLEtmBuildXpath(buildName);
-        return this.elementExists(driver, buildsTableId, xpath);
+        return this.elementExistsByIdXpath(driver, buildsTableId, xpath);
     }
 
     protected boolean tlEtmBuildExistsByAbsolute(WebDriver driver,
@@ -280,7 +280,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmCaseExists(WebDriver driver, String caseName) {
         String xpath = this.getTLEtmCaseXpath(caseName);
-        return this.elementExists(driver, casesTableId, xpath);
+        return this.elementExistsByIdXpath(driver, casesTableId, xpath);
     }
 
     protected boolean tlEtmSuiteCaseExists(WebDriver driver, String projectName,

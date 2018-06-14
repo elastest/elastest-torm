@@ -62,6 +62,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
         navigateToTorm(driver);
         // Navigate to project
         navigateToETProject(driver, projectName);
+        Thread.sleep(1500);
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
