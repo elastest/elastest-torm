@@ -26,7 +26,7 @@ export class AbstractTJobExecModel {
 
   getCurrentMonitoringIndex(component: string): string {
     let index: string = this.getTJobIndex();
-    if (component === 'sut') {
+    if (component === 'sut' || component.startsWith('sut_')) {
       index = this.getSutIndex();
     }
     return index;
