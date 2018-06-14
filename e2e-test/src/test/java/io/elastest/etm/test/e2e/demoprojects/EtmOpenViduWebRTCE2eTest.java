@@ -52,7 +52,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "OpenVidu WebRTC";
     final String sutName = "OpenVidu Test App";
-    final int timeout = 600;
+    final int timeout = 350;
 
     void createProjectAndSut(WebDriver driver) throws Exception {
         navigateToTorm(driver);
