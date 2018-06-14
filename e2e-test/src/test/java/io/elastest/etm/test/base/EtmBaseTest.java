@@ -273,7 +273,10 @@ public class EtmBaseTest {
         if (getElementByXpath(driver, xpath).size() > 0) {
             xpath = xpath + "//*/td/div[contains(string(), '" + projectName
                     + "')]";
-            return this.elementExists(driver, id, xpath);
+            boolean projectExist = this.elementExists(driver, id, xpath);
+            String existStr = projectExist ? "already exist" : "does not exist";
+            log.info("Project {} {} ", projectName, existStr);
+            return projectExist;
         } else {
             return false;
         }
@@ -312,16 +315,13 @@ public class EtmBaseTest {
         // Parameters TODO
 
         // Save
-        Thread.sleep(2000);
-        log.debug("Saving Sut");
-        this.getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
-                .get(0).click();
-        Thread.sleep(1000);
+        this.clickSaveSut(driver);
     }
 
     protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
             String sutName, String desc, String compose, String mainServiceName,
-            String port, Map<String, String> params) {
+            String port, Map<String, String> params)
+            throws InterruptedException {
         this.createSutAndInsertCommonFields(driver, sutName, desc);
 
         this.getElementsByName(driver, "managedSut").get(0).click();
@@ -337,13 +337,12 @@ public class EtmBaseTest {
         // Parameters TODO
 
         // Save
-        this.getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
-                .get(0).click();
+        this.clickSaveSut(driver);
     }
 
     protected void createNewSutDeployedOutsideWithManualInstrumentation(
             WebDriver driver, String sutName, String desc, String ip,
-            Map<String, String> params) {
+            Map<String, String> params) throws InterruptedException {
         this.createSutAndInsertCommonFields(driver, sutName, desc);
 
         this.getElementsByName(driver, "managedSut").get(0).click();
@@ -353,8 +352,15 @@ public class EtmBaseTest {
         // Parameters TODO
 
         // Save
+        this.clickSaveSut(driver);
+    }
+
+    protected void clickSaveSut(WebDriver driver) throws InterruptedException {
+        Thread.sleep(2000);
+        log.debug("Saving Sut");
         this.getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
                 .get(0).click();
+        Thread.sleep(1000);
     }
 
     protected boolean etSutExistsIntoProject(WebDriver driver,
@@ -376,7 +382,7 @@ public class EtmBaseTest {
         if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
             xpath += "//*/td/span[text()='" + sutName + "']";
             boolean sutExist = this.elementExists(driver, id, xpath);
-            String existStr = sutExist ? "exist" : "does not exist";
+            String existStr = sutExist ? "already exist" : "does not exist";
             log.info("Sut {} {} into Project {}", sutName, existStr,
                     projectName);
             return sutExist;
@@ -408,7 +414,12 @@ public class EtmBaseTest {
         // If tjob table exist
         if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
             xpath += "//*/td/span[text()='" + tJobName + "']";
-            return this.elementExists(driver, id, xpath);
+            boolean tJobExist = this.elementExists(driver, id, xpath);
+            String existStr = tJobExist ? "already exist" : "does not exist";
+            log.info("TJob {} {} into Project {}", tJobName, existStr,
+                    projectName);
+            return tJobExist;
+
         } else {
             return false;
         }
@@ -480,8 +491,8 @@ public class EtmBaseTest {
         By projectAvailable = By.id("tJobs");
         waitService.until(presenceOfElementLocated(projectAvailable));
 
-        driver.findElement(By
-                .xpath("//td/div/span[contains(string(), '" + tJobName + "')]"))
+        // Navigate to tjob
+        driver.findElement(By.xpath("//*/td/span[text()='" + tJobName + "']"))
                 .click();
         driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
     }
