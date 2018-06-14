@@ -87,7 +87,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTestlinkSection(driver);
 
         String xpath = this.getTLEtmProjectXpath(projectName);
-        this.navigateToElement(driver, this.projectsTableId, xpath);
+        this.navigateToElementByIdXpath(driver, this.projectsTableId, xpath);
     }
 
     protected boolean tlEtmProjectExists(WebDriver driver, String projectName) {
@@ -108,7 +108,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmPlan(WebDriver driver, String planName) {
         String xpath = this.getTLEtmPlanXpath(planName);
-        this.navigateToElement(driver, this.plansTableId, xpath);
+        this.navigateToElementByIdXpath(driver, this.plansTableId, xpath);
     }
 
     protected void navigateToTLEtmPlanByAbsolute(WebDriver driver,
@@ -193,7 +193,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
-        this.navigateToElement(driver, suitesTableId, xpath);
+        this.navigateToElementByIdXpath(driver, suitesTableId, xpath);
     }
 
     protected void navigateToTLEtmSuiteByAbsolute(WebDriver driver,
@@ -224,7 +224,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmBuild(WebDriver driver, String buildName) {
         String xpath = this.getTLEtmBuildXpath(buildName);
-        this.navigateToElement(driver, buildsTableId, xpath);
+        this.navigateToElementByIdXpath(driver, buildsTableId, xpath);
     }
 
     protected void navigateToTLEtmBuildByAbsolute(WebDriver driver,
@@ -255,7 +255,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmCase(WebDriver driver, String caseName) {
         String xpath = this.getTLEtmCaseXpath(caseName);
-        this.navigateToElement(driver, casesTableId, xpath);
+        this.navigateToElementByIdXpath(driver, casesTableId, xpath);
     }
 
     protected void navigateToTLEtmSuiteCase(WebDriver driver,
