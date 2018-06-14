@@ -374,7 +374,7 @@ public class EtmBaseTest {
 
         // If sut table exist
         if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
-            xpath += "//*/td/div[contains(string(), '" + sutName + "')]";
+            xpath += "//*/td/span[text()='" + sutName + "']";
             boolean sutExist = this.elementExists(driver, id, xpath);
             String existStr = sutExist ? "exist" : "does not exist";
             log.info("Sut {} {} into Project {}", sutName, existStr,
@@ -407,7 +407,7 @@ public class EtmBaseTest {
 
         // If tjob table exist
         if (this.driver.findElements(By.xpath(xpath)).size() > 0) {
-            xpath += "//*/td/div[contains(string(), '" + tJobName + "')]";
+            xpath += "//*/td/span[text()='" + tJobName + "']";
             return this.elementExists(driver, id, xpath);
         } else {
             return false;

@@ -18,14 +18,10 @@
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">
           <ng-container *ngIf="column.name === 'name'; else normalColumn">
-            <span class="wrapColumn">
-              {{value}}
-            </span>
+            <span class="wrapColumn">{{value}}</span>
           </ng-container>
           <ng-template #normalColumn>
-            <span class="ellipsisNoWrapColumn">
-              {{value}}
-            </span>
+            <span class="ellipsisNoWrapColumn">{{value}}</span>
           </ng-template>
         </ng-container>
       </ng-template>
