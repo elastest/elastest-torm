@@ -323,7 +323,8 @@ public class DockerService2 {
             if (sut != null) {
                 if (sut.isSutInNewContainer()) {
                     commands = sutPath != null
-                            ? ("cd " + sutPath + ";" + commands) : commands;
+                            ? ("cd " + sutPath + ";" + commands)
+                            : commands;
                 }
             } else {
                 commands = "export ET_SUT_HOST=$(" + this.getThisContainerIpCmd
@@ -460,7 +461,8 @@ public class DockerService2 {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         return this.getSutPrefix(dockerExec)
                 + (sut.isDockerCommandsSut() && sut.isSutInNewContainer()
-                        ? "_" + sut.getSutInContainerAuxLabel() : "");
+                        ? "_" + sut.getSutInContainerAuxLabel()
+                        : "");
     }
 
     public String getSutPrefix(DockerExecution dockerExec) {
@@ -929,8 +931,12 @@ public class DockerService2 {
         if (imageName == null) {
             return imageName;
         }
-        String tag = imageName.split(":")[1];
-        if (tag == null) {
+        String[] imageNameSplitted = imageName.split(":");
+        String tag = null;
+        
+        if (imageNameSplitted[1] != null) {
+            tag = imageNameSplitted[1];
+        } else {
             tag = "latest";
         }
         return tag;

@@ -3,6 +3,8 @@ node ('container') {
     def elastest_user = env.USER
     def elastest_pass = env.PASS
     def elastest_network = env.NETWORK
+    def fullteaching_ip = env.FULLTEACHING_IP
+    def fullteaching_port = env.FULLTEACHING_PORT
 
 	 stage ('docker container')
 		    def mycontainer = docker.image('elastest/ci-docker-e2e-compose:latest')
@@ -59,15 +61,18 @@ node ('container') {
 		                        echo "Jenkins URL: " + ciUrl                    
 		                        
 		                        try {
-                                    echo "Start Fullteaching"
-			                        sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest up -d"
-			                        echo "Wait for fullteaching started"
-			                        sh "sleep 20"
-			
-			                        def fullteachingIp = containerIp("elastest_full-teaching_1", "elastest_elastest")
-			                        echo "Fullteaching IP: " + fullteachingIp  
+		                        	if (fullteaching_ip == '' || fullteaching_port == ''){
+		                        		echo "Fullteaching ip is empty"
+	                                    echo "Starting Fullteaching"
+				                        sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest up -d"
+				                        echo "Wait for fullteaching started"
+				                        sh "sleep 20"
+				                        fullteaching_ip = containerIp("elastest_full-teaching_1", "elastest_elastest")
+				                        fullteaching_port = "5000"
+									} 
+			                        echo "Fullteaching IP: " + fullteaching_ip  
 		                            echo "Run tests"
-            						sh "cd elastest/e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-DfullteachingIp="+ fullteachingIp + " -DfullteachingPort=5000 -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+            						sh "cd elastest/e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-Dfullteaching_ip="+ fullteaching_ip + " -DfullteachingPort="+ fullteaching_port + " -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
 		                        } catch(e) {
 		                            sh '''\
 		                            docker ps --all
@@ -77,11 +82,13 @@ node ('container') {
 		                            '''
 		                            throw e
 		                        } finally {
-                                    try{
-			                            sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest down"
-			                        } catch(e) {
-			                            echo 'Error on stop Fullteaching docker compose: ' + e.toString()
-			                        }  
+		                        	if (fullteaching_ip == ''){		                        
+	                                    try{
+				                            sh "cd elastest/e2e-test; docker-compose -f src/test/resources/fullteaching.yml -p elastest down"
+				                        } catch(e) {
+				                            echo 'Error on stop Fullteaching docker compose: ' + e.toString()
+				                        }  
+			                        }
 		                            step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
 		                        }
 		                }
