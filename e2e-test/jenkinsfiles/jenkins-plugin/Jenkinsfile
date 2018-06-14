@@ -52,7 +52,7 @@ node {
                 
                 stage ('prepare test')
                     def testDirectoryExists = fileExists 'elastest'
-                    if (pluginDirectoryExists) {
+                    if (testDirectoryExists) {
                         echo 'The elastest directory exists'
                     } else {
                         echo 'There is no elastset directory'
