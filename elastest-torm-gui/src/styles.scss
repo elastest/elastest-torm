@@ -73,6 +73,15 @@ a.normalTextLink {
   cursor: pointer;
 }
 
+.wrapColumn {
+  white-space: normal !important;
+}
+
+.ellipsisNoWrapColumn {
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
 thead > tr.td-data-table-row {
   height: 36px !important;
 }
@@ -147,9 +156,24 @@ textarea[autosize] {
   padding: 0px !important;
 }
 
+.iconBtn-xs {
+  min-width: initial !important;
+  padding: 0 3px !important;
+}
+
 .iconBtn {
   min-width: initial !important;
   padding: 0 6px !important;
+}
+
+.iconBtn-sm {
+  min-width: initial !important;
+  padding: 0 9px !important;
+}
+
+.iconBtn-md {
+  min-width: initial !important;
+  padding: 0 12px !important;
 }
 
 .iconBtn-lg {
@@ -290,7 +314,7 @@ textarea[autosize] {
   text-align: center;
   color: #727272;
 }
-.spinnerCenter{
+.spinnerCenter {
   margin: auto;
 }
 @media (max-width: 600px) {
