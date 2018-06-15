@@ -153,7 +153,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void waitForBrowserStarted(WebDriver driver) {
-        WebDriverWait waitElement = new WebDriverWait(driver, 360); // seconds
+        WebDriverWait waitElement = new WebDriverWait(driver, 320); // seconds
         By vncCanvas = By.id("vnc_canvas");
         waitElement.until(visibilityOfElementLocated(vncCanvas));
     }
@@ -163,7 +163,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
         this.getElementByIdXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
-                360).get(0).click();
+                320).get(0).click();
         try {
             // Wait for save TestCase
             log.debug("Sleep to wait for save TestCase");

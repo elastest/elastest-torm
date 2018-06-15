@@ -541,6 +541,10 @@ public class EtmBaseTest {
 
         // Navigate to tjob
         driver.findElement(By.xpath(xpath)).click();
+        try {
+            Thread.sleep(1200);
+        } catch (InterruptedException e) {
+        }
         this.getElementByXpath(driver, "//button[@title='Run TJob']").get(0)
                 .click();
     }
