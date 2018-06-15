@@ -18,7 +18,6 @@ package io.elastest.etm.test.e2e.loganalyzer;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -27,10 +26,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
@@ -66,10 +63,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        WebDriverWait waitLogs = new WebDriverWait(driver, 125);
-        log.info("Wait for build sucess traces");
-        waitLogs.until(textToBePresentInElementLocated(By.tagName("logs-view"),
-                "BUILD SUCCESS"));
+        this.checkFinishTJobExec(driver, 130, "SUCCESS");
 
         // Refresh to redirect to results page
         this.driver.navigate().refresh();

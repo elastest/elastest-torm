@@ -23,7 +23,9 @@ import static java.util.logging.Level.ALL;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
 import static org.openqa.selenium.remote.DesiredCapabilities.chrome;
+import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -170,13 +172,14 @@ public class EtmBaseTest {
         this.getElementByXpath(driver, xpath).get(0).click();
     }
 
-    protected boolean elementExistsByIdXpath(WebDriver driver, String id,
-            String xpath) {
+    protected boolean elementExistsByIdXpath(WebDriver driver,
+            String id, String xpath) {
         return this.getElementByIdXpath(driver, id, xpath).size() != 0;
     }
 
     protected boolean elementExistsByXpath(WebDriver driver, String xpath) {
-        return this.getElementByXpath(driver, xpath).size() != 0;
+        By elementAvailable = By.xpath(xpath);
+        return driver.findElements(elementAvailable).size() != 0;
     }
 
     protected List<WebElement> getElementById(WebDriver driver, String id,
@@ -289,7 +292,7 @@ public class EtmBaseTest {
 
         // If exist PJ table (if there are some pj)
 
-        if (getElementByXpath(driver, projectsTableXpath).size() > 0) {
+        if (this.driver.findElements(By.xpath(projectsTableXpath)).size() > 0) {
             String projectXpath = getProjectXpathFromProjectPage(projectName);
             boolean projectExist = this.elementExistsByXpath(driver,
                     projectXpath);
@@ -589,7 +592,7 @@ public class EtmBaseTest {
         driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
                 .click();
 
-        log.info("Waiting for thes start of Job execution");
+        log.info("Waiting for the start of Job execution");
         By newBuildHistory = By
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
         WebDriverWait waitService = new WebDriverWait(driver, 10);
@@ -598,6 +601,21 @@ public class EtmBaseTest {
                 "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
                 .click();
 
+    }
+
+    protected void checkFinishTJobExec(WebDriver driver, int timeout,
+            String expectedResult) {
+        WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
+
+        log.info("Wait for Execution ends");
+        waitEnd.until(invisibilityOfElementLocated(By.id("runningSpinner")));
+
+        WebDriverWait waitResult = new WebDriverWait(driver, 10);
+
+        log.info("Check finish Execution status. Expected result {}",
+                expectedResult);
+        waitResult.until(textToBePresentInElementLocated(By.id("resultMsgText"),
+                "Finished: " + expectedResult));
     }
 
     protected void deleteJob(WebDriver drive, String jobName) {
