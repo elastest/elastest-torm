@@ -63,7 +63,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        this.checkFinishTJobExec(driver, 130, "SUCCESS");
+        this.checkFinishTJobExec(driver, 180, "SUCCESS");
 
         // Refresh to redirect to results page
         this.driver.navigate().refresh();

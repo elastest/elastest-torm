@@ -606,12 +606,16 @@ public class EtmBaseTest {
 
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
             String expectedResult) {
+
+        log.info("Wait for the execution page to show");
+        this.getElementsByTagName(driver, "etm-dashboard");
+
         WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
 
         log.info("Wait for Execution ends");
         waitEnd.until(invisibilityOfElementLocated(By.id("runningSpinner")));
 
-        WebDriverWait waitResult = new WebDriverWait(driver, 10);
+        WebDriverWait waitResult = new WebDriverWait(driver, 25);
 
         log.info("Check finish Execution status. Expected result {}",
                 expectedResult);
