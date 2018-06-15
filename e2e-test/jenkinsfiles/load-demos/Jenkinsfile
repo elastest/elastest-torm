@@ -5,13 +5,13 @@ node ('container') {
     def elastest_network = env.NETWORK
     def fullteaching_ip = env.FULLTEACHING_IP
     def fullteaching_port = env.FULLTEACHING_PORT
+    def pluginPath = env.PLUGIN_PATH
 
 	 stage ('docker container')
 		    def mycontainer = docker.image('elastest/ci-docker-e2e-compose:latest')
 		    mycontainer.pull()
 		    mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
 		        sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-		        def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/etm-e2e-test-plugin/elastest-plugin/target/elastest.hpi'
 		        def pluginDirectory = 'elastest-plugin'
 		        def testRepositoryDirectory = 'elastest'
 		    
