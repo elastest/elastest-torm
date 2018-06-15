@@ -99,7 +99,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         log.info("Wait for metrics");
         waitLogs.until(presenceOfElementLocated(By.className("tick")));
 
-        this.checkFinishTJobExec(driver, timeout, "FAILURE");
+        this.checkFinishTJobExec(driver, timeout, "FAIL");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        this.checkFinishTJobExec(driver, timeout, "FAILURE");
+        this.checkFinishTJobExec(driver, timeout, "FAIL");
     }
 
 }
