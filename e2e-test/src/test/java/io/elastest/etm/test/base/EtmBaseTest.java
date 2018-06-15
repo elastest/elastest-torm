@@ -172,8 +172,8 @@ public class EtmBaseTest {
         this.getElementByXpath(driver, xpath).get(0).click();
     }
 
-    protected boolean elementExistsByIdXpath(WebDriver driver,
-            String id, String xpath) {
+    protected boolean elementExistsByIdXpath(WebDriver driver, String id,
+            String xpath) {
         return this.getElementByIdXpath(driver, id, xpath).size() != 0;
     }
 
@@ -541,7 +541,8 @@ public class EtmBaseTest {
 
         // Navigate to tjob
         driver.findElement(By.xpath(xpath)).click();
-        driver.findElement(By.xpath("//button[@title='Run TJob']")).click();
+        this.getElementByXpath(driver, "//button[@title='Run TJob']").get(0)
+                .click();
     }
 
     protected void startTestSupportService(WebDriver driver,
