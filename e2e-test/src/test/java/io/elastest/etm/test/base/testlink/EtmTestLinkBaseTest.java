@@ -37,10 +37,9 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     String buildsTableId = "tlBuilds";
 
     protected void navigateToTestlinkSection(WebDriver driver) {
-        this.navigateToRoot(driver);
         log.info("Navigate to TestLink Section");
-
-        driver.findElement(By.xpath("//a[@id='nav_testlink']")).click();
+        this.getElementByXpath(driver, "//a[@id='nav_testlink']").get(0)
+                .click();
     }
 
     protected void openTestlinkPage(WebDriver driver) {
