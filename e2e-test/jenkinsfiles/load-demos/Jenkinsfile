@@ -31,7 +31,7 @@ node ('container') {
 		        
 		        stage ('prepare test')
 		            def testDirectoryExists = fileExists 'elastest'
-		            if (pluginDirectoryExists) {
+		            if (testDirectoryExists) {
 		                echo 'The elastest directory exists'
 		            } else {
 		                echo 'There is no elastset directory'
@@ -72,7 +72,7 @@ node ('container') {
 									} 
 			                        echo "Fullteaching IP: " + fullteaching_ip  
 		                            echo "Run tests"
-            						sh "cd elastest/e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + "-Dfullteaching_ip="+ fullteaching_ip + " -DfullteachingPort="+ fullteaching_port + " -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+            						sh "cd elastest/e2e-test/; mvn -B clean test -DePluginPath=" + pluginPath + " -Dfullteaching_ip="+ fullteaching_ip + " -DfullteachingPort="+ fullteaching_port + " -DetEtmApi=" + elastest_url + " -DeUser=" + elastest_user + " -DePass=" + elastest_pass + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
 		                        } catch(e) {
 		                            sh '''\
 		                            docker ps --all
