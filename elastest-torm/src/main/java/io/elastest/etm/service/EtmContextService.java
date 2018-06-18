@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -338,6 +339,8 @@ public class EtmContextService {
     }
 
     public LogAnalyzerConfig getLogAnalyzerConfig() {
-        return this.logAnalyzerRepository.findOne(new Long(1));
+        Optional<LogAnalyzerConfig> config = this.logAnalyzerRepository
+                .findById(new Long(1));
+        return config.isPresent() ? config.get() : null;
     }
 }

@@ -12,8 +12,6 @@ public interface ExternalTestExecutionRepository extends JpaRepository<ExternalT
 
 	public List<ExternalTestExecution> findByExTestCase(ExternalTestCase exTestCase);
 
-	public ExternalTestExecution findById(Long id);
-
 	public ExternalTestExecution findByExternalIdAndExternalSystemId(String externalId, String externalSystemId);
 
 	public List<ExternalTestExecution> findByExTJobExec(ExternalTJobExecution exTJobExec);

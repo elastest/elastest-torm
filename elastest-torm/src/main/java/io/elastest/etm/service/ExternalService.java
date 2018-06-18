@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -152,7 +153,7 @@ public class ExternalService {
         tJobService.endExternalTJobExecution(externalJob.gettJobExecId(),
                 externalJob.getResult(), externalJob.getTestResults());
         runningExternalJobs.remove(externalJob.gettJobExecId());
-       
+
     }
 
     public ExternalJob isReadyTJobForExternalExecution(Long tJobExecId) {
@@ -258,7 +259,9 @@ public class ExternalService {
     }
 
     public ExternalProject getExternalProjectById(Long id) {
-        return this.externalProjectRepository.findById(id);
+        Optional<ExternalProject> exProject = this.externalProjectRepository
+                .findById(id);
+        return exProject.isPresent() ? exProject.get() : null;
     }
 
     public ExternalProject getExternalProjectByExternalIdAndSystemId(
@@ -277,7 +280,9 @@ public class ExternalService {
     }
 
     public ExternalTJob getExternalTJobById(Long tjobId) {
-        return this.externalTJobRepository.findById(tjobId);
+        Optional<ExternalTJob> exTJob = this.externalTJobRepository
+                .findById(tjobId);
+        return exTJob.isPresent() ? exTJob.get() : null;
     }
 
     public ExternalTJob getExternalTJobByExternalIdAndSystemId(
@@ -291,7 +296,7 @@ public class ExternalService {
     }
 
     public ExternalTJob modifyExternalTJob(ExternalTJob externalTJob) {
-        if (externalTJobRepository.findOne(externalTJob.getId()) != null) {
+        if (externalTJobRepository.findById(externalTJob.getId()) != null) {
             return externalTJobRepository.save(externalTJob);
         } else {
             throw new HTTPException(405);
@@ -307,12 +312,20 @@ public class ExternalService {
 
     public List<ExternalTJobExecution> getExternalTJobExecsByExternalTJobId(
             Long tJobId) {
-        ExternalTJob exTJob = this.externalTJobRepository.findById(tJobId);
-        return this.externalTJobExecutionRepository.findByExTJob(exTJob);
+        ExternalTJob exTJob = this.externalTJobRepository.findById(tJobId)
+                .get();
+        if (exTJob != null) {
+            return this.externalTJobExecutionRepository.findByExTJob(exTJob);
+        } else {
+            return null;
+        }
+
     }
 
     public ExternalTJobExecution getExternalTJobExecById(Long tJobExecId) {
-        return this.externalTJobExecutionRepository.findById(tJobExecId);
+        Optional<ExternalTJobExecution> exTJobExec = this.externalTJobExecutionRepository
+                .findById(tJobExecId);
+        return exTJobExec.isPresent() ? exTJobExec.get() : null;
     }
 
     public ExternalTJobExecution createExternalTJobExecution(
@@ -342,7 +355,7 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(
             Long exTJobId) {
-        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId);
+        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId).get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
@@ -375,7 +388,7 @@ public class ExternalService {
     public ExternalTJobExecution modifyExternalTJobExec(
             ExternalTJobExecution externalTJobExec) {
         if (externalTJobExecutionRepository
-                .findOne(externalTJobExec.getId()) != null) {
+                .findById(externalTJobExec.getId()) != null) {
             return externalTJobExecutionRepository.save(externalTJobExec);
         } else {
             throw new HTTPException(405);
@@ -397,7 +410,7 @@ public class ExternalService {
     public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(
             Long exTJobExecId) throws InterruptedException {
         ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
-                .findById(exTJobExecId);
+                .findById(exTJobExecId).get();
         return esmService.getExternalTJobExecutionFilesUrls(
                 exTJobExec.getExTJob().getId(), exTJobExecId);
     }
@@ -405,7 +418,7 @@ public class ExternalService {
     public List<ExternalTestExecution> getTJobExecTestExecutions(
             Long tJobExecId) {
         ExternalTJobExecution tJobExec = externalTJobExecutionRepository
-                .findById(tJobExecId);
+                .findById(tJobExecId).get();
         return externalTestExecutionRepository.findByExTJobExec(tJobExec);
     }
 
@@ -418,7 +431,7 @@ public class ExternalService {
     }
 
     public ExternalTestCase getExternalTestCaseById(Long id) {
-        return this.externalTestCaseRepository.findById(id);
+        return this.externalTestCaseRepository.findById(id).get();
     }
 
     public ExternalTestCase getExternalTestCaseByExternalIdAndSystemId(
@@ -437,7 +450,7 @@ public class ExternalService {
     }
 
     public ExternalTestExecution getExternalTestExecutionById(Long id) {
-        return this.externalTestExecutionRepository.findById(id);
+        return this.externalTestExecutionRepository.findById(id).get();
     }
 
     public ExternalTestExecution getExternalTestExecByExternalIdAndSystemId(
@@ -450,7 +463,7 @@ public class ExternalService {
     public List<ExternalTestExecution> getExternalTestExecutionsByExternalTJobExec(
             Long exTJobExecId) {
         ExternalTJobExecution exTJobExec = this.externalTJobExecutionRepository
-                .findById(exTJobExecId);
+                .findById(exTJobExecId).get();
         return this.externalTestExecutionRepository
                 .findByExTJobExec(exTJobExec);
     }
@@ -464,7 +477,7 @@ public class ExternalService {
 
     public ExternalTestExecution modifyExternalTestExecution(
             ExternalTestExecution exec) {
-        if (externalTestExecutionRepository.findOne(exec.getId()) != null) {
+        if (externalTestExecutionRepository.findById(exec.getId()) != null) {
             this.logstashService.sendFinishTestLogtrace(
                     exec.getTestMonitoringIndex(),
                     exec.getExTestCase().getName());
@@ -477,7 +490,7 @@ public class ExternalService {
     public ExternalTestExecution setExternalTJobExecToTestExecutionByExecutionId(
             Integer execId, Long exTJobExecId) {
         ExternalTJobExecution exTJobExec = this.externalTJobExecutionRepository
-                .findById(exTJobExecId);
+                .findById(exTJobExecId).get();
         ExternalTestExecution exTestExec = this.externalTestExecutionRepository
                 .findByExternalIdAndExternalSystemId(execId.toString(),
                         exTJobExec.getExTJob().getExternalSystemId());

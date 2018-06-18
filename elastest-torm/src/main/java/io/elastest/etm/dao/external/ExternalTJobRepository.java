@@ -14,8 +14,6 @@ public interface ExternalTJobRepository
 
     public List<ExternalTJob> findByExProject(ExternalProject exProject);
 
-    public ExternalTJob findById(Long id);
-
     public ExternalTJob findByExternalIdAndExternalSystemId(
             String externalId, String externalSystemId);
 }

@@ -36,17 +36,17 @@ import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
-import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobSupportService;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.TestCase;
-import io.elastest.etm.model.TestSuite;
-import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TJobSupportService;
+import io.elastest.etm.model.TestCase;
+import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 
 @Service
 public class TJobExecOrchestratorService {
@@ -131,7 +131,7 @@ public class TJobExecOrchestratorService {
     @Async
     public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
-        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         elasticsearchService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
 
@@ -153,7 +153,7 @@ public class TJobExecOrchestratorService {
     public Future<Void> executeTJob(TJobExecution tJobExec,
             String tJobServices) {
         dbmanager.bindSession();
-        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
 
         elasticsearchService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
@@ -247,7 +247,7 @@ public class TJobExecOrchestratorService {
     }
 
     public TJobExecution forceEndExecution(TJobExecution tJobExec) {
-        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         DockerExecution dockerExec = new DockerExecution(tJobExec);
         dockerService.configureDocker(dockerExec);
         try {
@@ -276,7 +276,7 @@ public class TJobExecOrchestratorService {
                     TJobExecution.ResultEnum.STOPPED, resultMsg);
         }
 
-        tJobExec = tJobExecRepositoryImpl.findOne(tJobExec.getId());
+        tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         return tJobExec;
     }
 

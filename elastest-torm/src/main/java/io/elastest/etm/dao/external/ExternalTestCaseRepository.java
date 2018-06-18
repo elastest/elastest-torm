@@ -13,8 +13,6 @@ public interface ExternalTestCaseRepository
     public ExternalTestCase findByName(String name);
 
     public List<ExternalTestCase> findByExTJob(ExternalTJob exTJob);
-
-    public ExternalTestCase findById(Long id);
     
     public ExternalTestCase findByExternalIdAndExternalSystemId(
             String externalId, String externalSystemId);

@@ -112,7 +112,7 @@ public class SutService {
     }
 
     public void deleteSut(Long sutId) {
-        SutSpecification sut = sutRepository.findOne(sutId);
+        SutSpecification sut = sutRepository.findById(sutId).get();
         if (sut.isInstrumentalize()) {
             this.eimService.deInstrumentalizeAndUnDeployBeats(
                     sut.getEimConfig(), sut.getEimMonitoringConfig());
@@ -126,11 +126,11 @@ public class SutService {
     }
 
     public SutSpecification getSutSpecById(Long id) {
-        return sutRepository.findOne(id);
+        return sutRepository.findById(id).get();
     }
 
     public SutSpecification modifySut(SutSpecification sut) {
-        if (sutRepository.findOne(sut.getId()) != null) {
+        if (sutRepository.findById(sut.getId()) != null) {
             return sutRepository.save(sut);
         } else {
             throw new HTTPException(405);
@@ -138,7 +138,7 @@ public class SutService {
     }
 
     public void undeploySut(Long sutId, Long sutExecId) {
-        SutSpecification sut = sutRepository.findOne(sutId);
+        SutSpecification sut = sutRepository.findById(sutId).get();
         SutExecution sutExec = sutExecutionRepository
                 .findByIdAndSutSpecification(sutExecId, sut);
         sutExec.setDeployStatus(SutExecution.DeployStatusEnum.UNDEPLOYED);
@@ -146,7 +146,7 @@ public class SutService {
     }
 
     public SutExecution createSutExecutionById(Long sutId) {
-        SutSpecification sut = sutRepository.findOne(sutId);
+        SutSpecification sut = sutRepository.findById(sutId).get();
         SutExecution sutExecution = new SutExecution();
         sutExecution.setSutSpecification(sut);
 
@@ -162,12 +162,12 @@ public class SutService {
     }
 
     public void deleteSutExec(Long sutExecId) {
-        SutExecution sutExec = sutExecutionRepository.findOne(sutExecId);
+        SutExecution sutExec = sutExecutionRepository.findById(sutExecId).get();
         sutExecutionRepository.delete(sutExec);
     }
 
     public List<SutExecution> getAllSutExecBySutId(Long sutId) {
-        SutSpecification sut = sutRepository.findOne(sutId);
+        SutSpecification sut = sutRepository.findById(sutId).get();
         return getAllSutExecBySutSpec(sut);
     }
 
@@ -176,11 +176,11 @@ public class SutService {
     }
 
     public SutExecution getSutExecutionById(Long id) {
-        return sutExecutionRepository.findOne(id);
+        return sutExecutionRepository.findById(id).get();
     }
 
     public SutExecution modifySutExec(SutExecution sutExec) {
-        if (sutExecutionRepository.findOne(sutExec.getId()) != null) {
+        if (sutExecutionRepository.findById(sutExec.getId()) != null) {
             return sutExecutionRepository.save(sutExec);
         } else {
             throw new HTTPException(405);
