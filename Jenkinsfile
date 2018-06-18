@@ -36,8 +36,13 @@ node('TESTDOCKER'){
                 
             stage ("IT Test elastest-torm")
                 echo ("Starting TORM integration tests")
-                sh 'cd ./scripts; ./it.sh'
-                step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+                try{
+                    sh 'cd ./scripts; ./it.sh'
+                    step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+                } catch (err) {
+                    currentBuild.result = "UNSTABLE"
+                    throw err
+                }
 
 
             stage "Upload coverage and quality reports"
