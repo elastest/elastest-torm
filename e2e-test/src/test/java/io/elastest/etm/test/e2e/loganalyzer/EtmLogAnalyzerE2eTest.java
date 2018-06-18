@@ -67,7 +67,8 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
 
         // Refresh to redirect to results page
         this.driver.navigate().refresh();
-
+        Thread.sleep(1000);
+        
         log.info("View execution in LogAnalyzer");
         getElementById(driver, "viewExecutionInLogAnalyzer").get(0).click();
 
