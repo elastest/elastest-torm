@@ -933,8 +933,9 @@ public class DockerService2 {
         }
         String[] imageNameSplitted = imageName.split(":");
         String tag = null;
-        
-        if (imageNameSplitted[1] != null) {
+
+        if (imageNameSplitted != null && imageNameSplitted.length > 1
+                && imageNameSplitted[1] != null) {
             tag = imageNameSplitted[1];
         } else {
             tag = "latest";
