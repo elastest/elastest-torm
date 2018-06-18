@@ -234,9 +234,37 @@ public class TJobService {
     }
 
     public List<TJobExecution> getLastNTJobExecs(Long number) {
-        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC, "id");
+        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+                "id");
 
         return tJobExecRepositoryImpl.findWithPageable(lastN);
+    }
+
+    public List<TJobExecution> getAllRunningTJobExecs() {
+        return this.tJobExecRepositoryImpl
+                .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
+    }
+
+    public List<TJobExecution> getLastNRunningTJobExecs(Long number) {
+        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+                "id");
+
+        return tJobExecRepositoryImpl.findByResultsWithPageable(
+                ResultEnum.getNotFinishedOrExecutedResultList(), lastN);
+    }
+
+    public List<TJobExecution> getAllFinishedOrNotExecutedTJobExecs() {
+        return this.tJobExecRepositoryImpl.findByResults(
+                ResultEnum.getFinishedAndNotExecutedResultList());
+    }
+
+    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecs(
+            Long number) {
+        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+                "id");
+
+        return tJobExecRepositoryImpl.findByResultsWithPageable(
+                ResultEnum.getFinishedAndNotExecutedResultList(), lastN);
     }
 
     public TJobExecution getTJobExecById(Long id) {

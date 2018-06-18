@@ -151,7 +151,45 @@ public class TjobApiController implements TjobApi {
     @JsonView(BasicAttTJobExec.class)
     public ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
-        List<TJobExecution> tjobExecList = tJobService.getLastNTJobExecs(number);
+        List<TJobExecution> tjobExecList = tJobService
+                .getLastNTJobExecs(number);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutions() {
+        List<TJobExecution> tjobExecList = tJobService.getAllRunningTJobExecs();
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+        List<TJobExecution> tjobExecList = tJobService
+                .getLastNRunningTJobExecs(number);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobExecutions() {
+        List<TJobExecution> tjobExecList = tJobService
+                .getAllFinishedOrNotExecutedTJobExecs();
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+        List<TJobExecution> tjobExecList = tJobService
+                .getLastNFinishedOrNotExecutedTJobExecs(number);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }

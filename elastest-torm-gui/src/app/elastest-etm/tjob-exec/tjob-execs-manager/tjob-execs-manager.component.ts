@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { IConfirmConfig, TdDataTableSortingOrder } from '@covalent/core';
@@ -13,13 +14,15 @@ import { MdDialog } from '@angular/material';
   styleUrls: ['./tjob-execs-manager.component.scss'],
 })
 export class TJobExecsManagerComponent implements OnInit {
-  allTJobExecs: TJobExecModel[] = [];
   tJobExecsFinished: TJobExecModel[] = [];
   tJobExecsRunning: TJobExecModel[] = [];
 
   defaultRefreshText: string = 'Refresh';
   refreshText: string = this.defaultRefreshText;
   deletingInProgress: boolean = false;
+
+  loading: boolean = true;
+  loadAllFinished: boolean = false;
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
@@ -52,23 +55,45 @@ export class TJobExecsManagerComponent implements OnInit {
   }
 
   loadTJobExecs(refreshText: string = ''): void {
+    this.loading = true;
     this.refreshText = refreshText;
-    this.tJobExecService.getAllTJobExecs().subscribe((tJobExecs: TJobExecModel[]) => {
-      this.tJobExecsFinished = [];
-      this.tJobExecsRunning = [];
 
-      this.allTJobExecs = tJobExecs;
-      tJobExecs = tJobExecs.reverse(); // To sort Descending
-      tJobExecs.map((tJobExec: TJobExecModel) => {
-        if (tJobExec.finished()) {
-          tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
-          this.tJobExecsFinished.push(tJobExec);
-        } else {
-          this.tJobExecsRunning.push(tJobExec);
-        }
-      });
-      this.refreshText = this.defaultRefreshText;
-    });
+    this.tJobExecService.getAllRunningTJobExecutions().subscribe(
+      (runningTJobExecs: TJobExecModel[]) => {
+        this.tJobExecsFinished = [];
+        this.tJobExecsRunning = [];
+
+        this.loadFinishedTJobExecs().subscribe(
+          (finishedTJobExecs: TJobExecModel[]) => {
+            runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
+            finishedTJobExecs = finishedTJobExecs.reverse(); // To sort Descending
+
+            this.tJobExecsFinished = finishedTJobExecs;
+            this.tJobExecsRunning = runningTJobExecs;
+
+            this.refreshText = this.defaultRefreshText;
+            this.loading = false;
+          },
+          (error: Error) => {
+            this.loading = false;
+            console.log(error);
+          },
+        );
+      },
+      (error: Error) => {
+        this.loading = false;
+        console.log(error);
+      },
+    );
+  }
+
+  loadFinishedTJobExecs(): Observable<TJobExecModel[]> {
+    if (this.loadAllFinished) {
+      return this.tJobExecService.getAllFinishedOrNotExecutedTJobExecutions();
+    } else {
+      // Default
+      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutions(15);
+    }
   }
 
   deleteTJobExec(tJobExec: TJobExecModel) {
@@ -109,5 +134,10 @@ export class TJobExecsManagerComponent implements OnInit {
 
   viewInLogAnalyzer(tJobExec: TJobExecModel): void {
     this.router.navigate(['/loganalyzer'], { queryParams: { tjob: tJobExec.tJob.id, exec: tJobExec.id } });
+  }
+
+  showAllFinished(): void {
+    this.loadAllFinished = true;
+    this.loadTJobExecs();
   }
 }

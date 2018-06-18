@@ -21,7 +21,11 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     @Query("select exec from TJobExecution exec where result in :results")
     public List<TJobExecution> findByResults(
             @Param("results") List<ResultEnum> resultList);
-    
-    @Query(value="select exec from TJobExecution exec")
+
+    @Query(value = "select exec from TJobExecution exec")
     public List<TJobExecution> findWithPageable(Pageable pageable);
+
+    @Query("select exec from TJobExecution exec where result in :results")
+    public List<TJobExecution> findByResultsWithPageable(
+            @Param("results") List<ResultEnum> resultList, Pageable pageable);
 }

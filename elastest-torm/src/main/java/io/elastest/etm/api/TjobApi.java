@@ -161,6 +161,44 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number);
 
+    @ApiOperation(value = "Returns all Running TJob Executions", notes = "Returns all Running TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/execs/running", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutions();
+
+    @ApiOperation(value = "Returns last N Running TJob Executions", notes = "Returns last N Running TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/execs/running/last/{number}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number);
+
+    @ApiOperation(value = "Returns all Finished or Not Executed TJob Executions", notes = "Returns all Finished or Not Executed TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/execs/finished", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobExecutions();
+
+    @ApiOperation(value = "Returns last N Finished or Not Executed TJob Executions", notes = "Returns last N Finished or Not Executed TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/execs/finished/last/{number}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number);
+
     @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
             "TJob Execution", })
     @ApiResponses(value = {
