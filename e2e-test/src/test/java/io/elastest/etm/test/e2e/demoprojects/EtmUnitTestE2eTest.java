@@ -79,10 +79,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        // log.info("Wait for metrics");
-        // waitLogs.until(presenceOfElementLocated(By.className("tick")));
-
-        this.checkFinishTJobExec(driver, 240, "SUCCESS");
+        this.checkFinishTJobExec(driver, 240, "SUCCESS", false);
     }
 
 }

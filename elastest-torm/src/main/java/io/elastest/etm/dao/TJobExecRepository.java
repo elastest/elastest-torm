@@ -2,6 +2,7 @@ package io.elastest.etm.dao;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,7 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     @Query("select exec from TJobExecution exec where result in :results")
     public List<TJobExecution> findByResults(
             @Param("results") List<ResultEnum> resultList);
+    
+    @Query(value="select exec from TJobExecution exec")
+    public List<TJobExecution> findWithPageable(Pageable pageable);
 }

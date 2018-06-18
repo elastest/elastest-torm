@@ -18,7 +18,6 @@ package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -29,10 +28,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
@@ -70,8 +67,8 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
             + "     - KMS_STUN_PORT=19302\r\n"
             + "     - openvidu.secret=MY_SECRET\r\n"
             + "     - openvidu.publicurl=docker\r\n" + " full-teaching:\r\n"
-            + "   image: codeurjc/full-teaching:demo\r\n"
-            + "   depends_on:\r\n" + "     - full-teaching-mysql\r\n"
+            + "   image: codeurjc/full-teaching:demo\r\n" + "   depends_on:\r\n"
+            + "     - full-teaching-mysql\r\n"
             + "     - full-teaching-openvidu-server-kms\r\n" + "   expose:\r\n"
             + "     - 5000\r\n" + "   environment:\r\n"
             + "     - WAIT_HOSTS=full-teaching-mysql:3306\r\n"
@@ -208,11 +205,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        WebDriverWait waitLogs = new WebDriverWait(driver, timeout);
-        log.info("Wait for metrics");
-        waitLogs.until(presenceOfElementLocated(By.className("tick")));
-        
-        this.checkFinishTJobExec(driver, timeout, result);
+        this.checkFinishTJobExec(driver, timeout, result, true);
 
     }
 }

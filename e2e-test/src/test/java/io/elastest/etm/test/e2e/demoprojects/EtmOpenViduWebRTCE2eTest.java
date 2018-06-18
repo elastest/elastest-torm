@@ -90,10 +90,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        // log.info("Wait for metrics");
-        // waitLogs.until(presenceOfElementLocated(By.className("tick")));
-        
-        this.checkFinishTJobExec(driver, timeout, "SUCCESS");
+        this.checkFinishTJobExec(driver, timeout, "SUCCESS", false);
 
     }
 }

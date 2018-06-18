@@ -609,12 +609,18 @@ public class EtmBaseTest {
     }
 
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
-            String expectedResult) {
+            String expectedResult, boolean waitForMetrics) {
 
         log.info("Wait for the execution page to show");
         this.getElementsByTagName(driver, "etm-dashboard");
 
         WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
+
+        if (waitForMetrics) {
+            WebDriverWait waitMetrics = new WebDriverWait(driver, timeout);
+            log.info("Wait for metrics");
+            waitMetrics.until(presenceOfElementLocated(By.className("tick")));
+        }
 
         log.info("Wait for Execution ends");
         waitEnd.until(invisibilityOfElementLocated(By.id("runningSpinner")));

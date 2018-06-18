@@ -151,6 +151,16 @@ public interface TjobApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TJobExecution>> getAllTJobExecutions();
 
+    @ApiOperation(value = "Returns last N TJob Executions", notes = "Returns last N TJob Executions", response = TJobExecution.class, responseContainer = "List", tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/execs/last/{number}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number);
+
     @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
             "TJob Execution", })
     @ApiResponses(value = {

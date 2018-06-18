@@ -148,6 +148,15 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+        List<TJobExecution> tjobExecList = tJobService.getLastNTJobExecs(number);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
