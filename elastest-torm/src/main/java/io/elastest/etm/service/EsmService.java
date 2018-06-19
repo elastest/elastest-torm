@@ -19,6 +19,7 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -123,9 +124,8 @@ public class EsmService {
     private String sharedFolder;
 
     public EsmServiceClient esmServiceClient;
-    public DockerService2 dockerService;
+    public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
-    public UtilTools utilTools;
     public FilesService filesServices;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
@@ -143,17 +143,17 @@ public class EsmService {
     private String externalTJobFolderPrefix = "external_tjob_";
     private String externalTJobExecFolderPefix = "external_exec_";
 
-    public EsmService(EsmServiceClient esmServiceClient, UtilTools utilTools,
-            DockerService2 dockerService, FilesService filesServices,
+    @Autowired
+    public EsmService(EsmServiceClient esmServiceClient,
+            DockerEtmService dockerEtmService, FilesService filesServices,
             EtmContextAuxService etmContextAuxService) {
         this.esmServiceClient = esmServiceClient;
-        this.utilTools = utilTools;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
         this.externalTJobServicesInstances = new HashMap<>();
         this.tSSIByTJobExecAssociated = new HashMap<>();
         this.tSSIByExternalTJobExecAssociated = new HashMap<>();
-        this.dockerService = dockerService;
+        this.dockerEtmService = dockerEtmService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
         this.filesServices = filesServices;
@@ -238,7 +238,8 @@ public class EsmService {
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
         JsonNode configJson = serviceDefJson.get("manifest") != null
-                ? serviceDefJson.get("manifest").get("config") : null;
+                ? serviceDefJson.get("manifest").get("config")
+                : null;
         String config = configJson != null ? serviceDefJson.toString() : "";
 
         esmServiceClient
@@ -274,6 +275,7 @@ public class EsmService {
         return registeredServices;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public List<SupportService> getRegisteredServices() {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
@@ -282,7 +284,8 @@ public class EsmService {
 
         for (JsonNode esmService : objs) {
             JsonNode configJson = esmService.get("manifest") != null
-                    ? esmService.get("manifest").get("config") : null;
+                    ? esmService.get("manifest").get("config")
+                    : null;
             Map<String, Object> config = null;
             if (configJson != null) {
                 try {
@@ -315,7 +318,7 @@ public class EsmService {
     }
 
     public String provisionServiceInstanceSync(String serviceId) {
-        String instanceId = utilTools.generateUniqueId();
+        String instanceId = UtilTools.generateUniqueId();
         provisionServiceInstance(serviceId, instanceId);
         return instanceId;
     }
@@ -330,7 +333,7 @@ public class EsmService {
 
     public String provisionTJobExecServiceInstanceSync(String serviceId,
             TJobExecution tJobExec) {
-        String instanceId = utilTools.generateUniqueId();
+        String instanceId = UtilTools.generateUniqueId();
         provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
         return instanceId;
     }
@@ -346,7 +349,7 @@ public class EsmService {
 
     public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
             ExternalTJobExecution exTJobExec) {
-        String instanceId = utilTools.generateUniqueId();
+        String instanceId = UtilTools.generateUniqueId();
         provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
                 instanceId);
         return instanceId;
@@ -423,7 +426,8 @@ public class EsmService {
 
         try {
             Long execId = tJobExec != null && tJobExec.getId() != null
-                    ? tJobExec.getId() : null;
+                    ? tJobExec.getId()
+                    : null;
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
@@ -459,7 +463,8 @@ public class EsmService {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
                         tJobExec != null && tJobExec.getId() != null
-                                ? tJobServicesInstances : servicesInstances);
+                                ? tJobServicesInstances
+                                : servicesInstances);
             }
             throw new RuntimeException(
                     "Exception requesting an instance of service \"" + serviceId
@@ -484,9 +489,9 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
                             + tJobFolderPrefix + tJobId + fileSeparator
-                            + tJobExecFolderPefix + tJobExecId
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
+                            + tJobExecFolderPefix + tJobExecId + fileSeparator
+                            + supportServiceInstance.getServiceName()
+                                    .toLowerCase()
                             + fileSeparator);
         }
 
@@ -573,7 +578,8 @@ public class EsmService {
 
         try {
             Long execId = exTJobExec != null && exTJobExec.getId() != null
-                    ? exTJobExec.getId() : null;
+                    ? exTJobExec.getId()
+                    : null;
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
 
@@ -824,7 +830,7 @@ public class EsmService {
                                 .getEndpointsBindingsPorts().get(nodePort));
                     } else {
                         try {
-                            SocatBindedPort socatBindedPortObj = dockerService
+                            SocatBindedPort socatBindedPortObj = dockerEtmService
                                     .bindingPort(
                                             serviceInstance.getContainerIp(),
                                             node.get("port").toString(),
@@ -936,16 +942,19 @@ public class EsmService {
 
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
-                dockerService.stopDockerContainer(containerId);
-                dockerService.removeDockerContainer(containerId);
+                dockerEtmService.dockerService.stopDockerContainer(containerId);
+                dockerEtmService.dockerService
+                        .removeDockerContainer(containerId);
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
                 for (String containerId : subServiceInstance
                         .getPortBindingContainers()) {
-                    dockerService.stopDockerContainer(containerId);
-                    dockerService.removeDockerContainer(containerId);
+                    dockerEtmService.dockerService
+                            .stopDockerContainer(containerId);
+                    dockerEtmService.dockerService
+                            .removeDockerContainer(containerId);
                 }
             }
 
@@ -1253,7 +1262,7 @@ public class EsmService {
                 etEtmLstcpPort);
 
         supportServiceInstance.getParameters().put("ET_CONTEXT_API",
-                "http://" + utilTools.getMyIp() + ":" + serverPort
+                "http://" + UtilTools.getMyIp() + ":" + serverPort
                         + "/api/context/tss/"
                         + supportServiceInstance.getInstanceId());
 

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<include resource="org/springframework/boot/logging/logback/base.xml" />
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
 	<logger name="org" level="WARN" />
 	<logger name="springfox" level="WARN" />
 	<logger name="io.elastest" level="DEBUG" />
+	<logger name="com.zaxxer.hikari" level="OFF" />
 </configuration>

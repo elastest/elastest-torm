@@ -73,8 +73,6 @@ public class ExternalService {
 
     private Map<Long, ExternalJob> runningExternalJobs;
 
-    public UtilTools utilTools;
-
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
@@ -86,7 +84,7 @@ public class ExternalService {
     private EtmContextService etmContextService;
     private LogstashService logstashService;
 
-    public ExternalService(UtilTools utilTools, ProjectService projectService,
+    public ExternalService(ProjectService projectService,
             TJobService tJobService,
             ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
@@ -97,7 +95,6 @@ public class ExternalService {
             EtmContextService etmContextService,
             LogstashService logstashService) {
         super();
-        this.utilTools = utilTools;
         this.projectService = projectService;
         this.tJobService = tJobService;
         this.externalProjectRepository = externalProjectRepository;
@@ -355,7 +352,8 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(
             Long exTJobId) {
-        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId).get();
+        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
+                .get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
