@@ -64,8 +64,8 @@ public class DockerService2 {
             dockerServerUrl = UtilTools.getDockerHostUrlOnWin();
         } else {
             logger.info("Executing on Linux.");
-//            dockerServerUrl = "tcp://" + UtilTools.getHostIp() + ":"
-//                    + dockerPort;
+            // dockerServerUrl = "tcp://" + UtilTools.getHostIp() + ":"
+            // + dockerPort;
             dockerServerUrl = "unix:///var/run/docker.sock";
 
         }
@@ -188,6 +188,8 @@ public class DockerService2 {
             containerId = dockerClient.createContainer(createContainer).id();
         }
         dockerClient.startContainer(containerId);
+        logger.info("Started Docker container of {} with id {}", imageId,
+                containerId);
 
         return containerId;
     }
@@ -214,11 +216,9 @@ public class DockerService2 {
         dockerClient.stopContainer(containerId, killAfterSeconds);
     }
 
-    /*********************************/
-    /***** End execution methods *****/
-    /**
-     * @throws Exception
-     *******************************/
+    /* ******************************* */
+    /* **** End execution methods **** */
+    /* ******************************* */
 
     public void endContainer(String containerName) throws Exception {
         DockerClient dockerClient = this.getDockerClient();

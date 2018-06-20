@@ -391,7 +391,7 @@ public class DockerEtmService {
     }
 
     public void createAndStartSutContainer(DockerExecution dockerExec)
-            throws TJobStoppedException {
+            throws Exception {
         // Create Container Object
         try {
             dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
@@ -402,10 +402,11 @@ public class DockerEtmService {
 
             String sutName = getSutName(dockerExec);
             this.insertCreatedContainer(sutContainerId, sutName);
-        } catch (Exception e) {
+        } catch (TJobStoppedException e) {
             throw new TJobStoppedException(
-                    "Error on create and start Sut container: "
-                            + e.getMessage());
+                    "Error on create and start Sut container", e);
+        } catch (Exception e) {
+            throw new Exception("Error on create and start Sut container", e);
         }
     }
 
@@ -468,7 +469,7 @@ public class DockerEtmService {
     }
 
     public List<ReportTestSuite> createAndStartTestContainer(
-            DockerExecution dockerExec) throws TJobStoppedException {
+            DockerExecution dockerExec) throws Exception {
 
         try {
             // Create Container Object
@@ -489,10 +490,11 @@ public class DockerEtmService {
             logger.info("Test container ends with code " + code);
 
             return getTestResults(dockerExec);
-
-        } catch (Exception e) {
+        } catch (TJobStoppedException e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container", e);
+        } catch (Exception e) {
+            throw new Exception("Error on create and start TJob container", e);
         }
     }
 

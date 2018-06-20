@@ -656,7 +656,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void startSutByDockerImage(DockerExecution dockerExec)
-            throws TJobStoppedException {
+            throws Exception {
         // Create and Start container
         dockerEtmService.createAndStartSutContainer(dockerExec);
     }
