@@ -442,9 +442,8 @@ public class DockerEtmService {
             logger.info("Sut is ready " + dockerExec.getExecutionId());
 
         } else { // TODO timeout or catch stop execution
-            logger.info(
+            throw new TJobStoppedException(
                     "Error on Waiting for CheckSut. Probably because the user has stopped the execution");
-            throw new TJobStoppedException();
         }
     }
 
@@ -472,16 +471,10 @@ public class DockerEtmService {
             DockerExecution dockerExec) throws TJobStoppedException {
 
         try {
-            // Create and start container
-            String sutContainerId = dockerService
-                    .createAndStartContainer(dockerExec.getAppContainer());
-            dockerExec.setAppContainerId(sutContainerId);
-
-            String sutName = getSutName(dockerExec);
-            this.insertCreatedContainer(sutContainerId, sutName);
-
             // Create Container Object
             dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
+
+            // Create and start container
             String testContainerId = dockerService
                     .createAndStartContainer(dockerExec.getTestcontainer());
             dockerExec.setTestContainerId(testContainerId);
@@ -497,12 +490,9 @@ public class DockerEtmService {
 
             return getTestResults(dockerExec);
 
-        } catch (TJobStoppedException dce) {
-            throw new TJobStoppedException();
         } catch (Exception e) {
             throw new TJobStoppedException(
-                    "Error on create and start TJob container: "
-                            + e.getMessage());
+                    "Error on create and start TJob container", e);
         }
     }
 
@@ -557,15 +547,13 @@ public class DockerEtmService {
         }
     }
 
-    /*********************************/
-    /***** End execution methods *****/
-    /*********************************/
+    /* ******************************* */
+    /* **** End execution methods **** */
+    /* ******************************* */
 
-    /*****************/
-    /***** Utils *****/
-    /**
-     * @throws TJobStoppedException
-     ***************/
+    /* *************** */
+    /* **** Utils **** */
+    /* *************** */
 
     public String getContainerIpWithDockerExecution(String containerId,
             DockerExecution dockerExec) throws Exception {

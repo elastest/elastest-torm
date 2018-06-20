@@ -24,6 +24,8 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -49,7 +51,8 @@ public class TJobExecution {
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
     @JsonProperty("id")
     private Long id = null;
@@ -69,7 +72,7 @@ public class TJobExecution {
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sut_execution")    
+    @JoinColumn(name = "sut_execution")
     @JsonProperty("sutExecution")
     private SutExecution sutExecution = null;
 

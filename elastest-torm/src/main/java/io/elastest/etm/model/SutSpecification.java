@@ -21,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -35,8 +36,8 @@ import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
-import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
 import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -57,7 +58,8 @@ public class SutSpecification {
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
             BasicAttTJob.class, ExternalTJobView.class,
             BasicAttTJobExec.class })
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GenericGenerator(name = "native", strategy = "native")
     @JsonProperty("id")
     private Long id = null;
 

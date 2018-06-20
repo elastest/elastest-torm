@@ -212,7 +212,7 @@ public class TJobExecOrchestratorService {
 
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
-            logger.debug("TJob Stopped");
+            logger.debug("TJob Stopped", e);
             // Stop exception
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
@@ -921,8 +921,7 @@ public class TJobExecOrchestratorService {
         dockerExec.setSutExec(sutExec);
     }
 
-    public void endCheckSutExec(DockerExecution dockerExec)
-            throws Exception {
+    public void endCheckSutExec(DockerExecution dockerExec) throws Exception {
         dockerEtmService
                 .endContainer(dockerEtmService.getCheckName(dockerExec));
     }
@@ -931,8 +930,7 @@ public class TJobExecOrchestratorService {
     /* *** Dockbeat *** */
     /* **************** */
 
-    public void endDockbeatExec(DockerExecution dockerExec)
-            throws Exception {
+    public void endDockbeatExec(DockerExecution dockerExec) throws Exception {
         dockerEtmService.endContainer(
                 dockerEtmService.getDockbeatContainerName(dockerExec));
     }
@@ -941,8 +939,7 @@ public class TJobExecOrchestratorService {
     /* *** TJob Exec Methods *** */
     /* ************************* */
 
-    public void endTestExec(DockerExecution dockerExec)
-            throws Exception {
+    public void endTestExec(DockerExecution dockerExec) throws Exception {
         dockerEtmService.endContainer(dockerEtmService.getTestName(dockerExec));
     }
 
