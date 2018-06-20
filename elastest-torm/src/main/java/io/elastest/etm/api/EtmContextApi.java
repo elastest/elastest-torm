@@ -127,7 +127,7 @@ public interface EtmContextApi extends EtmApiRoot {
             "text/plain" }, method = RequestMethod.GET)
     public ResponseEntity<String> getSomeCoreServiceLogs(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
-            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount);
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) throws Exception;
 
     @ApiOperation(value = "Return Some Logs of a Core Service and follow", notes = "Return Some Logs of a Core Service and follow.", response = String.class, tags = {
             "CONTEXT", })

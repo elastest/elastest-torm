@@ -267,8 +267,7 @@ public class EtmContextService {
                         containerName, amount, withFollow);
             }
         }
-        throw new Exception("Error on get " + coreServiceName
-                + " logs. Invalid Core Service Name");
+        return null;
     }
 
     public String getCoreServiceLogsSince(String coreServiceName, int since,

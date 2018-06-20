@@ -23,6 +23,7 @@ import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.LogsParam;
+import com.spotify.docker.client.LogMessage;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -524,62 +525,16 @@ public class DockerService2 {
 
     public String getContainerLogsByGivenLogContainerCmd(String containerId,
             List<LogsParam> params) throws Exception {
-        StringBuilder logs = new StringBuilder();
-        CountDownLatch latch = new CountDownLatch(1);
-
+                
         params.add(LogsParam.stdout(true));
         params.add(LogsParam.stderr(true));
         params.add(LogsParam.timestamps(true));
 
         DockerClient dockerClient = this.getDockerClient();
-        LogStream logStream = dockerClient.logs(containerId,
-                (LogsParam[]) Arrays.asObjectArray(params));
-
-        // logContainerCmd.exec(getLogsResultCallback(latch, logs)); // TODO
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(
-                    "Interrupted when waiting for complete result callback on docker logs",
-                    e);
-        }
-        return logs.toString();
+        LogStream logStream = dockerClient.logs(containerId, params.toArray(new LogsParam[params.size()]));
+        
+        return logStream.readFully();
     }
-
-    // TODO public ResultCallback<Frame> getLogsResultCallback(CountDownLatch
-    // latch,
-    // StringBuilder logs) {
-    // return new ResultCallback<Frame>() {
-    //
-    // @Override
-    // public void close() throws IOException {
-    //
-    // }
-    //
-    // @Override
-    // public void onStart(Closeable closeable) {
-    // }
-    //
-    // @Override
-    // public void onNext(Frame f) {
-    // logs.append(new String(f.getPayload()));
-    // }
-    //
-    // @Override
-    // public void onError(Throwable throwable) {
-    // logger.error("Error on get container logs: {}",
-    // throwable.getMessage());
-    //
-    // }
-    //
-    // @Override
-    // public void onComplete() {
-    // latch.countDown();
-    // }
-    //
-    // };
-    // }
 
     public InputStream getFileFromContainer(String containerNameOrId,
             String fileName) throws Exception {
