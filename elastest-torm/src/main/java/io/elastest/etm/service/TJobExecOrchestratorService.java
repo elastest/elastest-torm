@@ -212,7 +212,7 @@ public class TJobExecOrchestratorService {
 
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
-            logger.debug("TJob Stopped", e);
+            logger.warn("TJob Stopped", e);
             // Stop exception
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
