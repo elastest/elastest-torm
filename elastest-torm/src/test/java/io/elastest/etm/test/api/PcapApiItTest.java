@@ -18,13 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
-
 import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.service.DockerEtmService;
-import io.elastest.etm.service.TJobStoppedException;
 import io.elastest.etm.utils.UtilTools;
 
 @RunWith(JUnitPlatform.class)
@@ -40,13 +36,13 @@ public class PcapApiItTest {
     DockerEtmService dockerEtmService;
 
     @Test
-    public void startStopPcapTest()
-            throws InterruptedException, TJobStoppedException, DockerException, DockerCertificateException {
+    public void startStopPcapTest() throws Exception {
         String execId = UtilTools.generateUniqueId();
 
         log.info("Starting sut");
-         
-        DockerBuilder dockerBuilder = new DockerBuilder("elastest/test-etm-sut3");
+
+        DockerBuilder dockerBuilder = new DockerBuilder(
+                "elastest/test-etm-sut3");
         dockerBuilder.containerName("sut_" + execId);
 
         String sutContainerId = this.dockerEtmService.dockerService

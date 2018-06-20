@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+import javax.annotation.PostConstruct;
+
 import org.assertj.core.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.LogsParam;
@@ -35,17 +38,39 @@ import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.etm.model.DockerContainer;
+import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class DockerService2 {
-
     private static final Logger logger = LoggerFactory
             .getLogger(DockerService2.class);
+
+    @Value("${os.name}")
+    private String osName;
+
+    @Value("${docker.port}")
+    private String dockerPort;
 
     @Value("${docker.sock}")
     private String dockerSock;
 
+    String dockerServerUrl;
     String latestTag = "latest";
+
+    @PostConstruct
+    private void init() throws Exception {
+        if (osName.toLowerCase().contains("win")) {
+            logger.info("Executing on Windows.");
+            dockerServerUrl = UtilTools.getDockerHostUrlOnWin();
+        } else {
+            logger.info("Executing on Linux.");
+//            dockerServerUrl = "tcp://" + UtilTools.getHostIp() + ":"
+//                    + dockerPort;
+            dockerServerUrl = "unix:///var/run/docker.sock";
+
+        }
+
+    }
 
     public enum ContainersListActionEnum {
         ADD("ADD"), REMOVE("REMOVE"), NONE("NONE");
@@ -78,8 +103,10 @@ public class DockerService2 {
     /* **** Config Methods **** */
     /* ************************ */
 
-    public DockerClient getDockerClient() throws DockerCertificateException {
-        return DefaultDockerClient.fromEnv().build();
+    public DockerClient getDockerClient() throws Exception {
+        Builder dockerClientBuilder = DefaultDockerClient.fromEnv();
+        dockerClientBuilder.uri(dockerServerUrl);
+        return dockerClientBuilder.build();
     }
 
     /* *************************** */
@@ -166,22 +193,17 @@ public class DockerService2 {
     }
 
     public String createAndStartContainer(DockerContainer dockerContainer)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         return this.createAndStartContainer(dockerClient, dockerContainer);
     }
 
-    public void removeDockerContainer(String containerId)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+    public void removeDockerContainer(String containerId) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         dockerClient.removeContainer(containerId);
     }
 
-    public void stopDockerContainer(String containerId)
-            throws DockerCertificateException, DockerException,
-            InterruptedException {
+    public void stopDockerContainer(String containerId) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         this.stopDockerContainer(dockerClient, containerId);
     }
@@ -195,14 +217,10 @@ public class DockerService2 {
     /*********************************/
     /***** End execution methods *****/
     /**
-     * @throws DockerCertificateException
-     * @throws DockerException
-     * @throws InterruptedException
+     * @throws Exception
      *******************************/
 
-    public void endContainer(String containerName)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+    public void endContainer(String containerName) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         if (existsContainer(containerName)) {
             String containerId = getContainerIdByName(containerName);
@@ -255,8 +273,7 @@ public class DockerService2 {
         logger.trace("Docker image {} downloaded", imageId);
     }
 
-    public void pullImage(String imageId) throws DockerException,
-            InterruptedException, DockerCertificateException {
+    public void pullImage(String imageId) throws Exception {
         this.pullImage(this.getDockerClient(), imageId);
     }
 
@@ -267,8 +284,7 @@ public class DockerService2 {
         }
     }
 
-    public void pullImageIfNotExist(String imageId) throws DockerException,
-            InterruptedException, DockerCertificateException {
+    public void pullImageIfNotExist(String imageId) throws Exception {
         this.pullImageIfNotExist(this.getDockerClient(), imageId);
     }
 
@@ -358,8 +374,7 @@ public class DockerService2 {
     }
 
     public String getContainerIpByNetwork(String containerId, String network)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         DockerClient client = this.getDockerClient();
         ContainerInfo info = client.inspectContainer(containerId);
         String ip = info.networkSettings().networks().get(network).ipAddress();
@@ -372,15 +387,13 @@ public class DockerService2 {
                 .networkSettings().networks().keySet().toArray()[0];
     }
 
-    public String getHostIpByNetwork(String network) throws DockerException,
-            InterruptedException, DockerCertificateException {
+    public String getHostIpByNetwork(String network) throws Exception {
         return this.getDockerClient().inspectNetwork(network).ipam().config()
                 .get(0).gateway();
     }
 
     public void insertIntoNetwork(String networkId, String containerId)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         boolean isAreadyInNetwork = this.isContainerIntoNetwork(networkId,
                 containerId);
         if (!isAreadyInNetwork) {
@@ -390,8 +403,7 @@ public class DockerService2 {
     }
 
     public boolean isContainerIntoNetwork(String networkId, String containerId)
-            throws DockerCertificateException, DockerException,
-            InterruptedException {
+            throws Exception {
         DockerClient client = getDockerClient();
         Map<String, AttachedNetwork> networksMap = client
                 .inspectContainer(containerId).networkSettings().networks();
@@ -399,14 +411,12 @@ public class DockerService2 {
     }
 
     public List<Container> getBridgeContainersByNamePrefix(String prefix)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         return this.getContainersByNamePrefix(prefix, "bridge");
     }
 
     public List<Container> getContainersByNamePrefix(String prefix,
-            String network) throws DockerException, InterruptedException,
-            DockerCertificateException {
+            String network) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         List<Container> containers = dockerClient
                 .listContainers(ListContainersParam.allContainers());
@@ -416,8 +426,7 @@ public class DockerService2 {
     }
 
     public List<Container> getContainersCreatedSinceId(String startId)
-            throws DockerCertificateException, DockerException,
-            InterruptedException {
+            throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         return dockerClient.listContainers(ListContainersParam.allContainers(),
                 ListContainersParam.containersCreatedSince(startId));
@@ -425,9 +434,7 @@ public class DockerService2 {
 
     public List<Container> getContainersByNamePrefixByGivenList(
             List<Container> containersList, String prefix,
-            ContainersListActionEnum action, String network)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+            ContainersListActionEnum action, String network) throws Exception {
         List<Container> filteredList = new ArrayList<>();
         for (Container currentContainer : containersList) {
             // Get name (name start with slash, we remove it)
@@ -477,8 +484,7 @@ public class DockerService2 {
     }
 
     public String getAllContainerLogs(String containerId, boolean withFollow)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         List<LogsParam> params = new ArrayList<>();
 
         if (withFollow) {
@@ -489,8 +495,7 @@ public class DockerService2 {
     }
 
     public String getSomeContainerLogs(String containerId, int amount,
-            boolean withFollow) throws DockerException, InterruptedException,
-            DockerCertificateException {
+            boolean withFollow) throws Exception {
         List<LogsParam> params = new ArrayList<>();
         params.add(LogsParam.tail(amount));
 
@@ -505,8 +510,7 @@ public class DockerService2 {
      * since time in seconds
      */
     public String getContainerLogsSinceDate(String containerId, int since,
-            boolean withFollow) throws DockerException, InterruptedException,
-            DockerCertificateException {
+            boolean withFollow) throws Exception {
         List<LogsParam> params = new ArrayList<>();
         params.add(LogsParam.since(since));
         // params.add(LogsParam.tail(All))); TODO check if gets all
@@ -519,8 +523,7 @@ public class DockerService2 {
     }
 
     public String getContainerLogsByGivenLogContainerCmd(String containerId,
-            List<LogsParam> params) throws DockerException,
-            InterruptedException, DockerCertificateException {
+            List<LogsParam> params) throws Exception {
         StringBuilder logs = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -579,8 +582,7 @@ public class DockerService2 {
     // }
 
     public InputStream getFileFromContainer(String containerNameOrId,
-            String fileName) throws DockerException, InterruptedException,
-            DockerCertificateException {
+            String fileName) throws Exception {
         InputStream inputStream = null;
         if (existsContainer(containerNameOrId)) {
             inputStream = this.getDockerClient()
@@ -589,8 +591,7 @@ public class DockerService2 {
         return inputStream;
     }
 
-    public boolean existsContainer(String containerName)
-            throws DockerCertificateException, InterruptedException {
+    public boolean existsContainer(String containerName) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         return this.existsContainer(containerName, dockerClient);
     }
@@ -607,8 +608,7 @@ public class DockerService2 {
         return exists;
     }
 
-    public String getContainerIdByName(String containerName)
-            throws DockerCertificateException {
+    public String getContainerIdByName(String containerName) throws Exception {
         DockerClient dockerClient = this.getDockerClient();
         String id = "";
         try {
@@ -624,7 +624,7 @@ public class DockerService2 {
     }
 
     public ContainerInfo getContainerInfoByName(String containerName)
-            throws DockerCertificateException {
+            throws Exception {
         ContainerInfo response = null;
         DockerClient dockerClient = getDockerClient();
         try {
@@ -652,8 +652,7 @@ public class DockerService2 {
     }
 
     public List<Container> getRunningContainersByImageName(String imageName)
-            throws DockerCertificateException, DockerException,
-            InterruptedException {
+            throws Exception {
         imageName += ":";
         DockerClient dockerClient = getDockerClient();
         List<Container> allContainers = dockerClient
@@ -668,8 +667,7 @@ public class DockerService2 {
     }
 
     public List<Container> getRunningContainersByImageNameAndVersion(
-            String imageName, String version) throws DockerCertificateException,
-            DockerException, InterruptedException {
+            String imageName, String version) throws Exception {
         DockerClient dockerClient = getDockerClient();
         List<Container> allContainers = dockerClient
                 .listContainers(ListContainersParam.allContainers());

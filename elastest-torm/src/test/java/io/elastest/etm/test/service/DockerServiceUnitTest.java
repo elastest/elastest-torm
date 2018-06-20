@@ -14,13 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.service.DockerEtmService;
-import io.elastest.etm.service.TJobStoppedException;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilTools;
 
@@ -50,8 +47,7 @@ public class DockerServiceUnitTest {
     }
 
     @Test
-    public void runStopAndRemoveContainerTest() throws TJobStoppedException,
-            DockerException, InterruptedException, DockerCertificateException {
+    public void runStopAndRemoveContainerTest() throws Exception {
         String image = "elastest/test-etm-test1";
         String containerName = "testContainer" + UtilTools.generateUniqueId();
         logger.info("Starting container {}", containerName);

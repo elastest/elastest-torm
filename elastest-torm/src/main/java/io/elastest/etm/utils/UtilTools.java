@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spotify.docker.client.exceptions.DockerException;
+
 @Component
 public class UtilTools {
 
@@ -100,7 +100,7 @@ public class UtilTools {
         return dockerHostIp;
     }
 
-    public static String getHostIp() throws DockerException {
+    public static String getHostIp() throws Exception {
         if (hostIp == null) {
             if (inContainer != null && inContainer.equals("true")) {
                 try {
@@ -109,8 +109,8 @@ public class UtilTools {
                     String[] tokens = ipRoute.split("\\s");
                     hostIp = tokens[2];
                 } catch (Exception e) {
-                    throw new DockerException(
-                            "Exception executing /sbin/ip route", e);
+                    throw new Exception("Exception executing /sbin/ip route",
+                            e);
                 }
             } else {
                 hostIp = "127.0.0.1";
@@ -120,7 +120,7 @@ public class UtilTools {
         return hostIp;
     }
 
-    public static String getDockerHostIp() throws DockerException {
+    public static String getDockerHostIp() throws Exception {
         if (windowsSO != null && windowsSO.toLowerCase().contains("win")) {
             return getDockerHostIpOnWin();
         } else

@@ -25,8 +25,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 
 import io.elastest.epm.client.json.DockerComposeCreateProject;
@@ -121,7 +119,7 @@ public class TJobExecOrchestratorService {
                         currentExec.getId());
                 try {
                     currentExec = this.forceEndExecution(currentExec);
-                } catch (DockerCertificateException e) {
+                } catch (Exception e) {
                     logger.error("Error on force end execution of {}",
                             currentExec);
                 }
@@ -254,7 +252,7 @@ public class TJobExecOrchestratorService {
     }
 
     public TJobExecution forceEndExecution(TJobExecution tJobExec)
-            throws DockerCertificateException {
+            throws Exception {
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         DockerExecution dockerExec = new DockerExecution(tJobExec);
         dockerEtmService.configureDocker(dockerExec);
@@ -811,8 +809,7 @@ public class TJobExecOrchestratorService {
             try {
                 host = dockerEtmService.dockerService.getContainerIpByNetwork(
                         etEtmLogstashContainerName, elastestDockerNetwork);
-            } catch (DockerException | InterruptedException
-                    | DockerCertificateException e) {
+            } catch (Exception e) {
                 throw new TJobStoppedException(
                         "Error on set Logging to Service of docker compose yml:"
                                 + e);
@@ -925,8 +922,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void endCheckSutExec(DockerExecution dockerExec)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+            throws Exception {
         dockerEtmService
                 .endContainer(dockerEtmService.getCheckName(dockerExec));
     }
@@ -936,8 +932,7 @@ public class TJobExecOrchestratorService {
     /* **************** */
 
     public void endDockbeatExec(DockerExecution dockerExec)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+            throws Exception {
         dockerEtmService.endContainer(
                 dockerEtmService.getDockbeatContainerName(dockerExec));
     }
@@ -947,8 +942,7 @@ public class TJobExecOrchestratorService {
     /* ************************* */
 
     public void endTestExec(DockerExecution dockerExec)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+            throws Exception {
         dockerEtmService.endContainer(dockerEtmService.getTestName(dockerExec));
     }
 

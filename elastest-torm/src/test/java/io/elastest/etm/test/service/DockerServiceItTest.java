@@ -26,7 +26,6 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.ImageNotFoundException;
 import com.spotify.docker.client.messages.LogConfig;
@@ -56,7 +55,7 @@ public class DockerServiceItTest {
     private DockerEtmService dockerEtmService;
 
     @BeforeEach
-    public void before() throws DockerCertificateException {
+    public void before() throws Exception {
         log.info(
                 "-------------------------------------------------------------------------");
 

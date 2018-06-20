@@ -90,7 +90,7 @@ public class DockerEtmService {
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
 
     @PostConstruct
-    public void initialize() {
+    public void initialize() throws Exception {
         logger.info("Pulling dockbeat image...");
         try {
             this.pullETExecImage(dockbeatImage, "Dockbeat", true);
@@ -121,8 +121,7 @@ public class DockerEtmService {
     /* **** Config Methods **** */
     /* ************************ */
 
-    public void configureDocker(DockerExecution dockerExec)
-            throws DockerCertificateException {
+    public void configureDocker(DockerExecution dockerExec) throws Exception {
         DockerClient client = dockerService.getDockerClient();
         dockerExec.setDockerClient(client);
     }
@@ -142,8 +141,7 @@ public class DockerEtmService {
     /* *************************** */
 
     public DockerContainer createContainer(DockerExecution dockerExec,
-            String type) throws TJobStoppedException,
-            DockerCertificateException, DockerException, InterruptedException {
+            String type) throws Exception {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         SutSpecification sut = tJob.getSut();
@@ -273,8 +271,7 @@ public class DockerEtmService {
     }
 
     public void pullETExecImage(String image, String name, boolean forcePull)
-            throws TJobStoppedException, DockerCertificateException,
-            DockerException, InterruptedException { // TODO
+            throws Exception { // TODO
         logger.debug("Try to Pulling {} Image ({})", name, image);
         // try {
         if (forcePull) {
@@ -302,9 +299,7 @@ public class DockerEtmService {
 
     }
 
-    public void startDockbeat(DockerExecution dockerExec)
-            throws TJobStoppedException, DockerCertificateException,
-            DockerException, InterruptedException {
+    public void startDockbeat(DockerExecution dockerExec) throws Exception {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         Long execution = dockerExec.getExecutionId();
@@ -407,8 +402,7 @@ public class DockerEtmService {
 
             String sutName = getSutName(dockerExec);
             this.insertCreatedContainer(sutContainerId, sutName);
-        } catch (DockerCertificateException | DockerException
-                | InterruptedException e) {
+        } catch (Exception e) {
             throw new TJobStoppedException(
                     "Error on create and start Sut container: "
                             + e.getMessage());
@@ -420,8 +414,7 @@ public class DockerEtmService {
     }
 
     public void checkSut(DockerExecution dockerExec, String ip, String port)
-            throws DockerException, InterruptedException,
-            DockerCertificateException, TJobStoppedException {
+            throws Exception {
         String envVar = "IP=" + ip;
         String envVar2 = "PORT=" + port;
         ArrayList<String> envList = new ArrayList<>();
@@ -504,13 +497,12 @@ public class DockerEtmService {
 
             return getTestResults(dockerExec);
 
-        } catch (DockerCertificateException | DockerException
-                | InterruptedException e) {
+        } catch (TJobStoppedException dce) {
+            throw new TJobStoppedException();
+        } catch (Exception e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container: "
                             + e.getMessage());
-        } catch (TJobStoppedException dce) {
-            throw new TJobStoppedException();
         }
     }
 
@@ -529,9 +521,7 @@ public class DockerEtmService {
     }
 
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
-            String tagSuffix, DockerExecution dockerExec)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            String tagSuffix, DockerExecution dockerExec) throws Exception {
         logstashHost = dockerService.getContainerIpByNetwork(
                 etEtmLogstashContainerName, elastestNetwork);
         logger.info(
@@ -606,16 +596,12 @@ public class DockerEtmService {
         return logstashHost;
     }
 
-    public void removeDockerContainer(String containerId)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+    public void removeDockerContainer(String containerId) throws Exception {
         dockerService.removeDockerContainer(containerId);
         createdContainers.remove(containerId);
     }
 
-    public void endContainer(String containerName)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+    public void endContainer(String containerName) throws Exception {
         dockerService.endContainer(containerName);
         String containerId = dockerService.getContainerIdByName(containerName);
 
@@ -663,9 +649,7 @@ public class DockerEtmService {
 
     public List<Container> getContainersByNamePrefixByGivenList(
             List<Container> containersList, String prefix,
-            ContainersListActionEnum action, String network)
-            throws DockerCertificateException, InterruptedException,
-            DockerException {
+            ContainersListActionEnum action, String network) throws Exception {
         List<Container> filteredList = new ArrayList<>();
         for (Container currentContainer : containersList) {
             // Get name (name start with slash, we remove it)
@@ -698,8 +682,7 @@ public class DockerEtmService {
     /* ************************* */
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec)
-            throws DockerException, InterruptedException,
-            DockerCertificateException {
+            throws Exception {
         List<ReportTestSuite> testSuites = null;
         String resultsPath = dockerExec.gettJobexec().getTjob()
                 .getResultsPath();
