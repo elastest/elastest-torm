@@ -25,7 +25,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.dockerjava.api.model.Container;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.Container;
 
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
@@ -117,7 +119,12 @@ public class TJobExecOrchestratorService {
             for (TJobExecution currentExec : notFinishedOrExecutedExecs) {
                 logger.debug("Cleaning TJobExecution {}...",
                         currentExec.getId());
-                currentExec = this.forceEndExecution(currentExec);
+                try {
+                    currentExec = this.forceEndExecution(currentExec);
+                } catch (DockerCertificateException e) {
+                    logger.error("Error on force end execution of {}",
+                            currentExec);
+                }
                 if (!currentExec.isFinished()) {
                     String resultMsg = "Stopped";
                     updateTJobExecResultStatus(currentExec,
@@ -191,8 +198,8 @@ public class TJobExecOrchestratorService {
             updateTJobExecResultStatus(tJobExec,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
-            dockerEtmService.createTestContainer(dockerExec);
-            testSuites = dockerEtmService.startTestContainer(dockerExec);
+            testSuites = dockerEtmService
+                    .createAndStartTestContainer(dockerExec);
 
             resultMsg = "Waiting for Test Results";
             updateTJobExecResultStatus(tJobExec,
@@ -246,7 +253,8 @@ public class TJobExecOrchestratorService {
         return new AsyncResult<Void>(null);
     }
 
-    public TJobExecution forceEndExecution(TJobExecution tJobExec) {
+    public TJobExecution forceEndExecution(TJobExecution tJobExec)
+            throws DockerCertificateException {
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         DockerExecution dockerExec = new DockerExecution(tJobExec);
         dockerEtmService.configureDocker(dockerExec);
@@ -319,9 +327,9 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    /*********************/
-    /**** TSS methods ****/
-    /*********************/
+    /* ******************* */
+    /* *** TSS methods *** */
+    /* ******************* */
 
     private void initTSS(TJobExecution tJobExec, String tJobServices) {
         String resultMsg = "";
@@ -485,11 +493,9 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    /**********************/
-    /**** SuT Methods ****/
-    /**
-     * @throws Exception
-     ********************/
+    /* ******************* */
+    /* *** SuT Methods *** */
+    /* ******************* */
 
     public void initSut(DockerExecution dockerExec) throws Exception {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
@@ -653,10 +659,8 @@ public class TJobExecOrchestratorService {
 
     public void startSutByDockerImage(DockerExecution dockerExec)
             throws TJobStoppedException {
-        // Create container
-        dockerEtmService.createSutContainer(dockerExec);
-        // Start container
-        dockerEtmService.startSutcontainer(dockerExec);
+        // Create and Start container
+        dockerEtmService.createAndStartSutContainer(dockerExec);
     }
 
     public void startSutByDockerCompose(DockerExecution dockerExec)
@@ -784,7 +788,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
-            DockerExecution dockerExec) {
+            DockerExecution dockerExec) throws TJobStoppedException {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         HashMap<String, HashMap> serviceContent = service.getValue();
         String loggingKey = "logging";
@@ -804,8 +808,15 @@ public class TJobExecOrchestratorService {
             host = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
             port = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
         } else {
-            host = dockerEtmService.getContainerIpByNetwork(
-                    etEtmLogstashContainerName, elastestDockerNetwork);
+            try {
+                host = dockerEtmService.dockerService.getContainerIpByNetwork(
+                        etEtmLogstashContainerName, elastestDockerNetwork);
+            } catch (DockerException | InterruptedException
+                    | DockerCertificateException e) {
+                throw new TJobStoppedException(
+                        "Error on set Logging to Service of docker compose yml:"
+                                + e);
+            }
         }
         loggingOptionsContent.put("syslog-address",
                 "tcp://" + host + ":" + port);
@@ -913,25 +924,31 @@ public class TJobExecOrchestratorService {
         dockerExec.setSutExec(sutExec);
     }
 
-    public void endCheckSutExec(DockerExecution dockerExec) {
+    public void endCheckSutExec(DockerExecution dockerExec)
+            throws DockerCertificateException, InterruptedException,
+            DockerException {
         dockerEtmService
                 .endContainer(dockerEtmService.getCheckName(dockerExec));
     }
 
-    /******************/
-    /**** Dockbeat ****/
-    /******************/
+    /* **************** */
+    /* *** Dockbeat *** */
+    /* **************** */
 
-    public void endDockbeatExec(DockerExecution dockerExec) {
+    public void endDockbeatExec(DockerExecution dockerExec)
+            throws DockerCertificateException, InterruptedException,
+            DockerException {
         dockerEtmService.endContainer(
                 dockerEtmService.getDockbeatContainerName(dockerExec));
     }
 
-    /***************************/
-    /**** TJob Exec Methods ****/
-    /***************************/
+    /* ************************* */
+    /* *** TJob Exec Methods *** */
+    /* ************************* */
 
-    public void endTestExec(DockerExecution dockerExec) {
+    public void endTestExec(DockerExecution dockerExec)
+            throws DockerCertificateException, InterruptedException,
+            DockerException {
         dockerEtmService.endContainer(dockerEtmService.getTestName(dockerExec));
     }
 

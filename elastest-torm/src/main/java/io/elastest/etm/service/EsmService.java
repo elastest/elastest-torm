@@ -29,6 +29,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
@@ -942,19 +944,32 @@ public class EsmService {
 
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
-                dockerEtmService.dockerService.stopDockerContainer(containerId);
-                dockerEtmService.dockerService
-                        .removeDockerContainer(containerId);
+                try {
+                    dockerEtmService.dockerService
+                            .stopDockerContainer(containerId);
+                    dockerEtmService.dockerService
+                            .removeDockerContainer(containerId);
+                } catch (DockerCertificateException | DockerException
+                        | InterruptedException e) {
+                    logger.error("Error on stop and remove container {}",
+                            containerId, e);
+                }
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
                 for (String containerId : subServiceInstance
                         .getPortBindingContainers()) {
-                    dockerEtmService.dockerService
-                            .stopDockerContainer(containerId);
-                    dockerEtmService.dockerService
-                            .removeDockerContainer(containerId);
+                    try {
+                        dockerEtmService.dockerService
+                                .stopDockerContainer(containerId);
+                        dockerEtmService.dockerService
+                                .removeDockerContainer(containerId);
+                    } catch (DockerCertificateException | DockerException
+                            | InterruptedException e) {
+                        logger.error("Error on stop and remove container {}",
+                                containerId, e);
+                    }
                 }
             }
 

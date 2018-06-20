@@ -1,5 +1,8 @@
 package io.elastest.etm.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,25 +23,22 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.apache.maven.plugins.surefire.report.TestSuiteXmlParser;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.LogConfig.LoggingType;
-import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.HostConfig.Bind;
+import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
+import com.spotify.docker.client.messages.LogConfig;
+import com.spotify.docker.client.messages.PortBinding;
 
+import io.elastest.etm.model.DockerContainer;
+import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
@@ -52,8 +52,7 @@ import io.elastest.etm.utils.UtilTools;
 @Service
 public class DockerEtmService {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DockerEtmService.class);
+    final Logger logger = getLogger(lookup().lookupClass());
 
     private static String checkImage = "elastest/etm-check-service-up";
     private static final Map<String, String> createdContainers = new HashMap<>();
@@ -92,10 +91,11 @@ public class DockerEtmService {
 
     @PostConstruct
     public void initialize() {
+        logger.info("Pulling dockbeat image...");
         try {
-            logger.info("Pulling dockbeat image...");
-            this.pullETExecImage(dockbeatImage, "Dockbeat");
-        } catch (TJobStoppedException e) {
+            this.pullETExecImage(dockbeatImage, "Dockbeat", true);
+        } catch (TJobStoppedException | DockerCertificateException
+                | DockerException | InterruptedException e) {
             logger.error("Error on pulling Dockbeat Image", e);
         }
     }
@@ -117,11 +117,12 @@ public class DockerEtmService {
         }
     }
 
-    /**************************/
-    /***** Config Methods *****/
-    /**************************/
+    /* ************************ */
+    /* **** Config Methods **** */
+    /* ************************ */
 
-    public void configureDocker(DockerExecution dockerExec) {
+    public void configureDocker(DockerExecution dockerExec)
+            throws DockerCertificateException {
         DockerClient client = dockerService.getDockerClient();
         dockerExec.setDockerClient(client);
     }
@@ -136,12 +137,13 @@ public class DockerEtmService {
         createdContainers.put(containerId, containerName);
     }
 
-    /*****************************/
-    /***** Container Methods *****/
-    /*****************************/
+    /* *************************** */
+    /* **** Container Methods **** */
+    /* *************************** */
 
-    public CreateContainerResponse createContainer(DockerExecution dockerExec,
-            String type) throws TJobStoppedException {
+    public DockerContainer createContainer(DockerExecution dockerExec,
+            String type) throws TJobStoppedException,
+            DockerCertificateException, DockerException, InterruptedException {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         SutSpecification sut = tJob.getSut();
@@ -233,48 +235,60 @@ public class DockerEtmService {
         }
 
         // Pull Image
-        this.pullETExecImage(image, type);
+        this.pullETExecImage(image, type, true);
 
-        // Create docker sock volume
-        Volume dockerSockVolume = new Volume(dockerSock);
+        /* ******************************************************** */
+        DockerBuilder dockerBuilder = new DockerBuilder(image);
+        dockerBuilder.envs(envList);
+        dockerBuilder.logConfig(logConfig);
+        dockerBuilder.containerName(containerName);
+        dockerBuilder.cmd(cmdList);
+        dockerBuilder.entryPoint(entrypointList);
+        dockerBuilder.network(dockerExec.getNetwork());
 
-        CreateContainerCmd containerCmd = dockerExec.getDockerClient()
-                .createContainerCmd(image).withEnv(envList)
-                .withLogConfig(logConfig).withName(containerName)
-                .withCmd(cmdList).withEntrypoint(entrypointList)
-                .withNetworkMode(dockerExec.getNetwork());
-
-        Volume sharedDataVolume = null;
+        boolean sharedDataVolume = false;
         if (sut != null && sut.isSutInNewContainer()) {
-            sharedDataVolume = new Volume(sharedFolder);
+            sharedDataVolume = true;
         }
 
-        if (sharedDataVolume != null) {
-            containerCmd = containerCmd
-                    .withVolumes(dockerSockVolume, sharedDataVolume)
-                    .withBinds(new Bind(dockerSock, dockerSockVolume),
-                            new Bind(sharedFolder, sharedDataVolume));
-        } else {
-            containerCmd = containerCmd.withVolumes(dockerSockVolume)
-                    .withBinds(new Bind(dockerSock, dockerSockVolume));
+        List<Bind> volumes = new ArrayList<>();
+
+        Builder dockerSockVolumeBuilder = Bind.builder();
+        dockerSockVolumeBuilder.from(dockerSock);
+        dockerSockVolumeBuilder.to(dockerSock);
+
+        volumes.add(dockerSockVolumeBuilder.build());
+        if (sharedDataVolume) {
+            Builder sharedDataVolumeBuilder = Bind.builder();
+            sharedDataVolumeBuilder.from(sharedFolder);
+            sharedDataVolumeBuilder.to(sharedFolder);
+
+            volumes.add(sharedDataVolumeBuilder.build());
         }
 
-        // Create Container
-        return containerCmd.exec();
+        dockerBuilder.volumeBindList(volumes);
+
+        // Create DockerContainer object
+        return dockerBuilder.build();
     }
 
-    public void pullETExecImage(String image, String name)
-            throws TJobStoppedException {
+    public void pullETExecImage(String image, String name, boolean forcePull)
+            throws TJobStoppedException, DockerCertificateException,
+            DockerException, InterruptedException { // TODO
         logger.debug("Try to Pulling {} Image ({})", name, image);
-        try {
-            dockerService.doPull(image);
-        } catch (DockerClientException e) {
-
-            logger.info(
-                    "Error probably because the user has stopped the execution",
-                    e);
-            throw new TJobStoppedException();
+        // try {
+        if (forcePull) {
+            dockerService.pullImage(image);
+        } else {
+            dockerService.pullImageIfNotExist(image);
         }
+        // } catch (DockerClientException e) {
+        //
+        // logger.info(
+        // "Error probably because the user has stopped the execution",
+        // e);
+        // throw new TJobStoppedException();
+        // }
         logger.debug("{} image pulled succesfully!", name);
 
     }
@@ -289,7 +303,8 @@ public class DockerEtmService {
     }
 
     public void startDockbeat(DockerExecution dockerExec)
-            throws TJobStoppedException {
+            throws TJobStoppedException, DockerCertificateException,
+            DockerException, InterruptedException {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         TJob tJob = tJobExec.getTjob();
         Long execution = dockerExec.getExecutionId();
@@ -322,22 +337,29 @@ public class DockerEtmService {
         envList.add(lsHostEnvVar);
 
         // dockerSock
-        Volume volume1 = new Volume(dockerSock);
+        Builder dockerSockVolumeBuilder = Bind.builder();
+        dockerSockVolumeBuilder.from(dockerSock);
+        dockerSockVolumeBuilder.to(dockerSock);
 
         // Pull Image
-        this.pullETExecImage(dockbeatImage, "Dockbeat");
+        this.pullETExecImage(dockbeatImage, "Dockbeat", false);
 
         // Create Container
         logger.debug("Creating Dockbeat Container...");
-        CreateContainerResponse container = dockerExec.getDockerClient()
-                .createContainerCmd(dockbeatImage).withEnv(envList)
-                .withName(containerName)
-                .withBinds(new Bind(dockerSock, volume1))
-                .withNetworkMode(dockerExec.getNetwork()).exec();
 
-        dockerExec.getDockerClient().startContainerCmd(container.getId())
-                .exec();
-        this.insertCreatedContainer(container.getId(), containerName);
+        /* ******************************************************** */
+        DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
+        dockerBuilder.envs(envList);
+        dockerBuilder.containerName(containerName);
+        dockerBuilder.network(dockerExec.getNetwork());
+
+        dockerBuilder
+                .volumeBindList(Arrays.asList(dockerSockVolumeBuilder.build()));
+
+        DockerContainer dockerContainer = dockerBuilder.build();
+        String containerId = dockerService
+                .createAndStartContainer(dockerContainer);
+        this.insertCreatedContainer(containerId, containerName);
 
         try {
             Thread.sleep(1000);
@@ -373,21 +395,24 @@ public class DockerEtmService {
 
     }
 
-    public void createSutContainer(DockerExecution dockerExec)
+    public void createAndStartSutContainer(DockerExecution dockerExec)
             throws TJobStoppedException {
-        // Create Container
-        dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
+        // Create Container Object
+        try {
+            dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
+            // Create and start container
+            String sutContainerId = dockerService
+                    .createAndStartContainer(dockerExec.getAppContainer());
+            dockerExec.setAppContainerId(sutContainerId);
 
-        String appContainerId = dockerExec.getAppContainer().getId();
-        dockerExec.setAppContainerId(appContainerId);
-    }
-
-    public void startSutcontainer(DockerExecution dockerExec) {
-        String sutName = getSutName(dockerExec);
-        String sutContainerId = dockerExec.getAppContainerId();
-
-        dockerExec.getDockerClient().startContainerCmd(sutContainerId).exec();
-        this.insertCreatedContainer(sutContainerId, sutName);
+            String sutName = getSutName(dockerExec);
+            this.insertCreatedContainer(sutContainerId, sutName);
+        } catch (DockerCertificateException | DockerException
+                | InterruptedException e) {
+            throw new TJobStoppedException(
+                    "Error on create and start Sut container: "
+                            + e.getMessage());
+        }
     }
 
     public String getCheckName(DockerExecution dockerExec) {
@@ -395,33 +420,38 @@ public class DockerEtmService {
     }
 
     public void checkSut(DockerExecution dockerExec, String ip, String port)
-            throws Exception {
+            throws DockerException, InterruptedException,
+            DockerCertificateException, TJobStoppedException {
         String envVar = "IP=" + ip;
         String envVar2 = "PORT=" + port;
         ArrayList<String> envList = new ArrayList<>();
         envList.add(envVar);
         envList.add(envVar2);
 
-        dockerService.doPull(dockerExec.getDockerClient(), checkImage);
+        dockerService.pullImageIfNotExist(checkImage);
 
         String checkName = getCheckName(dockerExec);
-        String checkContainerId = dockerExec.getDockerClient()
-                .createContainerCmd(checkImage).withEnv(envList)
-                .withName(checkName).withNetworkMode(dockerExec.getNetwork())
-                .exec().getId();
-        dockerExec.getDockerClient().startContainerCmd(checkContainerId).exec();
+
+        DockerBuilder dockerBuilder = new DockerBuilder(checkImage);
+        dockerBuilder.envs(envList);
+        dockerBuilder.containerName(checkName);
+        dockerBuilder.network(dockerExec.getNetwork());
+
+        DockerContainer dockerContainer = dockerBuilder.build();
+        String checkContainerId = dockerService
+                .createAndStartContainer(dockerContainer);
+
         this.insertCreatedContainer(checkContainerId, checkName);
 
-        try {
-            dockerExec.getDockerClient().waitContainerCmd(checkContainerId)
-                    .exec(new WaitContainerResultCallback()).awaitStatusCode();
+        int statusCode = dockerExec.getDockerClient()
+                .waitContainer(checkContainerId).statusCode();
+        if (statusCode == 0) {
             logger.info("Sut is ready " + dockerExec.getExecutionId());
 
-        } catch (DockerClientException e) {
+        } else { // TODO timeout or catch stop execution
             logger.info(
                     "Error on Waiting for CheckSut. Probably because the user has stopped the execution");
             throw new TJobStoppedException();
-        } catch (Exception e) {
         }
     }
 
@@ -445,41 +475,41 @@ public class DockerEtmService {
         return "test_" + dockerExec.getExecutionId();
     }
 
-    public void createTestContainer(DockerExecution dockerExec)
-            throws TJobStoppedException {
-        try {
-            CreateContainerResponse testContainer = createContainer(dockerExec,
-                    "tjob");
-            String testContainerId = testContainer.getId();
+    public List<ReportTestSuite> createAndStartTestContainer(
+            DockerExecution dockerExec) throws TJobStoppedException {
 
-            dockerExec.setTestcontainer(testContainer);
+        try {
+            // Create and start container
+            String sutContainerId = dockerService
+                    .createAndStartContainer(dockerExec.getAppContainer());
+            dockerExec.setAppContainerId(sutContainerId);
+
+            String sutName = getSutName(dockerExec);
+            this.insertCreatedContainer(sutContainerId, sutName);
+
+            // Create Container Object
+            dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
+            String testContainerId = dockerService
+                    .createAndStartContainer(dockerExec.getTestcontainer());
             dockerExec.setTestContainerId(testContainerId);
-        } catch (DockerClientException dce) {
-            throw new TJobStoppedException();
-        } catch (TJobStoppedException dce) {
-            throw new TJobStoppedException();
-        }
-    }
 
-    public List<ReportTestSuite> startTestContainer(DockerExecution dockerExec)
-            throws TJobStoppedException {
-        try {
-            String testContainerId = dockerExec.getTestContainerId();
             String testName = getTestName(dockerExec);
-
-            dockerExec.getDockerClient().startContainerCmd(testContainerId)
-                    .exec();
             this.insertCreatedContainer(testContainerId, testName);
 
             int code = dockerExec.getDockerClient()
-                    .waitContainerCmd(testContainerId)
-                    .exec(new WaitContainerResultCallback()).awaitStatusCode();
+                    .waitContainer(testContainerId).statusCode();
+
             dockerExec.setTestContainerExitCode(code);
             logger.info("Test container ends with code " + code);
 
             return getTestResults(dockerExec);
 
-        } catch (DockerClientException dce) {
+        } catch (DockerCertificateException | DockerException
+                | InterruptedException e) {
+            throw new TJobStoppedException(
+                    "Error on create and start TJob container: "
+                            + e.getMessage());
+        } catch (TJobStoppedException dce) {
             throw new TJobStoppedException();
         }
     }
@@ -494,17 +524,16 @@ public class DockerEtmService {
         configMap.put("tag",
                 tagPrefix + dockerExec.getExecutionId() + tagSuffix + "_exec");
 
-        LogConfig logConfig = new LogConfig();
-        logConfig.setType(LoggingType.SYSLOG);
-        logConfig.setConfig(configMap);
-
+        LogConfig logConfig = LogConfig.create("syslog", configMap);
         return logConfig;
     }
 
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
-            String tagSuffix, DockerExecution dockerExec) {
-        logstashHost = getContainerIpByNetwork(etEtmLogstashContainerName,
-                elastestNetwork);
+            String tagSuffix, DockerExecution dockerExec)
+            throws DockerException, InterruptedException,
+            DockerCertificateException {
+        logstashHost = dockerService.getContainerIpByNetwork(
+                etEtmLogstashContainerName, elastestNetwork);
         logger.info(
                 "Logstash Host to send logs from containers: {}. To port {}",
                 logstashHost, port);
@@ -562,65 +591,31 @@ public class DockerEtmService {
                 dockerExec.getNetwork(), timeout);
     }
 
-    public String getContainerIpByNetwork(String containerId, String network) {
-        DockerClient client = dockerService.getDockerClient();
-
-        String ip = client.inspectContainerCmd(containerId).exec()
-                .getNetworkSettings().getNetworks().get(network).getIpAddress();
-        return ip.split("/")[0];
+    public String getHostIp(DockerExecution dockerExec)
+            throws DockerException, InterruptedException {
+        return dockerExec.getDockerClient()
+                .inspectNetwork(dockerExec.getNetwork()).ipam().config().get(0)
+                .gateway();
     }
 
-    public String getNetworkName(String containerId,
-            DockerClient dockerClient) {
-        return (String) dockerClient.inspectContainerCmd(containerId).exec()
-                .getNetworkSettings().getNetworks().keySet().toArray()[0];
-    }
-
-    public String getHostIp(DockerExecution dockerExec) {
-        return dockerExec.getDockerClient().inspectNetworkCmd()
-                .withNetworkId(dockerExec.getNetwork()).exec().getIpam()
-                .getConfig().get(0).getGateway();
-    }
-
-    public String getLogstashHost(DockerExecution dockerExec) {
+    public String getLogstashHost(DockerExecution dockerExec)
+            throws DockerException, InterruptedException {
         if (logstashHost == null) {
             return this.getHostIp(dockerExec);
         }
         return logstashHost;
     }
 
-    public String runDockerContainer(DockerClient dockerClient,
-            String imageName, List<String> envs, String containerName,
-            String networkName, Ports portBindings, Integer listenPort)
-            throws TJobStoppedException {
-        try {
-            String containerId = dockerService.runDockerContainer(dockerClient,
-                    imageName, envs, containerName, networkName, portBindings,
-                    listenPort);
-            this.insertCreatedContainer(containerId, containerName);
-            return containerId;
-        } catch (DockerClientException e) {
-            logger.info(
-                    "Error probably because the user has stopped the execution",
-                    e);
-            throw new TJobStoppedException();
-        }
-    }
-
-    public String runDockerContainer(String imageName, List<String> envs,
-            String containerName, String networkName, Ports portBindings,
-            Integer listenPort) throws TJobStoppedException {
-        return this.runDockerContainer(dockerService.getDockerClient(),
-                imageName, envs, containerName, networkName, portBindings,
-                listenPort);
-    }
-
-    public void removeDockerContainer(String containerId) {
+    public void removeDockerContainer(String containerId)
+            throws DockerException, InterruptedException,
+            DockerCertificateException {
         dockerService.removeDockerContainer(containerId);
         createdContainers.remove(containerId);
     }
 
-    public void endContainer(String containerName) {
+    public void endContainer(String containerName)
+            throws DockerCertificateException, InterruptedException,
+            DockerException {
         dockerService.endContainer(containerName);
         String containerId = dockerService.getContainerIdByName(containerName);
 
@@ -637,15 +632,24 @@ public class DockerEtmService {
             envVariables.add("LISTEN_PORT=" + listenPort);
             envVariables.add("FORWARD_PORT=" + port);
             envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            Ports portBindings = new Ports();
-            ExposedPort exposedListenPort = ExposedPort.tcp(listenPort);
+            String listenPortAsString = String.valueOf(listenPort);
 
-            portBindings.bind(exposedListenPort,
-                    Ports.Binding.bindPort(listenPort));
+            DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
+            dockerBuilder.envs(envVariables);
+            dockerBuilder.containerName("container" + listenPortAsString);
+            dockerBuilder.network(networkName);
+            dockerBuilder
+                    .exposedPorts(Arrays.asList(String.valueOf(listenPort)));
 
-            bindedPort = this.runDockerContainer(etSocatImage, envVariables,
-                    "container" + listenPort, networkName, portBindings,
-                    listenPort);
+            // portBindings
+            Map<String, List<PortBinding>> portBindings = new HashMap<>();
+            portBindings.put(listenPortAsString,
+                    Arrays.asList(PortBinding.of("", listenPortAsString)));
+            dockerBuilder.portBindings(portBindings);
+
+            bindedPort = dockerService
+                    .createAndStartContainer(dockerBuilder.build());
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -659,21 +663,23 @@ public class DockerEtmService {
 
     public List<Container> getContainersByNamePrefixByGivenList(
             List<Container> containersList, String prefix,
-            ContainersListActionEnum action, String network) {
+            ContainersListActionEnum action, String network)
+            throws DockerCertificateException, InterruptedException,
+            DockerException {
         List<Container> filteredList = new ArrayList<>();
         for (Container currentContainer : containersList) {
             // Get name (name start with slash, we remove it)
-            String containerName = currentContainer.getNames()[0]
+            String containerName = currentContainer.names().get(0)
                     .replaceFirst("/", "");
             if (containerName != null && containerName.startsWith(prefix)) {
                 filteredList.add(currentContainer);
                 if (action != ContainersListActionEnum.NONE) {
                     if (action == ContainersListActionEnum.ADD) {
-                        this.insertCreatedContainer(currentContainer.getId(),
+                        this.insertCreatedContainer(currentContainer.id(),
                                 containerName);
                         try {
                             dockerService.insertIntoNetwork(network,
-                                    currentContainer.getId());
+                                    currentContainer.id());
                         } catch (Exception e) {
                             // Already added
                         }
@@ -687,11 +693,13 @@ public class DockerEtmService {
         return filteredList;
     }
 
-    /***************************/
-    /***** Get TestResults *****/
-    /***************************/
+    /* ************************* */
+    /* **** Get TestResults **** */
+    /* ************************* */
 
-    private List<ReportTestSuite> getTestResults(DockerExecution dockerExec) {
+    private List<ReportTestSuite> getTestResults(DockerExecution dockerExec)
+            throws DockerException, InterruptedException,
+            DockerCertificateException {
         List<ReportTestSuite> testSuites = null;
         String resultsPath = dockerExec.gettJobexec().getTjob()
                 .getResultsPath();

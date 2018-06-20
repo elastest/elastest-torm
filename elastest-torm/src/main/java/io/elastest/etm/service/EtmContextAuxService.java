@@ -1,16 +1,25 @@
 package io.elastest.etm.service;
 
+import org.slf4j.Logger;
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class EtmContextAuxService {
+    final Logger logger = getLogger(lookup().lookupClass());
+
     @Value("${et.public.host}")
     public String etPublicHost;
     @Value("${et.in.prod}")
@@ -99,10 +108,10 @@ public class EtmContextAuxService {
     @Value("${et.edm.command.context-path}")
     private String etEdmCommandContextPath;
 
-    private DockerService2 dockerService;
+    private DockerEtmService dockerEtmService;
 
-    public EtmContextAuxService(DockerService2 dockerService) {
-        this.dockerService = dockerService;
+    public EtmContextAuxService(DockerEtmService dockerEtmService) {
+        this.dockerEtmService = dockerEtmService;
     }
 
     public ContextInfo getContextInfo() {
@@ -127,8 +136,15 @@ public class EtmContextAuxService {
         contextInfo
                 .setLogstashBindedInternalBeatsPort(bindedInternalLsBeatsPort);
 
-        String logstashHost = dockerService.getContainerIpByNetwork(
-                etEtmLogstashContainerName, elastestNetwork);
+        String logstashHost = null;
+        try {
+            logstashHost = dockerEtmService.dockerService
+                    .getContainerIpByNetwork(etEtmLogstashContainerName,
+                            elastestNetwork);
+        } catch (DockerException | InterruptedException
+                | DockerCertificateException e) {
+            logger.error("Error on get logstash host ip", e);
+        }
         String proxyIp = etPublicHost;
         String proxyPort = etProxyPort;
         String proxySslPort = etProxySSLPort;
@@ -142,7 +158,13 @@ public class EtmContextAuxService {
                 }
             }
         } else {
-            proxyIp = dockerService.getHostIpByNetwork(elastestNetwork);
+            try {
+                proxyIp = dockerEtmService.dockerService
+                        .getHostIpByNetwork(elastestNetwork);
+            } catch (DockerException | InterruptedException
+                    | DockerCertificateException e) {
+                logger.error("Error on get proxy host ip", e);
+            }
         }
 
         contextInfo.setLogstashHttpUrl(
@@ -205,7 +227,7 @@ public class EtmContextAuxService {
             String emsLsBeatsPort = emsEnvVars.get("ET_EMS_LSBEATS_PORT");
             String emsHttpInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPINEVENTS_API");
-            
+
             String emsHttpsInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPSINEVENTS_API");
             // String emsTcpTestLogsHost = emsEnvVars
@@ -231,7 +253,7 @@ public class EtmContextAuxService {
             if (emsHttpInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTP_API", emsHttpInEventsApi);
             }
-            
+
             if (emsHttpsInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTPS_API", emsHttpsInEventsApi);
             }

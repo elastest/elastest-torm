@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
@@ -27,7 +30,7 @@ public class TestEnginesService {
             .getLogger(TestEnginesService.class);
 
     public DockerComposeService dockerComposeService;
-    public DockerService2 dockerService2;
+    public DockerEtmService dockerEtmService;
 
     public List<String> enginesList = new ArrayList<>();
 
@@ -50,9 +53,9 @@ public class TestEnginesService {
     public String etEdmMysqlPort;
 
     public TestEnginesService(DockerComposeService dockerComposeService,
-            DockerService2 dockerService2) {
+            DockerEtmService dockerEtmService) {
         this.dockerComposeService = dockerComposeService;
-        this.dockerService2 = dockerService2;
+        this.dockerEtmService = dockerEtmService;
     }
 
     public void registerEngines() {
@@ -104,6 +107,10 @@ public class TestEnginesService {
                 url = getServiceUrl(engineName);
             } catch (IOException e) {
                 log.error("Cannot create {} instance", engineName, e);
+            } catch (Exception e) {
+                log.error("{}", e.getMessage());
+                log.error("Stopping service {}", engineName);
+                this.stopInstance(engineName);
             }
         } else {
             url = getServiceUrl(engineName);
@@ -111,11 +118,19 @@ public class TestEnginesService {
         return url;
     }
 
-    public void insertIntoETNetwork(String engineName) {
+    public void insertIntoETNetwork(String engineName) throws Exception {
         try {
             for (DockerContainer container : dockerComposeService
                     .getContainers(engineName).getContainers()) {
-                dockerService2.insertIntoNetwork(network, container.getName());
+                try {
+                    dockerEtmService.dockerService.insertIntoNetwork(network,
+                            container.getName());
+                } catch (DockerException | InterruptedException
+                        | DockerCertificateException e) {
+                    throw new Exception(
+                            "Error on insert container " + container.getName()
+                                    + " into " + network + " network");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,8 +158,9 @@ public class TestEnginesService {
                         if (portList.getValue() != null) {
                             if (ip.equals("localhost")) {
                                 port = portList.getKey().split("/")[0];
-                                ip = dockerService2.getContainerIpByNetwork(
-                                        containerName, network);
+                                ip = dockerEtmService.dockerService
+                                        .getContainerIpByNetwork(containerName,
+                                                network);
                             } else {
                                 port = portList.getValue().get(0).getHostPort();
                             }
@@ -203,7 +219,7 @@ public class TestEnginesService {
         try {
             dockerComposeService.stopProject(engineName);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while stopping engine {}", engineName);
         }
     }
 

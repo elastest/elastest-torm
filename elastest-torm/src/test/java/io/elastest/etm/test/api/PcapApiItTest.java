@@ -18,8 +18,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.service.DockerService2;
+import io.elastest.etm.model.DockerContainer.DockerBuilder;
+import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.TJobStoppedException;
 import io.elastest.etm.utils.UtilTools;
 
@@ -33,17 +37,20 @@ public class PcapApiItTest {
     TestRestTemplate httpClient;
 
     @Autowired
-    DockerService2 dockerService;
+    DockerEtmService dockerEtmService;
 
     @Test
     public void startStopPcapTest()
-            throws InterruptedException, TJobStoppedException {
+            throws InterruptedException, TJobStoppedException, DockerException, DockerCertificateException {
         String execId = UtilTools.generateUniqueId();
 
         log.info("Starting sut");
-        String sutContainerId = this.dockerService.runDockerContainer(
-                "elastest/test-etm-sut3", null, "sut_" + execId, null, null,
-                null);
+         
+        DockerBuilder dockerBuilder = new DockerBuilder("elastest/test-etm-sut3");
+        dockerBuilder.containerName("sut_" + execId);
+
+        String sutContainerId = this.dockerEtmService.dockerService
+                .createAndStartContainer(dockerBuilder.build());
 
         log.info("Starting pcap");
         boolean started = this.startPcap(execId);
@@ -54,11 +61,12 @@ public class PcapApiItTest {
         this.stopPcap(execId);
 
         log.info("Stopping sut");
-        this.dockerService.stopDockerContainer(sutContainerId);
-        this.dockerService.removeDockerContainer(sutContainerId);
+        this.dockerEtmService.dockerService.stopDockerContainer(sutContainerId);
+        this.dockerEtmService.removeDockerContainer(sutContainerId);
 
         String containerName = this.getPcapContainerName(execId);
-        assertFalse(this.dockerService.existsContainer(containerName));
+        assertFalse(this.dockerEtmService.dockerService
+                .existsContainer(containerName));
     }
 
     @Test

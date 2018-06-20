@@ -3,6 +3,9 @@ package io.elastest.etm.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,8 +43,7 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class ElasticsearchService {
-    private static final Logger logger = LoggerFactory
-            .getLogger(ElasticsearchService.class);
+    final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
@@ -85,13 +87,12 @@ public class ElasticsearchService {
             String type = "_doc";
 
             Map<String, String> mappings = new HashMap<>();
-            mappings.put(type,
-                    "{ \"" + type + "\": { \"properties\": {"
-                            + "\"component\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"stream\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"level\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
-                            + "\"et_type\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
-                            + "} }" + "}");
+            mappings.put(type, "{ \"" + type + "\": { \"properties\": {"
+                    + "\"component\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                    + "\"stream\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                    + "\"level\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } },"
+                    + "\"et_type\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
+                    + "} }" + "}");
             try {
                 this.createIndexSync(index, mappings, null, null);
                 logger.info("Index {} created", index);

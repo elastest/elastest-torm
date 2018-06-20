@@ -1,13 +1,13 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ContainerNetwork;
-import com.github.dockerjava.api.model.ContainerPort;
+import com.spotify.docker.client.messages.AttachedNetwork;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.Container.PortMapping;
+
 import io.elastest.etm.model.VersionInfo;
 
 public class CoreServiceInfo {
@@ -15,7 +15,7 @@ public class CoreServiceInfo {
     VersionInfo versionInfo;
     String imageName;
     List<String> containerNames;
-    List<ContainerPort> ports;
+    List<PortMapping> ports;
     String status;
     List<String> networks;
 
@@ -57,11 +57,11 @@ public class CoreServiceInfo {
         this.containerNames = containerNames;
     }
 
-    public List<ContainerPort> getPorts() {
+    public List<PortMapping> getPorts() {
         return ports;
     }
 
-    public void setPorts(List<ContainerPort> ports) {
+    public void setPorts(List<PortMapping> ports) {
         this.ports = ports;
     }
 
@@ -84,12 +84,12 @@ public class CoreServiceInfo {
     /* **** Others **** */
 
     public void setDataByContainer(Container container) {
-        this.setContainerNames(Arrays.asList(container.getNames()));
-        this.setPorts(Arrays.asList(container.getPorts()));
-        this.setStatus(container.getStatus());
+        this.setContainerNames(container.names());
+        this.setPorts(container.ports());
+        this.setStatus(container.status());
 
-        for (Map.Entry<String, ContainerNetwork> entry : container
-                .getNetworkSettings().getNetworks().entrySet()) {
+        for (Map.Entry<String, AttachedNetwork> entry : container
+                .networkSettings().networks().entrySet()) {
             this.getNetworks().add(entry.getKey());
         }
     }

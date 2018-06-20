@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
+import com.spotify.docker.client.exceptions.DockerException;
+
 import io.elastest.etm.utils.UtilTools;
 
 @RunWith(JUnitPlatform.class)
@@ -28,12 +30,12 @@ public class UtilToolsTest {
     }
 
     @Test
-    public void testGetHostIp() {
+    public void testGetHostIp() throws DockerException {
         assertNotNull(UtilTools.getHostIp());
     }
 
     @Test
-    public void testGetDockerHostIp() {
+    public void testGetDockerHostIp() throws DockerException {
         assertNotNull(UtilTools.getDockerHostIp());
     }
 

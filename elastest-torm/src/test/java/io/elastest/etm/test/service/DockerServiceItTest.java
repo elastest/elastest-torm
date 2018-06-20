@@ -2,11 +2,7 @@ package io.elastest.etm.test.service;
 
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -21,24 +17,23 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.LogConfig.LoggingType;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.exceptions.ImageNotFoundException;
+import com.spotify.docker.client.messages.LogConfig;
 
 import io.elastest.etm.ElasTestTormApp;
+import io.elastest.etm.model.DockerContainer.DockerBuilder;
+import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 
 @RunWith(JUnitPlatform.class)
@@ -46,160 +41,143 @@ import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class DockerServiceItTest {
 
-	private static final Logger log = LoggerFactory.getLogger(DockerServiceItTest.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(DockerServiceItTest.class);
 
-	@LocalServerPort
-	int serverPort;
+    @LocalServerPort
+    int serverPort;
 
     @Value("${logstash.host:#{null}}")
     private String logstashHost;
 
-	private DockerClient dockerClient;
+    private DockerClient dockerClient;
 
-	@BeforeEach
-	public void before() {
-		log.info("-------------------------------------------------------------------------");
+    @Autowired
+    private DockerEtmService dockerEtmService;
 
-		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-				.withDockerHost("unix:///var/run/docker.sock").build();
+    @BeforeEach
+    public void before() throws DockerCertificateException {
+        log.info(
+                "-------------------------------------------------------------------------");
 
-		dockerClient = DockerClientBuilder.getInstance(config).build();
-	}
+        dockerClient = dockerEtmService.dockerService.getDockerClient();
+    }
 
-	@AfterEach
-	public void after() {
-		log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-	}
+    @AfterEach
+    public void after() {
+        log.info(
+                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    }
 
-	@Test
-	public void readLogInRabbit() throws Exception {
+    @Test
+    public void readLogInRabbit() throws Exception {
 
-		String imageId = "alpine";
+        String imageId = "alpine";
 
-		if (!existsImage(imageId)) {
-			log.info("Pulling image '{}'", imageId);
-			dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitSuccess();
-		}
+        if (!existsImage(imageId)) {
+            log.info("Pulling image '{}'", imageId);
+            dockerClient.pull(imageId);
+        }
 
-		String queueId = "test.default_log.1.log";
-		String tag = "test_1_exec";
+        String queueId = "test.default_log.1.log";
+        String tag = "test_1_exec";
 
-		WaitForMessagesHandler handler = connectToRabbitQueue(queueId);
+        WaitForMessagesHandler handler = connectToRabbitQueue(queueId);
 
-		LogConfig logConfig = getLogConfig(tag);
+        LogConfig logConfig = getLogConfig(tag);
 
-		log.info("Creating container");
+        log.info("Creating and starting container");
 
-		CreateContainerResponse container = dockerClient.createContainerCmd(imageId)
-				.withCmd("/bin/sh", "-c", "while true; do echo hello; sleep 1; done").withTty(false)
-				.withLogConfig(logConfig).withNetworkMode("bridge").exec();
+        DockerBuilder dockerBuilder = new DockerBuilder(imageId);
+        dockerBuilder.logConfig(logConfig);
+        dockerBuilder.cmd(Arrays.asList("/bin/sh", "-c",
+                "while true; do echo hello; sleep 1; done"));
+        dockerBuilder.network("bridge");
 
-		String containerId = container.getId();
+        long start = System.currentTimeMillis();
+        String containerId = dockerEtmService.dockerService
+                .createAndStartContainer(dockerBuilder.build());
+        log.info("Created and started container: {}", containerId);
 
-		try {
+        try {
+            log.info("Waiting for logs messages in Rabbit");
 
-			log.info("Created container: {}", container.toString());
+            handler.waitForCompletion(5, TimeUnit.SECONDS);
 
-			long start = System.currentTimeMillis();
+            long duration = System.currentTimeMillis() - start;
 
-			dockerClient.startContainerCmd(containerId).exec();
+            log.info("Log received in Rabbit in {} millis", duration);
 
-			log.info("Waiting for logs messages in Rabbit");
+        } catch (Exception ex) {
 
-			handler.waitForCompletion(5, TimeUnit.SECONDS);
+            log.info("Log NOT received in Rabbit");
 
-			long duration = System.currentTimeMillis() - start;
+            throw ex;
 
-			log.info("Log received in Rabbit in {} millis", duration);
+        } finally {
 
-		} catch (Exception ex) {
+            log.info("Cleaning up resources");
 
-			log.info("Log NOT received in Rabbit");
+            try {
+                log.info("Removing container " + containerId);
 
-			throw ex;
+                try {
+                    dockerClient.stopContainer(containerId, 60);
+                } catch (Exception ex) {
+                    log.warn("Error stopping container {}", containerId, ex);
+                }
+                dockerClient.removeContainer(containerId);
+            } catch (Exception ex) {
+                log.warn("Error on ending test execution {}", containerId, ex);
+            }
+        }
+    }
 
-		} finally {
+    public boolean existsImage(String imageId)
+            throws DockerException, InterruptedException {
+        boolean exists = true;
+        try {
+            dockerClient.inspectImage(imageId);
+            log.debug("Docker image {} already exists", imageId);
 
-			log.info("Cleaning up resources");
+        } catch (ImageNotFoundException e) {
+            log.trace("Image {} does not exist", imageId);
+            exists = false;
+        }
+        return exists;
+    }
 
-			try {
-				log.info("Removing container " + containerId);
+    private LogConfig getLogConfig(String tag)
+            throws DockerException, InterruptedException {
 
-				try {
-					dockerClient.stopContainerCmd(containerId).exec();
-				} catch (Exception ex) {
-					log.warn("Error stopping container {}", containerId, ex);
-				}
-				dockerClient.removeContainerCmd(containerId).exec();
-			} catch (Exception ex) {
-				log.warn("Error on ending test execution {}", containerId, ex);
-			}
-		}
-	}
+        if (logstashHost == null) {
+            logstashHost = dockerClient.inspectNetwork("bridge").ipam().config()
+                    .get(0).gateway();
+        }
 
+        log.info("Logstash IP to send logs from containers: {}", logstashHost);
 
-	public boolean existsImage(String imageId) {
-		boolean exists = true;
-		try {
-			dockerClient.inspectImageCmd(imageId).exec();
-			log.debug("Docker image {} already exists", imageId);
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put("syslog-address", "tcp://" + logstashHost + ":" + 5000);
+        configMap.put("tag", tag);
 
-		} catch (NotFoundException e) {
-			log.trace("Image {} does not exist", imageId);
-			exists = false;
-		}
-		return exists;
-	}
+        LogConfig logConfig = LogConfig.create("syslog", configMap);
 
-	private LogConfig getLogConfig(String tag) {
+        return logConfig;
+    }
 
-		if (logstashHost == null) {
-			logstashHost = dockerClient.inspectNetworkCmd().withNetworkId("bridge").exec().getIpam().getConfig().get(0)
-					.getGateway();
-		}
+    private WaitForMessagesHandler connectToRabbitQueue(String queueId)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        StompSession stompSession = connectToRabbitMQ(serverPort);
 
-		log.info("Logstash IP to send logs from containers: {}", logstashHost);
+        String queueToSuscribe = "/topic/" + queueId;
 
-		Map<String, String> configMap = new HashMap<String, String>();
-		configMap.put("syslog-address", "tcp://" + logstashHost + ":" + 5000);
-		configMap.put("tag", tag);
+        log.info("Container log queue '" + queueToSuscribe + "'");
 
-		LogConfig logConfig = new LogConfig();
-		logConfig.setType(LoggingType.SYSLOG);
-		logConfig.setConfig(configMap);
+        WaitForMessagesHandler handler = new WaitForMessagesHandler("1");
 
-		return logConfig;
-	}
-
-	private WaitForMessagesHandler connectToRabbitQueue(String queueId)
-			throws InterruptedException, ExecutionException, TimeoutException {
-		StompSession stompSession = connectToRabbitMQ(serverPort);
-
-		String queueToSuscribe = "/topic/" + queueId;
-
-		log.info("Container log queue '" + queueToSuscribe + "'");
-
-		WaitForMessagesHandler handler = new WaitForMessagesHandler("1");
-
-		stompSession.subscribe(queueToSuscribe, handler);
-		return handler;
-	}
-
-	private boolean isRunningInContainer() {
-
-		try (BufferedReader br = Files.newBufferedReader(Paths.get("/proc/1/cgroup"), StandardCharsets.UTF_8)) {
-
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				if (line.contains("/docker")) {
-					return true;
-				}
-			}
-			return false;
-
-		} catch (IOException e) {
-			return false;
-		}
-	}
+        stompSession.subscribe(queueToSuscribe, handler);
+        return handler;
+    }
 
 }
