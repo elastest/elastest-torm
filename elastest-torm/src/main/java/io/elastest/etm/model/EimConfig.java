@@ -39,6 +39,12 @@ public class EimConfig {
 
     @JsonView({ BasicAttEimConfig.class, SutView.class,
             ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "password")
+    @JsonProperty("password")
+    private String password = null;
+
+    @JsonView({ BasicAttEimConfig.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
     @Column(name = "privateKey", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("privateKey")
     private String privateKey = null;
@@ -130,15 +136,16 @@ public class EimConfig {
     public EimConfig() {
     }
 
-    public EimConfig(Long id, String user, String privateKey, String ip,
-            String agentId, String logstashIp, String logstashTcpHost,
-            String logstashTcpPort, String logstashBeatsHost,
-            String logstashBeatsPort, String logstashBindedTcpHost,
-            String logstashBindedTcpPort, String logstashBindedBeatsHost,
-            String logstashBindedBeatsPort, String logstashHttpPort,
-            String logstashHttpApiUrl) {
+    public EimConfig(Long id, String user, String password, String privateKey,
+            String ip, String agentId, String logstashIp,
+            String logstashTcpHost, String logstashTcpPort,
+            String logstashBeatsHost, String logstashBeatsPort,
+            String logstashBindedTcpHost, String logstashBindedTcpPort,
+            String logstashBindedBeatsHost, String logstashBindedBeatsPort,
+            String logstashHttpPort, String logstashHttpApiUrl) {
         this.id = id == null ? 0 : id;
         this.user = user;
+        this.password = password;
         this.privateKey = privateKey;
         this.ip = ip;
         this.agentId = agentId;
@@ -172,6 +179,14 @@ public class EimConfig {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPrivateKey() {
@@ -296,11 +311,11 @@ public class EimConfig {
 
     @Override
     public String toString() {
-        return "EimConfig [id=" + id + ", user=" + user + ", privateKey="
-                + privateKey + ", ip=" + ip + ", agentId=" + agentId
-                + ", logstashIp=" + logstashIp + ", logstashTcpHost="
-                + logstashTcpHost + ", logstashTcpPort=" + logstashTcpPort
-                + ", logstashBeatsHost=" + logstashBeatsHost
+        return "EimConfig [id=" + id + ", user=" + user + ", password="
+                + password + ", privateKey=" + privateKey + ", ip=" + ip
+                + ", agentId=" + agentId + ", logstashIp=" + logstashIp
+                + ", logstashTcpHost=" + logstashTcpHost + ", logstashTcpPort="
+                + logstashTcpPort + ", logstashBeatsHost=" + logstashBeatsHost
                 + ", logstashBeatsPort=" + logstashBeatsPort
                 + ", logstashBindedTcpHost=" + logstashBindedTcpHost
                 + ", logstashBindedTcpPort=" + logstashBindedTcpPort

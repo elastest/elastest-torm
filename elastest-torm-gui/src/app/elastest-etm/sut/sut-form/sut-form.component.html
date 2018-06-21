@@ -157,10 +157,16 @@
           <div layout="column" class="push-top" *ngIf="elasTestExecMode !== 'normal' && deployedChecked && elastestInsCheck">
             <div layout="row">
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="15" flex-md="15">
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
                 <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
               </md-input-container>
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="55" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
+
+
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5" flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="password" placeholder="Password" [(ngModel)]="this.sut.eimConfig.password" name="password">
+              </md-input-container>
+
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="45" flex-md="35" flex-offset-md="5" flex-offset-gt-md="5">
                 <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
               </md-input-container>
 

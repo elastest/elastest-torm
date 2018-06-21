@@ -8,10 +8,14 @@ import { Component, OnInit, Input } from '@angular/core';
 export class StringListViewComponent implements OnInit {
   @Input() model: string[];
   @Input() fieldName: string;
+  fieldNameAsPrefix: string = 'fieldName';
 
   constructor() {}
 
   ngOnInit() {
+    if (this.fieldName !== undefined) {
+      this.fieldNameAsPrefix = this.fieldName.replace(/\s/g, '');
+    }
     if (this.model.length === 0) {
       this.addField();
     }

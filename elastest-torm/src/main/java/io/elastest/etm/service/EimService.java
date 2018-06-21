@@ -73,6 +73,10 @@ public class EimService {
         Map<String, String> body = new HashMap<>();
         body.put("address", eimConfig.getIp());
         body.put("user", eimConfig.getUser());
+        if (eimConfig.getPassword() != null
+                && !eimConfig.getPassword().isEmpty()) {
+            body.put("password", eimConfig.getPassword());
+        }
         body.put("private_key", eimConfig.getPrivateKey());
         body.put("logstash_ip", eimConfig.getLogstashIp());
         body.put("logstash_port", eimConfig.getLogstashBeatsPort());
@@ -201,16 +205,17 @@ public class EimService {
     /* ****************** */
     @Async
     public void instrumentalizeAndDeployBeats(EimConfig eimConfig,
-            EimMonitoringConfig eimMonitoringConfig) {
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
         try {
             eimConfig = this.instrumentalize(eimConfig);
             try {
                 this.deployBeats(eimConfig, eimMonitoringConfig);
             } catch (Exception e) {
-                logger.error("Error on activate Beats: not activated", e);
+                throw new Exception("Error on activate Beats: not activated",
+                        e);
             }
         } catch (Exception e) {
-            logger.error(
+            throw new Exception(
                     "EIM is not started or response is an 500 Internal Server Error",
                     e);
         }

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 	<include file="classpath:db/liquibase-initial-changelog.xml" />
-	<include file="classpath:db/changelogs/liquibase-diff-changeLog-1234567.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-1234567.xml" />
 	<include
 		file="classpath:db/changelogs/liquibase-diff-changeLog-20180307.xml" />
 	<include
@@ -24,5 +26,8 @@
 		file="classpath:db/changelogs/liquibase-diff-changeLog-20180606142702.xml" />
 	<include
 		file="classpath:db/changelogs/liquibase-diff-changeLog-20180607114253.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180621144205.xml" />
+
 	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

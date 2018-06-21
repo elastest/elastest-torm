@@ -105,8 +105,13 @@ public class SutService {
         sut.setEimMonitoringConfig(eimMonitoringConfig);
 
         logger.debug("Instrumentalizing SuT \"" + sut.getName() + "\"");
-        this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(),
-                sut.getEimMonitoringConfig());
+        try {
+            this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(),
+                    sut.getEimMonitoringConfig());
+        } catch (Exception e) {
+            logger.error("Error on instrumentalizing SuT {}", sut.getName(), e);
+            sut.setInstrumentalize(false);
+        }
 
         return sut;
     }

@@ -1,6 +1,7 @@
 export class EimConfigModel {
   id: number;
   user: string;
+  password: string;
   privateKey: string;
   ip: string;
   agentId: number;
@@ -41,6 +42,7 @@ export class EimConfigModel {
     } else {
       this.id = eimConfigJson.id;
       this.user = eimConfigJson.user;
+      this.password = eimConfigJson.password;
       this.privateKey = eimConfigJson.privateKey;
       this.ip = eimConfigJson.ip;
       this.agentId = eimConfigJson.agentId;
