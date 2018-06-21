@@ -458,7 +458,7 @@ public class DockerEtmService {
         try {
             // Create Container Object
             dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
-            
+
             TJobExecution tJobExec = dockerExec.gettJobexec();
             String resultMsg = "Starting dockerized SuT";
             updateTJobExecResultStatus(tJobExec,
@@ -569,9 +569,9 @@ public class DockerEtmService {
             logger.info("Test container ends with code " + code);
 
             return getTestResults(dockerExec);
-        } catch (TJobStoppedException e) {
+        } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
-                    "Error on create and start TJob container", e);
+                    "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
         }

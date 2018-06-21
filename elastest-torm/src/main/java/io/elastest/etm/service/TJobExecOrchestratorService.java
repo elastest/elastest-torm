@@ -213,7 +213,7 @@ public class TJobExecOrchestratorService {
 
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
-            logger.warn("TJob Stopped", e);
+            logger.warn("TJob Stopped");
             // Stop exception
         } catch (Exception e) {
             logger.error("Error during Test execution", e);
@@ -322,8 +322,8 @@ public class TJobExecOrchestratorService {
             }
             endDockbeatExec(dockerExec);
         } catch (Exception e) {
-            logger.error("Error on end all execs", e);
-            throw new Exception("end error"); // TODO Customize Exception
+            logger.error("Error on end all execs");
+            throw new Exception("end error", e); // TODO Customize Exception
         }
     }
 
