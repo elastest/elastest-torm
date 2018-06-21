@@ -341,7 +341,7 @@ public class DockerEtmService {
 
                 TJobExecution tJobExec = dockerExec.gettJobexec();
                 // tJobExec.setResult(result);
-                String msg = "Pulling " + image + " image: "
+                String msg = "Pulling " + name + " image (" + image + "): "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
                 tJobExec.setResultMsg(msg);
                 tJobExecRepositoryImpl.save(tJobExec);

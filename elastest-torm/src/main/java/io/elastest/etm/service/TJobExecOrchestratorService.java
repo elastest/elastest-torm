@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 
 import io.elastest.epm.client.json.DockerComposeCreateProject;
@@ -529,7 +530,7 @@ public class TJobExecOrchestratorService {
         TJobExecution tJobExec = dockerExec.gettJobexec();
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
 
-        String resultMsg = "Starting dockerized SuT";
+        String resultMsg = "Preparing dockerized SuT";
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
@@ -547,6 +548,11 @@ public class TJobExecOrchestratorService {
                 startSutByDockerCompose(dockerExec);
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+
+            resultMsg = "Starting dockerized SuT";
+            dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+            logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
             String sutContainerId = dockerExec.getAppContainerId();
             String sutIP = dockerEtmService.getContainerIpWithDockerExecution(
@@ -667,13 +673,16 @@ public class TJobExecOrchestratorService {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
         String mainService = sut.getMainService();
         String composeProjectName = dockerEtmService.getSutName(dockerExec);
+
         // Because docker-compose-ui api removes underscores '_'
         String containerPrefix = composeProjectName.replaceAll("_", "");
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
-        dockerComposeYml = setElasTestConfigToDockerComposeYml(dockerComposeYml,
-                composeProjectName, dockerExec);
+        // Set logging, network and do pull of images
+        dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
+                dockerComposeYml, composeProjectName, dockerExec);
+
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
         String envVar;
@@ -722,9 +731,9 @@ public class TJobExecOrchestratorService {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public String setElasTestConfigToDockerComposeYml(String dockerComposeYml,
-            String composeProjectName, DockerExecution dockerExec)
-            throws Exception {
+    public String prepareElasTestConfigInDockerComposeYml(
+            String dockerComposeYml, String composeProjectName,
+            DockerExecution dockerExec) throws Exception {
         YAMLFactory yf = new YAMLFactory();
         ObjectMapper mapper = new ObjectMapper(yf);
         Object object;
@@ -735,6 +744,9 @@ public class TJobExecOrchestratorService {
             Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
             for (HashMap.Entry<String, HashMap> service : servicesMap
                     .entrySet()) {
+                // Pull images
+                this.pullDockerComposeYmlService(service, dockerExec);
+
                 // Set Logging
                 service = this.setLoggingToDockerComposeYmlService(service,
                         composeProjectName, dockerExec);
@@ -762,6 +774,8 @@ public class TJobExecOrchestratorService {
         return dockerComposeYml;
     }
 
+    /* Compose Root */
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Map<String, HashMap<String, HashMap>> setNetworkToDockerComposeYmlRoot(
             Map<String, HashMap<String, HashMap>> dockerComposeMap,
@@ -782,6 +796,23 @@ public class TJobExecOrchestratorService {
 
         return dockerComposeMap;
 
+    }
+
+    /* Compose service */
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void pullDockerComposeYmlService(
+            HashMap.Entry<String, HashMap> service, DockerExecution dockerExec)
+            throws DockerException, InterruptedException, Exception {
+        HashMap<String, String> serviceContent = service.getValue();
+
+        String imageKey = "image";
+        // If service has image, pull
+        if (serviceContent.containsKey(imageKey)) {
+            String image = serviceContent.get(imageKey);
+            dockerEtmService.pullETExecutionImage(dockerExec, image,
+                    service.getKey(), false);
+        }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
