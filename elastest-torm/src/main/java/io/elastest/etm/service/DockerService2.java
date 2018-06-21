@@ -6,11 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.PostConstruct;
 
-import org.assertj.core.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +21,6 @@ import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.LogsParam;
-import com.spotify.docker.client.LogMessage;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -256,37 +253,74 @@ public class DockerService2 {
         }
     }
 
-    /* ************* */
-    /* *** Utils *** */
-    /* ************* */
+    /* ****************** */
+    /* ***** Images ***** */
+    /* ****************** */
 
-    public void pullImage(DockerClient dockerClient, String imageId)
+    public void pullImageWithProgressHandler(DockerClient dockerClient,
+            String imageId, ProgressHandler progressHandler)
             throws DockerException, InterruptedException {
-        logger.info("Pulling Docker image {} ... please wait", imageId);
-        dockerClient.pull(imageId, new ProgressHandler() {
-            @Override
-            public void progress(ProgressMessage message)
-                    throws DockerException {
-                logger.trace("Pulling Docker image {} ... {}", imageId,
-                        message);
-            }
-        });
-        logger.trace("Docker image {} downloaded", imageId);
+        logger.info("Pulling Docker image {}. Please wait...", imageId);
+
+        // If no tag, set latest
+        String finalImage = imageId.contains(":") ? imageId
+                : imageId.concat(":" + latestTag);
+
+        dockerClient.pull(finalImage, progressHandler);
+        logger.info("Docker image {} downloaded", imageId);
     }
 
-    public void pullImage(String imageId) throws Exception {
-        this.pullImage(this.getDockerClient(), imageId);
+    public void pullImageWithProgressHandler(String imageId,
+            ProgressHandler progressHandler)
+            throws DockerException, InterruptedException, Exception {
+        this.pullImageWithProgressHandler(this.getDockerClient(), imageId,
+                progressHandler);
+    }
+
+    public void pullImage(String imageId)
+            throws DockerException, InterruptedException, Exception {
+        this.pullImageWithProgressHandler(this.getDockerClient(), imageId,
+                new ProgressHandler() {
+                    @Override
+                    public void progress(ProgressMessage message)
+                            throws DockerException {
+                    }
+                });
     }
 
     public void pullImageIfNotExist(DockerClient dockerClient, String imageId)
             throws DockerException, InterruptedException {
         if (!existsImage(imageId)) {
-            this.pullImage(dockerClient, imageId);
+            this.pullImageWithProgressHandler(dockerClient, imageId,
+                    new ProgressHandler() {
+                        @Override
+                        public void progress(ProgressMessage message)
+                                throws DockerException {
+                        }
+                    });
         }
     }
 
-    public void pullImageIfNotExist(String imageId) throws Exception {
+    public void pullImageIfNotExistWithProgressHandler(
+            DockerClient dockerClient, String imageId,
+            ProgressHandler progressHandler)
+            throws DockerException, InterruptedException {
+        if (!existsImage(imageId)) {
+            this.pullImageWithProgressHandler(dockerClient, imageId,
+                    progressHandler);
+        }
+    }
+
+    public void pullImageIfNotExist(String imageId)
+            throws DockerException, InterruptedException, Exception {
         this.pullImageIfNotExist(this.getDockerClient(), imageId);
+    }
+
+    public void pullImageIfNotExistWithProgressHandler(String imageId,
+            ProgressHandler progressHandler)
+            throws DockerException, InterruptedException, Exception {
+        this.pullImageIfNotExistWithProgressHandler(this.getDockerClient(),
+                imageId, progressHandler);
     }
 
     public boolean existsImage(String imageId) {
@@ -301,6 +335,47 @@ public class DockerService2 {
         }
         return exists;
     }
+
+    public String getTagByCompleteImageName(String imageName) {
+        if (imageName == null) {
+            return imageName;
+        }
+        String[] imageNameSplitted = imageName.split(":");
+        String tag = null;
+
+        if (imageNameSplitted != null && imageNameSplitted.length > 1
+                && imageNameSplitted[1] != null) {
+            tag = imageNameSplitted[1];
+        } else {
+            tag = "latest";
+        }
+        return tag;
+    }
+
+    public String getImageNameByCompleteImageName(String imageName) {
+        if (imageName == null) {
+            return imageName;
+        }
+        return imageName.split(":")[0];
+    }
+
+    public ImageInfo getImageInfoByName(String imageName) throws Exception {
+        ImageInfo response = null;
+        DockerClient dockerClient = getDockerClient();
+        try {
+            if (existsImage(imageName)) {
+                response = dockerClient.inspectImage(imageName);
+            }
+        } catch (Exception e) {
+            logger.error("Error loading image \"{}\" information.", imageName);
+            throw e;
+        }
+        return response;
+    }
+
+    /* ****************** */
+    /* *** Containers *** */
+    /* ****************** */
 
     public String getContainerIp(String containerId, String network)
             throws Exception {
@@ -461,29 +536,6 @@ public class DockerService2 {
         return filteredList;
     }
 
-    public String getTagByCompleteImageName(String imageName) {
-        if (imageName == null) {
-            return imageName;
-        }
-        String[] imageNameSplitted = imageName.split(":");
-        String tag = null;
-
-        if (imageNameSplitted != null && imageNameSplitted.length > 1
-                && imageNameSplitted[1] != null) {
-            tag = imageNameSplitted[1];
-        } else {
-            tag = "latest";
-        }
-        return tag;
-    }
-
-    public String getImageNameByCompleteImageName(String imageName) {
-        if (imageName == null) {
-            return imageName;
-        }
-        return imageName.split(":")[0];
-    }
-
     public String getAllContainerLogs(String containerId, boolean withFollow)
             throws Exception {
         List<LogsParam> params = new ArrayList<>();
@@ -525,14 +577,15 @@ public class DockerService2 {
 
     public String getContainerLogsByGivenLogContainerCmd(String containerId,
             List<LogsParam> params) throws Exception {
-                
+
         params.add(LogsParam.stdout(true));
         params.add(LogsParam.stderr(true));
         params.add(LogsParam.timestamps(true));
 
         DockerClient dockerClient = this.getDockerClient();
-        LogStream logStream = dockerClient.logs(containerId, params.toArray(new LogsParam[params.size()]));
-        
+        LogStream logStream = dockerClient.logs(containerId,
+                params.toArray(new LogsParam[params.size()]));
+
         return logStream.readFully();
     }
 
@@ -555,8 +608,7 @@ public class DockerService2 {
             DockerClient dockerClient) throws InterruptedException {
         boolean exists = true;
         try {
-            dockerClient.inspectContainer(containerName); // TODO check if works
-                                                          // this...
+            dockerClient.inspectContainer(containerName);
         } catch (DockerException e) {
             exists = false;
         }
@@ -588,20 +640,6 @@ public class DockerService2 {
             }
         } catch (InterruptedException | DockerException e) {
 
-        }
-        return response;
-    }
-
-    public ImageInfo getImageInfoByName(String imageName) throws Exception {
-        ImageInfo response = null;
-        DockerClient dockerClient = getDockerClient();
-        try {
-            if (existsImage(imageName)) {
-                response = dockerClient.inspectImage(imageName);
-            }
-        } catch (Exception e) {
-            logger.error("Error loading image \"{}\" information.", imageName);
-            throw e;
         }
         return response;
     }

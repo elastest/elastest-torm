@@ -29,16 +29,22 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.exceptions.ImageNotFoundException;
+import com.spotify.docker.client.exceptions.ImagePullFailedException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
 import com.spotify.docker.client.messages.LogConfig;
 import com.spotify.docker.client.messages.PortBinding;
+import com.spotify.docker.client.messages.ProgressMessage;
 
+import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.model.DockerContainer;
 import io.elastest.etm.model.DockerContainer.DockerBuilder;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
@@ -81,11 +87,18 @@ public class DockerEtmService {
     @Value("${et.etm.logstash.container.name}")
     private String etEtmLogstashContainerName;
 
-    @Autowired
     public DockerService2 dockerService;
+    public FilesService filesService;
+    public TJobExecRepository tJobExecRepositoryImpl;
 
     @Autowired
-    public FilesService filesService;
+    public DockerEtmService(DockerService2 dockerService,
+            FilesService filesService,
+            TJobExecRepository tJobExecRepositoryImpl) {
+        this.dockerService = dockerService;
+        this.filesService = filesService;
+        this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
+    }
 
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
 
@@ -233,7 +246,7 @@ public class DockerEtmService {
         }
 
         // Pull Image
-        this.pullETExecImage(image, type, true);
+        this.pullETExecutionImage(dockerExec, image, type, false);
 
         /* ******************************************************** */
         DockerBuilder dockerBuilder = new DockerBuilder(image);
@@ -270,14 +283,16 @@ public class DockerEtmService {
         return dockerBuilder.build();
     }
 
-    public void pullETExecImage(String image, String name, boolean forcePull)
-            throws Exception { // TODO
+    public void pullETExecImageWithProgressHandler(String image, String name,
+            boolean forcePull, ProgressHandler progressHandler)
+            throws DockerException, InterruptedException, Exception {
         logger.debug("Try to Pulling {} Image ({})", name, image);
         // try {
         if (forcePull) {
-            dockerService.pullImage(image);
+            dockerService.pullImageWithProgressHandler(image, progressHandler);
         } else {
-            dockerService.pullImageIfNotExist(image);
+            dockerService.pullImageIfNotExistWithProgressHandler(image,
+                    progressHandler);
         }
         // } catch (DockerClientException e) {
         //
@@ -288,6 +303,54 @@ public class DockerEtmService {
         // }
         logger.debug("{} image pulled succesfully!", name);
 
+    }
+
+    public void pullETExecImage(String image, String name, boolean forcePull)
+            throws DockerException, InterruptedException, Exception {
+        this.pullETExecImageWithProgressHandler(image, name, forcePull,
+                new ProgressHandler() {
+                    @Override
+                    public void progress(ProgressMessage message)
+                            throws DockerException {
+                    }
+                });
+    }
+
+    public void pullETExecutionImage(DockerExecution dockerExec, String image,
+            String name, boolean forcePull)
+            throws DockerException, InterruptedException, Exception {
+        DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
+        dockerPullImageProgress.setImage(image);
+        dockerPullImageProgress.setCurrentPercentage(0);
+
+        ProgressHandler progressHandler = new ProgressHandler() {
+            @Override
+            public void progress(ProgressMessage message)
+                    throws DockerException {
+                if (message.error() != null) {
+                    if (message.error().contains("404")
+                            || message.error().contains("not found")) {
+                        throw new ImageNotFoundException(image,
+                                message.toString());
+                    } else {
+                        throw new ImagePullFailedException(image,
+                                message.toString());
+                    }
+                }
+                dockerPullImageProgress.processNewMessage(message);
+
+                TJobExecution tJobExec = dockerExec.gettJobexec();
+                // tJobExec.setResult(result);
+                String msg = "Pulling " + image + " image: "
+                        + dockerPullImageProgress.getCurrentPercentage() + "%";
+                tJobExec.setResultMsg(msg);
+                tJobExecRepositoryImpl.save(tJobExec);
+            }
+
+        };
+
+        this.pullETExecImageWithProgressHandler(image, name, forcePull,
+                progressHandler);
     }
 
     /********************/
@@ -475,10 +538,19 @@ public class DockerEtmService {
             // Create Container Object
             dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
 
+            TJobExecution tJobExec = dockerExec.gettJobexec();
+            String resultMsg = "Starting Test Execution";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+
             // Create and start container
             String testContainerId = dockerService
                     .createAndStartContainer(dockerExec.getTestcontainer());
             dockerExec.setTestContainerId(testContainerId);
+
+            resultMsg = "Executing Test";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
             String testName = getTestName(dockerExec);
             this.insertCreatedContainer(testContainerId, testName);
@@ -547,6 +619,13 @@ public class DockerEtmService {
         } else {
             throw new Exception("Error on get EMS Log config");
         }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
     }
 
     /* ******************************* */

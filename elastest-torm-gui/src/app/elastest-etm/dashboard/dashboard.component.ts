@@ -139,7 +139,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   checkResultStatus(): void {
-    let timer: Observable<number> = Observable.interval(2200);
+    let timer: Observable<number> = Observable.interval(1800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
