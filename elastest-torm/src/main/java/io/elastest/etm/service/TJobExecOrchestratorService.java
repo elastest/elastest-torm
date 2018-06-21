@@ -549,11 +549,6 @@ public class TJobExecOrchestratorService {
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
-            resultMsg = "Starting dockerized SuT";
-            dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
-            logger.info(resultMsg + " " + dockerExec.getExecutionId());
-
             String sutContainerId = dockerExec.getAppContainerId();
             String sutIP = dockerEtmService.getContainerIpWithDockerExecution(
                     sutContainerId, dockerExec);
@@ -695,6 +690,11 @@ public class TJobExecOrchestratorService {
 
         DockerComposeCreateProject project = new DockerComposeCreateProject(
                 composeProjectName, dockerComposeYml, envList);
+
+        String resultMsg = "Starting dockerized SuT";
+        dockerEtmService.updateTJobExecResultStatus(dockerExec.gettJobexec(),
+                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+        logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
         // Create Containers
         boolean created = dockerComposeService.createProject(project);

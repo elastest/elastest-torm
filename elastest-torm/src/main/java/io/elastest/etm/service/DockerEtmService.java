@@ -455,9 +455,16 @@ public class DockerEtmService {
 
     public void createAndStartSutContainer(DockerExecution dockerExec)
             throws Exception {
-        // Create Container Object
         try {
+            // Create Container Object
             dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
+            
+            TJobExecution tJobExec = dockerExec.gettJobexec();
+            String resultMsg = "Starting dockerized SuT";
+            updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+            logger.info(resultMsg + " " + dockerExec.getExecutionId());
+
             // Create and start container
             String sutContainerId = dockerService
                     .createAndStartContainer(dockerExec.getAppContainer());
