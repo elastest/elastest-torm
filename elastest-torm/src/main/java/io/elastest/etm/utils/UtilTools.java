@@ -8,16 +8,16 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Component
 public class UtilTools {
 
     private static final Logger logger = LoggerFactory
@@ -197,6 +197,30 @@ public class UtilTools {
         } else {
             throw new IOException("Ip " + ip + " non reachable");
         }
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    // Example: If wants name value of {container: {name: value}}, tree should
+    // be [docker,container,name]
+    public static Object getMapFieldByTreeList(Map<String, Object> dataMap,
+            List<String> tree) {
+        if (tree.size() > 0) {
+            String field = tree.get(0);
+
+            if (dataMap.get(field) != null) {
+                if (tree.size() > 1) {
+                    List<String> subTree = tree.subList(1, tree.size());
+                    return getMapFieldByTreeList(
+                            (Map<String, Object>) dataMap.get(field), subTree);
+                } else {
+                    return dataMap.get(field);
+                }
+
+            }
+
+        }
+        return null;
+
     }
 
 }

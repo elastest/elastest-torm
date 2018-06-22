@@ -15,10 +15,12 @@ export class ElasticSearchService {
   _scroll_id: string;
   noMore: boolean = false;
 
+  etmApiUrl: string;
   esUrl: string;
 
   constructor(public http: Http, private configurationService: ConfigurationService) {
     this.rowData = [];
+    this.etmApiUrl = this.configurationService.configModel.hostApi;
     this.esUrl = this.configurationService.configModel.hostElasticsearch;
   }
 

@@ -9,6 +9,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import io.elastest.etm.utils.ElastestConstants;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration {
@@ -25,30 +27,43 @@ public class WebSocketConfiguration {
     @Value("${et.etm.rabbit.vhost}")
     public String rabbitMqvhost;
 
+    @Value("${exec.mode}")
+    public String execMode;
+
     @Configuration
     public class WebSocketMessageBrokerConfiguration
             implements WebSocketMessageBrokerConfigurer {
 
         @Override
         public void configureMessageBroker(MessageBrokerRegistry config) {
-            config.setApplicationDestinationPrefixes("/app");
-            config.enableStompBrokerRelay("/queue", "/topic", "/exchange")
-                    .setAutoStartup(true).setClientLogin(rabbitMqUser)
-                    .setClientPasscode(rabbitMqPass)
-                    .setSystemLogin(rabbitMqUser)
-                    .setSystemPasscode(rabbitMqPass).setRelayHost(rabbitMqHost)
-                    .setSystemHeartbeatReceiveInterval(5000)
-                    .setSystemHeartbeatSendInterval(5000).setRelayPort(61613)
-                    .setVirtualHost(rabbitMqvhost);
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                config.setApplicationDestinationPrefixes("/app");
+                config.enableSimpleBroker("/queue", "/topic", "/exchange");
+            } else {
+                config.setApplicationDestinationPrefixes("/app");
+                config.enableStompBrokerRelay("/queue", "/topic", "/exchange")
+                        .setAutoStartup(true).setClientLogin(rabbitMqUser)
+                        .setClientPasscode(rabbitMqPass)
+                        .setSystemLogin(rabbitMqUser)
+                        .setSystemPasscode(rabbitMqPass)
+                        .setRelayHost(rabbitMqHost)
+                        .setSystemHeartbeatReceiveInterval(5000)
+                        .setSystemHeartbeatSendInterval(5000)
+                        .setRelayPort(61613).setVirtualHost(rabbitMqvhost);
+            }
         }
 
         @Override
         public void registerStompEndpoints(
                 StompEndpointRegistry stompEndpointRegistry) {
-            stompEndpointRegistry.addEndpoint("/rabbitMq")
-                    .setHandshakeHandler(new DefaultHandshakeHandler())
-                    .setAllowedOrigins("*")
-                    .addInterceptors(new HttpSessionHandshakeInterceptor());
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                stompEndpointRegistry.addEndpoint("/rabbitMq").setAllowedOrigins("*");
+            } else {
+                stompEndpointRegistry.addEndpoint("/rabbitMq")
+                        .setHandshakeHandler(new DefaultHandshakeHandler())
+                        .setAllowedOrigins("*")
+                        .addInterceptors(new HttpSessionHandshakeInterceptor());
+            }
         }
     }
 }
