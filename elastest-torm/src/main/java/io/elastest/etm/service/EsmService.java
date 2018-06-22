@@ -1149,7 +1149,7 @@ public class EsmService {
             String tJobExecFilePath) throws InterruptedException, IOException {
         List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
 
-        String tJobExecFolder = sharedFolder + tJobExecFilePath;
+        String tJobExecFolder = sharedFolder + fileSeparator + tJobExecFilePath;
         logger.debug("Shared folder:" + tJobExecFolder);
 
         File file = ResourceUtils.getFile(tJobExecFolder);
@@ -1181,7 +1181,7 @@ public class EsmService {
     public List<TJobExecutionFile> getFilesByFolder(File folder,
             String relativePath, String serviceName, String fileSeparator)
             throws IOException {
-        String absolutePath = sharedFolder + relativePath;
+        String absolutePath = sharedFolder + fileSeparator + relativePath;
         List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
 
         List<String> folderFilesNames = new ArrayList<>(
