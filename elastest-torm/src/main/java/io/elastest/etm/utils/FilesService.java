@@ -77,6 +77,18 @@ public class FilesService {
         }
     }
 
+    public File getFileFromResources(String path) throws IOException {
+        File file;
+        try {
+            file = new ClassPathResource(path).getFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return file;
+    }
+
     public String readFile(File file) throws IOException {
         String content = null;
 

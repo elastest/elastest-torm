@@ -87,6 +87,15 @@ public class DockerEtmService {
     @Value("${et.etm.logstash.container.name}")
     private String etEtmLogstashContainerName;
 
+    @Value("${et.master.slave.mode}")
+    private boolean masterSlavemode;
+
+    @Value("${et.public.host}")
+    private String etPublicHost;
+
+    @Value("${et.etm.binded.lsbeats.port)")
+    private String etEtmBindedLsbeatsPort;
+
     public DockerService2 dockerService;
     public FilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
@@ -135,7 +144,7 @@ public class DockerEtmService {
     /* ************************ */
 
     public void configureDocker(DockerExecution dockerExec) throws Exception {
-        DockerClient client = dockerService.getDockerClient();
+        DockerClient client = dockerService.getDockerClient(true);
         dockerExec.setDockerClient(client);
     }
 
@@ -580,21 +589,28 @@ public class DockerEtmService {
     public LogConfig getLogConfig(String host, String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) {
         Map<String, String> configMap = new HashMap<String, String>();
-        configMap.put("syslog-address", "tcp://" + host + ":" + port);
+
         if (tagSuffix != null && !tagSuffix.equals("")) {
             tagSuffix = "_" + tagSuffix;
         }
         configMap.put("tag",
                 tagPrefix + dockerExec.getExecutionId() + tagSuffix + "_exec");
 
-        LogConfig logConfig = LogConfig.create("syslog", configMap);
+        LogConfig logConfig = null;
+
+        configMap.put("syslog-address", "tcp://" + host + ":" + port);
+        logConfig = LogConfig.create("syslog", configMap);
+
         return logConfig;
     }
 
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) throws Exception {
-        logstashHost = dockerService.getContainerIpByNetwork(
-                etEtmLogstashContainerName, elastestNetwork);
+
+        logstashHost = masterSlavemode ? etPublicHost
+                : dockerService.getContainerIpByNetwork(
+                        etEtmLogstashContainerName, elastestNetwork);
+        port = masterSlavemode ? etEtmBindedLsbeatsPort : port;
         logger.info(
                 "Logstash Host to send logs from containers: {}. To port {}",
                 logstashHost, port);

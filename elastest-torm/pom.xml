@@ -67,6 +67,9 @@
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
 		<jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
 		<liquibase-maven-plugin.version>3.5.3</liquibase-maven-plugin.version>
+		
+		<!-- ElasTest dependencies -->
+		<elastest.epm.client.version>0.9.0</elastest.epm.client.version>
 	</properties>
 
 	<!-- as agreed Public Artifacts will be under Apache Software License -->
@@ -307,6 +310,12 @@
 			<groupId>org.glassfish.jersey.inject</groupId>
 			<artifactId>jersey-hk2</artifactId>
 			<version>2.27</version>
+		</dependency>
+		<dependency>
+			<groupId>io.elastest</groupId>
+			<artifactId>epm.client</artifactId>
+			<version>${elastest.epm.client.version}</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
