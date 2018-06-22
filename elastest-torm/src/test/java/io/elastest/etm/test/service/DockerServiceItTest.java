@@ -59,7 +59,7 @@ public class DockerServiceItTest {
         log.info(
                 "-------------------------------------------------------------------------");
 
-        dockerClient = dockerEtmService.dockerService.getDockerClient();
+        dockerClient = dockerEtmService.dockerService.getDockerClient(false);
     }
 
     @AfterEach
