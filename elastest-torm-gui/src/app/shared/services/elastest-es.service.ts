@@ -76,9 +76,9 @@ export class ElastestESService {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
-    let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
+    // let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
     // this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
-    //   _logs.next(this.convertToLogTraces(data));
+    //   _logs.next(this.convertToLogTraces(data)); TODO remove
     // });
 
     let query: MonitoringQueryModel = new MonitoringQueryModel();
@@ -86,7 +86,7 @@ export class ElastestESService {
     query.component = component;
     query.stream = stream;
 
-    this.monitoringService.searchLog(query).subscribe((data) => {
+    this.monitoringService.searchLogs(query).subscribe((data) => {
       _logs.next(data);
     });
 
@@ -99,15 +99,31 @@ export class ElastestESService {
 
     if (traces.length > 0) {
       let trace: any = traces[0];
-      let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
-      this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe((data) => {
-        _logs.next(this.convertToLogTraces(data));
+
+      let query: MonitoringQueryModel = new MonitoringQueryModel();
+      query.indices = [index];
+      query.component = component;
+      query.stream = stream;
+      query.timestamp = trace.timestamp;
+
+      this.monitoringService.searchPreviousLogs(query).subscribe((data) => {
+        _logs.next(data);
         if (data.length > 0) {
           this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
         } else {
           this.popupService.openSnackBar("There aren't previous traces to load", 'OK');
         }
       });
+
+      // let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
+      // this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe((data) => {
+      //   _logs.next(this.convertToLogTraces(data));
+      //   if (data.length > 0) {
+      //     this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+      //   } else {
+      //     this.popupService.openSnackBar("There aren't previous traces to load", 'OK');
+      //   } TODO remove
+      // });
     } else {
       _logs.error("There isn't reference traces yet to load previous");
       this.popupService.openSnackBar("There isn't reference traces yet to load previous", 'OK');
@@ -132,10 +148,19 @@ export class ElastestESService {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
-    let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
+    // let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
 
-    this.elasticsearchService.getLast(index, terms, size).subscribe((data) => {
-      _logs.next(this.convertToLogTraces(data));
+    // this.elasticsearchService.getLast(index, terms, size).subscribe((data) => {
+    //   _logs.next(this.convertToLogTraces(data));
+    // }); TODO remove
+
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = [index];
+    query.component = component;
+    query.stream = stream;
+
+    this.monitoringService.searchLastLogs(query, size).subscribe((data) => {
+      _logs.next(data);
     });
     return logs;
   }

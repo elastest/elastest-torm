@@ -17,16 +17,16 @@ public class MonitoringQuery {
     @JsonProperty("componentService")
     String componentService;
 
-    @JsonProperty("et_type")
+    @JsonProperty("etType")
     String etType;
 
-    @JsonProperty("@timestamp")
+    @JsonProperty("timestamp")
     String timestamp;
 
     @JsonProperty("stream")
     String stream;
-    
-    @JsonProperty("stream_type")
+
+    @JsonProperty("streamType")
     StreamType streamType;
 
     @JsonProperty("containerName")
@@ -38,6 +38,10 @@ public class MonitoringQuery {
 
     public List<String> getIndices() {
         return indices;
+    }
+
+    public String[] getIndicesAsArray() {
+        return indices.toArray(new String[indices.size()]);
     }
 
     public void setIndices(List<String> indices) {

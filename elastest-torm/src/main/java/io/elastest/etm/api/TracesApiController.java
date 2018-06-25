@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.elastest.etm.model.LogTrace;
@@ -50,5 +51,19 @@ public class TracesApiController implements TracesApi {
             throws IOException {
         return new ResponseEntity<List<LogTrace>>(
                 elasticsearchService.searchLog(body), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<LogTrace>> searchPreviousLog(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) {
+        return new ResponseEntity<List<LogTrace>>(
+                elasticsearchService.getPreviousLogsFromTimestamp(body),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<LogTrace>> searchLastLogs(
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("size") int size,
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) throws IOException {
+        return new ResponseEntity<List<LogTrace>>(
+                elasticsearchService.getLastLogs(body, size), HttpStatus.OK);
     }
 }

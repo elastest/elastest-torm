@@ -10,8 +10,18 @@ export class MonitoringService {
     this.etmApiUrl = this.configurationService.configModel.hostApi;
   }
 
-  public searchLog(query: MonitoringQueryModel): Observable<any> {
+  public searchLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  public searchPreviousLogs(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/log/previous';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  public searchLastLogs(query: MonitoringQueryModel, size: number): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/log/last/' + size;
     return this.http.post(url, query).map((response) => response.json());
   }
 }

@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.LogTrace;
 import io.elastest.etm.model.MonitoringQuery;
+import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class ElasticsearchService {
@@ -159,6 +161,34 @@ public class ElasticsearchService {
         this.esClient.indices().createAsync(request, listener);
     }
 
+    /* ********************* */
+    /* *** Search Config *** */
+    /* ********************* */
+
+    public SearchSourceBuilder getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+            BoolQueryBuilder boolQueryBuilder) {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(10000);
+        sourceBuilder
+                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
+
+        return sourceBuilder;
+
+    }
+
+    public SearchSourceBuilder getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
+            BoolQueryBuilder boolQueryBuilder) {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(10000);
+        sourceBuilder
+                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.DESC));
+        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.DESC));
+
+        return sourceBuilder;
+    }
     /* ************** */
     /* *** Search *** */
     /* ************** */
@@ -191,55 +221,99 @@ public class ElasticsearchService {
         return this.esClient.search(searchRequest);
     }
 
-    /* ************** */
-    /* **** Logs **** */
-    /* ************** */
-
-    public List<LogTrace> searchAllLogs(SearchRequest request) {
-        List<LogTrace> logTraces = new ArrayList<>();
-        SearchHitIterator hitIterator = new SearchHitIterator(request);
+    public List<SearchHit> searchAllHits(SearchRequest request) {
+        List<SearchHit> hits = new ArrayList<>();
+        SearchResponseHitsIterator hitIterator = new SearchResponseHitsIterator(
+                request);
 
         while (hitIterator.hasNext()) {
-            SearchHit currentHit = hitIterator.next();
-            try {
-                String message = currentHit.getSourceAsMap().get("message")
-                        .toString();
-                String timestamp = currentHit.getSourceAsMap().get("@timestamp")
-                        .toString();
-                if (message != null) {
-                    LogTrace trace = new LogTrace();
-                    trace.setMessage(message);
-                    trace.setTimestamp(timestamp);
-                    logTraces.add(trace);
-                }
-            } catch (Exception e) {
-            }
+            List<SearchHit> currentHits = Arrays.asList(hitIterator.next());
+            hits.addAll(currentHits);
         }
-        return logTraces;
+        return hits;
     }
 
-    public List<LogTrace> searchLog(MonitoringQuery body) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
-                body.getComponent(), body.getStream());
+    public List<SearchHit> searchByTimestamp(String[] indices,
+            BoolQueryBuilder boolQueryBuilder, String timestamp) {
+        boolQueryBuilder = (BoolQueryBuilder) UtilTools
+                .cloneObject(boolQueryBuilder);
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(10000);
-        sourceBuilder
-                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
-        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
+        TermQueryBuilder timestampTerm = QueryBuilders.termQuery("@timestamp",
+                timestamp);
+        boolQueryBuilder.must().add(timestampTerm);
 
-        SearchRequest searchRequest = new SearchRequest(body.getIndices()
-                .toArray(new String[body.getIndices().size()]));
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+
+        SearchRequest searchRequest = new SearchRequest(indices);
         searchRequest.source(sourceBuilder);
         searchRequest.indicesOptions(
                 IndicesOptions.fromOptions(true, false, false, false));
 
-        return this.searchAllLogs(searchRequest);
+        return searchAllHits(searchRequest);
     }
 
+    public List<SearchHit> getPreviousFromTimestamp(String[] indices,
+            BoolQueryBuilder boolQueryBuilder, String timestamp) {
+        // search all hits to find hit with given timestamp
+        List<SearchHit> hits = this.searchByTimestamp(indices, boolQueryBuilder,
+                timestamp);
+
+        if (hits.size() > 0) {
+            // Inverse Search Source builder
+            SearchSourceBuilder inverseSourceBuilder = getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
+                    boolQueryBuilder);
+
+            inverseSourceBuilder
+                    .searchAfter(hits.get(hits.size() - 1).getSortValues());
+
+            SearchRequest searchRequest = new SearchRequest(indices);
+            searchRequest.source(inverseSourceBuilder);
+            searchRequest.indicesOptions(
+                    IndicesOptions.fromOptions(true, false, false, false));
+
+            List<SearchHit> previousHits = this.searchAllHits(searchRequest);
+            // Sort ASC
+            Collections.reverse(previousHits);
+            return previousHits;
+
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<SearchHit> getLast(String[] indices,
+            BoolQueryBuilder boolQueryBuilder, int size) throws IOException {
+        // Inverse Search Source builder
+        SearchSourceBuilder inverseSourceBuilder = getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+
+        inverseSourceBuilder.size(size);
+
+        SearchRequest searchRequest = new SearchRequest(indices);
+        searchRequest.source(inverseSourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        SearchResponse response = this.esClient.search(searchRequest);
+        List<SearchHit> lastHits = new ArrayList<>();
+        if (response.getHits() != null
+                && response.getHits().getHits() != null) {
+            List<SearchHit> currentHits = Arrays
+                    .asList(response.getHits().getHits());
+            lastHits.addAll(currentHits);
+            // Sort ASC
+            Collections.reverse(lastHits);
+        }
+        return lastHits;
+    }
+
+    /* ************** */
+    /* **** Logs **** */
+    /* ************** */
+
     public BoolQueryBuilder getLogBoolQueryBuilder(String component,
-            String stream) {
+            String stream, boolean underShould) {
         BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
         TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
                 component);
@@ -248,18 +322,83 @@ public class ElasticsearchService {
         componentStreamBoolBuilder.must(componentTerm);
         componentStreamBoolBuilder.must(streamTerm);
 
-        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
-                "log");
+        if (underShould) {
 
-        BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
-        shouldBoolBuilder.should(componentStreamBoolBuilder);
+            TermQueryBuilder streamTypeTerm = QueryBuilders
+                    .termQuery("stream_type", "log");
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must(streamTypeTerm);
-        boolQueryBuilder.must(shouldBoolBuilder);
+            BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
+            shouldBoolBuilder.should(componentStreamBoolBuilder);
 
-        return boolQueryBuilder;
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            boolQueryBuilder.must(streamTypeTerm);
+            boolQueryBuilder.must(shouldBoolBuilder);
+
+            return boolQueryBuilder;
+        } else {
+            return componentStreamBoolBuilder;
+        }
     }
+
+    public List<LogTrace> searchAllLogs(SearchRequest request) {
+        List<LogTrace> logTraces = new ArrayList<>();
+        SearchHitIterator hitIterator = new SearchHitIterator(request);
+
+        while (hitIterator.hasNext()) {
+            SearchHit currentHit = hitIterator.next();
+            LogTrace trace = this.getLogTraceFromHit(currentHit);
+            if (trace != null) {
+                logTraces.add(trace);
+            }
+
+        }
+        return logTraces;
+    }
+
+    public List<LogTrace> searchLog(MonitoringQuery monitoringQuery)
+            throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
+                monitoringQuery.getComponent(), monitoringQuery.getStream(),
+                false);
+
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+        SearchRequest searchRequest = new SearchRequest(
+                monitoringQuery.getIndicesAsArray());
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        return this.searchAllLogs(searchRequest);
+    }
+
+    public List<LogTrace> getPreviousLogsFromTimestamp(
+            MonitoringQuery monitoringQuery) {
+
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
+                monitoringQuery.getComponent(), monitoringQuery.getStream(),
+                false);
+
+        List<SearchHit> hits = this.getPreviousFromTimestamp(
+                monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
+                monitoringQuery.getTimestamp());
+
+        return getLogTracesFromHitList(hits);
+    }
+
+    public List<LogTrace> getLastLogs(MonitoringQuery monitoringQuery,
+            int size) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
+                monitoringQuery.getComponent(), monitoringQuery.getStream(),
+                false);
+
+        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
+                boolQueryBuilder, size);
+
+        return getLogTracesFromHitList(hits);
+    }
+
+    /* Messages */
 
     public SearchRequest getFindMessageSearchRequest(String index, String msg,
             String component, String stream) {
@@ -268,15 +407,11 @@ public class ElasticsearchService {
                 .matchPhrasePrefixQuery("message", msg);
 
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(component,
-                stream);
+                stream, true);
         boolQueryBuilder.must(messageMatchTerm);
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(10000);
-        sourceBuilder
-                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
-        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
 
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(sourceBuilder);
@@ -310,6 +445,7 @@ public class ElasticsearchService {
 
         return null;
     }
+
     /* ************** */
     /* * Exceptions * */
     /* ************** */
@@ -338,6 +474,31 @@ public class ElasticsearchService {
     /* ************** */
     /* *** Others *** */
     /* ************** */
+
+    public LogTrace getLogTraceFromHit(SearchHit hit) {
+        String message = hit.getSourceAsMap().get("message").toString();
+        String timestamp = hit.getSourceAsMap().get("@timestamp").toString();
+        if (message != null) {
+            LogTrace trace = new LogTrace();
+            trace.setMessage(message);
+            trace.setTimestamp(timestamp);
+            return trace;
+        } else {
+            return null;
+        }
+    }
+
+    public List<LogTrace> getLogTracesFromHitList(List<SearchHit> hits) {
+        List<LogTrace> logTraces = new ArrayList<>();
+
+        for (SearchHit currentHit : hits) {
+            LogTrace currentTrace = this.getLogTraceFromHit(currentHit);
+            if (currentTrace != null) {
+                logTraces.add(currentTrace);
+            }
+        }
+        return logTraces;
+    }
 
     public class SearchHitIterator implements Iterator<SearchHit> {
 
@@ -406,8 +567,7 @@ public class ElasticsearchService {
         private final SearchRequest initialRequest;
         private SearchResponse currentPageResponse;
 
-        public SearchResponseHitsIterator(SearchRequest initialRequest)
-                throws IOException {
+        public SearchResponseHitsIterator(SearchRequest initialRequest) {
             this.initialRequest = initialRequest;
         }
 
