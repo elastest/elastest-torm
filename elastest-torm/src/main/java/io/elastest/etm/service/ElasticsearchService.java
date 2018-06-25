@@ -1,8 +1,5 @@
 package io.elastest.etm.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,8 +9,12 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -39,7 +41,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.elastest.etm.model.LogTrace;
+import io.elastest.etm.model.MonitoringQuery;
 
 @Service
 public class ElasticsearchService {
@@ -157,29 +163,113 @@ public class ElasticsearchService {
     /* *** Search *** */
     /* ************** */
 
-    public SearchRequest getFindMessageSearchRequest(String index, String msg,
-            String component) {
+    public List<SearchHit> searchAll(SearchRequest searchRequest)
+            throws IOException {
+        List<SearchHit> hits = new ArrayList<>();
+
+        SearchResponseHitsIterator hitsIterator = new SearchResponseHitsIterator(
+                searchRequest);
+
+        while (hitsIterator.hasNext()) {
+            List<SearchHit> currentHits = Arrays.asList(hitsIterator.next());
+            hits.addAll(currentHits);
+        }
+
+        return hits;
+    }
+
+    public SearchResponse searchBySearchSourceBuilder(
+            SearchSourceBuilder searchSourceBuilder, String[] indices)
+            throws IOException {
+
+        SearchRequest searchRequest = new SearchRequest(indices);
+        searchRequest.source(searchSourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+        return this.esClient.search(searchRequest);
+    }
+
+    /* ************** */
+    /* **** Logs **** */
+    /* ************** */
+
+    public List<LogTrace> searchAllLogs(SearchRequest request) {
+        List<LogTrace> logTraces = new ArrayList<>();
+        SearchHitIterator hitIterator = new SearchHitIterator(request);
+
+        while (hitIterator.hasNext()) {
+            SearchHit currentHit = hitIterator.next();
+            try {
+                String message = currentHit.getSourceAsMap().get("message")
+                        .toString();
+                String timestamp = currentHit.getSourceAsMap().get("@timestamp")
+                        .toString();
+                if (message != null) {
+                    LogTrace trace = new LogTrace();
+                    trace.setMessage(message);
+                    trace.setTimestamp(timestamp);
+                    logTraces.add(trace);
+                }
+            } catch (Exception e) {
+            }
+        }
+        return logTraces;
+    }
+
+    public List<LogTrace> searchLog(MonitoringQuery body) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
+                body.getComponent(), body.getStream());
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(10000);
+        sourceBuilder
+                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
+
+        SearchRequest searchRequest = new SearchRequest(body.getIndices()
+                .toArray(new String[body.getIndices().size()]));
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        return this.searchAllLogs(searchRequest);
+    }
+
+    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
+            String stream) {
         BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
         TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
                 component);
-        TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream",
-                "default_log");
+        TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream", stream);
 
         componentStreamBoolBuilder.must(componentTerm);
         componentStreamBoolBuilder.must(streamTerm);
 
         TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
                 "log");
-        MatchPhrasePrefixQueryBuilder messageMatchTerm = QueryBuilders
-                .matchPhrasePrefixQuery("message", msg);
 
         BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
         shouldBoolBuilder.should(componentStreamBoolBuilder);
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must(streamTypeTerm);
-        boolQueryBuilder.must(messageMatchTerm);
         boolQueryBuilder.must(shouldBoolBuilder);
+
+        return boolQueryBuilder;
+    }
+
+    public SearchRequest getFindMessageSearchRequest(String index, String msg,
+            String component, String stream) {
+
+        MatchPhrasePrefixQueryBuilder messageMatchTerm = QueryBuilders
+                .matchPhrasePrefixQuery("message", msg);
+
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(component,
+                stream);
+        boolQueryBuilder.must(messageMatchTerm);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(boolQueryBuilder);
@@ -190,14 +280,15 @@ public class ElasticsearchService {
 
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(sourceBuilder);
-
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
         return searchRequest;
     }
 
     public SearchResponse findMessageSync(String index, String msg,
             String component) throws IOException {
         SearchRequest searchRequest = this.getFindMessageSearchRequest(index,
-                msg, component);
+                msg, component, "default_log");
         return this.esClient.search(searchRequest);
     }
 
@@ -219,10 +310,9 @@ public class ElasticsearchService {
 
         return null;
     }
-
-    /****************/
-    /** Exceptions **/
-    /****************/
+    /* ************** */
+    /* * Exceptions * */
+    /* ************** */
 
     public class IndexAlreadyExistException extends Exception {
 
@@ -241,6 +331,138 @@ public class ElasticsearchService {
 
         public IndexAlreadyExistException(String message, Throwable cause) {
             super(message, cause);
+        }
+
+    }
+
+    /* ************** */
+    /* *** Others *** */
+    /* ************** */
+
+    public class SearchHitIterator implements Iterator<SearchHit> {
+
+        private final SearchRequest initialRequest;
+
+        private SearchHit[] currentPageResults;
+        private int currentResultIndex;
+        private SearchResponse currentPageResponse;
+
+        public SearchHitIterator(SearchRequest initialRequest) {
+            this.initialRequest = initialRequest;
+            this.currentResultIndex = -1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (currentPageResults == null
+                    || currentResultIndex + 1 >= currentPageResults.length) {
+
+                // If is not first search
+                if (currentPageResponse != null) {
+                    SearchSourceBuilder source = initialRequest.source();
+                    if (currentPageResponse.getHits() != null
+                            && currentPageResponse.getHits().getHits() != null
+                            && currentPageResponse.getHits()
+                                    .getHits().length > 0) {
+
+                        SearchHit hit = currentPageResponse.getHits()
+                                .getHits()[currentPageResponse.getHits()
+                                        .getHits().length - 1];
+
+                        source.searchAfter(hit.getSortValues());
+                        initialRequest.source(source);
+                    }
+                }
+
+                try {
+                    currentPageResponse = esClient.search(initialRequest);
+                } catch (IOException e) {
+                    return false;
+                }
+
+                currentPageResults = currentPageResponse.getHits().getHits();
+
+                if (currentPageResults.length < 1)
+                    return false;
+
+                currentResultIndex = -1;
+            }
+
+            return true;
+        }
+
+        @Override
+        public SearchHit next() {
+            if (!hasNext())
+                return null;
+
+            currentResultIndex++;
+            return currentPageResults[currentResultIndex];
+        }
+
+    }
+
+    public class SearchResponseHitsIterator implements Iterator<SearchHit[]> {
+        private final SearchRequest initialRequest;
+        private SearchResponse currentPageResponse;
+
+        public SearchResponseHitsIterator(SearchRequest initialRequest)
+                throws IOException {
+            this.initialRequest = initialRequest;
+        }
+
+        @Override
+        public boolean hasNext() {
+            // If is not first search
+            if (currentPageResponse != null) {
+                SearchSourceBuilder source = initialRequest.source();
+                if (currentPageResponse.getHits() != null
+                        && currentPageResponse.getHits().getHits() != null
+                        && currentPageResponse.getHits().getHits().length > 0) {
+
+                    SearchHit hit = currentPageResponse.getHits()
+                            .getHits()[currentPageResponse.getHits()
+                                    .getHits().length - 1];
+
+                    source.searchAfter(hit.getSortValues());
+                    initialRequest.source(source);
+                }
+            }
+            SearchResponse response = null;
+            try {
+                response = esClient.search(initialRequest);
+            } catch (IOException e) {
+                return false;
+            }
+
+            if (response == null || response.getHits() == null
+                    || response.getHits().getHits() == null
+                    || response.getHits().getHits().length == 0) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public SearchHit[] next() {
+            if (!hasNext()) {
+                return new SearchHit[0];
+            }
+
+            try {
+                currentPageResponse = esClient.search(initialRequest);
+            } catch (IOException e) {
+                return new SearchHit[0];
+            }
+
+            if (currentPageResponse.getHits() != null
+                    && currentPageResponse.getHits().getHits() != null) {
+
+                return currentPageResponse.getHits().getHits();
+            } else {
+                return new SearchHit[0];
+            }
         }
 
     }

@@ -62,8 +62,18 @@ public class TcpServerService {
     @PreDestroy
     void stopServer() throws InterruptedException {
         if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            log.info("Starting shuting down TCP server");
+            if (server.getThread().isAlive()) {
+                try {
+                    log.info("Interrupting TCP server thread");
+                    server.getThread().interrupt();
+                } catch (Exception e) {
+                    log.error("Error on Interrupting TCP server thread");
+                }
+            }
             log.info("Shuting down TCP server");
             server.shutdown();
+            SyslogServer.shutdown();
         }
     }
 

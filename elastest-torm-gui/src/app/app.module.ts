@@ -1,3 +1,4 @@
+import { MonitoringService } from './shared/services/monitoring.service';
 import { FilesService } from './shared/services/files.service';
 import { TransformService } from './elastest-etm/help/transform.service';
 import { TestLinkService } from './etm-testlink/testlink.service';
@@ -244,6 +245,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TJobExecService,
     ProjectService,
     ElasticSearchService,
+    MonitoringService,
     ElastestRabbitmqService,
     ElastestESService,
     PopupService,

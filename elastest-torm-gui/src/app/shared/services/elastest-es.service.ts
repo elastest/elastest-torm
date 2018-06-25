@@ -23,6 +23,8 @@ import { defaultStreamMap } from '../defaultESData-model';
 import { ESBoolQueryModel, ESTermModel, ESRangeModel } from '../elasticsearch-model/es-query-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
+import { MonitoringService } from './monitoring.service';
+import { MonitoringQueryModel } from '../monitoring-query.model';
 
 @Injectable()
 export class ElastestESService {
@@ -31,7 +33,11 @@ export class ElastestESService {
 
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
-  constructor(private elasticsearchService: ElasticSearchService, public popupService: PopupService) {
+  constructor(
+    private elasticsearchService: ElasticSearchService,
+    public popupService: PopupService,
+    public monitoringService: MonitoringService,
+  ) {
     this.esUrl = this.elasticsearchService.esUrl;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
   }
@@ -71,8 +77,17 @@ export class ElastestESService {
     let logs: Observable<string[]> = _logs.asObservable();
 
     let terms: any[] = this.getTermsByStreamAndComponent(stream, component);
-    this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
-      _logs.next(this.convertToLogTraces(data));
+    // this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery).subscribe((data) => {
+    //   _logs.next(this.convertToLogTraces(data));
+    // });
+
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = [index];
+    query.component = component;
+    query.stream = stream;
+
+    this.monitoringService.searchLog(query).subscribe((data) => {
+      _logs.next(data);
     });
 
     return logs;

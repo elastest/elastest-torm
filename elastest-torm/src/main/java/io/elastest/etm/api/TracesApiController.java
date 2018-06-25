@@ -3,6 +3,8 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -14,10 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.elastest.etm.model.Trace.TraceView;
+import io.elastest.etm.model.LogTrace;
+import io.elastest.etm.model.MonitoringQuery;
+import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.TracesService;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 public class TracesApiController implements TracesApi {
@@ -26,7 +29,9 @@ public class TracesApiController implements TracesApi {
     @Autowired
     private TracesService tracesService;
 
-    @JsonView({ TraceView.class })
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
     public ResponseEntity<Map<String, Object>> processTrace(
             @Valid @RequestBody Map<String, Object> data) {
         try {
@@ -38,5 +43,12 @@ public class TracesApiController implements TracesApi {
                     HttpStatus.NOT_ACCEPTABLE);
         }
 
+    }
+
+    public ResponseEntity<List<LogTrace>> searchLog(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<LogTrace>>(
+                elasticsearchService.searchLog(body), HttpStatus.OK);
     }
 }
