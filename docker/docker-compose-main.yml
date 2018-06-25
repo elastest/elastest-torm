@@ -42,7 +42,6 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services
-
             - ET_SHARED_FOLDER=/shared-data
             - ET_PROXY_PORT=37000
             - ET_PROXY_HOST=etm-proxy
@@ -52,6 +51,7 @@ services:
             - ET_DOCKER_IMG_SOCAT=elastest/etm-socat:latest
             - ET_DOCKER_IMG_DOCKBEAT=elastest/etm-dockbeat:latest
             - ET_INTERNET_DISABLED=false
+            - ET_MASTER_SLAVE_MODE=false
         entrypoint: /run.sh
         expose:
             - 8091
