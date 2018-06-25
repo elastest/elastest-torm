@@ -50,7 +50,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler(registryContextPath + "/**")
-                .addResourceLocations("file:" + etSharedFolder);
+                .addResourceLocations("file:" + etSharedFolder +"/");
     }
 
 	@Override
