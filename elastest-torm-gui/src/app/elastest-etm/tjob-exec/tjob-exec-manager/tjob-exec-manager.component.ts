@@ -1,13 +1,9 @@
 import { FilesService } from '../../../shared/services/files.service';
-import { Observable, Subject } from 'rxjs/Rx';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { IConfirmConfig } from '@covalent/core';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 
-import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
-import { ETRESMetricsModel } from '../../../shared/metrics-view/models/et-res-metrics-model';
-import { ElastestESService, LogTraces, MetricTraces } from '../../../shared/services/elastest-es.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
@@ -16,12 +12,7 @@ import { TJobExecService } from '../tjobExec.service';
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MdDialog } from '@angular/material';
-import { SafeUrl } from '@angular/platform-browser';
-import { Http } from '@angular/http';
-import { timestamp } from 'rxjs/operators';
-import { TestSuiteModel } from '../../test-suite/test-suite-model';
-import { TestCaseModel } from '../../test-case/test-case-model';
-import { sleep } from '../../../shared/utils';
+import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
   selector: 'app-tjob-exec-manager',
@@ -57,7 +48,7 @@ export class TjobExecManagerComponent implements OnInit {
     private titlesService: TitlesService,
     private tJobExecService: TJobExecService,
     private tJobService: TJobService,
-    private elastestESService: ElastestESService,
+    private monitoringService: MonitoringService,
     private route: ActivatedRoute,
     private router: Router,
     private _dialogService: TdDialogService,
@@ -165,7 +156,7 @@ export class TjobExecManagerComponent implements OnInit {
       );
     } catch (e) {
       this.downloading = false;
-      this.elastestESService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
+      this.monitoringService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
     }
   }
 
@@ -174,12 +165,12 @@ export class TjobExecManagerComponent implements OnInit {
       tJobExec: this.tJobExec,
     };
 
-    this.elastestESService.getAllTJobExecLogs(this.tJobExec).subscribe(
+    this.monitoringService.getAllTJobExecLogs(this.tJobExec).subscribe(
       (logsTraces: LogTraces[]) => {
         jsonObj['logs'] = logsTraces;
 
         // Todo metrics and disable btn while processing
-        this.elastestESService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
+        this.monitoringService.getAllTJobExecMetrics(this.tJobExec).subscribe((metricsTraces: MetricTraces[]) => {
           jsonObj['metrics'] = metricsTraces;
 
           // Create tmp url and link element for download
@@ -189,7 +180,7 @@ export class TjobExecManagerComponent implements OnInit {
       },
       (error: Error) => {
         this.downloading = false;
-        this.elastestESService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
+        this.monitoringService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
       },
     );
   }

@@ -1,22 +1,19 @@
-import { Observable } from 'rxjs/Rx';
 import { EtmLogsGroupComponent } from '../etm-logs-group/etm-logs-group.component';
 import {
   MetricbeatType,
   metricFieldGroupList,
   MetricFieldGroupModel,
-  getMetricbeatFieldGroupIfItsMetricbeatType,
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
 } from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
-import { ElastestESService } from '../../../shared/services/elastest-es.service';
-import { ESBoolQueryModel, ESTermModel } from '../../../shared/elasticsearch-model/es-query-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../../../shared/ag-tree-model';
 import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 import { EtmChartGroupComponent } from '../etm-chart-group/etm-chart-group.component';
 import { defaultStreamMap } from '../../../shared/defaultESData-model';
+import { MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
   selector: 'monitoring-configuration',
@@ -44,7 +41,7 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   constructor(
     private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
-    private elastestESService: ElastestESService,
+    private monitoringService: MonitoringService,
     @Optional()
     @Inject(MD_DIALOG_DATA)
     public inputObj: any,
@@ -74,7 +71,7 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadLogsTree(): void {
-    this.elastestESService.getLogsTree(this.tJobExec).subscribe(
+    this.monitoringService.getLogsTree(this.tJobExec).subscribe(
       (logTree: any[]) => {
         this.logTree.setByObjArray(logTree);
         if (this.logTree.tree.length === 0) {
@@ -149,7 +146,7 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadMetricsTree(): void {
-    this.elastestESService.getMetricsTree(this.tJobExec).subscribe(
+    this.monitoringService.getMetricsTree(this.tJobExec).subscribe(
       (metricTree: any[]) => {
         metricTree = this.cleanMetricTree(metricTree);
         this.metricTree.setByObjArray(metricTree);

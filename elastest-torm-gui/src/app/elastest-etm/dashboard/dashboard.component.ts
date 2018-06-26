@@ -5,14 +5,10 @@ import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance
 import { EsmService } from '../../elastest-esm/esm-service.service';
 import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitoring-view.component';
 import { TJobModel } from '../tjob/tjob-model';
-import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription, Observable } from 'rxjs/Rx';
 
-import { ElastestEusComponent } from '../../elastest-eus/elastest-eus.component';
-import { ESRabLogModel } from '../../shared/logs-view/models/es-rab-log-model';
-import { ETRESMetricsModel } from '../../shared/metrics-view/models/et-res-metrics-model';
-import { ElastestESService } from '../../shared/services/elastest-es.service';
 import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';

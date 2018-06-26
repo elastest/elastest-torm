@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.model.LogTrace;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
 
@@ -233,6 +232,17 @@ public class ElasticsearchService {
         return hits;
     }
 
+    public List<Map<String, Object>> searchAllByRequest(SearchRequest request) {
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        SearchHitIterator hitIterator = new SearchHitIterator(request);
+
+        while (hitIterator.hasNext()) {
+            SearchHit currentHit = hitIterator.next();
+            mapList.add(currentHit.getSourceAsMap());
+        }
+        return mapList;
+    }
+
     public List<SearchHit> searchByTimestamp(String[] indices,
             BoolQueryBuilder boolQueryBuilder, String timestamp) {
         boolQueryBuilder = (BoolQueryBuilder) UtilTools
@@ -308,9 +318,9 @@ public class ElasticsearchService {
         return lastHits;
     }
 
-    /* ************** */
-    /* **** Logs **** */
-    /* ************** */
+    /* ****************************************** */
+    /* ****************** Logs ****************** */
+    /* ****************************************** */
 
     public BoolQueryBuilder getLogBoolQueryBuilder(String component,
             String stream, boolean underShould) {
@@ -340,23 +350,8 @@ public class ElasticsearchService {
         }
     }
 
-    public List<LogTrace> searchAllLogs(SearchRequest request) {
-        List<LogTrace> logTraces = new ArrayList<>();
-        SearchHitIterator hitIterator = new SearchHitIterator(request);
-
-        while (hitIterator.hasNext()) {
-            SearchHit currentHit = hitIterator.next();
-            LogTrace trace = this.getLogTraceFromHit(currentHit);
-            if (trace != null) {
-                logTraces.add(trace);
-            }
-
-        }
-        return logTraces;
-    }
-
-    public List<LogTrace> searchLog(MonitoringQuery monitoringQuery)
-            throws IOException {
+    public List<Map<String, Object>> searchAllLogs(
+            MonitoringQuery monitoringQuery) throws IOException {
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
@@ -369,10 +364,10 @@ public class ElasticsearchService {
         searchRequest.indicesOptions(
                 IndicesOptions.fromOptions(true, false, false, false));
 
-        return this.searchAllLogs(searchRequest);
+        return this.searchAllByRequest(searchRequest);
     }
 
-    public List<LogTrace> getPreviousLogsFromTimestamp(
+    public List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) {
 
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
@@ -383,11 +378,11 @@ public class ElasticsearchService {
                 monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
                 monitoringQuery.getTimestamp());
 
-        return getLogTracesFromHitList(hits);
+        return getTracesFromHitList(hits);
     }
 
-    public List<LogTrace> getLastLogs(MonitoringQuery monitoringQuery,
-            int size) throws IOException {
+    public List<Map<String, Object>> getLastLogs(
+            MonitoringQuery monitoringQuery, int size) throws IOException {
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
@@ -395,7 +390,7 @@ public class ElasticsearchService {
         List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
                 boolQueryBuilder, size);
 
-        return getLogTracesFromHitList(hits);
+        return getTracesFromHitList(hits);
     }
 
     /* Messages */
@@ -446,6 +441,55 @@ public class ElasticsearchService {
         return null;
     }
 
+    /* ***************************************** */
+    /* **************** Metrics **************** */
+    /* ***************************************** */
+
+    public BoolQueryBuilder getMetricBoolQueryBuilder(
+            MonitoringQuery monitoringQuery, boolean underShould) {
+        BoolQueryBuilder componentEtTypeBoolBuilder = QueryBuilders.boolQuery();
+        if (monitoringQuery.getComponent() != null) {
+            TermQueryBuilder componentTerm = QueryBuilders
+                    .termQuery("component", monitoringQuery.getComponent());
+            componentEtTypeBoolBuilder.must(componentTerm);
+        }
+        TermQueryBuilder etTypeTerm = QueryBuilders.termQuery("et_type",
+                monitoringQuery.getEtType());
+        componentEtTypeBoolBuilder.must(etTypeTerm);
+
+        if (underShould) {
+            TermQueryBuilder streamTypeTerm = QueryBuilders
+                    .termQuery("stream_type", "log");
+
+            BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
+            shouldBoolBuilder.should(componentEtTypeBoolBuilder);
+
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            boolQueryBuilder.must(streamTypeTerm);
+            boolQueryBuilder.must(shouldBoolBuilder);
+
+            return boolQueryBuilder;
+        } else {
+            return componentEtTypeBoolBuilder;
+        }
+    }
+
+    public List<Map<String, Object>> searchAllMetrics(
+            MonitoringQuery monitoringQuery) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
+                monitoringQuery, false);
+
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+        SearchRequest searchRequest = new SearchRequest(
+                monitoringQuery.getIndicesAsArray());
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        return this.searchAllByRequest(searchRequest);
+    }
+
     /* ************** */
     /* * Exceptions * */
     /* ************** */
@@ -475,29 +519,13 @@ public class ElasticsearchService {
     /* *** Others *** */
     /* ************** */
 
-    public LogTrace getLogTraceFromHit(SearchHit hit) {
-        String message = hit.getSourceAsMap().get("message").toString();
-        String timestamp = hit.getSourceAsMap().get("@timestamp").toString();
-        if (message != null) {
-            LogTrace trace = new LogTrace();
-            trace.setMessage(message);
-            trace.setTimestamp(timestamp);
-            return trace;
-        } else {
-            return null;
-        }
-    }
-
-    public List<LogTrace> getLogTracesFromHitList(List<SearchHit> hits) {
-        List<LogTrace> logTraces = new ArrayList<>();
-
+    public List<Map<String, Object>> getTracesFromHitList(
+            List<SearchHit> hits) {
+        List<Map<String, Object>> mapList = new ArrayList<>();
         for (SearchHit currentHit : hits) {
-            LogTrace currentTrace = this.getLogTraceFromHit(currentHit);
-            if (currentTrace != null) {
-                logTraces.add(currentTrace);
-            }
+            mapList.add(currentHit.getSourceAsMap());
         }
-        return logTraces;
+        return mapList;
     }
 
     public class SearchHitIterator implements Iterator<SearchHit> {

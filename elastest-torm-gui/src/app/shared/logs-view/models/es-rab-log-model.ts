@@ -1,10 +1,10 @@
 import { Observable } from 'rxjs/Rx';
-import { ElastestESService } from '../../services/elastest-es.service';
 import { LogViewModel } from '../log-view-model';
 import { ESRangeModel } from '../../elasticsearch-model/es-query-model';
+import { MonitoringService } from '../../services/monitoring.service';
 
 export class ESRabLogModel implements LogViewModel {
-  elastestESService: ElastestESService;
+  monitoringService: MonitoringService;
 
   name: string;
   traces: any[];
@@ -18,7 +18,7 @@ export class ESRabLogModel implements LogViewModel {
   monitoringIndex: string;
   maxsize: number = 1000;
 
-  constructor(elastestESService: ElastestESService) {
+  constructor(monitoringService: MonitoringService) {
     this.name = '';
     this.prevTraces = [];
     this.traces = [];
@@ -30,7 +30,7 @@ export class ESRabLogModel implements LogViewModel {
     this.stream = '';
     this.monitoringIndex = '';
 
-    this.elastestESService = elastestESService;
+    this.monitoringService = monitoringService;
   }
 
   getAllLogs(): void {
@@ -40,7 +40,7 @@ export class ESRabLogModel implements LogViewModel {
   }
 
   getAllLogsSubscription(timeRange?: ESRangeModel): Observable<any[]> {
-    return this.elastestESService.searchAllLogs(this.monitoringIndex, this.stream, this.component, timeRange);
+    return this.monitoringService.getAllLogs(this.monitoringIndex, this.stream, this.component, timeRange);
   }
 
   loadPrevious(): void {
@@ -48,7 +48,7 @@ export class ESRabLogModel implements LogViewModel {
     if (!this.prevLoaded && this.prevTraces.length > 0) {
       tracesArrayToCompare = this.prevTraces;
     }
-    this.elastestESService
+    this.monitoringService
       .getPrevLogsFromTrace(this.monitoringIndex, tracesArrayToCompare, this.stream, this.component)
       .subscribe(
         (data) => {
@@ -118,7 +118,7 @@ export class ESRabLogModel implements LogViewModel {
   }
 
   loadLastTraces(size: number = 10): void {
-    this.elastestESService.getLastLogTraces(this.monitoringIndex, this.stream, this.component, size).subscribe((data) => {
+    this.monitoringService.getLastLogTraces(this.monitoringIndex, this.stream, this.component, size).subscribe((data) => {
       if (this.prevTraces.length === 0) {
         this.prevTraces = data.concat(this.prevTraces);
         // Keep prevLoaded to false

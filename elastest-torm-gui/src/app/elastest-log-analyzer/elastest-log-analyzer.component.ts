@@ -7,7 +7,6 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import { RowClickedEvent, RowDataChangedEvent, RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid/dist/lib/events';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
-import { ElastestESService } from '../shared/services/elastest-es.service';
 import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
 import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, ViewChild, Input } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
@@ -33,6 +32,7 @@ import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { TitlesService } from '../shared/services/titles.service';
 import { ExternalService } from '../elastest-etm/external/external.service';
 import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { MonitoringService } from '../shared/services/monitoring.service';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -96,7 +96,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   withTestCase: boolean = false;
   testCaseName: string = undefined;
 
-  elastestESService: ElastestESService;
+  monitoringService: MonitoringService;
 
   constructor(
     public dialog: MdDialog,
@@ -106,7 +106,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     private titlesService: TitlesService,
     private externalService: ExternalService,
   ) {
-    this.elastestESService = this.logAnalyzerService.elastestESService;
+    this.monitoringService = this.logAnalyzerService.monitoringService;
   }
 
   ngOnInit() {
@@ -207,7 +207,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let popupDuration: number = this.logAnalyzer.usingTail ? 1 : undefined;
     let popupCss: any[] = this.logAnalyzer.usingTail ? ['snackBarHidden'] : [];
 
-    this.elastestESService.popupService.openSnackBar(msg, buttonMsg, popupDuration, popupCss);
+    this.monitoringService.popupService.openSnackBar(msg, buttonMsg, popupDuration, popupCss);
   }
 
   prepareLoadLog(): void {
@@ -339,12 +339,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       this.prepareLoadLog();
     }
 
-    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+    let searchUrl: string = this.esSearchModel.getSearchUrl(this.monitoringService.esUrl);
     let searchBody: object = this.esSearchModel.getSearchBody();
 
-    this.elastestESService.search(searchUrl, searchBody).subscribe(
+    this.monitoringService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
-        let logs: any[] = this.elastestESService.getDataListFromRaw(data, false);
+        let logs: any[] = this.monitoringService.getDataListFromRaw(data, false);
         this.loadLogByGivenData(logs);
       },
       (error) => {
@@ -395,12 +395,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       this.esSearchModel.body.size = 100;
     }
 
-    let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+    let searchUrl: string = this.esSearchModel.getSearchUrl(this.monitoringService.esUrl);
     let searchBody: object = this.esSearchModel.getSearchBody();
 
-    this.elastestESService.search(searchUrl, searchBody).subscribe(
+    this.monitoringService.search(searchUrl, searchBody).subscribe(
       (data: any) => {
-        let moreRows: any[] = this.elastestESService.getDataListFromRaw(data, false);
+        let moreRows: any[] = this.monitoringService.getDataListFromRaw(data, false);
         if (moreRows.length > 0) {
           this.logRows = this.logRows.concat(moreRows);
           this.popup('Loaded more logs');
@@ -432,11 +432,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.setRangeByGiven(from, to, true, false);
 
         this.esSearchModel.body.searchAfter = this.logRows[selected].sort;
-        let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+        let searchUrl: string = this.esSearchModel.getSearchUrl(this.monitoringService.esUrl);
         let searchBody: object = this.esSearchModel.getSearchBody();
-        this.elastestESService.search(searchUrl, searchBody).subscribe(
+        this.monitoringService.search(searchUrl, searchBody).subscribe(
           (data: any) => {
-            let moreRows: any[] = this.elastestESService.getDataListFromRaw(data, false);
+            let moreRows: any[] = this.monitoringService.getDataListFromRaw(data, false);
 
             if (moreRows.length > 0) {
               this.insertRowsFromPosition(selected, moreRows);
@@ -692,14 +692,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     // TODO use refactorized method into logAnalyzer Service
     this.searchTraceByGivenMsg(startMsg).subscribe(
       (startData: any) => {
-        startData = this.elastestESService.getDataListFromRaw(startData, false);
+        startData = this.monitoringService.getDataListFromRaw(startData, false);
         if (startData.length > 0) {
           let startRow: any = startData[0];
           this.setFromDate(new Date(startRow['@timestamp']));
           // Search Finish Msg
           this.searchTraceByGivenMsg(endMsg).subscribe(
             (finishData: any) => {
-              finishData = this.elastestESService.getDataListFromRaw(finishData, false);
+              finishData = this.monitoringService.getDataListFromRaw(finishData, false);
               if (finishData.length > 0) {
                 let finishRow: any = finishData[0];
                 this.setToDate(new Date(finishRow['@timestamp']));
@@ -708,12 +708,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
                 this.setRangeByGiven(startRow['@timestamp'], finishRow['@timestamp']);
                 // Load Logs
                 this.logAnalyzer.selectedRow = undefined;
-                let searchUrl: string = this.esSearchModel.getSearchUrl(this.elastestESService.esUrl);
+                let searchUrl: string = this.esSearchModel.getSearchUrl(this.monitoringService.esUrl);
                 let searchBody: object = this.esSearchModel.getSearchBody();
 
-                this.elastestESService.search(searchUrl, searchBody).subscribe(
+                this.monitoringService.search(searchUrl, searchBody).subscribe(
                   (data: any) => {
-                    let logs: any[] = this.elastestESService.getDataListFromRaw(data, false);
+                    let logs: any[] = this.monitoringService.getDataListFromRaw(data, false);
 
                     let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);
                     if (finishObj) {
@@ -767,7 +767,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     componentStreamQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
 
     let fieldsList: string[] = ['component', 'stream'];
-    this.elastestESService
+    this.monitoringService
       .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), fieldsList, componentStreamQuery.convertToESFormat())
       .subscribe((componentsStreams: any[]) => {
         let components: any[] = componentsStreams;
@@ -785,7 +785,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let levelsQuery: ESBoolQueryModel = new ESBoolQueryModel();
     levelsQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
 
-    this.elastestESService
+    this.monitoringService
       .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), ['level'], levelsQuery.convertToESFormat())
       .subscribe((levels: any[]) => {
         this.logAnalyzer.setLevels(levels);

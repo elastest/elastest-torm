@@ -125,8 +125,8 @@ export class ElasticSearchService {
       theQuery = this.getDefaultQueryByRawTermList(terms, timeRange);
     }
     theQuery['size'] = size;
-    let _logs: Subject<string[]> = new Subject<string[]>();
-    let logs: Observable<string[]> = _logs.asObservable();
+    let _traces: Subject<string[]> = new Subject<string[]>();
+    let tracesObs: Observable<string[]> = _traces.asObservable();
 
     this.internalSearch(searchUrl, theQuery).subscribe((data) => {
       if (data.hits && data.hits.hits) {
@@ -138,19 +138,19 @@ export class ElasticSearchService {
 
           this.searchAllByTerm(index, terms, timeRange, theQuery, filterPath).subscribe(
             (result) => {
-              _logs.next(data.hits.hits.concat(result));
+              _traces.next(data.hits.hits.concat(result));
             },
             (error) => console.error(error),
           );
         } else {
-          _logs.next([]);
+          _traces.next([]);
         }
       } else {
-        _logs.next([]);
+        _traces.next([]);
       }
     });
 
-    return logs;
+    return tracesObs;
   }
 
   /**

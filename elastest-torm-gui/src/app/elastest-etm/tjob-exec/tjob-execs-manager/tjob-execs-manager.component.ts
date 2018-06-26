@@ -66,6 +66,9 @@ export class TJobExecsManagerComponent implements OnInit {
         this.loadFinishedTJobExecs().subscribe(
           (finishedTJobExecs: TJobExecModel[]) => {
             runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
+            if (this.loadAllFinished) {
+              finishedTJobExecs = finishedTJobExecs.reverse();
+            }
 
             this.tJobExecsFinished = finishedTJobExecs;
             this.tJobExecsRunning = runningTJobExecs;

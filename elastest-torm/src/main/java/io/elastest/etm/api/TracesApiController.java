@@ -17,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import io.elastest.etm.model.LogTrace;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.TracesService;
@@ -46,24 +45,40 @@ public class TracesApiController implements TracesApi {
 
     }
 
-    public ResponseEntity<List<LogTrace>> searchLog(
+    /* ****************************************** */
+    /* ****************** Logs ****************** */
+    /* ****************************************** */
+
+    public ResponseEntity<List<Map<String, Object>>> searchAllLogs(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws IOException {
-        return new ResponseEntity<List<LogTrace>>(
-                elasticsearchService.searchLog(body), HttpStatus.OK);
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.searchAllLogs(body), HttpStatus.OK);
     }
 
-    public ResponseEntity<List<LogTrace>> searchPreviousLog(
+    public ResponseEntity<List<Map<String, Object>>> searchPreviousLog(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) {
-        return new ResponseEntity<List<LogTrace>>(
+        return new ResponseEntity<List<Map<String, Object>>>(
                 elasticsearchService.getPreviousLogsFromTimestamp(body),
                 HttpStatus.OK);
     }
 
-    public ResponseEntity<List<LogTrace>> searchLastLogs(
+    public ResponseEntity<List<Map<String, Object>>> searchLastLogs(
             @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("size") int size,
-            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) throws IOException {
-        return new ResponseEntity<List<LogTrace>>(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<Map<String, Object>>>(
                 elasticsearchService.getLastLogs(body, size), HttpStatus.OK);
+    }
+
+    /* ***************************************** */
+    /* **************** Metrics **************** */
+    /* ***************************************** */
+
+    public ResponseEntity<List<Map<String, Object>>> searchAllMetrics(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.searchAllMetrics(body), HttpStatus.OK);
     }
 }

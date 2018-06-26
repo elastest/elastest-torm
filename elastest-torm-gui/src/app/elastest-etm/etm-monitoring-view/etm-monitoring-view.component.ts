@@ -4,7 +4,6 @@ import { MonitoringConfigurationComponent } from './monitoring-configuration/mon
 import { EtmChartGroupComponent } from './etm-chart-group/etm-chart-group.component';
 import { Observable, Subject } from 'rxjs/Rx';
 import { TJobService } from '../tjob/tjob.service';
-import { ElastestESService } from '../../shared/services/elastest-es.service';
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MdDialog, MdDialogRef } from '@angular/material';
@@ -12,6 +11,7 @@ import { AbstractTJobModel } from '../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { ExternalTJobModel } from '../external/external-tjob/external-tjob-model';
+import { MonitoringService } from '../../shared/services/monitoring.service';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -34,7 +34,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   metricName: string = '';
 
   constructor(
-    private elastestESService: ElastestESService,
+    private monitoringService: MonitoringService,
     private externalService: ExternalService,
     private tJobService: TJobService,
     public dialog: MdDialog,
@@ -75,9 +75,9 @@ export class EtmMonitoringViewComponent implements OnInit {
         let added: boolean = this.addMoreFromObj(obj);
         if (showPopup) {
           if (added) {
-            this.elastestESService.popupService.openSnackBar('Added succesfully!', 'OK');
+            this.monitoringService.popupService.openSnackBar('Added succesfully!', 'OK');
           } else {
-            this.elastestESService.popupService.openSnackBar('Already exist', 'OK');
+            this.monitoringService.popupService.openSnackBar('Already exist', 'OK');
           }
         }
         if (withSave) {
@@ -108,7 +108,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
 
     if (this.isInit()) {
-      this.elastestESService
+      this.monitoringService
         .searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
         .subscribe(
           (obj: any) => {
@@ -134,7 +134,7 @@ export class EtmMonitoringViewComponent implements OnInit {
         this.tJobService.modifyTJob(tJobModel).subscribe(
           (data) => {
             if (showPopup) {
-              this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
+              this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
           },
           (error: Error) => console.log(error),
@@ -145,7 +145,7 @@ export class EtmMonitoringViewComponent implements OnInit {
         this.externalService.modifyExternalTJob(externalTJobModel).subscribe(
           (data) => {
             if (showPopup) {
-              this.elastestESService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
+              this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
           },
           (error: Error) => console.log(error),
@@ -183,7 +183,7 @@ export class EtmMonitoringViewComponent implements OnInit {
         if (data.metricsList) {
           this.updateMetricsFromList(data.metricsList, withSave);
         }
-        this.elastestESService.popupService.openSnackBar(msg);
+        this.monitoringService.popupService.openSnackBar(msg);
       }
     });
   }
