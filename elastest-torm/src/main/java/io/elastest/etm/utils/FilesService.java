@@ -3,7 +3,9 @@ package io.elastest.etm.utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,14 +79,27 @@ public class FilesService {
         }
     }
 
-    public File getFileFromResources(String path) throws IOException {
-        File file;
+    public File getFileFromResources(String path, String fileName) throws IOException, URISyntaxException {
+        File file = null;
         try {
-            // Retrieve the file in production mode
-            file = ResourceUtils.getFile(path);
-            if (!file.exists()) {
-                // Retrieve the file in dev mode
-                file = new ClassPathResource(path).getFile();
+            Resource resource = new ClassPathResource(path);
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(resource.getInputStream()),
+                    1024)) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    logger.debug("File name (dev mode):" + line);
+                    if (line.equals(fileName)) {
+                        file = new ClassPathResource(path + line)
+                                .getFile();
+                        break;
+                    }
+                }
+            } catch (IOException ioe) {
+                logger.warn(
+                        "Error reading the files. The file with the path "
+                                + path + " does not exist:");
+                throw ioe;
             }
         } catch (IOException ioe) {
             logger.warn("Error reading the files. The file with the path "
@@ -92,6 +107,19 @@ public class FilesService {
             throw ioe;
         }
         return file;
+    }
+    
+    private String readFromInputStream(InputStream inputStream)
+            throws IOException {
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                resultStringBuilder.append(line).append("\n");
+            }
+        }
+        return resultStringBuilder.toString();
     }
 
     public String readFile(File file) throws IOException {

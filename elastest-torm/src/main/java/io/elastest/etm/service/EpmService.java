@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -123,7 +124,7 @@ public class EpmService {
             logger.debug("Virtual machine provided with id: {}",
                     resourceGroup.getId());
             // Registering privated key
-            Key key = addKey(filesService.getFileFromResources(keyFilePath));
+            Key key = addKey(filesService.getFileFromResources(keyFilePath, "key.json"));
             logger.debug("Key {} value: {}", key.getName(), key.getKey());
             re.setKey(key);
             int currentAttempts = 0;
@@ -152,7 +153,7 @@ public class EpmService {
                     worker.getId(), AdaptersNames.DOCKER_COMPOSE.getName()));
 
         } catch (ApiException | IOException | InterruptedException
-                | ServiceException e) {
+                | ServiceException | URISyntaxException e) {
             logger.error("Error: {} ", e.getMessage());
             if (e instanceof ServiceException) {
                 throw (ServiceException) e;
@@ -198,11 +199,11 @@ public class EpmService {
                 packagePath);
         ResourceGroup result = null;
         try {
-            File file = filesService.getFileFromResources(packagePath);
+            File file = filesService.getFileFromResources(packagePath, "m1tub.tar");
             result = packageApiInstance.receivePackage(file);
             logger.debug("New instance id: {} ", result.getId());
             logger.debug(String.valueOf(result));
-        } catch (ApiException | IOException re) {
+        } catch (ApiException | IOException | URISyntaxException re) {
             re.printStackTrace();
             throw new ServiceException(
                     "Error provioning a new remote environment", re.getCause(),
