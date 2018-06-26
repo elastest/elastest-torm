@@ -67,6 +67,11 @@ export class MonitoringService {
     return this.http.post(url, query).map((response) => response.json());
   }
 
+  public searchLogsTree(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/log/tree';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
@@ -81,6 +86,11 @@ export class MonitoringService {
 
   public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/metric/tree';
     return this.http.post(url, query).map((response) => response.json());
   }
 
@@ -175,6 +185,14 @@ export class MonitoringService {
     return logs;
   }
 
+  getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = tJobExec.monitoringIndex.split(',');
+    query.selectedTerms.push('component', 'stream');
+
+    return this.searchLogsTree(query);
+  }
+
   /* *************** */
   /* *** Metrics *** */
   /* *************** */
@@ -249,6 +267,14 @@ export class MonitoringService {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
     });
     return metrics;
+  }
+
+  getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = tJobExec.monitoringIndex.split(',');
+    query.selectedTerms.push('component', 'stream', 'et_type');
+
+    return this.searchMetricsTree(query);
   }
 
   /* ********************* */
@@ -763,18 +789,6 @@ export class MonitoringService {
   /* **** Logs **** */
   /* ************** */
 
-  getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
-    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    let streamTypeTerm: ESTermModel = new ESTermModel();
-    streamTypeTerm.name = 'stream_type';
-    streamTypeTerm.value = 'log';
-    componentStreamQuery.bool.must.termList.push(streamTypeTerm);
-
-    let fieldsList: string[] = ['component', 'stream'];
-
-    return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamQuery.convertToESFormat());
-  }
-
   getAllTJobExecLogs(tJobExec: TJobExecModel): Observable<LogTraces[]> {
     let _logs: Subject<LogTraces[]> = new Subject<LogTraces[]>();
     let logsObs: Observable<LogTraces[]> = _logs.asObservable();
@@ -818,22 +832,6 @@ export class MonitoringService {
   /* *************** */
   /* *** Metrics *** */
   /* *************** */
-
-  getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
-    let componentStreamTypeQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    let notStreamTypeTerm: ESTermModel = new ESTermModel();
-    notStreamTypeTerm.name = 'stream_type';
-    notStreamTypeTerm.value = 'log'; // Must NOT
-    componentStreamTypeQuery.bool.mustNot.termList.push(notStreamTypeTerm);
-
-    let nonContainerMetric: ESTermModel = new ESTermModel();
-    nonContainerMetric.name = 'et_type';
-    nonContainerMetric.value = 'container';
-    componentStreamTypeQuery.bool.mustNot.termList.push(nonContainerMetric);
-
-    let fieldsList: string[] = ['component', 'stream', 'et_type'];
-    return this.getAggTreeOfIndex(tJobExec.monitoringIndex, fieldsList, componentStreamTypeQuery.convertToESFormat());
-  }
 
   getAllTJobExecMetrics(tJobExec: TJobExecModel, timeRange?: ESRangeModel): Observable<MetricTraces[]> {
     let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
@@ -988,7 +986,7 @@ export class MonitoringService {
     return range;
   }
 
-  search(url: string, searchBody: any) {
+  search(url: string, searchBody: any): Observable<any> {
     return this.elasticsearchService.internalSearch(url, searchBody);
   }
 }

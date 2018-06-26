@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.MonitoringQuery;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -74,6 +75,17 @@ public interface TracesApi extends EtmApiRoot {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws IOException;
 
+    @ApiOperation(value = "Returns Logs Aggregation Tree.", notes = "Returns Logs Aggregation Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AggregationTree.class, responseContainer = "List"),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/tree", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<List<AggregationTree>> searchLogsAggregationTree(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException;
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */
@@ -109,6 +121,18 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchLastMetrics(
             @ApiParam(value = "Number of Metrics to get.", required = true) @PathVariable("size") int size,
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException;
+    
+
+    @ApiOperation(value = "Returns Metrics Aggregation Tree.", notes = "Returns Metrics Aggregation Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AggregationTree.class, responseContainer = "List"),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/metric/tree", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<List<AggregationTree>> searchMetricsAggregationTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws IOException;
 }

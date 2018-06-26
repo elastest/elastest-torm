@@ -43,57 +43,6 @@ export class ElasticSearchService {
     );
   }
 
-  /**
-   * Search and return all hits recursively by terms and/or given query
-   * @param index
-   * @param terms
-   * @param theQuery optional
-   */
-  searchAllByTerm(
-    index: string,
-    terms: any[],
-    timeRange?: ESRangeModel,
-    theQuery?: any,
-    filterPath?: string[],
-  ): Observable<string[]> {
-    let size: number = 1000;
-    let url: string = this.esUrl + index;
-    let searchUrl: string = url + '/_search';
-
-    searchUrl = this.addFilterToSearchUrl(searchUrl, filterPath);
-
-    if (theQuery === undefined || theQuery === null) {
-      theQuery = this.getDefaultQueryByRawTermList(terms, timeRange);
-    }
-    theQuery['size'] = size;
-    let _traces: Subject<string[]> = new Subject<string[]>();
-    let tracesObs: Observable<string[]> = _traces.asObservable();
-
-    this.internalSearch(searchUrl, theQuery).subscribe((data) => {
-      if (data.hits && data.hits.hits) {
-        let dataReceived: number = data.hits.hits.length;
-        if (dataReceived > 0) {
-          let lastReceivedPos: number = dataReceived - 1;
-          let sortIdList: any[] = data.hits.hits[lastReceivedPos].sort;
-          theQuery['search_after'] = sortIdList;
-
-          this.searchAllByTerm(index, terms, timeRange, theQuery, filterPath).subscribe(
-            (result) => {
-              _traces.next(data.hits.hits.concat(result));
-            },
-            (error) => console.error(error),
-          );
-        } else {
-          _traces.next([]);
-        }
-      } else {
-        _traces.next([]);
-      }
-    });
-
-    return tracesObs;
-  }
-
   getDefaultQuery(bool: ESBoolModel): object {
     let esSearchModel: ESSearchModel = new ESSearchModel();
     esSearchModel.body.boolQuery.bool = bool;

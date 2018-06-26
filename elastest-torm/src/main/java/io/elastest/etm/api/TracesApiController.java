@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.TracesService;
@@ -78,6 +79,13 @@ public class TracesApiController implements TracesApi {
                 elasticsearchService.getLastLogs(body, size), HttpStatus.OK);
     }
 
+    public ResponseEntity<List<AggregationTree>> searchLogsAggregationTree(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<AggregationTree>>(
+                elasticsearchService.getMonitoringTree(body, false), HttpStatus.OK);
+    }
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */
@@ -102,5 +110,13 @@ public class TracesApiController implements TracesApi {
             throws IOException {
         return new ResponseEntity<List<Map<String, Object>>>(
                 elasticsearchService.getLastMetrics(body, size), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<AggregationTree>> searchMetricsAggregationTree(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<AggregationTree>>(
+                elasticsearchService.getMonitoringTree(body, true),
+                HttpStatus.OK);
     }
 }

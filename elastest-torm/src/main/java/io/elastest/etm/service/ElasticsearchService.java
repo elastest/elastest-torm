@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +39,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -45,6 +51,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
 
@@ -347,6 +354,100 @@ public class ElasticsearchService {
                 IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
+    }
+
+    /* *** Aggregations *** */
+
+    public List<Map<String, Object>> searchAllAggregationsByRequest(
+            SearchRequest request) {
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        SearchHitIterator hitIterator = new SearchHitIterator(request);
+
+        while (hitIterator.hasNext()) {
+            SearchHit currentHit = hitIterator.next();
+            mapList.add(currentHit.getSourceAsMap());
+        }
+        return mapList;
+    }
+
+    public AggregationBuilder createNestedAggs(List<String> orderedFieldList) {
+        AggregationBuilder aggregationBuilder = null;
+        if (orderedFieldList.size() > 0) {
+            String firstField = orderedFieldList.get(0);
+            aggregationBuilder = AggregationBuilders.terms(firstField + "s")
+                    .size(10000).field(firstField);
+            if (orderedFieldList.size() > 1) {
+                aggregationBuilder.subAggregation(this.createNestedAggs(
+                        orderedFieldList.subList(1, orderedFieldList.size())));
+            }
+        }
+
+        return aggregationBuilder;
+    }
+
+    public List<AggregationTree> getAggTreeList(Aggregations aggs,
+            List<String> fields) {
+        List<AggregationTree> aggTreeList = new ArrayList<>();
+
+        if (fields.size() > 0) {
+            String field = fields.get(0) + 's';
+            Terms terms = aggs.get(field);
+            if (terms != null && terms.getBuckets() != null) {
+                Collection<? extends Bucket> buckets = terms.getBuckets();
+                for (Bucket bucket : buckets) {
+                    AggregationTree aggObj = new AggregationTree();
+                    aggObj.setName(bucket.getKeyAsString());
+                    aggObj.setChildren(
+                            this.getAggTreeList(bucket.getAggregations(),
+                                    fields.subList(1, fields.size())));
+                    aggTreeList.add(aggObj);
+                }
+            }
+
+        }
+        return aggTreeList;
+    }
+
+    public Aggregations getAggregationsTree(MonitoringQuery monitoringQuery,
+            BoolQueryBuilder boolQueryBuilder) throws IOException {
+        AggregationBuilder aggregationBuilder = createNestedAggs(
+                monitoringQuery.getSelectedTerms());
+
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+        sourceBuilder.aggregation(aggregationBuilder);
+
+        SearchRequest searchRequest = new SearchRequest(
+                monitoringQuery.getIndicesAsArray());
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        return esClient.search(searchRequest).getAggregations();
+
+    }
+
+    public List<AggregationTree> getMonitoringTree(
+            MonitoringQuery monitoringQuery, boolean isMetric)
+            throws IOException {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
+                "log");
+
+        if (isMetric) {
+            boolQueryBuilder.mustNot().add(streamTypeTerm);
+
+            TermQueryBuilder etTypeContainerTerm = QueryBuilders
+                    .termQuery("et_type", "container");
+            boolQueryBuilder.mustNot().add(etTypeContainerTerm);
+        } else {
+            boolQueryBuilder.must().add(streamTypeTerm);
+        }
+        Aggregations aggs = this.getAggregationsTree(monitoringQuery,
+                boolQueryBuilder);
+        List<AggregationTree> aggregationTreeList = getAggTreeList(aggs,
+                monitoringQuery.getSelectedTerms());
+        return aggregationTreeList;
     }
 
     /* ****************************************** */
