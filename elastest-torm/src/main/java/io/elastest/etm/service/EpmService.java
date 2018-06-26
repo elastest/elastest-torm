@@ -206,7 +206,7 @@ public class EpmService {
         } catch (ApiException | IOException | URISyntaxException re) {
             re.printStackTrace();
             throw new ServiceException(
-                    "Error provioning a new remote environment", re.getCause(),
+                    "Error provisioning a new remote environment", re.getCause(),
                     ExceptionCode.ERROR_DEPROVISIONING_VM);
         }
 
