@@ -45,6 +45,13 @@ public class TracesApiController implements TracesApi {
 
     }
 
+    public ResponseEntity<List<Map<String, Object>>> searchAllByTerms(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.searchAllByTerms(body), HttpStatus.OK);
+    }
+
     /* ****************************************** */
     /* ****************** Logs ****************** */
     /* ****************************************** */
@@ -56,7 +63,7 @@ public class TracesApiController implements TracesApi {
                 elasticsearchService.searchAllLogs(body), HttpStatus.OK);
     }
 
-    public ResponseEntity<List<Map<String, Object>>> searchPreviousLog(
+    public ResponseEntity<List<Map<String, Object>>> searchPreviousLogs(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) {
         return new ResponseEntity<List<Map<String, Object>>>(
                 elasticsearchService.getPreviousLogsFromTimestamp(body),
@@ -80,5 +87,20 @@ public class TracesApiController implements TracesApi {
             throws IOException {
         return new ResponseEntity<List<Map<String, Object>>>(
                 elasticsearchService.searchAllMetrics(body), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Map<String, Object>>> searchPreviousMetrics(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body) {
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.getPreviousMetricsFromTimestamp(body),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Map<String, Object>>> searchLastMetrics(
+            @ApiParam(value = "Number of Metrics to get.", required = true) @PathVariable("size") int size,
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException {
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.getLastMetrics(body, size), HttpStatus.OK);
     }
 }

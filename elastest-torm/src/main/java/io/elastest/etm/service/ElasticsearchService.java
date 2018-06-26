@@ -318,6 +318,37 @@ public class ElasticsearchService {
         return lastHits;
     }
 
+    public BoolQueryBuilder getBoolQueryBuilderByMonitoringQuery(
+            MonitoringQuery monitoringQuery) {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        for (String selectedTerm : monitoringQuery.getSelectedTerms()) {
+            TermQueryBuilder term = monitoringQuery
+                    .getAttributeTermByGivenName(selectedTerm);
+            if (term != null) {
+                boolQueryBuilder.must(term);
+            }
+        }
+
+        return boolQueryBuilder;
+    }
+
+    public List<Map<String, Object>> searchAllByTerms(
+            MonitoringQuery monitoringQuery) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getBoolQueryBuilderByMonitoringQuery(
+                monitoringQuery);
+
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+        SearchRequest searchRequest = new SearchRequest(
+                monitoringQuery.getIndicesAsArray());
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        return this.searchAllByRequest(searchRequest);
+    }
+
     /* ****************************************** */
     /* ****************** Logs ****************** */
     /* ****************************************** */
@@ -393,7 +424,7 @@ public class ElasticsearchService {
         return getTracesFromHitList(hits);
     }
 
-    /* Messages */
+    /* *** Messages *** */
 
     public SearchRequest getFindMessageSearchRequest(String index, String msg,
             String component, String stream) {
@@ -488,6 +519,30 @@ public class ElasticsearchService {
                 IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
+    }
+
+    public List<Map<String, Object>> getPreviousMetricsFromTimestamp(
+            MonitoringQuery monitoringQuery) {
+
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
+                monitoringQuery, false);
+
+        List<SearchHit> hits = this.getPreviousFromTimestamp(
+                monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
+                monitoringQuery.getTimestamp());
+
+        return getTracesFromHitList(hits);
+    }
+
+    public List<Map<String, Object>> getLastMetrics(
+            MonitoringQuery monitoringQuery, int size) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
+                monitoringQuery, false);
+
+        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
+                boolQueryBuilder, size);
+
+        return getTracesFromHitList(hits);
     }
 
     /* ************** */

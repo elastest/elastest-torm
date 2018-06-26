@@ -45,6 +45,13 @@ export class MonitoringService {
   /* ***************** API REST ***************** */
   /* ******************************************** */
 
+  public searchAllByTerms(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/byterms';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  /* *** Logs *** */
+
   public searchAllLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log';
     return this.http.post(url, query).map((response) => response.json());
@@ -60,8 +67,20 @@ export class MonitoringService {
     return this.http.post(url, query).map((response) => response.json());
   }
 
+  /* *** Metrics *** */
+
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  public searchPreviousMetrics(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/metric/previous';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
     return this.http.post(url, query).map((response) => response.json());
   }
 
@@ -91,17 +110,32 @@ export class MonitoringService {
     return tracesList;
   }
 
+  getLogsMonitoringQuery(
+    indices: string,
+    stream: string,
+    component: string = undefined,
+    timestamp: Date = undefined,
+  ): MonitoringQueryModel {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = indices.split(',');
+    query.stream = stream;
+    if (timestamp !== undefined) {
+      query.timestamp = timestamp;
+    }
+
+    if (component !== undefined && component !== '') {
+      query.component = component;
+    }
+    return query;
+  }
+
   getAllLogs(index: string, stream: string, component: string, timeRange?: ESRangeModel, theQuery?: any): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
-    let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = index.split(',');
-    query.component = component;
-    query.stream = stream;
-
+    let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component);
     this.searchAllLogs(query).subscribe((data) => {
-      _logs.next(data);
+      _logs.next(this.convertToLogTraces(data));
     });
 
     return logs;
@@ -114,14 +148,9 @@ export class MonitoringService {
     if (traces.length > 0) {
       let trace: any = traces[0];
 
-      let query: MonitoringQueryModel = new MonitoringQueryModel();
-      query.indices = index.split(',');
-      query.component = component;
-      query.stream = stream;
-      query.timestamp = trace.timestamp;
-
+      let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component, trace.timestamp);
       this.searchPreviousLogs(query).subscribe((data) => {
-        _logs.next(data);
+        _logs.next(this.convertToLogTraces(data));
         if (data.length > 0) {
           this.popupService.openSnackBar('Previous traces has been loaded', 'OK');
         } else {
@@ -139,13 +168,9 @@ export class MonitoringService {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
-    let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = index.split(',');
-    query.component = component;
-    query.stream = stream;
-
+    let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component);
     this.searchLastLogs(query, size).subscribe((data) => {
-      _logs.next(data);
+      _logs.next(this.convertToLogTraces(data));
     });
     return logs;
   }
@@ -153,6 +178,25 @@ export class MonitoringService {
   /* *************** */
   /* *** Metrics *** */
   /* *************** */
+
+  getMetricsMonitoringQuery(
+    indices: string,
+    etType: string,
+    component: string = undefined,
+    timestamp: Date = undefined,
+  ): MonitoringQueryModel {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = indices.split(',');
+    query.etType = etType;
+    if (timestamp !== undefined) {
+      query.timestamp = timestamp;
+    }
+
+    if (component !== undefined && component !== '') {
+      query.component = component;
+    }
+    return query;
+  }
 
   getAllMetrics(
     index: string,
@@ -163,12 +207,7 @@ export class MonitoringService {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
 
-    let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = index.split(',');
-    if (metricsField.component !== undefined && metricsField.component !== '') {
-      query.component = metricsField.component;
-    }
-    query.etType = metricsField.etType;
+    let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
 
     this.searchAllMetrics(query).subscribe((data) => {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
@@ -177,21 +216,19 @@ export class MonitoringService {
     return metrics;
   }
 
-  getTermsByMetricsField(metricsField: MetricsFieldModel): any[] {
-    let terms: any[] = [{ term: { et_type: metricsField.etType } }];
-    if (metricsField.component !== undefined && metricsField.component !== '') {
-      terms.push({ term: { component: metricsField.component } });
-    }
-    return terms;
-  }
-
   getPrevMetricsFromTrace(index: string, trace: any, metricsField: MetricsFieldModel): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
 
     if (trace !== undefined) {
-      let terms: any[] = this.getTermsByMetricsField(metricsField);
-      this.elasticsearchService.getPrevFromTimestamp(index, trace.timestamp, terms).subscribe((data) => {
+      let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(
+        index,
+        metricsField.etType,
+        metricsField.component,
+        trace.timestamp,
+      );
+
+      this.searchPreviousMetrics(query).subscribe((data) => {
         _metrics.next(this.convertToMetricTraces(data, metricsField));
       });
     } else {
@@ -201,6 +238,22 @@ export class MonitoringService {
 
     return metrics;
   }
+
+  getLastMetricTraces(index: string, metricsField: MetricsFieldModel, size: number = 10): Observable<LineChartMetricModel[]> {
+    let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
+    let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
+
+    let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
+
+    this.searchLastMetrics(query, size).subscribe((data) => {
+      _metrics.next(this.convertToMetricTraces(data, metricsField));
+    });
+    return metrics;
+  }
+
+  /* ********************* */
+  /* ** Convert Metrics ** */
+  /* ********************* */
 
   convertToMetricTraces(data: any[], metricsField: MetricsFieldModel): LineChartMetricModel[] {
     let tracesList: LineChartMetricModel[];
@@ -382,9 +435,9 @@ export class MonitoringService {
     return parsedData;
   }
 
-  /*****************************/
-  /***** Metricbeat traces *****/
-  /*****************************/
+  /***************************/
+  /* ** Metricbeat traces ** */
+  /***************************/
   convertMetricbeatTrace(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
     let parsedData: SingleMetricModel = undefined;
     let typeArr: string = trace['et_type'].split('_');
@@ -479,18 +532,6 @@ export class MonitoringService {
     return tracesList;
   }
 
-  getLastMetricTraces(index: string, metricsField: MetricsFieldModel, size: number = 10): Observable<LineChartMetricModel[]> {
-    let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
-    let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
-
-    let terms: any[] = this.getTermsByMetricsField(metricsField);
-
-    this.elasticsearchService.getLast(index, terms, size).subscribe((data) => {
-      _metrics.next(this.convertToMetricTraces(data, metricsField));
-    });
-    return metrics;
-  }
-
   initTestLog(log: ESRabLogModel): void {
     log.name = 'Test Logs';
     log.etType = 'et_logs';
@@ -520,26 +561,29 @@ export class MonitoringService {
     component: string,
     metricName?: string,
     timeRange?: ESRangeModel,
-    theQuery?: any,
   ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
-    let terms: any[] = this.getDynamicTerms(stream, component);
-    let filters: string[] = this.getBasicFilterFields().concat(['message', 'units', 'unit']);
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = index.split(',');
+    query.stream = stream;
+    query.component = component;
+
+    query.selectedTerms.push('stream', 'component');
     let metricSubtype: string;
     if (metricName && metricName !== '') {
       let metricType: string = metricName.split('.')[0];
       metricSubtype = metricName.split('.')[1];
-      filters.push(metricType);
-      terms.push({ term: { et_type: metricType } });
+      query.etType = metricType;
+      query.selectedTerms.push('etType');
     }
 
-    this.elasticsearchService.searchAllByTerm(index, terms, timeRange, theQuery, filters).subscribe((data: any[]) => {
+    this.searchAllByTerms(query).subscribe((data: any[]) => {
       if (data.length > 0) {
         let convertedData: any;
         let firstElement: any = data[0];
-        let firstSource: any = firstElement._source;
+        let firstSource: any = firstElement._source ? firstElement._source : firstElement;
         let streamType: string = '';
         let etType: string = firstSource['et_type'];
         let obj: any = {
@@ -551,11 +595,11 @@ export class MonitoringService {
           monitoringIndex: index,
         };
 
-        if (this.isLogTrace(firstElement)) {
+        if (this.isLogTrace(firstSource)) {
           this.addDynamicLog(_obs, obj, data);
-        } else if (this.isMetricsTrace(firstElement)) {
+        } else if (this.isMetricsTrace(firstSource)) {
           this.addDynamicComposedMetrics(_obs, obj, data, metricSubtype);
-        } else if (this.isAtomicMetricTrace(firstElement)) {
+        } else if (this.isAtomicMetricTrace(firstSource)) {
           this.addDynamicAtomicMetric(_obs, obj, data);
         } else {
           let errorStr: string = 'Cannot add the traces obtained with the parameters provided';
@@ -580,7 +624,7 @@ export class MonitoringService {
 
   addDynamicComposedMetrics(_obs: Subject<any>, obj: any, data: any[], subtype?: string): void {
     let firstElement: any = data[0];
-    let firstSource: any = firstElement._source;
+    let firstSource: any = firstElement._source ? firstElement._source : firstElement;
     if (subtype) {
       this.addDynamicMetric(_obs, obj, data, firstSource, subtype, 'composed_metrics');
     } else {
@@ -594,7 +638,7 @@ export class MonitoringService {
 
   addDynamicAtomicMetric(_obs: Subject<any>, obj: any, data: any[]): void {
     let firstElement: any = data[0];
-    let firstSource: any = firstElement._source;
+    let firstSource: any = firstElement._source ? firstElement._source : firstElement;
     let metricName: string = firstSource['et_type'];
     this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'atomic_metric');
   }
@@ -633,27 +677,25 @@ export class MonitoringService {
     }
   }
 
-  isLogTrace(trace: any): boolean {
+  isLogTrace(traceSource: any): boolean {
     return (
-      trace._source['stream_type'] !== undefined &&
-      trace._source['stream_type'] !== null &&
-      trace._source['stream_type'] === 'log'
+      traceSource['stream_type'] !== undefined && traceSource['stream_type'] !== null && traceSource['stream_type'] === 'log'
     );
   }
 
-  isMetricsTrace(trace: any): boolean {
+  isMetricsTrace(traceSource: any): boolean {
     return (
-      trace._source['stream_type'] !== undefined &&
-      trace._source['stream_type'] !== null &&
-      trace._source['stream_type'] === 'composed_metrics'
+      traceSource['stream_type'] !== undefined &&
+      traceSource['stream_type'] !== null &&
+      traceSource['stream_type'] === 'composed_metrics'
     );
   }
 
-  isAtomicMetricTrace(trace: any): boolean {
+  isAtomicMetricTrace(traceSource: any): boolean {
     return (
-      trace._source['stream_type'] !== undefined &&
-      trace._source['stream_type'] !== null &&
-      trace._source['stream_type'] === 'atomic_metric'
+      traceSource['stream_type'] !== undefined &&
+      traceSource['stream_type'] !== null &&
+      traceSource['stream_type'] === 'atomic_metric'
     );
   }
 
@@ -840,9 +882,6 @@ export class MonitoringService {
   ): void {
     if (metricsObjList.length > 0) {
       let currentMetric: ESRabComplexMetricsModel = metricsObjList.shift();
-      let terms: any[] = this.getDynamicTerms(currentMetric.stream, currentMetric.component);
-      let theQuery: object = this.elasticsearchService.getDefaultQueryByRawTermList(terms);
-
       this.searchAllDynamic(
         currentMetric.monitoringIndex,
         currentMetric.stream,
@@ -882,6 +921,7 @@ export class MonitoringService {
       if (!onlySource) {
         for (let key in elem) {
           if (key !== '_source') {
+            // TODO view if necessary
             elem._source[key] = elem[key]; // Add key and value into source
           }
         }

@@ -7,8 +7,10 @@ export class MonitoringQueryModel {
   stream: string;
   streamType: string;
   containerName: string;
+  selectedTerms: string[];
 
   constructor() {
     this.indices = [];
+    this.selectedTerms = [];
   }
 }

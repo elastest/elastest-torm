@@ -3,6 +3,9 @@ package io.elastest.etm.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.elastest.etm.model.Enums.StreamType;
@@ -32,8 +35,12 @@ public class MonitoringQuery {
     @JsonProperty("containerName")
     String containerName;
 
+    @JsonProperty("selectedTerms")
+    List<String> selectedTerms;
+
     public MonitoringQuery() {
         this.indices = new ArrayList<>();
+        this.selectedTerms = new ArrayList<>();
     }
 
     public List<String> getIndices() {
@@ -104,4 +111,41 @@ public class MonitoringQuery {
         this.streamType = streamType;
     }
 
+    public List<String> getSelectedTerms() {
+        return selectedTerms;
+    }
+
+    public void setSelectedTerms(List<String> selectedTerms) {
+        this.selectedTerms = selectedTerms;
+    }
+
+    public TermQueryBuilder getAttributeTermByGivenName(String attrName) {
+        switch (attrName) {
+        case "component":
+            return QueryBuilders.termQuery("component", component);
+
+        case "componentService":
+            return QueryBuilders.termQuery("componentService",
+                    componentService);
+
+        case "etType":
+            return QueryBuilders.termQuery("et_type", etType);
+
+        case "timestamp":
+            return QueryBuilders.termQuery("@timestamp", timestamp);
+
+        case "stream":
+            return QueryBuilders.termQuery("stream", stream);
+
+        case "containerName":
+            return QueryBuilders.termQuery("containerName", containerName);
+
+        case "streamType":
+            return QueryBuilders.termQuery("stream_type", streamType);
+
+        default:
+            return null;
+        }
+
+    }
 }
