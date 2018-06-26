@@ -33,6 +33,7 @@ import { TitlesService } from '../shared/services/titles.service';
 import { ExternalService } from '../elastest-etm/external/external.service';
 import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 import { MonitoringService } from '../shared/services/monitoring.service';
+import { MonitoringQueryModel } from '../shared/monitoring-query.model';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -763,33 +764,30 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   loadComponentStreams(): void {
-    let componentStreamQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    componentStreamQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = this.logAnalyzer.selectedIndices;
+    query.selectedTerms.push('component', 'stream');
 
-    let fieldsList: string[] = ['component', 'stream'];
-    this.monitoringService
-      .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), fieldsList, componentStreamQuery.convertToESFormat())
-      .subscribe((componentsStreams: any[]) => {
-        let components: any[] = componentsStreams;
-        if (this.isEmbed && this.exTJob !== undefined && this.exTJobExec !== undefined) {
-          components = componentsStreams.filter((component) => {
-            return component.name !== 'test';
-          });
-        }
-        this.logAnalyzer.setComponentsStreams(components);
-        this.componentsTree.treeModel.update();
-      });
+    this.monitoringService.searchLogsTree(query).subscribe((componentsStreams: any[]) => {
+      let components: any[] = componentsStreams;
+      if (this.isEmbed && this.exTJob !== undefined && this.exTJobExec !== undefined) {
+        components = componentsStreams.filter((component) => {
+          return component.name !== 'test';
+        });
+      }
+      this.logAnalyzer.setComponentsStreams(components);
+      this.componentsTree.treeModel.update();
+    });
   }
 
   loadLevels(): void {
-    let levelsQuery: ESBoolQueryModel = new ESBoolQueryModel();
-    levelsQuery.bool.must.termList.push(this.logAnalyzerService.streamTypeTerm);
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = this.logAnalyzer.selectedIndices;
+    query.selectedTerms.push('level');
 
-    this.monitoringService
-      .getAggTreeOfIndex(this.logAnalyzer.selectedIndicesToString(), ['level'], levelsQuery.convertToESFormat())
-      .subscribe((levels: any[]) => {
-        this.logAnalyzer.setLevels(levels);
-        this.levelsTree.treeModel.update();
-      });
+    this.monitoringService.searchLogsTree(query).subscribe((levels: any[]) => {
+      this.logAnalyzer.setLevels(levels);
+      this.levelsTree.treeModel.update();
+    });
   }
 }

@@ -735,56 +735,6 @@ export class MonitoringService {
     return filters;
   }
 
-  // TODO Refactor:
-
-  getAggTreeList(agg: any, fields: string[]): any[] {
-    let aggTreeList: any[] = [];
-    if (fields.length > 0) {
-      let field: string = fields[0] + 's';
-      if (agg[field] && agg[field].buckets) {
-        let buckets: any[] = agg[field].buckets;
-        for (let bucket of buckets) {
-          let aggObj: any = {};
-          aggObj.name = bucket.key;
-          aggObj.children = this.getAggTreeList(bucket, fields.slice(1));
-          aggTreeList.push(aggObj);
-        }
-      }
-    }
-    return aggTreeList;
-  }
-
-  getAggTreeOfIndex(index: string, fieldsList: string[], query?: any): Observable<any[]> {
-    let _aggTreeSub: Subject<any[]> = new Subject<any[]>();
-    let aggTreeObs: Observable<any[]> = _aggTreeSub.asObservable();
-
-    let url: string = this.esUrl + index + '/_search?ignore_unavailable';
-    let aggsModel: ESAggsModel = new ESAggsModel();
-    aggsModel.initNestedByFieldsList(fieldsList);
-
-    let aggsObj: any = aggsModel.convertToESFormat();
-    aggsObj.size = 10000;
-    if (query) {
-      aggsObj.query = query;
-    }
-
-    this.elasticsearchService.internalSearch(url, aggsObj).subscribe(
-      (data: any) => {
-        if (data.aggregations) {
-          let aggTreeList: any[] = this.getAggTreeList(data.aggregations, fieldsList);
-          _aggTreeSub.next(aggTreeList);
-        } else {
-          _aggTreeSub.next([]);
-        }
-      },
-      (error) => {
-        _aggTreeSub.error(error);
-      },
-    );
-
-    return aggTreeObs;
-  }
-
   /* ************** */
   /* **** Logs **** */
   /* ************** */
