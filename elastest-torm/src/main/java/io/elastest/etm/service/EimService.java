@@ -78,8 +78,8 @@ public class EimService {
             body.put("password", eimConfig.getPassword());
         }
         body.put("private_key", eimConfig.getPrivateKey());
-        body.put("logstash_ip", eimConfig.getLogstashIp());
-        body.put("logstash_port", eimConfig.getLogstashBeatsPort());
+        body.put("logstash_ip", eimConfig.getLogstashBindedBeatsHost());
+        body.put("logstash_port", eimConfig.getLogstashBindedBeatsPort());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
