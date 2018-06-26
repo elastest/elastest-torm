@@ -80,12 +80,17 @@ public class FilesService {
     public File getFileFromResources(String path) throws IOException {
         File file;
         try {
-            file = new ClassPathResource(path).getFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+            // Retrieve the file in production mode
+            file = ResourceUtils.getFile(path);
+            if (!file.exists()) {
+                // Retrieve the file in dev mode
+                file = new ClassPathResource(path).getFile();
+            }
+        } catch (IOException ioe) {
+            logger.warn("Error reading the files. The file with the path "
+                    + path + " does not exist:");
+            throw ioe;
         }
-
         return file;
     }
 
