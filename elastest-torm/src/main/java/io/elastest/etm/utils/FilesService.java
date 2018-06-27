@@ -83,6 +83,8 @@ public class FilesService {
             throws IOException, URISyntaxException {
         File file = null;
         try {
+            logger.info("Epm files path {}", path);
+            logger.info("Package name {}", fileName);
             file = ResourceUtils.getFile(path);
             if (file.exists()) {
                 logger.info("Load file in prod mode");
