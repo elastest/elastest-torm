@@ -924,11 +924,6 @@ public class EsmService {
                 externalTJobServicesInstances);
     }
 
-    /**
-     * 
-     * 
-     * @param instanceId
-     */
     public String deprovisionServiceInstance(String instanceId,
             Map<String, SupportServiceInstance> ssiMap) {
         if (ssiMap == null) {
@@ -1024,11 +1019,6 @@ public class EsmService {
         return tss;
     }
 
-    /**
-     * 
-     * @return
-     * @throws IOException
-     */
     public ObjectNode getServiceInstanceInfo(String instanceId)
             throws IOException {
         logger.info("Get registered all data of a service.");
