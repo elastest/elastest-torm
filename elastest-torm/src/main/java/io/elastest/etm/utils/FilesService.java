@@ -132,7 +132,7 @@ public class FilesService {
             String targetPath) throws IOException {
         File file = new File(targetPath);
         FileUtils.copyInputStreamToFile(iStream, file);
-        return file;
+        return ResourceUtils.getFile(targetPath);
     }
 
     public String readFile(File file) throws IOException {
