@@ -85,7 +85,7 @@ public class FilesService {
         try {
             logger.info("Epm files path {}", path);
             logger.info("Package name {}", fileName);
-            file = ResourceUtils.getFile(path);
+            file = new File(getClass().getClassLoader().getResource(path + "/" + fileName).getFile());
             if (file.exists()) {
                 logger.info("Load file in prod mode");
                 logger.info("File name: {}", fileName);
