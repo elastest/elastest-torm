@@ -367,11 +367,6 @@ public class TJobExecOrchestratorService {
         logger.info("TSS availabes");
     }
 
-    /**
-     * 
-     * @param tJobServices
-     * @param tJobExec
-     */
     private void provideServices(String tJobServices, TJobExecution tJobExec) {
         logger.info("Start the service provision.");
         String resultMsg = "Starting Test Support Service: ";
@@ -468,10 +463,6 @@ public class TJobExecOrchestratorService {
         tJobExec.setEnvVars(envVars);
     }
 
-    /**
-     * 
-     * @param tJobExec
-     */
     public void deprovideServices(TJobExecution tJobExec) {
         logger.info("Start the service deprovision.");
         List<String> instancesAux = new ArrayList<String>();

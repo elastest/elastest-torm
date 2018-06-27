@@ -31,9 +31,9 @@ public class TestSuiteService {
         this.testCaseRepository = testCaseRepository;
     }
 
-    /*********************/
-    /**** Test Suites ****/
-    /*********************/
+    /* ******************* */
+    /* *** Test Suites *** */
+    /* ******************* */
     public List<TestSuite> getTestSuitesByTJobExec(Long execId) {
         TJobExecution tJobExec = this.tJobExecRepositoryImpl.findById(execId)
                 .get();
@@ -44,9 +44,9 @@ public class TestSuiteService {
         return this.testSuiteRepository.findById(testSuiteId).get();
     }
 
-    /********************/
-    /**** Test Cases ****/
-    /********************/
+    /* ****************** */
+    /* *** Test Cases *** */
+    /* ****************** */
 
     public List<TestCase> getTestCasesByTestSuiteId(Long testSuiteId) {
         TestSuite testSuite = this.testSuiteRepository.findById(testSuiteId)
