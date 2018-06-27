@@ -85,13 +85,10 @@ public class FilesService {
         try {
             logger.info("Epm files path {}", path);
             logger.info("Package name {}", fileName);
-            file = new File(getClass().getResource(path + "/" + fileName).getFile());
-            if (file.exists()) {
-                logger.info("Load file in prod mode");
-                logger.info("File name: {}", fileName);
-                file = ResourceUtils.getFile(path + "/" + fileName);
-
-            } else {
+            logger.info("Full path: /" + getClass().getResource(path + fileName));
+            try { 
+                file = new File("/" + getClass().getResource(path + fileName).getFile());
+            } catch (Exception e) {
                 logger.info("Load file in dev mode");
                 Resource resource = new ClassPathResource(path);
                 try (BufferedReader br = new BufferedReader(
