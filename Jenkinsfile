@@ -25,7 +25,7 @@
                         }
                         
                         echo 'Installing epm-client-java'
-                            sh 'ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
+                            sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
                         
 
                     git url: 'https://github.com/elastest/elastest-torm.git', branch: 'et-mini'
@@ -37,7 +37,7 @@
                     
                     stage "Build elastest-torm-gui"
                         echo ("Build elastest-torm-gui")                        
-                        sh 'cd ./elastest-torm-gui; npm install; mvn package;'
+                        sh 'export PATH=$MVN_CMD_DIR:$PATH;cd ./elastest-torm-gui; npm install; mvn package;'
                         
                     
                     // stage "Build elastest-torm"
@@ -68,12 +68,12 @@
                     }
                 stage "Build elastest-torm"
                 echo ("Build elastest-torm")
-                sh 'cd ./elastest-torm; mvn -Pci package;'
+                sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./elastest-torm; mvn -Pci package;'
 
 
                 stage "Create etm docker image"
                     echo ("Creating elastest/etm image..")                
-                    sh 'cd ./docker/elastest-torm; ./build-image.sh;'
+                    sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./docker/elastest-torm; ./build-image.sh;'
 
                 stage "Publish etm docker image"
                     echo ("Publish elastest/etm image")
