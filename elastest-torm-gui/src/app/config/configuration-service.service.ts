@@ -43,7 +43,6 @@ export class ConfigurationService {
           host: (this.protocol === 'https:' ? 'https://' : 'http://') + this.host,
           proxyHost: (this.protocol === 'https:' ? 'https://' : 'http://') + proxyHost,
           hostApi: this.hostApi,
-          hostElasticsearch: servicesInfo.elasticSearchUrl + '/',
           hostEIM: (this.protocol === 'https:' ? 'https://' : 'http://') + environment.hostEIM + '/',
           hostWsServer: (this.protocol === 'https:' ? 'wss://' : 'ws://') + this.host + servicesInfo.rabbitPath,
           eusHost: eusUrl !== null ? eusUrl.hostname : null,

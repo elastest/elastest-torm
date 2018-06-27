@@ -253,9 +253,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       this.logAnalyzerQueryModel.levels = levels;
     }
 
-    // if (!this.logAnalyzer.componentsStreams.empty() || !this.logAnalyzer.levels.empty()) {
-    //   this.esSearchModel.body.boolQuery.bool.must.boolList.push(this.logAnalyzer.getLevelAndComponentsStreamsBool());
-    // } TODO fix levels
+    // TODO fix levels
   }
 
   setMatch(msg: string = this.logAnalyzer.messageFilter): void {

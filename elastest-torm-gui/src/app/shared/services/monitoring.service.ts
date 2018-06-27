@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringQueryModel } from '../monitoring-query.model';
-import { ESRangeModel } from '../elasticsearch-model/es-query-model';
 import { PopupService } from './popup.service';
 import { MetricsFieldModel } from '../metrics-view/metrics-chart-card/models/metrics-field-model';
 import { LineChartMetricModel } from '../metrics-view/models/linechart-metric-model';
@@ -138,7 +137,7 @@ export class MonitoringService {
     return query;
   }
 
-  getAllLogs(index: string, stream: string, component: string, timeRange?: ESRangeModel, theQuery?: any): Observable<string[]> {
+  getAllLogs(index: string, stream: string, component: string, theQuery?: any): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
@@ -218,7 +217,6 @@ export class MonitoringService {
   getAllMetrics(
     index: string,
     metricsField: MetricsFieldModel,
-    timeRange?: ESRangeModel,
     theQuery?: any,
   ): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
@@ -580,13 +578,7 @@ export class MonitoringService {
     return terms;
   }
 
-  searchAllDynamic(
-    index: string,
-    stream: string,
-    component: string,
-    metricName?: string,
-    timeRange?: ESRangeModel,
-  ): Observable<any> {
+  searchAllDynamic(index: string, stream: string, component: string, metricName?: string): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
@@ -782,7 +774,7 @@ export class MonitoringService {
   /* *** Metrics *** */
   /* *************** */
 
-  getAllTJobExecMetrics(tJobExec: TJobExecModel, timeRange?: ESRangeModel): Observable<MetricTraces[]> {
+  getAllTJobExecMetrics(tJobExec: TJobExecModel): Observable<MetricTraces[]> {
     let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
     let metricsObs: Observable<MetricTraces[]> = _metrics.asObservable();
     let metrics: MetricTraces[] = [];
@@ -816,7 +808,7 @@ export class MonitoringService {
           }
         }
       }
-      this.getAllMetricsByGiven(allMetrics, _metrics, metrics, timeRange);
+      this.getAllMetricsByGiven(allMetrics, _metrics, metrics);
     });
     return metricsObs;
   }
@@ -825,7 +817,6 @@ export class MonitoringService {
     metricsObjList: ESRabComplexMetricsModel[],
     _metrics: Subject<MetricTraces[]>,
     metrics: MetricTraces[],
-    timeRange?: ESRangeModel,
   ): void {
     if (metricsObjList.length > 0) {
       let currentMetric: ESRabComplexMetricsModel = metricsObjList.shift();
@@ -834,17 +825,16 @@ export class MonitoringService {
         currentMetric.stream,
         currentMetric.component,
         currentMetric.name,
-        timeRange,
       ).subscribe(
         (obj: any) => {
           let metricTraces: MetricTraces = new MetricTraces();
           metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
           metricTraces.traces = this.getMetricsObjFromRawSource(obj.data);
           metrics.push(metricTraces);
-          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, timeRange);
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
         },
         (error: Error) => {
-          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, timeRange);
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
         },
       );
     } else {
@@ -883,30 +873,6 @@ export class MonitoringService {
       }
     }
     return processedMetrics;
-  }
-
-  getRangeByGiven(
-    from: Date | string,
-    to: Date | string,
-    includedFrom: boolean = true,
-    includedTo: boolean = true,
-  ): ESRangeModel {
-    let range: ESRangeModel = new ESRangeModel();
-    range.field = '@timestamp';
-
-    if (includedFrom) {
-      range.gte = from;
-    } else {
-      range.gt = from;
-    }
-
-    if (includedTo) {
-      range.lte = to;
-    } else {
-      range.lt = to;
-    }
-
-    return range;
   }
 }
 

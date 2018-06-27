@@ -1,7 +1,5 @@
-import { ESTermModel } from '../shared/elasticsearch-model/es-query-model';
 import { Subscription } from 'rxjs/Rx';
-import { ESBoolModel } from '../shared/elasticsearch-model/es-bool-model';
-import { AgTreeCheckModel, TreeCheckElementModel } from '../shared/ag-tree-model';
+import { AgTreeCheckModel } from '../shared/ag-tree-model';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
 export class LogAnalyzerModel {
   // Basic
@@ -65,104 +63,6 @@ export class LogAnalyzerModel {
     this.levels = new AgTreeCheckModel();
     this.levels.setByObjArray(levels);
     this.levels.setCheckedToAll(false);
-  }
-
-  public getLevelsTermList(): ESTermModel[] {
-    let levelsTerm: ESTermModel[] = [];
-    for (let level of this.levels.tree) {
-      if (level.checked) {
-        let levelTerm: ESTermModel = new ESTermModel();
-        levelTerm.name = 'level';
-        levelTerm.value = level.name;
-        levelsTerm.push(levelTerm);
-      }
-    }
-    return levelsTerm;
-  }
-
-  public getLevelsBool(): ESBoolModel {
-    let boolParent: ESBoolModel = new ESBoolModel();
-    let boolList: ESBoolModel[] = [];
-    for (let level of this.levels.tree) {
-      let levelName: string = level.name;
-      let termLevel: ESTermModel = new ESTermModel();
-      termLevel.name = 'level';
-      termLevel.value = levelName;
-
-      let bool: ESBoolModel = new ESBoolModel();
-      bool.must.termList.push(termLevel);
-      boolList.push(bool);
-    }
-    boolParent.should.addBoolListToBoolList(boolList);
-
-    return boolParent;
-  }
-
-  public getComponentsStreamsBool(): ESBoolModel {
-    let boolParent: ESBoolModel = new ESBoolModel();
-    let boolList: ESBoolModel[] = [];
-    for (let componentStream of this.componentsStreams.tree) {
-      let component: string = componentStream.name;
-      let termComponent: ESTermModel = new ESTermModel();
-      termComponent.name = 'component';
-      termComponent.value = component;
-      for (let stream of componentStream.children) {
-        if (stream.checked) {
-          let bool: ESBoolModel = new ESBoolModel();
-          let termStream: ESTermModel = new ESTermModel();
-          termStream.name = 'stream';
-          termStream.value = stream.name;
-          bool.must.termList.push(termComponent, termStream);
-          boolList.push(bool);
-        }
-      }
-    }
-    boolParent.should.addBoolListToBoolList(boolList);
-
-    return boolParent;
-  }
-
-  public getLevelAndComponentsStreamsBool(): ESBoolModel {
-    let boolParent: ESBoolModel = new ESBoolModel();
-
-    if (!this.componentsStreams.empty()) {
-      let boolList: ESBoolModel[] = [];
-      for (let componentStream of this.componentsStreams.tree) {
-        let component: string = componentStream.name;
-        let termComponent: ESTermModel = new ESTermModel();
-        termComponent.name = 'component';
-        termComponent.value = component;
-        for (let stream of componentStream.children) {
-          if (stream.checked) {
-            let bool: ESBoolModel = new ESBoolModel();
-            let termStream: ESTermModel = new ESTermModel();
-            termStream.name = 'stream';
-            termStream.value = stream.name;
-            bool.must.termList.push(termComponent, termStream);
-            boolList.push(bool);
-          }
-        }
-      }
-      boolParent.should.addBoolListToBoolList(boolList);
-    }
-
-    if (!this.levels.empty()) {
-      let boolList: ESBoolModel[] = [];
-      for (let level of this.levels.tree) {
-        let levelName: string = level.name;
-        let termLevel: ESTermModel = new ESTermModel();
-        termLevel.name = 'level';
-        termLevel.value = levelName;
-        if (level.checked) {
-          let bool: ESBoolModel = new ESBoolModel();
-          bool.must.termList.push(termLevel);
-          boolList.push(bool);
-        }
-      }
-      boolParent.should.addBoolListToBoolList(boolList);
-    }
-
-    return boolParent;
   }
 
   public hasSelectedRow(): boolean {

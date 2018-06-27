@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs/Rx';
 import { LogViewModel } from '../log-view-model';
-import { ESRangeModel } from '../../elasticsearch-model/es-query-model';
 import { MonitoringService } from '../../services/monitoring.service';
 
 export class ESRabLogModel implements LogViewModel {
@@ -39,8 +38,8 @@ export class ESRabLogModel implements LogViewModel {
     });
   }
 
-  getAllLogsSubscription(timeRange?: ESRangeModel): Observable<any[]> {
-    return this.monitoringService.getAllLogs(this.monitoringIndex, this.stream, this.component, timeRange);
+  getAllLogsSubscription(): Observable<any[]> {
+    return this.monitoringService.getAllLogs(this.monitoringIndex, this.stream, this.component);
   }
 
   loadPrevious(): void {

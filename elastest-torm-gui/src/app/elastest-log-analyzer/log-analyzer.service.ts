@@ -1,5 +1,3 @@
-import { ESMatchModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
-import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
 import { Observable, Subject } from 'rxjs/Rx';
 import { Http, Response } from '@angular/http';
 import { ETModelsTransformServices } from '../shared/services/et-models-transform.service';
@@ -14,9 +12,6 @@ export class LogAnalyzerService {
   public startTestCasePrefix: string = '##### Start test: ';
   public endTestCasePrefix: string = '##### Finish test: ';
 
-  public streamType: string = 'log';
-  public streamTypeTerm: ESTermModel = new ESTermModel();
-
   public filters: string[] = ['@timestamp', 'message', 'level', 'et_type', 'component', 'stream', 'stream_type', 'exec'];
 
   maxResults: number = 10000;
@@ -26,14 +21,7 @@ export class LogAnalyzerService {
     private configurationService: ConfigurationService,
     public monitoringService: MonitoringService,
     private eTModelsTransformServices: ETModelsTransformServices,
-  ) {
-    this.initStreamTypeTerm();
-  }
-
-  initStreamTypeTerm(): void {
-    this.streamTypeTerm.name = 'stream_type';
-    this.streamTypeTerm.value = this.streamType;
-  }
+  ) {}
 
   public getLogAnalyzerConfig(): Observable<LogAnalyzerConfigModel> {
     let url: string = this.configurationService.configModel.hostApi + '/loganalyzerconfig/';
@@ -70,30 +58,6 @@ export class LogAnalyzerService {
     });
   }
 
-  public initAndGetESModel(): ESSearchModel {
-    //TODO remove
-    let esSearchModel: ESSearchModel = new ESSearchModel();
-
-    // Add term stream_type === 'log'
-    esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
-    esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
-    esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
-    return esSearchModel;
-  }
-
-  setRangeToEsSearchModelByGiven(
-    //TODO remove
-    esSearchModel: ESSearchModel,
-    from: Date | string,
-    to: Date | string,
-    includedFrom: boolean = true,
-    includedTo: boolean = true,
-  ): ESSearchModel {
-    esSearchModel.body.boolQuery.bool.must.range = this.monitoringService.getRangeByGiven(from, to, includedFrom, includedTo);
-
-    return esSearchModel;
-  }
-
   setTimeRangeToLogAnalyzerQueryModel(
     logAnalyzerQueryModel: LogAnalyzerQueryModel,
     from: Date | string,
@@ -118,18 +82,6 @@ export class LogAnalyzerService {
     }
 
     return logAnalyzerQueryModel;
-  }
-
-  setMatchByGivenEsSearchModel(msg: string = '', esSearchModel: ESSearchModel): ESSearchModel {
-    /* Message field by default */
-    if (msg !== '') {
-      let messageMatch: ESMatchModel = new ESMatchModel();
-      messageMatch.field = 'message';
-      messageMatch.query = '*' + msg + '*';
-      messageMatch.type = 'phrase_prefix';
-      esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
-    }
-    return esSearchModel;
   }
 
   setMatchByGivenLogAnalyzerQueryModel(msg: string = '', logAnalyzerQueryModel: LogAnalyzerQueryModel): LogAnalyzerQueryModel {
