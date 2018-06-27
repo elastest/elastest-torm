@@ -30,9 +30,9 @@
 
                     git url: 'https://github.com/elastest/elastest-torm.git', branch: 'et-mini'
 
-                    stage "Test and deploy epm-client"
-                        echo ("Test and deploy epm-client")
-                        sh 'cd ./epm-client; mvn deploy -Djenkins=true;'
+                    // stage "Test and deploy epm-client"
+                    //     echo ("Test and deploy epm-client")
+                    //     sh 'cd ./epm-client; mvn deploy -Djenkins=true;'
                         
                     
                     stage "Build elastest-torm-gui"
