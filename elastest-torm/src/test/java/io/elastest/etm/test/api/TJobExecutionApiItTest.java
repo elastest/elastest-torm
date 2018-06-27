@@ -3,12 +3,12 @@ package io.elastest.etm.test.api;
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +65,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start the test testExecuteTJobWithSut");
-        testExecuteTJob(true, false);
+        testExecuteTJob(true, false, false);
     }
 
     @Test
@@ -73,7 +73,15 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start the test testExecuteTJobWithoutSut");
-        testExecuteTJob(false, false);
+        testExecuteTJob(false, false, false);
+    }
+
+    @Test
+    public void testExecuteTJobWithoutSutAndGetLogs()
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        log.info("Start the test testExecuteTJobWithoutSutAndGetLogs");
+        testExecuteTJob(false, false, true);
     }
 
     @Test
@@ -81,7 +89,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start the test testExecuteTJobWithoutSutAndStop");
-        testExecuteTJob(false, true);
+        testExecuteTJob(false, true, false);
     }
 
     @Test
@@ -92,7 +100,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         SutSpecification sut = createSut(projectId);
         Long sutId = sut.getId();
         TJob tJob = createTJob(projectId, sutId);
-        testExecuteTJob(tJob, false);
+        testExecuteTJob(tJob, false, false);
 
         SutExecution[] sutExecs = this.getAllSutExecBySut(sutId);
         assertThat(sutExecs.length > 0);
@@ -102,9 +110,12 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         this.deleteSuTExec(sutExec.getId());
     }
 
-    private void testExecuteTJob(TJob tJob, boolean withStop)
+    @SuppressWarnings("rawtypes")
+    private void testExecuteTJob(TJob tJob, boolean withStop,
+            boolean checkMonitoring)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
+        boolean passingTest = true;
         StompSession stompSession = connectToRabbitMQ(serverPort);
 
         log.info("POST /api/tjob/{tjobId}/exec");
@@ -146,11 +157,18 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             handler.waitForCompletion(waitTime, TimeUnit.SECONDS);
         }
 
-        assertAll("Validating TJobExecution Properties",
-                () -> assertNotNull(response.getBody()),
-                () -> assertNotNull(response.getBody().getId()),
-                () -> assertTrue(response.getBody().getTjob().getId()
-                        .equals(urlParams.get("tjobId"))));
+        passingTest = passingTest && response.getBody() != null
+                && response.getBody().getId() != null && response.getBody()
+                        .getTjob().getId().equals(urlParams.get("tjobId"));
+        log.info(
+                "Test Passed on Validating TJobExecution Properties? {}",
+                passingTest);
+        
+        // assertAll("Validating TJobExecution Properties",
+        // () -> assertNotNull(response.getBody()),
+        // () -> assertNotNull(response.getBody().getId()),
+        // () -> assertTrue(response.getBody().getTjob().getId()
+        // .equals(urlParams.get("tjobId"))));
 
         while (true) {
             exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
@@ -164,16 +182,52 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
         if (withStop) {
             // Temporal Success added because sometimes exec ends before stops
-            assertThat(exec.getResult()).isIn(ResultEnum.STOPPED,
-                    ResultEnum.SUCCESS);
+            passingTest = passingTest
+                    && (exec.getResult().equals(ResultEnum.STOPPED)
+                            || exec.getResult().equals(ResultEnum.SUCCESS));
+            log.info("Test Passed on check if stopped? {}", passingTest);
+            // assertThat(exec.getResult()).isIn(ResultEnum.STOPPED,
+            // ResultEnum.SUCCESS);
         }
+
+        if (checkMonitoring) {
+            // Logs
+            body = "{ \"indices\":[\"" + exec.getMonitoringIndex()
+                    + "\"], \"stream\": \"default_log\", \"component\": \"test\" }";
+            entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<List> logsResponse = httpClient
+                    .postForEntity("/api/monitoring/log", entity, List.class);
+            log.info("Test logs: {}", logsResponse.getBody());
+            passingTest = passingTest && logsResponse.getBody().size() > 0;
+            // assertThat(logsResponse.getBody().size() > 0);
+
+            // Metrics
+            body = "{ \"indices\":[\"" + exec.getMonitoringIndex()
+                    + "\"], \"stream\": \"et_dockbeat\", \"component\": \"test\" , \"etType\": \"cpu\",\"selectedTerms\": [ \"stream\", \"component\", \"etType\" ] }";
+            entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<List> metricsResponse = httpClient.postForEntity(
+                    "/api/monitoring/byterms", entity, List.class);
+            log.info("Test CPU TotalUsage Metrics: {}",
+                    metricsResponse.getBody());
+            passingTest = passingTest && metricsResponse.getBody().size() > 0;
+
+            log.info("Test Passed on check monitoring? {}", passingTest);
+
+            // assertThat(metricsResponse.getBody().size() > 0);
+        }
+
+        log.info("Test Passed? {}", passingTest);
+        assertTrue(passingTest);
 
         deleteTJobExecution(exec.getId(), tJob.getId());
         deleteTJob(tJob.getId());
         log.info("Finished.");
     }
 
-    private void testExecuteTJob(boolean withSut, boolean withStop)
+    private void testExecuteTJob(boolean withSut, boolean withStop,
+            boolean checkMonitoring)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         TJob tJob;
@@ -183,7 +237,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         } else {
             tJob = createTJob(projectId);
         }
-        this.testExecuteTJob(tJob, withStop);
+        this.testExecuteTJob(tJob, withStop, checkMonitoring);
     }
 
     private void sleep(int waitTime) {

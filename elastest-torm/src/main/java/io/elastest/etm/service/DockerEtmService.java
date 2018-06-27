@@ -134,7 +134,8 @@ public class DockerEtmService {
                 logger.info("Container {} removed", containerName);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error on stop or remove container {}: {}",
+                        containerId, e.getMessage());
             }
         }
     }
