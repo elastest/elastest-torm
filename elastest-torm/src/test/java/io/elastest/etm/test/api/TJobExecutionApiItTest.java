@@ -160,15 +160,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         passingTest = passingTest && response.getBody() != null
                 && response.getBody().getId() != null && response.getBody()
                         .getTjob().getId().equals(urlParams.get("tjobId"));
-        log.info(
-                "Test Passed on Validating TJobExecution Properties? {}",
+        log.info("Test Passed on Validating TJobExecution Properties? {}",
                 passingTest);
-        
-        // assertAll("Validating TJobExecution Properties",
-        // () -> assertNotNull(response.getBody()),
-        // () -> assertNotNull(response.getBody().getId()),
-        // () -> assertTrue(response.getBody().getTjob().getId()
-        // .equals(urlParams.get("tjobId"))));
 
         while (true) {
             exec = getTJobExecutionById(exec.getId(), tJob.getId()).getBody();
@@ -186,8 +179,6 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
                     && (exec.getResult().equals(ResultEnum.STOPPED)
                             || exec.getResult().equals(ResultEnum.SUCCESS));
             log.info("Test Passed on check if stopped? {}", passingTest);
-            // assertThat(exec.getResult()).isIn(ResultEnum.STOPPED,
-            // ResultEnum.SUCCESS);
         }
 
         if (checkMonitoring) {
@@ -200,7 +191,6 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
                     .postForEntity("/api/monitoring/log", entity, List.class);
             log.info("Test logs: {}", logsResponse.getBody());
             passingTest = passingTest && logsResponse.getBody().size() > 0;
-            // assertThat(logsResponse.getBody().size() > 0);
 
             // Metrics
             body = "{ \"indices\":[\"" + exec.getMonitoringIndex()
@@ -212,13 +202,24 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             log.info("Test CPU TotalUsage Metrics: {}",
                     metricsResponse.getBody());
             passingTest = passingTest && metricsResponse.getBody().size() > 0;
-
             log.info("Test Passed on check monitoring? {}", passingTest);
 
-            // assertThat(metricsResponse.getBody().size() > 0);
+            // LogAnalyzer
+            body = "{ \"indices\": [ \"" + exec.getMonitoringIndex()
+                    + "\" ], \"componentsStreams\": [], \"levels\": [], \"size\": 800, \"rangeGTE\": \""
+                    + exec.getStartDate() + "\", \"rangeLTE\": \""
+                    + exec.getEndDate() + "\" }";
+            entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<List> loganalyzerResponse = httpClient.postForEntity(
+                    "/api/monitoring/loganalyzer", entity, List.class);
+            log.info("Test LogAnalyzer Logs: {}",
+                    loganalyzerResponse.getBody());
+            passingTest = passingTest
+                    && loganalyzerResponse.getBody().size() > 0;
         }
 
-        log.info("Test Passed? {}", passingTest);
+        log.info("Test Passed Definitely? {}", passingTest);
         assertTrue(passingTest);
 
         deleteTJobExecution(exec.getId(), tJob.getId());
