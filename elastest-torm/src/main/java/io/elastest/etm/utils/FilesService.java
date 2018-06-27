@@ -79,16 +79,18 @@ public class FilesService {
         }
     }
 
-    public File getFileFromResources(String path, String fileName) throws IOException, URISyntaxException {
+    public File getFileFromResources(String path, String fileName)
+            throws IOException, URISyntaxException {
         File file = null;
         try {
             file = ResourceUtils.getFile(path);
-            if (file.exists()) {                
+            if (file.exists()) {
+                logger.info("Load file in prod mode");
                 logger.info("File name: {}", fileName);
-                file = ResourceUtils
-                        .getFile(path + "/" + fileName);
-                
-            }else {
+                file = ResourceUtils.getFile(path + "/" + fileName);
+
+            } else {
+                logger.info("Load file in dev mode");
                 Resource resource = new ClassPathResource(path);
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(resource.getInputStream()),
@@ -97,14 +99,13 @@ public class FilesService {
                     while ((line = br.readLine()) != null) {
                         logger.info("File name (dev mode):" + line);
                         if (line.equals(fileName)) {
-                            file = new ClassPathResource(path + line)
-                                    .getFile();
+                            file = new ClassPathResource(path + line).getFile();
                             break;
                         }
                     }
                 }
             }
-            
+
         } catch (IOException ioe) {
             logger.warn("Error reading the files. The file with the path "
                     + path + " does not exist:");
@@ -112,7 +113,7 @@ public class FilesService {
         }
         return file;
     }
-    
+
     private String readFromInputStream(InputStream inputStream)
             throws IOException {
         StringBuilder resultStringBuilder = new StringBuilder();
