@@ -98,10 +98,11 @@ public class FilesService {
                 }
             }
 
-            if (file == null || !file.exists()) {
-                file = getFileFromJarFile("/" + path + fileName,
-                        sharedFolder + "/tmp/" + fileName);
-            }
+            logger.info("Load file prod mode");
+            file = getFileFromJarFile("/" + path + fileName,
+                    sharedFolder + "/tmp/" + fileName);
+            logger.info("File loaded");
+            
 
         } catch (IOException ioe) {
             logger.error("Error reading the files. The file with the path "
