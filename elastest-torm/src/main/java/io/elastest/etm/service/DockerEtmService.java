@@ -362,9 +362,9 @@ public class DockerEtmService {
                 progressHandler);
     }
 
-    /********************/
-    /***** Dockbeat *****/
-    /********************/
+    /* ****************** */
+    /* **** Dockbeat **** */
+    /* ****************** */
 
     public String getDockbeatContainerName(DockerExecution dockerExec) {
         return "elastest_dockbeat_" + dockerExec.getExecutionId();
@@ -434,9 +434,9 @@ public class DockerEtmService {
         }
     }
 
-    /***********************/
-    /***** Sut Methods *****/
-    /***********************/
+    /* ********************* */
+    /* **** Sut Methods **** */
+    /* ********************* */
 
     public String getSutName(DockerExecution dockerExec) {
         SutSpecification sut = dockerExec.gettJobexec().getTjob().getSut();
@@ -539,9 +539,9 @@ public class DockerEtmService {
         }
     }
 
-    /****************/
-    /***** Test *****/
-    /****************/
+    /* ************** */
+    /* **** Test **** */
+    /* ************** */
 
     public String getTestName(DockerExecution dockerExec) {
         return "test_" + dockerExec.getExecutionId();

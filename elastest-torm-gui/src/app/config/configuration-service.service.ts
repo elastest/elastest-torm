@@ -78,11 +78,6 @@ export class ConfigurationService {
     return this.http.get(url).map((response) => response.json());
   }
 
-  public getElasticsearchApi(): Observable<any> {
-    let url: string = this.hostApi + '/context/elasticsearch/api';
-    return this.http.get(url).map((response) => response['_body']);
-  }
-
   public getWSHost(): Observable<any> {
     let url: string = this.hostApi + '/context/ws-host';
     return this.http.get(url).map((response) => response['_body']);

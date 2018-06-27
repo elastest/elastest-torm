@@ -19,9 +19,9 @@ import io.swagger.annotations.ApiResponses;
 
 @Api(value = "testsuite")
 public interface TestSuiteApi extends EtmApiRoot {
-	/*********************/
-	/**** Test Suites ****/
-	/*********************/
+	/* ********************/
+	/* *** Test Suites ****/
+	/* ********************/
 	@ApiOperation(value = "Returns all Test Suites of an Execution", notes = "Returns all Test Suites of an Execution.", response = TestSuite.class, responseContainer = "List", tags = {
 			"Test Suite", })
 	@ApiResponses(value = {
@@ -42,9 +42,9 @@ public interface TestSuiteApi extends EtmApiRoot {
 	ResponseEntity<TestSuite> getTestSuiteById(
 			@ApiParam(value = "Test Suite id.", required = true) @PathVariable("testSuiteId") Long testSuiteId);
 
-	/********************/
-	/**** Test Cases ****/
-	/********************/
+	/* *******************/
+	/* *** Test Cases ****/
+	/* *******************/
 
 	@ApiOperation(value = "Returns all Test Cases of a Test Suite", notes = "Returns all Test Cases of a Test Suite.", response = TestCase.class, responseContainer = "List", tags = {
 			"Test Case", })
