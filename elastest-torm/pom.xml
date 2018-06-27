@@ -62,7 +62,7 @@
 
 		<!-- plugins versions -->
 		<maven.source.plugin.version>3.0.1</maven.source.plugin.version>
-		<maven.javadoc.plugin.version>3.0.0</maven.javadoc.plugin.version>
+		<maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
 		<maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
 		<jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
