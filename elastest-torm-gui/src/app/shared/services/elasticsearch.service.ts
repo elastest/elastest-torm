@@ -1,13 +1,12 @@
-import { ConfigModel } from '../../config/config-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 
 import { Injectable } from '@angular/core';
 import { Http, Request, RequestMethod, RequestOptions, Response, Headers } from '@angular/http';
-import { Subject, Observable } from 'rxjs/Rx';
+import {  Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 import { ESSearchModel } from '../elasticsearch-model/elasticsearch-model';
 import { ESBoolModel } from '../elasticsearch-model/es-bool-model';
-import { ESTermModel, ESTermsModel, ESRangeModel } from '../elasticsearch-model/es-query-model';
+import { ESTermModel, ESRangeModel } from '../elasticsearch-model/es-query-model';
 
 @Injectable()
 export class ElasticSearchService {

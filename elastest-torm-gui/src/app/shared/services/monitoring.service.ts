@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringQueryModel } from '../monitoring-query.model';
-import { ESRangeModel, ESTermModel, ESBoolQueryModel } from '../elasticsearch-model/es-query-model';
+import { ESRangeModel } from '../elasticsearch-model/es-query-model';
 import { PopupService } from './popup.service';
 import { MetricsFieldModel } from '../metrics-view/metrics-chart-card/models/metrics-field-model';
 import { LineChartMetricModel } from '../metrics-view/models/linechart-metric-model';
@@ -21,8 +21,8 @@ import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/mod
 import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
 import { ElasticSearchService } from './elasticsearch.service';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
-import { ESAggsModel } from '../elasticsearch-model/elasticsearch-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
+import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -31,7 +31,7 @@ export class MonitoringService {
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
   constructor(
-    private elasticsearchService: ElasticSearchService,
+    public elasticsearchService: ElasticSearchService,
     public http: Http,
     private configurationService: ConfigurationService,
     public popupService: PopupService,
@@ -91,6 +91,13 @@ export class MonitoringService {
 
   public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/tree';
+    return this.http.post(url, query).map((response) => response.json());
+  }
+
+  /* *** LogAnalyzer *** */
+
+  public searchLogAnalyzerQuery(query: LogAnalyzerQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/loganalyzer';
     return this.http.post(url, query).map((response) => response.json());
   }
 

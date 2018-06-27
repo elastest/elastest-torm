@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.model.AggregationTree;
+import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -123,7 +124,6 @@ public interface TracesApi extends EtmApiRoot {
             @ApiParam(value = "Number of Metrics to get.", required = true) @PathVariable("size") int size,
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws IOException;
-    
 
     @ApiOperation(value = "Returns Metrics Aggregation Tree.", notes = "Returns Metrics Aggregation Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -134,5 +134,20 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<AggregationTree>> searchMetricsAggregationTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws IOException;
+
+    /* ********************************************* */
+    /* **************** LogAnalyzer **************** */
+    /* ********************************************* */
+
+    @ApiOperation(value = "Returns the result of search LogAnalyzer query.", notes = "Returns the result of search LogAnalyzer query.", response = Map.class, responseContainer = "List", tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Map.class, responseContainer = "List"),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/loganalyzer", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<List<Map<String, Object>>> searchLogAnalyzerQuery(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody LogAnalyzerQuery body)
             throws IOException;
 }

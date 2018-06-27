@@ -36,6 +36,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -52,6 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.AggregationTree;
+import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
 
@@ -195,6 +197,7 @@ public class ElasticsearchService {
 
         return sourceBuilder;
     }
+
     /* ************** */
     /* *** Search *** */
     /* ************** */
@@ -246,6 +249,20 @@ public class ElasticsearchService {
         while (hitIterator.hasNext()) {
             SearchHit currentHit = hitIterator.next();
             mapList.add(currentHit.getSourceAsMap());
+        }
+        return mapList;
+    }
+
+    public List<Map<String, Object>> searchRequestAndGetSourceMapList(
+            SearchRequest request) throws IOException {
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        SearchResponse response = this.esClient.search(request);
+
+        if (response.getHits() != null
+                && response.getHits().getHits() != null) {
+            for (SearchHit hit : response.getHits().getHits()) {
+                mapList.add(hit.getSourceAsMap());
+            }
         }
         return mapList;
     }
@@ -644,6 +661,105 @@ public class ElasticsearchService {
                 boolQueryBuilder, size);
 
         return getTracesFromHitList(hits);
+    }
+
+    /* ******************* */
+    /* *** LogAnalyzer *** */
+    /* ******************* */
+
+    public BoolQueryBuilder getLogAnalyzerQueryBuilder(
+            LogAnalyzerQuery logAnalyzerQuery) {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        BoolQueryBuilder componentsStreamsBoolBuilder = QueryBuilders
+                .boolQuery();
+
+        // Components/streams
+        for (AggregationTree componentStream : logAnalyzerQuery
+                .getComponentsStreams()) {
+            for (AggregationTree stream : componentStream.getChildren()) {
+                BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders
+                        .boolQuery();
+                TermQueryBuilder componentTerm = QueryBuilders
+                        .termQuery("component", componentStream.getName());
+                TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream",
+                        stream.getName());
+
+                componentStreamBoolBuilder.must().add(componentTerm);
+                componentStreamBoolBuilder.must().add(streamTerm);
+                componentsStreamsBoolBuilder.should()
+                        .add(componentStreamBoolBuilder);
+            }
+        }
+
+        // Levels
+        for (String level : logAnalyzerQuery.getLevels()) {
+            TermQueryBuilder levelTerm = QueryBuilders.termQuery("level",
+                    level);
+            boolQueryBuilder.must(levelTerm);
+        }
+
+        // Range Time
+        RangeQueryBuilder timeRange = new RangeQueryBuilder("@timestamp");
+        if (logAnalyzerQuery.getRangeLT() != null) {
+            timeRange.lt(logAnalyzerQuery.getRangeLT());
+        }
+        if (logAnalyzerQuery.getRangeLTE() != null) {
+            timeRange.lte(logAnalyzerQuery.getRangeLTE());
+        }
+        if (logAnalyzerQuery.getRangeGT() != null) {
+            timeRange.gt(logAnalyzerQuery.getRangeGT());
+        }
+        if (logAnalyzerQuery.getRangeGTE() != null) {
+            timeRange.gte(logAnalyzerQuery.getRangeGTE());
+        }
+
+        // Match Message
+        if (logAnalyzerQuery.getMatchMessage() != null
+                && !logAnalyzerQuery.getMatchMessage().equals("")) {
+            MatchPhrasePrefixQueryBuilder matchPhrasePrefix = new MatchPhrasePrefixQueryBuilder(
+                    "message", logAnalyzerQuery.getMatchMessage());
+            boolQueryBuilder.must(matchPhrasePrefix);
+        }
+
+        // Stream Type
+        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
+                "log");
+        boolQueryBuilder.must(streamTypeTerm);
+
+        boolQueryBuilder.must(timeRange);
+        boolQueryBuilder.must(componentsStreamsBoolBuilder);
+
+        return boolQueryBuilder;
+
+    }
+
+    public List<Map<String, Object>> searchLogAnalyzerQuery(
+            LogAnalyzerQuery logAnalyzerQuery) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getLogAnalyzerQueryBuilder(
+                logAnalyzerQuery);
+
+        SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
+                boolQueryBuilder);
+
+        // Size
+        sourceBuilder.size(logAnalyzerQuery.getSize());
+
+        // Search After
+        if (logAnalyzerQuery.getSearchAfterTrace() != null
+                && logAnalyzerQuery.getSearchAfterTrace().get("sort") != null) {
+            sourceBuilder.searchAfter((Object[]) logAnalyzerQuery
+                    .getSearchAfterTrace().get("sort"));
+        }
+
+        SearchRequest searchRequest = new SearchRequest(
+                logAnalyzerQuery.getIndicesAsArray());
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
+        // return this.searchAllByRequest(searchRequest); TODO get all option
+        return this.searchRequestAndGetSourceMapList(searchRequest);
     }
 
     /* ************** */

@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { MonitoringService } from '../shared/services/monitoring.service';
+import { LogAnalyzerQueryModel } from '../shared/loganalyzer-query.model';
 
 @Injectable()
 export class LogAnalyzerService {
@@ -71,6 +72,7 @@ export class LogAnalyzerService {
   }
 
   public initAndGetESModel(): ESSearchModel {
+    //TODO remove
     let esSearchModel: ESSearchModel = new ESSearchModel();
 
     // Add term stream_type === 'log'
@@ -81,6 +83,7 @@ export class LogAnalyzerService {
   }
 
   setRangeToEsSearchModelByGiven(
+    //TODO remove
     esSearchModel: ESSearchModel,
     from: Date | string,
     to: Date | string,
@@ -90,6 +93,28 @@ export class LogAnalyzerService {
     esSearchModel.body.boolQuery.bool.must.range = this.monitoringService.getRangeByGiven(from, to, includedFrom, includedTo);
 
     return esSearchModel;
+  }
+
+  setTimeRangeToLogAnalyzerQueryModel(
+    logAnalyzerQueryModel: LogAnalyzerQueryModel,
+    from: Date | string,
+    to: Date | string,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): LogAnalyzerQueryModel {
+    if (includedFrom) {
+      logAnalyzerQueryModel.rangeGTE = from;
+    } else {
+      logAnalyzerQueryModel.rangeGT = from;
+    }
+
+    if (includedTo) {
+      logAnalyzerQueryModel.rangeLTE = to;
+    } else {
+      logAnalyzerQueryModel.rangeLT = to;
+    }
+
+    return logAnalyzerQueryModel;
   }
 
   setMatchByGivenEsSearchModel(msg: string = '', esSearchModel: ESSearchModel): ESSearchModel {
@@ -102,6 +127,14 @@ export class LogAnalyzerService {
       esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
     }
     return esSearchModel;
+  }
+
+  setMatchByGivenLogAnalyzerQueryModel(msg: string = '', logAnalyzerQueryModel: LogAnalyzerQueryModel): LogAnalyzerQueryModel {
+    /* Message field by default */
+    if (msg !== '') {
+      logAnalyzerQueryModel.matchMessage = '*' + msg + '*';
+    }
+    return logAnalyzerQueryModel;
   }
 
   searchTraceByGivenMsg(
@@ -124,7 +157,7 @@ export class LogAnalyzerService {
     let searchUrl: string = esSearchModel.getSearchUrl(this.monitoringService.esUrl);
     let searchBody: object = esSearchModel.getSearchBody();
 
-    return this.monitoringService.search(searchUrl, searchBody);
+    return this.monitoringService.elasticsearchService.internalSearch(searchUrl, searchBody);
   }
 
   searchTJobExecTraceByGivenMsg(msg: string, tJobExec: TJobExecModel, maxResults: number = this.maxResults): Observable<any> {
@@ -233,7 +266,7 @@ export class LogAnalyzerService {
     let searchUrl: string = esSearchModel.getSearchUrl(this.monitoringService.esUrl);
     let searchBody: object = esSearchModel.getSearchBody();
 
-    this.monitoringService.search(searchUrl, searchBody).subscribe(
+    this.monitoringService.elasticsearchService.internalSearch(searchUrl, searchBody).subscribe(
       (data: any) => {
         let logs: any[] = this.monitoringService.getDataListFromRaw(data, false);
         let finishRowFullMsg: string = startFinishObj.finishRow.message;

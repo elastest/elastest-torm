@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.elastest.etm.model.AggregationTree;
+import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.TracesService;
@@ -83,7 +84,8 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws IOException {
         return new ResponseEntity<List<AggregationTree>>(
-                elasticsearchService.getMonitoringTree(body, false), HttpStatus.OK);
+                elasticsearchService.getMonitoringTree(body, false),
+                HttpStatus.OK);
     }
 
     /* ***************************************** */
@@ -117,6 +119,18 @@ public class TracesApiController implements TracesApi {
             throws IOException {
         return new ResponseEntity<List<AggregationTree>>(
                 elasticsearchService.getMonitoringTree(body, true),
+                HttpStatus.OK);
+    }
+
+    /* ********************************************* */
+    /* **************** LogAnalyzer **************** */
+    /* ********************************************* */
+
+    public ResponseEntity<List<Map<String, Object>>> searchLogAnalyzerQuery(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody LogAnalyzerQuery body)
+            throws IOException {
+        return new ResponseEntity<List<Map<String, Object>>>(
+                elasticsearchService.searchLogAnalyzerQuery(body),
                 HttpStatus.OK);
     }
 }
