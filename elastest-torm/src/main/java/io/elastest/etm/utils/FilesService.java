@@ -93,12 +93,12 @@ public class FilesService {
                     logger.info("File name (dev mode):" + line);
                     if (line.equals(fileName)) {
                         file = new ClassPathResource(path + line).getFile();
-                        break;
+                        return file;
                     }
                 }
             }
 
-            if (file == null) {
+            if (file == null || !file.exists()) {
                 file = getFileFromJarFile("/" + path + fileName,
                         sharedFolder + "/tmp/" + fileName);
             }
