@@ -29,6 +29,9 @@ public class WebSocketConfiguration {
 
     @Value("${exec.mode}")
     public String execMode;
+    
+    @Value("${enable.et.mini}")
+    public boolean enableETMini;
 
     @Configuration
     public class WebSocketMessageBrokerConfiguration
@@ -36,7 +39,7 @@ public class WebSocketConfiguration {
 
         @Override
         public void configureMessageBroker(MessageBrokerRegistry config) {
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
                 config.setApplicationDestinationPrefixes("/app");
                 config.enableSimpleBroker("/queue", "/topic", "/exchange");
             } else {
@@ -56,7 +59,7 @@ public class WebSocketConfiguration {
         @Override
         public void registerStompEndpoints(
                 StompEndpointRegistry stompEndpointRegistry) {
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
                 stompEndpointRegistry.addEndpoint("/rabbitMq").setAllowedOrigins("*");
             } else {
                 stompEndpointRegistry.addEndpoint("/rabbitMq")

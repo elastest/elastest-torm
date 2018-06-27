@@ -26,6 +26,9 @@ public class TcpServerService {
     @Value("${exec.mode}")
     public String execMode;
 
+    @Value("${enable.et.mini}")
+    public boolean enableETMini;
+
     private SyslogServerIF server;
     private int tcpPort = 5001;
     private TracesService tracesService;
@@ -36,7 +39,7 @@ public class TcpServerService {
 
     @PostConstruct
     void init() throws InterruptedException {
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
             SyslogServerConfigIF serverConfig = new TCPNetSyslogServerConfig(
                     tcpPort);
 
@@ -61,7 +64,7 @@ public class TcpServerService {
 
     @PreDestroy
     void stopServer() throws InterruptedException {
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
             log.info("Starting shuting down TCP server");
             if (server.getThread().isAlive()) {
                 try {

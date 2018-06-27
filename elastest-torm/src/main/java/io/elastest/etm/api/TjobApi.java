@@ -26,9 +26,9 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "tjob")
 public interface TjobApi extends EtmApiRoot {
 
-    /*****************/
-    /***** TJobs *****/
-    /*****************/
+    /* *************** */
+    /* **** TJobs **** */
+    /* *************** */
 
     @ApiOperation(value = "Create a new TJob", notes = "Creates a new TJob associated with an existing project. This method,"
             + " at least must receive as input a JSON with the following fields: TJob name, imageName, external and project.", response = TJob.class, tags = {
@@ -81,9 +81,9 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<TJob> modifyTJob(
             @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody TJob body);
 
-    /*********************/
-    /***** TJobExecs *****/
-    /*********************/
+    /* ******************* */
+    /* **** TJobExecs **** */
+    /* ******************* */
 
     @ApiOperation(value = "Executes a TJob", notes = "Execute the TJob with the received id.", response = Long.class, tags = {
             "TJob Execution", })

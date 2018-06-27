@@ -27,6 +27,9 @@ public class BeatsServerService {
     @Value("${exec.mode}")
     public String execMode;
 
+    @Value("${enable.et.mini}")
+    public boolean enableETMini;
+
     private static EventLoopGroup group;
     private final String host = "0.0.0.0";
     private final int threadCount = 10;
@@ -43,7 +46,7 @@ public class BeatsServerService {
 
     @PostConstruct
     void init() throws InterruptedException {
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
             group = new NioEventLoopGroup();
             this.startBeatsServer();
             this.startDockbeatServer();
@@ -52,7 +55,7 @@ public class BeatsServerService {
 
     @PreDestroy
     void stopServer() throws InterruptedException {
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
             log.info("Shuting down Beats server");
             group.shutdownGracefully();
             server.stop();
