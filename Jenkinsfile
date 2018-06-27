@@ -88,6 +88,9 @@
 
                     
             } catch (err) {
+                if (currentBuild.result != "UNSTABLE") {
+                  currentBuild.result = "FAILURE"
+                }
                 echo 'Error!!! Send email to the people responsible for the builds.'
                 emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
                 replyTo: '${BUILD_USER_EMAIL}', 
