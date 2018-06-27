@@ -85,6 +85,7 @@ public class FilesService {
         try {
             logger.info("Load file in dev mode");
             Resource resource = new ClassPathResource(path);
+            logger.info("Resource loading ok");
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(resource.getInputStream()), 1024)) {
                 String line;
@@ -96,27 +97,33 @@ public class FilesService {
                     }
                 }
             }
-            
+
             if (file == null) {
-                file = getFileFromJarFile("/" + path + fileName, sharedFolder + "/tmp/" + fileName );
+                file = getFileFromJarFile("/" + path + fileName,
+                        sharedFolder + "/tmp/" + fileName);
             }
 
         } catch (IOException ioe) {
-            logger.warn("Error reading the files. The file with the path "
+            logger.error("Error reading the files. The file with the path "
                     + path + " does not exist:");
-            throw ioe;
+            try {
+                file = getFileFromJarFile("/" + path + fileName,
+                        sharedFolder + "/tmp/" + fileName);
+            } catch (Exception e) {
+                throw e;                
+            }
         }
         return file;
     }
 
-    public File getFileFromJarFile(String sourcePath, String targetPath) throws IOException {
+    public File getFileFromJarFile(String sourcePath, String targetPath)
+            throws IOException {
         InputStream iStream = getFileContentAsInputStream(sourcePath);
-        return createFileFromInputStream(iStream, targetPath);               
+        return createFileFromInputStream(iStream, targetPath);
     }
-    
+
     public InputStream getFileContentAsInputStream(String path) {
-        InputStream fileAsInputStream = getClass()
-                .getResourceAsStream(path);
+        InputStream fileAsInputStream = getClass().getResourceAsStream(path);
         return fileAsInputStream;
     }
 
