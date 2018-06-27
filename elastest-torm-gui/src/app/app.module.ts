@@ -38,7 +38,6 @@ import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { TestSuiteService } from './elastest-etm/test-suite/test-suite.service';
 import { TestCaseService } from './elastest-etm/test-case/test-case.service';
-import { ElasticSearchService } from './shared/services/elasticsearch.service';
 import {
   MdDatepickerModule,
   MdNativeDateModule,
@@ -243,7 +242,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TestSuiteService,
     TJobExecService,
     ProjectService,
-    ElasticSearchService,
     MonitoringService,
     ElastestRabbitmqService,
     PopupService,

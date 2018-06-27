@@ -248,6 +248,11 @@ public class ElasticsearchService {
 
         while (hitIterator.hasNext()) {
             SearchHit currentHit = hitIterator.next();
+            if (currentHit.getSortValues() != null
+                    && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort",
+                        currentHit.getSortValues());
+            }
             mapList.add(currentHit.getSourceAsMap());
         }
         return mapList;
@@ -261,6 +266,10 @@ public class ElasticsearchService {
         if (response.getHits() != null
                 && response.getHits().getHits() != null) {
             for (SearchHit hit : response.getHits().getHits()) {
+                if (hit.getSortValues() != null
+                        && hit.getSortValues().length > 0) {
+                    hit.getSourceAsMap().put("sort", hit.getSortValues());
+                }
                 mapList.add(hit.getSourceAsMap());
             }
         }
@@ -382,6 +391,11 @@ public class ElasticsearchService {
 
         while (hitIterator.hasNext()) {
             SearchHit currentHit = hitIterator.next();
+            if (currentHit.getSortValues() != null
+                    && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort",
+                        currentHit.getSortValues());
+            }
             mapList.add(currentHit.getSourceAsMap());
         }
         return mapList;
@@ -734,6 +748,7 @@ public class ElasticsearchService {
 
     }
 
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> searchLogAnalyzerQuery(
             LogAnalyzerQuery logAnalyzerQuery) throws IOException {
         BoolQueryBuilder boolQueryBuilder = getLogAnalyzerQueryBuilder(
@@ -748,8 +763,11 @@ public class ElasticsearchService {
         // Search After
         if (logAnalyzerQuery.getSearchAfterTrace() != null
                 && logAnalyzerQuery.getSearchAfterTrace().get("sort") != null) {
-            sourceBuilder.searchAfter((Object[]) logAnalyzerQuery
-                    .getSearchAfterTrace().get("sort"));
+
+            ArrayList<Object> sort = (ArrayList<Object>) logAnalyzerQuery
+                    .getSearchAfterTrace().get("sort");
+
+            sourceBuilder.searchAfter(sort.toArray());
         }
 
         SearchRequest searchRequest = new SearchRequest(
@@ -795,6 +813,11 @@ public class ElasticsearchService {
             List<SearchHit> hits) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (SearchHit currentHit : hits) {
+            if (currentHit.getSortValues() != null
+                    && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort",
+                        currentHit.getSortValues());
+            }
             mapList.add(currentHit.getSourceAsMap());
         }
         return mapList;

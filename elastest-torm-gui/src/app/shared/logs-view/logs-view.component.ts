@@ -1,7 +1,6 @@
-import { ElasticSearchService } from '../services/elasticsearch.service';
 import { LogViewModel } from './log-view-model';
 
-import { Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { LogsViewTextComponent } from '../logs-view-text/logs-view-text.component';
 
 @Component({

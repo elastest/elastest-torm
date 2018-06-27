@@ -214,7 +214,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.logAnalyzerQueryModel.indices = this.logAnalyzer.selectedIndices;
     this.logAnalyzerQueryModel.filterPathList = this.logAnalyzerService.filters;
     this.logAnalyzerQueryModel.size = this.logAnalyzer.maxResults;
-    
+
     this.setRange();
   }
 
@@ -394,7 +394,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
     this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
       (data: any) => {
-        // let moreRows: any[] = this.monitoringService.getDataListFromRaw(data, false);
         let moreRows: any[] = data;
         if (moreRows.length > 0) {
           this.logRows = this.logRows.concat(moreRows);
@@ -429,7 +428,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.logAnalyzerQueryModel.searchAfterTrace = this.logRows[selected];
         this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
           (data: any) => {
-            // let moreRows: any[] = this.monitoringService.getDataListFromRaw(data, false);
             let moreRows: any[] = data;
             if (moreRows.length > 0) {
               this.insertRowsFromPosition(selected, moreRows);
@@ -685,14 +683,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     // TODO use refactorized method into logAnalyzer Service
     this.searchTraceByGivenMsg(startMsg).subscribe(
       (startData: any) => {
-        startData = this.monitoringService.getDataListFromRaw(startData, false);
         if (startData.length > 0) {
           let startRow: any = startData[0];
           this.setFromDate(new Date(startRow['@timestamp']));
           // Search Finish Msg
           this.searchTraceByGivenMsg(endMsg).subscribe(
             (finishData: any) => {
-              finishData = this.monitoringService.getDataListFromRaw(finishData, false);
               if (finishData.length > 0) {
                 let finishRow: any = finishData[0];
                 this.setToDate(new Date(finishRow['@timestamp']));
@@ -704,7 +700,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
                 this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
                   (data: any) => {
-                    // let logs: any[] = this.monitoringService.getDataListFromRaw(data, false);
                     let logs: any[] = data;
 
                     let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);

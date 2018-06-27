@@ -19,25 +19,17 @@ import {
 import { defaultStreamMap } from '../defaultESData-model';
 import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
 import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
-import { ElasticSearchService } from './elasticsearch.service';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
-  esUrl: string;
   allMetricsFields: AllMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
-  constructor(
-    public elasticsearchService: ElasticSearchService,
-    public http: Http,
-    private configurationService: ConfigurationService,
-    public popupService: PopupService,
-  ) {
+  constructor(public http: Http, private configurationService: ConfigurationService, public popupService: PopupService) {
     this.etmApiUrl = this.configurationService.configModel.hostApi;
-    this.esUrl = this.elasticsearchService.esUrl;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
   }
 
@@ -861,32 +853,6 @@ export class MonitoringService {
   }
 
   // Utils
-  getContentListFromRaw(raw: any): any[] {
-    let data: any[] = [];
-    if (raw && raw.hits && raw.hits.hits) {
-      data = raw.hits.hits;
-    }
-    return data;
-  }
-
-  getDataListFromRaw(raw: any, onlySource: boolean = true): any[] {
-    let data: any[] = [];
-    let sourcesList: any[] = this.getContentListFromRaw(raw);
-    for (let elem of sourcesList) {
-      if (!onlySource) {
-        for (let key in elem) {
-          if (key !== '_source') {
-            // TODO view if necessary
-            elem._source[key] = elem[key]; // Add key and value into source
-          }
-        }
-      }
-      data.push(elem._source);
-    }
-
-    return data;
-  }
-
   getLogsObjFromRawSource(raw: any[]): any {
     let processedLogs: any = {};
     if (raw !== undefined && raw !== null) {
@@ -941,10 +907,6 @@ export class MonitoringService {
     }
 
     return range;
-  }
-
-  search(url: string, searchBody: any): Observable<any> {
-    return this.elasticsearchService.internalSearch(url, searchBody);
   }
 }
 
