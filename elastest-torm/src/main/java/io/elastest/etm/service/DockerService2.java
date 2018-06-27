@@ -31,6 +31,7 @@ import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
+import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.LogConfig;
 import com.spotify.docker.client.messages.NetworkConfig;
@@ -179,6 +180,15 @@ public class DockerService2 {
             logger.trace("Using log config: {}", logConfig.get());
             hostConfigBuilder.logConfig(logConfig.get());
         }
+
+        Optional<List<Bind>> volumeBindList = dockerContainer
+                .getVolumeBindList();
+        if (volumeBindList.isPresent()) {
+            logger.trace("Using volumeBindList: {}", volumeBindList.get());
+            hostConfigBuilder.appendBinds(volumeBindList.get()
+                    .toArray(new Bind[volumeBindList.get().size()]));
+        }
+
         Optional<List<String>> exposedPorts = dockerContainer.getExposedPorts();
         if (exposedPorts.isPresent()) {
             logger.trace("Using exposed Ports: {}", exposedPorts.get());

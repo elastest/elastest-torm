@@ -44,12 +44,12 @@ import com.spotify.docker.client.messages.ProgressMessage;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.model.DockerContainer;
 import io.elastest.etm.model.DockerContainer.DockerBuilder;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.FilesService;
@@ -421,9 +421,8 @@ public class DockerEtmService {
         envList.add(lsHostEnvVar);
 
         // dockerSock
-        Builder dockerSockVolumeBuilder = Bind.builder();
-        dockerSockVolumeBuilder.from(dockerSock);
-        dockerSockVolumeBuilder.to(dockerSock);
+        Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
+                .build();
 
         // Pull Image
         this.pullETExecImage(dockbeatImage, "Dockbeat", false);
@@ -437,8 +436,7 @@ public class DockerEtmService {
         dockerBuilder.containerName(containerName);
         dockerBuilder.network(dockerExec.getNetwork());
 
-        dockerBuilder
-                .volumeBindList(Arrays.asList(dockerSockVolumeBuilder.build()));
+        dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
 
         DockerContainer dockerContainer = dockerBuilder.build();
         String containerId = dockerService
