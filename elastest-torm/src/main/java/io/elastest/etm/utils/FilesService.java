@@ -83,26 +83,22 @@ public class FilesService {
             throws IOException, URISyntaxException {
         File file = null;
         try {
-            logger.info("Epm files path {}", path);
-            logger.info("Package name {}", fileName);
-            logger.info("Full path: /" + getClass().getResource(path + fileName));
-            try { 
-                file = new File("/" + getClass().getResource(path + fileName).getFile());
-            } catch (Exception e) {
-                logger.info("Load file in dev mode");
-                Resource resource = new ClassPathResource(path);
-                try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(resource.getInputStream()),
-                        1024)) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        logger.info("File name (dev mode):" + line);
-                        if (line.equals(fileName)) {
-                            file = new ClassPathResource(path + line).getFile();
-                            break;
-                        }
+            logger.info("Load file in dev mode");
+            Resource resource = new ClassPathResource(path);
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(resource.getInputStream()), 1024)) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    logger.info("File name (dev mode):" + line);
+                    if (line.equals(fileName)) {
+                        file = new ClassPathResource(path + line).getFile();
+                        break;
                     }
                 }
+            }
+            
+            if (file == null) {
+                file = getFileFromJarFile("/" + path + fileName, sharedFolder + "/tmp/" + fileName );
             }
 
         } catch (IOException ioe) {
@@ -113,17 +109,22 @@ public class FilesService {
         return file;
     }
 
-    private String readFromInputStream(InputStream inputStream)
-            throws IOException {
-        StringBuilder resultStringBuilder = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                resultStringBuilder.append(line).append("\n");
-            }
-        }
-        return resultStringBuilder.toString();
+    public File getFileFromJarFile(String sourcePath, String targetPath) throws IOException {
+        InputStream iStream = getFileContentAsInputStream(sourcePath);
+        return createFileFromInputStream(iStream, targetPath);               
+    }
+    
+    public InputStream getFileContentAsInputStream(String path) {
+        InputStream fileAsInputStream = getClass()
+                .getResourceAsStream(path);
+        return fileAsInputStream;
+    }
+
+    public File createFileFromInputStream(InputStream iStream,
+            String targetPath) throws IOException {
+        File file = new File(targetPath);
+        FileUtils.copyInputStreamToFile(iStream, file);
+        return file;
     }
 
     public String readFile(File file) throws IOException {
