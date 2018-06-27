@@ -54,33 +54,6 @@ public class ConnectionHandler extends ChannelDuplexHandler {
         super.channelRead(ctx, msg);
     }
 
-    /**
-     * {@inheritDoc} <br/>
-     * <p>
-     * <strong>IdleState.WRITER_IDLE <br/>
-     * </strong> If no response has been issued after the configured write idle
-     * timeout via {@link io.netty.handler.timeout.IdleStateHandler}, then start
-     * to issue a TCP keep alive. This can happen when the pipeline is blocked.
-     * Pending (blocked) batches are in either in the EventLoop attempting to
-     * write to the queue, or may be in a taskPending queue waiting for the
-     * EventLoop to unblock. This keep alive holds open the TCP connection from
-     * the Beats client so that it will not timeout and retry which could result
-     * in duplicates. <br/>
-     * </p>
-     * <p>
-     * <strong>IdleState.ALL_IDLE <br/>
-     * </strong> If no read or write has been issued after the configured all
-     * idle timeout via {@link io.netty.handler.timeout.IdleStateHandler}, then
-     * close the connection. This is really only happens for beats that are
-     * sending sparse amounts of data, and helps to the keep the number of
-     * concurrent connections in check. Note that ChannelOption.SO_LINGER = 0
-     * needs to be set to ensure we clean up quickly. Also note that the above
-     * keep alive counts as a not-idle, and thus the keep alive will prevent
-     * this logic from closing the connection. For this reason, we stop sending
-     * keep alives when there are no more pending batches to allow this idle
-     * close timer to take effect.
-     * </p>
-     */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
             throws Exception {
