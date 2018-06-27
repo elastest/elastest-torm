@@ -96,6 +96,12 @@ public class DockerEtmService {
     @Value("${et.etm.binded.lsbeats.port)")
     private String etEtmBindedLsbeatsPort;
 
+    @Value("${et.etm.binded.lstcp.host}")
+    public String bindedLsTcpHost;
+
+    @Value("${et.etm.binded.lstcp.port}")
+    public String bindedLsTcpPort;
+
     public DockerService2 dockerService;
     public FilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
@@ -113,6 +119,8 @@ public class DockerEtmService {
 
     @PostConstruct
     public void initialize() throws Exception {
+        initLogstashHostIfNecessary();
+
         logger.info("Pulling dockbeat image...");
         try {
             this.pullETExecImage(dockbeatImage, "Dockbeat", true);
@@ -157,6 +165,14 @@ public class DockerEtmService {
     public void insertCreatedContainer(String containerId,
             String containerName) {
         createdContainers.put(containerId, containerName);
+    }
+
+    private void initLogstashHostIfNecessary() throws Exception {
+        if (logstashHost == null) {
+            logstashHost = masterSlavemode ? etPublicHost
+                    : dockerService.getContainerIpByNetwork(
+                            etEtmLogstashContainerName, elastestNetwork);
+        }
     }
 
     /* *************************** */
@@ -608,10 +624,8 @@ public class DockerEtmService {
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) throws Exception {
 
-        logstashHost = masterSlavemode ? etPublicHost
-                : dockerService.getContainerIpByNetwork(
-                        etEtmLogstashContainerName, elastestNetwork);
-        port = masterSlavemode ? etEtmBindedLsbeatsPort : port;
+        initLogstashHostIfNecessary();
+        port = masterSlavemode ? bindedLsTcpPort : port;
         logger.info(
                 "Logstash Host to send logs from containers: {}. To port {}",
                 logstashHost, port);
