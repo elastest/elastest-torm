@@ -427,8 +427,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
         this.logAnalyzerQueryModel.searchAfterTrace = this.logRows[selected];
         this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
-          (data: any) => {
-            let moreRows: any[] = data;
+          (moreRows: any[]) => {
             if (moreRows.length > 0) {
               this.insertRowsFromPosition(selected, moreRows);
 
@@ -451,7 +450,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  insertRowsFromPosition(pos: number, rows: any[]) {
+  insertRowsFromPosition(pos: number, rows: any[]): void {
     let firstHalf: any[] = this.logRows.slice(0, pos + 1);
     let secondHalf: any[] = this.logRows.slice(pos + 1);
 

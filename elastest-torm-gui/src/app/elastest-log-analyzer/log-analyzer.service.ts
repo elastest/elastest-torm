@@ -101,6 +101,10 @@ export class LogAnalyzerService {
     includedFrom: boolean = true,
     includedTo: boolean = true,
   ): LogAnalyzerQueryModel {
+    logAnalyzerQueryModel.rangeLT = undefined;
+    logAnalyzerQueryModel.rangeGT = undefined;
+    logAnalyzerQueryModel.rangeGTE = undefined;
+    logAnalyzerQueryModel.rangeLTE = undefined;
     if (includedFrom) {
       logAnalyzerQueryModel.rangeGTE = from;
     } else {
