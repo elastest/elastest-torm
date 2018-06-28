@@ -9,7 +9,7 @@
                 mycontainer.pull() // make sure we have the latest available from Docker Hub
                 mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
                 def epmClientJavaDirectory = 'epm-client-java'
-                withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
+                //withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
                         if (epmClientDirectoryExists) {
@@ -99,7 +99,7 @@
 
                 throw err
             }
-    }
+   // }
 
     def containerIp(service) {
         containerIp = sh (
