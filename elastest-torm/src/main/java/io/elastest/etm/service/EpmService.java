@@ -93,6 +93,7 @@ public class EpmService {
             try {
                 re = provisionRemoteEnvironment();
             } catch (ServiceException se) {
+                masterSlavemode = false;
                 se.printStackTrace();
             }
         }
