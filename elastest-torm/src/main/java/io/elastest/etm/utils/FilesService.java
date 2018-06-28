@@ -97,7 +97,8 @@ public class FilesService {
                     }
                 }
             }
-
+            
+            if (file == null || !file.exists())
             logger.info("Load file prod mode");
             file = getFileFromJarFile("/" + path + fileName,
                     sharedFolder + "/tmp/" + fileName);
