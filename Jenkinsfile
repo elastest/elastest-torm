@@ -65,7 +65,7 @@
                     //         currentBuild.result = "UNSTABLE"
                     //         throw err
                     //     }
-                    }
+                //    }
                 stage "Build elastest-torm"
                 echo ("Build elastest-torm")
                 sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./elastest-torm; mvn -Pci package;'
@@ -99,7 +99,7 @@
 
                 throw err
             }
-   // }
+    }
 
     def containerIp(service) {
         containerIp = sh (
