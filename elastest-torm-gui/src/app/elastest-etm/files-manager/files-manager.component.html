@@ -33,7 +33,7 @@
                       <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
                         <md-icon>open_in_new</md-icon>
                       </a>
-                      <a md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
+                      <a *ngIf="row.name.includes('.mp4')" md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
                         <md-icon>open_in_browser</md-icon>
                       </a>
                     </div>
