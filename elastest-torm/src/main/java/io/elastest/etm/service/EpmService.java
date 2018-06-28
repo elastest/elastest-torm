@@ -47,7 +47,7 @@ public class EpmService {
     @Value("${et.epm.key.path}")
     private String keyFilePath;
     @Value("${et.master.slave.mode}")
-    private boolean masterSlavemode;
+    public boolean etMasterSlaveMode;
 
     private FilesService filesService;
     private RemoteEnvironment re;
@@ -88,12 +88,12 @@ public class EpmService {
 
     @PostConstruct
     public void initRemoteenvironment() {
-        if (masterSlavemode) {
+        if (etMasterSlaveMode) {
             logger.info("Creating slave");
             try {
                 re = provisionRemoteEnvironment();
             } catch (ServiceException se) {
-                masterSlavemode = false;
+                etMasterSlaveMode = false;
                 se.printStackTrace();
             }
         }
@@ -101,7 +101,7 @@ public class EpmService {
 
     @PreDestroy
     public void endRemoteenvironment() {
-        if (masterSlavemode) {
+        if (etMasterSlaveMode) {
             logger.info("Removing slave");
             try {
                 deprovisionRemoteEnvironment(re);

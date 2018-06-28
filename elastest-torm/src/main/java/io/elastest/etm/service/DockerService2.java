@@ -81,7 +81,7 @@ public class DockerService2 {
         }
 
         // Set remote docker server
-        if (etMasterSlaveMode) {
+        if (epmService.etMasterSlaveMode) {
             logger.info("Remote ip: {}", epmService.getRe().getHostIp());
             logger.info("Remote Docker port: {}", dockerPort);
             remoteDockerServer = "http://" + epmService.getRe().getHostIp()
