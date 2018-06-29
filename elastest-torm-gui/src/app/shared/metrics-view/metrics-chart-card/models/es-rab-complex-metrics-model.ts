@@ -104,6 +104,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
             break;
         }
       });
+      // }
     }
   }
 
@@ -179,7 +180,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   // Simple Metric (Not default metric)
 
-  initSimpleMetricLineChart(name: string) {
+  initSimpleMetricLineChart(name: string): void {
     this.initLineChartByGivenListName('left', name);
   }
 
@@ -220,7 +221,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     let compareTrace: any = this.getOldTrace();
     if (this.isDefault()) {
       // Default chart
-      let position: number = 0;
+      // Load previous of all charts, not only this
       for (let metric of this.allMetricsFields.fieldsList) {
         this.monitoringService
           .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, metric)
@@ -233,7 +234,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
               this.monitoringService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
             }
           });
-        position++;
+        // }
       }
     } else {
       // Custom chart

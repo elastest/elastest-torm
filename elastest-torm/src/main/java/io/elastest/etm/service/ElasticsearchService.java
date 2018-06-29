@@ -650,6 +650,17 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
         return this.searchAllByRequest(searchRequest);
     }
+    
+    public List<Map<String, Object>> getLastMetrics(
+            MonitoringQuery monitoringQuery, int size) throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
+                monitoringQuery, false);
+        
+        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
+                boolQueryBuilder, size);
+        
+        return getTracesFromHitList(hits);
+    }
 
     public List<Map<String, Object>> getPreviousMetricsFromTimestamp(
             MonitoringQuery monitoringQuery) {
@@ -660,17 +671,6 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         List<SearchHit> hits = this.getPreviousFromTimestamp(
                 monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
                 monitoringQuery.getTimestamp());
-
-        return getTracesFromHitList(hits);
-    }
-
-    public List<Map<String, Object>> getLastMetrics(
-            MonitoringQuery monitoringQuery, int size) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
-                monitoringQuery, false);
-
-        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
-                boolQueryBuilder, size);
 
         return getTracesFromHitList(hits);
     }

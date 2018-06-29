@@ -52,6 +52,24 @@ public class TracesSearchService implements MonitoringServiceInterface {
     }
 
     @Override
+    public List<Map<String, Object>> getLastLogs(
+            MonitoringQuery monitoringQuery, int size) throws Exception {
+        List<Trace> traces = traceRepository
+                .findByExecInAndStreamAndComponentOrderByIdDesc(
+                        monitoringQuery.getIndices(),
+                        monitoringQuery.getStream(),
+                        monitoringQuery.getComponent());
+
+        if (traces.size() > 0) {
+            traces = ListUtils.partition(traces, size).get(0);
+            // Sort ASC
+            Collections.reverse(traces);
+        }
+
+        return this.getTracesMapListByTracesList(traces);
+    }
+
+    @Override
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) throws Exception {
         // Get by timestamp
@@ -78,24 +96,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public List<Map<String, Object>> getLastLogs(
-            MonitoringQuery monitoringQuery, int size) throws Exception {
-        List<Trace> traces = traceRepository
-                .findByExecInAndStreamAndComponentOrderByIdDesc(
-                        monitoringQuery.getIndices(),
-                        monitoringQuery.getStream(),
-                        monitoringQuery.getComponent());
-
-        if (traces.size() > 0) {
-            traces = ListUtils.partition(traces, size).get(0);
-            // Sort ASC
-            Collections.reverse(traces);
-        }
-
-        return this.getTracesMapListByTracesList(traces);
-    }
-
-    @Override
     public List<AggregationTree> getMonitoringTree(
             MonitoringQuery monitoringQuery, boolean isMetric)
             throws Exception {
@@ -106,8 +106,40 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<Map<String, Object>> searchAllMetrics(
             MonitoringQuery monitoringQuery) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        List<Trace> traces = new ArrayList<>();
+        if (monitoringQuery.getComponent() != null) {
+            traces = traceRepository.findByExecInAndEtTypeAndComponent(
+                    monitoringQuery.getIndices(), monitoringQuery.getEtType(),
+                    monitoringQuery.getComponent());
+        } else {
+            traces = traceRepository.findByExecInAndEtType(
+                    monitoringQuery.getIndices(), monitoringQuery.getEtType());
+        }
+
+        return this.getTracesMapListByTracesList(traces);
+    }
+
+    @Override
+    public List<Map<String, Object>> getLastMetrics(
+            MonitoringQuery monitoringQuery, int size) throws Exception {
+        List<Trace> traces = new ArrayList<>();
+        if (monitoringQuery.getComponent() != null) {
+            traces = traceRepository
+                    .findByExecInAndEtTypeAndComponentOrderByIdDesc(
+                            monitoringQuery.getIndices(),
+                            monitoringQuery.getEtType(),
+                            monitoringQuery.getComponent());
+        } else {
+            traces = traceRepository.findByExecInAndEtTypeOrderByIdDesc(
+                    monitoringQuery.getIndices(), monitoringQuery.getEtType());
+        }
+        if (traces.size() > 0) {
+            traces = ListUtils.partition(traces, size).get(0);
+            // Sort ASC
+            Collections.reverse(traces);
+        }
+
+        return this.getTracesMapListByTracesList(traces);
     }
 
     @Override
@@ -147,13 +179,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
             }
         }
         return this.getTracesMapListByTracesList(traces);
-    }
-
-    @Override
-    public List<Map<String, Object>> getLastMetrics(
-            MonitoringQuery monitoringQuery, int size) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override

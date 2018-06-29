@@ -109,7 +109,7 @@ export class MonitoringService {
       }
 
       // If come from ET Mini (ETM)
-      source = this.parseETMiniTraceIfNecessary(source, true);
+      source = this.parseETMiniTraceIfNecessary(source);
 
       if (source['message'] !== undefined) {
         tracesList.push({
@@ -139,7 +139,7 @@ export class MonitoringService {
     if (timestamp !== undefined) {
       query.timestamp = timestamp;
     }
-    if (message !== undefined ) {
+    if (message !== undefined) {
       query.message = message;
     }
     return query;
@@ -322,10 +322,9 @@ export class MonitoringService {
 
   convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
     let parsedData: any = undefined;
-
     // If come from ET Mini (ETM)
     trace = this.parseETMiniTraceIfNecessary(trace, true);
-
+    
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
       if (trace['et_type'] === 'cpu' && metricsField.etType === 'cpu') {
@@ -602,7 +601,6 @@ export class MonitoringService {
       query.etType = metricType;
       query.selectedTerms.push('etType');
     }
-
     this.searchAllByTerms(query).subscribe((data: any[]) => {
       if (data.length > 0) {
         let convertedData: any;
@@ -886,11 +884,21 @@ export class MonitoringService {
 
   parseETMiniTraceIfNecessary(trace: any, isMetric: boolean = false): any {
     if (trace) {
+      if (trace.etType && !trace['et_type']) {
+        trace['et_type'] = trace.etType;
+        // delete trace.etType;
+      }
+      if (trace.streamType && !trace['stream_type']) {
+        trace['stream_type'] = trace.streamType;
+        // delete trace.streamType;
+      }
       if (isMetric && !trace[trace['et_type']] && trace.content) {
         trace[trace['et_type']] = JSON.parse(trace.content);
+        // delete trace.content;
       }
       if (trace.timestamp && !trace['@timestamp']) {
         trace['@timestamp'] = trace.timestamp;
+        // delete trace.timestamp;
       }
     }
     return trace;

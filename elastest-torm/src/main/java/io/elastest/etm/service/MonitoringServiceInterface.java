@@ -19,11 +19,11 @@ public interface MonitoringServiceInterface {
     List<Map<String, Object>> searchAllLogs(MonitoringQuery monitoringQuery)
             throws Exception;
 
-    List<Map<String, Object>> getPreviousLogsFromTimestamp(
-            MonitoringQuery monitoringQuery) throws Exception;
-
     List<Map<String, Object>> getLastLogs(MonitoringQuery monitoringQuery,
             int size) throws Exception;
+
+    List<Map<String, Object>> getPreviousLogsFromTimestamp(
+            MonitoringQuery monitoringQuery) throws Exception;
 
     List<AggregationTree> getMonitoringTree(MonitoringQuery monitoringQuery,
             boolean isMetric) throws Exception;
@@ -31,11 +31,11 @@ public interface MonitoringServiceInterface {
     List<Map<String, Object>> searchAllMetrics(MonitoringQuery monitoringQuery)
             throws Exception;
 
-    List<Map<String, Object>> getPreviousMetricsFromTimestamp(
-            MonitoringQuery monitoringQuery) throws Exception;
-
     List<Map<String, Object>> getLastMetrics(MonitoringQuery monitoringQuery,
             int size) throws Exception;
+
+    List<Map<String, Object>> getPreviousMetricsFromTimestamp(
+            MonitoringQuery monitoringQuery) throws Exception;
 
     List<Map<String, Object>> searchLogAnalyzerQuery(
             LogAnalyzerQuery logAnalyzerQuery) throws Exception;

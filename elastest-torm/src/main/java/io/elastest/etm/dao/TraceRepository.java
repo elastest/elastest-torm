@@ -11,6 +11,7 @@ import io.elastest.etm.model.Trace;
 public interface TraceRepository extends JpaRepository<Trace, Long> {
     public List<Trace> findByTimestamp(String timestamp);
 
+    /* *** Logs *** */
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,
             String stream, String component);
 
@@ -24,6 +25,10 @@ public interface TraceRepository extends JpaRepository<Trace, Long> {
     public List<Trace> findByExecInAndStreamAndComponentOrderByIdDesc(
             List<String> execs, String stream, String component);
 
+    /* *** Metrics *** */
+    public List<Trace> findByExecInAndEtTypeAndComponent(List<String> execs,
+            String etType, String component);
+
     public List<Trace> findByExecInAndEtTypeAndComponentAndTimestamp(
             List<String> execs, String etType, String component,
             String timestamp);
@@ -31,9 +36,18 @@ public interface TraceRepository extends JpaRepository<Trace, Long> {
     public List<Trace> findByExecInAndEtTypeAndComponentAndIdLessThan(
             List<String> execs, String etType, String component, Long id);
 
+    public List<Trace> findByExecInAndEtType(List<String> indices,
+            String etType);
+
     public List<Trace> findByExecInAndEtTypeAndTimestamp(List<String> indices,
             String etType, String timestamp);
 
     public List<Trace> findByExecInAndEtTypeAndIdLessThan(List<String> execs,
             String etType, Long id);
+
+    public List<Trace> findByExecInAndEtTypeAndComponentOrderByIdDesc(
+            List<String> execs, String etType, String component);
+
+    public List<Trace> findByExecInAndEtTypeOrderByIdDesc(List<String> execs,
+            String etType);
 }
