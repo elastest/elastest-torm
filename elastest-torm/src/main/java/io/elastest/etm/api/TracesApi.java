@@ -1,6 +1,5 @@
 package io.elastest.etm.api;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +21,9 @@ import io.swagger.annotations.ApiResponses;
 
 public interface TracesApi extends EtmApiRoot {
 
-    @RequestMapping(value = "/", produces = { "application/json" }, consumes = {
-            "application/json" }, method = RequestMethod.POST)
+    @RequestMapping(value = "/monitoring/", produces = {
+            "application/json" }, consumes = {
+                    "application/json" }, method = RequestMethod.POST)
     ResponseEntity<Map<String, Object>> processTrace(
             @Valid @RequestBody Map<String, Object> data);
 
@@ -36,7 +36,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchAllByTerms(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     /* ****************************************** */
     /* ****************** Logs ****************** */
@@ -51,7 +51,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchAllLogs(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns all logs until given timestamp.", notes = "Returns all logs until given timestamp.", response = Map.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -62,7 +62,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchPreviousLogs(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns last N logs.", notes = "Returns last N logs.", response = Map.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -74,7 +74,7 @@ public interface TracesApi extends EtmApiRoot {
     ResponseEntity<List<Map<String, Object>>> searchLastLogs(
             @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("size") int size,
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns Logs Aggregation Tree.", notes = "Returns Logs Aggregation Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -85,7 +85,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<AggregationTree>> searchLogsAggregationTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     /* ***************************************** */
     /* **************** Metrics **************** */
@@ -100,7 +100,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchAllMetrics(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns all Metrics until given timestamp.", notes = "Returns all Metrics until given timestamp.", response = Map.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -111,7 +111,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchPreviousMetrics(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns last N Metrics.", notes = "Returns last N Metrics.", response = Map.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -123,7 +123,7 @@ public interface TracesApi extends EtmApiRoot {
     ResponseEntity<List<Map<String, Object>>> searchLastMetrics(
             @ApiParam(value = "Number of Metrics to get.", required = true) @PathVariable("size") int size,
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     @ApiOperation(value = "Returns Metrics Aggregation Tree.", notes = "Returns Metrics Aggregation Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
             "Monitoring", })
@@ -134,7 +134,7 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<AggregationTree>> searchMetricsAggregationTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
-            throws IOException;
+            throws Exception;
 
     /* ********************************************* */
     /* **************** LogAnalyzer **************** */
@@ -149,5 +149,5 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<Map<String, Object>>> searchLogAnalyzerQuery(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody LogAnalyzerQuery body)
-            throws IOException;
+            throws Exception;
 }

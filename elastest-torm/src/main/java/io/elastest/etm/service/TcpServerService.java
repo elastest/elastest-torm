@@ -16,30 +16,30 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.UtilsService;
 
-// docker run --name sut_3718_fullteaching --rm  -itd --log-driver=syslog --log-opt syslog-address=tcp://localhost:5001 --log-opt tag=sut_3718_fullteaching_exec elastest/test-etm-alpinegitjava sh -c "while true; do echo "aaaaa"; sleep 2; done"
+// docker run --name sut_3718_fullteaching --rm  -itd --log-driver=syslog --log-opt syslog-address=tcp://localhost:5000 --log-opt tag=sut_3718_fullteaching_exec elastest/test-etm-alpinegitjava sh -c "while true; do echo "aaaaa"; sleep 2; done"
 @Service
 public class TcpServerService {
     public final Logger log = getLogger(lookup().lookupClass());
 
-    @Value("${exec.mode}")
-    public String execMode;
-
-    @Value("${enable.et.mini}")
-    public boolean enableETMini;
+    @Value("${et.etm.lstcp.port}")
+    public String lsTcpPort;
 
     private SyslogServerIF server;
-    private int tcpPort = 5001;
+    private int tcpPort;
     private TracesService tracesService;
+    public UtilsService utilsService;
 
-    public TcpServerService(TracesService tracesService) {
+    public TcpServerService(TracesService tracesService, UtilsService utilsService) {
         this.tracesService = tracesService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
     void init() throws InterruptedException {
-        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (utilsService.isElastestMini()) {
+            tcpPort = Integer.parseInt(lsTcpPort);
             SyslogServerConfigIF serverConfig = new TCPNetSyslogServerConfig(
                     tcpPort);
 
@@ -64,7 +64,7 @@ public class TcpServerService {
 
     @PreDestroy
     void stopServer() throws InterruptedException {
-        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (utilsService.isElastestMini()) {
             log.info("Starting shuting down TCP server");
             if (server.getThread().isAlive()) {
                 try {

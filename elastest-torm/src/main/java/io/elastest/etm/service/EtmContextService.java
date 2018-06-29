@@ -40,6 +40,7 @@ public class EtmContextService {
     public boolean etInProd;
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
+
     @Value("${exec.mode}")
     String execMode;
 
@@ -349,4 +350,5 @@ public class EtmContextService {
                 .findById(new Long(1));
         return config.isPresent() ? config.get() : null;
     }
+
 }

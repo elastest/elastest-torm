@@ -214,11 +214,7 @@ export class MonitoringService {
     return query;
   }
 
-  getAllMetrics(
-    index: string,
-    metricsField: MetricsFieldModel,
-    theQuery?: any,
-  ): Observable<LineChartMetricModel[]> {
+  getAllMetrics(index: string, metricsField: MetricsFieldModel, theQuery?: any): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
 
@@ -317,8 +313,24 @@ export class MonitoringService {
     return tracesList;
   }
 
+  parseETMiniMetricTraceIfNecessary(trace: any): any {
+    if (trace) {
+      if (!trace[trace['et_type']] && trace.content) {
+        trace[trace['et_type']] = JSON.parse(trace.content);
+      }
+      if (trace.timestamp && !trace['@timestamp']) {
+        trace['@timestamp'] = trace.timestamp;
+      }
+    }
+    return trace;
+  }
+
   convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
     let parsedData: any = undefined;
+
+    // If come from ET Mini (ETM)
+    trace = this.parseETMiniMetricTraceIfNecessary(trace);
+
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
       if (trace['et_type'] === 'cpu' && metricsField.etType === 'cpu') {

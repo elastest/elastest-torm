@@ -23,16 +23,17 @@ public class SutService {
     private final SutRepository sutRepository;
     private final SutExecutionRepository sutExecutionRepository;
     private final EimService eimService;
-    private ElasticsearchService elasticsearchService;
+    private MonitoringServiceInterface monitoringService;
 
     public SutService(SutRepository sutRepository,
             SutExecutionRepository sutExecutionRepository,
-            EimService eimService, ElasticsearchService elasticsearchService) {
+            EimService eimService,
+            MonitoringServiceInterface monitoringService) {
         super();
         this.sutRepository = sutRepository;
         this.sutExecutionRepository = sutExecutionRepository;
         this.eimService = eimService;
-        this.elasticsearchService = elasticsearchService;
+        this.monitoringService = monitoringService;
     }
 
     public SutSpecification createSutSpecification(
@@ -48,7 +49,7 @@ public class SutService {
             SutExecution sutExec = createSutExecutionBySut(sut);
             if (sut.isDeployedOutside()) {
                 String[] index = { sut.getSutMonitoringIndex() };
-                elasticsearchService.createMonitoringIndex(index);
+                monitoringService.createMonitoringIndex(index);
                 sut.setCurrentSutExec(sutExec.getId());
                 if (sut.isInstrumentalize()) {
                     sut = this.instrumentalizeSut(sut);
@@ -95,7 +96,7 @@ public class SutService {
         sut.setCurrentSutExec(sutExec.getId());
 
         String[] index = { sut.getSutMonitoringIndex() };
-        elasticsearchService.createMonitoringIndex(index);
+        monitoringService.createMonitoringIndex(index);
 
         sutExec.setUrl(sut.getSpecification());
 

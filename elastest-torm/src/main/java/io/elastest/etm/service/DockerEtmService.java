@@ -54,6 +54,7 @@ import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.FilesService;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class DockerEtmService {
@@ -87,6 +88,9 @@ public class DockerEtmService {
     @Value("${et.etm.logstash.container.name}")
     private String etEtmLogstashContainerName;
 
+    @Value("${et.etm.container.name}")
+    private String etEtmContainerName;
+
     @Value("${et.master.slave.mode}")
     private boolean masterSlavemode;
 
@@ -105,14 +109,17 @@ public class DockerEtmService {
     public DockerService2 dockerService;
     public FilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
+    public UtilsService utilsService;
 
     @Autowired
     public DockerEtmService(DockerService2 dockerService,
             FilesService filesService,
-            TJobExecRepository tJobExecRepositoryImpl) {
+            TJobExecRepository tJobExecRepositoryImpl,
+            UtilsService utilsService) {
         this.dockerService = dockerService;
         this.filesService = filesService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
+        this.utilsService = utilsService;
     }
 
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
@@ -169,9 +176,25 @@ public class DockerEtmService {
 
     private void initLogstashHostIfNecessary() throws Exception {
         if (logstashHost == null) {
-            logstashHost = masterSlavemode ? etPublicHost
-                    : dockerService.getContainerIpByNetwork(
-                            etEtmLogstashContainerName, elastestNetwork);
+            logstashHost = this.getLogstashHost();
+        }
+    }
+
+    public String getLogstashHost() throws Exception {
+        if (masterSlavemode) {
+            return etPublicHost;
+        } else {
+            if (utilsService.isElastestMini()) {
+                if (utilsService.isEtmInDevelopment()) {
+                    return dockerService.getHostIpByNetwork(elastestNetwork);
+                } else {
+                    return dockerService.getContainerIpByNetwork(
+                            etEtmContainerName, elastestNetwork);
+                }
+            } else {
+                return dockerService.getContainerIpByNetwork(
+                        etEtmLogstashContainerName, elastestNetwork);
+            }
         }
     }
 
@@ -270,7 +293,6 @@ public class DockerEtmService {
             logConfig = getDefaultLogConfig(logstashTcpPort, prefix, suffix,
                     dockerExec);
         }
-
         // Pull Image
         this.pullETExecutionImage(dockerExec, image, type, false);
 
@@ -625,7 +647,7 @@ public class DockerEtmService {
         initLogstashHostIfNecessary();
         port = masterSlavemode ? bindedLsTcpPort : port;
         logger.info(
-                "Logstash Host to send logs from containers: {}. To port {}",
+                "Logstash/Tcp Server Host to send logs from containers: {}. To port {}",
                 logstashHost, port);
 
         return this.getLogConfig(logstashHost, port, tagPrefix, tagSuffix,
@@ -691,14 +713,6 @@ public class DockerEtmService {
         return dockerExec.getDockerClient()
                 .inspectNetwork(dockerExec.getNetwork()).ipam().config().get(0)
                 .gateway();
-    }
-
-    public String getLogstashHost(DockerExecution dockerExec)
-            throws DockerException, InterruptedException {
-        if (logstashHost == null) {
-            return this.getHostIp(dockerExec);
-        }
-        return logstashHost;
     }
 
     public void removeDockerContainer(String containerId) throws Exception {

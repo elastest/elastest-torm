@@ -176,7 +176,7 @@ public class DockerService2 {
         }
 
         Optional<LogConfig> logConfig = dockerContainer.getLogConfig();
-        if (binds.isPresent()) {
+        if (logConfig.isPresent()) {
             logger.trace("Using log config: {}", logConfig.get());
             hostConfigBuilder.logConfig(logConfig.get());
         }

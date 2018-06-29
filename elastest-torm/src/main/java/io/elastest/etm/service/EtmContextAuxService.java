@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -95,9 +96,6 @@ public class EtmContextAuxService {
     @Value("${et.etm.logstash.path.with-proxy}")
     public String logstashPathWithProxy;
 
-    @Value("${et.etm.logstash.container.name}")
-    private String etEtmLogstashContainerName;
-
     @Value("${et.emp.grafana.context-path}")
     private String etEmpGrafanContextPath;
     @Value("${et.emp.grafana.dashboard}")
@@ -135,9 +133,7 @@ public class EtmContextAuxService {
 
         String logstashHost = null;
         try {
-            logstashHost = dockerEtmService.dockerService
-                    .getContainerIpByNetwork(etEtmLogstashContainerName,
-                            elastestNetwork);
+            logstashHost = dockerEtmService.getLogstashHost();
         } catch (Exception e) {
             logger.error("Error on get logstash host ip", e);
         }
@@ -275,5 +271,4 @@ public class EtmContextAuxService {
 
         return monEnvs;
     }
-
 }

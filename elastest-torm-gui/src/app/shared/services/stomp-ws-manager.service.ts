@@ -2,20 +2,19 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompService } from './stomp.service';
 import { Subject } from 'rxjs/Subject';
-import { Http } from "@angular/http";
+import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 @Injectable()
 export class StompWSManager {
-
   private wsConf = {
     host: '/rabbitMq',
     debug: false,
-    queue: { 'init': false },
+    queue: { init: false },
     heartbeatOut: 10000,
-    heartbeatIn: 10000
-  }
+    heartbeatIn: 10000,
+  };
 
   subscriptions: Map<string, any>;
 
@@ -26,7 +25,7 @@ export class StompWSManager {
     this.wsConf.host = this.configurationService.configModel.hostWsServer + this.wsConf.host;
   }
 
-  configWSConnection(host?: string) {
+  configWSConnection(host?: string): void {
     if (host !== undefined) {
       this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
     }
@@ -34,7 +33,7 @@ export class StompWSManager {
     this.stomp.configure(this.wsConf);
   }
 
-  startWsConnection() {
+  startWsConnection(): void {
     /**sub
      * Start connection
      * @return {Promise} if resolved
@@ -48,32 +47,28 @@ export class StompWSManager {
    * Disconnect
    * @return {Promise} if resolved
    */
-  disconnectWSConnection() {
+  disconnectWSConnection(): void {
     this.stomp.disconnect().then(() => {
-      console.log('Connection closed')
+      console.log('Connection closed');
     });
   }
 
-  subscribeToQueDestination(destination: string, callbackFunction: any) {
-    this.subscriptions.set(destination, this.stomp.subscribe('/queue/' + destination, callbackFunction, { auto_delete: true }));
-  }
-
-  subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string) {
-    if (!(this.subscriptions.has(destination))) {
+  subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string): void {
+    if (!this.subscriptions.has(destination)) {
+      console.log('SUBSCRIBE TO', destination);
       this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
     }
   }
 
-  unsubscribeWSDestination() {
+  unsubscribeWSDestination(): void {
     this.subscriptions.forEach((value, key) => {
       console.log('UNSUBSCRIBE TOPICS', key, value);
       this.stomp.unsubscribe(value);
       this.subscriptions.delete(key);
     });
-
   }
 
-  unsubscribeSpecificWSDestination(key: string) {
+  unsubscribeSpecificWSDestination(key: string): void {
     let value = this.subscriptions.get(key);
     if (value !== undefined) {
       this.stomp.unsubscribe(value);
@@ -81,13 +76,13 @@ export class StompWSManager {
     }
   }
 
-  sendWSMessage(destination: string) {
+  sendWSMessage(destination: string): void {
     /**
      * Send message.
      * @param {string} destination: send destination.
      * @param {object} body: a object that sends.
      * @param {object} headers: optional headers.
      */
-    this.stomp.send(destination, { 'data': 'data' });
+    this.stomp.send(destination, { data: 'data' });
   }
 }

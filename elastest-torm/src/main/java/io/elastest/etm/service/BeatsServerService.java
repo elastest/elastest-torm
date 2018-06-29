@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import io.elastest.etm.beats.Message;
 import io.elastest.etm.beats.MessageListener;
 import io.elastest.etm.beats.Server;
-import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.UtilsService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,29 +24,37 @@ import io.netty.channel.nio.NioEventLoopGroup;
 public class BeatsServerService {
     public final Logger log = getLogger(lookup().lookupClass());
 
-    @Value("${exec.mode}")
-    public String execMode;
+    @Value("${et.etm.lsbeats.port}")
+    public String lsBeatsPort;
 
-    @Value("${enable.et.mini}")
-    public boolean enableETMini;
+    // Dockbeat
+    @Value("${et.etm.internal.lsbeats.port}")
+    public String lsInternalBeatsPort;
 
     private static EventLoopGroup group;
     private final String host = "0.0.0.0";
     private final int threadCount = 10;
     private Server server;
     private Server dockbeatServer;
-    private final int beatsPort = 5044;
-    private final int dockbeatPort = 5037;
+    private int beatsPort;
+    private int dockbeatPort;
 
     private TracesService tracesService;
 
-    public BeatsServerService(TracesService tracesService) {
+    public UtilsService utilsService;
+
+    public BeatsServerService(TracesService tracesService,
+            UtilsService utilsService) {
         this.tracesService = tracesService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
     void init() throws InterruptedException {
-        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (utilsService.isElastestMini()) {
+            beatsPort = Integer.parseInt(lsBeatsPort);
+            dockbeatPort = Integer.parseInt(lsInternalBeatsPort);
+
             group = new NioEventLoopGroup();
             this.startBeatsServer();
             this.startDockbeatServer();
@@ -55,7 +63,7 @@ public class BeatsServerService {
 
     @PreDestroy
     void stopServer() throws InterruptedException {
-        if (enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (utilsService.isElastestMini()) {
             log.info("Shuting down Beats server");
             group.shutdownGracefully();
             server.stop();

@@ -57,9 +57,6 @@ public class TJobExecOrchestratorService {
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
 
-    @Value("${et.etm.logstash.container.name}")
-    private String etEtmLogstashContainerName;
-
     @Value("${test.case.start.msg.prefix}")
     public String tcStartMsgPrefix;
 
@@ -76,7 +73,8 @@ public class TJobExecOrchestratorService {
     private DatabaseSessionManager dbmanager;
     private final EsmService esmService;
     private SutService sutService;
-    private ElasticsearchService elasticsearchService;
+//    private MonitoringServiceFactory monitoringServiceFactory;
+    private MonitoringServiceInterface monitoringService;
 
     private EtmContextService etmContextService;
     private EpmService epmService;
@@ -86,7 +84,7 @@ public class TJobExecOrchestratorService {
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
-            ElasticsearchService elasticsearchService,
+            MonitoringServiceInterface monitoringService,
             EtmContextService etmContextService, EpmService epmService) {
         super();
         this.dockerEtmService = dockerEtmService;
@@ -97,7 +95,7 @@ public class TJobExecOrchestratorService {
         this.esmService = esmService;
         this.sutService = sutService;
         this.dockerComposeService = dockerComposeService;
-        this.elasticsearchService = elasticsearchService;
+        this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
         this.epmService = epmService;
     }
@@ -140,7 +138,7 @@ public class TJobExecOrchestratorService {
     public void executeExternalJob(TJobExecution tJobExec) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
-        elasticsearchService
+        monitoringService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
 
         String resultMsg = "Initializing";
@@ -163,7 +161,7 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
 
-        elasticsearchService
+        monitoringService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
 
         String resultMsg = "Initializing";
@@ -832,8 +830,7 @@ public class TJobExecOrchestratorService {
             port = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
         } else {
             try {
-                host = dockerEtmService.dockerService.getContainerIpByNetwork(
-                        etEtmLogstashContainerName, elastestDockerNetwork);
+                host = dockerEtmService.getLogstashHost();
             } catch (Exception e) {
                 throw new TJobStoppedException(
                         "Error on set Logging to Service of docker compose yml:"
@@ -1000,7 +997,7 @@ public class TJobExecOrchestratorService {
                     tCase.setFailureType(reportTestCase.getFailureType());
                     tCase.setTestSuite(tSuite);
                     try {
-                        Date startDate = this.elasticsearchService
+                        Date startDate = this.monitoringService
                                 .findFirstMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
                                         this.tcStartMsgPrefix + tCase.getName()
@@ -1008,7 +1005,7 @@ public class TJobExecOrchestratorService {
                                         "test");
                         tCase.setStartDate(startDate);
 
-                        Date endDate = this.elasticsearchService
+                        Date endDate = this.monitoringService
                                 .findFirstMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
                                         this.tcFinishMsgPrefix + tCase.getName()

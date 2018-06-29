@@ -217,6 +217,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
                     loganalyzerResponse.getBody());
             passingTest = passingTest
                     && loganalyzerResponse.getBody().size() > 0;
+            log.info("Test Passed on check LogAnalyzer data? {}", passingTest);
         }
 
         log.info("Test Passed Definitely? {}", passingTest);

@@ -50,15 +50,14 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
 
-@Service
-public class ElasticsearchService {
+//@Service
+public class ElasticsearchService implements MonitoringServiceInterface {
     final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.edm.elasticsearch.api}")
@@ -79,8 +78,7 @@ public class ElasticsearchService {
             url = new URL(this.esApiUrl);
             this.host = url.getHost();
             this.port = url.getPort();
-            logger.debug("Elasticsearch API host: {} / port: {}", this.host,
-                    this.port);
+
             this.esClient = new RestHighLevelClient(RestClient
                     .builder(new HttpHost(this.host, this.port, "http")));
 

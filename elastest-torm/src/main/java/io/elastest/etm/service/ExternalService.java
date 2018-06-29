@@ -80,9 +80,10 @@ public class ExternalService {
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
     private final EsmService esmService;
-    private ElasticsearchService elasticsearchService;
     private EtmContextService etmContextService;
     private LogstashService logstashService;
+
+    private MonitoringServiceInterface monitoringService;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
@@ -91,7 +92,7 @@ public class ExternalService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            EsmService esmService, ElasticsearchService elasticsearchService,
+            EsmService esmService, MonitoringServiceInterface monitoringService,
             EtmContextService etmContextService,
             LogstashService logstashService) {
         super();
@@ -104,7 +105,7 @@ public class ExternalService {
         this.runningExternalJobs = new HashMap<>();
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.esmService = esmService;
-        this.elasticsearchService = elasticsearchService;
+        this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
         this.logstashService = logstashService;
     }
@@ -344,7 +345,7 @@ public class ExternalService {
             exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
         }
 
-        elasticsearchService
+        monitoringService
                 .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
@@ -377,7 +378,7 @@ public class ExternalService {
             }
         }
 
-        elasticsearchService
+        monitoringService
                 .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;

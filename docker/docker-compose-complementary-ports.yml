@@ -1,6 +1,6 @@
 version: '3'
 services:        
-    etm-logstash:        
+    etm:        
         ports:
             - 37500:5000
             - 37501:5037

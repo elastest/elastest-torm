@@ -3,13 +3,8 @@ services:
     etm:
         depends_on:
             - edm-mysql
-            - etm-rabbitmq
-            - edm-elasticsearch
-            - etm-logstash
             - etm-filebeat
             - esm
-        links:
-            - etm-rabbitmq
         image: elastest/etm:latest
         env_file:
             - ./docker-compose.env
@@ -27,14 +22,14 @@ services:
             - ET_ETM_API=http://etm:8091/
             - ET_ESM_API=http://esm:37005/
             - ET_EIM_API=http://eim:8080/
-            - ET_ETM_LSBEATS_HOST=etm-logstash
+            - ET_ETM_LSBEATS_HOST=etm
             - ET_ETM_LSBEATS_PORT=5044
-            - ET_ETM_LSHTTP_API=http://etm-logstash:5003/
-            - ET_ETM_LSTCP_HOST=etm-logstash
+            - ET_ETM_LSHTTP_API=http://etm:5003/
+            - ET_ETM_LSTCP_HOST=etm
             - ET_ETM_LSTCP_PORT=5000
             - ET_ETM_BINDED_LSBEATS_PORT=37502
             - ET_ETM_BINDED_LSTCP_PORT=37500
-            - ET_ETM_RABBIT_HOST=etm-rabbitmq
+            - ET_ETM_RABBIT_HOST=etm
             - ET_ETM_RABBIT_PORT=5672
             - ET_ETM_INCONTAINER=true
             - ET_EMP_API=http://emp:9000/
@@ -55,6 +50,12 @@ services:
         entrypoint: /run.sh
         expose:
             - 8091
+            - 5000
+            - 5002
+            - 5003
+            - 5044
+            - 5037
+            - 5001
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - platform-services:/platform-services

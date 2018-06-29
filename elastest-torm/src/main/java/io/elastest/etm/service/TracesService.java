@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -74,10 +73,15 @@ public class TracesService {
             String expression) {
         Grok compiledPattern = grokCompiler.compile(expression);
         Map<String, Object> map = compiledPattern.match(message).capture();
+        Map<String, String> resultMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() != null) {
+                resultMap.put(entry.getKey(), (String) entry.getValue());
+            }
 
+        }
         // As <String,String> Map
-        return map.entrySet().stream().collect(Collectors
-                .toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+        return resultMap;
     }
 
     public Trace cleanCommonFields(Trace trace, String message) {
@@ -138,7 +142,7 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.debug("Processing trace {}", message);
+        logger.trace("Processing trace {}", message);
 
         if (message != null && !message.isEmpty()) {
             try {
@@ -179,11 +183,11 @@ public class TracesService {
                             + trace.getComponentService());
                 }
 
-                logger.debug("Trace: {}", trace);
+                logger.trace("Trace: {}", trace);
                 this.saveTrace(trace);
                 this.queueService.sendTrace(trace);
             } catch (Exception e) {
-                logger.error("Error on processing TCP trace {}: ", message, e);
+                logger.trace("Error on processing TCP trace {}: ", message, e);
             }
         }
     }
@@ -210,13 +214,12 @@ public class TracesService {
         trace.setUnits((String) dataMap.get("units"));
 
         return trace;
-
     }
 
     @SuppressWarnings("unchecked")
     public void processBeatTrace(Map<String, Object> dataMap,
             boolean fromDockbeat) {
-        logger.debug("Processing trace {}", dataMap.toString());
+        logger.trace("Processing trace {}", dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
@@ -307,7 +310,7 @@ public class TracesService {
                 if (trace.getStreamType() == null
                         || !trace.getStreamType().equals(StreamType.LOG)) {
                     // Dockbeat
-                    if(trace.getStream() == null) {
+                    if (trace.getStream() == null) {
                         return;
                     }
                     if (trace.getStream().equals(dockbeatStream)) {
@@ -325,7 +328,7 @@ public class TracesService {
                                             .get(trace.getEtType()));
 
                         } else {
-                            logger.error(
+                            logger.trace(
                                     "Dockbeat trace container name {} does not matches sut/test, discarding",
                                     trace.getContainerName());
                             return;
@@ -377,11 +380,11 @@ public class TracesService {
                     }
                 }
 
-                logger.debug("Trace: {}", trace);
+                logger.trace("Trace: {}", trace);
                 this.saveTrace(trace);
                 this.queueService.sendTrace(trace);
             } catch (Exception e) {
-                logger.error("Error on processing Beat trace {}: ", dataMap, e);
+                logger.trace("Error on processing Beat trace {}: ", dataMap, e);
             }
         }
     }
@@ -396,7 +399,7 @@ public class TracesService {
             List<String> messages = (List<String>) dataMap.get("messages");
             // Multiple messages
             if (messages != null) {
-                logger.debug("Is multiple message trace. Spliting...");
+                logger.trace("Is multiple message trace. Spliting...");
                 for (String message : messages) {
                     Map<String, Object> currentMap = new HashMap<>();
                     currentMap.putAll(dataMap);
