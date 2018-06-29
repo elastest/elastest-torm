@@ -38,6 +38,9 @@ public class MonitoringQuery {
     @JsonProperty("selectedTerms")
     List<String> selectedTerms;
 
+    @JsonProperty("message")
+    String message;
+
     public MonitoringQuery() {
         this.indices = new ArrayList<>();
         this.selectedTerms = new ArrayList<>();
@@ -119,6 +122,14 @@ public class MonitoringQuery {
         this.selectedTerms = selectedTerms;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public TermQueryBuilder getAttributeTermByGivenName(String attrName) {
         switch (attrName) {
         case "component":
@@ -142,6 +153,9 @@ public class MonitoringQuery {
 
         case "streamType":
             return QueryBuilders.termQuery("stream_type", streamType);
+
+        case "message":
+            return QueryBuilders.termQuery("message", message);
 
         default:
             return null;

@@ -620,7 +620,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
         if (underShould) {
             TermQueryBuilder streamTypeTerm = QueryBuilders
-                    .termQuery("stream_type", "log");
+                    .termQuery("stream_type", "log"); // TODO fix
 
             BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
             shouldBoolBuilder.should(componentEtTypeBoolBuilder);

@@ -108,6 +108,9 @@ export class MonitoringService {
         source = logEntry;
       }
 
+      // If come from ET Mini (ETM)
+      source = this.parseETMiniTraceIfNecessary(source, true);
+
       if (source['message'] !== undefined) {
         tracesList.push({
           timestamp: source['@timestamp'],
@@ -123,16 +126,21 @@ export class MonitoringService {
     stream: string,
     component: string = undefined,
     timestamp: Date = undefined,
+    message: string = undefined,
   ): MonitoringQueryModel {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = indices.split(',');
     query.stream = stream;
-    if (timestamp !== undefined) {
-      query.timestamp = timestamp;
-    }
 
     if (component !== undefined && component !== '') {
       query.component = component;
+    }
+
+    if (timestamp !== undefined) {
+      query.timestamp = timestamp;
+    }
+    if (message !== undefined ) {
+      query.message = message;
     }
     return query;
   }
@@ -155,8 +163,7 @@ export class MonitoringService {
 
     if (traces.length > 0) {
       let trace: any = traces[0];
-
-      let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component, trace.timestamp);
+      let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component, trace.timestamp, trace.message);
       this.searchPreviousLogs(query).subscribe((data) => {
         _logs.next(this.convertToLogTraces(data));
         if (data.length > 0) {
@@ -313,23 +320,11 @@ export class MonitoringService {
     return tracesList;
   }
 
-  parseETMiniMetricTraceIfNecessary(trace: any): any {
-    if (trace) {
-      if (!trace[trace['et_type']] && trace.content) {
-        trace[trace['et_type']] = JSON.parse(trace.content);
-      }
-      if (trace.timestamp && !trace['@timestamp']) {
-        trace['@timestamp'] = trace.timestamp;
-      }
-    }
-    return trace;
-  }
-
   convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
     let parsedData: any = undefined;
 
     // If come from ET Mini (ETM)
-    trace = this.parseETMiniMetricTraceIfNecessary(trace);
+    trace = this.parseETMiniTraceIfNecessary(trace, true);
 
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
@@ -885,6 +880,20 @@ export class MonitoringService {
       }
     }
     return processedMetrics;
+  }
+
+  /* */
+
+  parseETMiniTraceIfNecessary(trace: any, isMetric: boolean = false): any {
+    if (trace) {
+      if (isMetric && !trace[trace['et_type']] && trace.content) {
+        trace[trace['et_type']] = JSON.parse(trace.content);
+      }
+      if (trace.timestamp && !trace['@timestamp']) {
+        trace['@timestamp'] = trace.timestamp;
+      }
+    }
+    return trace;
   }
 }
 

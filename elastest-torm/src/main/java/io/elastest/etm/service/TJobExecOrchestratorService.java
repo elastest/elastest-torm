@@ -73,11 +73,9 @@ public class TJobExecOrchestratorService {
     private DatabaseSessionManager dbmanager;
     private final EsmService esmService;
     private SutService sutService;
-//    private MonitoringServiceFactory monitoringServiceFactory;
     private MonitoringServiceInterface monitoringService;
 
     private EtmContextService etmContextService;
-    private EpmService epmService;
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -85,7 +83,7 @@ public class TJobExecOrchestratorService {
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
             MonitoringServiceInterface monitoringService,
-            EtmContextService etmContextService, EpmService epmService) {
+            EtmContextService etmContextService) {
         super();
         this.dockerEtmService = dockerEtmService;
         this.testSuiteRepo = testSuiteRepo;
@@ -97,7 +95,6 @@ public class TJobExecOrchestratorService {
         this.dockerComposeService = dockerComposeService;
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
-        this.epmService = epmService;
     }
 
     @PostConstruct

@@ -8,6 +8,7 @@ export class MonitoringQueryModel {
   streamType: string;
   containerName: string;
   selectedTerms: string[];
+  message: string;
 
   constructor() {
     this.indices = [];
