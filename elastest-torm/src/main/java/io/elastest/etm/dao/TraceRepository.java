@@ -3,13 +3,24 @@ package io.elastest.etm.dao;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
 
 @Repository
 public interface TraceRepository extends JpaRepository<Trace, Long> {
     public List<Trace> findByTimestamp(String timestamp);
+
+    @Query("SELECT component, stream, etType FROM Trace WHERE NOT streamType=:streamType GROUP BY component, stream, etType")
+    public List<String[]> findMetricsTreeByStreamTypeAndFieldList(
+            @Param("streamType") StreamType streamType);
+
+    @Query("SELECT component, stream FROM Trace WHERE streamType=:streamType GROUP BY component, stream")
+    public List<String[]> findLogsTreeByStreamTypeAndFieldList(
+            @Param("streamType") StreamType streamType);
 
     /* *** Logs *** */
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,

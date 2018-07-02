@@ -324,7 +324,7 @@ export class MonitoringService {
     let parsedData: any = undefined;
     // If come from ET Mini (ETM)
     trace = this.parseETMiniTraceIfNecessary(trace, true);
-    
+
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
       if (trace['et_type'] === 'cpu' && metricsField.etType === 'cpu') {
@@ -605,6 +605,7 @@ export class MonitoringService {
       if (data.length > 0) {
         let convertedData: any;
         let firstElement: any = data[0];
+        firstElement = this.parseETMiniTraceIfNecessary(firstElement, true);
         let firstSource: any = firstElement._source ? firstElement._source : firstElement;
         let streamType: string = '';
         let etType: string = firstSource['et_type'];
@@ -616,7 +617,6 @@ export class MonitoringService {
           stream: stream,
           monitoringIndex: index,
         };
-
         if (this.isLogTrace(firstSource)) {
           this.addDynamicLog(_obs, obj, data);
         } else if (this.isMetricsTrace(firstSource)) {

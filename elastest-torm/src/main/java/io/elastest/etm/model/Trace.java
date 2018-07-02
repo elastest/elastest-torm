@@ -14,8 +14,6 @@ import org.json.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
@@ -116,14 +114,20 @@ public class Trace {
     public Trace() {
     }
 
-    public Trace(Long id, String exec, String component, String etType,
-            String timestamp, String stream, String containerName,
-            StreamType streamType, String message, LevelEnum level,
-            String metricName, String content, String unit, String units) {
+    /* *********************** */
+    /* *** Getters/Setters *** */
+    /* *********************** */
+
+    public Trace(Long id, String exec, String component,
+            String componentService, String etType, String timestamp,
+            String stream, String containerName, StreamType streamType,
+            String message, LevelEnum level, String metricName, String content,
+            String unit, String units) {
         super();
-        this.id = id == null ? 0 : id;
+        this.id = id;
         this.exec = exec;
         this.component = component;
+        this.componentService = componentService;
         this.etType = etType;
         this.timestamp = timestamp;
         this.stream = stream;
@@ -136,10 +140,6 @@ public class Trace {
         this.unit = unit;
         this.units = units;
     }
-
-    /* *********************** */
-    /* *** Getters/Setters *** */
-    /* *********************** */
 
     public Long getId() {
         return id;
@@ -288,6 +288,109 @@ public class Trace {
                 + streamType + ", message=" + message + ", level=" + level
                 + ", metricName=" + metricName + ", content=" + content
                 + ", unit=" + unit + ", units=" + units + "]";
+    }
+
+    public void setAttributeByGivenName(String field, Object value) {
+        switch (field) {
+        case "id":
+            this.setId((Long) value);
+            break;
+        case "exec":
+            this.setExec((String) value);
+            break;
+        case "component":
+            this.setComponent((String) value);
+            break;
+        case "componentService":
+            this.setComponentService((String) value);
+            break;
+        case "etType":
+            this.setEtType((String) value);
+            break;
+        case "timestamp":
+            this.setTimestamp((String) value);
+            break;
+        case "stream":
+            this.setStream((String) value);
+            break;
+        case "containerName":
+            this.setContainerName((String) value);
+            break;
+        case "streamType":
+            this.setStreamType(StreamType.fromValue((String) value));
+            break;
+        case "message":
+            this.setMessage((String) value);
+            break;
+        case "level":
+            this.setLevel(LevelEnum.fromValue((String) value));
+            break;
+        case "metricName":
+            this.setMetricName((String) value);
+            break;
+        case "content":
+            this.setContent((String) value);
+            break;
+        case "unit":
+            this.setUnit((String) value);
+            break;
+        case "units":
+            this.setUnits((String) value);
+            break;
+        default:
+            break;
+        }
+
+    }
+
+    public Object getAttributeValueByGivenName(String attrName) {
+        switch (attrName) {
+        case "id":
+            return this.getId();
+        case "exec":
+            return this.getExec();
+
+        case "component":
+            return this.getComponent();
+
+        case "componentService":
+            return this.getComponentService();
+
+        case "etType":
+            return this.getEtType();
+
+        case "timestamp":
+            return this.getTimestamp();
+
+        case "stream":
+            return this.getStream();
+
+        case "containerName":
+            return this.getContainerName();
+
+        case "streamType":
+            return this.getStreamType();
+
+        case "message":
+            return this.getMessage();
+        case "level":
+            return this.getLevel();
+
+        case "metricName":
+            return this.getMetricName();
+
+        case "content":
+            return this.getContent();
+
+        case "unit":
+            return this.getUnit();
+
+        case "units":
+            return this.getUnits();
+
+        default:
+            return null;
+        }
     }
 
 }

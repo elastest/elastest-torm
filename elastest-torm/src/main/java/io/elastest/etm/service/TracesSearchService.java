@@ -4,6 +4,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -11,9 +12,13 @@ import java.util.Map;
 
 import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.AggregationTree;
+import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.Trace;
@@ -36,9 +41,27 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<Map<String, Object>> searchAllByTerms(
             MonitoringQuery monitoringQuery) throws Exception {
-        // TODO
-        return null;
+        List<Trace> traces = new ArrayList<>();
+        ExampleMatcher matcher = ExampleMatcher.matching();
+        Trace sampleTrace = new Trace();
 
+        for (String field : monitoringQuery.getSelectedTerms()) {
+            matcher = matcher.withMatcher(field,
+                    ExampleMatcher.GenericPropertyMatcher
+                            .of(StringMatcher.EXACT));
+
+            sampleTrace.setAttributeByGivenName(field,
+                    monitoringQuery.getAttributeValueByGivenName(field));
+        }
+
+        for (String exec : monitoringQuery.getIndices()) {
+            sampleTrace.setExec(exec);
+            Example<Trace> example = Example.of(sampleTrace, matcher);
+
+            traces.addAll(traceRepository.findAll(example));
+        }
+
+        return this.getTracesMapListByTracesList(traces);
     }
 
     @Override
@@ -99,8 +122,25 @@ public class TracesSearchService implements MonitoringServiceInterface {
     public List<AggregationTree> getMonitoringTree(
             MonitoringQuery monitoringQuery, boolean isMetric)
             throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        StreamType log = StreamType.LOG;
+        List<String[]> treeValues = new ArrayList<>();
+        if (isMetric) {
+            // Not Log
+            treeValues = traceRepository
+                    .findMetricsTreeByStreamTypeAndFieldList(log);
+        } else {
+            treeValues = traceRepository
+                    .findLogsTreeByStreamTypeAndFieldList(log);
+        }
+
+        List<AggregationTree> aggregationTreeList = new ArrayList<>();
+
+        for (Object[] treeValue : treeValues) {
+
+            aggregationTreeList.addAll(getAggTreeList(treeValue,
+                    monitoringQuery.getSelectedTerms()));
+        }
+        return aggregationTreeList;
     }
 
     @Override
@@ -208,6 +248,27 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
 
         return tracesAsMapList;
+    }
+
+    public List<AggregationTree> getAggTreeList(Object[] treeValue,
+            List<String> fields) {
+        List<AggregationTree> aggTreeList = new ArrayList<>();
+
+        if (fields.size() > 0 && treeValue.length > 0) {
+            String fieldValue = (String) treeValue[0];
+
+            if (fieldValue != null) {
+                AggregationTree aggObj = new AggregationTree();
+                aggObj.setName(fieldValue);
+
+                aggObj.setChildren(this.getAggTreeList(
+                        Arrays.copyOfRange(treeValue, 1, treeValue.length),
+                        fields.subList(1, fields.size())));
+                aggTreeList.add(aggObj);
+            }
+
+        }
+        return aggTreeList;
     }
 
 }

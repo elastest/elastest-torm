@@ -162,4 +162,35 @@ public class MonitoringQuery {
         }
 
     }
+
+    public Object getAttributeValueByGivenName(String attrName) {
+        switch (attrName) {
+        case "component":
+            return component;
+
+        case "componentService":
+            return componentService;
+
+        case "etType":
+            return etType;
+
+        case "timestamp":
+            return timestamp;
+
+        case "stream":
+            return stream;
+
+        case "containerName":
+            return containerName;
+
+        case "streamType":
+            return streamType;
+
+        case "message":
+            return message;
+
+        default:
+            return null;
+        }
+    }
 }
