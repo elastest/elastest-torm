@@ -49,6 +49,7 @@ services:
             - ET_DOCKER_IMG_DOCKBEAT=elastest/etm-dockbeat:latest
             - ET_INTERNET_DISABLED=false
             - ET_MASTER_SLAVE_MODE=false
+            - ET_EPM_BINDED_PORT=37002
         entrypoint: /run.sh
         expose:
             - 8091
