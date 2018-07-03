@@ -7,6 +7,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.querydsl.core.types.Path;
 
 import io.elastest.etm.model.Enums.StreamType;
 
@@ -132,6 +133,10 @@ public class MonitoringQuery {
 
     public TermQueryBuilder getAttributeTermByGivenName(String attrName) {
         switch (attrName) {
+
+        case "indices":
+            return QueryBuilders.termQuery("indices", indices);
+
         case "component":
             return QueryBuilders.termQuery("component", component);
 
@@ -156,6 +161,58 @@ public class MonitoringQuery {
 
         case "message":
             return QueryBuilders.termQuery("message", message);
+
+        default:
+            return null;
+        }
+
+    }
+
+    public Path<?> getAttributeBooleanExpressionByGivenName(String attrName) {
+        switch (attrName) {
+        case "indices":
+        case "exec":
+            return QTrace.trace.exec;
+        case "component":
+            return QTrace.trace.component;
+
+        case "componentService":
+            return QTrace.trace.componentService;
+
+        case "etType":
+        case "et_type":
+            return QTrace.trace.etType;
+
+        case "timestamp":
+            return QTrace.trace.timestamp;
+
+        case "stream":
+            return QTrace.trace.stream;
+
+        case "containerName":
+            return QTrace.trace.containerName;
+
+        case "streamType":
+        case "stream_type":
+            return QTrace.trace.streamType;
+
+        case "message":
+            return QTrace.trace.message;
+
+        case "level":
+            return QTrace.trace.level;
+
+        case "metricName":
+            return QTrace.trace.metricName;
+
+        case "content":
+            return QTrace.trace.content;
+
+        case "unit":
+            return QTrace.trace.unit;
+
+        case "units":
+            return QTrace.trace.units;
 
         default:
             return null;

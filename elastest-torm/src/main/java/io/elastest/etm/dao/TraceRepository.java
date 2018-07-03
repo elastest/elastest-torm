@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -11,16 +12,19 @@ import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
 
 @Repository
-public interface TraceRepository extends JpaRepository<Trace, Long> {
+public interface TraceRepository
+        extends JpaRepository<Trace, Long>, QuerydslPredicateExecutor<Trace> {
     public List<Trace> findByTimestamp(String timestamp);
 
-    @Query("SELECT component, stream, etType FROM Trace WHERE NOT streamType=:streamType GROUP BY component, stream, etType")
+    @Query(value = "SELECT DISTINCT :fieldList FROM Trace WHERE NOT streamType=:streamType GROUP BY :fieldList", nativeQuery = true)
     public List<String[]> findMetricsTreeByStreamTypeAndFieldList(
-            @Param("streamType") StreamType streamType);
+            @Param("streamType") StreamType streamType,
+            @Param("fieldList") List<String> fieldList);
 
-    @Query("SELECT component, stream FROM Trace WHERE streamType=:streamType GROUP BY component, stream")
+    @Query(value = "SELECT DISTINCT :fieldList FROM Trace WHERE streamType=:streamType GROUP BY :fieldList", nativeQuery = true)
     public List<String[]> findLogsTreeByStreamTypeAndFieldList(
-            @Param("streamType") StreamType streamType);
+            @Param("streamType") StreamType streamType,
+            @Param("fieldList") List<String> fieldList);
 
     /* *** Logs *** */
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,
@@ -35,6 +39,12 @@ public interface TraceRepository extends JpaRepository<Trace, Long> {
 
     public List<Trace> findByExecInAndStreamAndComponentOrderByIdDesc(
             List<String> execs, String stream, String component);
+
+    @Query(value = "SELECT * FROM Trace WHERE exec=:exec AND stream=:stream AND component=:component AND message LIKE %:message%", nativeQuery = true)
+    public List<Trace> findByExecAndMessageAndComponentAndStream(
+            @Param("exec") String exec, @Param("message") String message,
+            @Param("component") String component,
+            @Param("stream") String stream);
 
     /* *** Metrics *** */
     public List<Trace> findByExecInAndEtTypeAndComponent(List<String> execs,

@@ -38,58 +38,58 @@ export class MonitoringService {
 
   public searchAllByTerms(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/byterms';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   /* *** Logs *** */
 
   public searchAllLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchPreviousLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/previous';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchLastLogs(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/last/' + size;
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchLogsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchPreviousMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/previous';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/tree';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   /* *** LogAnalyzer *** */
 
   public searchLogAnalyzerQuery(query: LogAnalyzerQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/loganalyzer';
-    return this.http.post(url, query).map((response) => response.json());
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
   /* ******************************************* */
@@ -107,9 +107,6 @@ export class MonitoringService {
       if (source === undefined || source === null) {
         source = logEntry;
       }
-
-      // If come from ET Mini (ETM)
-      source = this.parseETMiniTraceIfNecessary(source);
 
       if (source['message'] !== undefined) {
         tracesList.push({
@@ -323,7 +320,6 @@ export class MonitoringService {
   convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
     let parsedData: any = undefined;
     // If come from ET Mini (ETM)
-    trace = this.parseETMiniTraceIfNecessary(trace, true);
 
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
@@ -605,7 +601,6 @@ export class MonitoringService {
       if (data.length > 0) {
         let convertedData: any;
         let firstElement: any = data[0];
-        firstElement = this.parseETMiniTraceIfNecessary(firstElement, true);
         let firstSource: any = firstElement._source ? firstElement._source : firstElement;
         let streamType: string = '';
         let etType: string = firstSource['et_type'];
@@ -882,26 +877,30 @@ export class MonitoringService {
 
   /* */
 
-  parseETMiniTraceIfNecessary(trace: any, isMetric: boolean = false): any {
-    if (trace) {
-      if (trace.etType && !trace['et_type']) {
-        trace['et_type'] = trace.etType;
-        // delete trace.etType;
-      }
-      if (trace.streamType && !trace['stream_type']) {
-        trace['stream_type'] = trace.streamType;
-        // delete trace.streamType;
-      }
-      if (isMetric && !trace[trace['et_type']] && trace.content) {
-        trace[trace['et_type']] = JSON.parse(trace.content);
-        // delete trace.content;
-      }
-      if (trace.timestamp && !trace['@timestamp']) {
-        trace['@timestamp'] = trace.timestamp;
-        // delete trace.timestamp;
+  parseETMiniTracesIfNecessary(traces: any[]): any {
+    if (traces !== undefined && traces !== null) {
+      for (let trace of traces) {
+        if (trace) {
+          if (trace.etType && !trace['et_type']) {
+            trace['et_type'] = trace.etType;
+            // delete trace.etType;
+          }
+          if (trace.streamType && !trace['stream_type']) {
+            trace['stream_type'] = trace.streamType;
+            // delete trace.streamType;
+          }
+          if (!trace[trace['et_type']] && trace.content) {
+            trace[trace['et_type']] = JSON.parse(trace.content);
+            // delete trace.content;
+          }
+          if (trace.timestamp && !trace['@timestamp']) {
+            trace['@timestamp'] = trace.timestamp;
+            // delete trace.timestamp;
+          }
+        }
       }
     }
-    return trace;
+    return traces;
   }
 }
 
