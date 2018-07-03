@@ -33,7 +33,7 @@ services:
             - ET_ETM_RABBIT_HOST=etm-rabbitmq
             - ET_ETM_RABBIT_PORT=5672
             - ET_ETM_INCONTAINER=true
-            - ET_EMP_API=http://eim:8080/
+            - ET_EMP_API=http://emp:9000/
             - ET_EMP_INFLUXDB_API=http://emp-influxdb:8086/
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
