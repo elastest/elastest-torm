@@ -215,15 +215,11 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
     public List<Trace> findMessage(String index, String msg, String component)
             throws IOException {
-        // logger.debug("findMessage=> index: {}, msg: {}, component: {}",
-        // index,
-        // msg, component);
         BooleanExpression query = QTrace.trace.exec.eq(index)
                 .and(QTrace.trace.component.eq(component))
                 .and(QTrace.trace.stream.eq("default_log"))
-                .and(QTrace.trace.message.like( // TODO does not works and i
-                                                // can not understand
-                        Expressions.asString("%").concat(msg).concat("%")));
+                .and(QTrace.trace.message.matches(".*" + msg.trim() + " .*")
+                        .or(QTrace.trace.message.matches(".*" + msg.trim())));
 
         return queryFactory.select(QTrace.trace).from(QTrace.trace).where(query)
                 .fetch();
@@ -233,7 +229,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
     public Date findFirstMsgAndGetTimestamp(String index, String msg,
             String component) throws Exception {
         List<Trace> traces = this.findMessage(index, msg, component);
-        // logger.debug("traces: {}", traces);
         if (traces != null && traces.size() > 0) {
             Trace firstResult = traces.get(0);
             String timestamp = firstResult.getTimestamp();
@@ -508,7 +503,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
         logAnalyzerQueryPredicate = logAnalyzerQueryPredicate.and(
                 QTrace.trace.exec.in(logAnalyzerQuery.getIndicesAsArray()));
 
-        logger.debug("asd {}", logAnalyzerQueryPredicate);
         return this.getTracesMapListByTracesList(traceRepository
                 .findAll(logAnalyzerQueryPredicate, sizePageable).getContent());
     }
