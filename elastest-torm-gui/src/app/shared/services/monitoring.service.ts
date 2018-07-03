@@ -320,6 +320,7 @@ export class MonitoringService {
   convertToMetricTrace(trace: any, metricsField: MetricsFieldModel): any {
     let parsedData: any = undefined;
     // If come from ET Mini (ETM)
+    this.parseETMiniTraceIfNecessary(trace);
 
     // If it's a ElasTest default metric (dockbeat)
     if (trace.stream === defaultStreamMap.atomic_metric || trace.stream === defaultStreamMap.composed_metrics) {
@@ -877,30 +878,36 @@ export class MonitoringService {
 
   /* */
 
-  parseETMiniTracesIfNecessary(traces: any[]): any {
+  parseETMiniTracesIfNecessary(traces: any[]): any[] {
     if (traces !== undefined && traces !== null) {
       for (let trace of traces) {
-        if (trace) {
-          if (trace.etType && !trace['et_type']) {
-            trace['et_type'] = trace.etType;
-            // delete trace.etType;
-          }
-          if (trace.streamType && !trace['stream_type']) {
-            trace['stream_type'] = trace.streamType;
-            // delete trace.streamType;
-          }
-          if (!trace[trace['et_type']] && trace.content) {
-            trace[trace['et_type']] = JSON.parse(trace.content);
-            // delete trace.content;
-          }
-          if (trace.timestamp && !trace['@timestamp']) {
-            trace['@timestamp'] = trace.timestamp;
-            // delete trace.timestamp;
-          }
-        }
+        trace = this.parseETMiniTraceIfNecessary(trace);
       }
     }
     return traces;
+  }
+
+  parseETMiniTraceIfNecessary(trace: any): any {
+    if (trace) {
+      if (trace.etType && !trace['et_type']) {
+        trace['et_type'] = trace.etType;
+        // delete trace.etType;
+      }
+      if (trace.streamType && !trace['stream_type']) {
+        trace['stream_type'] = trace.streamType;
+        // delete trace.streamType;
+      }
+      if (!trace[trace['et_type']] && trace.content) {
+        trace[trace['et_type']] = JSON.parse(trace.content);
+        // delete trace.content;
+      }
+      if (trace.timestamp && !trace['@timestamp']) {
+        trace['@timestamp'] = trace.timestamp;
+        // delete trace.timestamp;
+      }
+    }
+
+    return trace;
   }
 }
 
