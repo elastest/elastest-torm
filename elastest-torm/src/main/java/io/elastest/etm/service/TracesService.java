@@ -6,8 +6,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 import io.krakens.grok.api.Grok;
 import io.krakens.grok.api.GrokCompiler;
 
@@ -36,6 +35,7 @@ public class TracesService {
 
     private final TraceRepository traceRepository;
     private final QueueService queueService;
+    private final UtilsService utilsService;
 
     GrokCompiler grokCompiler;
 
@@ -53,9 +53,10 @@ public class TracesService {
 
     @Autowired
     public TracesService(TraceRepository traceRepository,
-            QueueService queueService) {
+            QueueService queueService, UtilsService utilsService) {
         this.traceRepository = traceRepository;
         this.queueService = queueService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -142,7 +143,8 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.trace("Processing trace {}", message);
+        logger.trace("Processing trace {} with timestamp {}", message,
+                timestamp);
 
         if (message != null && !message.isEmpty()) {
             try {
@@ -152,9 +154,9 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-                DateFormat df = new SimpleDateFormat(
-                        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                String timestampAsISO8061 = df.format(timestamp);
+
+                String timestampAsISO8061 = utilsService
+                        .getIso8061GMTTimestampStr(timestamp);
                 trace.setTimestamp(timestampAsISO8061);
 
                 // If message, set level and container name

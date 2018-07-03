@@ -30,6 +30,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import io.elastest.etm.dao.TraceRepository;
@@ -117,12 +118,15 @@ public class TracesSearchService implements MonitoringServiceInterface {
         if (selectExpression != null) {
 
             // Where
-            BooleanExpression whereExpression = null;
+            BooleanExpression whereExpression = QTrace.trace.exec
+                    .in(monitoringQuery.getIndices());
             if (isMetric) {
                 // Not Log
-                whereExpression = QTrace.trace.streamType.ne(log);
+                whereExpression = whereExpression
+                        .and(QTrace.trace.streamType.ne(log));
             } else {
-                whereExpression = QTrace.trace.streamType.eq(log);
+                whereExpression = whereExpression
+                        .and(QTrace.trace.streamType.eq(log));
             }
 
             treeValues = queryFactory.selectDistinct(selectExpression)
@@ -349,17 +353,15 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
         // Range Time
         BooleanExpression timeRangeQuery = null;
+        StringTemplate dateStrTemplate = Expressions.stringTemplate(
+                "DATE_FORMAT({0}, {1})", QTrace.trace.timestamp,
+                "%Y-%m-%dT%T.%fZ");
         if (logAnalyzerQuery.getRangeLT() != null) {
-            BooleanExpression timeRangeQueryLt = Expressions
-                    .stringTemplate("DATE_FORMAT({0}, {1})",
-                            QTrace.trace.timestamp, "%Y-%m-%dT%T.%fZ")
-                    .lt(logAnalyzerQuery.getRangeLT());
-            timeRangeQuery = timeRangeQueryLt;
+            timeRangeQuery = dateStrTemplate.lt(logAnalyzerQuery.getRangeLT());
         }
         if (logAnalyzerQuery.getRangeLTE() != null) {
-            BooleanExpression timeRangeQueryLte = Expressions
-                    .stringTemplate("DATE_FORMAT({0}, {1})",
-                            QTrace.trace.timestamp, "%Y-%m-%dT%T.%fZ")
+
+            BooleanExpression timeRangeQueryLte = dateStrTemplate
                     .loe(logAnalyzerQuery.getRangeLTE());
             if (timeRangeQuery == null) {
                 timeRangeQuery = timeRangeQueryLte;
@@ -368,9 +370,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
             }
         }
         if (logAnalyzerQuery.getRangeGT() != null) {
-            BooleanExpression timeRangeQueryGt = Expressions
-                    .stringTemplate("DATE_FORMAT({0}, {1})",
-                            QTrace.trace.timestamp, "%Y-%m-%dT%T.%fZ")
+            BooleanExpression timeRangeQueryGt = dateStrTemplate
                     .gt(logAnalyzerQuery.getRangeGT());
             if (timeRangeQuery == null) {
                 timeRangeQuery = timeRangeQueryGt;
@@ -378,10 +378,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 timeRangeQuery = timeRangeQuery.and(timeRangeQueryGt);
             }
         }
-        if (logAnalyzerQuery.getRangeGTE() != null) { // TODO gte does not exist
-            BooleanExpression timeRangeQueryGTE = Expressions
-                    .stringTemplate("DATE_FORMAT({0}, {1})",
-                            QTrace.trace.timestamp, "%Y-%m-%dT%T.%fZ")
+        if (logAnalyzerQuery.getRangeGTE() != null) {
+            BooleanExpression timeRangeQueryGTE = dateStrTemplate
                     .goe(logAnalyzerQuery.getRangeGTE());
             if (timeRangeQuery == null) {
                 timeRangeQuery = timeRangeQueryGTE;
@@ -513,5 +511,4 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
         return aggTreeList;
     }
-
 }

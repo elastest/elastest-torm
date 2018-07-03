@@ -6,9 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,10 +53,13 @@ import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 //@Service
 public class ElasticsearchService implements MonitoringServiceInterface {
     final Logger logger = getLogger(lookup().lookupClass());
+
+    private final UtilsService utilsService;
 
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
@@ -68,7 +69,8 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
     RestHighLevelClient esClient;
 
-    public ElasticsearchService() {
+    public ElasticsearchService(UtilsService utilsService) {
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -591,10 +593,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
             SearchHit firstResult = hits.getAt(0);
             String timestamp = firstResult.getSourceAsMap().get("@timestamp")
                     .toString();
-
-            DateFormat df = new SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            Date date = df.parse(timestamp);
+            Date date = utilsService.getIso8061GMTTimestampDate(timestamp);
 
             return date;
         }
@@ -650,15 +649,15 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
         return this.searchAllByRequest(searchRequest);
     }
-    
+
     public List<Map<String, Object>> getLastMetrics(
             MonitoringQuery monitoringQuery, int size) throws IOException {
         BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
                 monitoringQuery, false);
-        
+
         List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
                 boolQueryBuilder, size);
-        
+
         return getTracesFromHitList(hits);
     }
 

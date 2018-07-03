@@ -59,7 +59,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
         if (utilsService.isElastestMini()) {
             return new TracesSearchService(traceRepository);
         } else {
-            return new ElasticsearchService();
+            return new ElasticsearchService(utilsService);
         }
     }
 

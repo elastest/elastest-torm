@@ -8,23 +8,12 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
 
 @Repository
 public interface TraceRepository
         extends JpaRepository<Trace, Long>, QuerydslPredicateExecutor<Trace> {
     public List<Trace> findByTimestamp(String timestamp);
-
-    @Query(value = "SELECT DISTINCT :fieldList FROM Trace WHERE NOT streamType=:streamType GROUP BY :fieldList", nativeQuery = true)
-    public List<String[]> findMetricsTreeByStreamTypeAndFieldList(
-            @Param("streamType") StreamType streamType,
-            @Param("fieldList") List<String> fieldList);
-
-    @Query(value = "SELECT DISTINCT :fieldList FROM Trace WHERE streamType=:streamType GROUP BY :fieldList", nativeQuery = true)
-    public List<String[]> findLogsTreeByStreamTypeAndFieldList(
-            @Param("streamType") StreamType streamType,
-            @Param("fieldList") List<String> fieldList);
 
     /* *** Logs *** */
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,
