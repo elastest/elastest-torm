@@ -20,6 +20,12 @@ public class UtilsService {
     @Value("${et.etm.in.dev}")
     public boolean etmInDev;
 
+    @Value("${test.case.start.msg.prefix}")
+    public String tcStartMsgPrefix;
+
+    @Value("${test.case.finish.msg.prefix}")
+    public String tcFinishMsgPrefix;
+
     public boolean isElastestMini() {
         return enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL);
     }
@@ -73,4 +79,20 @@ public class UtilsService {
     public DateFormat getIso8061DateFormat() {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
+
+    public String getETTestStartPrefix() {
+        return tcStartMsgPrefix + " ";
+    }
+
+    public String getETTestFinishPrefix() {
+        return tcFinishMsgPrefix + " ";
+    }
+
+    public Long convertToLong(Object o) {
+        String stringToConvert = String.valueOf(o);
+        Long convertedLong = Long.parseLong(stringToConvert);
+        return convertedLong;
+
+    }
+
 }

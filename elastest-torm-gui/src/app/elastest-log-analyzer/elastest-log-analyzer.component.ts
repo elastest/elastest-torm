@@ -424,6 +424,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.setRangeByGiven(from, to, true, false);
 
         this.logAnalyzerQueryModel.searchAfterTrace = this.logRows[selected];
+        this.logAnalyzerQueryModel.searchBeforeTrace = this.logRows[selected + 1];
         this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
           (moreRows: any[]) => {
             if (moreRows.length > 0) {

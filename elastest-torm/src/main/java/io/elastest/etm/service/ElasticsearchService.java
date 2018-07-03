@@ -601,6 +601,20 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         return null;
     }
 
+    @Override
+    public Date findFirstStartTestMsgAndGetTimestamp(String index, String testName,
+            String component) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix() + testName, component);
+    }
+
+    @Override
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index, String testName,
+            String component) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix() + testName, component);
+    }
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */
@@ -946,4 +960,5 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
 
     }
+
 }

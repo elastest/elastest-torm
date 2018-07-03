@@ -39,6 +39,9 @@ public class LogAnalyzerQuery {
     @JsonProperty("searchAfterTrace")
     Map<String, Object> searchAfterTrace;
 
+    @JsonProperty("searchBeforeTrace")
+    Map<String, Object> searchBeforeTrace;
+
     public LogAnalyzerQuery() {
         this.indices = new ArrayList<>();
         this.searchAfterTrace = new HashMap<>();
@@ -126,6 +129,14 @@ public class LogAnalyzerQuery {
 
     public void setSearchAfterTrace(Map<String, Object> searchAfterTrace) {
         this.searchAfterTrace = searchAfterTrace;
+    }
+
+    public Map<String, Object> getSearchBeforeTrace() {
+        return searchBeforeTrace;
+    }
+
+    public void setSearchBeforeTrace(Map<String, Object> searchBeforeTrace) {
+        this.searchBeforeTrace = searchBeforeTrace;
     }
 
 }

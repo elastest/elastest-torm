@@ -4,8 +4,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -41,18 +40,29 @@ import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.QTrace;
 import io.elastest.etm.model.Trace;
+import io.elastest.etm.utils.UtilsService;
 
 //@Service
 public class TracesSearchService implements MonitoringServiceInterface {
     final Logger logger = getLogger(lookup().lookupClass());
 
     TraceRepository traceRepository;
+    UtilsService utilsService;
 
     @PersistenceContext
     private EntityManager em;
 
-    public TracesSearchService(TraceRepository traceRepository) {
+    JPAQueryFactory queryFactory;
+
+    public TracesSearchService(TraceRepository traceRepository,
+            UtilsService utilsService) {
         this.traceRepository = traceRepository;
+        this.utilsService = utilsService;
+    }
+
+    @PostConstruct
+    private void init() {
+        queryFactory = new JPAQueryFactory(em);
     }
 
     @Override
@@ -90,7 +100,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
     public List<AggregationTree> getMonitoringTree(
             MonitoringQuery monitoringQuery, boolean isMetric)
             throws Exception {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         List<AggregationTree> aggregationTreeList = new ArrayList<>();
 
         StreamType log = StreamType.LOG;
@@ -206,27 +215,49 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
     public List<Trace> findMessage(String index, String msg, String component)
             throws IOException {
-        return traceRepository.findByExecAndMessageAndComponentAndStream(index,
-                msg, component, "default_log");
+        // logger.debug("findMessage=> index: {}, msg: {}, component: {}",
+        // index,
+        // msg, component);
+        BooleanExpression query = QTrace.trace.exec.eq(index)
+                .and(QTrace.trace.component.eq(component))
+                .and(QTrace.trace.stream.eq("default_log"))
+                .and(QTrace.trace.message.like( // TODO does not works and i
+                                                // can not understand
+                        Expressions.asString("%").concat(msg).concat("%")));
+
+        return queryFactory.select(QTrace.trace).from(QTrace.trace).where(query)
+                .fetch();
     }
 
     @Override
     public Date findFirstMsgAndGetTimestamp(String index, String msg,
             String component) throws Exception {
         List<Trace> traces = this.findMessage(index, msg, component);
-        logger.debug("traces: {}", traces);
+        // logger.debug("traces: {}", traces);
         if (traces != null && traces.size() > 0) {
             Trace firstResult = traces.get(0);
             String timestamp = firstResult.getTimestamp();
 
-            DateFormat df = new SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            Date date = df.parse(timestamp);
+            Date date = utilsService.getIso8061GMTTimestampDate(timestamp);
 
             return date;
         }
 
         return null;
+    }
+
+    @Override
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            String testName, String component) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix() + testName, component);
+    }
+
+    @Override
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            String testName, String component) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix() + testName, component);
     }
 
     /* ***************************************** */
@@ -453,14 +484,25 @@ public class TracesSearchService implements MonitoringServiceInterface {
         Pageable sizePageable = PageRequest.of(0, logAnalyzerQuery.getSize(),
                 Direction.ASC, "id");
 
-        // Search After TODO
         if (logAnalyzerQuery.getSearchAfterTrace() != null
-                && logAnalyzerQuery.getSearchAfterTrace().get("sort") != null) {
-            //
-            // ArrayList<Object> sort = (ArrayList<Object>) logAnalyzerQuery
-            // .getSearchAfterTrace().get("sort");
-            //
-            // sourceBuilder.searchAfter(sort.toArray());
+                && logAnalyzerQuery.getSearchAfterTrace().get("id") != null) {
+
+            Long id = utilsService.convertToLong(
+                    logAnalyzerQuery.getSearchAfterTrace().get("id"));
+
+            logAnalyzerQueryPredicate = logAnalyzerQueryPredicate
+                    .and(QTrace.trace.id.gt(id));
+
+            if (logAnalyzerQuery.getSearchBeforeTrace() != null
+                    && logAnalyzerQuery.getSearchBeforeTrace()
+                            .get("id") != null) {
+
+                Long beforeId = utilsService.convertToLong(
+                        logAnalyzerQuery.getSearchBeforeTrace().get("id"));
+
+                logAnalyzerQueryPredicate = logAnalyzerQueryPredicate
+                        .and(QTrace.trace.id.lt(beforeId));
+            }
         }
 
         logAnalyzerQueryPredicate = logAnalyzerQueryPredicate.and(
@@ -511,4 +553,5 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
         return aggTreeList;
     }
+
 }

@@ -154,9 +154,10 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-
                 String timestampAsISO8061 = utilsService
                         .getIso8061GMTTimestampStr(timestamp);
+                logger.debug("Date: {}. timestampAsISO8061: {}", timestamp.getTime(),
+                        timestampAsISO8061);
                 trace.setTimestamp(timestampAsISO8061);
 
                 // If message, set level and container name

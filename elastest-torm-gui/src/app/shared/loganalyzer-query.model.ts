@@ -11,6 +11,8 @@ export class LogAnalyzerQueryModel {
   rangeGTE: Date | string;
   matchMessage: string;
   searchAfterTrace: object;
+  // For ET Mini
+  searchBeforeTrace: object;
 
   // Others
   filterPathList: string[];

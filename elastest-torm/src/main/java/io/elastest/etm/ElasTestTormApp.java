@@ -57,7 +57,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Bean
     public MonitoringServiceInterface getMonitoringService() {
         if (utilsService.isElastestMini()) {
-            return new TracesSearchService(traceRepository);
+            return new TracesSearchService(traceRepository, utilsService);
         } else {
             return new ElasticsearchService(utilsService);
         }

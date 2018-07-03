@@ -57,12 +57,6 @@ public class TJobExecOrchestratorService {
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
 
-    @Value("${test.case.start.msg.prefix}")
-    public String tcStartMsgPrefix;
-
-    @Value("${test.case.finish.msg.prefix}")
-    public String tcFinishMsgPrefix;
-
     private final DockerEtmService dockerEtmService;
     private final DockerComposeService dockerComposeService;
     private final TestSuiteRepository testSuiteRepo;
@@ -995,19 +989,15 @@ public class TJobExecOrchestratorService {
                     tCase.setTestSuite(tSuite);
                     try {
                         Date startDate = this.monitoringService
-                                .findFirstMsgAndGetTimestamp(
+                                .findFirstStartTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        this.tcStartMsgPrefix + tCase.getName()
-                                                + " ",
-                                        "test");
+                                        tCase.getName() + " ", "test");
                         tCase.setStartDate(startDate);
 
                         Date endDate = this.monitoringService
-                                .findFirstMsgAndGetTimestamp(
+                                .findFirstFinishTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        this.tcFinishMsgPrefix + tCase.getName()
-                                                + " ",
-                                        "test");
+                                        tCase.getName() + " ", "test");
                         tCase.setEndDate(endDate);
                     } catch (Exception e) {
                         logger.debug(

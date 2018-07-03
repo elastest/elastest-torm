@@ -43,4 +43,10 @@ public interface MonitoringServiceInterface {
     Date findFirstMsgAndGetTimestamp(String index, String msg, String component)
             throws Exception;
 
+    Date findFirstStartTestMsgAndGetTimestamp(String index, String testName,
+            String component) throws Exception;
+
+    Date findFirstFinishTestMsgAndGetTimestamp(String index, String testName,
+            String component) throws Exception;
+
 }
