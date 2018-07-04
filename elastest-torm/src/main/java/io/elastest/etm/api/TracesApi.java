@@ -87,6 +87,17 @@ public interface TracesApi extends EtmApiRoot {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception;
 
+    @ApiOperation(value = "Returns Logs Levels Tree.", notes = "Returns Logs Levels Tree.", response = AggregationTree.class, responseContainer = "List", tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AggregationTree.class, responseContainer = "List"),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/tree/levels", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<List<AggregationTree>> searchLogsLevelsTree(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws Exception;
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */

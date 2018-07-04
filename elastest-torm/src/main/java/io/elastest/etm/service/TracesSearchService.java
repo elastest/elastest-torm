@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.validation.Valid;
 
 import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
@@ -96,12 +98,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
         return this.getTracesMapListByTracesList(traces);
     }
 
-    @Override
-    public List<AggregationTree> getMonitoringTree(
-            MonitoringQuery monitoringQuery, boolean isMetric)
-            throws Exception {
-        List<AggregationTree> aggregationTreeList = new ArrayList<>();
-
+    public Iterable<Tuple> getMonitoringTree(MonitoringQuery monitoringQuery,
+            boolean isMetric) throws Exception {
         StreamType log = StreamType.LOG;
         Iterable<Tuple> treeValues = new ArrayList<>();
 
@@ -141,16 +139,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
             treeValues = queryFactory.selectDistinct(selectExpression)
                     .from(QTrace.trace).groupBy(selectExpression)
                     .where(whereExpression).fetch();
-
-            for (Tuple treeValueList : treeValues) {
-                if (treeValueList != null) {
-                    aggregationTreeList
-                            .addAll(getAggTreeList(treeValueList.toArray(),
-                                    monitoringQuery.getSelectedTerms()));
-                }
-            }
         }
-        return aggregationTreeList;
+        return treeValues;
     }
 
     /* ****************************************** */
@@ -211,6 +201,43 @@ public class TracesSearchService implements MonitoringServiceInterface {
         return this.getTracesMapListByTracesList(traces);
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
+    public List<AggregationTree> searchLogsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        Iterable<Tuple> treeValues = this.getMonitoringTree(monitoringQuery,
+                false);
+
+        Map<String, Map> tmpMetricsTreeMap = new HashMap<>();
+        for (Tuple treeValuesTuple : treeValues) {
+            if (treeValuesTuple != null) {
+                Object[] componentStream = treeValuesTuple.toArray();
+                tmpMetricsTreeMap = this.getMapTree(componentStream,
+                        tmpMetricsTreeMap);
+            }
+        }
+
+        return this.getAggTreeList(tmpMetricsTreeMap);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public List<AggregationTree> searchLogsLevelsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        Iterable<Tuple> treeValues = this.getMonitoringTree(monitoringQuery,
+                false);
+
+        Map<String, Map> tmpMetricsTreeMap = new HashMap<>();
+        for (Tuple treeValuesTuple : treeValues) {
+            if (treeValuesTuple != null) {
+                Object[] componentStream = treeValuesTuple.toArray();
+                tmpMetricsTreeMap = this.getMapTree(componentStream,
+                        tmpMetricsTreeMap);
+            }
+        }
+
+        return this.getAggTreeList(tmpMetricsTreeMap);
+    }
     /* *** Messages *** */
 
     public List<Trace> findMessage(String index, String msg, String component)
@@ -335,6 +362,25 @@ public class TracesSearchService implements MonitoringServiceInterface {
             }
         }
         return this.getTracesMapListByTracesList(traces);
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public List<AggregationTree> searchMetricsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        Iterable<Tuple> treeValues = this.getMonitoringTree(monitoringQuery,
+                true);
+
+        Map<String, Map> tmpMetricsTreeMap = new HashMap<>();
+        for (Tuple treeValuesTuple : treeValues) {
+            if (treeValuesTuple != null) {
+                Object[] componentStream = treeValuesTuple.toArray();
+                tmpMetricsTreeMap = this.getMapTree(componentStream,
+                        tmpMetricsTreeMap);
+            }
+        }
+
+        return this.getAggTreeList(tmpMetricsTreeMap);
     }
 
     /* ******************* */
@@ -522,29 +568,51 @@ public class TracesSearchService implements MonitoringServiceInterface {
         return tracesAsMapList;
     }
 
-    public List<AggregationTree> getAggTreeList(Object[] treeValueList,
-            List<String> fields) {
-        List<AggregationTree> aggTreeList = new ArrayList<>();
-
-        if (fields.size() > 0 && treeValueList.length > 0) {
-            String fieldValue = "";
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Map<String, Map> getMapTree(Object[] treeValuesList,
+            Map<String, Map> treeMap) {
+        if (treeValuesList.length > 0) {
+            String firstFieldValue = "";
             try {
-                fieldValue = (String) treeValueList[0];
+                firstFieldValue = (String) treeValuesList[0];
             } catch (Exception e) {
-                fieldValue = (String) treeValueList[0].toString();
-            }
-            if (fieldValue != null) {
-                AggregationTree aggObj = new AggregationTree();
-                aggObj.setName(fieldValue);
-
-                aggObj.setChildren(this.getAggTreeList(
-                        Arrays.copyOfRange(treeValueList, 1,
-                                treeValueList.length),
-                        fields.subList(1, fields.size())));
-                aggTreeList.add(aggObj);
+                firstFieldValue = (String) treeValuesList[0].toString();
             }
 
+            if (!treeMap.containsKey(firstFieldValue)) {
+                treeMap.put(firstFieldValue, new HashMap<String, Map>());
+            }
+
+            Object[] treeValuesListWithoutFirst = Arrays
+                    .copyOfRange(treeValuesList, 1, treeValuesList.length);
+            Map<String, Map> subMap = this.getMapTree(
+                    treeValuesListWithoutFirst, treeMap.get(firstFieldValue));
+
+            treeMap.put(firstFieldValue, subMap);
         }
+
+        return treeMap;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private List<AggregationTree> getAggTreeList(Map<String, Map> treeMap) {
+        List<AggregationTree> aggTreeList = new ArrayList<>();
+        for (HashMap.Entry<String, Map> currentMapEntry : treeMap.entrySet()) {
+            if (currentMapEntry != null) {
+                AggregationTree currentTree = new AggregationTree();
+                currentTree.setName(currentMapEntry.getKey());
+
+                Map<String, Map> childrens = currentMapEntry.getValue();
+
+                if (childrens != null && childrens.size() > 0) {
+                    currentTree.getChildren()
+                            .addAll(this.getAggTreeList(childrens));
+                }
+
+                aggTreeList.add(currentTree);
+            }
+        }
+
         return aggTreeList;
     }
 

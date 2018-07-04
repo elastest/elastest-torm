@@ -769,7 +769,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     query.indices = this.logAnalyzer.selectedIndices;
     query.selectedTerms.push('level');
 
-    this.monitoringService.searchLogsTree(query).subscribe((levels: any[]) => {
+    this.monitoringService.searchLogsLevelsTree(query).subscribe((levels: any[]) => {
       this.logAnalyzer.setLevels(levels);
       this.levelsTree.treeModel.update();
     });

@@ -63,6 +63,12 @@ export class MonitoringService {
     return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
+
+  public searchLogsLevelsTree(query: MonitoringQueryModel): Observable<any> {
+    let url: string = this.etmApiUrl + '/monitoring/log/tree/levels';
+    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+  }
+
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {

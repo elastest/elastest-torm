@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -556,6 +557,18 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         return getTracesFromHitList(hits);
     }
 
+    @Override
+    public List<AggregationTree> searchLogsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        return this.getMonitoringTree(monitoringQuery, false);
+    }
+
+    @Override
+    public List<AggregationTree> searchLogsLevelsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        return this.getMonitoringTree(monitoringQuery, false);
+    }
+
     /* *** Messages *** */
 
     public SearchRequest getFindMessageSearchRequest(String index, String msg,
@@ -602,15 +615,15 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public Date findFirstStartTestMsgAndGetTimestamp(String index, String testName,
-            String component) throws Exception {
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            String testName, String component) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
                 utilsService.getETTestStartPrefix() + testName, component);
     }
 
     @Override
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index, String testName,
-            String component) throws Exception {
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            String testName, String component) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
                 utilsService.getETTestFinishPrefix() + testName, component);
     }
@@ -686,6 +699,12 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 monitoringQuery.getTimestamp());
 
         return getTracesFromHitList(hits);
+    }
+
+    @Override
+    public List<AggregationTree> searchMetricsTree(
+            @Valid MonitoringQuery monitoringQuery) throws Exception {
+        return this.getMonitoringTree(monitoringQuery, true);
     }
 
     /* ******************* */
@@ -960,5 +979,4 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
 
     }
-
 }

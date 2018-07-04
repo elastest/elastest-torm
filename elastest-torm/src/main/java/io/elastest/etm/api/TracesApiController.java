@@ -86,7 +86,15 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
         return new ResponseEntity<List<AggregationTree>>(
-                monitoringService.getMonitoringTree(body, false),
+                monitoringService.searchLogsTree(body),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<AggregationTree>> searchLogsLevelsTree(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws Exception {
+        return new ResponseEntity<List<AggregationTree>>(
+                monitoringService.searchLogsLevelsTree(body),
                 HttpStatus.OK);
     }
 
@@ -121,7 +129,7 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
         return new ResponseEntity<List<AggregationTree>>(
-                monitoringService.getMonitoringTree(body, true), HttpStatus.OK);
+                monitoringService.searchMetricsTree(body), HttpStatus.OK);
     }
 
     /* ********************************************* */

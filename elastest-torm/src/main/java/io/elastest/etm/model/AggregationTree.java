@@ -1,5 +1,6 @@
 package io.elastest.etm.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AggregationTree {
@@ -7,6 +8,7 @@ public class AggregationTree {
     List<AggregationTree> children;
 
     public AggregationTree() {
+        children = new ArrayList<>();
     }
 
     public String getName() {
