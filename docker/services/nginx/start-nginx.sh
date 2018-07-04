@@ -5,11 +5,11 @@ sed -i 's/${LOGSTASH_HOST}/'"$LOGSTASH_HOST"'/g' /etc/nginx/sites-available/ngin
 sed -i 's/${LOGSTASH_HOST}/'"$LOGSTASH_HOST"'/g' /etc/nginx/sites-available/nginx-experimental-locations.conf;
 
 # scape slash
-LOGSTASH_HTTP_PATH=$(echo $LOGSTASH_HTTP_PATH | sed 's/\//\\\//g')
+LOGSTASH_HTTP_PATH_ESCAPED=$(echo $LOGSTASH_HTTP_PATH | sed 's/\//\\\//g')
 
-sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH"'/g' /etc/nginx/sites-available/nginx-base-location.conf;
-sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH"'/g' /etc/nginx/sites-available/nginx-logstash-location.conf;
-sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH"'/g' /etc/nginx/sites-available/nginx-experimental-locations.conf;
+sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH_ESCAPED"'/g' /etc/nginx/sites-available/nginx-base-location.conf;
+sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH_ESCAPED"'/g' /etc/nginx/sites-available/nginx-logstash-location.conf;
+sed -i 's/${LOGSTASH_HTTP_PATH}/'"$LOGSTASH_HTTP_PATH_ESCAPED"'/g' /etc/nginx/sites-available/nginx-experimental-locations.conf;
 
 mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default-template.conf
 
