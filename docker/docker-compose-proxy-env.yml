@@ -5,3 +5,5 @@ services:
             - ET_SECURITY=true
             - ET_USER=none
             - ET_PASS=none
+            - LOGSTASH_HOST=etm-logstash
+            - LOGSTASH_HTTP_PATH=/

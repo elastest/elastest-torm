@@ -62,8 +62,6 @@ public class EtmContextService {
     public String etEdmMysqlHost;
     @Value("${et.edm.mysql.port}")
     public String etEdmMysqlPort;
-    @Value("${et.edm.elasticsearch.api}")
-    public String etEdmElasticsearchApi;
     @Value("${et.edm.api}")
     public String etEdmApi;
     @Value("${et.epm.api}")

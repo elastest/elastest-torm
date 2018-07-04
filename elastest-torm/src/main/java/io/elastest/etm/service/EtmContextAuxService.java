@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -39,8 +38,7 @@ public class EtmContextAuxService {
 
     @Value("${et.etm.testlink.host}")
     public String etEtmTestLinkHost;
-    @Value("${et.edm.elasticsearch.api}")
-    public String etEdmElasticsearchApi;
+
     @Value("${et.edm.elasticsearch.path.with-proxy}")
     public String etEtmElasticsearchPathWithProxy;
 
