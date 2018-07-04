@@ -762,7 +762,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         if (logAnalyzerQuery.getMatchMessage() != null
                 && !logAnalyzerQuery.getMatchMessage().equals("")) {
             MatchPhrasePrefixQueryBuilder matchPhrasePrefix = new MatchPhrasePrefixQueryBuilder(
-                    "message", logAnalyzerQuery.getMatchMessage());
+                    "message", "*" + logAnalyzerQuery.getMatchMessage() + "*");
             boolQueryBuilder.must(matchPhrasePrefix);
         }
 

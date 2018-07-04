@@ -87,7 +87,7 @@ export class LogAnalyzerService {
   setMatchByGivenLogAnalyzerQueryModel(msg: string = '', logAnalyzerQueryModel: LogAnalyzerQueryModel): LogAnalyzerQueryModel {
     /* Message field by default */
     if (msg !== '') {
-      logAnalyzerQueryModel.matchMessage = '*' + msg + '*';
+      logAnalyzerQueryModel.matchMessage = msg;
     }
     return logAnalyzerQueryModel;
   }
@@ -95,8 +95,8 @@ export class LogAnalyzerService {
   searchTraceByGivenMsg(
     msg: string,
     indices: string[],
-    from: Date,
-    to: Date,
+    from: Date | string,
+    to: Date | string,
     maxResults: number = this.maxResults,
   ): Observable<any> {
     let logAnalyzerQueryModel: LogAnalyzerQueryModel = new LogAnalyzerQueryModel();

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { MonitoringService } from './shared/services/monitoring.service';
 import { FilesService } from './shared/services/files.service';
 import { TransformService } from './elastest-etm/help/transform.service';
@@ -18,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
+import { CovalentHttpModule } from '@covalent/http';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentMarkdownModule } from '@covalent/markdown';
 
@@ -245,6 +246,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     MonitoringService,
     ElastestRabbitmqService,
     PopupService,
+    DatePipe,
     TitlesService,
     BreadcrumbService,
     FilesService,

@@ -31,7 +31,7 @@ import io.krakens.grok.api.GrokCompiler;
 
 @Service
 public class TracesService {
-    public final Logger logger = getLogger(lookup().lookupClass());
+    final Logger logger = getLogger(lookup().lookupClass());
 
     private final TraceRepository traceRepository;
     private final QueueService queueService;

@@ -6,4 +6,5 @@
 	<logger name="springfox" level="WARN" />
 	<logger name="io.elastest" level="DEBUG" />
 	<logger name="com.zaxxer.hikari" level="OFF" />
+	<logger name="io.elastest.etm.beats" level="OFF" />
 </configuration>

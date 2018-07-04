@@ -428,38 +428,44 @@ public class TracesSearchService implements MonitoringServiceInterface {
         StringTemplate dateStrTemplate = Expressions.stringTemplate(
                 "DATE_FORMAT({0}, {1})", QTrace.trace.timestamp,
                 "%Y-%m-%dT%T.%fZ");
-        if (logAnalyzerQuery.getRangeLT() != null) {
-            timeRangeQuery = dateStrTemplate.lt(logAnalyzerQuery.getRangeLT());
-        }
-        if (logAnalyzerQuery.getRangeLTE() != null) {
 
-            BooleanExpression timeRangeQueryLte = dateStrTemplate
-                    .loe(logAnalyzerQuery.getRangeLTE());
-            if (timeRangeQuery == null) {
-                timeRangeQuery = timeRangeQueryLte;
-            } else {
-                timeRangeQuery = timeRangeQuery.and(timeRangeQueryLte);
+        if (logAnalyzerQuery.getSearchBeforeTrace() == null) {
+            if (logAnalyzerQuery.getRangeLT() != null) {
+                timeRangeQuery = dateStrTemplate
+                        .lt(logAnalyzerQuery.getRangeLT());
             }
-        }
-        if (logAnalyzerQuery.getRangeGT() != null) {
-            BooleanExpression timeRangeQueryGt = dateStrTemplate
-                    .gt(logAnalyzerQuery.getRangeGT());
-            if (timeRangeQuery == null) {
-                timeRangeQuery = timeRangeQueryGt;
-            } else {
-                timeRangeQuery = timeRangeQuery.and(timeRangeQueryGt);
-            }
-        }
-        if (logAnalyzerQuery.getRangeGTE() != null) {
-            BooleanExpression timeRangeQueryGTE = dateStrTemplate
-                    .goe(logAnalyzerQuery.getRangeGTE());
-            if (timeRangeQuery == null) {
-                timeRangeQuery = timeRangeQueryGTE;
-            } else {
-                timeRangeQuery = timeRangeQuery.and(timeRangeQueryGTE);
+            if (logAnalyzerQuery.getRangeLTE() != null) {
+
+                BooleanExpression timeRangeQueryLte = dateStrTemplate
+                        .loe(logAnalyzerQuery.getRangeLTE());
+                if (timeRangeQuery == null) {
+                    timeRangeQuery = timeRangeQueryLte;
+                } else {
+                    timeRangeQuery = timeRangeQuery.and(timeRangeQueryLte);
+                }
             }
         }
 
+        if (logAnalyzerQuery.getSearchAfterTrace() == null) {
+            if (logAnalyzerQuery.getRangeGT() != null) {
+                BooleanExpression timeRangeQueryGt = dateStrTemplate
+                        .gt(logAnalyzerQuery.getRangeGT());
+                if (timeRangeQuery == null) {
+                    timeRangeQuery = timeRangeQueryGt;
+                } else {
+                    timeRangeQuery = timeRangeQuery.and(timeRangeQueryGt);
+                }
+            }
+            if (logAnalyzerQuery.getRangeGTE() != null) {
+                BooleanExpression timeRangeQueryGTE = dateStrTemplate
+                        .goe(logAnalyzerQuery.getRangeGTE());
+                if (timeRangeQuery == null) {
+                    timeRangeQuery = timeRangeQueryGTE;
+                } else {
+                    timeRangeQuery = timeRangeQuery.and(timeRangeQueryGTE);
+                }
+            }
+        }
         // Match Message
         BooleanExpression matchMessageQuery = null;
         if (logAnalyzerQuery.getMatchMessage() != null

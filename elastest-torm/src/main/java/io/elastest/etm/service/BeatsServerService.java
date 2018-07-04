@@ -126,7 +126,7 @@ public class BeatsServerService {
         }
 
         public void onNewMessage(ChannelHandlerContext ctx, Message message) {
-            log.debug("The Beats message data: {}", message.getData());
+//            log.debug("The Beats message data: {}", message.getData());
             tracesService.processBeatTrace(message.getData(),
                     this.fromDockbeat);
         }
