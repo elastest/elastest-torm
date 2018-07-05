@@ -80,6 +80,24 @@ public class UtilsService {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 
+    public Date getDateGMTFromLogAnalyzerStrDate(String logAnalyzerDate)
+            throws ParseException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        return df.parse(logAnalyzerDate);
+    }
+
+    public String getIso8061GMTFromLogAnalyzerDateStr(String logAnalyzerDate)
+            throws ParseException {
+        Date date = this.getDateGMTFromLogAnalyzerStrDate(logAnalyzerDate);
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        return df.format(date);
+    }
+
     public String getETTestStartPrefix() {
         return tcStartMsgPrefix + " ";
     }

@@ -4,6 +4,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -388,7 +389,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
     /* ******************* */
 
     public BooleanExpression getLogAnalyzerQuery(
-            LogAnalyzerQuery logAnalyzerQuery) {
+            LogAnalyzerQuery logAnalyzerQuery) throws ParseException {
         BooleanExpression parentBooleanExpression = null;
 
         // Components/streams
@@ -428,16 +429,18 @@ public class TracesSearchService implements MonitoringServiceInterface {
         StringTemplate dateStrTemplate = Expressions.stringTemplate(
                 "DATE_FORMAT({0}, {1})", QTrace.trace.timestamp,
                 "%Y-%m-%dT%T.%fZ");
-
+        
         if (logAnalyzerQuery.getSearchBeforeTrace() == null) {
             if (logAnalyzerQuery.getRangeLT() != null) {
                 timeRangeQuery = dateStrTemplate
-                        .lt(logAnalyzerQuery.getRangeLT());
+                        .lt(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
+                                logAnalyzerQuery.getRangeLT()));
             }
             if (logAnalyzerQuery.getRangeLTE() != null) {
 
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
-                        .loe(logAnalyzerQuery.getRangeLTE());
+                        .loe(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
+                                logAnalyzerQuery.getRangeLTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryLte;
                 } else {
@@ -449,7 +452,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
         if (logAnalyzerQuery.getSearchAfterTrace() == null) {
             if (logAnalyzerQuery.getRangeGT() != null) {
                 BooleanExpression timeRangeQueryGt = dateStrTemplate
-                        .gt(logAnalyzerQuery.getRangeGT());
+                        .gt(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
+                                logAnalyzerQuery.getRangeGT()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGt;
                 } else {
@@ -458,7 +462,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
             }
             if (logAnalyzerQuery.getRangeGTE() != null) {
                 BooleanExpression timeRangeQueryGTE = dateStrTemplate
-                        .goe(logAnalyzerQuery.getRangeGTE());
+                        .goe(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
+                                logAnalyzerQuery.getRangeGTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGTE;
                 } else {
@@ -523,7 +528,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
     }
 
     public List<Map<String, Object>> searchLogAnalyzerQuery(
-            LogAnalyzerQuery logAnalyzerQuery) throws IOException {
+            LogAnalyzerQuery logAnalyzerQuery)
+            throws IOException, ParseException {
         BooleanExpression logAnalyzerQueryPredicate = getLogAnalyzerQuery(
                 logAnalyzerQuery);
 

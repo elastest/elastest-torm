@@ -228,8 +228,6 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     includedFrom: boolean = true,
     includedTo: boolean = true,
   ): void {
-    console.log(from, to);
-
     this.logAnalyzerQueryModel = this.logAnalyzerService.setTimeRangeToLogAnalyzerQueryModel(
       this.logAnalyzerQueryModel,
       from,
