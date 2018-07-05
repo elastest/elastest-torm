@@ -1,5 +1,6 @@
 package io.elastest.etm.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,7 @@ import io.elastest.etm.model.Trace;
 @Repository
 public interface TraceRepository
         extends JpaRepository<Trace, Long>, QuerydslPredicateExecutor<Trace> {
-    public List<Trace> findByTimestamp(String timestamp);
+    public List<Trace> findByTimestamp(Date timestamp);
 
     /* *** Logs *** */
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,
@@ -19,7 +20,7 @@ public interface TraceRepository
 
     public List<Trace> findByExecInAndStreamAndComponentAndMessageAndTimestamp(
             List<String> execs, String stream, String component, String message,
-            String timestamp);
+            Date timestamp);
 
     public List<Trace> findByExecInAndStreamAndComponentAndIdLessThan(
             List<String> execs, String stream, String component, Long id);
@@ -33,7 +34,7 @@ public interface TraceRepository
 
     public List<Trace> findByExecInAndEtTypeAndComponentAndTimestamp(
             List<String> execs, String etType, String component,
-            String timestamp);
+            Date timestamp);
 
     public List<Trace> findByExecInAndEtTypeAndComponentAndIdLessThan(
             List<String> execs, String etType, String component, Long id);
@@ -42,7 +43,7 @@ public interface TraceRepository
             String etType);
 
     public List<Trace> findByExecInAndEtTypeAndTimestamp(List<String> indices,
-            String etType, String timestamp);
+            String etType, Date timestamp);
 
     public List<Trace> findByExecInAndEtTypeAndIdLessThan(List<String> execs,
             String etType, Long id);

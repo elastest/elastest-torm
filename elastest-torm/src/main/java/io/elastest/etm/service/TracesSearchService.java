@@ -186,7 +186,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
                         monitoringQuery.getStream(),
                         monitoringQuery.getComponent(),
                         monitoringQuery.getMessage(),
-                        monitoringQuery.getTimestamp());
+                        utilsService.getGMT0DateFromIso8601Str(
+                                monitoringQuery.getTimestamp()));
 
         List<Trace> traces = new ArrayList<>();
         if (tracesWithSameTimestamp.size() > 0) {
@@ -335,13 +336,15 @@ public class TracesSearchService implements MonitoringServiceInterface {
                             monitoringQuery.getIndices(),
                             monitoringQuery.getEtType(),
                             monitoringQuery.getComponent(),
-                            monitoringQuery.getTimestamp());
+                            utilsService.getGMT0DateFromIso8601Str(
+                                    monitoringQuery.getTimestamp()));
         } else {
             tracesWithSameTimestamp = traceRepository
                     .findByExecInAndEtTypeAndTimestamp(
                             monitoringQuery.getIndices(),
                             monitoringQuery.getEtType(),
-                            monitoringQuery.getTimestamp());
+                            utilsService.getGMT0DateFromIso8601Str(
+                                    monitoringQuery.getTimestamp()));
         }
         List<Trace> traces = new ArrayList<>();
         if (tracesWithSameTimestamp.size() > 0) {
