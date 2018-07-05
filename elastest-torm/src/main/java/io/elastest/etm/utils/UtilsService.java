@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,23 @@ public class UtilsService {
         return etmInDev;
     }
 
-    public Date getIso8061TimestampDate(String timestamp, TimeZone timezone)
+    public DateFormat getIso8061DateFormat() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    }
+
+    public String getIso8061With6MillisecondsString() {
+        return "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
+    }
+
+    public Date getGMT0DateFromIso8601Str(String dateStr)
+            throws ParseException {
+        DateFormat df = getIso8061DateFormat();
+        df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+
+        return df.parse(dateStr);
+    }
+
+    public Date getIso8061DateFromStr(String timestamp, TimeZone timezone)
             throws ParseException {
         DateFormat df = getIso8061DateFormat();
         df.setTimeZone(timezone);
@@ -42,60 +59,40 @@ public class UtilsService {
         return df.parse(timestamp);
     }
 
-    public Date getIso8061GMTTimestampDate(String timestamp)
+    public Date getIso8061UTCDateFromStr(String timestamp)
             throws ParseException {
-        return this.getIso8061TimestampDate(timestamp,
-                TimeZone.getTimeZone("GMT"));
+        return this.getIso8061DateFromStr(timestamp,
+                TimeZone.getTimeZone("GMT-0"));
     }
 
-    public String getIso8061TimestampStr(String timestamp, TimeZone timezone)
+
+    /* ********************************************************************* */
+    /* *** Date conversion from LogAnalyzer Date (yyyy-MM-dd'T'HH:mm:ss) *** */
+    /* ********************************************************************* */
+
+    public Date getDateUTCFromLogAnalyzerStrDate(String logAnalyzerDate)
             throws ParseException {
-        DateFormat df = getIso8061DateFormat();
-        df.setTimeZone(timezone);
-
-        return df.format(timestamp);
-    }
-
-    public String getIso8061GMTTimestampStr(String timestamp)
-            throws ParseException {
-        return this.getIso8061TimestampStr(timestamp,
-                TimeZone.getTimeZone("GMT"));
-    }
-
-    public String getIso8061TimestampStr(Date timestamp, TimeZone timezone)
-            throws ParseException {
-        DateFormat df = getIso8061DateFormat();
-        df.setTimeZone(timezone);
-
-        return df.format(timestamp);
-    }
-
-    public String getIso8061GMTTimestampStr(Date timestamp)
-            throws ParseException {
-        return this.getIso8061TimestampStr(timestamp,
-                TimeZone.getTimeZone("GMT"));
-    }
-
-    public DateFormat getIso8061DateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    }
-
-    public Date getDateGMTFromLogAnalyzerStrDate(String logAnalyzerDate)
-            throws ParseException {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                Locale.UK);
 
         return df.parse(logAnalyzerDate);
     }
 
-    public String getIso8061GMTFromLogAnalyzerDateStr(String logAnalyzerDate)
-            throws ParseException {
-        Date date = this.getDateGMTFromLogAnalyzerStrDate(logAnalyzerDate);
-
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+    public String getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+            String logAnalyzerDate) throws ParseException {
+        Date date = this.getDateUTCFromLogAnalyzerStrDate(logAnalyzerDate);
+        DateFormat df = new SimpleDateFormat(
+                getIso8061With6MillisecondsString(), Locale.UK);
 
         return df.format(date);
+    }
+
+    public String getStrIso8061With6MillisUTCFromLogAnalyzerDate(
+            Date logAnalyzerDate) throws ParseException {
+        DateFormat df = new SimpleDateFormat(
+                getIso8061With6MillisecondsString(), Locale.UK);
+
+        return df.format(logAnalyzerDate);
     }
 
     public String getETTestStartPrefix() {

@@ -6,6 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -154,10 +155,7 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-                String timestampAsISO8061 = utilsService
-                        .getIso8061GMTTimestampStr(timestamp);
-
-                trace.setTimestamp(timestampAsISO8061);
+                trace.setTimestamp(timestamp);
 
                 // If message, set level and container name
                 trace = this.matchesLevelAndContainerNameFromMessage(trace,
@@ -198,7 +196,8 @@ public class TracesService {
     /* *** Beats *** */
     /* ************* */
 
-    public Trace setInitialBeatTraceData(Map<String, Object> dataMap) {
+    public Trace setInitialBeatTraceData(Map<String, Object> dataMap)
+            throws ParseException {
         Trace trace = new Trace();
         trace.setComponent((String) dataMap.get("component"));
         trace.setComponentService((String) dataMap.get("componentService"));
@@ -211,7 +210,10 @@ public class TracesService {
         trace.setStream((String) dataMap.get("stream"));
         trace.setStreamType(
                 StreamType.fromValue((String) dataMap.get("stream_type")));
-        trace.setTimestamp((String) dataMap.get("@timestamp"));
+
+        String timestampAsStr = (String) dataMap.get("@timestamp");
+        trace.setTimestamp(
+                utilsService.getIso8061UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
         trace.setUnits((String) dataMap.get("units"));
 

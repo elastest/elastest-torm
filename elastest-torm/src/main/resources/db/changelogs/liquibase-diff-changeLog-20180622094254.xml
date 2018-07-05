@@ -18,7 +18,7 @@
             <column name="streamType" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="timestamp" type="VARCHAR(255)"/>
+            <column name="timestamp" type="datetime"/>
             <column name="unit" type="VARCHAR(255)"/>
             <column name="units" type="TEXT"/>
         </createTable>

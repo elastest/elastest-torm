@@ -45,6 +45,7 @@ public class LogAnalyzerQuery {
     public LogAnalyzerQuery() {
         this.indices = new ArrayList<>();
         this.searchAfterTrace = new HashMap<>();
+        this.searchBeforeTrace = new HashMap<>();
     }
 
     public List<String> getIndices() {
@@ -137,6 +138,17 @@ public class LogAnalyzerQuery {
 
     public void setSearchBeforeTrace(Map<String, Object> searchBeforeTrace) {
         this.searchBeforeTrace = searchBeforeTrace;
+    }
+
+    @Override
+    public String toString() {
+        return "LogAnalyzerQuery [indices=" + indices + ", componentsStreams="
+                + componentsStreams + ", levels=" + levels + ", size=" + size
+                + ", rangeLT=" + rangeLT + ", rangeGT=" + rangeGT
+                + ", rangeLTE=" + rangeLTE + ", rangeGTE=" + rangeGTE
+                + ", matchMessage=" + matchMessage + ", searchAfterTrace="
+                + searchAfterTrace + ", searchBeforeTrace=" + searchBeforeTrace
+                + "]";
     }
 
 }

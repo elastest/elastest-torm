@@ -259,11 +259,9 @@ public class TracesSearchService implements MonitoringServiceInterface {
         List<Trace> traces = this.findMessage(index, msg, component);
         if (traces != null && traces.size() > 0) {
             Trace firstResult = traces.get(0);
-            String timestamp = firstResult.getTimestamp();
+            Date timestamp = firstResult.getTimestamp();
 
-            Date date = utilsService.getIso8061GMTTimestampDate(timestamp);
-
-            return date;
+            return timestamp;
         }
 
         return null;
@@ -429,18 +427,20 @@ public class TracesSearchService implements MonitoringServiceInterface {
         StringTemplate dateStrTemplate = Expressions.stringTemplate(
                 "DATE_FORMAT({0}, {1})", QTrace.trace.timestamp,
                 "%Y-%m-%dT%T.%fZ");
-        
-        if (logAnalyzerQuery.getSearchBeforeTrace() == null) {
+
+        if (logAnalyzerQuery.getSearchBeforeTrace() == null
+                || logAnalyzerQuery.getSearchBeforeTrace().isEmpty()) {
             if (logAnalyzerQuery.getRangeLT() != null) {
-                timeRangeQuery = dateStrTemplate
-                        .lt(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
+                timeRangeQuery = dateStrTemplate.lt(utilsService
+                        .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
                                 logAnalyzerQuery.getRangeLT()));
             }
             if (logAnalyzerQuery.getRangeLTE() != null) {
-
+                System.out.println("Yuju 1");
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
-                        .loe(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
-                                logAnalyzerQuery.getRangeLTE()));
+                        .loe(utilsService
+                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                        logAnalyzerQuery.getRangeLTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryLte;
                 } else {
@@ -448,12 +448,14 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 }
             }
         }
+        if (logAnalyzerQuery.getSearchAfterTrace() == null
+                || logAnalyzerQuery.getSearchAfterTrace().isEmpty()) {
 
-        if (logAnalyzerQuery.getSearchAfterTrace() == null) {
             if (logAnalyzerQuery.getRangeGT() != null) {
                 BooleanExpression timeRangeQueryGt = dateStrTemplate
-                        .gt(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
-                                logAnalyzerQuery.getRangeGT()));
+                        .gt(utilsService
+                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                        logAnalyzerQuery.getRangeGT()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGt;
                 } else {
@@ -462,8 +464,9 @@ public class TracesSearchService implements MonitoringServiceInterface {
             }
             if (logAnalyzerQuery.getRangeGTE() != null) {
                 BooleanExpression timeRangeQueryGTE = dateStrTemplate
-                        .goe(utilsService.getIso8061GMTFromLogAnalyzerDateStr(
-                                logAnalyzerQuery.getRangeGTE()));
+                        .goe(utilsService
+                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                        logAnalyzerQuery.getRangeGTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGTE;
                 } else {

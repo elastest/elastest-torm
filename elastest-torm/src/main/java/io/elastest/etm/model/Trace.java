@@ -1,5 +1,6 @@
 package io.elastest.etm.model;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class Trace {
     @JsonView({ TraceView.class })
     @Column(name = "timestamp")
     @JsonProperty("timestamp")
-    String timestamp;
+    Date timestamp;
 
     @JsonView({ TraceView.class })
     @Column(name = "stream")
@@ -119,7 +120,7 @@ public class Trace {
     /* *********************** */
 
     public Trace(Long id, String exec, String component,
-            String componentService, String etType, String timestamp,
+            String componentService, String etType, Date timestamp,
             String stream, String containerName, StreamType streamType,
             String message, LevelEnum level, String metricName, String content,
             String unit, String units) {
@@ -181,11 +182,11 @@ public class Trace {
         this.etType = etType;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -308,7 +309,7 @@ public class Trace {
             this.setEtType((String) value);
             break;
         case "timestamp":
-            this.setTimestamp((String) value);
+            this.setTimestamp((Date) value);
             break;
         case "stream":
             this.setStream((String) value);
