@@ -737,7 +737,7 @@ public class DockerEtmService {
             envVariables.add("LISTEN_PORT=" + listenPort);
             envVariables.add("FORWARD_PORT=" + port);
             envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            String listenPortAsString = String.valueOf(listenPort) + "/tcp";
+            String listenPortAsString = String.valueOf(listenPort);
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
@@ -748,8 +748,8 @@ public class DockerEtmService {
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(listenPortAsString, Arrays
-                    .asList(PortBinding.of("HostPort", listenPortAsString)));
+            portBindings.put(listenPortAsString + "/tcp", Arrays
+                    .asList(PortBinding.of("", listenPortAsString)));
             dockerBuilder.portBindings(portBindings);
 
             bindedPort = dockerService
