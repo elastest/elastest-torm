@@ -35,38 +35,51 @@ public class UtilsService {
         return etmInDev;
     }
 
-    public String getIso8061String() {
+    public String getIso8601String() {
         return "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     }
 
-    public String getIso8061With6MillisecondsString() {
+    public String getIso8601With6MillisecondsString() {
         return "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
     }
 
-    public DateFormat getIso8061DateFormat() {
-        return new SimpleDateFormat(getIso8061String());
+    public DateFormat getIso8601DateFormat() {
+        return new SimpleDateFormat(getIso8601String());
     }
 
     public Date getGMT0DateFromIso8601Str(String dateStr)
             throws ParseException {
-        DateFormat df = getIso8061DateFormat();
+        DateFormat df = getIso8601DateFormat();
         df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
 
         return df.parse(dateStr);
     }
 
-    public Date getIso8061DateFromStr(String timestamp, TimeZone timezone)
+    public Date getIso8601DateFromStr(String timestamp, TimeZone timezone)
             throws ParseException {
-        DateFormat df = getIso8061DateFormat();
+        DateFormat df = getIso8601DateFormat();
         df.setTimeZone(timezone);
 
         return df.parse(timestamp);
     }
 
-    public Date getIso8061UTCDateFromStr(String timestamp)
+    public Date getIso8601UTCDateFromStr(String timestamp)
             throws ParseException {
-        return this.getIso8061DateFromStr(timestamp,
+        return this.getIso8601DateFromStr(timestamp,
                 TimeZone.getTimeZone("GMT-0"));
+    }
+
+    public String getIso8601UTCStrFromDate(Date date) throws ParseException {
+        DateFormat df = new SimpleDateFormat(
+                getIso8601With6MillisecondsString(), Locale.UK);
+        df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+        return df.format(date);
+    }
+
+    public Date getIso8601UTCDateFromDate(Date date) throws ParseException {
+        String dateStr = this.getIso8601UTCStrFromDate(date);
+
+        return this.getIso8601UTCDateFromStr(dateStr);
     }
 
     /* ********************************************************************* */
@@ -81,25 +94,25 @@ public class UtilsService {
 
             return df.parse(logAnalyzerDate);
         } catch (Exception e) {
-            DateFormat df = new SimpleDateFormat(getIso8061String(), Locale.UK);
+            DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
 
             return df.parse(logAnalyzerDate);
         }
     }
 
-    public String getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+    public String getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
             String logAnalyzerDate) throws ParseException {
         Date date = this.getDateUTCFromLogAnalyzerStrDate(logAnalyzerDate);
         DateFormat df = new SimpleDateFormat(
-                getIso8061With6MillisecondsString(), Locale.UK);
+                getIso8601With6MillisecondsString(), Locale.UK);
 
         return df.format(date);
     }
 
-    public String getStrIso8061With6MillisUTCFromLogAnalyzerDate(
+    public String getStrIso8601With6MillisUTCFromLogAnalyzerDate(
             Date logAnalyzerDate) throws ParseException {
         DateFormat df = new SimpleDateFormat(
-                getIso8061With6MillisecondsString(), Locale.UK);
+                getIso8601With6MillisecondsString(), Locale.UK);
 
         return df.format(logAnalyzerDate);
     }

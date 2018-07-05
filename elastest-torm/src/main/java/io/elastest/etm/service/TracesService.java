@@ -155,7 +155,7 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-                trace.setTimestamp(timestamp);
+                trace.setTimestamp(utilsService.getIso8601UTCDateFromDate(timestamp));
 
                 // If message, set level and container name
                 trace = this.matchesLevelAndContainerNameFromMessage(trace,
@@ -213,7 +213,7 @@ public class TracesService {
 
         String timestampAsStr = (String) dataMap.get("@timestamp");
         trace.setTimestamp(
-                utilsService.getIso8061UTCDateFromStr(timestampAsStr));
+                utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
         trace.setUnits((String) dataMap.get("units"));
 

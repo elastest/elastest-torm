@@ -606,7 +606,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
             SearchHit firstResult = hits.getAt(0);
             String timestamp = firstResult.getSourceAsMap().get("@timestamp")
                     .toString();
-            Date date = utilsService.getIso8061UTCDateFromStr(timestamp);
+            Date date = utilsService.getIso8601UTCDateFromStr(timestamp);
 
             return date;
         }

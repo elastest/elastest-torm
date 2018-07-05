@@ -435,13 +435,13 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 || logAnalyzerQuery.getSearchBeforeTrace().isEmpty()) {
             if (logAnalyzerQuery.getRangeLT() != null) {
                 timeRangeQuery = dateStrTemplate.lt(utilsService
-                        .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                        .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
                                 logAnalyzerQuery.getRangeLT()));
             }
             if (logAnalyzerQuery.getRangeLTE() != null) {
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
                         .loe(utilsService
-                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
                                         logAnalyzerQuery.getRangeLTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryLte;
@@ -456,7 +456,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
             if (logAnalyzerQuery.getRangeGT() != null) {
                 BooleanExpression timeRangeQueryGt = dateStrTemplate
                         .gt(utilsService
-                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
                                         logAnalyzerQuery.getRangeGT()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGt;
@@ -467,7 +467,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
             if (logAnalyzerQuery.getRangeGTE() != null) {
                 BooleanExpression timeRangeQueryGTE = dateStrTemplate
                         .goe(utilsService
-                                .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
+                                .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
                                         logAnalyzerQuery.getRangeGTE()));
                 if (timeRangeQuery == null) {
                     timeRangeQuery = timeRangeQueryGTE;
