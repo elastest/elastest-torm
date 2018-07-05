@@ -15,8 +15,7 @@ public class QueueService {
 
     public void sendTrace(Trace trace) {
         String queue = extractQueue(trace);
-        this.messagingTemplate.convertAndSend("/topic/" + queue,
-                trace);
+        this.messagingTemplate.convertAndSend("/topic/" + queue, trace);
     }
 
     public String extractQueue(Trace trace) {

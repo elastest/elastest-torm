@@ -291,6 +291,10 @@ public class Trace {
                 + ", unit=" + unit + ", units=" + units + "]";
     }
 
+    public String toJsonString() {
+        return UtilTools.convertJsonString(this, Trace.class);
+    }
+
     public void setAttributeByGivenName(String field, Object value) {
         switch (field) {
         case "id":

@@ -35,12 +35,16 @@ public class UtilsService {
         return etmInDev;
     }
 
-    public DateFormat getIso8061DateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public String getIso8061String() {
+        return "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     }
 
     public String getIso8061With6MillisecondsString() {
         return "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
+    }
+
+    public DateFormat getIso8061DateFormat() {
+        return new SimpleDateFormat(getIso8061String());
     }
 
     public Date getGMT0DateFromIso8601Str(String dateStr)
@@ -65,17 +69,22 @@ public class UtilsService {
                 TimeZone.getTimeZone("GMT-0"));
     }
 
-
     /* ********************************************************************* */
     /* *** Date conversion from LogAnalyzer Date (yyyy-MM-dd'T'HH:mm:ss) *** */
     /* ********************************************************************* */
 
     public Date getDateUTCFromLogAnalyzerStrDate(String logAnalyzerDate)
             throws ParseException {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                Locale.UK);
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                    Locale.UK);
 
-        return df.parse(logAnalyzerDate);
+            return df.parse(logAnalyzerDate);
+        } catch (Exception e) {
+            DateFormat df = new SimpleDateFormat(getIso8061String(), Locale.UK);
+
+            return df.parse(logAnalyzerDate);
+        }
     }
 
     public String getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(
