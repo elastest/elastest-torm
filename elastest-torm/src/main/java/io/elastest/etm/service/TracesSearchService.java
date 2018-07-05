@@ -436,7 +436,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
                                 logAnalyzerQuery.getRangeLT()));
             }
             if (logAnalyzerQuery.getRangeLTE() != null) {
-                System.out.println("Yuju 1");
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
                         .loe(utilsService
                                 .getStrIso8061With6MillisUTCFromLogAnalyzerDateStr(

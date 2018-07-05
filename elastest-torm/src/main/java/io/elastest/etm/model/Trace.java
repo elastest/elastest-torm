@@ -77,7 +77,7 @@ public class Trace {
     /* *** For Log *** */
 
     @JsonView({ TraceView.class })
-    @Column(name = "message")
+    @Column(name = "message", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("message")
     private String message;
 

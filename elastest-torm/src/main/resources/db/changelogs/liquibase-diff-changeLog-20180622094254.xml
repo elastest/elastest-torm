@@ -12,7 +12,7 @@
             <column name="etType" type="VARCHAR(255)"/>
             <column name="exec" type="VARCHAR(255)"/>
             <column name="level" type="INT"/>
-            <column name="message" type="VARCHAR(255)"/>
+            <column name="message" type="TEXT"/>
             <column name="metricName" type="VARCHAR(255)"/>
             <column name="stream" type="VARCHAR(255)"/>
             <column name="streamType" type="INT">
