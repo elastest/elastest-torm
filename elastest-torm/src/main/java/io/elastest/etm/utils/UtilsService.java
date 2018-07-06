@@ -1,5 +1,8 @@
 package io.elastest.etm.utils;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,11 +10,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UtilsService {
+    final Logger logger = getLogger(lookup().lookupClass());
+
     @Value("${exec.mode}")
     String execMode;
 
@@ -70,15 +76,15 @@ public class UtilsService {
     }
 
     public String getIso8601UTCStrFromDate(Date date) throws ParseException {
-        DateFormat df = new SimpleDateFormat(
-                getIso8601With6MillisecondsString(), Locale.UK);
+        logger.debug("getIso8601UTCStrFromDate 1: {}",date);
+        DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
         df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
         return df.format(date);
     }
 
     public Date getIso8601UTCDateFromDate(Date date) throws ParseException {
         String dateStr = this.getIso8601UTCStrFromDate(date);
-
+        logger.debug("getIso8601UTCDateFromDate 2: {}",dateStr);
         return this.getIso8601UTCDateFromStr(dateStr);
     }
 
