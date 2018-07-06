@@ -65,6 +65,7 @@ public class EimBeatConfig {
     @JsonView({ EimBeatConfigView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "eimMonitoringConfig")
+    @JsonIgnoreProperties(value = { "beats" })
     private EimMonitoringConfig eimMonitoringConfig;
 
     public EimBeatConfig() {
