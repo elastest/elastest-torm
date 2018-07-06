@@ -47,9 +47,9 @@ public class SutService {
             sut = sutRepository.save(sut); // Save first
             SutExecution sutExec = createSutExecutionBySut(sut);
             if (sut.isDeployedOutside()) {
+                sut.setCurrentSutExec(sutExec.getId());
                 String[] index = { sut.getSutMonitoringIndex() };
                 elasticsearchService.createMonitoringIndex(index);
-                sut.setCurrentSutExec(sutExec.getId());
                 if (sut.isInstrumentalize()) {
                     sut = this.instrumentalizeSut(sut);
                 }
