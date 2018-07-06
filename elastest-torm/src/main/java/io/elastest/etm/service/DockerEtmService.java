@@ -748,9 +748,11 @@ public class DockerEtmService {
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(listenPortAsString + "/tcp", Arrays
-                    .asList(PortBinding.of("", listenPortAsString)));
+            portBindings.put(listenPortAsString + "/tcp",
+                    Arrays.asList(PortBinding.of("", listenPortAsString)));
             dockerBuilder.portBindings(portBindings);
+
+            dockerService.pullImage(etSocatImage);
 
             bindedPort = dockerService
                     .createAndStartContainer(dockerBuilder.build());

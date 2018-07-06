@@ -76,7 +76,6 @@ public class UtilsService {
     }
 
     public String getIso8601UTCStrFromDate(Date date) throws ParseException {
-        logger.debug("getIso8601UTCStrFromDate 1: {}",date);
         DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
         df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
         return df.format(date);
@@ -84,7 +83,6 @@ public class UtilsService {
 
     public Date getIso8601UTCDateFromDate(Date date) throws ParseException {
         String dateStr = this.getIso8601UTCStrFromDate(date);
-        logger.debug("getIso8601UTCDateFromDate 2: {}",dateStr);
         return this.getIso8601UTCDateFromStr(dateStr);
     }
 
