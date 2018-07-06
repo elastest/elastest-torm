@@ -60,6 +60,8 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - platform-services:/platform-services
             - /shared-data:/shared-data
+            - /etc/timezone:/etc/timezone:ro
+            - /etc/localtime:/etc/localtime:ro
         networks:
             - elastest
 networks:
