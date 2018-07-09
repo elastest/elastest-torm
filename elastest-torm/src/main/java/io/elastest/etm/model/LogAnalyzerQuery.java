@@ -57,7 +57,7 @@ public class LogAnalyzerQuery {
     }
 
     public String[] getIndicesAsArray() {
-        return indices.toArray(new String[indices.size()]);
+        return indices.toArray(new String[0]);
     }
 
     public List<AggregationTree> getComponentsStreams() {

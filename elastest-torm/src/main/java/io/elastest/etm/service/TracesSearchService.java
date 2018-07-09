@@ -557,14 +557,13 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
                 Long beforeId = utilsService.convertToLong(
                         logAnalyzerQuery.getSearchBeforeTrace().get("id"));
-
                 logAnalyzerQueryPredicate = logAnalyzerQueryPredicate
                         .and(QTrace.trace.id.lt(beforeId));
             }
         }
 
-        logAnalyzerQueryPredicate = logAnalyzerQueryPredicate.and(
-                QTrace.trace.exec.in(logAnalyzerQuery.getIndicesAsArray()));
+        logAnalyzerQueryPredicate = logAnalyzerQueryPredicate
+                .and(QTrace.trace.exec.in(logAnalyzerQuery.getIndices()));
 
         return this.getTracesMapListByTracesList(traceRepository
                 .findAll(logAnalyzerQueryPredicate, sizePageable).getContent());

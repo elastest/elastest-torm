@@ -207,7 +207,7 @@ export class GetIndexModalComponent implements OnInit {
     let auxToDate: Date = undefined;
 
     this.selectedAbstractTJobExecs.forEach((currentExec: AbstractTJobExecModel, key: number) => {
-      selectedIndices.push(currentExec.monitoringIndex);
+      selectedIndices = selectedIndices.concat(currentExec.monitoringIndex.split(','));
       auxFromDate = minDate(auxFromDate, currentExec.startDate);
       auxToDate = maxDate(auxToDate, currentExec.endDate);
     });
