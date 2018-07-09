@@ -70,6 +70,7 @@ public class EimMonitoringConfig {
             ExternalProjectView.class, BasicAttProject.class })
     @OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
     @MapKey(name = "name")
+    @JsonIgnoreProperties(value = { "eimMonitoringConfig" })
     Map<String, EimBeatConfig> beats;
 
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class, })

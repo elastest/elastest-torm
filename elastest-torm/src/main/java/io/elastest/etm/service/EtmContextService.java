@@ -303,10 +303,6 @@ public class EtmContextService {
                 && !imageName.startsWith("elastest/platform-services");
     }
 
-    /* ******************** */
-    /* *** Log Analyzer *** */
-    /* ******************** */
-
     public Map<String, String> getTJobExecMonitoringEnvVars(
             TJobExecution tJobExec) {
         Map<String, String> monEnvs = new HashMap<String, String>();
@@ -333,6 +329,10 @@ public class EtmContextService {
 
         return monEnvs;
     }
+
+    /* ******************** */
+    /* *** Log Analyzer *** */
+    /* ******************** */
 
     public LogAnalyzerConfig saveLogAnalyzerConfig(
             LogAnalyzerConfig logAnalizerConfig) {

@@ -82,13 +82,13 @@ public class LogstashService {
     }
 
     public void sendStartTestLogtrace(String exec, String testName) {
-        String message = utilsService.tcStartMsgPrefix + testName;
+        String message = utilsService.tcStartMsgPrefix + " " + testName;
         this.sendSingleLogTrace(message, defaultTestComponent, exec,
                 logDefaultStream);
     }
 
     public void sendFinishTestLogtrace(String exec, String testName) {
-        String message = utilsService.tcFinishMsgPrefix + testName;
+        String message = utilsService.tcFinishMsgPrefix + " " + testName;
         this.sendSingleLogTrace(message, defaultTestComponent, exec,
                 logDefaultStream);
     }

@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -68,6 +69,7 @@ public class EimBeatConfig {
     @JsonView({ EimBeatConfigView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "eimMonitoringConfig")
+    @JsonIgnoreProperties(value = { "beats" })
     private EimMonitoringConfig eimMonitoringConfig;
 
     public EimBeatConfig() {
