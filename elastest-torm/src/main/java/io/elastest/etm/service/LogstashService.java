@@ -40,9 +40,7 @@ public class LogstashService {
     @PostConstruct
     public void init() {
         this.contextInfo = this.etmContextAuxService.getContextInfo();
-        String lsHost = this.contextInfo.getLogstashIp();
-        String lsHttpPort = this.contextInfo.getLogstashHttpPort();
-        this.lsHttpApi = "http://" + lsHost + ":" + lsHttpPort;
+        this.lsHttpApi = this.contextInfo.getLogstashHttpUrl();
     }
 
     public void sendSingleLogTrace(String message, String component,
