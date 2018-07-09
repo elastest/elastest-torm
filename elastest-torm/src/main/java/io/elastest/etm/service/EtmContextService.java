@@ -36,8 +36,7 @@ public class EtmContextService {
 
     @Value("${et.public.host}")
     public String etPublicHost;
-    @Value("${et.in.prod}")
-    public boolean etInProd;
+
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
 

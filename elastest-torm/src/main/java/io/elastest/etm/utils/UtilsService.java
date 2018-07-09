@@ -24,8 +24,8 @@ public class UtilsService {
     @Value("${enable.et.mini}")
     public boolean enableETMini;
 
-    @Value("${et.etm.in.dev}")
-    public boolean etmInDev;
+    @Value("${et.in.prod}")
+    public boolean etInProd;
 
     @Value("${test.case.start.msg.prefix}")
     public String tcStartMsgPrefix;
@@ -38,7 +38,7 @@ public class UtilsService {
     }
 
     public boolean isEtmInDevelopment() {
-        return etmInDev;
+        return !etInProd;
     }
 
     public String getIso8601String() {

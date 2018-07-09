@@ -48,6 +48,12 @@ public class EtmContextAuxService {
     @Value("${exec.mode}")
     String execMode;
 
+    @Value("${additional.server.port}")
+    int additionalServerPort;
+
+    @Value("${et.mini.etm.monitoring.http.path}")
+    String etMiniEtmMonitoringHttpPath;
+
     /* **************** */
     /* *** Logstash *** */
     /* **************** */
@@ -129,9 +135,9 @@ public class EtmContextAuxService {
         contextInfo
                 .setLogstashBindedInternalBeatsPort(bindedInternalLsBeatsPort);
 
-        String logstashHost = null;
+        String logstashOrEtmMiniHost = null;
         try {
-            logstashHost = dockerEtmService.getLogstashHost();
+            logstashOrEtmMiniHost = dockerEtmService.getLogstashHost();
         } catch (Exception e) {
             logger.error("Error on get logstash host ip", e);
         }
@@ -156,12 +162,19 @@ public class EtmContextAuxService {
             }
         }
 
-        contextInfo.setLogstashHttpUrl(
-                "http://" + proxyIp + ":" + proxyPort + logstashPathWithProxy);
-        contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
-                + proxySslPort + logstashPathWithProxy);
+        if (etInProd) {
+            contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort
+                    + logstashPathWithProxy);
+            contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
+                    + proxySslPort + logstashPathWithProxy);
+        } else {
+            contextInfo.setLogstashHttpUrl("http://" + logstashOrEtmMiniHost + ":"
+                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
+            contextInfo.setLogstashSSLHttpUrl("http://" + logstashOrEtmMiniHost + ":"
+                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
+        }
 
-        contextInfo.setLogstashIp(logstashHost);
+        contextInfo.setLogstashIp(logstashOrEtmMiniHost);
 
         contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
         contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + proxyPort
