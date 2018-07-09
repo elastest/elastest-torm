@@ -38,7 +38,6 @@ public class TracesApiController implements TracesApi {
     public ResponseEntity<Map<String, Object>> processTrace(
             @Valid @RequestBody Map<String, Object> data) {
         try {
-            logger.debug("Processing HTTP trace {}", data.toString());
             this.tracesService.processHttpTrace(data);
             return new ResponseEntity<Map<String, Object>>(data, HttpStatus.OK);
         } catch (Exception e) {

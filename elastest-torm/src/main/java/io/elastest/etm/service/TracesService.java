@@ -155,7 +155,8 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-                trace.setTimestamp(utilsService.getIso8601UTCDateFromDate(timestamp));
+                trace.setTimestamp(
+                        utilsService.getIso8601UTCDateFromDate(timestamp));
 
                 // If message, set level and container name
                 trace = this.matchesLevelAndContainerNameFromMessage(trace,
@@ -212,6 +213,10 @@ public class TracesService {
                 StreamType.fromValue((String) dataMap.get("stream_type")));
 
         String timestampAsStr = (String) dataMap.get("@timestamp");
+        if (timestampAsStr == null) {
+            timestampAsStr = utilsService.getIso8601UTCStrFromDate(new Date());
+        }
+        
         trace.setTimestamp(
                 utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
@@ -225,6 +230,7 @@ public class TracesService {
             boolean fromDockbeat) {
         logger.trace("Processing trace {}", dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
+
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
 
@@ -242,7 +248,6 @@ public class TracesService {
                         "container", "name" };
                 String containerName = (String) UtilTools.getMapFieldByTreeList(
                         dataMap, Arrays.asList(containerNameTree));
-
                 if (containerName != null) {
                     trace.setContainerName(containerName);
                     // Metricbeat
@@ -388,7 +393,7 @@ public class TracesService {
                 this.saveTrace(trace);
                 this.queueService.sendTrace(trace);
             } catch (Exception e) {
-                logger.trace("Error on processing Beat trace {}: ", dataMap, e);
+                logger.error("Error on processing Beat trace {}: ", dataMap, e);
             }
         }
     }
@@ -399,6 +404,7 @@ public class TracesService {
 
     @SuppressWarnings("unchecked")
     public void processHttpTrace(Map<String, Object> dataMap) {
+        logger.debug("Processing HTTP trace {}", dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
             List<String> messages = (List<String>) dataMap.get("messages");
             // Multiple messages
