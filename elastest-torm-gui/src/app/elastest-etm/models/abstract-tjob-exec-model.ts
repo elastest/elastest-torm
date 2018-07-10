@@ -82,4 +82,8 @@ export class AbstractTJobExecModel {
     }
     return icon;
   }
+
+  public getSplittedComposedMonitoringIndex(): string[] {
+    return this.monitoringIndex.split(',');
+  }
 }

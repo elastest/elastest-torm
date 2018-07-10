@@ -2,11 +2,9 @@ import { minDate, maxDate } from '../utils/Utils';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
-import { Router } from '@angular/router';
 import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
-import { dateToInputLiteral } from '../utils/Utils';
 import { ExternalService } from '../../elastest-etm/external/external.service';
 import { ExternalTJobExecModel } from '../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
@@ -207,7 +205,7 @@ export class GetIndexModalComponent implements OnInit {
     let auxToDate: Date = undefined;
 
     this.selectedAbstractTJobExecs.forEach((currentExec: AbstractTJobExecModel, key: number) => {
-      selectedIndices = selectedIndices.concat(currentExec.monitoringIndex.split(','));
+      selectedIndices = selectedIndices.concat(currentExec.getSplittedComposedMonitoringIndex());
       auxFromDate = minDate(auxFromDate, currentExec.startDate);
       auxToDate = maxDate(auxToDate, currentExec.endDate);
     });

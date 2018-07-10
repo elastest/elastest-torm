@@ -153,7 +153,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           (tjobExec: TJobExecModel) => {
             let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
               fromDate: tjobExec.startDate,
-              selectedIndices: [tjobExec.monitoringIndex],
+              selectedIndices: [tjobExec.getSplittedComposedMonitoringIndex()],
               toDate: tjobExec.endDate,
             };
             this.loadSelectExecutions(data, fromExec);
@@ -164,7 +164,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         this.externalService.getExternalTJobExecById(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
           let data: { fromDate: Date; selectedIndices: string[]; toDate: Date } = {
             fromDate: exTJobExec.startDate,
-            selectedIndices: [exTJobExec.monitoringIndex],
+            selectedIndices: [exTJobExec.getSplittedComposedMonitoringIndex()],
             toDate: exTJobExec.endDate,
           };
           this.loadSelectExecutions(data, fromExec);
