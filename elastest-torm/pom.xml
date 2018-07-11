@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>io.elastest.epm</groupId>
 			<artifactId>epm-client</artifactId>
-			<version>0.5.0-alpha2-SNAPSHOT</version>
+			<version>0.9.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -344,7 +344,21 @@
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-ext -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-ext</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.zeroturnaround/zt-exec -->
+		<dependency>
+			<groupId>org.zeroturnaround</groupId>
+			<artifactId>zt-exec</artifactId>
+			<version>1.10</version>
+		</dependency>
 	</dependencies>
+
 
 	<build>
 		<resources>

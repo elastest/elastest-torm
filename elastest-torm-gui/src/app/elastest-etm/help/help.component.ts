@@ -135,7 +135,7 @@ export class HelpComponent implements OnInit {
               this.coreServiceLogs.traces = this.coreServiceLogs.traces.concat(logsAsTraces);
             },
             (error: Error) => {
-              this.popupService.openSnackBar('Error on get next' + this.coreServiceLogs.name + ' logs');
+              this.popupService.openSnackBar('Error on get next ' + this.coreServiceLogs.name + ' logs');
               console.log(error);
             },
           );

@@ -22,6 +22,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -59,6 +60,7 @@ import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -150,6 +152,14 @@ public class DockerService {
         String ipRoute = shellService.runAndWait("sh", "-c", "/sbin/ip route");
         String[] tokens = ipRoute.split("\\s");
         return tokens[2];
+    }
+
+    public List<Container> getContainersByPrefix(String prefix) {
+        return dockerClient.listContainersCmd().withShowAll(true).exec()
+                .stream()
+                .filter(container -> Arrays.stream(container.getNames())
+                        .anyMatch(name -> name.startsWith("/" + prefix)))
+                .collect(toList());
     }
 
     public String getDockerMachineIp() throws IOException {

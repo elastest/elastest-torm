@@ -28,13 +28,18 @@ import static okhttp3.MediaType.parse;
 import static okhttp3.RequestBody.create;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -45,8 +50,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports.Binding;
@@ -56,6 +63,7 @@ import io.elastest.epm.client.DockerComposeApi;
 import io.elastest.epm.client.DockerComposeProject;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.DockerException;
+import io.elastest.epm.client.dockercompose.DockerComposeContainer;
 import io.elastest.epm.client.json.DockerComposeConfig;
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerComposeList;
@@ -80,6 +88,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class DockerComposeService {
 
     final Logger log = getLogger(lookup().lookupClass());
+    private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
 
     @Value("${docker.compose.ui.exposedport}")
     private int dockerComposeUiPort;
@@ -186,7 +195,7 @@ public class DockerComposeService {
 
     public boolean createProject(DockerComposeCreateProject project)
             throws IOException {
-        
+
         log.debug("Creating Docker Compose with data: {}", project);
 
         String json = jsonService.objectToJson(project);
@@ -202,12 +211,11 @@ public class DockerComposeService {
         return true;
     }
 
-    
     public boolean createProject(String projectName, String dockerComposeYml)
             throws IOException {
         DockerComposeCreateProject createProject = new DockerComposeCreateProject(
                 projectName, dockerComposeYml.replaceAll("'", "\""));
-        
+
         return createProject(createProject);
     }
 
@@ -224,9 +232,9 @@ public class DockerComposeService {
 
         log.trace("Start project response code {}", response.code());
         if (!response.isSuccessful()) {
-            
+
             log.error("Start project response code {}", response.code());
-            
+
             throw new DockerException(response.errorBody().string());
         }
         return true;
@@ -304,6 +312,83 @@ public class DockerComposeService {
             log.trace("Deleting docker-compose project {}", project);
             dockerComposeApi.removeProject(project).execute();
         }
+    }
+
+    public boolean createProject2(DockerComposeCreateProject project,
+            String targetPath) throws IOException {
+
+        log.debug("Creating Docker Compose with data: {}", project);
+        File ymlFile = createFileFromProject(project, targetPath);
+        DockerComposeContainer compose = new DockerComposeContainer<>(
+                project.getName(), false, ymlFile);
+        projects.put(project.getName(), compose);
+        log.debug("Created Docker Compose with data: {}", project);
+
+        return true;
+    }
+
+    public boolean createProject2(String projectName, String dockerComposeYml,
+            String targetPath) throws IOException {
+        DockerComposeCreateProject createProject = new DockerComposeCreateProject(
+                projectName, dockerComposeYml.replaceAll("'", "\""));
+
+        return createProject2(createProject, targetPath);
+    }
+
+    public boolean startProject2(String projectName) throws IOException {
+        DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
+                projectName);
+        log.debug("Starting Docker Compose project with data: {}",
+                projectMessage);
+        if (!projects.containsKey(projectName)) {
+            return false;
+        }
+        try {
+            projects.get(projectName).start();
+        } catch (InterruptedException e) {
+            throw new DockerException(
+                    "Error on starting project " + projectName, e);
+        }
+
+        return true;
+    }
+
+    public boolean stopProject2(String projectName) throws IOException {
+        DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
+                projectName);
+        log.debug("Stopping Docker Compose project with data: {}",
+                projectMessage);
+
+        if (!projects.containsKey(projectName)) {
+            return false;
+        }
+        projects.get(projectName).stop();
+
+        return true;
+    }
+
+    public DockerContainerInfo getContainers2(String projectName) {
+        List<Container> containers = dockerService
+                .getContainersByPrefix(projectName);
+        DockerContainerInfo dockerContainerInfo = new DockerContainerInfo();
+        for (Container container : containers) {
+            io.elastest.epm.client.json.DockerContainerInfo.DockerContainer dockerContainer = new io.elastest.epm.client.json.DockerContainerInfo.DockerContainer();
+            dockerContainer.initFromContainer(container);
+
+            dockerContainerInfo.getContainers().add(dockerContainer);
+        }
+
+        return dockerContainerInfo;
+
+    }
+
+    public File createFileFromProject(DockerComposeCreateProject project,
+            String targetPath) throws IOException {
+        String filePath = targetPath + "/" + project.getName() + ".yml";
+        File file = new File(filePath);
+        FileUtils.writeStringToFile(file, project.getYml(),
+                StandardCharsets.UTF_8);
+        return ResourceUtils.getFile(filePath);
     }
 
     @Aspect

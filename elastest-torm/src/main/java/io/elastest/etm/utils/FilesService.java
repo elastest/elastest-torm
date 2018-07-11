@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,6 +134,13 @@ public class FilesService {
             String targetPath) throws IOException {
         File file = new File(targetPath);
         FileUtils.copyInputStreamToFile(iStream, file);
+        return ResourceUtils.getFile(targetPath);
+    }
+
+    public File createFileFromString(String string,
+            String targetPath) throws IOException {
+        File file = new File(targetPath);
+        FileUtils.writeStringToFile(file, string, StandardCharsets.UTF_8);
         return ResourceUtils.getFile(targetPath);
     }
 
