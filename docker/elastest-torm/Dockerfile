@@ -1,5 +1,11 @@
 FROM openjdk:alpine
-MAINTAINER baeldung.com
+
+## docker & docker-compose
+apk update
+
+apk add py-pip
+apk add docker
+pip install docker-compose
 
 RUN apk --no-cache add netcat-openbsd
 COPY elastest-torm.jar /
