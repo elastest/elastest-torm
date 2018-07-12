@@ -2,8 +2,8 @@ FROM openjdk:alpine
 
 ## docker & docker-compose
 RUN apk update \
-	&& apk add py-pip
-	&& apk add docker
+	&& apk add py-pip \
+	&& apk add docker \
 	&& pip install docker-compose
 
 RUN apk --no-cache add netcat-openbsd
