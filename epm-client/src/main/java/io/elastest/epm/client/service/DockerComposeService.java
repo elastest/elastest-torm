@@ -49,6 +49,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
@@ -82,7 +84,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 public class DockerComposeService {
 
-    final Logger log = getLogger(lookup().lookupClass());
+    final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
 
     @Value("${docker.compose.ui.exposedport}")
@@ -115,7 +117,7 @@ public class DockerComposeService {
     public void setup() throws Exception {
         // 1. Start docker-compose-ui container
 
-        log.debug("Starting docker-compose-ui container: {}",
+        logger.debug("Starting docker-compose-ui container: {}",
                 dockerComposeUiContainerName);
 
         dockerComposeUiContainerName = dockerService
@@ -171,7 +173,7 @@ public class DockerComposeService {
                 .baseUrl(dockerComposeServiceUrl).build();
         dockerComposeApi = retrofit.create(DockerComposeApi.class);
 
-        log.debug("docker-compose-ui up and running on URL: {}",
+        logger.debug("docker-compose-ui up and running on URL: {}",
                 dockerComposeServiceUrl);
 
         // 3.Delete default example projects
@@ -184,7 +186,7 @@ public class DockerComposeService {
     @PreDestroy
     public void teardown() throws Exception {
         if (dockerComposeUiContainerName != null) {
-            log.debug("Stopping docker-compose-ui container: {}",
+            logger.debug("Stopping docker-compose-ui container: {}",
                     dockerComposeUiContainerName);
             dockerService.stopAndRemoveContainer(dockerComposeUiContainerName);
         }
@@ -213,14 +215,14 @@ public class DockerComposeService {
     public boolean createProject(DockerComposeCreateProject project)
             throws IOException {
 
-        log.debug("Creating Docker Compose with data: {}", project);
+        logger.debug("Creating Docker Compose with data: {}", project);
 
         String json = jsonService.objectToJson(project);
         RequestBody data = create(parse(APPLICATION_JSON), json);
         Response<ResponseBody> response = dockerComposeApi.createProject(data)
                 .execute();
 
-        log.trace("Create project response code {}", response.code());
+        logger.trace("Create project response code {}", response.code());
         if (!response.isSuccessful()) {
             throw new DockerException(response.errorBody().string());
         }
@@ -239,7 +241,7 @@ public class DockerComposeService {
     public boolean startProject(String projectName) throws IOException {
         DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
                 projectName);
-        log.debug("Starting Docker Compose project with data: {}",
+        logger.debug("Starting Docker Compose project with data: {}",
                 projectMessage);
 
         RequestBody data = create(parse(APPLICATION_JSON),
@@ -247,10 +249,10 @@ public class DockerComposeService {
         Response<ResponseBody> response = dockerComposeApi.dockerComposeUp(data)
                 .execute();
 
-        log.trace("Start project response code {}", response.code());
+        logger.trace("Start project response code {}", response.code());
         if (!response.isSuccessful()) {
 
-            log.error("Start project response code {}", response.code());
+            logger.error("Start project response code {}", response.code());
 
             throw new DockerException(response.errorBody().string());
         }
@@ -260,7 +262,7 @@ public class DockerComposeService {
     public boolean stopProject(String projectName) throws IOException {
         DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
                 projectName);
-        log.debug("Stopping Docker Compose project with data: {}",
+        logger.debug("Stopping Docker Compose project with data: {}",
                 projectMessage);
 
         RequestBody data = create(parse(APPLICATION_JSON),
@@ -268,7 +270,7 @@ public class DockerComposeService {
         Response<ResponseBody> response = dockerComposeApi
                 .dockerComposeDown(data).execute();
 
-        log.trace("Stop project response code {}", response.code());
+        logger.trace("Stop project response code {}", response.code());
         if (!response.isSuccessful()) {
             throw new DockerException(response.errorBody().string());
         }
@@ -276,16 +278,16 @@ public class DockerComposeService {
     }
 
     public List<DockerComposeProject> listProjects() throws IOException {
-        log.debug("List Docker Compose projects");
+        logger.debug("List Docker Compose projects");
         List<DockerComposeProject> projects = new ArrayList<>();
 
         Response<DockerComposeList> response = dockerComposeApi.listProjects()
                 .execute();
-        log.debug("List projects response code {}", response.code());
+        logger.debug("List projects response code {}", response.code());
 
         if (response.isSuccessful()) {
             DockerComposeList body = response.body();
-            log.debug("Success: {}", body);
+            logger.debug("Success: {}", body);
             Set<String> keySet = body.getProjects().keySet();
 
             for (String key : keySet) {
@@ -310,15 +312,15 @@ public class DockerComposeService {
     }
 
     public String getYaml(String projectName) throws IOException {
-        log.debug("Get YAML of project {}", projectName);
+        logger.debug("Get YAML of project {}", projectName);
 
         Response<DockerComposeConfig> response = dockerComposeApi
                 .getDockerComposeYml(projectName).execute();
-        log.debug("Get YAML response code {}", response.code());
+        logger.debug("Get YAML response code {}", response.code());
 
         if (response.isSuccessful()) {
             DockerComposeConfig body = response.body();
-            log.debug("YAML body content: {}", body);
+            logger.debug("YAML body content: {}", body);
             return body.getYml();
         }
         throw new DockerException(response.errorBody().string());
@@ -326,7 +328,7 @@ public class DockerComposeService {
 
     public void removeProjects(String... projects) throws IOException {
         for (String project : projects) {
-            log.trace("Deleting docker-compose project {}", project);
+            logger.trace("Deleting docker-compose project {}", project);
             dockerComposeApi.removeProject(project).execute();
         }
     }
@@ -334,14 +336,18 @@ public class DockerComposeService {
     public boolean createProject2(DockerComposeCreateProject project,
             String targetPath) throws IOException {
 
-        log.debug("Creating Docker Compose with data: {}", project);
+        logger.debug("Creating Docker Compose with data: {}", project);
         File ymlFile = createFileFromProject(project, targetPath);
+
+        List<String> images = this.getImagesFromYML(project.getYml());
+
         DockerComposeContainer compose = new DockerComposeContainer<>(
-                project.getName(), false, ymlFile);
+                project.getName(), false, ymlFile).withImages(images);
         projects.put(project.getName(), compose);
-        log.debug("Created Docker Compose with data: {}", project);
+        logger.debug("Created Docker Compose with data: {}", project);
 
         return true;
+
     }
 
     public boolean createProject2(String projectName, String dockerComposeYml,
@@ -352,15 +358,20 @@ public class DockerComposeService {
         return createProject2(createProject, targetPath);
     }
 
-    public boolean startProject2(String projectName) throws IOException {
+    public boolean startProject2(String projectName, boolean withPull)
+            throws IOException {
         DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
                 projectName);
-        log.debug("Starting Docker Compose project with data: {}",
+        logger.debug("Starting Docker Compose project with data: {}",
                 projectMessage);
+
         if (!projects.containsKey(projectName)) {
             return false;
         }
         try {
+            if (withPull) {
+                this.pullImages(projects.get(projectName));
+            }
             projects.get(projectName).start();
         } catch (InterruptedException e) {
             throw new DockerException(
@@ -373,7 +384,7 @@ public class DockerComposeService {
     public boolean stopProject2(String projectName) throws IOException {
         DockerComposeProjectMessage projectMessage = new DockerComposeProjectMessage(
                 projectName);
-        log.debug("Stopping Docker Compose project with data: {}",
+        logger.debug("Stopping Docker Compose project with data: {}",
                 projectMessage);
 
         if (!projects.containsKey(projectName)) {
@@ -397,7 +408,7 @@ public class DockerComposeService {
             }
 
         } catch (Exception e) {
-            log.error("Error on get containers of project {}", projectName);
+            logger.error("Error on get containers of project {}", projectName);
         }
         return dockerContainerInfo;
     }
@@ -426,6 +437,50 @@ public class DockerComposeService {
             if (!isStarted) {
                 isStarted = true;
                 dockerComposeService.setup();
+            }
+        }
+
+    }
+
+    private List<String> getImagesFromYML(String yml) {
+        List<String> images = new ArrayList<>();
+        YAMLFactory yf = new YAMLFactory();
+        ObjectMapper mapper = new ObjectMapper(yf);
+        Object object;
+        try {
+            object = mapper.readValue(yml, Object.class);
+
+            Map<String, HashMap<String, HashMap>> dockerComposeMap = (HashMap) object;
+            Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
+            for (HashMap.Entry<String, HashMap> service : servicesMap
+                    .entrySet()) {
+
+                HashMap<String, String> serviceContent = service.getValue();
+
+                String imageKey = "image";
+                // If service has image, pull
+                if (serviceContent.containsKey(imageKey)) {
+                    String image = serviceContent.get(imageKey);
+                    images.add(image);
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error("Error on process yml to get images");
+        }
+        return images;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void pullImages(DockerComposeContainer dockerComposeContainer) {
+        if (dockerComposeContainer.getImagesList() != null) {
+            for (String image : (List<String>) dockerComposeContainer
+                    .getImagesList()) {
+                try {
+                    dockerService.pullImage(image);
+                } catch (Exception e) {
+                    logger.error("Error on pull {} image", image);
+                }
             }
         }
 

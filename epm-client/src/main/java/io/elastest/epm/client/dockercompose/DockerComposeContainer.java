@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +35,13 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private final List<File> composeFiles;
 
     private final Map<String, Integer> scalingPreferences = new HashMap<>();
-    private boolean pull = true;
+    private boolean pull = false;
 
     private String project;
     private static final Object MUTEX = new Object();
     private Map<String, String> env = new HashMap<>();
+
+    private List<String> imagesList = new ArrayList<>();
 
     /* ******************** */
     /* *** Constructors *** */
@@ -87,13 +90,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
             applyScaling();
             // Run the docker-compose container, which starts up the services
             runWithCompose("up -d");
-            waitForStarted();
         }
-    }
-
-    private void waitForStarted() {
-        runWithCompose("ps -q");
-
     }
 
     private ProcessResult runWithCompose(String cmd) {
@@ -141,6 +138,15 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     public SELF withEnv(Map<String, String> env) {
         env.forEach(this.env::put);
         return self();
+    }
+
+    public SELF withImages(List<String> images) {
+        this.imagesList = images;
+        return self();
+    }
+
+    public List<String> getImagesList() {
+        return this.imagesList;
     }
 
     /**
@@ -246,6 +252,7 @@ class LocalDockerCompose implements DockerCompose {
 
         try {
             ProcessResult processResult = new ProcessExecutor().command(command)
+                    .readOutput(true)
                     .redirectOutput(Slf4jStream.of(logger).asInfo())
                     .redirectError(Slf4jStream.of(logger).asError())
                     .environment(environment).directory(pwd).exitValueNormal()
