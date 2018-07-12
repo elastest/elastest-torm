@@ -16,8 +16,6 @@
  */
 package io.elastest.epm.client.service;
 
-import static com.github.dockerjava.api.model.ExposedPort.tcp;
-import static com.github.dockerjava.api.model.Ports.Binding.bindPort;
 import static io.elastest.epm.client.DockerContainer.dockerBuilder;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.nio.charset.Charset.defaultCharset;
@@ -32,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +51,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports.Binding;
-import com.github.dockerjava.api.model.Volume;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.PortBinding;
+import com.spotify.docker.client.messages.HostConfig.Bind;
+import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
 
 import io.elastest.epm.client.DockerComposeApi;
 import io.elastest.epm.client.DockerComposeProject;
@@ -108,41 +105,63 @@ public class DockerComposeService {
     private String dockerComposeUiContainerName;
     private DockerComposeApi dockerComposeApi;
 
-    private DockerService dockerService;
+    private DockerService3 dockerService;
     private JsonService jsonService;
 
-    public DockerComposeService(DockerService dockerService,
+    public DockerComposeService(DockerService3 dockerService,
             JsonService jsonService) {
         this.dockerService = dockerService;
         this.jsonService = jsonService;
     }
 
-    public void setup() throws IOException, InterruptedException {
+    public void setup() throws Exception {
         // 1. Start docker-compose-ui container
-        dockerComposeUiContainerName = dockerService
-                .generateContainerName(dockerComposeUiPrefix);
-
-        int dockerComposeBindPort = dockerService.findRandomOpenPort();
-        Binding bindNoVncPort = bindPort(dockerComposeBindPort);
-        ExposedPort exposedNoVncPort = tcp(dockerComposeUiPort);
-
-        String dockerComposeServiceUrl = "http://"
-                + dockerService.getDockerServerIp() + ":"
-                + dockerComposeBindPort;
 
         log.debug("Starting docker-compose-ui container: {}",
                 dockerComposeUiContainerName);
 
-        List<PortBinding> portBindings = asList(
-                new PortBinding(bindNoVncPort, exposedNoVncPort));
-        Volume volume = new Volume(dockerDefaultSocket);
-        List<Volume> volumes = asList(volume);
-        List<Bind> binds = asList(new Bind(dockerDefaultSocket, volume));
+        dockerComposeUiContainerName = dockerService
+                .generateContainerName(dockerComposeUiPrefix);
 
-        DockerBuilder dockerBuilder = dockerBuilder(dockerComposeUiImageId,
-                dockerComposeUiContainerName).portBindings(portBindings)
-                        .volumes(volumes).binds(binds);
-        dockerService.startAndWaitContainer(dockerBuilder.build());
+        int dockerComposeBindPort = dockerService.findRandomOpenPort();
+        String dockerComposeServiceUrl = "http://"
+                + dockerService.getDockerServerIp() + ":"
+                + dockerComposeBindPort;
+
+        List<String> envVariables = new ArrayList<>();
+
+        DockerBuilder dockerBuilder = new DockerBuilder(dockerComposeUiImageId)
+                .containerName(dockerComposeUiContainerName);
+        dockerBuilder.envs(envVariables);
+
+        dockerBuilder.exposedPorts(
+                Arrays.asList(String.valueOf(dockerComposeUiPort)));
+
+        // portBindings
+        Map<String, List<PortBinding>> portBindings = new HashMap<>();
+        portBindings.put(String.valueOf(dockerComposeUiPort),
+                Arrays.asList(PortBinding.of("0.0.0.0",
+                        Integer.toString(dockerComposeBindPort))));
+        dockerBuilder.portBindings(portBindings);
+
+        // Volumes (docker.sock)
+        List<Bind> volumes = new ArrayList<>();
+        Builder dockerSockVolumeBuilder = Bind.builder();
+        dockerSockVolumeBuilder.from(dockerDefaultSocket);
+        dockerSockVolumeBuilder.to(dockerDefaultSocket);
+        volumes.add(dockerSockVolumeBuilder.build());
+        dockerBuilder.volumeBindList(volumes);
+
+        try {
+            dockerService.pullImage(dockerComposeUiImageId);
+        } catch (Exception e) {
+            if (!dockerService.existsImage(dockerComposeUiImageId)) {
+                throw new Exception(
+                        "Error on pulling " + dockerComposeUiImageId + " image",
+                        e);
+            }
+        }
+        dockerService.createAndStartContainer(dockerBuilder.build());
 
         // 2. Create Retrofit object to call docker-compose-ui REST API
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -165,7 +184,7 @@ public class DockerComposeService {
     }
 
     @PreDestroy
-    public void teardown() {
+    public void teardown() throws Exception {
         if (dockerComposeUiContainerName != null) {
             log.debug("Stopping docker-compose-ui container: {}",
                     dockerComposeUiContainerName);
@@ -368,18 +387,21 @@ public class DockerComposeService {
     }
 
     public DockerContainerInfo getContainers2(String projectName) {
-        List<Container> containers = dockerService
-                .getContainersByPrefix(projectName);
+        List<Container> containers;
         DockerContainerInfo dockerContainerInfo = new DockerContainerInfo();
-        for (Container container : containers) {
-            io.elastest.epm.client.json.DockerContainerInfo.DockerContainer dockerContainer = new io.elastest.epm.client.json.DockerContainerInfo.DockerContainer();
-            dockerContainer.initFromContainer(container);
+        try {
+            containers = dockerService.getContainersByPrefix(projectName);
+            for (Container container : containers) {
+                io.elastest.epm.client.json.DockerContainerInfo.DockerContainer dockerContainer = new io.elastest.epm.client.json.DockerContainerInfo.DockerContainer();
+                dockerContainer.initFromContainer(container);
 
-            dockerContainerInfo.getContainers().add(dockerContainer);
+                dockerContainerInfo.getContainers().add(dockerContainer);
+            }
+
+        } catch (Exception e) {
+            log.error("Error on get containers of project {}", projectName);
         }
-
         return dockerContainerInfo;
-
     }
 
     public File createFileFromProject(DockerComposeCreateProject project,
@@ -402,7 +424,7 @@ public class DockerComposeService {
         DockerComposeService dockerComposeService;
 
         @Before("execution(* io.elastest.epm.client.service.DockerComposeService.*(..))")
-        void before() throws IOException, InterruptedException {
+        void before() throws Exception {
             if (!isStarted) {
                 isStarted = true;
                 dockerComposeService.setup();

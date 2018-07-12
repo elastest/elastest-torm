@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ContainerPort;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.Container.PortMapping;
 
 /**
  * Utility class for deserialize container info from docker-compose-ui.
@@ -106,18 +106,18 @@ public class DockerContainerInfo {
         }
 
         public void initFromContainer(Container container) {
-            this.command = container.getCommand();
-            this.is_running = container.getStatus().startsWith("Up");
-            this.labels = new Labels(container.getLabels());
-            if (container.getNames().length > 0) {
-                this.name = container.getNames()[0].replaceFirst("/", "");
+            this.command = container.command();
+            this.is_running = container.status().startsWith("Up");
+            this.labels = new Labels(container.labels());
+            if (container.names().size() > 0) {
+                this.name = container.names().get(0).replaceFirst("/", "");
             }
             Map<String, List<PortInfo>> portsMap = new HashMap<>();
-            for (ContainerPort port : container.getPorts()) {
+            for (PortMapping port : container.ports()) {
                 List<PortInfo> ports = new ArrayList<>();
                 ports.add(new PortInfo(port));
 
-                portsMap.put(port.getPrivatePort() + "/tcp", ports);
+                portsMap.put(port.privatePort() + "/tcp", ports);
             }
             this.ports = portsMap;
 
@@ -230,11 +230,11 @@ public class DockerContainerInfo {
         public PortInfo() {
         }
 
-        public PortInfo(ContainerPort port) {
+        public PortInfo(PortMapping port) {
             if (port != null) {
-                this.HostIp = port.getIp();
-                this.HostPort = port.getPublicPort() != null
-                        ? port.getPublicPort().toString()
+                this.HostIp = port.ip();
+                this.HostPort = port.publicPort() != null
+                        ? port.publicPort().toString()
                         : null;
             }
         }

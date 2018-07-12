@@ -39,7 +39,7 @@ import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.ElastestConstants;
-import io.elastest.etm.utils.FilesService;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
 
@@ -126,7 +126,7 @@ public class EsmService {
     public EsmServiceClient esmServiceClient;
     public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
-    public FilesService filesServices;
+    public EtmFilesService filesServices;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
     private Map<String, SupportServiceInstance> externalTJobServicesInstances;
@@ -145,7 +145,7 @@ public class EsmService {
 
     @Autowired
     public EsmService(EsmServiceClient esmServiceClient,
-            DockerEtmService dockerEtmService, FilesService filesServices,
+            DockerEtmService dockerEtmService, EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService) {
         this.esmServiceClient = esmServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();

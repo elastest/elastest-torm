@@ -59,6 +59,8 @@
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 		<jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
+
+		<elastest.epm.client.version>0.9.0</elastest.epm.client.version>
 	</properties>
 
 	<!-- Apache Software License -->
@@ -95,11 +97,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.github.docker-java</groupId>
-			<artifactId>docker-java</artifactId>
-			<version>${docker-java.version}</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>com.github.docker-java</groupId> -->
+		<!-- <artifactId>docker-java</artifactId> -->
+		<!-- <version>${docker-java.version}</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
@@ -147,6 +149,35 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+
+		<dependency>
+			<groupId>io.elastest</groupId>
+			<artifactId>epm.client</artifactId>
+			<version>${elastest.epm.client.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Docker Client -->
+		<dependency>
+			<groupId>com.spotify</groupId>
+			<artifactId>docker-client</artifactId>
+			<version>8.11.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>22.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<!-- Plugins -->

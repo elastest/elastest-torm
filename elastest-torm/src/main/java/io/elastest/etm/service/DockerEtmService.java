@@ -52,7 +52,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.utils.ElastestConstants;
-import io.elastest.etm.utils.FilesService;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -107,13 +107,13 @@ public class DockerEtmService {
     public String bindedLsTcpPort;
 
     public DockerService2 dockerService;
-    public FilesService filesService;
+    public EtmFilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
     public UtilsService utilsService;
 
     @Autowired
     public DockerEtmService(DockerService2 dockerService,
-            FilesService filesService,
+            EtmFilesService filesService,
             TJobExecRepository tJobExecRepositoryImpl,
             UtilsService utilsService) {
         this.dockerService = dockerService;

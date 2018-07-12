@@ -1,13 +1,38 @@
-package io.elastest.etm.service;
+package io.elastest.epm.client.service;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.sleep;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.SocketException;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +63,12 @@ import com.spotify.docker.client.messages.NetworkConfig;
 import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
-import io.elastest.etm.model.DockerContainer;
-import io.elastest.etm.utils.UtilTools;
+import io.elastest.epm.client.DockerContainer;
 
 @Service
-public class DockerService2 {
+public class DockerService3 {
     private static final Logger logger = LoggerFactory
-            .getLogger(DockerService2.class);
+            .getLogger(DockerService3.class);
 
     @Value("${os.name}")
     private String osName;
@@ -61,18 +85,36 @@ public class DockerService2 {
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
 
+    @Value("${docker.default.host.ip}")
+    private String dockerDefaultHostIp;
+
+    @Value("${docker.server.port}")
+    private int dockerServerPort;
+
+    @Value("${docker.wait.timeout.sec}")
+    private int dockerWaitTimeoutSec;
+
+    @Value("${docker.poll.time.ms}")
+    private int dockerPollTimeMs;
+
     String dockerServerUrl;
     String latestTag = "latest";
     String remoteDockerServer;
 
+    private String dockerServerIp;
+    private boolean isRunningInContainer = false;
+    private boolean containerCheked = false;
+
     @Autowired
-    EpmService2 epmService;
+    EpmService epmService;
+    @Autowired
+    ShellService shellService;
 
     @PostConstruct
     private void init() throws Exception {
         if (osName.toLowerCase().contains("win")) {
             logger.info("Executing on Windows.");
-            dockerServerUrl = UtilTools.getDockerHostUrlOnWin();
+            dockerServerUrl = getDockerHostUrlOnWin();
         } else {
             logger.info("Executing on Linux.");
             // dockerServerUrl = "tcp://" + UtilTools.getHostIp() + ":"
@@ -245,6 +287,11 @@ public class DockerService2 {
     public void stopDockerContainer(String containerId) throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
         this.stopDockerContainer(dockerClient, containerId);
+    }
+
+    public void stopAndRemoveContainer(String containerId) throws Exception {
+        this.stopDockerContainer(containerId);
+        this.removeDockerContainer(containerId);
     }
 
     public void stopDockerContainer(DockerClient dockerClient,
@@ -712,4 +759,180 @@ public class DockerService2 {
         return imageContainers;
     }
 
+    public static String getDockerHostUrlOnWin() {
+        BufferedReader reader = null;
+        String dockerHostUrl = "";
+
+        try {
+            Process child = Runtime.getRuntime().exec("docker-machine url");
+            reader = new BufferedReader(
+                    new InputStreamReader(child.getInputStream()));
+            dockerHostUrl = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        } finally {
+            try {
+                if (reader != null)
+                    reader.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return dockerHostUrl;
+    }
+
+    /* Methods From EMP-Client */
+    public String generateContainerName(String prefix) {
+        String randomSufix = new BigInteger(130, new SecureRandom())
+                .toString(32);
+        return prefix + randomSufix;
+    }
+
+    public int findRandomOpenPort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
+
+    public String getDockerServerIp() throws IOException {
+        if (dockerServerIp == null) {
+            if (IS_OS_WINDOWS) {
+                dockerServerIp = getDockerMachineIp();
+            } else {
+                if (!containerCheked) {
+                    isRunningInContainer = shellService.isRunningInContainer();
+                    containerCheked = true;
+                }
+                if (isRunningInContainer) {
+                    dockerServerIp = getContainerIp();
+
+                } else {
+                    dockerServerIp = dockerDefaultHostIp;
+                }
+            }
+            logger.trace("Docker server IP: {}", dockerServerIp);
+        }
+
+        return dockerServerIp;
+    }
+
+    public String getDockerServerUrl() throws IOException {
+        String out;
+        if (dockerServerUrl != null && !dockerServerUrl.equals("")) {
+            out = dockerServerUrl;
+        } else {
+            out = "tcp://" + getDockerServerIp() + ":" + dockerServerPort;
+        }
+        logger.debug("Docker server URL: {}", out);
+        return out;
+    }
+
+    public String getDockerMachineIp() throws IOException {
+        return shellService.runAndWait("docker-machine", "ip")
+                .replaceAll("\\r", "").replaceAll("\\n", "");
+    }
+
+    public String getContainerIp() throws IOException {
+        String ipRoute = shellService.runAndWait("sh", "-c", "/sbin/ip route");
+        String[] tokens = ipRoute.split("\\s");
+        return tokens[2];
+    }
+
+    private void waitUrl(String url, long timeoutMillis, long endTimeMillis,
+            String errorMessage)
+            throws IOException, InterruptedException, DockerException {
+        int responseCode = 0;
+        while (true) {
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL(url)
+                        .openConnection();
+                connection.setConnectTimeout((int) timeoutMillis);
+                connection.setReadTimeout((int) timeoutMillis);
+                connection.setRequestMethod("GET");
+                responseCode = connection.getResponseCode();
+
+                if (responseCode == HTTP_OK) {
+                    logger.debug("URL already reachable");
+                    break;
+                } else {
+                    logger.trace(
+                            "URL {} not reachable (response {}). Trying again in {} ms",
+                            url, responseCode, dockerPollTimeMs);
+                }
+
+            } catch (SSLHandshakeException | SocketException e) {
+                logger.trace("Error {} waiting URL {}, trying again in {} ms",
+                        e.getMessage(), url, dockerPollTimeMs);
+
+            } finally {
+                // Polling to wait a consistent state
+                sleep(dockerPollTimeMs);
+            }
+
+            if (currentTimeMillis() > endTimeMillis) {
+                throw new DockerException(errorMessage);
+            }
+        }
+    }
+
+    public void waitForHostIsReachable(String url) throws DockerException {
+        long timeoutMillis = MILLISECONDS.convert(dockerWaitTimeoutSec,
+                SECONDS);
+        long endTimeMillis = System.currentTimeMillis() + timeoutMillis;
+
+        logger.debug("Waiting for {} to be reachable (timeout {} seconds)", url,
+                dockerWaitTimeoutSec);
+        String errorMessage = "URL " + url + " not reachable in "
+                + dockerWaitTimeoutSec + " seconds";
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[] {};
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs,
+                            String authType) {
+                        // No actions required
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs,
+                            String authType) {
+                        // No actions required
+                    }
+                } };
+
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection
+                    .setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            HostnameVerifier allHostsValid = (hostname, session) -> true;
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+            waitUrl(url, timeoutMillis, endTimeMillis, errorMessage);
+
+        } catch (Exception e) {
+            // Not propagating multiple exceptions (NoSuchAlgorithmException,
+            // KeyManagementException, IOException, InterruptedException) to
+            // improve readability
+            throw new DockerException(errorMessage, e);
+        }
+
+    }
+
+    public List<Container> getContainersByPrefix(String prefix) throws DockerException, InterruptedException, Exception {
+        return getDockerClient(true)
+                .listContainers(ListContainersParam.allContainers(true))
+                .stream()
+                .filter(container -> Arrays
+                        .stream(container.names().toArray(new String[0]))
+                        .anyMatch(name -> name.startsWith("/" + prefix)))
+                .collect(toList());
+    }
 }

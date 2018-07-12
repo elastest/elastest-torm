@@ -24,17 +24,17 @@ import org.springframework.util.ResourceUtils;
 import io.elastest.etm.model.TJobExecution;
 
 @Service
-public class FilesService {
+public class EtmFilesService {
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
 
-    public FilesService() {
+    public EtmFilesService() {
 
     }
 
     public static final Logger logger = LoggerFactory
-            .getLogger(FilesService.class);
+            .getLogger(EtmFilesService.class);
 
     public List<File> getFilesFromFolder(String path) throws IOException {
         logger.info("Get files inside the folder: {}", path);

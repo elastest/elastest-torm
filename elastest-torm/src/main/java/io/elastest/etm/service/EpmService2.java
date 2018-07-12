@@ -32,12 +32,12 @@ import io.elastest.epm.client.model.ResourceGroup;
 import io.elastest.epm.client.model.Worker;
 import io.elastest.etm.model.RemoteEnvironment;
 import io.elastest.etm.service.ServiceException.ExceptionCode;
-import io.elastest.etm.utils.FilesService;
+import io.elastest.etm.utils.EtmFilesService;
 
 @Service
-public class EpmService {
+public class EpmService2 {
     private static final Logger logger = LoggerFactory
-            .getLogger(EpmService.class);
+            .getLogger(EpmService2.class);
 
     private final int MAX_ATTEMPTS = 10;
     private final int TIME_BETWEEN_ATTEMPTS = 15;
@@ -49,7 +49,7 @@ public class EpmService {
     @Value("${et.master.slave.mode}")
     public boolean etMasterSlaveMode;
 
-    private FilesService filesService;
+    private EtmFilesService filesService;
     private RemoteEnvironment re;
 
     private PackageApi packageApiInstance;
@@ -74,7 +74,7 @@ public class EpmService {
         }
     }
 
-    public EpmService(FilesService filesService) {
+    public EpmService2(EtmFilesService filesService) {
         apiClient = new ApiClient();
         packageApiInstance = new PackageApi();
         packageApiInstance.setApiClient(apiClient);
