@@ -483,17 +483,21 @@ public class EsmService {
             TJobExecution tJobExec) {
 
         if (tJobExec != null && tJobExec.getTjob() != null) {
-            Long tJobId = tJobExec.getTjob().getId();
-            Long tJobExecId = tJobExec.getId();
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
-                            + tJobFolderPrefix + tJobId + fileSeparator
-                            + tJobExecFolderPefix + tJobExecId + fileSeparator
+                    this.getTJobExecFolderPath(tJobExec)
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
         }
+
+    }
+
+    public String getTJobExecFolderPath(TJobExecution tJobExec) {
+        String fileSeparator = "/";
+        return etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
+                + tJobFolderPrefix + tJobExec.getTjob().getId() + fileSeparator
+                + tJobExecFolderPefix + tJobExec.getId() + fileSeparator;
 
     }
 
@@ -630,18 +634,24 @@ public class EsmService {
             SupportServiceInstance supportServiceInstance,
             ExternalTJobExecution exTJobExec) {
         if (exTJobExec != null && exTJobExec.getExTJob() != null) {
-            Long exTJobId = exTJobExec.getExTJob().getId();
-            Long exTJobExecId = exTJobExec.getId();
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder + fileSeparator + externalTJobsFolder
-                            + fileSeparator + externalTJobFolderPrefix
-                            + exTJobId + fileSeparator
-                            + externalTJobExecFolderPefix + exTJobExecId
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
+                    this.getExternalTJobExecFolderPath(exTJobExec)
+                            + supportServiceInstance.getServiceName()
+                                    .toLowerCase()
                             + fileSeparator);
         }
+    }
+
+    public String getExternalTJobExecFolderPath(
+            ExternalTJobExecution exTJobExec) {
+        String fileSeparator = "/";
+        return etSharedFolder + fileSeparator + externalTJobsFolder
+                + fileSeparator + externalTJobFolderPrefix
+                + exTJobExec.getExTJob().getId() + fileSeparator
+                + externalTJobExecFolderPefix + exTJobExec.getId()
+                + fileSeparator;
+
     }
 
     private void fillExternalTJobExecEnvVariablesToTSS(

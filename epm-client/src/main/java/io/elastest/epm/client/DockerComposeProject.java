@@ -60,8 +60,9 @@ public class DockerComposeProject {
         assertNotProjectStarted();
 
         log.debug("Starting Docker Compose project {}", projectName);
-        dockerComposeService.createProject(projectName, dockerComposeYml);
-        dockerComposeService.startProject(projectName);
+        dockerComposeService.createProject(projectName, dockerComposeYml,
+                "/tmp");
+        dockerComposeService.startProject(projectName, true);
         isStarted = true;
         log.debug("Docker Compose project {} started correctly", projectName);
     }

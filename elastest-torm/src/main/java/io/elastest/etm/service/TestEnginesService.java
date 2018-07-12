@@ -52,6 +52,9 @@ public class TestEnginesService {
     @Value("${et.edm.mysql.port}")
     public String etEdmMysqlPort;
 
+    @Value("${et.shared.folder}")
+    private String sharedFolder;
+
     public TestEnginesService(DockerComposeService dockerComposeService,
             DockerEtmService dockerEtmService) {
         this.dockerComposeService = dockerComposeService;
@@ -77,7 +80,10 @@ public class TestEnginesService {
     public void createProject(String name) {
         String dockerComposeYml = getDockerCompose(name);
         try {
-            dockerComposeService.createProject(name, dockerComposeYml);
+            String path = sharedFolder.endsWith("/") ? sharedFolder
+                    : sharedFolder + "/";
+            path += "tmp-engines-yml";
+            dockerComposeService.createProject(name, dockerComposeYml, path);
         } catch (Exception e) {
             log.error("Exception creating project {}", name, e);
         }
@@ -102,7 +108,7 @@ public class TestEnginesService {
         if (!isRunning(engineName)) {
             try {
                 log.error("Creating {} instance", engineName);
-                dockerComposeService.startProject(engineName);
+                dockerComposeService.startProject(engineName, true);
                 insertIntoETNetwork(engineName);
                 url = getServiceUrl(engineName);
             } catch (IOException e) {

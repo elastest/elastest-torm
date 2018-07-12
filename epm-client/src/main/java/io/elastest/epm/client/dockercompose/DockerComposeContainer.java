@@ -33,6 +33,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
 
     private final String identifier;
     private final List<File> composeFiles;
+    private List<String> composeYmlList = new ArrayList<>();
 
     private final Map<String, Integer> scalingPreferences = new HashMap<>();
     private boolean pull = false;
@@ -147,6 +148,21 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
 
     public List<String> getImagesList() {
         return this.imagesList;
+    }
+
+    public List<File> getComposeFiles() {
+        return composeFiles;
+    }
+
+    public SELF setComposeYmlList(List<String> ymlList) {
+        if (ymlList != null) {
+            this.composeYmlList = ymlList;
+        }
+        return self();
+    }
+
+    public List<String> getComposeYmlList() {
+        return this.composeYmlList;
     }
 
     /**

@@ -651,9 +651,6 @@ public class TJobExecOrchestratorService {
         String mainService = sut.getMainService();
         String composeProjectName = dockerEtmService.getSutName(dockerExec);
 
-        // Because docker-compose-ui api removes underscores '_'
-        String containerPrefix = composeProjectName.replaceAll("_", "");
-
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
         // Set logging, network and do pull of images
@@ -679,7 +676,10 @@ public class TJobExecOrchestratorService {
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
         // Create Containers
-        boolean created = dockerComposeService.createProject(project);
+        String pathToSaveTmpYml = esmService
+                .getTJobExecFolderPath(dockerExec.gettJobexec());
+        boolean created = dockerComposeService.createProject(project,
+                pathToSaveTmpYml);
 
         // Start Containers
         if (!created) {
@@ -687,7 +687,7 @@ public class TJobExecOrchestratorService {
                     "Sut docker compose containers are not created");
         }
 
-        dockerComposeService.startProject(composeProjectName);
+        dockerComposeService.startProject(composeProjectName, false);
 
         for (DockerContainer container : dockerComposeService
                 .getContainers(composeProjectName).getContainers()) {
@@ -699,7 +699,7 @@ public class TJobExecOrchestratorService {
                     container.getName());
             // If is main service container, set app id
             if (container.getName()
-                    .equals(containerPrefix + "_" + mainService + "_1")) {
+                    .equals(composeProjectName + "_" + mainService + "_1")) {
                 dockerExec.setAppContainerId(containerId);
             }
         }
@@ -886,7 +886,7 @@ public class TJobExecOrchestratorService {
     public void endComposedSutExec(DockerExecution dockerExec)
             throws Exception {
         String composeProjectName = dockerEtmService.getSutName(dockerExec);
-        dockerComposeService.stopProject(composeProjectName);
+        dockerComposeService.stopAndRemoveProject(composeProjectName);
     }
 
     public void endSutInContainer(DockerExecution dockerExec) throws Exception {
