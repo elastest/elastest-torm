@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.epm.client.DockerComposeProject;
@@ -57,6 +59,7 @@ import io.elastest.epm.client.service.ShellService;
 @Tag("integration")
 @DisplayName("Integration test for Docker Compose Service")
 @EnableAutoConfiguration
+@PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 public class DockerComposeIntegrationTest {
 
     final Logger log = getLogger(lookup().lookupClass());
