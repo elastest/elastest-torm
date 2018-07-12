@@ -84,7 +84,7 @@ public class FilesService {
         try {
             logger.info("Load file in dev mode");
             Resource resource = new ClassPathResource(path);
-            logger.info("Resource loading ok");
+            logger.info("Resource loading ok? {}", resource.exists());
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(resource.getInputStream()), 1024)) {
                 String line;
@@ -135,8 +135,8 @@ public class FilesService {
         return ResourceUtils.getFile(targetPath);
     }
 
-    public File createFileFromString(String string,
-            String targetPath) throws IOException {
+    public File createFileFromString(String string, String targetPath)
+            throws IOException {
         File file = new File(targetPath);
         FileUtils.writeStringToFile(file, string, StandardCharsets.UTF_8);
         return ResourceUtils.getFile(targetPath);

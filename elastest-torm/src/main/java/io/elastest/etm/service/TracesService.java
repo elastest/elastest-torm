@@ -323,7 +323,7 @@ public class TracesService {
                         return;
                     }
                     if (trace.getStream().equals(dockbeatStream)) {
-                        if (trace.getContainerName()
+                        if (trace.getContainerName() != null && trace.getContainerName()
                                 .matches(startsWithTestOrSutExpression)) {
                             trace.setStreamType(StreamType.COMPOSED_METRICS);
                             if (trace.getComponentService() != null) {
