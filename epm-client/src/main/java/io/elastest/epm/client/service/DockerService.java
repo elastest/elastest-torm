@@ -76,7 +76,7 @@ public class DockerService {
     @Value("${docker.port}")
     private String dockerPort;
 
-    @Value("${docker.sock}")
+    @Value("${docker.default.socket}")
     private String dockerSock;
 
     @Value("${et.master.slave.mode}")
