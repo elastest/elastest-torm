@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.spotify.docker.client.messages.ImageInfo;
 
-import io.elastest.etm.model.DockerContainer.DockerBuilder;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilTools;

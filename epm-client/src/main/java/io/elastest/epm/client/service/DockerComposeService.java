@@ -16,10 +16,8 @@
  */
 package io.elastest.epm.client.service;
 
-import static io.elastest.epm.client.DockerContainer.dockerBuilder;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.nio.charset.Charset.defaultCharset;
-import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static okhttp3.MediaType.parse;
@@ -52,9 +50,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import com.spotify.docker.client.messages.Container;
-import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
+import com.spotify.docker.client.messages.PortBinding;
 
 import io.elastest.epm.client.DockerComposeApi;
 import io.elastest.epm.client.DockerComposeProject;
@@ -105,10 +103,10 @@ public class DockerComposeService {
     private String dockerComposeUiContainerName;
     private DockerComposeApi dockerComposeApi;
 
-    private DockerService3 dockerService;
+    private DockerService dockerService;
     private JsonService jsonService;
 
-    public DockerComposeService(DockerService3 dockerService,
+    public DockerComposeService(DockerService dockerService,
             JsonService jsonService) {
         this.dockerService = dockerService;
         this.jsonService = jsonService;

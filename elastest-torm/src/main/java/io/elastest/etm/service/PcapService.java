@@ -14,13 +14,13 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.model.DockerContainer.DockerBuilder;
-import io.elastest.etm.model.DockerContainer;
-import io.elastest.etm.service.DockerService2;
+import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
+import io.elastest.epm.client.service.DockerService;
 
 @Service
 public class PcapService {
-    DockerService2 dockerService;
+    DockerService dockerService;
     private Logger log = Logger.getLogger(PcapService.class);
 
     String dockpcapImage = "elastest/etm-dockpcap";
@@ -29,7 +29,7 @@ public class PcapService {
 
     Map<String, DockerContainer> containersList;
 
-    public PcapService(DockerService2 dockerService) {
+    public PcapService(DockerService dockerService) {
         this.dockerService = dockerService;
     }
 

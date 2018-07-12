@@ -16,16 +16,16 @@
  */
 package io.elastest.epm.client.test.integration;
 
-import static com.github.dockerjava.api.model.ExposedPort.tcp;
-import static com.github.dockerjava.api.model.Ports.Binding.bindPort;
 import static io.elastest.epm.client.DockerContainer.dockerBuilder;
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -37,9 +37,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports.Binding;
+import com.spotify.docker.client.messages.PortBinding;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
@@ -74,20 +72,26 @@ public class DockerIntegrationTest {
         String containerName = dockerService
                 .generateContainerName("hub-for-test-");
 
-        Binding bindPort = bindPort(dockerService.findRandomOpenPort());
-        ExposedPort exposedPort = tcp(4444);
+        DockerBuilder dockerBuilder = dockerBuilder(imageId)
+                .containerName(containerName);
 
-        Binding bindHubVncPort = bindPort(dockerService.findRandomOpenPort());
-        ExposedPort exposedHubVncPort = tcp(5900);
+        String exposedPort = String.valueOf(4444);
+        dockerBuilder.exposedPorts(Arrays.asList(exposedPort));
 
-        List<PortBinding> portBindings = asList(
-                new PortBinding(bindPort, exposedPort),
-                new PortBinding(bindHubVncPort, exposedHubVncPort));
+        String exposedHubVncPort = String.valueOf(5900);
+        dockerBuilder.exposedPorts(Arrays.asList(exposedHubVncPort));
+        // portBindings
+        Map<String, List<PortBinding>> portBindings = new HashMap<>();
+        portBindings.put(String.valueOf(exposedPort),
+                Arrays.asList(PortBinding.of("0.0.0.0",
+                        Integer.toString(dockerService.findRandomOpenPort()))));
 
-        DockerBuilder dockerBuilder = dockerBuilder(imageId, containerName)
-                .portBindings(portBindings);
+        portBindings.put(String.valueOf(exposedHubVncPort),
+                Arrays.asList(PortBinding.of("0.0.0.0",
+                        Integer.toString(dockerService.findRandomOpenPort()))));
 
-        dockerService.startAndWaitContainer(dockerBuilder.build());
+        dockerBuilder.portBindings(portBindings);
+        dockerService.createAndStartContainer(dockerBuilder.build());
 
         // Assertions
         assertTrue(dockerService.existsContainer(containerName));

@@ -41,16 +41,17 @@ import com.spotify.docker.client.messages.LogConfig;
 import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
+import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
+import io.elastest.epm.client.service.DockerService;
+import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.etm.dao.TJobExecRepository;
-import io.elastest.etm.model.DockerContainer;
-import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
@@ -106,13 +107,13 @@ public class DockerEtmService {
     @Value("${et.etm.binded.lstcp.port}")
     public String bindedLsTcpPort;
 
-    public DockerService2 dockerService;
+    public DockerService dockerService;
     public EtmFilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
     public UtilsService utilsService;
 
     @Autowired
-    public DockerEtmService(DockerService2 dockerService,
+    public DockerEtmService(DockerService dockerService,
             EtmFilesService filesService,
             TJobExecRepository tJobExecRepositoryImpl,
             UtilsService utilsService) {

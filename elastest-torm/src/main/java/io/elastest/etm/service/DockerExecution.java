@@ -2,7 +2,7 @@ package io.elastest.etm.service;
 
 import com.spotify.docker.client.DockerClient;
 
-import io.elastest.etm.model.DockerContainer;
+import io.elastest.epm.client.DockerContainer;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.TJobExecution;
 

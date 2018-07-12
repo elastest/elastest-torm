@@ -30,8 +30,8 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.ImageNotFoundException;
 import com.spotify.docker.client.messages.LogConfig;
 
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 

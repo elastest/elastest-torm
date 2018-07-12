@@ -31,6 +31,7 @@ import com.spotify.docker.client.messages.Container;
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
@@ -47,7 +48,6 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
-import io.elastest.etm.service.DockerService2.ContainersListActionEnum;
 
 @Service
 public class TJobExecOrchestratorService {

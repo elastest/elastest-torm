@@ -18,8 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.model.DockerContainer.DockerBuilder;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.utils.UtilTools;
 

@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import io.elastest.etm.service.DockerService2;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextAuxService;
 import io.elastest.etm.service.EtmContextService;
@@ -29,7 +29,7 @@ public class EtmContextServiceTest {
     @Mock
     public EtmContextAuxService etmContextAuxService;
     @Mock
-    public DockerService2 dockerService;
+    public DockerService dockerService;
     @Mock
     public EsmService esmService;
 
