@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class UtilTools {
@@ -145,11 +147,15 @@ public class UtilTools {
         return myIp;
     }
 
+    // Obj to Json
+
     public static String convertJsonString(Object obj,
-            Class<?> serializationView) {
+            Class<?> serializationView, JsonInclude.Include inclusion) {
         String jsonString = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(inclusion);
+
             jsonString = objectMapper.writerWithView(serializationView)
                     .writeValueAsString(obj);
 
@@ -157,6 +163,31 @@ public class UtilTools {
             logger.error("Error during conversion: " + e.getMessage());
         }
         return jsonString;
+    }
+
+    public static String convertJsonString(Object obj,
+            Class<?> serializationView) {
+        return convertJsonString(obj, serializationView, Include.ALWAYS);
+    }
+
+    // Json to Obj
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, JsonInclude.Include inclusion) {
+        T object = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(inclusion);
+
+            object = (T) objectMapper.readValue(json, serializationView);
+        } catch (IOException e) {
+            logger.error("Error during conversion: " + e.getMessage());
+        }
+        return object;
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView) {
+        return convertJsonStringToObj(json, serializationView, Include.ALWAYS);
     }
 
     /**

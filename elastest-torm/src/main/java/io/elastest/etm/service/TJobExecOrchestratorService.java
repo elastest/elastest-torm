@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +49,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class TJobExecOrchestratorService {
@@ -136,7 +138,12 @@ public class TJobExecOrchestratorService {
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
 
-        initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+        try {
+            initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            logger.error("Error on init TSS", e);
+        }
         setTJobExecEnvVars(tJobExec, true, false);
 
         // Start Test
@@ -157,15 +164,15 @@ public class TJobExecOrchestratorService {
 
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
-        tJobExecRepositoryImpl.save(tJobExec);
-
-        initTSS(tJobExec, tJobServices);
-        setTJobExecEnvVars(tJobExec, false, false);
-        tJobExecRepositoryImpl.save(tJobExec);
+        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         DockerExecution dockerExec = new DockerExecution(tJobExec);
-
         try {
+            initTSS(tJobExec, tJobServices);
+            setTJobExecEnvVars(tJobExec, false, false);
+            tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+
+            dockerExec.settJobexec(tJobExec);
             // Create queues and load basic services
             dockerEtmService.loadBasicServices(dockerExec);
 
@@ -322,7 +329,8 @@ public class TJobExecOrchestratorService {
     /* *** TSS methods *** */
     /* ******************* */
 
-    private void initTSS(TJobExecution tJobExec, String tJobServices) {
+    private void initTSS(TJobExecution tJobExec, String tJobServices)
+            throws Exception {
         String resultMsg = "";
 
         if (tJobServices != null && tJobServices != "") {
@@ -356,13 +364,15 @@ public class TJobExecOrchestratorService {
         logger.info("TSS availabes");
     }
 
-    private void provideServices(String tJobServices, TJobExecution tJobExec) {
+    private void provideServices(String tJobServices, TJobExecution tJobExec)
+            throws Exception {
         logger.info("Start the service provision.");
         String resultMsg = "Starting Test Support Service: ";
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            List<TJobSupportService> services = Arrays.asList(
-                    mapper.readValue(tJobServices, TJobSupportService[].class));
+            TJobSupportService[] tssArray = UtilTools
+                    .convertJsonStringToObj(tJobServices,
+                            TJobSupportService[].class, Include.NON_EMPTY);
+            List<TJobSupportService> services = Arrays.asList(tssArray);
             // Start EMS first if is selected
             List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
                     services, tJobExec);
@@ -377,8 +387,7 @@ public class TJobExecOrchestratorService {
                 }
             }
         } catch (IOException e) {
-            // TODO stop execution
-            logger.error("Error on provide TSS", e);
+            throw new Exception("Error on provide TSS", e);
         }
         // catch (RuntimeException re) {
         // logger.error("Error provisioning TSS", re);

@@ -25,7 +25,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,6 +35,7 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.ElastestConstants;
@@ -237,10 +237,10 @@ public class EsmService {
         logger.debug("Registering the {} TSS.",
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
-        JsonNode configJson = serviceDefJson.get("manifest") != null
-                ? serviceDefJson.get("manifest").get("config")
-                : null;
-        String config = configJson != null ? serviceDefJson.toString() : "";
+        // JsonNode configJson = serviceDefJson.get("manifest") != null
+        // ? serviceDefJson.get("manifest").get("config")
+        // : null;
+        // String config = configJson != null ? serviceDefJson.toString() : "";
 
         esmServiceClient
                 .registerService(serviceDefJson.get("register").toString());
@@ -283,25 +283,35 @@ public class EsmService {
         ObjectMapper mapper = new ObjectMapper();
 
         for (JsonNode esmService : objs) {
-            JsonNode configJson = esmService.get("manifest") != null
-                    ? esmService.get("manifest").get("config")
-                    : null;
-            Map<String, Object> config = null;
-            if (configJson != null) {
+            TssManifest manifest = null;
+            if (esmService.get("manifest") != null) {
                 try {
-                    Map treeToValue = mapper.treeToValue(configJson, Map.class);
-                    config = treeToValue;
-                } catch (JsonProcessingException e) {
+                    manifest = mapper.readValue(
+                            esmService.get("manifest").toString(),
+                            TssManifest.class);
+                    JsonNode configJson = esmService.get("manifest")
+                            .get("config");
+
+                    Map<String, Object> config = null;
+                    // TODO esm does not returns config. EUS config hardcoded in
+                    // the GUI
+                    if (configJson != null) {
+
+                        Map treeToValue = mapper.treeToValue(configJson,
+                                Map.class);
+                        config = treeToValue;
+                    }
+                    manifest.setConfig(config);
+                } catch (IOException e) {
                     logger.error("Error on getRegisteredServices", e);
                 }
             }
-
             services.add(new SupportService(
                     esmService.get("id").toString().replaceAll("\"", ""),
                     esmService.get("name").toString().replaceAll("\"", ""),
                     // esmService.get("short_name").toString().replaceAll("\"",
                     // "")
-                    "", config));
+                    "", manifest));
         }
         return services;
     }
@@ -548,22 +558,31 @@ public class EsmService {
                                 .equals(stringFromJsonNode(tJobTssNameObj))) {
                     JsonNode selectedObj = tJobSuportService.get("selected");
                     if (selectedObj != null && selectedObj.asBoolean()) {
-                        JsonNode configObj = tJobSuportService.get("config");
-                        if (configObj != null) {
-                            Iterable<String> singleConfigNamesIterator = () -> configObj
-                                    .fieldNames();
-                            for (String singleConfigName : singleConfigNamesIterator) {
-                                JsonNode singleConfig = configObj
-                                        .get(singleConfigName);
-                                String envName = singleConfigName.replaceAll(
-                                        "([a-z])_?([A-Z])", "$1_$2");
-                                envName = "ET_CONFIG_" + envName.toUpperCase();
-                                JsonNode valueObj = singleConfig.get("value");
-                                if (valueObj != null) {
-                                    supportServiceInstance.getParameters()
-                                            .put(envName, valueObj.toString());
-                                }
+                        JsonNode manifestObj = tJobSuportService
+                                .get("manifest");
+                        if (manifestObj != null) {
+                            JsonNode configObj = manifestObj.get("config");
+                            if (configObj != null) {
+                                Iterable<String> singleConfigNamesIterator = () -> configObj
+                                        .fieldNames();
+                                for (String singleConfigName : singleConfigNamesIterator) {
+                                    JsonNode singleConfig = configObj
+                                            .get(singleConfigName);
+                                    String envName = singleConfigName
+                                            .replaceAll("([a-z])_?([A-Z])",
+                                                    "$1_$2");
+                                    envName = "ET_CONFIG_"
+                                            + envName.toUpperCase();
+                                    JsonNode valueObj = singleConfig
+                                            .get("value");
+                                    if (valueObj != null) {
+                                        logger.debug("envvv {}", envName);
+                                        supportServiceInstance.getParameters()
+                                                .put(envName,
+                                                        valueObj.toString());
+                                    }
 
+                                }
                             }
                         }
                     }

@@ -81,7 +81,7 @@
                 </ng-template>
                 <div class="pad" layout="row">
                   <span *ngFor="let key of service.getConfigKeys()">
-                    <esm-support-service-config-view [model]="service.config[key]"></esm-support-service-config-view>
+                    <esm-support-service-config-view [model]="service.manifest.config[key]"></esm-support-service-config-view>
                   </span>
                 </div>
               </td-expansion-panel>

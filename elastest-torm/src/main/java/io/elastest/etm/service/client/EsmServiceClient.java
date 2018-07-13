@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -111,8 +112,9 @@ public class EsmServiceClient {
             String accept_incomplete) {
         String serviceInstanceData = "";
         logger.info("Request a service instance.");
-        HttpEntity<String> entity = new HttpEntity<String>(UtilTools
-                .convertJsonString(serviceInstance, ProvisionView.class),
+        HttpEntity<String> entity = new HttpEntity<String>(
+                UtilTools.convertJsonString(serviceInstance,
+                        ProvisionView.class, Include.NON_EMPTY),
                 headers);
 
         Map<String, String> params = new HashMap<>();

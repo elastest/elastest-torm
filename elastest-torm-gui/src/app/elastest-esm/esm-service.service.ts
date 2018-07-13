@@ -1,6 +1,6 @@
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { EsmServiceInstanceModel } from './esm-service-instance.model';
-import { EsmServiceModel } from './esm-service.model';
+import { EsmServiceModel, TssManifest } from './esm-service.model';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams } from '@angular/http';
@@ -87,12 +87,22 @@ export class EsmService {
     let retrivedServices: EsmServiceModel[] = [];
 
     for (let service of res) {
-      let config: string = service.config;
-      if (service.name === 'EUS') {
-        config = '{ "webRtcStats": { "type": "boolean", "label": "Gather WebRTC Statistics", "default": false } }';
-      }
+      let tssManifest: TssManifest;
+      let manifest: any = service.manifest;
 
-      let esmService: EsmServiceModel = new EsmServiceModel(service.id, service.name, false, config);
+      if (service.name === 'EUS') {
+        if (manifest === undefined || manifest === null) {
+          manifest = { config: undefined };
+        }
+        // TODO remove hardcoded
+        manifest.config = '{ "webRtcStats": { "type": "boolean", "label": "Gather WebRTC Statistics", "default": false } }';
+        service.manifest = manifest;
+        if (service.manifest) {
+          tssManifest = new TssManifest();
+          tssManifest.initFromJson(service.manifest);
+        }
+      }
+      let esmService: EsmServiceModel = new EsmServiceModel(service.id, service.name, false, tssManifest);
       retrivedServices.push(esmService);
     }
     return retrivedServices;

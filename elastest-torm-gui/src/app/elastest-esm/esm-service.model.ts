@@ -3,19 +3,49 @@ import { SupportServiceConfigModel } from './support-service.model';
 export class EsmServiceModel {
   id: string;
   name: string;
-  config: object;
   selected?: boolean;
+  manifest: TssManifest;
 
-  constructor(id: string, name: string, selected: boolean, config: string = '') {
+  constructor(id: string, name: string, selected: boolean, manifest?: TssManifest) {
     this.id = id;
     this.name = name;
     this.selected = selected;
-
-    this.parseConfigListFromJsonString(config);
+    this.manifest = manifest;
   }
 
   changeServiceSelection($event): void {
     this.selected = $event.checked;
+  }
+
+  public getConfigKeys(): string[] {
+    if (this.manifest && this.manifest.config) {
+      return this.manifest.getConfigKeys();
+    } else {
+      return [];
+    }
+  }
+}
+
+export class TssManifest {
+  id: string;
+  manifestContent: string;
+  manifestType: string;
+  planId: string;
+  serviceId: string;
+  endpoints: string;
+  config: object;
+
+  constructor() {}
+
+  public initFromJson(json: any) {
+    this.id = json.id;
+    this.manifestContent = json.manifestContent;
+    this.manifestType = json.manifestType;
+    this.planId = json.planId;
+    this.serviceId = json.serviceId;
+    this.endpoints = json.endpoints;
+
+    this.parseConfigListFromJsonString(json.config);
   }
 
   public parseConfigListFromJsonString(jsonConfigString: any): void {

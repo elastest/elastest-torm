@@ -1,7 +1,5 @@
 package io.elastest.etm.model;
 
-import java.util.Map;
-
 public class TJobSupportService extends SupportService {
     private boolean selected;
 
@@ -10,8 +8,8 @@ public class TJobSupportService extends SupportService {
     }
 
     public TJobSupportService(String id, String name, String shortName,
-            Map<String, Object> config, boolean selected) {
-        super(id, name, shortName, config);
+            TssManifest tssManifest, boolean selected) {
+        super(id, name, shortName, tssManifest);
         this.selected = selected;
     }
 

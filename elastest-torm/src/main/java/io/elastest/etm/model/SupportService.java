@@ -1,8 +1,5 @@
 package io.elastest.etm.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
@@ -20,20 +17,20 @@ public class SupportService {
     @JsonProperty("shortName")
     private String shortName;
 
-    @JsonProperty("config")
-    private Map<String, Object> config = new HashMap<String, Object>();
+    @JsonProperty("manifest")
+    private TssManifest manifest;
 
     public SupportService() {
 
     }
 
     public SupportService(String id, String name, String shortName,
-            Map<String, Object> config) {
+            TssManifest manifest) {
         super();
         this.id = id;
         this.name = name;
         this.shortName = shortName;
-        this.config = config;
+        this.manifest = manifest;
     }
 
     /**
@@ -78,24 +75,23 @@ public class SupportService {
         this.shortName = shortName;
     }
 
-    /**
-     * Get the config of the TSS
-     * 
-     * @return The config of the TSS
-     **/
-    @ApiModelProperty(example = "EUS", value = "The config of the TSS.")
-    public Map<String, Object> getConfig() {
-        return config;
+    @ApiModelProperty(example = "EUS", value = "The manifest of the TSS.")
+    public TssManifest getManifest() {
+        return manifest;
     }
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    public void setManifest(TssManifest manifest) {
+        this.manifest = manifest;
     }
 
     @Override
     public String toString() {
         return "SupportService [id=" + id + ", name=" + name + ", shortName="
-                + shortName + ", config=" + config + "]";
+                + shortName + ", manifest=" + manifest + "]";
     }
+
+
+    
+    
 
 }

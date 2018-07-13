@@ -1,5 +1,5 @@
 import { EimConfigModel } from '../../elastest-etm/sut/eim-config-model';
-import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
+import { EsmServiceModel, TssManifest } from '../../elastest-esm/esm-service.model';
 import { DashboardConfigModel } from '../../elastest-etm/tjob/dashboard-config-model';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
 import { SutExecModel } from '../../elastest-etm/sut-exec/sutExec-model';
@@ -87,7 +87,18 @@ export class ETModelsTransformServices {
     newTJob.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig);
     if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null && tjob.esmServicesString !== '') {
       for (let service of JSON.parse(tjob.esmServicesString)) {
-        newTJob.esmServices.push(new EsmServiceModel(service.id, service.name, service.selected, service.config));
+        let manifest: any = service.manifest;
+        if (manifest === undefined || manifest === null) {
+          manifest = { config: undefined };
+        }
+        service.manifest = manifest;
+        let tssManifest: TssManifest = new TssManifest();
+
+        if (service.manifest) {
+          tssManifest.initFromJson(service.manifest);
+        }
+
+        newTJob.esmServices.push(new EsmServiceModel(service.id, service.name, service.selected, tssManifest));
         if (service.selected) {
           newTJob.esmServicesChecked++;
         }
