@@ -35,7 +35,6 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
-import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.ElastestConstants;
@@ -275,50 +274,15 @@ public class EsmService {
         return registeredServices;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public List<SupportService> getRegisteredServices() {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
-        JsonNode objs = esmServiceClient.getRegisteredServices();
-        ObjectMapper mapper = new ObjectMapper();
+        SupportService[] servicesObj = esmServiceClient.getRegisteredServices();
 
-        for (JsonNode esmService : objs) {
-            TssManifest manifest = null;
-            if (esmService.get("manifest") != null) {
-                try {
-                    manifest = mapper.readValue(
-                            esmService.get("manifest").toString(),
-                            TssManifest.class);
-                    JsonNode configJson = esmService.get("manifest")
-                            .get("config");
-
-                    Map<String, Object> config = null;
-                    // TODO esm does not returns config. EUS config hardcoded in
-                    // the GUI
-                    if (configJson != null) {
-
-                        Map treeToValue = mapper.treeToValue(configJson,
-                                Map.class);
-                        config = treeToValue;
-                    }
-                    manifest.setConfig(config);
-                } catch (IOException e) {
-                    logger.error("Error on getRegisteredServices", e);
-                }
-            }
-            services.add(new SupportService(
-                    esmService.get("id").toString().replaceAll("\"", ""),
-                    esmService.get("name").toString().replaceAll("\"", ""),
-                    // esmService.get("short_name").toString().replaceAll("\"",
-                    // "")
-                    "", manifest));
+        for (SupportService esmService : servicesObj) {
+            services.add(esmService);
         }
         return services;
-    }
-
-    public JsonNode getRawRegisteredServices() throws IOException {
-        logger.info("Get registered all data of a service.");
-        return esmServiceClient.getRegisteredServices();
     }
 
     @Async
@@ -365,24 +329,11 @@ public class EsmService {
         return instanceId;
     }
 
-    public JsonNode getRawServiceById(String serviceId) throws IOException {
-        JsonNode service = null;
-        JsonNode services = getRawRegisteredServices();
-        for (JsonNode currentService : services) {
-            if (currentService.get("id").toString().replaceAll("\"", "")
-                    .equals(serviceId)) {
-                service = currentService;
-                break;
-            }
-        }
-        return service;
-    }
-
     public SupportServiceInstance createNewServiceInstance(String serviceId,
             Long executionId, String instanceId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode service = this.getRawServiceById(serviceId);
+        JsonNode service = esmServiceClient.getRawServiceById(serviceId);
         logger.info("Service instance: " + instanceId);
         List<ObjectNode> plans = Arrays.asList(mapper.readValue(
                 service.get("plans").toString(), ObjectNode[].class));
@@ -576,7 +527,6 @@ public class EsmService {
                                     JsonNode valueObj = singleConfig
                                             .get("value");
                                     if (valueObj != null) {
-                                        logger.debug("envvv {}", envName);
                                         supportServiceInstance.getParameters()
                                                 .put(envName,
                                                         valueObj.toString());

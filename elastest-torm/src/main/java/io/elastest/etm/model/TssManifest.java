@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -13,16 +14,20 @@ public class TssManifest {
     @JsonProperty("id")
     String id;
 
-    @JsonProperty("manifestContent")
+    @JsonProperty("manifest_content")
+    @JsonAlias("manifestContent")
     String manifestContent;
 
-    @JsonProperty("manifestType")
+    @JsonProperty("manifest_type")
+    @JsonAlias("manifestType")
     String manifestType;
 
-    @JsonProperty("planId")
+    @JsonProperty("plan_id")
+    @JsonAlias("plan_id")
     String planId;
 
-    @JsonProperty("serviceId")
+    @JsonProperty("service_id")
+    @JsonAlias("serviceId")
     String serviceId;
 
     @JsonProperty("endpoints")

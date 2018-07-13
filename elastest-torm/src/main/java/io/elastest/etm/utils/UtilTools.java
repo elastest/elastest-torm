@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class UtilTools {
@@ -171,12 +172,16 @@ public class UtilTools {
     }
 
     // Json to Obj
+    @SuppressWarnings("unchecked")
     public static <T> T convertJsonStringToObj(String json,
-            Class<?> serializationView, JsonInclude.Include inclusion) {
+            Class<?> serializationView, JsonInclude.Include inclusion,
+            boolean failOnUnknownProperties) {
         T object = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setSerializationInclusion(inclusion);
+            objectMapper.configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             object = (T) objectMapper.readValue(json, serializationView);
         } catch (IOException e) {
@@ -187,7 +192,19 @@ public class UtilTools {
 
     public static <T> T convertJsonStringToObj(String json,
             Class<?> serializationView) {
-        return convertJsonStringToObj(json, serializationView, Include.ALWAYS);
+        return convertJsonStringToObj(json, serializationView, Include.ALWAYS,
+                true);
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, JsonInclude.Include inclusion) {
+        return convertJsonStringToObj(json, serializationView, inclusion, true);
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, boolean failOnUnknownProperties) {
+        return convertJsonStringToObj(json, serializationView, Include.ALWAYS,
+                failOnUnknownProperties);
     }
 
     /**

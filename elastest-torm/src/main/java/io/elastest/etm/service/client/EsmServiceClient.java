@@ -1,5 +1,6 @@
 package io.elastest.etm.service.client;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.ProvisionView;
 import io.elastest.etm.utils.UtilTools;
@@ -162,7 +164,26 @@ public class EsmServiceClient {
         }
     }
 
-    public JsonNode getRegisteredServices() {
+    public SupportService[] getRegisteredServices() {
+        logger.info("Retrieving the services.");
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+
+        try {
+            ResponseEntity<ObjectNode> objNode = httpClient.exchange(
+                    URL_GET_CATALOG_ESM, HttpMethod.GET, entity,
+                    ObjectNode.class);
+            logger.info("Retrieved services.");
+            return UtilTools.convertJsonStringToObj(
+                    objNode.getBody().get("services").toString(),
+                    SupportService[].class, Include.NON_EMPTY, false);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Exception retrieving registered services", e);
+        }
+    }
+
+    public JsonNode getRawRegisteredServices() throws IOException {
+        logger.info("Get registered all data of a service.");
         logger.info("Retrieving the services.");
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
@@ -176,6 +197,19 @@ public class EsmServiceClient {
             throw new RuntimeException(
                     "Exception retrieving registered services", e);
         }
+    }
+
+    public JsonNode getRawServiceById(String serviceId) throws IOException {
+        JsonNode service = null;
+        JsonNode services = getRawRegisteredServices();
+        for (JsonNode currentService : services) {
+            if (currentService.get("id").toString().replaceAll("\"", "")
+                    .equals(serviceId)) {
+                service = currentService;
+                break;
+            }
+        }
+        return service;
     }
 
     public ObjectNode getServiceInstanceInfo(String instanceId) {

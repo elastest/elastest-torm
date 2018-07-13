@@ -1,11 +1,15 @@
 package io.elastest.etm.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Entity that represents an ElasTest Test Support Service")
+@SuppressWarnings("rawtypes")
 public class SupportService {
 
     @JsonProperty("id")
@@ -14,11 +18,28 @@ public class SupportService {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("shortName")
+    @JsonProperty("short_name")
+    @JsonAlias("shortName")
     private String shortName;
 
     @JsonProperty("manifest")
     private TssManifest manifest;
+
+    @JsonProperty("bindable")
+    private boolean bindable;
+
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("plans")
+    private List plans;
+
+    @JsonProperty("plan_updateable")
+    @JsonAlias("planUpdateable")
+    private boolean planUpdateable;
+
+    @JsonProperty("requires")
+    private List requires;
 
     public SupportService() {
 
@@ -31,6 +52,21 @@ public class SupportService {
         this.name = name;
         this.shortName = shortName;
         this.manifest = manifest;
+    }
+
+    public SupportService(String id, String name, String shortName,
+            TssManifest manifest, boolean bindable, String description,
+            List plans, boolean planUpdateable, List requires) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.shortName = shortName;
+        this.manifest = manifest;
+        this.bindable = bindable;
+        this.description = description;
+        this.plans = plans;
+        this.planUpdateable = planUpdateable;
+        this.requires = requires;
     }
 
     /**
@@ -84,14 +120,53 @@ public class SupportService {
         this.manifest = manifest;
     }
 
+    public boolean isBindable() {
+        return bindable;
+    }
+
+    public void setBindable(boolean bindable) {
+        this.bindable = bindable;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List getPlans() {
+        return plans;
+    }
+
+    public void setPlans(List plans) {
+        this.plans = plans;
+    }
+
+    public boolean isPlanUpdateable() {
+        return planUpdateable;
+    }
+
+    public void setPlanUpdateable(boolean planUpdateable) {
+        this.planUpdateable = planUpdateable;
+    }
+
+    public List getRequires() {
+        return requires;
+    }
+
+    public void setRequires(List requires) {
+        this.requires = requires;
+    }
+
     @Override
     public String toString() {
         return "SupportService [id=" + id + ", name=" + name + ", shortName="
-                + shortName + ", manifest=" + manifest + "]";
+                + shortName + ", manifest=" + manifest + ", bindable="
+                + bindable + ", description=" + description + ", plans=" + plans
+                + ", planUpdateable=" + planUpdateable + ", requires="
+                + requires + "]";
     }
-
-
-    
-    
 
 }
