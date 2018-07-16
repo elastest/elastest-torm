@@ -4,7 +4,6 @@ services:
         depends_on:
             - edm-mysql
             - etm-filebeat
-            - esm
         image: elastest/etm:latest
         env_file:
             - ./docker-compose.env

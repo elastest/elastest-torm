@@ -3,7 +3,3 @@ services:
     edm-mysql:
         ports:
             - 3306:3306
-    esm:
-      ports:
-            - "37005:37005"
-
