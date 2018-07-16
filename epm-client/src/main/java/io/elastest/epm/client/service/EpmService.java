@@ -26,8 +26,10 @@ import io.elastest.epm.client.ApiException;
 import io.elastest.epm.client.JSON;
 import io.elastest.epm.client.api.KeyApi;
 import io.elastest.epm.client.api.PackageApi;
+import io.elastest.epm.client.api.PoPApi;
 import io.elastest.epm.client.api.WorkerApi;
 import io.elastest.epm.client.model.Key;
+import io.elastest.epm.client.model.PoP;
 import io.elastest.epm.client.model.RemoteEnvironment;
 import io.elastest.epm.client.model.ResourceGroup;
 import io.elastest.epm.client.model.Worker;
@@ -54,6 +56,7 @@ public class EpmService {
     private PackageApi packageApiInstance;
     private WorkerApi workerApiInstance;
     private KeyApi keyApiInstance;
+    private PoPApi popApi;
     private ApiClient apiClient;
     private JSON json;
 
@@ -79,6 +82,7 @@ public class EpmService {
         packageApiInstance.setApiClient(apiClient);
         workerApiInstance = new WorkerApi();
         keyApiInstance = new KeyApi();
+        popApi = new PoPApi();
         json = new JSON(apiClient);
         this.filesService = filesService;
         adapters = new HashMap<>();
@@ -267,6 +271,25 @@ public class EpmService {
             throws ApiException {
 
         return workerApiInstance.installAdapter(workerId, type);
+    }
+    
+    public String getPopName(String reIp, String popType) throws ServiceException {
+        String popName = null;
+        try {
+            for (PoP pop: popApi.getAllPoPs()) {
+                if (pop.getName().equals(popType + "-" + reIp)) {
+                    popName = pop.getName();
+                    break;
+                }
+            }
+            if (popName == null) {
+                throw new ApiException("There isn't any pop with the name provided");
+            }
+        } catch (ApiException e) {
+            throw new ServiceException(
+                    e.getMessage(), e.getCause(), ExceptionCode.GENERIC_ERROR);
+        }
+        return popName;
     }
 
     public RemoteEnvironment getRe() {

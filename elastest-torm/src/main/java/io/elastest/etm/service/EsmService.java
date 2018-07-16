@@ -127,6 +127,7 @@ public class EsmService {
     public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
+    public EpmService epmService;
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
     private Map<String, SupportServiceInstance> externalTJobServicesInstances;
@@ -146,7 +147,7 @@ public class EsmService {
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
             DockerEtmService dockerEtmService, EtmFilesService filesServices,
-            EtmContextAuxService etmContextAuxService) {
+            EtmContextAuxService etmContextAuxService, EpmService epmService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -158,6 +159,7 @@ public class EsmService {
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
         this.filesServices = filesServices;
         this.etmContextAuxService = etmContextAuxService;
+        this.epmService = epmService;
     }
 
     @PostConstruct
@@ -466,7 +468,7 @@ public class EsmService {
 
     private void fillTJobExecEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance,
-            TJobExecution tJobExec) {
+            TJobExecution tJobExec) throws ServiceException {
 
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId = tJobExec.getTjob().getId();
@@ -627,7 +629,7 @@ public class EsmService {
 
     private void fillExternalTJobExecEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance,
-            ExternalTJobExecution exTJobExec) {
+            ExternalTJobExecution exTJobExec) throws ServiceException {
 
         if (exTJobExec != null && exTJobExec.getExTJob() != null) {
             Long exTJobId = exTJobExec.getExTJob().getId();
@@ -1195,6 +1197,10 @@ public class EsmService {
 
     private void fillEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance) {
+            
+        if (epmService.etMasterSlaveMode) {
+            supportServiceInstance.getParameters().put("pop_name", epmService.getPopName(epmService.getRe().getHostIp(), "compose"));
+        }
 
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars(true));
