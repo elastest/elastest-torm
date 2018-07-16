@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -77,16 +78,30 @@ public class TestEnginesService {
         }
     }
 
+    @PreDestroy
+    public void destroy() {
+        if (!execmode.equals("normal") && enginesList != null) {
+            for (String engine : this.enginesList) {
+                removeProject(engine);
+            }
+        }
+    }
+
     public void createProject(String name) {
         String dockerComposeYml = getDockerCompose(name);
         try {
             String path = sharedFolder.endsWith("/") ? sharedFolder
                     : sharedFolder + "/";
             path += "tmp-engines-yml";
-            dockerComposeService.createProject(name, dockerComposeYml, path);
+            dockerComposeService.createProject(name, dockerComposeYml, path,
+                    true);
         } catch (Exception e) {
             log.error("Exception creating project {}", name, e);
         }
+    }
+
+    private void removeProject(String engineName) {
+        dockerComposeService.stopAndRemoveProject(engineName);
     }
 
     public String getDockerCompose(String engineName) {

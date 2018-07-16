@@ -62,26 +62,24 @@ import io.elastest.epm.client.json.DockerContainerInfo;
  */
 @Service
 @PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
+@SuppressWarnings("rawtypes")
 public class DockerComposeService {
 
     final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
 
     private DockerService dockerService;
-    private JsonService jsonService;
 
-    public DockerComposeService(DockerService dockerService,
-            JsonService jsonService) {
+    public DockerComposeService(DockerService dockerService) {
         this.dockerService = dockerService;
-        this.jsonService = jsonService;
     }
 
-    @SuppressWarnings("rawtypes")
     @PreDestroy
     public void teardown() throws Exception {
-        // todo stop projects
         if (projects != null) {
-            for (HashMap.Entry<String, DockerComposeContainer> project : projects
+            Map<String, DockerComposeContainer> projectsMapCopy = new HashMap<>();
+            projectsMapCopy.putAll(projects);
+            for (HashMap.Entry<String, DockerComposeContainer> project : projectsMapCopy
                     .entrySet()) {
                 this.stopAndRemoveProject(project.getKey());
             }
@@ -108,29 +106,9 @@ public class DockerComposeService {
         return dockerComposeProject;
     }
 
-    public List<DockerComposeProject> listProjects() throws IOException {// TODO
+    public List<DockerComposeContainer> listProjects() throws IOException {// TODO
         logger.debug("List Docker Compose projects");
-        List<DockerComposeProject> projects = new ArrayList<>();
-
-        // Response<DockerComposeList> response =
-        // dockerComposeApi.listProjects()
-        // .execute();
-        // logger.debug("List projects response code {}", response.code());
-        //
-        // if (response.isSuccessful()) {
-        // DockerComposeList body = response.body();
-        // logger.debug("Success: {}", body);
-        // Set<String> keySet = body.getProjects().keySet();
-        //
-        // for (String key : keySet) {
-        // DockerComposeProject project = new DockerComposeProject(key,
-        // this);
-        // project.updateDockerComposeYml();
-        // project.updateContainerInfo();
-        // projects.add(project);
-        // }
-        // }
-        return projects;
+        return (List<DockerComposeContainer>) projects.values();
     }
 
     public String getYaml(String projectName) throws IOException {
@@ -149,10 +127,10 @@ public class DockerComposeService {
 
     // Create project from yml string
     public boolean createProject(DockerComposeCreateProject project,
-            String targetPath) throws IOException {
+            String targetPath, boolean override) throws IOException {
 
         logger.debug("Creating Docker Compose with data: {}", project);
-        File ymlFile = createFileFromProject(project, targetPath);
+        File ymlFile = createFileFromProject(project, targetPath, override);
 
         List<String> images = this.getImagesFromYML(project.getYml());
 
@@ -167,11 +145,16 @@ public class DockerComposeService {
     }
 
     public boolean createProject(String projectName, String dockerComposeYml,
-            String targetPath) throws IOException {
+            String targetPath, boolean override) throws IOException {
         DockerComposeCreateProject createProject = new DockerComposeCreateProject(
                 projectName, dockerComposeYml.replaceAll("'", "\""));
 
-        return createProject(createProject, targetPath);
+        return createProject(createProject, targetPath, override);
+    }
+
+    public boolean createProject(String projectName, String dockerComposeYml,
+            String targetPath) throws IOException {
+        return createProject(projectName, dockerComposeYml, targetPath, false);
     }
 
     public boolean startProject(String projectName, boolean withPull)
@@ -253,19 +236,23 @@ public class DockerComposeService {
         boolean stopped;
         try {
             stopped = this.stopProject(projectName);
+            this.removeProjectTmpFiles(projectName);
         } catch (IOException e) {
+            logger.error("error: {}", e);
             return false;
         }
-        this.removeProjectTmpFiles(projectName);
         return stopped;
     }
 
     public File createFileFromProject(DockerComposeCreateProject project,
-            String targetPath) throws IOException {
+            String targetPath, boolean override) throws IOException {
         String filePath = targetPath.endsWith("/") ? targetPath
                 : targetPath + "/";
         filePath += project.getName() + ".yml";
         File file = new File(filePath);
+        if (override) {
+            file.delete();
+        }
         FileUtils.writeStringToFile(file, project.getYml(),
                 StandardCharsets.UTF_8);
         return ResourceUtils.getFile(filePath);

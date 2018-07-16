@@ -43,6 +43,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private Map<String, String> env = new HashMap<>();
 
     private List<String> imagesList = new ArrayList<>();
+    boolean started = false;
 
     /* ******************** */
     /* *** Constructors *** */
@@ -90,7 +91,8 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
             // for linking
             applyScaling();
             // Run the docker-compose container, which starts up the services
-            runWithCompose("up -d");
+            ProcessResult result = runWithCompose("up -d");
+            this.started = result.getExitValue() == 0;
         }
     }
 
@@ -163,6 +165,10 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
 
     public List<String> getComposeYmlList() {
         return this.composeYmlList;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
     /**

@@ -21,10 +21,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
+import static org.junit.Assert.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.epm.client.DockerComposeProject;
+import io.elastest.epm.client.dockercompose.DockerComposeContainer;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
@@ -67,6 +69,7 @@ public class DockerComposeIntegrationTest {
     @Autowired
     private DockerComposeService dockerComposeService;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     @DisplayName("Start and stop Docker compose")
     void testStartAndStop() throws IOException {
@@ -87,10 +90,19 @@ public class DockerComposeIntegrationTest {
         assertThat(containersInfo.getContainers(), not(empty()));
 
         // List projects and assert YML content
-        List<DockerComposeProject> projects = dockerComposeService
+        List<DockerComposeContainer> projects = dockerComposeService
                 .listProjects();
-        for (DockerComposeProject project : projects) {
-            assertThat(project.getDockerComposeYml(), not(isEmptyString()));
+        for (DockerComposeContainer project : projects) {
+            boolean existFiles = true;
+            if (project.getComposeFiles() != null) {
+                for (File currentFile : (List<File>) project
+                        .getComposeFiles()) {
+                    existFiles = existFiles && currentFile.exists();
+                }
+            } else {
+                existFiles = false;
+            }
+            assertTrue(existFiles);
         }
 
         // Stop project

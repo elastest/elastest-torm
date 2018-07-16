@@ -369,9 +369,9 @@ public class TJobExecOrchestratorService {
         logger.info("Start the service provision.");
         String resultMsg = "Starting Test Support Service: ";
         try {
-            TJobSupportService[] tssArray = UtilTools
-                    .convertJsonStringToObj(tJobServices,
-                            TJobSupportService[].class, Include.NON_EMPTY);
+            TJobSupportService[] tssArray = UtilTools.convertJsonStringToObj(
+                    tJobServices, TJobSupportService[].class,
+                    Include.NON_EMPTY);
             List<TJobSupportService> services = Arrays.asList(tssArray);
             // Start EMS first if is selected
             List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
@@ -688,7 +688,7 @@ public class TJobExecOrchestratorService {
         String pathToSaveTmpYml = esmService
                 .getTJobExecFolderPath(dockerExec.gettJobexec());
         boolean created = dockerComposeService.createProject(project,
-                pathToSaveTmpYml);
+                pathToSaveTmpYml, false);
 
         // Start Containers
         if (!created) {
