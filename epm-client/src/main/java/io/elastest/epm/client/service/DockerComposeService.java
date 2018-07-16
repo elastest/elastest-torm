@@ -68,7 +68,7 @@ public class DockerComposeService {
     final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
 
-    private DockerService dockerService;
+    public DockerService dockerService;
 
     public DockerComposeService(DockerService dockerService) {
         this.dockerService = dockerService;

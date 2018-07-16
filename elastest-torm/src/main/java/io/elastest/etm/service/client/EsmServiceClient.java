@@ -1,11 +1,14 @@
 package io.elastest.etm.service.client;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +16,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,16 +25,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.SupportServiceInstance.ProvisionView;
 import io.elastest.etm.utils.UtilTools;
 
-@Service
-public class EsmServiceClient {
-    private static final Logger logger = LoggerFactory
-            .getLogger(EsmServiceClient.class);
+public class EsmServiceClient implements SupportServiceClientInterface {
+    final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.public.host}")
-    private String esmIp;
+    private String etPublicHost;
 
     @Value("${elastest.esm.port}")
     private String esmPort;
@@ -68,6 +69,7 @@ public class EsmServiceClient {
         headers.set("x-broker-api-version", "2.12");
     }
 
+    @Override
     public void registerService(String serviceRegistry) {
         logger.info("Registering the service in the ESM.");
         HttpEntity<String> entity = new HttpEntity<String>(serviceRegistry,
@@ -82,6 +84,7 @@ public class EsmServiceClient {
         }
     }
 
+    @Override
     public void registerManifest(String serviceManifest, String id) {
         logger.info("Registering the service manifest in the ESM.");
         HttpEntity<String> entity = new HttpEntity<String>(serviceManifest,
@@ -109,6 +112,7 @@ public class EsmServiceClient {
         }
     }
 
+    @Override
     public String provisionServiceInstance(
             SupportServiceInstance serviceInstance, String instanceId,
             String accept_incomplete) {
@@ -139,6 +143,7 @@ public class EsmServiceClient {
         return serviceInstanceData;
     }
 
+    @Override
     @Async
     public void deprovisionServiceInstance(String instanceId,
             SupportServiceInstance serviceInstance) {
@@ -164,6 +169,7 @@ public class EsmServiceClient {
         }
     }
 
+    @Override
     public SupportService[] getRegisteredServices() {
         logger.info("Retrieving the services.");
         HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -182,6 +188,7 @@ public class EsmServiceClient {
         }
     }
 
+    @Override
     public JsonNode getRawRegisteredServices() throws IOException {
         logger.info("Get registered all data of a service.");
         logger.info("Retrieving the services.");
@@ -199,6 +206,7 @@ public class EsmServiceClient {
         }
     }
 
+    @Override
     public JsonNode getRawServiceById(String serviceId) throws IOException {
         JsonNode service = null;
         JsonNode services = getRawRegisteredServices();
@@ -212,6 +220,14 @@ public class EsmServiceClient {
         return service;
     }
 
+    @Override
+    public SupportServiceInstance getServiceInstanceInfo(
+            SupportServiceInstance instance) {
+        return initSupportServiceInstanceData(instance);
+
+    }
+
+    @Override
     public ObjectNode getServiceInstanceInfo(String instanceId) {
         logger.info("Retrieving service instance info.");
 
@@ -234,7 +250,7 @@ public class EsmServiceClient {
         }
     }
 
-    public ObjectNode getManifestById(String manifestId) {
+    public ObjectNode getManifestJsonById(String manifestId) {
         logger.info("Manifest to retrieve " + manifestId);
         Map<String, String> params = new HashMap<>();
         params.put("manifest_id", manifestId);
@@ -251,5 +267,66 @@ public class EsmServiceClient {
                             + "\"",
                     e);
         }
+    }
+
+    @Override
+    public TssManifest getManifestById(String manifestId) {
+        ObjectNode manifestJson = getManifestJsonById(manifestId);
+        return UtilTools.convertJsonStringToObj(manifestJson.toString(),
+                TssManifest.class, Include.NON_EMPTY);
+    }
+
+    @Override
+    public SupportServiceInstance initSupportServiceInstanceData(
+            SupportServiceInstance serviceInstance) {
+        ObjectNode serviceInstanceDetail = getServiceInstanceInfo(
+                serviceInstance.getInstanceId());
+
+        serviceInstance.setManifestId(serviceInstanceDetail.get("context")
+                .get("manifest_id").toString().replaceAll("\"", ""));
+
+        ObjectNode manifest = getManifestJsonById(
+                serviceInstance.getManifestId());
+        JsonNode manifestEndpoints = manifest.get("endpoints");
+
+        Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
+        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
+                .get("context").fieldNames();
+
+        while (subServicesNames.hasNext()) {
+            String serviceName = subServicesNames.next();
+            logger.info("Manifest services: {}", serviceName);
+
+            String serviceIpFieldSufix = serviceName + "_Ip";
+            String serviceIp = null;
+            boolean ipFound = false;
+
+            while (itEsmRespContextFields.hasNext() && !ipFound) {
+                String fieldName = itEsmRespContextFields.next();
+                logger.info("Instance data fields {}:" + fieldName);
+
+                if (fieldName.contains(serviceIpFieldSufix)) {
+
+                    String tssContainerName = fieldName.substring(0,
+                            fieldName.indexOf("_Ip"));
+                    serviceInstance.setContainerName(tssContainerName);
+
+                    String containerIp = serviceInstanceDetail.get("context")
+                            .get(fieldName).toString().replaceAll("\"", "");
+
+                    logger.info("ET_PUBLIC_HOST value: " + etPublicHost);
+                    serviceIp = !etPublicHost.equals("localhost") ? etPublicHost
+                            : containerIp;
+                    serviceInstance.setContainerIp(containerIp);
+                    serviceInstance.setServiceIp(serviceIp);
+                    logger.info(
+                            "Service Ip {}:" + serviceInstance.getServiceIp());
+
+                    ipFound = true;
+                }
+            }
+        }
+
+        return serviceInstance;
     }
 }

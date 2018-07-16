@@ -45,7 +45,6 @@ import io.elastest.etm.model.QTrace;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilsService;
 
-//@Service
 public class TracesSearchService implements MonitoringServiceInterface {
     final Logger logger = getLogger(lookup().lookupClass());
 

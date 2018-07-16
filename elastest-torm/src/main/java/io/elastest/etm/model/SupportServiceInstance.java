@@ -117,6 +117,9 @@ public class SupportServiceInstance {
     @JsonProperty("containerIp")
     private String containerIp;
 
+    @JsonProperty("containerName")
+    private String containerName;
+
     @JsonProperty("manifestId")
     private String manifestId;
 
@@ -368,6 +371,14 @@ public class SupportServiceInstance {
         this.containerIp = containerIp;
     }
 
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
     public Map<String, String> getContext() {
         return context;
     }
@@ -387,7 +398,8 @@ public class SupportServiceInstance {
                 + ", context=" + context + ", space_guid=" + space_guid
                 + ", tJobExecId=" + tJobExecId + ", serviceIp=" + serviceIp
                 + ", servicePort=" + servicePort + ", containerIp="
-                + containerIp + ", manifestId=" + manifestId + ", urls=" + urls
+                + containerIp + ", containerName=" + containerName
+                + ", manifestId=" + manifestId + ", urls=" + urls
                 + ", subServices=" + subServices + ", endpointName="
                 + endpointName + ", endpointsData=" + endpointsData
                 + ", portBindingContainers=" + portBindingContainers

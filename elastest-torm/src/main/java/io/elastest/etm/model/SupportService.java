@@ -41,6 +41,9 @@ public class SupportService {
     @JsonProperty("requires")
     private List requires;
 
+    @JsonProperty("tags")
+    private List tags;
+
     public SupportService() {
 
     }
@@ -56,7 +59,7 @@ public class SupportService {
 
     public SupportService(String id, String name, String shortName,
             TssManifest manifest, boolean bindable, String description,
-            List plans, boolean planUpdateable, List requires) {
+            List plans, boolean planUpdateable, List requires, List tags) {
         super();
         this.id = id;
         this.name = name;
@@ -67,6 +70,7 @@ public class SupportService {
         this.plans = plans;
         this.planUpdateable = planUpdateable;
         this.requires = requires;
+        this.tags = tags;
     }
 
     /**
@@ -160,13 +164,21 @@ public class SupportService {
         this.requires = requires;
     }
 
+    public List getTags() {
+        return tags;
+    }
+
+    public void setTags(List tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "SupportService [id=" + id + ", name=" + name + ", shortName="
                 + shortName + ", manifest=" + manifest + ", bindable="
                 + bindable + ", description=" + description + ", plans=" + plans
                 + ", planUpdateable=" + planUpdateable + ", requires="
-                + requires + "]";
+                + requires + ", tags=" + tags + "]";
     }
 
 }

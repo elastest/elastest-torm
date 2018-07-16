@@ -1,6 +1,8 @@
 package io.elastest.etm.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -35,8 +36,9 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
-import io.elastest.etm.service.client.EsmServiceClient;
+import io.elastest.etm.service.client.SupportServiceClientInterface;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
@@ -44,8 +46,7 @@ import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class EsmService {
-    private static final Logger logger = LoggerFactory
-            .getLogger(EsmService.class);
+    final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
@@ -122,7 +123,7 @@ public class EsmService {
     @Value("${et.shared.folder}")
     private String sharedFolder;
 
-    public EsmServiceClient esmServiceClient;
+    public SupportServiceClientInterface supportServiceClient;
     public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
@@ -143,10 +144,10 @@ public class EsmService {
     private String externalTJobExecFolderPefix = "external_exec_";
 
     @Autowired
-    public EsmService(EsmServiceClient esmServiceClient,
+    public EsmService(SupportServiceClientInterface supportServiceClient,
             DockerEtmService dockerEtmService, EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService) {
-        this.esmServiceClient = esmServiceClient;
+        this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
         this.externalTJobServicesInstances = new HashMap<>();
@@ -172,7 +173,7 @@ public class EsmService {
 
             }
         } catch (Exception e) {
-            logger.warn("Error during the services registry. ");
+            logger.warn("Error during the services registry. ", e);
         }
     }
 
@@ -241,9 +242,9 @@ public class EsmService {
         // : null;
         // String config = configJson != null ? serviceDefJson.toString() : "";
 
-        esmServiceClient
+        supportServiceClient
                 .registerService(serviceDefJson.get("register").toString());
-        esmServiceClient.registerManifest("{ " + "\"id\": "
+        supportServiceClient.registerManifest("{ " + "\"id\": "
                 + serviceDefJson.get("manifest").get("id").toString()
                 + ", \"manifest_content\": "
                 + serviceDefJson.get("manifest").get("manifest_content")
@@ -277,7 +278,8 @@ public class EsmService {
     public List<SupportService> getRegisteredServices() {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
-        SupportService[] servicesObj = esmServiceClient.getRegisteredServices();
+        SupportService[] servicesObj = supportServiceClient
+                .getRegisteredServices();
 
         for (SupportService esmService : servicesObj) {
             services.add(esmService);
@@ -333,7 +335,7 @@ public class EsmService {
             Long executionId, String instanceId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode service = esmServiceClient.getRawServiceById(serviceId);
+        JsonNode service = supportServiceClient.getRawServiceById(serviceId);
         logger.info("Service instance: " + instanceId);
         List<ObjectNode> plans = Arrays.asList(mapper.readValue(
                 service.get("plans").toString(), ObjectNode[].class));
@@ -659,137 +661,104 @@ public class EsmService {
     public void provisionServiceInstanceByObject(
             SupportServiceInstance newServiceInstance, String instanceId)
             throws Exception {
-        esmServiceClient.provisionServiceInstance(newServiceInstance,
+        supportServiceClient.provisionServiceInstance(newServiceInstance,
                 instanceId, Boolean.toString(false));
-        ObjectNode serviceInstanceDetail = getServiceInstanceInfo(instanceId);
-        newServiceInstance.setManifestId(serviceInstanceDetail.get("context")
-                .get("manifest_id").toString().replaceAll("\"", ""));
-        buildSrvInstancesUrls(newServiceInstance, serviceInstanceDetail);
+
+        logger.info("Get registered all data of a service.");
+        newServiceInstance = supportServiceClient
+                .getServiceInstanceInfo(newServiceInstance);
+
+        buildTssInstanceUrls(newServiceInstance);
     }
 
-    private void buildSrvInstancesUrls(SupportServiceInstance serviceInstance,
-            ObjectNode serviceInstanceDetail) throws Exception {
-        ObjectNode manifest = esmServiceClient
+    private void buildTssInstanceUrls(SupportServiceInstance serviceInstance)
+            throws Exception {
+        TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
-        Iterator<String> subServicesNames = manifest.get("endpoints")
-                .fieldNames();
-        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
-                .get("context").fieldNames();
+        JsonNode manifestEndpoints = manifest.getEndpoints();
 
-        while (subServicesNames.hasNext()) {
-            String serviceName = subServicesNames.next();
-            logger.info("Manifest services {}:" + serviceName);
-            String serviceIpFieldSufix = serviceName + "_Ip";
-            String serviceIp = null;
-            boolean ipFound = false;
+        Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
+        String serviceName = subServicesNames.next();
 
-            while (itEsmRespContextFields.hasNext() && !ipFound) {
-                String fieldName = itEsmRespContextFields.next();
-                logger.info("Instance data fields {}:" + fieldName);
+        JsonNode manifestEndpointService = manifestEndpoints.get(serviceName);
+        JsonNode manifestEndpointServiceApi = manifestEndpointService
+                .get("api");
+        JsonNode manifestEndpointServiceGui = manifestEndpointService
+                .get("gui");
 
-                if (fieldName.contains(serviceIpFieldSufix)) {
+        if (serviceInstance.getContainerIp() == null) {
+            throw new Exception(
+                    "Field ip not found for " + serviceName + " instance.");
+        } else {
 
-                    String ssrvContainerName = fieldName.substring(0,
-                            fieldName.indexOf("_Ip"));
-                    String networkName = etDockerNetwork;
-                    logger.info("Network name: " + networkName);
-                    String containerIp = serviceInstanceDetail.get("context")
-                            .get(fieldName).toString().replaceAll("\"", "");
-                    logger.info("ET_PUBLIC_HOST value: " + etPublicHost);
-                    serviceIp = !etPublicHost.equals("localhost") ? etPublicHost
-                            : containerIp;
-                    serviceInstance.setContainerIp(containerIp);
-                    serviceInstance.setServiceIp(serviceIp);
-                    logger.info(
-                            "Service Ip {}:" + serviceInstance.getServiceIp());
+            String networkName = etDockerNetwork;
+            logger.info("Network name: " + networkName);
 
-                    SupportServiceInstance auxServiceInstance = null;
+            SupportServiceInstance auxServiceInstance = null;
 
-                    if (manifest.get("endpoints").get(serviceName)
-                            .get("main") != null
-                            && manifest.get("endpoints").get(serviceName)
-                                    .get("main").booleanValue()) {
-                        logger.info("Principal instance {}:" + serviceName);
-                        auxServiceInstance = serviceInstance;
-                    } else {
-                        auxServiceInstance = new SupportServiceInstance();
-                        auxServiceInstance.setEndpointName(serviceName);
-                        auxServiceInstance.setContainerIp(containerIp);
-                        auxServiceInstance.setServiceIp(serviceIp);
-                        auxServiceInstance
-                                .setParameters(serviceInstance.getParameters());
-                        serviceInstance.getSubServices()
-                                .add(auxServiceInstance);
-                    }
-
-                    auxServiceInstance.setEndpointName(serviceName);
-
-                    try {
-                        if (manifest.get("endpoints").get(serviceName)
-                                .get("api") != null) {
-                            if (!manifest.get("endpoints").get(serviceName)
-                                    .get("api").isArray()) {
-                                getEndpointsInfo(auxServiceInstance,
-                                        manifest.get("endpoints")
-                                                .get(serviceName).get("api"),
-                                        ssrvContainerName, networkName, "api");
-                            } else {
-                                for (final JsonNode apiNode : manifest
-                                        .get("endpoints").get(serviceName)
-                                        .get("api")) {
-                                    getEndpointsInfo(auxServiceInstance,
-                                            apiNode, ssrvContainerName,
-                                            networkName,
-                                            apiNode.get("name") != null
-                                                    ? apiNode.get("name")
-                                                            .toString()
-                                                            .replaceAll("\"",
-                                                                    "")
-                                                            + "api"
-                                                    : "api");
-                                }
-                            }
-                        }
-                        if (manifest.get("endpoints").get(serviceName)
-                                .get("gui") != null) {
-                            if (!manifest.get("endpoints").get(serviceName)
-                                    .get("gui").isArray()) {
-                                getEndpointsInfo(auxServiceInstance,
-                                        manifest.get("endpoints")
-                                                .get(serviceName).get("gui"),
-                                        ssrvContainerName, networkName, "gui");
-                            } else {
-                                for (final JsonNode guiNode : manifest
-                                        .get("endpoints").get(serviceName)
-                                        .get("gui")) {
-                                    getEndpointsInfo(auxServiceInstance,
-                                            guiNode, ssrvContainerName,
-                                            networkName,
-                                            guiNode.get("name") != null
-                                                    ? guiNode.get("name")
-                                                            .toString()
-                                                            .replaceAll("\"",
-                                                                    "")
-                                                            + "gui"
-                                                    : "gui");
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error building endpoints info: {}",
-                                e.getMessage());
-                        throw new Exception("Error building endpoints info: "
-                                + e.getMessage());
-                    }
-                    ipFound = true;
-                }
+            if (manifestEndpointService.get("main") != null
+                    && manifestEndpointService.get("main").booleanValue()) {
+                logger.info("Principal instance {}:" + serviceName);
+                auxServiceInstance = serviceInstance;
+            } else {
+                auxServiceInstance = new SupportServiceInstance();
+                auxServiceInstance.setEndpointName(serviceName);
+                auxServiceInstance
+                        .setContainerIp(serviceInstance.getContainerIp());
+                auxServiceInstance.setServiceIp(serviceInstance.getServiceIp());
+                auxServiceInstance
+                        .setParameters(serviceInstance.getParameters());
+                serviceInstance.getSubServices().add(auxServiceInstance);
             }
 
-            if (!ipFound) {
+            auxServiceInstance.setEndpointName(serviceName);
+
+            try {
+                String tssContainerName = serviceInstance.getContainerName();
+
+                if (manifestEndpointServiceApi != null) {
+                    if (!manifestEndpointServiceApi.isArray()) {
+                        getEndpointsInfo(auxServiceInstance,
+                                manifestEndpointServiceApi, tssContainerName,
+                                networkName, "api");
+                    } else {
+                        for (final JsonNode apiNode : manifestEndpointServiceApi) {
+                            getEndpointsInfo(auxServiceInstance, apiNode,
+                                    tssContainerName, networkName,
+                                    apiNode.get("name") != null
+                                            ? apiNode.get("name").toString()
+                                                    .replaceAll("\"", "")
+                                                    + "api"
+                                            : "api");
+                        }
+                    }
+                }
+
+                if (manifestEndpointServiceGui != null) {
+                    if (!manifestEndpointServiceGui.isArray()) {
+                        getEndpointsInfo(auxServiceInstance,
+                                manifestEndpointServiceGui, tssContainerName,
+                                networkName, "gui");
+                    } else {
+                        for (final JsonNode guiNode : manifestEndpointServiceGui) {
+                            getEndpointsInfo(auxServiceInstance, guiNode,
+                                    tssContainerName, networkName,
+                                    guiNode.get("name") != null
+                                            ? guiNode.get("name").toString()
+                                                    .replaceAll("\"", "")
+                                                    + "gui"
+                                            : "gui");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Error building endpoints info: {}",
+                        e.getMessage());
                 throw new Exception(
-                        "Field ip not found for " + serviceName + " instance.");
+                        "Error building endpoints info: " + e.getMessage());
             }
         }
+
     }
 
     private SupportServiceInstance getEndpointsInfo(
@@ -943,7 +912,7 @@ public class EsmService {
                 }
             }
 
-            esmServiceClient.deprovisionServiceInstance(instanceId,
+            supportServiceClient.deprovisionServiceInstance(instanceId,
                     serviceInstance);
         }
         ssiMap.remove(instanceId);
@@ -953,7 +922,7 @@ public class EsmService {
     public boolean isInstanceUp(String instanceId) {
         boolean result = false;
         try {
-            result = esmServiceClient.getServiceInstanceInfo(instanceId)
+            result = supportServiceClient.getServiceInstanceInfo(instanceId)
                     .toString().equals("{}") ? false : true;
             logger.info("Check instance status:{}", instanceId, ". Info: {}",
                     result);
@@ -996,12 +965,6 @@ public class EsmService {
         }
 
         return tss;
-    }
-
-    public ObjectNode getServiceInstanceInfo(String instanceId)
-            throws IOException {
-        logger.info("Get registered all data of a service.");
-        return esmServiceClient.getServiceInstanceInfo(instanceId);
     }
 
     public List<SupportServiceInstance> getServicesInstancesAsList() {

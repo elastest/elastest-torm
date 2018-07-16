@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -31,7 +32,7 @@ public class TssManifest {
     String serviceId;
 
     @JsonProperty("endpoints")
-    String endpoints;
+    JsonNode endpoints;
 
     @JsonProperty("config")
     @JsonInclude(Include.NON_NULL)
@@ -45,7 +46,7 @@ public class TssManifest {
     }
 
     public TssManifest(String id, String manifestContent, String manifestType,
-            String planId, String serviceId, String endpoints,
+            String planId, String serviceId, JsonNode endpoints,
             Map<String, Object> config) {
         super();
         this.id = id;
@@ -97,11 +98,11 @@ public class TssManifest {
         this.serviceId = serviceId;
     }
 
-    public String getEndpoints() {
+    public JsonNode getEndpoints() {
         return endpoints;
     }
 
-    public void setEndpoints(String endpoints) {
+    public void setEndpoints(JsonNode endpoints) {
         this.endpoints = endpoints;
     }
 
@@ -112,6 +113,14 @@ public class TssManifest {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+    }
+
+    @Override
+    public String toString() {
+        return "TssManifest [id=" + id + ", manifestContent=" + manifestContent
+                + ", manifestType=" + manifestType + ", planId=" + planId
+                + ", serviceId=" + serviceId + ", endpoints=" + endpoints
+                + ", config=" + config + "]";
     }
 
 }

@@ -56,7 +56,6 @@ import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-//@Service
 public class ElasticsearchService implements MonitoringServiceInterface {
     final Logger logger = getLogger(lookup().lookupClass());
 

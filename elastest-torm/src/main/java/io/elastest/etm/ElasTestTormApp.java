@@ -16,10 +16,14 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
+import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.MonitoringServiceInterface;
 import io.elastest.etm.service.TracesSearchService;
+import io.elastest.etm.service.client.EsmServiceClient;
+import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
+import io.elastest.etm.service.client.SupportServiceClientInterface;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -33,6 +37,9 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     private UtilsService utilsService;
     @Autowired
     TraceRepository traceRepository;
+
+    @Autowired
+    DockerComposeService dockerComposeService;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -67,6 +74,15 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             return new TracesSearchService(traceRepository, utilsService);
         } else {
             return new ElasticsearchService(utilsService);
+        }
+    }
+
+    @Bean
+    public SupportServiceClientInterface getSupportServiceClientInterface() {
+        if (utilsService.isElastestMini()) {
+            return new EtmMiniSupportServiceClient(dockerComposeService);
+        } else {
+            return new EsmServiceClient();
         }
     }
 

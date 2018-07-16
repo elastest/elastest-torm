@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class UtilTools {
 
@@ -205,6 +207,18 @@ public class UtilTools {
             Class<?> serializationView, boolean failOnUnknownProperties) {
         return convertJsonStringToObj(json, serializationView, Include.ALWAYS,
                 failOnUnknownProperties);
+    }
+
+    // Obj to JsonNode
+    public static JsonNode convertObjToJsonNode(Object obj) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.valueToTree(obj);
+    }
+
+    // Obj to ObjectNode
+
+    public static ObjectNode convertObjToObjectNode(Object object) {
+        return UtilTools.convertObjToJsonNode(object).deepCopy();
     }
 
     /**
