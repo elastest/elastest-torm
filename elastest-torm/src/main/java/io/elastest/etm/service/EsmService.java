@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
@@ -1196,10 +1198,12 @@ public class EsmService {
     }
 
     private void fillEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance) {
-            
+            SupportServiceInstance supportServiceInstance)
+            throws ServiceException {
+
         if (epmService.etMasterSlaveMode) {
-            supportServiceInstance.getParameters().put("pop_name", epmService.getPopName(epmService.getRe().getHostIp(), "compose"));
+            supportServiceInstance.getParameters().put("pop_name", epmService
+                    .getPopName(epmService.getRe().getHostIp(), "compose"));
         }
 
         supportServiceInstance.getParameters()
