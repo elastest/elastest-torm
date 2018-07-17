@@ -28,7 +28,6 @@ import { SutFormComponent } from './elastest-etm/sut/sut-form/sut-form.component
 import { TJobsManagerComponent } from './elastest-etm/tjob/tjobs-manager/tjobs-manager.component';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
 import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
-import { TOJobManagerComponent } from './elastest-etm/tojob/tojob-manager/tojob-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
 import { UsersFormComponent } from './users/form/form.component';
@@ -619,7 +618,6 @@ export const routedComponents: any[] = [
   SutManagerComponent,
   SutsManagerComponent,
   EtmComponent,
-  TOJobManagerComponent,
   DashboardComponent,
   ProjectFormComponent,
   TjobManagerComponent,

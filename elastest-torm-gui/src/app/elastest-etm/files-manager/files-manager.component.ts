@@ -3,7 +3,7 @@ import { FileModel } from './file-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, IPageChangeEvent } from '@covalent/core';
+import { TdDataTableService, TdDataTableSortingOrder } from '@covalent/core';
 import { ExternalService } from '../external/external.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { ExternalTJobExecModel } from '../external/external-tjob-execution/external-tjob-execution-model';

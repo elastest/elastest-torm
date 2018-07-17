@@ -1,15 +1,9 @@
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
-import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
-import { DashboardConfigModel } from './dashboard-config-model';
-import { ParameterModel } from '../parameter/parameter-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { SutModel } from '../sut/sut-model';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
-import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { TJobModel } from './tjob-model';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
 
 @Injectable()

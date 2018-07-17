@@ -2,16 +2,7 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { Router } from '@angular/router';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
-import { Meta, Title } from '@angular/platform-browser';
-import {
-  IPageChangeEvent,
-  ITdDataTableRowClickEvent,
-  ITdDataTableSortChangeEvent,
-  TdDataTableService,
-  TdDataTableSortingOrder,
-  TdDialogService,
-  IConfirmConfig,
-} from '@covalent/core';
+import { TdDataTableService, TdDataTableSortingOrder, TdDialogService, IConfirmConfig } from '@covalent/core';
 import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
 import { MdDialog } from '@angular/material';
 

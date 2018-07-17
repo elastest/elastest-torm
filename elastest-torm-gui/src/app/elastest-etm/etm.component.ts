@@ -4,9 +4,6 @@ import { TitlesService } from '../shared/services/titles.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-
-import { Meta, Title } from '@angular/platform-browser';
-
 import { TdMediaService } from '@covalent/core';
 
 @Component({
@@ -20,9 +17,14 @@ export class EtmComponent implements AfterViewInit, OnInit {
   openedMenu: boolean = true;
   enableRefresh: boolean = false;
 
-  constructor(private titlesService: TitlesService, public media: TdMediaService,
+  constructor(
+    private titlesService: TitlesService,
+    public media: TdMediaService,
     private elastestRabbitmqService: ElastestRabbitmqService,
-    private cdr: ChangeDetectorRef, private configService: ConfigurationService, private router: Router) { }
+    private cdr: ChangeDetectorRef,
+    private configService: ConfigurationService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
@@ -39,27 +41,29 @@ export class EtmComponent implements AfterViewInit, OnInit {
     this.cdr.detectChanges();
   }
 
-  openMainSidenav() {
+  openMainSidenav(): void {
     this.manageList.toggle();
     // this.openedMenu = !this.openedMenu;
   }
 
-  capitalize(value: any) {
+  capitalize(value: any): any {
     if (value) {
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
     return value;
   }
 
-  toggleFullscreen() {
+  toggleFullscreen(): void {
     let documentVar = document as any;
     let documentElement = document.documentElement as any;
     let documentBody = document.body as any;
 
-    if (documentVar.fullscreenElement || // alternative standard method
+    if (
+      documentVar.fullscreenElement || // alternative standard method
       documentVar.mozFullScreenElement || // currently working methods
       documentVar.webkitFullscreenElement ||
-      documentVar.msFullscreenElement) {
+      documentVar.msFullscreenElement
+    ) {
       if (documentVar.exitFullscreen) {
         documentVar.exitFullscreen();
       } else if (documentVar.mozCancelFullScreen) {
@@ -83,13 +87,13 @@ export class EtmComponent implements AfterViewInit, OnInit {
     }
   }
 
-  refresh() {
+  refresh(): void {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
       this.router.navigate(['/refresh'], { queryParams: { url: 'tjobexecs' } });
-    } 
+    }
   }
 
-  isReloadable() {
+  isReloadable(): boolean {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
       return true;
     } else {
@@ -97,5 +101,5 @@ export class EtmComponent implements AfterViewInit, OnInit {
     }
   }
 
-  setTitles() { }
+  setTitles(): void {}
 }

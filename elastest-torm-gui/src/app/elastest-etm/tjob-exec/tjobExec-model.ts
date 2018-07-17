@@ -1,5 +1,3 @@
-import { ProjectModel } from '../project/project-model';
-import { SutModel } from '../sut/sut-model';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
