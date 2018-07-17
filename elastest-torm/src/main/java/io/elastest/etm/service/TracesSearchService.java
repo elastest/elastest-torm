@@ -437,7 +437,8 @@ public class TracesSearchService implements MonitoringServiceInterface {
                         .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
                                 logAnalyzerQuery.getRangeLT()));
             }
-            if (logAnalyzerQuery.getRangeLTE() != null) {
+            if (logAnalyzerQuery.getRangeLTE() != null
+                    && !logAnalyzerQuery.getRangeLTE().equals("now")) { // now is used for tail
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
                         .loe(utilsService
                                 .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
