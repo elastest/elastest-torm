@@ -26,7 +26,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -72,7 +71,7 @@ public class DockerComposeIntegrationTest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     @DisplayName("Start and stop Docker compose")
-    void testStartAndStop() throws IOException {
+    void testStartAndStop() throws Exception {
         // Test data
         String projectName = "elastest-eus";
         String dockerComposeFile = "docker-compose.yml";

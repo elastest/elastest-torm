@@ -1105,8 +1105,11 @@ public class EsmService {
             String tJobExecFilePath) throws InterruptedException, IOException {
         List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
 
-        String tJobExecFolder = sharedFolder + tJobExecFilePath;
-        logger.debug("Shared folder:" + tJobExecFolder);
+        String tJobExecFolder = sharedFolder.endsWith(fileSeparator)
+                ? sharedFolder
+                : sharedFolder + fileSeparator;
+        tJobExecFolder += tJobExecFilePath;
+        logger.debug("Shared folder: " + tJobExecFolder);
 
         File file = ResourceUtils.getFile(tJobExecFolder);
         // If not in dev mode

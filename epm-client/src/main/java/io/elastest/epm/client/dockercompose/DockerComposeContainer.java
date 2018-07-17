@@ -134,12 +134,12 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     }
 
     public SELF withEnv(String key, String value) {
-        env.put(key, value);
+        this.env.put(key, value);
         return self();
     }
 
-    public SELF withEnv(Map<String, String> env) {
-        env.forEach(this.env::put);
+    public SELF withEnv(Map<String, String> envs) {
+        this.env.putAll(envs);
         return self();
     }
 
@@ -189,6 +189,17 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private String randomProjectId() {
         return identifier + Base58.randomString(6).toLowerCase();
     }
+
+    @Override
+    public String toString() {
+        return "DockerComposeContainer [logger=" + logger + ", identifier="
+                + identifier + ", composeFiles=" + composeFiles
+                + ", composeYmlList=" + composeYmlList + ", scalingPreferences="
+                + scalingPreferences + ", pull=" + pull + ", project=" + project
+                + ", env=" + env + ", imagesList=" + imagesList + ", started="
+                + started + "]";
+    }
+
 }
 
 interface DockerCompose {

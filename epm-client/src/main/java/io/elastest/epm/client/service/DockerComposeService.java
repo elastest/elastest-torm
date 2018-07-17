@@ -43,8 +43,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.spotify.docker.client.messages.Container;
 
 import io.elastest.epm.client.DockerComposeProject;
@@ -62,7 +60,7 @@ import io.elastest.epm.client.json.DockerContainerInfo;
  */
 @Service
 @PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class DockerComposeService {
 
     final Logger logger = getLogger(lookup().lookupClass());
@@ -87,7 +85,7 @@ public class DockerComposeService {
     }
 
     public DockerComposeProject createAndStartDockerComposeWithFile(
-            String projectName, String dockerComposeFile) throws IOException {
+            String projectName, String dockerComposeFile) throws Exception {
         String dockerComposeYml = IOUtils.toString(
                 this.getClass().getResourceAsStream("/" + dockerComposeFile),
                 defaultCharset());
@@ -97,7 +95,7 @@ public class DockerComposeService {
     }
 
     public DockerComposeProject createAndStartDockerComposeByContent(
-            String projectName, String dockerComposeYml) throws IOException {
+            String projectName, String dockerComposeYml) throws Exception {
         DockerComposeProject dockerComposeProject = new DockerComposeProject(
                 projectName, dockerComposeYml, this);
         dockerComposeProject.start();
@@ -131,12 +129,24 @@ public class DockerComposeService {
 
         logger.debug("Creating Docker Compose with data: {}", project);
         File ymlFile = createFileFromProject(project, targetPath, override);
-
-        List<String> images = this.getImagesFromYML(project.getYml());
+        List<String> images = new ArrayList<>();
+        try {
+            images = project.getImagesFromYML();
+        } catch (Exception e) {
+            logger.error("Error on process yml to get images");
+        }
 
         DockerComposeContainer compose = new DockerComposeContainer<>(
-                project.getName(), false, ymlFile).withImages(images)
+                project.getName(), false, ymlFile)
                         .setComposeYmlList(Arrays.asList(project.getYml()));
+
+        if (project.getEnv() != null && !project.getEnv().isEmpty()) {
+            compose.withEnv(project.getEnv());
+        }
+        if (images != null && images.size() > 0) {
+            compose.withImages(images);
+        }
+
         projects.put(project.getName(), compose);
         logger.debug("Created Docker Compose with data: {}", project);
 
@@ -144,16 +154,27 @@ public class DockerComposeService {
 
     }
 
-    public boolean createProject(String projectName, String dockerComposeYml,
-            String targetPath, boolean override) throws IOException {
+    public boolean createProjectWithEnv(String projectName,
+            String dockerComposeYml, String targetPath, boolean override,
+            Map<String, String> envs) throws Exception {
         DockerComposeCreateProject createProject = new DockerComposeCreateProject(
                 projectName, dockerComposeYml.replaceAll("'", "\""));
-
+        if (envs != null) {
+            createProject.getEnv().putAll(envs);
+            createProject.setEnvVarsToYmlServices();
+        }
         return createProject(createProject, targetPath, override);
     }
 
     public boolean createProject(String projectName, String dockerComposeYml,
-            String targetPath) throws IOException {
+            String targetPath, boolean override) throws Exception {
+
+        return createProjectWithEnv(projectName, dockerComposeYml, targetPath,
+                override, null);
+    }
+
+    public boolean createProject(String projectName, String dockerComposeYml,
+            String targetPath) throws Exception {
         return createProject(projectName, dockerComposeYml, targetPath, false);
     }
 
@@ -220,7 +241,6 @@ public class DockerComposeService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void removeProjectTmpFiles(String projectName) {
         if (projects.containsKey(projectName)) {
             for (File currentFile : (List<File>) projects.get(projectName)
@@ -277,36 +297,6 @@ public class DockerComposeService {
 
     }
 
-    private List<String> getImagesFromYML(String yml) {
-        List<String> images = new ArrayList<>();
-        YAMLFactory yf = new YAMLFactory();
-        ObjectMapper mapper = new ObjectMapper(yf);
-        Object object;
-        try {
-            object = mapper.readValue(yml, Object.class);
-
-            Map<String, HashMap<String, HashMap>> dockerComposeMap = (HashMap) object;
-            Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
-            for (HashMap.Entry<String, HashMap> service : servicesMap
-                    .entrySet()) {
-
-                HashMap<String, String> serviceContent = service.getValue();
-
-                String imageKey = "image";
-                // If service has image, pull
-                if (serviceContent.containsKey(imageKey)) {
-                    String image = serviceContent.get(imageKey);
-                    images.add(image);
-                }
-
-            }
-        } catch (Exception e) {
-            logger.error("Error on process yml to get images");
-        }
-        return images;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void pullImages(DockerComposeContainer dockerComposeContainer) {
         if (dockerComposeContainer.getImagesList() != null) {
             for (String image : (List<String>) dockerComposeContainer

@@ -56,7 +56,7 @@ public class DockerComposeProject {
         this.isStarted = true;
     }
 
-    public synchronized void start() throws IOException {
+    public synchronized void start() throws Exception {
         assertNotProjectStarted();
 
         log.debug("Starting Docker Compose project {}", projectName);

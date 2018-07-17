@@ -532,34 +532,40 @@ public class DockerEtmService {
     }
 
     public void checkSut(DockerExecution dockerExec, String ip, String port)
-            throws Exception {
+            throws DockerException, Exception {
         String envVar = "IP=" + ip;
         String envVar2 = "PORT=" + port;
         ArrayList<String> envList = new ArrayList<>();
         envList.add(envVar);
         envList.add(envVar2);
 
-        dockerService.pullImageIfNotExist(checkImage);
+        try {
+            dockerService.pullImageIfNotExist(checkImage);
 
-        String checkName = getCheckName(dockerExec);
+            String checkName = getCheckName(dockerExec);
 
-        DockerBuilder dockerBuilder = new DockerBuilder(checkImage);
-        dockerBuilder.envs(envList);
-        dockerBuilder.containerName(checkName);
-        dockerBuilder.network(dockerExec.getNetwork());
+            DockerBuilder dockerBuilder = new DockerBuilder(checkImage);
+            dockerBuilder.envs(envList);
+            dockerBuilder.containerName(checkName);
+            dockerBuilder.network(dockerExec.getNetwork());
 
-        DockerContainer dockerContainer = dockerBuilder.build();
-        String checkContainerId = dockerService
-                .createAndStartContainer(dockerContainer);
+            DockerContainer dockerContainer = dockerBuilder.build();
+            String checkContainerId = dockerService
+                    .createAndStartContainer(dockerContainer);
 
-        this.insertCreatedContainer(checkContainerId, checkName);
+            this.insertCreatedContainer(checkContainerId, checkName);
 
-        int statusCode = dockerExec.getDockerClient()
-                .waitContainer(checkContainerId).statusCode();
-        if (statusCode == 0) {
-            logger.info("Sut is ready " + dockerExec.getExecutionId());
+            int statusCode = dockerExec.getDockerClient()
+                    .waitContainer(checkContainerId).statusCode();
+            if (statusCode == 0) {
+                logger.info("Sut is ready " + dockerExec.getExecutionId());
 
-        } else { // TODO timeout or catch stop execution
+            } else { // TODO timeout or catch stop execution
+                throw new TJobStoppedException(
+                        "Error on Waiting for CheckSut. Probably because the user has stopped the execution");
+            }
+
+        } catch (InterruptedException e) {
             throw new TJobStoppedException(
                     "Error on Waiting for CheckSut. Probably because the user has stopped the execution");
         }

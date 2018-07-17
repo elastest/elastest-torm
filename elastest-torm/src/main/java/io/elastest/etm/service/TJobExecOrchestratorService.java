@@ -662,6 +662,7 @@ public class TJobExecOrchestratorService {
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
+        
         // Set logging, network and do pull of images
         dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
                 dockerComposeYml, composeProjectName, dockerExec);
