@@ -132,6 +132,8 @@ public class EtmContextAuxService {
         String proxyIp = etPublicHost;
         String proxyPort = etProxyPort;
         String proxySslPort = etProxySSLPort;
+        
+        String containersHostIp = dockerService.getHostIpByNetwork(elastestNetwork);
         if (etInProd) {
             if ("localhost".equals(etPublicHost)) {
                 try {
@@ -142,7 +144,7 @@ public class EtmContextAuxService {
                 }
             }
         } else {
-            proxyIp = dockerService.getHostIpByNetwork(elastestNetwork);
+            proxyIp = containersHostIp;
         }
 
         contextInfo.setLogstashHttpUrl(
@@ -152,10 +154,10 @@ public class EtmContextAuxService {
 
         contextInfo.setLogstashIp(logstashHost);
         if (bindedLsBeatsHost.equals("localhost")) {
-            contextInfo.setLogstashBindedBeatsHost(logstashHost);
+            contextInfo.setLogstashBindedBeatsHost(containersHostIp);
         }
         if (bindedLsTcpHost.equals("localhost")) {
-            contextInfo.setLogstashBindedTcpHost(logstashHost);
+            contextInfo.setLogstashBindedTcpHost(containersHostIp);
         }
 
         contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
