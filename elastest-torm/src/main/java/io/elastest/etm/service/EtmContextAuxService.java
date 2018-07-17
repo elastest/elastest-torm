@@ -151,6 +151,12 @@ public class EtmContextAuxService {
                 + proxySslPort + logstashPathWithProxy);
 
         contextInfo.setLogstashIp(logstashHost);
+        if (lsTcpHost.equals("localhost")) {
+            contextInfo.setLogstashTcpHost(logstashHost);
+        }
+        if (lsBeatsHost.equals("localhost")) {
+            contextInfo.setLogstashBeatsHost(logstashHost);
+        }
 
         contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
         contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + proxyPort
