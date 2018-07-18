@@ -95,7 +95,7 @@ public class DockerServiceItTest {
 
         long start = System.currentTimeMillis();
         String containerId = dockerEtmService.dockerService
-                .createAndStartContainer(dockerBuilder.build());
+                .createAndStartContainer(dockerBuilder.build(), false);
         log.info("Created and started container: {}", containerId);
 
         try {

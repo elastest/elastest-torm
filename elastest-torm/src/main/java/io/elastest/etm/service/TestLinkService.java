@@ -111,7 +111,7 @@ public class TestLinkService {
                         logger.info("Real TestLink Ip: {}", testLinkIp);
                         SocatBindedPort socatBindedPort = dockerEtmService
                                 .bindingPort(testLinkIp, etEtmTestLinkPort,
-                                        etDockerNetwork);
+                                        etDockerNetwork, false);
                         this.testLinkHost = etPublicHost;
                         this.testLinkPort = socatBindedPort.getListenPort();
                     } catch (Exception e) {

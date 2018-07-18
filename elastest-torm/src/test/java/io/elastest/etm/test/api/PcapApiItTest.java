@@ -46,7 +46,7 @@ public class PcapApiItTest {
         dockerBuilder.containerName("sut_" + execId);
 
         String sutContainerId = this.dockerEtmService.dockerService
-                .createAndStartContainer(dockerBuilder.build());
+                .createAndStartContainer(dockerBuilder.build(), false);
 
         log.info("Starting pcap");
         boolean started = this.startPcap(execId);

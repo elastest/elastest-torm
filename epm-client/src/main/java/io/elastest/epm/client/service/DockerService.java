@@ -273,9 +273,9 @@ public class DockerService {
         return containerId;
     }
 
-    public String createAndStartContainer(DockerContainer dockerContainer)
+    public String createAndStartContainer(DockerContainer dockerContainer, boolean remotely)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = this.getDockerClient(remotely);
         return this.createAndStartContainer(dockerClient, dockerContainer);
     }
 

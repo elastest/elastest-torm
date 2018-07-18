@@ -45,6 +45,7 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
+import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
@@ -463,7 +464,7 @@ public class DockerEtmService {
 
         DockerContainer dockerContainer = dockerBuilder.build();
         String containerId = dockerService
-                .createAndStartContainer(dockerContainer);
+                .createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
         this.insertCreatedContainer(containerId, containerName);
 
         try {
@@ -514,7 +515,7 @@ public class DockerEtmService {
 
             // Create and start container
             String sutContainerId = dockerService
-                    .createAndStartContainer(dockerExec.getAppContainer());
+                    .createAndStartContainer(dockerExec.getAppContainer(), EpmService.etMasterSlaveMode);
             dockerExec.setAppContainerId(sutContainerId);
 
             String sutName = getSutName(dockerExec);
@@ -551,7 +552,7 @@ public class DockerEtmService {
 
             DockerContainer dockerContainer = dockerBuilder.build();
             String checkContainerId = dockerService
-                    .createAndStartContainer(dockerContainer);
+                    .createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
 
             this.insertCreatedContainer(checkContainerId, checkName);
 
@@ -605,7 +606,7 @@ public class DockerEtmService {
 
             // Create and start container
             String testContainerId = dockerService
-                    .createAndStartContainer(dockerExec.getTestcontainer());
+                    .createAndStartContainer(dockerExec.getTestcontainer(), EpmService.etMasterSlaveMode);
             dockerExec.setTestContainerId(testContainerId);
 
             resultMsg = "Executing Test";
@@ -735,7 +736,7 @@ public class DockerEtmService {
     }
 
     public SocatBindedPort bindingPort(String containerIp, String port,
-            String networkName) throws Exception {
+            String networkName, boolean remotely) throws Exception {
         int listenPort = 37000;
         String bindedPort = null;
         try {
@@ -762,7 +763,7 @@ public class DockerEtmService {
             dockerService.pullImage(etSocatImage);
 
             bindedPort = dockerService
-                    .createAndStartContainer(dockerBuilder.build());
+                    .createAndStartContainer(dockerBuilder.build(), remotely);
 
         } catch (Exception e) {
             throw new Exception("Error on bindingPort (start socat container)",

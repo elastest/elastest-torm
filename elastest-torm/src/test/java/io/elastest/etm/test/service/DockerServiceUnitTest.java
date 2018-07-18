@@ -56,7 +56,7 @@ public class DockerServiceUnitTest {
         dockerBuilder.containerName(containerName);
 
         String containerId = this.dockerEtmService.dockerService
-                .createAndStartContainer(dockerBuilder.build());
+                .createAndStartContainer(dockerBuilder.build(), false);
         logger.info("Container {} started with id {}", containerName,
                 containerId);
 

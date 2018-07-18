@@ -47,8 +47,7 @@ public class EpmService {
     private String packageFilePath;
     @Value("${et.epm.key.path}")
     private String keyFilePath;
-    @Value("${et.master.slave.mode}")
-    public boolean etMasterSlaveMode;
+    public static boolean etMasterSlaveMode;
 
     private FilesService filesService;
     private RemoteEnvironment re;
@@ -87,6 +86,11 @@ public class EpmService {
         this.filesService = filesService;
         adapters = new HashMap<>();
 
+    }
+
+    @Value("${et.master.slave.mode}")
+    public void setMasterSlaveMode(boolean isMasterSlaveMode) {
+        etMasterSlaveMode = isMasterSlaveMode;
     }
 
     @PostConstruct
@@ -272,22 +276,24 @@ public class EpmService {
 
         return workerApiInstance.installAdapter(workerId, type);
     }
-    
-    public String getPopName(String reIp, String popType) throws ServiceException {
+
+    public String getPopName(String reIp, String popType)
+            throws ServiceException {
         String popName = null;
         try {
-            for (PoP pop: popApi.getAllPoPs()) {
+            for (PoP pop : popApi.getAllPoPs()) {
                 if (pop.getName().equals(popType + "-" + reIp)) {
                     popName = pop.getName();
                     break;
                 }
             }
             if (popName == null) {
-                throw new ApiException("There isn't any pop with the name provided");
+                throw new ApiException(
+                        "There isn't any pop with the name provided");
             }
         } catch (ApiException e) {
-            throw new ServiceException(
-                    e.getMessage(), e.getCause(), ExceptionCode.GENERIC_ERROR);
+            throw new ServiceException(e.getMessage(), e.getCause(),
+                    ExceptionCode.GENERIC_ERROR);
         }
         return popName;
     }

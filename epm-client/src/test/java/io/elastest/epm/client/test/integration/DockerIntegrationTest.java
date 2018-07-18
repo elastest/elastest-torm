@@ -94,7 +94,7 @@ public class DockerIntegrationTest {
                         Integer.toString(dockerService.findRandomOpenPort()))));
 
         dockerBuilder.portBindings(portBindings);
-        dockerService.createAndStartContainer(dockerBuilder.build());
+        dockerService.createAndStartContainer(dockerBuilder.build(), false);
 
         // Assertions
         assertTrue(dockerService.existsContainer(containerName));

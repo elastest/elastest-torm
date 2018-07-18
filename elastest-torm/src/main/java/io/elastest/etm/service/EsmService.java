@@ -786,7 +786,7 @@ public class EsmService {
                                     .bindingPort(
                                             serviceInstance.getContainerIp(),
                                             node.get("port").toString(),
-                                            networkName);
+                                            networkName, epmService.etMasterSlaveMode);
                             serviceInstance.getPortBindingContainers()
                                     .add(socatBindedPortObj.getBindedPort());
                             auxPort = Integer.parseInt(
