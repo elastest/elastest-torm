@@ -56,6 +56,9 @@ public class TJobExecOrchestratorService {
     private static final Logger logger = LoggerFactory
             .getLogger(TJobExecOrchestratorService.class);
 
+    @Value("${exec.mode}")
+    public String execMode;
+
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
 
@@ -343,7 +346,7 @@ public class TJobExecOrchestratorService {
                     esmService.gettJobServicesInstances().get(tSSInstId));
         });
 
-        logger.info("Waiting for associated TSS");
+        logger.info("Waiting for associated TSS {}", tSSInstAssocToTJob);
         resultMsg = "Waiting for Test Support Services";
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
@@ -429,8 +432,10 @@ public class TJobExecOrchestratorService {
             boolean withPublicPrefix, String tSSInstanceId) {
         SupportServiceInstance ssi = esmService.gettJobServicesInstances()
                 .get(tSSInstanceId);
-        return esmService.getTSSInstanceEnvVars(ssi, externalTJob,
-                withPublicPrefix);
+        Map<String, String> tssInstanceEnvVars = esmService
+                .getTSSInstanceEnvVars(ssi, externalTJob, withPublicPrefix);
+
+        return tssInstanceEnvVars;
     }
 
     /*
@@ -458,6 +463,18 @@ public class TJobExecOrchestratorService {
         // Get monitoring Env Vars
         envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
+
+        // In normal mode, tjobs make use of started EUS
+        String etEusApiKey = "ET_EUS_API";
+        if (execMode.equals("normal") && envVars.containsKey(etEusApiKey)) {
+            String eusApi = envVars.get(etEusApiKey);
+            if (eusApi != null) {
+                eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+                eusApi += "/execution/" + tJobExec.getEusExecutionKey() + "/";
+                envVars.put(etEusApiKey, eusApi);
+            }
+        }
+
         tJobExec.setEnvVars(envVars);
     }
 
@@ -466,13 +483,12 @@ public class TJobExecOrchestratorService {
         List<String> instancesAux = new ArrayList<String>();
         if (tJobExec.getServicesInstances().size() > 0) {
             logger.debug("Deprovide TJob's TSSs stored in the TJob object");
-            instancesAux = new ArrayList<String>(
-                    tJobExec.getServicesInstances());
+            instancesAux = tJobExec.getServicesInstances();
         } else if (esmService.gettSSIByTJobExecAssociated()
                 .get(tJobExec.getId()) != null) {
             logger.debug("Deprovide TJob's TSSs stored in the EsmService");
-            instancesAux = new ArrayList<String>(esmService
-                    .gettSSIByTJobExecAssociated().get(tJobExec.getId()));
+            instancesAux = esmService.gettSSIByTJobExecAssociated()
+                    .get(tJobExec.getId());
         }
 
         logger.debug("TSS list size: {}", esmService
@@ -662,7 +678,7 @@ public class TJobExecOrchestratorService {
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
-        
+
         // Set logging, network and do pull of images
         dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
                 dockerComposeYml, composeProjectName, dockerExec);
@@ -988,7 +1004,6 @@ public class TJobExecOrchestratorService {
                 for (ReportTestCase reportTestCase : reportTestSuite
                         .getTestCases()) {
                     tCase = new TestCase();
-                    // Remove parentheses
                     tCase.cleanNameAndSet(reportTestCase.getName());
                     tCase.setTime(reportTestCase.getTime());
                     tCase.setFailureDetail(reportTestCase.getFailureDetail());
@@ -1024,4 +1039,5 @@ public class TJobExecOrchestratorService {
             }
         }
     }
+
 }

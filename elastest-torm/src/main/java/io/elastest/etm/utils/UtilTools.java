@@ -326,4 +326,13 @@ public class UtilTools {
         }
         return map;
     }
+
+    public static String stringFromJsonNode(JsonNode toStringObj) {
+        String string = null;
+        if (toStringObj != null) {
+            string = toStringObj.toString().replaceAll("\"", "");
+        }
+        return string;
+    }
+
 }

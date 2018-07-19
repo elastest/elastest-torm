@@ -103,8 +103,8 @@ public class SupportServiceInstance {
     private String space_guid;
 
     @JsonView(FrontView.class)
-    @JsonProperty("tJobExecId")
-    private Long tJobExecId;
+    @JsonProperty("tJobExecIdList")
+    private List<Long> tJobExecIdList;
 
     @JsonView(FrontView.class)
     @JsonProperty("serviceIp")
@@ -152,19 +152,20 @@ public class SupportServiceInstance {
         this.serviceReady = false;
         this.serviceStatus = SSIStatusEnum.INITIALIZATION;
         this.endpointsBindingsPorts = new HashMap<>();
+        this.tJobExecIdList = new ArrayList<>();
 
     }
 
     public SupportServiceInstance(String instanceId, String service_id,
             String serviceName, String serviceShortName, String plan_id,
-            Long bindToTJob) {
+            List<Long> bindToTJob) {
         this();
         this.instanceId = instanceId;
         this.service_id = service_id;
         this.serviceName = serviceName;
         this.serviceShortName = serviceShortName;
         this.plan_id = plan_id;
-        this.tJobExecId = bindToTJob;
+        this.tJobExecIdList = bindToTJob;
         this.parameters = new HashMap<>();
         this.context = new HashMap<>();
         this.organization_guid = "org";
@@ -270,12 +271,12 @@ public class SupportServiceInstance {
         return space_guid;
     }
 
-    public Long gettJobExecId() {
-        return tJobExecId;
+    public List<Long> gettJobExecIdList() {
+        return tJobExecIdList;
     }
 
-    public void settJobExecId(Long tJobExecId) {
-        this.tJobExecId = tJobExecId;
+    public void settJobExecIdList(List<Long> tJobExecIdList) {
+        this.tJobExecIdList = tJobExecIdList;
     }
 
     public void setSpace_guid(String space_guid) {
@@ -396,7 +397,7 @@ public class SupportServiceInstance {
                 + ", plan_id=" + plan_id + ", organization_guid="
                 + organization_guid + ", parameters=" + parameters
                 + ", context=" + context + ", space_guid=" + space_guid
-                + ", tJobExecId=" + tJobExecId + ", serviceIp=" + serviceIp
+                + ", tJobExecIdList=" + tJobExecIdList + ", serviceIp=" + serviceIp
                 + ", servicePort=" + servicePort + ", containerIp="
                 + containerIp + ", containerName=" + containerName
                 + ", manifestId=" + manifestId + ", urls=" + urls
@@ -404,6 +405,16 @@ public class SupportServiceInstance {
                 + endpointName + ", endpointsData=" + endpointsData
                 + ", portBindingContainers=" + portBindingContainers
                 + ", endpointsBindingsPorts=" + endpointsBindingsPorts + "]";
+    }
+
+    public String getApiUrlIfExist() {
+        for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
+            if (urlHash.getValue().contains("http")
+                    || urlHash.getValue().contains("https")) {
+                return urlHash.getValue();
+            }
+        }
+        return null;
     }
 
 }
