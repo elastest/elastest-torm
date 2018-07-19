@@ -502,8 +502,4 @@ public class TJobExecution {
     public boolean isWithSut() {
         return this.tJob != null && this.tJob.isWithSut();
     }
-
-    public String getEusExecutionKey() {
-        return "tJob" + "_" + tJob.getId() + "_" + getId();
-    }
 }

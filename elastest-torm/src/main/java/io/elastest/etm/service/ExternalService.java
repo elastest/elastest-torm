@@ -50,6 +50,9 @@ public class ExternalService {
     private ProjectService projectService;
     private TJobService tJobService;
 
+    @Value("${exec.mode}")
+    public String execMode;
+
     @Value("${server.port}")
     private String serverPort;
 
@@ -335,15 +338,11 @@ public class ExternalService {
             exec = this.externalTJobExecutionRepository.save(exec);
         }
 
-        SupportService eus = this.startEus();
+        if (execMode.equals("normal")) {
 
-        if (eus != null) {
-            String instanceId = UtilTools.generateUniqueId();
-            esmService.provisionExternalTJobExecServiceInstanceAsync(
-                    eus.getId(), exec, instanceId);
-            exec.getEnvVars().put("EUS_ID", eus.getId());
-            exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
         }
+
+        exec = startEus(exec);
 
         monitoringService
                 .createMonitoringIndex(exec.getMonitoringIndicesList());
@@ -366,16 +365,7 @@ public class ExternalService {
         //
 
         if (exTJob.getExProject().getType().equals(TypeEnum.TESTLINK)) {
-            SupportService eus = this.startEus();
-
-            if (eus != null) {
-                String instanceId = UtilTools.generateUniqueId();
-                esmService.provisionExternalTJobExecServiceInstanceAsync(
-                        eus.getId(), exec, instanceId);
-                exec.getEnvVars().put("EUS_ID", eus.getId());
-                exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
-                exec = this.externalTJobExecutionRepository.save(exec);
-            }
+            exec = startEus(exec);
         }
 
         monitoringService
@@ -394,7 +384,7 @@ public class ExternalService {
         }
     }
 
-    public SupportService startEus() {
+    public ExternalTJobExecution startEus(ExternalTJobExecution exec) {
         List<SupportService> tssList = esmService.getRegisteredServices();
         SupportService eus = null;
         for (SupportService tss : tssList) {
@@ -403,7 +393,17 @@ public class ExternalService {
                 break;
             }
         }
-        return eus;
+
+        if (eus != null) {
+            String instanceId = UtilTools.generateUniqueId();
+            esmService.provisionExternalTJobExecServiceInstanceAsync(
+                    eus.getId(), exec, instanceId);
+            exec.getEnvVars().put("EUS_ID", eus.getId());
+            exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);
+            exec = this.externalTJobExecutionRepository.save(exec);
+        }
+
+        return exec;
     }
 
     public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(

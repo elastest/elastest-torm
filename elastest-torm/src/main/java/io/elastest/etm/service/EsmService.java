@@ -396,12 +396,14 @@ public class EsmService {
     private void unregisterExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-
             String eusApi = servicesInstances.get(tssInstanceId)
                     .getApiUrlIfExist();
 
+            EusExecutionData eusExecutionDate = new EusExecutionData(tJobExec,
+                    "");
+
             String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/unregister/" + tJobExec.getEusExecutionKey();
+            url += "execution/unregister/" + eusExecutionDate.getKey();
 
             // Register execution in EUS
             RestTemplate restTemplate = new RestTemplate();
@@ -847,7 +849,8 @@ public class EsmService {
                                     .bindingPort(
                                             serviceInstance.getContainerIp(),
                                             node.get("port").toString(),
-                                            networkName, epmService.etMasterSlaveMode);
+                                            networkName,
+                                            epmService.etMasterSlaveMode);
                             serviceInstance.getPortBindingContainers()
                                     .add(socatBindedPortObj.getBindedPort());
                             auxPort = Integer.parseInt(

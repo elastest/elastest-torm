@@ -36,6 +36,7 @@ import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
+import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
@@ -469,8 +470,10 @@ public class TJobExecOrchestratorService {
         if (execMode.equals("normal") && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
+                EusExecutionData eusExecutionDate = new EusExecutionData(
+                        tJobExec, "");
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-                eusApi += "/execution/" + tJobExec.getEusExecutionKey() + "/";
+                eusApi += "/execution/" + eusExecutionDate.getKey() + "/";
                 envVars.put(etEusApiKey, eusApi);
             }
         }
