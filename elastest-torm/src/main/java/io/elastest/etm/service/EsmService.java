@@ -1020,8 +1020,10 @@ public class EsmService {
                         .findById(tJobExecId).get();
                 this.unregisterTJobExecutionInEus(instanceId, serviceName,
                         tJobExec);
-                tssInstance.gettJobExecIdList().remove(
-                        tssInstance.gettJobExecIdList().indexOf(tJobExecId));
+                int index = tssInstance.gettJobExecIdList().indexOf(tJobExecId);
+                if (index >= 0) {
+                    tssInstance.gettJobExecIdList().remove(index);
+                }
             }
             return "Instance not deleted: is shared. Finished!";
         } else {
@@ -1050,8 +1052,11 @@ public class EsmService {
                         .findById(externalTJobExecId).get();
                 this.unregisterExternalTJobExecutionInEus(instanceId,
                         serviceName, exTJobExec);
-                tssInstance.gettJobExecIdList().remove(tssInstance
-                        .gettJobExecIdList().indexOf(externalTJobExecId));
+                int index = tssInstance.gettJobExecIdList()
+                        .indexOf(externalTJobExecId);
+                if (index >= 0) {
+                    tssInstance.gettJobExecIdList().remove(index);
+                }
             }
             return "Instance not deleted: is shared. Finished!";
         } else {
