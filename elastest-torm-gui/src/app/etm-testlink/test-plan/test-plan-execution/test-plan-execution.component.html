@@ -51,6 +51,11 @@
         <md-card-title>
           <div layout="row">
             <span>Browser</span>
+            <span flex></span>
+            <a *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined" md-button [attr.href]="vncBrowserUrl" class="iconBtn" target="_blank"
+              mdTooltip="Open in new tab">
+              <md-icon>open_in_new</md-icon>
+            </a>
           </div>
         </md-card-title>
         <md-divider></md-divider>
