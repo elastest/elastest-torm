@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.dao.TJobExecRepository;
+import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
@@ -160,12 +161,14 @@ public class EsmService {
     private String externalTJobExecFolderPefix = "external_exec_";
 
     private final TJobExecRepository tJobExecRepositoryImpl;
+    private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
             DockerEtmService dockerEtmService, EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService, EpmService epmService,
-            TJobExecRepository tJobExecRepositoryImpl) {
+            TJobExecRepository tJobExecRepositoryImpl,
+            ExternalTJobExecutionRepository externalTJobExecutionRepository) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -180,6 +183,7 @@ public class EsmService {
         this.etmContextAuxService = etmContextAuxService;
         this.epmService = epmService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
+        this.externalTJobExecutionRepository = externalTJobExecutionRepository;
     }
 
     @PostConstruct
@@ -344,7 +348,7 @@ public class EsmService {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
             if (serviceName.equals("EUS")) {
-                this.registerExecutionInEus(tssInstanceId, serviceName,
+                this.registerTJobExecutionInEus(tssInstanceId, serviceName,
                         tJobExec);
             }
 
@@ -362,7 +366,7 @@ public class EsmService {
 
     }
 
-    private void registerExecutionInEus(String tssInstanceId,
+    public void registerTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
             String folderPath = this.getTJobExecFolderPath(tJobExec)
@@ -393,7 +397,7 @@ public class EsmService {
         }
     }
 
-    private void unregisterExecutionInEus(String tssInstanceId,
+    public void unregisterTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
             String eusApi = servicesInstances.get(tssInstanceId)
@@ -423,6 +427,27 @@ public class EsmService {
 
     public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
             ExternalTJobExecution exTJobExec) {
+
+        String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
+        // If mode normal and is shared tss
+        if (serviceName != null && execMode.equals("normal")
+                && tssLoadedOnInitMap.containsKey(serviceName)) {
+            String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
+
+            if (serviceName.equals("EUS")) {
+                this.registerExternalTJobExecutionInEus(tssInstanceId,
+                        serviceName, exTJobExec);
+            }
+
+            SupportServiceInstance instance = servicesInstances
+                    .get(tssInstanceId);
+            instance.gettJobExecIdList().add(exTJobExec.getId());
+            externalTJobServicesInstances.put(tssInstanceId, instance);
+
+            return tssInstanceId;
+        }
+        // Else start new Eus instance
+
         String instanceId = UtilTools.generateUniqueId();
         provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
                 instanceId);
@@ -663,6 +688,56 @@ public class EsmService {
         if (newServiceInstance == null) {
             throw new RuntimeException(
                     "Service with name \"" + serviceId + "\" not found in ESM");
+        }
+    }
+
+    public void registerExternalTJobExecutionInEus(String tssInstanceId,
+            String serviceName, ExternalTJobExecution exTJobExec) {
+        if (servicesInstances.containsKey(tssInstanceId)) {
+            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec)
+                    + serviceName.toLowerCase() + "/";
+            EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
+                    folderPath);
+
+            String eusApi = servicesInstances.get(tssInstanceId)
+                    .getApiUrlIfExist();
+
+            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+            url += "execution/register";
+
+            // Register execution in EUS
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(
+                    Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
+                    eusExecutionData, headers);
+
+            String response = restTemplate.postForObject(url, request,
+                    String.class);
+            logger.debug("External TJob Execution {} registered in EUS",
+                    response);
+        }
+    }
+
+    public void unregisterExternalTJobExecutionInEus(String tssInstanceId,
+            String serviceName, ExternalTJobExecution exTJobExec) {
+        if (servicesInstances.containsKey(tssInstanceId)) {
+            String eusApi = servicesInstances.get(tssInstanceId)
+                    .getApiUrlIfExist();
+
+            EusExecutionData eusExecutionDate = new EusExecutionData(exTJobExec,
+                    "");
+
+            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+            url += "execution/unregister/" + eusExecutionDate.getKey();
+
+            // Unregister execution in EUS
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.delete(url);
         }
     }
 
@@ -933,7 +1008,9 @@ public class EsmService {
 
         SupportServiceInstance tssInstance = tJobServicesInstances
                 .get(instanceId);
-        String serviceName = tssInstance.getServiceName().toUpperCase();
+        String serviceName = tssInstance != null
+                ? tssInstance.getServiceName().toUpperCase()
+                : null;
         // If mode normal and is shared tss
         if (serviceName != null && execMode.equals("normal")
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
@@ -941,21 +1018,46 @@ public class EsmService {
             if (serviceName.equals("EUS")) {
                 TJobExecution tJobExec = tJobExecRepositoryImpl
                         .findById(tJobExecId).get();
-                this.unregisterExecutionInEus(instanceId, serviceName,
+                this.unregisterTJobExecutionInEus(instanceId, serviceName,
                         tJobExec);
                 tssInstance.gettJobExecIdList().remove(
                         tssInstance.gettJobExecIdList().indexOf(tJobExecId));
             }
-        }
+            return "Instance not deleted: is shared. Finished!";
+        } else {
 
-        return deprovisionServiceInstance(instanceId, tJobServicesInstances);
+            return deprovisionServiceInstance(instanceId,
+                    tJobServicesInstances);
+        }
     }
 
     public String deprovisionExternalTJobExecServiceInstance(String instanceId,
             Long externalTJobExecId) {
         tSSIByExternalTJobExecAssociated.remove(externalTJobExecId);
-        return deprovisionServiceInstance(instanceId,
-                externalTJobServicesInstances);
+
+        SupportServiceInstance tssInstance = externalTJobServicesInstances
+                .get(instanceId);
+
+        String serviceName = tssInstance != null
+                ? tssInstance.getServiceName().toUpperCase()
+                : null;
+        // If mode normal and is shared tss
+        if (serviceName != null && execMode.equals("normal")
+                && tssLoadedOnInitMap.containsKey(serviceName)) {
+
+            if (serviceName.equals("EUS")) {
+                ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
+                        .findById(externalTJobExecId).get();
+                this.unregisterExternalTJobExecutionInEus(instanceId,
+                        serviceName, exTJobExec);
+                tssInstance.gettJobExecIdList().remove(tssInstance
+                        .gettJobExecIdList().indexOf(externalTJobExecId));
+            }
+            return "Instance not deleted: is shared. Finished!";
+        } else {
+            return deprovisionServiceInstance(instanceId,
+                    externalTJobServicesInstances);
+        }
     }
 
     public String deprovisionServiceInstance(String instanceId,
@@ -1527,5 +1629,23 @@ public class EsmService {
         }
 
         return serviceName;
+    }
+
+    public String getSharedTssInstanceId(String serviceName) {
+        // If mode normal and is shared tss
+        if (serviceName != null && execMode.equals("normal")
+                && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
+            return tssLoadedOnInitMap.get(serviceName.toUpperCase());
+        }
+        return null;
+    }
+
+    public SupportServiceInstance getSharedTssInstance(String instanceId) {
+        // If mode normal and is shared tss
+        if (instanceId != null && execMode.equals("normal")
+                && servicesInstances.containsKey(instanceId)) {
+            return servicesInstances.get(instanceId);
+        }
+        return null;
     }
 }

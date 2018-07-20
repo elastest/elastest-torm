@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.elastest.etm.model.external.ExternalTJobExecution;
+
 public class EusExecutionData {
 
     @JsonProperty("type")
@@ -46,6 +48,17 @@ public class EusExecutionData {
         this.monitoringIndex = tJobExec.getMonitoringIndex();
         this.folderPath = folderPath;
         initWebRtcStatsActivated(tJobExec);
+    }
+    
+
+    public EusExecutionData(ExternalTJobExecution exTJobExec, String folderPath) {
+        this.type = "externalTJob";
+        this.tJobId = exTJobExec.getExTJob().getId();
+        this.tJobExecId = exTJobExec.getId();
+        this.monitoringIndex = exTJobExec.getMonitoringIndex();
+        this.folderPath = folderPath;
+//        initWebRtcStatsActivated(exTJobExec);
+        this.webRtcStatsActivated = false;
     }
 
     private void initWebRtcStatsActivated(TJobExecution tJobExec) {
