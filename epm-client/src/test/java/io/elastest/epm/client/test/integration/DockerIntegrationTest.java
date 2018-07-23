@@ -18,6 +18,8 @@ package io.elastest.epm.client.test.integration;
 
 import static io.elastest.epm.client.DockerContainer.dockerBuilder;
 import static java.lang.invoke.MethodHandles.lookup;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -39,6 +41,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
@@ -46,6 +49,8 @@ import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.ShellService;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Tests for Docker service.
@@ -63,6 +68,8 @@ import io.elastest.epm.client.service.ShellService;
 public class DockerIntegrationTest {
 
     final Logger log = getLogger(lookup().lookupClass());
+    
+    String image = "elastest/test-etm-test1";
 
     @Autowired
     private DockerService dockerService;
@@ -105,6 +112,36 @@ public class DockerIntegrationTest {
         // Tear down
         log.debug("Stoping Hub");
         dockerService.stopAndRemoveContainer(containerName);
+    }
+    
+    @Test
+    public void inspectImageTest() throws Exception {
+        this.dockerService.pullImage(image);
+        ImageInfo imageInfo = this.dockerService.getImageInfoByName(image);
+        assertNotNull(imageInfo);
+    }
+    
+    @Test
+    public void runStopAndRemoveContainerTest() throws Exception {
+        String image = "elastest/test-etm-test1";
+        String containerName = "testContainer" + System.currentTimeMillis() % 1000;
+        log.info("Starting container {}", containerName);
+
+        DockerBuilder dockerBuilder = new DockerBuilder(image);
+        dockerBuilder.containerName(containerName);
+
+        String containerId = this.dockerService
+                .createAndStartContainer(dockerBuilder.build(), false);
+        log.info("Container {} started with id {}", containerName,
+                containerId);
+
+        assertTrue(this.dockerService.existsContainer(containerName));
+
+        log.info("Stopping container {}", containerName);
+        this.dockerService.stopDockerContainer(containerId);
+        log.info("Removing container {}", containerName);
+        this.dockerService.removeDockerContainer(containerId);
+        assertFalse(this.dockerService.existsContainer(containerName));
     }
 
 }
