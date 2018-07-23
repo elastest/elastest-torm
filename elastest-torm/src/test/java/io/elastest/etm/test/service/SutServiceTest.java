@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ public class SutServiceTest {
     @InjectMocks
     public SutService sutService;
 
+    Optional<SutSpecification> sutOptional;
+    Optional<SutExecution> sutExecOptional;
+
     public Long sutId;
     public SutSpecification sut;
 
@@ -55,11 +59,14 @@ public class SutServiceTest {
                 ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
         sutExecId = 1L;
         sutExec = new SutExecution(sutExecId, sut, null, null);
+        
+        sutOptional = Optional.of(sut);
+        sutExecOptional = Optional.of(sutExec);
     }
 
     @Test
     public void testUndeploySut() {
-        when(sutRepository.findById(sutId).get()).thenReturn(sut);
+        when(sutRepository.findById(sutId)).thenReturn(sutOptional);
         when(sutExecutionRepository.findByIdAndSutSpecification(sutExecId,
                 Mockito.any(SutSpecification.class))).thenReturn(sutExec);
 
@@ -71,7 +78,7 @@ public class SutServiceTest {
 
     @Test
     public void testCreateSutExecutionById() {
-        when(sutRepository.findById(sutId).get()).thenReturn(sut);
+        when(sutRepository.findById(sutId)).thenReturn(sutOptional);
         when(sutExecutionRepository.save(Mockito.any(SutExecution.class)))
                 .thenReturn(sutExec);
 
@@ -91,8 +98,8 @@ public class SutServiceTest {
 
     @Test
     public void testDeleteSutExec() {
-        when(sutExecutionRepository.findById(sutExecId).get())
-                .thenReturn(sutExec);
+        when(sutExecutionRepository.findById(sutExecId))
+                .thenReturn(sutExecOptional);
 
         sutService.deleteSutExec(sutExec.getId());
         assertTrue(true);
@@ -113,8 +120,8 @@ public class SutServiceTest {
 
     @Test
     public void testGetSutExecutionById() {
-        when(sutExecutionRepository.findById(sutExecId).get())
-                .thenReturn(sutExec);
+        when(sutExecutionRepository.findById(sutExecId))
+                .thenReturn(sutExecOptional);
 
         SutExecution sutExecLocal = sutService.getSutExecutionById(sutExecId);
         assertTrue(sutExecLocal.getId() == sutExecId);
@@ -122,8 +129,8 @@ public class SutServiceTest {
 
     @Test
     public void testModifySutExec() {
-        when(sutExecutionRepository.findById(sutExecId).get())
-                .thenReturn(sutExec);
+        when(sutExecutionRepository.findById(sutExecId))
+                .thenReturn(sutExecOptional);
         when(sutExecutionRepository.save(Mockito.any(SutExecution.class)))
                 .thenReturn(sutExec);
 
