@@ -187,11 +187,11 @@ public class DockerEtmService {
             return etPublicHost;
         } else {
             if (utilsService.isElastestMini()) {
-                if (utilsService.isEtmInDevelopment()) {
-                    return dockerService.getHostIpByNetwork(elastestNetwork);
-                } else {
+                if (utilsService.isEtmInContainer()) {
                     return dockerService.getContainerIpByNetwork(
                             etEtmContainerName, elastestNetwork);
+                } else {
+                    return dockerService.getHostIpByNetwork(elastestNetwork);
                 }
             } else {
                 return dockerService.getContainerIpByNetwork(

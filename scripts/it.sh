@@ -53,7 +53,7 @@ LOGSTASH_IP=$(containerIp "etm-logstash")
 ET_ESM_HOST=$(containerIp "esm")
 EXEC_MODE='Lite'
 ET_ESM_SS_DESC_FILES_PATH='esm_services/'
-ET_ETM_INCONTAINER=true
+ET_ETM_INCONTAINER=false
 ELASTEST_DOCKER_NETWORK=${projectName}_elastest
 ET_IN_PROD=true
 ET_PROXY_PORT=37000
@@ -69,7 +69,7 @@ cd ../elastest-torm
 
 docker ps -a
 
-mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.incontainer=true -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} -Det.etm.incontainer=${ET_ETM_INCONTAINER} -Delastest.docker.network=${ELASTEST_DOCKER_NETWORK} -Det.in.prod=${ET_IN_PROD} -Det.proxy.port=${ET_PROXY_PORT} -Det.etm.logstash.container.name=${ET_ETM_LOGSTASH_CONTAINER_NAME} -Det.etm.testlink.host=${ET_ETM_TESTLINK_HOST} package
+mvn -Det.edm.mysql.host=${ET_EDM_MYSQL_HOST} -Det.edm.mysql.port=${ET_EDM_MYSQL_PORT} -Det.etm.rabbit.host=${ET_ETM_RABBIT_HOST} -Det.etm.rabbit.port=${ET_ETM_RABBIT_PORT} -Det.edm.elasticsearch.api=http://${ELASTICSEARCH_IP}:9200/ -Dlogstash.host=${LOGSTASH_IP} -Det.esm.api=http://${ET_ESM_HOST}:37005/ -Delastest.execution.mode=${EXEC_MODE} -Det.esm.ss.desc.files.path=${ET_ESM_SS_DESC_FILES_PATH} -Det.etm.incontainer=${ET_ETM_INCONTAINER} -Delastest.docker.network=${ELASTEST_DOCKER_NETWORK} -Det.in.prod=${ET_IN_PROD} -Det.proxy.port=${ET_PROXY_PORT} -Det.etm.logstash.container.name=${ET_ETM_LOGSTASH_CONTAINER_NAME} -Det.etm.testlink.host=${ET_ETM_TESTLINK_HOST} package
 
 mvnExit=$?
 

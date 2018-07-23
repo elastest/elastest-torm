@@ -33,12 +33,19 @@ public class UtilsService {
     @Value("${test.case.finish.msg.prefix}")
     public String tcFinishMsgPrefix;
 
+    @Value("${et.etm.incontainer}")
+    private static boolean inContainer;
+
     public boolean isElastestMini() {
         return enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL);
     }
 
     public boolean isEtmInDevelopment() {
         return !etInProd;
+    }
+
+    public boolean isEtmInContainer() {
+        return inContainer;
     }
 
     public String getIso8601String() {

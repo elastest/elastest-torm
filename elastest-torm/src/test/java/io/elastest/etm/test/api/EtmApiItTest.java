@@ -257,7 +257,7 @@ public class EtmApiItTest {
         HttpEntity<String> entity = new HttpEntity<String>(requestJson,
                 headers);
 
-        log.info("POST /api/sut");
+        log.info("POST /api/sut", requestJson);
         ResponseEntity<SutSpecification> response = httpClient
                 .postForEntity("/api/sut", entity, SutSpecification.class);
         log.info("Sut created:" + response.getBody());
