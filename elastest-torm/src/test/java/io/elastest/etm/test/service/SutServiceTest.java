@@ -59,7 +59,7 @@ public class SutServiceTest {
                 ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
         sutExecId = 1L;
         sutExec = new SutExecution(sutExecId, sut, null, null);
-        
+
         sutOptional = Optional.of(sut);
         sutExecOptional = Optional.of(sutExec);
     }
@@ -67,8 +67,8 @@ public class SutServiceTest {
     @Test
     public void testUndeploySut() {
         when(sutRepository.findById(sutId)).thenReturn(sutOptional);
-        when(sutExecutionRepository.findByIdAndSutSpecification(sutExecId,
-                Mockito.any(SutSpecification.class))).thenReturn(sutExec);
+        when(sutExecutionRepository.findByIdAndSutSpecification(sutExecId, sut))
+                .thenReturn(sutExec);
 
         sutService.undeploySut(sutId, sutExecId);
         assertTrue(sutExec.getDeployStatus()
@@ -111,6 +111,7 @@ public class SutServiceTest {
         sutExecutions.add(new SutExecution(2L, sut, null, null));
         sutExecutions.add(new SutExecution(3L, sut, null, null));
 
+        when(sutRepository.findById(sutId)).thenReturn(sutOptional);
         when(sutExecutionRepository.findAll()).thenReturn(sutExecutions);
 
         List<SutExecution> sutExecutionsResult = sutService
