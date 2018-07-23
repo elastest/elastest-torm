@@ -26,6 +26,8 @@
                         
                         echo 'Installing epm-client-java'
                         sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
+
+	            git 'https://github.com/elastest/elastest-torm.git'
                         
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
