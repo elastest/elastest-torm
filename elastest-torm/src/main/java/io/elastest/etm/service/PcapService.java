@@ -14,9 +14,10 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
 
-import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
+import io.elastest.epm.client.service.EpmService;
 
 @Service
 public class PcapService {
@@ -42,15 +43,17 @@ public class PcapService {
         String containerName = this.getPcapContainerName(execId);
         if (!containersList.containsKey(containerName)) {
             DockerBuilder dockerBuilder = DockerContainer
-                    .dockerBuilder(dockpcapImage, containerName)
+                    .dockerBuilder(dockpcapImage).containerName(containerName)
                     .network(dockpcapNetworkPrefix + execId);
             DockerContainer dockerContainer = dockerBuilder.build();
             containersList.put(containerName, dockerContainer);
 
             try {
-                dockerService.startAndWaitContainer(dockerContainer);
+                dockerService.createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
                 return true;
             } catch (InterruptedException e) {
+                log.error("Pcap not started {}", execId, e);
+            } catch (Exception e) {
                 log.error("Pcap not started {}", execId, e);
             }
         }
@@ -65,7 +68,8 @@ public class PcapService {
     public Boolean stopPcap(String execId) {
         String containerName = this.getPcapContainerName(execId);
         try {
-            dockerService.stopAndRemoveContainer(containerName);
+            dockerService.stopDockerContainer(containerName);
+            dockerService.removeDockerContainer(containerName);
             containersList.remove(containerName);
             return true;
         } catch (Exception e) {
@@ -94,6 +98,9 @@ public class PcapService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

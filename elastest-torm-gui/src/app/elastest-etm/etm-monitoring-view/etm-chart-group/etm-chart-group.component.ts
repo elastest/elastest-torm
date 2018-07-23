@@ -1,17 +1,17 @@
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
 import { ESRabComplexMetricsModel } from '../../../shared/metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
-import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { MetricsChartCardComponent } from '../../../shared/metrics-view/metrics-chart-card/metrics-chart-card.component';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { SingleMetricModel } from '../../../shared/metrics-view/models/single-metric-model';
 import { MetricsFieldModel } from '../../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
-import { Subject, Observable } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
 import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
   selector: 'etm-chart-group',
@@ -41,7 +41,7 @@ export class EtmChartGroupComponent implements OnInit {
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
 
-  constructor(private elastestESService: ElastestESService, private elastestRabbitmqService: ElastestRabbitmqService) {}
+  constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
   ngOnInit() {}
 
@@ -69,7 +69,7 @@ export class EtmChartGroupComponent implements OnInit {
 
   initAIO(): void {
     let ignoreComponent: string = this.getIgnoreComponent();
-    this.allInOneMetrics = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
+    this.allInOneMetrics = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
     this.allInOneMetrics.name = 'All Metrics';
     this.allInOneMetrics.hidePrevBtn = !this.live;
     this.allInOneMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
@@ -104,7 +104,7 @@ export class EtmChartGroupComponent implements OnInit {
           let pos: number = this.initCustomMetric(metric, individualMetrics);
           if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
-            this.elastestESService
+            this.monitoringService
               .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
@@ -148,7 +148,7 @@ export class EtmChartGroupComponent implements OnInit {
         .subscribe(
           (data: any) => {
             if (data['et_type'] === metric.etType && data.component === metric.component) {
-              let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(data, metric);
+              let parsedData: SingleMetricModel = this.monitoringService.convertToMetricTrace(data, metric);
               if (parsedData === undefined) {
                 console.error('Undefined data received, not added to ' + metric.name);
               } else {
@@ -181,7 +181,7 @@ export class EtmChartGroupComponent implements OnInit {
 
   initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
     let ignoreComponent: string = this.getIgnoreComponent();
-    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.elastestESService, ignoreComponent);
+    let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
     individualMetrics.name = this.createName(metric.component, metric.stream, metric.etType, metric.subtype);
     individualMetrics.component = metric.component;
     individualMetrics.stream = metric.stream;

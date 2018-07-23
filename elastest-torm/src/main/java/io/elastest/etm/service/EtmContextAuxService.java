@@ -1,8 +1,12 @@
 package io.elastest.etm.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +15,8 @@ import io.elastest.etm.utils.UtilTools;
 
 @Service
 public class EtmContextAuxService {
+    final Logger logger = getLogger(lookup().lookupClass());
+
     @Value("${et.public.host}")
     public String etPublicHost;
     @Value("${et.in.prod}")
@@ -32,8 +38,7 @@ public class EtmContextAuxService {
 
     @Value("${et.etm.testlink.host}")
     public String etEtmTestLinkHost;
-    @Value("${et.edm.elasticsearch.api}")
-    public String etEdmElasticsearchApi;
+
     @Value("${et.edm.elasticsearch.path.with-proxy}")
     public String etEtmElasticsearchPathWithProxy;
 
@@ -42,6 +47,12 @@ public class EtmContextAuxService {
 
     @Value("${exec.mode}")
     String execMode;
+
+    @Value("${additional.server.port}")
+    int additionalServerPort;
+
+    @Value("${et.mini.etm.monitoring.http.path}")
+    String etMiniEtmMonitoringHttpPath;
 
     /* **************** */
     /* *** Logstash *** */
@@ -89,9 +100,6 @@ public class EtmContextAuxService {
     @Value("${et.etm.logstash.path.with-proxy}")
     public String logstashPathWithProxy;
 
-    @Value("${et.etm.logstash.container.name}")
-    private String etEtmLogstashContainerName;
-
     @Value("${et.emp.grafana.context-path}")
     private String etEmpGrafanContextPath;
     @Value("${et.emp.grafana.dashboard}")
@@ -99,10 +107,10 @@ public class EtmContextAuxService {
     @Value("${et.edm.command.context-path}")
     private String etEdmCommandContextPath;
 
-    private DockerService2 dockerService;
+    private DockerEtmService dockerEtmService;
 
-    public EtmContextAuxService(DockerService2 dockerService) {
-        this.dockerService = dockerService;
+    public EtmContextAuxService(DockerEtmService dockerEtmService) {
+        this.dockerEtmService = dockerEtmService;
     }
 
     public ContextInfo getContextInfo() {
@@ -127,13 +135,15 @@ public class EtmContextAuxService {
         contextInfo
                 .setLogstashBindedInternalBeatsPort(bindedInternalLsBeatsPort);
 
-        String logstashHost = dockerService.getContainerIpByNetwork(
-                etEtmLogstashContainerName, elastestNetwork);
+        String logstashOrEtmMiniHost = null;
+        try {
+            logstashOrEtmMiniHost = dockerEtmService.getLogstashHost();
+        } catch (Exception e) {
+            logger.error("Error on get logstash host ip", e);
+        }
         String proxyIp = etPublicHost;
         String proxyPort = etProxyPort;
         String proxySslPort = etProxySSLPort;
-        
-        String containersHostIp = dockerService.getHostIpByNetwork(elastestNetwork);
         if (etInProd) {
             if ("localhost".equals(etPublicHost)) {
                 try {
@@ -144,21 +154,27 @@ public class EtmContextAuxService {
                 }
             }
         } else {
-            proxyIp = containersHostIp;
+            try {
+                proxyIp = dockerEtmService.dockerService
+                        .getHostIpByNetwork(elastestNetwork);
+            } catch (Exception e) {
+                logger.error("Error on get proxy host ip", e);
+            }
         }
 
-        contextInfo.setLogstashHttpUrl(
-                "http://" + proxyIp + ":" + proxyPort + logstashPathWithProxy);
-        contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
-                + proxySslPort + logstashPathWithProxy);
+        if (etInProd) {
+            contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort
+                    + logstashPathWithProxy);
+            contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
+                    + proxySslPort + logstashPathWithProxy);
+        } else {
+            contextInfo.setLogstashHttpUrl("http://" + logstashOrEtmMiniHost + ":"
+                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
+            contextInfo.setLogstashSSLHttpUrl("http://" + logstashOrEtmMiniHost + ":"
+                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
+        }
 
-        contextInfo.setLogstashIp(logstashHost);
-        if (bindedLsBeatsHost.equals("localhost")) {
-            contextInfo.setLogstashBindedBeatsHost(containersHostIp);
-        }
-        if (bindedLsTcpHost.equals("localhost")) {
-            contextInfo.setLogstashBindedTcpHost(containersHostIp);
-        }
+        contextInfo.setLogstashIp(logstashOrEtmMiniHost);
 
         contextInfo.setElasticsearchPath(etEtmElasticsearchPathWithProxy);
         contextInfo.setElasticSearchUrl("http://" + proxyIp + ":" + proxyPort
@@ -213,7 +229,7 @@ public class EtmContextAuxService {
             String emsLsBeatsPort = emsEnvVars.get("ET_EMS_LSBEATS_PORT");
             String emsHttpInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPINEVENTS_API");
-            
+
             String emsHttpsInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPSINEVENTS_API");
             // String emsTcpTestLogsHost = emsEnvVars
@@ -239,7 +255,7 @@ public class EtmContextAuxService {
             if (emsHttpInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTP_API", emsHttpInEventsApi);
             }
-            
+
             if (emsHttpsInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTPS_API", emsHttpsInEventsApi);
             }
@@ -266,5 +282,4 @@ public class EtmContextAuxService {
 
         return monEnvs;
     }
-
 }

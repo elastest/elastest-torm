@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
@@ -27,7 +31,7 @@ public class TestEnginesService {
             .getLogger(TestEnginesService.class);
 
     public DockerComposeService dockerComposeService;
-    public DockerService2 dockerService2;
+    public DockerEtmService dockerEtmService;
 
     public List<String> enginesList = new ArrayList<>();
 
@@ -49,10 +53,13 @@ public class TestEnginesService {
     @Value("${et.edm.mysql.port}")
     public String etEdmMysqlPort;
 
+    @Value("${et.shared.folder}")
+    private String sharedFolder;
+
     public TestEnginesService(DockerComposeService dockerComposeService,
-            DockerService2 dockerService2) {
+            DockerEtmService dockerEtmService) {
         this.dockerComposeService = dockerComposeService;
-        this.dockerService2 = dockerService2;
+        this.dockerEtmService = dockerEtmService;
     }
 
     public void registerEngines() {
@@ -71,13 +78,30 @@ public class TestEnginesService {
         }
     }
 
+    @PreDestroy
+    public void destroy() {
+        if (!execmode.equals("normal") && enginesList != null) {
+            for (String engine : this.enginesList) {
+                removeProject(engine);
+            }
+        }
+    }
+
     public void createProject(String name) {
         String dockerComposeYml = getDockerCompose(name);
         try {
-            dockerComposeService.createProject(name, dockerComposeYml);
+            String path = sharedFolder.endsWith("/") ? sharedFolder
+                    : sharedFolder + "/";
+            path += "tmp-engines-yml";
+            dockerComposeService.createProject(name, dockerComposeYml, path,
+                    true);
         } catch (Exception e) {
             log.error("Exception creating project {}", name, e);
         }
+    }
+
+    private void removeProject(String engineName) {
+        dockerComposeService.stopAndRemoveProject(engineName);
     }
 
     public String getDockerCompose(String engineName) {
@@ -99,11 +123,15 @@ public class TestEnginesService {
         if (!isRunning(engineName)) {
             try {
                 log.error("Creating {} instance", engineName);
-                dockerComposeService.startProject(engineName);
+                dockerComposeService.startProject(engineName, true);
                 insertIntoETNetwork(engineName);
                 url = getServiceUrl(engineName);
             } catch (IOException e) {
                 log.error("Cannot create {} instance", engineName, e);
+            } catch (Exception e) {
+                log.error("{}", e.getMessage());
+                log.error("Stopping service {}", engineName);
+                this.stopInstance(engineName);
             }
         } else {
             url = getServiceUrl(engineName);
@@ -111,11 +139,19 @@ public class TestEnginesService {
         return url;
     }
 
-    public void insertIntoETNetwork(String engineName) {
+    public void insertIntoETNetwork(String engineName) throws Exception {
         try {
             for (DockerContainer container : dockerComposeService
                     .getContainers(engineName).getContainers()) {
-                dockerService2.insertIntoNetwork(network, container.getName());
+                try {
+                    dockerEtmService.dockerService.insertIntoNetwork(network,
+                            container.getName());
+                } catch (DockerException | InterruptedException
+                        | DockerCertificateException e) {
+                    throw new Exception(
+                            "Error on insert container " + container.getName()
+                                    + " into " + network + " network");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,8 +179,9 @@ public class TestEnginesService {
                         if (portList.getValue() != null) {
                             if (ip.equals("localhost")) {
                                 port = portList.getKey().split("/")[0];
-                                ip = dockerService2.getContainerIpByNetwork(
-                                        containerName, network);
+                                ip = dockerEtmService.dockerService
+                                        .getContainerIpByNetwork(containerName,
+                                                network);
                             } else {
                                 port = portList.getValue().get(0).getHostPort();
                             }
@@ -203,7 +240,7 @@ public class TestEnginesService {
         try {
             dockerComposeService.stopProject(engineName);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while stopping engine {}", engineName);
         }
     }
 

@@ -1,12 +1,12 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { ExternalService } from '../external.service';
-import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from './external-tjob-execution-model';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 import { ExternalTestExecutionModel } from '../external-test-execution/external-test-execution-model';
+import { MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
   selector: 'etm-external-tjob-execution',
@@ -25,7 +25,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
   constructor(
     private titlesService: TitlesService,
     private externalService: ExternalService,
-    private elastestESService: ElastestESService,
+    private monitoringService: MonitoringService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -48,7 +48,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
 
       // this.statusIcon = this.exTJobExec.getResultIcon();
       this.titlesService.setHeadTitle('Plan Execution ' + this.exTJobExec.id);
-      this.titlesService.setPathName( this.router.routerState.snapshot.url);
+      this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
       this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
         (exTestExecs: ExternalTestExecutionModel[]) => {

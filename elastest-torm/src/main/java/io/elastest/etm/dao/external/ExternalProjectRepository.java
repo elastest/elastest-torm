@@ -12,8 +12,6 @@ public interface ExternalProjectRepository
 
     public ExternalProject findByName(String name);
 
-    public ExternalProject findById(Long id);
-
     public List<ExternalProject> findAllByType(TypeEnum type);
 
     public ExternalProject findByExternalIdAndExternalSystemId(

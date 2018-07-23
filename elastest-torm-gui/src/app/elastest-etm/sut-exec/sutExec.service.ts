@@ -3,7 +3,6 @@ import { SutModel } from '../sut/sut-model';
 import { SutExecModel } from './sutExec-model';
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import 'rxjs/Rx';
 

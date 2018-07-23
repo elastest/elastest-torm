@@ -28,12 +28,12 @@ public class UtilToolsTest {
     }
 
     @Test
-    public void testGetHostIp() {
+    public void testGetHostIp() throws Exception {
         assertNotNull(UtilTools.getHostIp());
     }
 
     @Test
-    public void testGetDockerHostIp() {
+    public void testGetDockerHostIp() throws Exception {
         assertNotNull(UtilTools.getDockerHostIp());
     }
 

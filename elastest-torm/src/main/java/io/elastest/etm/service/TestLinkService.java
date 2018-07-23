@@ -73,7 +73,7 @@ public class TestLinkService {
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
-    private final DockerService2 dockerService;
+    private final DockerEtmService dockerEtmService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -83,12 +83,12 @@ public class TestLinkService {
             ExternalTestCaseRepository externalTestCaseRepository,
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
-            DockerService2 dockerService) {
+            DockerEtmService dockerEtmService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
-        this.dockerService = dockerService;
+        this.dockerEtmService = dockerEtmService;
     }
 
     @PostConstruct
@@ -99,8 +99,9 @@ public class TestLinkService {
             }
             try {
                 // Default development
-                this.testLinkHost = this.dockerService.getContainerIpByNetwork(
-                        etEtmTestLinkHost, etDockerNetwork);
+                this.testLinkHost = this.dockerEtmService.dockerService
+                        .getContainerIpByNetwork(etEtmTestLinkHost,
+                                etDockerNetwork);
                 this.testLinkPort = etEtmTestLinkPort;
 
                 // If not development, start socat
@@ -108,9 +109,9 @@ public class TestLinkService {
                     try {
                         String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
                         logger.info("Real TestLink Ip: {}", testLinkIp);
-                        SocatBindedPort socatBindedPort = dockerService
+                        SocatBindedPort socatBindedPort = dockerEtmService
                                 .bindingPort(testLinkIp, etEtmTestLinkPort,
-                                        etDockerNetwork);
+                                        etDockerNetwork, false);
                         this.testLinkHost = etPublicHost;
                         this.testLinkPort = socatBindedPort.getListenPort();
                     } catch (Exception e) {
@@ -489,9 +490,9 @@ public class TestLinkService {
     public Integer addTestCaseToTestPlan(TestCase testCase, Integer planId)
             throws TestLinkAPIException {
         return this.api.addTestCaseToTestPlan(testCase.getTestProjectId(),
-                planId, testCase.getId(),
-                testCase.getVersion(), testCase.getPlatform() != null
-                        ? testCase.getPlatform().getId() : null,
+                planId, testCase.getId(), testCase.getVersion(),
+                testCase.getPlatform() != null ? testCase.getPlatform().getId()
+                        : null,
                 testCase.getOrder(), null);
     }
 

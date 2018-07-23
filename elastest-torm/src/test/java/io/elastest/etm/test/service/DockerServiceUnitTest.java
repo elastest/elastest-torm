@@ -14,14 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.InspectImageResponse;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
+import com.spotify.docker.client.messages.ImageInfo;
 
-import io.elastest.etm.service.DockerService2;
-import io.elastest.etm.service.TJobStoppedException;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
+import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilTools;
 
@@ -33,44 +29,46 @@ public class DockerServiceUnitTest {
 
     @Autowired
     @InjectMocks
-    public DockerService2 dockerService;
-    private DockerClient dockerClient;
+    public DockerEtmService dockerEtmService;
 
     String image = "elastest/test-etm-test1";
 
     @BeforeEach
     public void before() {
-        DockerClientConfig config = DefaultDockerClientConfig
-                .createDefaultConfigBuilder()
-                .withDockerHost("unix:///var/run/docker.sock").build();
-        dockerClient = DockerClientBuilder.getInstance(config).build();
+
     }
 
     @Test
-    public void inspectImageTest() throws TJobStoppedException {
-        this.dockerService.doPull(dockerClient, image);
-        InspectImageResponse imageInfo = this.dockerService
+    public void inspectImageTest() throws Exception {
+        this.dockerEtmService.dockerService.pullImage(image);
+        ImageInfo imageInfo = this.dockerEtmService.dockerService
                 .getImageInfoByName(image);
         assertNotNull(imageInfo);
     }
 
     @Test
-    public void runStopAndRemoveContainerTest() throws TJobStoppedException {
+    public void runStopAndRemoveContainerTest() throws Exception {
         String image = "elastest/test-etm-test1";
         String containerName = "testContainer" + UtilTools.generateUniqueId();
         logger.info("Starting container {}", containerName);
-        String containerId = this.dockerService.runDockerContainer(dockerClient,
-                image, null, containerName, null, null, null);
+
+        DockerBuilder dockerBuilder = new DockerBuilder(image);
+        dockerBuilder.containerName(containerName);
+
+        String containerId = this.dockerEtmService.dockerService
+                .createAndStartContainer(dockerBuilder.build(), false);
         logger.info("Container {} started with id {}", containerName,
                 containerId);
 
-        assertTrue(this.dockerService.existsContainer(containerName));
+        assertTrue(this.dockerEtmService.dockerService
+                .existsContainer(containerName));
 
         logger.info("Stopping container {}", containerName);
-        this.dockerService.stopDockerContainer(containerId);
+        this.dockerEtmService.dockerService.stopDockerContainer(containerId);
         logger.info("Removing container {}", containerName);
-        this.dockerService.removeDockerContainer(containerId);
-        assertFalse(this.dockerService.existsContainer(containerName));
+        this.dockerEtmService.removeDockerContainer(containerId);
+        assertFalse(this.dockerEtmService.dockerService
+                .existsContainer(containerName));
     }
 
 }

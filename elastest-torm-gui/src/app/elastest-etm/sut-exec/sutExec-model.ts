@@ -1,4 +1,3 @@
-import { ProjectModel } from '../project/project-model';
 import { SutModel } from '../sut/sut-model';
 
 export class SutExecModel {

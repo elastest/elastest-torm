@@ -101,7 +101,7 @@ export class HelpComponent implements OnInit {
   loadCoreServiceLogs(coreServiceName: string): void {
     this.loadingLogs = true;
     this.coreServiceLogs = new CardLogModel();
-    this.coreServiceLogs.previousFunctionObj = {function: this.loadPreviousLogs.bind(this)}
+    this.coreServiceLogs.previousFunctionObj = { function: this.loadPreviousLogs.bind(this) };
     // this.coreServiceLogs.hidePrevBtn = true;
     this.coreServiceLogs.name = coreServiceName;
     this.configurationService.getSomeCoreServiceLogs(coreServiceName, this.numberOfLogs, false).subscribe(
@@ -127,7 +127,7 @@ export class HelpComponent implements OnInit {
         if (lastDateString) {
           let lastDate: Date = new Date(lastDateString);
           // Time in seconds
-          let since: number = lastDate.getTime() / 1000;
+          let since: number = Math.trunc(lastDate.getTime() / 1000);
           this.configurationService.getCoreServiceLogsSince(this.coreServiceLogs.name, since, false).subscribe(
             (logs: string) => {
               let logsAsTraces: any[] = this.configurationService.logsWithTimestampToLogViewTraces(logs);
@@ -135,7 +135,7 @@ export class HelpComponent implements OnInit {
               this.coreServiceLogs.traces = this.coreServiceLogs.traces.concat(logsAsTraces);
             },
             (error: Error) => {
-              this.popupService.openSnackBar('Error on get next' + this.coreServiceLogs.name + ' logs');
+              this.popupService.openSnackBar('Error on get next ' + this.coreServiceLogs.name + ' logs');
               console.log(error);
             },
           );

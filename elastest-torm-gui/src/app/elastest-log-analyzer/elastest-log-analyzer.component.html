@@ -45,13 +45,13 @@
                     <div id="logDate" layout="column" class="push-top">
                       <div layout="row" class="">
                         <md-input-container flex="90" class="oveflowHidden">
-                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date" required>
+                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)" required>
                         </md-input-container>
                       </div>
                       <div layout="row" class="">
                         <div flex-xl="75">
                           <md-input-container class="overflowHidden">
-                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date" required [disabled]="tail.checked">
+                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)" required [disabled]="tail.checked">
                           </md-input-container>
                         </div>
                         <div flex-xl="25" id="tail">
@@ -116,7 +116,7 @@
                     <button md-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
                       <md-icon>refresh</md-icon>
                       <span *ngIf="logRows.length <= 0">Load log</span>
-                      <span *ngIf="logRows.length > 0">Reload log</span>                      
+                      <span *ngIf="logRows.length > 0">Reload log</span>
                     </button>
                   </div>
                 </div>
@@ -156,7 +156,8 @@
             </ng-template>
             <div layout="column" class="push-top-sm">
               <md-card-subtitle class="push-bottom-xs">Columns Configuration</md-card-subtitle>
-              <button md-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration" class="iconBtn push-top-sm">
+              <button md-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration"
+                class="iconBtn push-top-sm">
                 <md-icon>save</md-icon> Save
               </button>
               <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">

@@ -1,37 +1,5 @@
 version: '3'
-services:        
-    etm-logstash:        
-        image: elastest/etm-logstash:latest
-        expose:
-            - 5000
-            - 5002
-            - 5003
-            - 5044
-            - 5037
-            - 5001
-        depends_on:
-            - etm-rabbitmq
-            - edm-elasticsearch
-        environment:
-            - ELASTICHOST=edm-elasticsearch
-            - RABBITHOST=etm-rabbitmq
-            - RABBITUSER=elastest-etm
-            - RABBITPASS=elastest-etm
-        networks:
-            - elastest       
-                                  
-    etm-rabbitmq:
-        image: elastest/etm-rabbitmq:latest
-        hostname: my-rabbit
-        expose:
-            - 15672
-            - 5672
-            - 15671
-            - 25672
-            - 61613
-        networks:
-            - elastest
-
+services:
     edm-mysql:
         image: elastest/edm-mysql:latest
         environment:
@@ -47,65 +15,16 @@ services:
         networks:
             - elastest
 
-    edm-elasticsearch:
-        image: elastest/etm-elasticsearch:latest
-        expose:
-            - 9200
-        volumes:
-            - elasticsearch-data:/usr/share/elasticsearch/data
-        environment:
-            - xpack.security.enabled=false
-            - http.host=0.0.0.0
-            - transport.host=127.0.0.1
-            - ES_JAVA_OPTS=-Xmx3g -Xms3g
-        networks:
-            - elastest
-
     etm-filebeat:
         image: elastest/etm-filebeat:latest
-        depends_on:
-            - etm-logstash
         environment:
-            - ET_MON_LSBEATS_HOST=etm-logstash
+            - ET_MON_LSBEATS_HOST=etm
         networks:
             - elastest
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/containers:/var/lib/docker/containers
-
-    esm:
-      image: elastest/esm:latest
-      hostname: esm
-      volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:rw
-      environment:
-            - ESM_PORT=37005
-            - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19999/
-            - ET_EDM_MYSQL_HOST=edm-mysql
-            - ET_EDM_MYSQL_PORT=3306
-            - ET_EDM_ELASTICSEARCH_API=http://edm-elasticsearch:9200/
-            - ET_EDM_API=http://edm:37003/
-            - ET_EPM_API=http://epm:37002/
-            - ET_ETM_API=http://etm:37006/
-            - ET_ESM_API=http://esm:37005/
-            - ET_EIM_API=http://eim:37004/
-            - ET_ETM_LSBEATS_HOST=etm-logstash
-            - ET_ETM_LSBEATS_PORT=5044
-            - ET_ETM_LSHTTP_API=http://etm-logstash:5002/
-            - ET_ETM_RABBIT_HOST=etm-rabbitmq
-            - ET_ETM_RABBIT_PORT=5672
-            - ET_EMP_API=http://eim:37001/
-            - ET_EMP_INFLUXDB_API=http://emp-influxdb:8086/
-            - ET_EMP_INFLUXDB_HOST=emp-influxdb
-            - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
-      expose:
-            - 37005
-      networks:
-            - elastest
-
 volumes:
-    elasticsearch-data:
-      driver: local
     edm-mysql:
       driver: local
 networks:

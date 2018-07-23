@@ -93,7 +93,7 @@ public class TJobService {
     }
 
     public void deleteTJob(Long tJobId) {
-        TJob tJob = tJobRepo.findOne(tJobId);
+        TJob tJob = tJobRepo.findById(tJobId).get();
         tJobRepo.delete(tJob);
     }
 
@@ -111,7 +111,7 @@ public class TJobService {
 
     public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters,
             List<Parameter> sutParameters) throws HttpClientErrorException {
-        TJob tJob = tJobRepo.findOne(tJobId);
+        TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
         // Checks if has sut instrumented by elastest and beats status is
@@ -152,7 +152,8 @@ public class TJobService {
     }
 
     public TJobExecution stopTJobExec(Long tJobExecId) {
-        TJobExecution tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);
+        TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
+                .get();
         String mapKey = getMapNameByTJobExec(tJobExec);
         Future<Void> asyncExec = asyncExecs.get(mapKey);
 
@@ -171,7 +172,7 @@ public class TJobService {
                     logger.error("Error on forcing Execution stop");
                 }
             } else { // If is already finished, gets TJobExec
-                tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);
+                tJobExec = tJobExecRepositoryImpl.findById(tJobExecId).get();
             }
             asyncExecs.remove(mapKey);
         } catch (Exception e) {
@@ -217,12 +218,13 @@ public class TJobService {
     }
 
     public void deleteTJobExec(Long tJobExecId) {
-        TJobExecution tJobExec = tJobExecRepositoryImpl.findOne(tJobExecId);
+        TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
+                .get();
         tJobExecRepositoryImpl.delete(tJobExec);
     }
 
     public TJob getTJobById(Long tJobId) {
-        return tJobRepo.findOne(tJobId);
+        return tJobRepo.findById(tJobId).get();
     }
 
     public TJob getTJobByName(String name) {
@@ -234,7 +236,7 @@ public class TJobService {
     }
 
     public List<TJobExecution> getLastNTJobExecs(Long number) {
-        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
 
         return tJobExecRepositoryImpl.findWithPageable(lastN);
@@ -246,7 +248,7 @@ public class TJobService {
     }
 
     public List<TJobExecution> getLastNRunningTJobExecs(Long number) {
-        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
 
         return tJobExecRepositoryImpl.findByResultsWithPageable(
@@ -260,7 +262,7 @@ public class TJobService {
 
     public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecs(
             Long number) {
-        Pageable lastN = new PageRequest(0, number.intValue(), Direction.DESC,
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
 
         return tJobExecRepositoryImpl.findByResultsWithPageable(
@@ -268,11 +270,11 @@ public class TJobService {
     }
 
     public TJobExecution getTJobExecById(Long id) {
-        return tJobExecRepositoryImpl.findOne(id);
+        return tJobExecRepositoryImpl.findById(id).get();
     }
 
     public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
-        TJob tJob = tJobRepo.findOne(tJobId);
+        TJob tJob = tJobRepo.findById(tJobId).get();
         return getTJobsExecutionsByTJob(tJob);
     }
 
@@ -281,12 +283,12 @@ public class TJobService {
     }
 
     public TJobExecution getTJobsExecution(Long tJobId, Long tJobExecId) {
-        TJob tJob = tJobRepo.findOne(tJobId);
+        TJob tJob = tJobRepo.findById(tJobId).get();
         return tJobExecRepositoryImpl.findByIdAndTJob(tJobExecId, tJob);
     }
 
     public TJob modifyTJob(TJob tJob) throws RuntimeException {
-        if (tJobRepo.findOne(tJob.getId()) != null) {
+        if (tJobRepo.findById(tJob.getId()) != null) {
             return tJobRepo.save(tJob);
         } else {
             throw new HTTPException(405);

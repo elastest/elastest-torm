@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.service.DockerService2;
 import io.elastest.etm.service.ProjectService;
 import io.swagger.annotations.ApiParam;
 

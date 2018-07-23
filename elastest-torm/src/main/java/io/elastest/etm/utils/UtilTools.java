@@ -3,22 +3,29 @@ package io.elastest.etm.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dockerjava.api.exception.DockerClientException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-@Component
 public class UtilTools {
 
     private static final Logger logger = LoggerFactory
@@ -101,7 +108,7 @@ public class UtilTools {
         return dockerHostIp;
     }
 
-    public static String getHostIp() {
+    public static String getHostIp() throws Exception {
         if (hostIp == null) {
             if (inContainer != null && inContainer.equals("true")) {
                 try {
@@ -110,8 +117,8 @@ public class UtilTools {
                     String[] tokens = ipRoute.split("\\s");
                     hostIp = tokens[2];
                 } catch (Exception e) {
-                    throw new DockerClientException(
-                            "Exception executing /sbin/ip route", e);
+                    throw new Exception("Exception executing /sbin/ip route",
+                            e);
                 }
             } else {
                 hostIp = "127.0.0.1";
@@ -121,7 +128,7 @@ public class UtilTools {
         return hostIp;
     }
 
-    public static String getDockerHostIp() {
+    public static String getDockerHostIp() throws Exception {
         if (windowsSO != null && windowsSO.toLowerCase().contains("win")) {
             return getDockerHostIpOnWin();
         } else
@@ -143,11 +150,15 @@ public class UtilTools {
         return myIp;
     }
 
+    // Obj to Json
+
     public static String convertJsonString(Object obj,
-            Class<?> serializationView) {
+            Class<?> serializationView, JsonInclude.Include inclusion) {
         String jsonString = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(inclusion);
+
             jsonString = objectMapper.writerWithView(serializationView)
                     .writeValueAsString(obj);
 
@@ -155,6 +166,59 @@ public class UtilTools {
             logger.error("Error during conversion: " + e.getMessage());
         }
         return jsonString;
+    }
+
+    public static String convertJsonString(Object obj,
+            Class<?> serializationView) {
+        return convertJsonString(obj, serializationView, Include.ALWAYS);
+    }
+
+    // Json to Obj
+    @SuppressWarnings("unchecked")
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, JsonInclude.Include inclusion,
+            boolean failOnUnknownProperties) {
+        T object = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(inclusion);
+            objectMapper.configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            object = (T) objectMapper.readValue(json, serializationView);
+        } catch (IOException e) {
+            logger.error("Error during conversion: " + e.getMessage());
+        }
+        return object;
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView) {
+        return convertJsonStringToObj(json, serializationView, Include.ALWAYS,
+                true);
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, JsonInclude.Include inclusion) {
+        return convertJsonStringToObj(json, serializationView, inclusion, true);
+    }
+
+    public static <T> T convertJsonStringToObj(String json,
+            Class<?> serializationView, boolean failOnUnknownProperties) {
+        return convertJsonStringToObj(json, serializationView, Include.ALWAYS,
+                failOnUnknownProperties);
+    }
+
+    // Obj to JsonNode
+    public static JsonNode convertObjToJsonNode(Object obj) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.valueToTree(obj);
+    }
+
+    // Obj to ObjectNode
+
+    public static ObjectNode convertObjToObjectNode(Object object) {
+        return UtilTools.convertObjToJsonNode(object).deepCopy();
     }
 
     /**
@@ -198,6 +262,77 @@ public class UtilTools {
         } else {
             throw new IOException("Ip " + ip + " non reachable");
         }
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    // Example: If wants name value of {container: {name: value}}, tree should
+    // be [docker,container,name]
+    public static Object getMapFieldByTreeList(Map<String, Object> dataMap,
+            List<String> tree) {
+        if (tree.size() > 0) {
+            String field = tree.get(0);
+
+            if (dataMap.get(field) != null) {
+                if (tree.size() > 1) {
+                    List<String> subTree = tree.subList(1, tree.size());
+                    return getMapFieldByTreeList(
+                            (Map<String, Object>) dataMap.get(field), subTree);
+                } else {
+                    return dataMap.get(field);
+                }
+
+            }
+
+        }
+        return null;
+
+    }
+
+    public static Object cloneObject(Object obj) {
+        try {
+            Object clone = obj.getClass().newInstance();
+            for (Field field : obj.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if (field.get(obj) == null
+                        || Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
+                if (field.getType().isPrimitive()
+                        || field.getType().equals(String.class)
+                        || field.getType().getSuperclass().equals(Number.class)
+                        || field.getType().equals(Boolean.class)) {
+                    field.set(clone, field.get(obj));
+                } else {
+                    Object childObj = field.get(obj);
+                    if (childObj == obj) {
+                        field.set(clone, clone);
+                    } else {
+                        field.set(clone, cloneObject(field.get(obj)));
+                    }
+                }
+            }
+            return clone;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static Map<String, Object> objectToMap(Object obj)
+            throws IllegalArgumentException, IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            map.put(field.getName(), field.get(obj));
+        }
+        return map;
+    }
+
+    public static String stringFromJsonNode(JsonNode toStringObj) {
+        String string = null;
+        if (toStringObj != null) {
+            string = toStringObj.toString().replaceAll("\"", "");
+        }
+        return string;
     }
 
 }

@@ -11,6 +11,4 @@ public interface ExternalTJobExecutionRepository
         extends JpaRepository<ExternalTJobExecution, Long> {
 
     public List<ExternalTJobExecution> findByExTJob(ExternalTJob exTJob);
-
-    public ExternalTJobExecution findById(Long id);
 }

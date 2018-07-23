@@ -1,3 +1,5 @@
+import { DatePipe } from '@angular/common';
+import { MonitoringService } from './shared/services/monitoring.service';
 import { FilesService } from './shared/services/files.service';
 import { TransformService } from './elastest-etm/help/transform.service';
 import { TestLinkService } from './etm-testlink/testlink.service';
@@ -17,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { CovalentHttpModule, IHttpInterceptor } from '@covalent/http';
+import { CovalentHttpModule } from '@covalent/http';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentMarkdownModule } from '@covalent/markdown';
 
@@ -37,7 +39,6 @@ import { SutExecService } from './elastest-etm/sut-exec/sutExec.service';
 import { ProjectService } from './elastest-etm/project/project.service';
 import { TestSuiteService } from './elastest-etm/test-suite/test-suite.service';
 import { TestCaseService } from './elastest-etm/test-case/test-case.service';
-import { ElasticSearchService } from './shared/services/elasticsearch.service';
 import {
   MdDatepickerModule,
   MdNativeDateModule,
@@ -54,7 +55,6 @@ import { SutManagerComponent } from './elastest-etm/sut/sut-manager/sut-manager.
 import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
 import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manager/sut-exec-manager.component';
 import { ElastestRabbitmqService } from './shared/services/elastest-rabbitmq.service';
-import { ElastestESService } from './shared/services/elastest-es.service';
 import { PopupService } from './shared/services/popup.service';
 
 import { EusService } from './elastest-eus/elastest-eus.service';
@@ -243,10 +243,10 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TestSuiteService,
     TJobExecService,
     ProjectService,
-    ElasticSearchService,
+    MonitoringService,
     ElastestRabbitmqService,
-    ElastestESService,
     PopupService,
+    DatePipe,
     TitlesService,
     BreadcrumbService,
     FilesService,

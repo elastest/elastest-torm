@@ -1,10 +1,6 @@
 import { PopupService } from '../../shared/services/popup.service';
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
-import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
-import { DashboardConfigModel } from '../tjob/dashboard-config-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { SutExecModel } from '../sut-exec/sutExec-model';
-import { SutModel } from '../sut/sut-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { TJobExecModel } from './tjobExec-model';
 import { Http, Response } from '@angular/http';
@@ -15,8 +11,7 @@ import { TestCaseModel } from '../test-case/test-case-model';
 import { TestSuiteModel } from '../test-suite/test-suite-model';
 import { LogAnalyzerService, StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
 import { sleep } from '../../shared/utils';
-import { ESRangeModel } from '../../shared/elasticsearch-model/es-query-model';
-import { MetricTraces } from '../../shared/services/elastest-es.service';
+import { MetricTraces } from '../../shared/services/monitoring.service';
 
 @Injectable()
 export class TJobExecService {
@@ -258,13 +253,9 @@ export class TJobExecService {
               (logs: any[]) => {
                 someTestCaseWithDate = true;
                 tCase['logs'] = logs;
-                let timeRange: ESRangeModel = this.logAnalyzerService.elastestESService.getRangeByGiven(
-                  startFinishObj.startDate,
-                  startFinishObj.finishDate,
-                );
 
                 // Metrics
-                this.logAnalyzerService.elastestESService.getAllTJobExecMetrics(tJobExec, timeRange).subscribe(
+                this.logAnalyzerService.monitoringService.getAllTJobExecMetrics(tJobExec).subscribe(
                   (metricsTraces: MetricTraces[]) => {
                     tCase['metrics'] = metricsTraces;
 

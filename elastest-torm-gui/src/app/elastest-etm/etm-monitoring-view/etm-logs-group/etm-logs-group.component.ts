@@ -1,15 +1,15 @@
 import { LogsViewComponent } from '../../../shared/logs-view/logs-view.component';
 import { ESRabLogModel } from '../../../shared/logs-view/models/es-rab-log-model';
-import { ElastestESService } from '../../../shared/services/elastest-es.service';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs/Rx';
+import { Subject, Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
   selector: 'etm-logs-group',
@@ -33,7 +33,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   selectedTraces: number[][] = [];
 
-  constructor(private elastestESService: ElastestESService, private elastestRabbitmqService: ElastestRabbitmqService) {}
+  constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
   ngOnInit() {}
 
@@ -60,7 +60,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
     for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
       if (log.activated) {
-        let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
+        let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
         individualLogs.name = this.capitalize(log.component) + ' Logs';
         individualLogs.etType = log.component + 'logs';
         individualLogs.component = log.component;
@@ -82,7 +82,7 @@ export class EtmLogsGroupComponent implements OnInit {
   }
 
   addMoreLogs(obj: any): boolean {
-    let individualLogs: ESRabLogModel = new ESRabLogModel(this.elastestESService);
+    let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';
     individualLogs.etType = obj.etType;
     individualLogs.component = obj.component;

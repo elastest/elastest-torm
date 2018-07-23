@@ -11,12 +11,11 @@ import java.net.URLConnection;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
-
-import org.slf4j.Logger;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class LogstashService {
@@ -30,22 +29,18 @@ public class LogstashService {
     String defaultTestComponent = "test";
 
     EtmContextAuxService etmContextAuxService;
+    UtilsService utilsService;
 
-    @Value("${test.case.start.msg.prefix}")
-    public String tcStartMsgPrefix;
-    @Value("${test.case.finish.msg.prefix}")
-    public String tcFinishMsgPrefix;
-
-    public LogstashService(EtmContextAuxService etmContextAuxService) {
+    public LogstashService(EtmContextAuxService etmContextAuxService,
+            UtilsService utilsService) {
         this.etmContextAuxService = etmContextAuxService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
     public void init() {
         this.contextInfo = this.etmContextAuxService.getContextInfo();
-        String lsHost = this.contextInfo.getLogstashIp();
-        String lsHttpPort = this.contextInfo.getLogstashHttpPort();
-        this.lsHttpApi = "http://" + lsHost + ":" + lsHttpPort;
+        this.lsHttpApi = this.contextInfo.getLogstashSSLHttpUrl();
     }
 
     public void sendSingleLogTrace(String message, String component,
@@ -85,13 +80,13 @@ public class LogstashService {
     }
 
     public void sendStartTestLogtrace(String exec, String testName) {
-        String message = this.tcStartMsgPrefix + testName;
+        String message = utilsService.tcStartMsgPrefix + " " + testName;
         this.sendSingleLogTrace(message, defaultTestComponent, exec,
                 logDefaultStream);
     }
 
     public void sendFinishTestLogtrace(String exec, String testName) {
-        String message = this.tcFinishMsgPrefix + testName;
+        String message = utilsService.tcFinishMsgPrefix + " " + testName;
         this.sendSingleLogTrace(message, defaultTestComponent, exec,
                 logDefaultStream);
     }

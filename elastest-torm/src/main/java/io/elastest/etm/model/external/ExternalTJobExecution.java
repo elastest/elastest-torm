@@ -20,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -38,158 +39,166 @@ import io.elastest.etm.model.external.ExternalTestExecution.ExternalTestExecutio
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ExternalTJobExecution implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public interface ExternalTJobExecutionView {
-	}
+    public interface ExternalTJobExecutionView {
+    }
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	@JsonProperty("id")
-	private Long id = null;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GenericGenerator(name = "native", strategy = "native")
+    @Column(name = "id")
+    @JsonProperty("id")
+    private Long id = null;
 
-	@JsonView({ ExternalTJobExecutionView.class })
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "exTJob")
-	@JsonIgnoreProperties(value = "exTJobExecs", allowSetters = true)
-	private ExternalTJob exTJob;
+    @JsonView({ ExternalTJobExecutionView.class })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exTJob")
+    @JsonIgnoreProperties(value = "exTJobExecs", allowSetters = true)
+    private ExternalTJob exTJob;
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@Column(name = "monitoringIndex")
-	private String monitoringIndex = null;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "monitoringIndex")
+    private String monitoringIndex = null;
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@Column(name = "result")
-	@JsonProperty("result")
-	@LazyCollection(LazyCollectionOption.FALSE)
-	private ResultEnum result = null;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "result")
+    @JsonProperty("result")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private ResultEnum result = null;
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@ElementCollection
-	@MapKeyColumn(name = "VAR_NAME", length = 200)
-	@Column(name = "value", length = 400)
-	@CollectionTable(name = "ExternalTJobExec_ENV_VARS", joinColumns = @JoinColumn(name = "ExternalTJobExec"))
-	private Map<String, String> envVars;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @ElementCollection
+    @MapKeyColumn(name = "VAR_NAME", length = 200)
+    @Column(name = "value", length = 400)
+    @CollectionTable(name = "ExternalTJobExec_ENV_VARS", joinColumns = @JoinColumn(name = "ExternalTJobExec"))
+    private Map<String, String> envVars;
 
-	@JsonView({ ExternalTJobExecutionView.class })
-	@OneToMany(mappedBy = "exTJobExec", cascade = CascadeType.REMOVE)
-	@JsonIgnoreProperties(value = { "exTJobExec" }, allowSetters = true)
-	private List<ExternalTestExecution> exTestExecs;
+    @JsonView({ ExternalTJobExecutionView.class })
+    @OneToMany(mappedBy = "exTJobExec", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(value = { "exTJobExec" }, allowSetters = true)
+    private List<ExternalTestExecution> exTestExecs;
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@Column(name = "startDate")
-	private Date startDate = null;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "startDate")
+    private Date startDate = null;
 
-	@JsonView({ ExternalProjectView.class, ExternalTJobView.class, ExternalTJobExecutionView.class,
-			ExternalTestCaseView.class, ExternalTestExecutionView.class })
-	@Column(name = "endDate")
-	private Date endDate = null;
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "endDate")
+    private Date endDate = null;
 
-	/* **************************/
-	/* ***** Constructors *******/
-	/* **************************/
+    /* **************************/
+    /* ***** Constructors *******/
+    /* **************************/
 
-	public ExternalTJobExecution() {
-		this.envVars = new HashMap<>();
-		this.result = ResultEnum.NOT_EXECUTED;
-	}
+    public ExternalTJobExecution() {
+        this.envVars = new HashMap<>();
+        this.result = ResultEnum.NOT_EXECUTED;
+    }
 
-	public ExternalTJobExecution(Long id) {
-		this.id = id == null ? 0 : id;
-		this.envVars = new HashMap<>();
-		this.result = ResultEnum.NOT_EXECUTED;
-	}
+    public ExternalTJobExecution(Long id) {
+        this.id = id == null ? 0 : id;
+        this.envVars = new HashMap<>();
+        this.result = ResultEnum.NOT_EXECUTED;
+    }
 
-	/* *****************************/
-	/* ***** Getters/Setters *******/
-	/* *****************************/
+    /* *****************************/
+    /* ***** Getters/Setters *******/
+    /* *****************************/
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id == null ? 0 : id;
-	}
+    public void setId(Long id) {
+        this.id = id == null ? 0 : id;
+    }
 
-	public ExternalTJob getExTJob() {
-		return exTJob;
-	}
+    public ExternalTJob getExTJob() {
+        return exTJob;
+    }
 
-	public void setExTJob(ExternalTJob exTJob) {
-		this.exTJob = exTJob;
-	}
+    public void setExTJob(ExternalTJob exTJob) {
+        this.exTJob = exTJob;
+    }
 
-	public String getMonitoringIndex() {
-		return monitoringIndex;
-	}
+    public String getMonitoringIndex() {
+        return monitoringIndex;
+    }
 
-	public void setMonitoringIndex(String monitoringIndex) {
-		this.monitoringIndex = monitoringIndex;
-	}
+    public void setMonitoringIndex(String monitoringIndex) {
+        this.monitoringIndex = monitoringIndex;
+    }
 
-	public ResultEnum getResult() {
-		return result;
-	}
+    public ResultEnum getResult() {
+        return result;
+    }
 
-	public void setResult(ResultEnum result) {
-		this.result = result;
-	}
+    public void setResult(ResultEnum result) {
+        this.result = result;
+    }
 
-	public Map<String, String> getEnvVars() {
-		return envVars;
-	}
+    public Map<String, String> getEnvVars() {
+        return envVars;
+    }
 
-	public void setEnvVars(Map<String, String> envVars) {
-		this.envVars = envVars;
-	}
+    public void setEnvVars(Map<String, String> envVars) {
+        this.envVars = envVars;
+    }
 
-	public String getExternalTJobExecMonitoringIndex() {
-		return "ext" + getExTJob().getId() + "_e" + getId();
-	}
+    public String getExternalTJobExecMonitoringIndex() {
+        return "ext" + getExTJob().getId() + "_e" + getId();
+    }
 
-	public void generateMonitoringIndex() {
-		SutSpecification sut = this.getExTJob().getSut();
-		String monitoringIndex = this.getExternalTJobExecMonitoringIndex();
-		if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
-			monitoringIndex += ",s" + sut.getId() + "_e" + sut.getCurrentSutExec();
-		}
-		this.setMonitoringIndex(monitoringIndex);
-	}
+    public void generateMonitoringIndex() {
+        SutSpecification sut = this.getExTJob().getSut();
+        String monitoringIndex = this.getExternalTJobExecMonitoringIndex();
+        if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
+            monitoringIndex += ",s" + sut.getId() + "_e"
+                    + sut.getCurrentSutExec();
+        }
+        this.setMonitoringIndex(monitoringIndex);
+    }
 
-	public String[] getMonitoringIndicesList() {
-		return this.getMonitoringIndex().split(",");
-	}
+    public String[] getMonitoringIndicesList() {
+        return this.getMonitoringIndex().split(",");
+    }
 
-	public List<ExternalTestExecution> getExTestExecs() {
-		return exTestExecs;
-	}
+    public List<ExternalTestExecution> getExTestExecs() {
+        return exTestExecs;
+    }
 
-	public void setExTestExecs(List<ExternalTestExecution> exTestExecs) {
-		this.exTestExecs = exTestExecs;
-	}
+    public void setExTestExecs(List<ExternalTestExecution> exTestExecs) {
+        this.exTestExecs = exTestExecs;
+    }
 
-	public Date getStartDate() {
-		return startDate;
-	}
+    public Date getStartDate() {
+        return startDate;
+    }
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public Date getEndDate() {
+        return endDate;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
 }

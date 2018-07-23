@@ -1,0 +1,8 @@
+{
+  "ip":"192.168.116.19",
+  "user":"ubuntu",
+  "passphrase":"",
+  "epmIp":"localhost",
+  "password":"",
+  "keyname":"tub-ansible"
+}

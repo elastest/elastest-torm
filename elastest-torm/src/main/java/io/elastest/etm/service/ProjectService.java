@@ -20,7 +20,7 @@ public class ProjectService {
 	}
 	
 	public Project getProjectById(Long id){
-		return projectRepository.findOne(id);
+		return projectRepository.findById(id).get();
 	}
 	
 	public Project getProjectByName(String name){
@@ -32,7 +32,7 @@ public class ProjectService {
 	}
 	
 	public void deleteProject(Long projectId) {
-		Project project = projectRepository.findOne(projectId);
+		Project project = projectRepository.findById(projectId).get();
 		projectRepository.delete(project);
 	}
 }

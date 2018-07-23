@@ -181,22 +181,30 @@ export class TestPlanExecutionComponent implements OnInit {
     this.browserCardMsg = 'Waiting for EUS...';
     if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
-      let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
-        this.eusInstanceId,
-        this.eusTimer,
-        this.eusSubscription,
-        'external',
-      );
-      this.eusSubscription = responseObj.subscription;
 
-      responseObj.observable.subscribe(
-        (eus: EsmServiceInstanceModel) => {
-          this.eusUrl = eus.apiUrl;
-          this.eusService.setEusUrl(this.eusUrl);
-          this.loadChromeBrowser();
-        },
-        (error) => console.log(error),
-      );
+      if (exTJobExec.envVars['ET_EUS_API']) {
+        // If EUS is shared (started on init)
+        this.eusUrl = exTJobExec.envVars['ET_EUS_API'];
+        this.eusService.setEusUrl(this.eusUrl);
+        this.loadChromeBrowser();
+      } else {
+        let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
+          this.eusInstanceId,
+          this.eusTimer,
+          this.eusSubscription,
+          'external',
+        );
+        this.eusSubscription = responseObj.subscription;
+
+        responseObj.observable.subscribe(
+          (eus: EsmServiceInstanceModel) => {
+            this.eusUrl = eus.apiUrl;
+            this.eusService.setEusUrl(this.eusUrl);
+            this.loadChromeBrowser();
+          },
+          (error) => console.log(error),
+        );
+      }
     }
   }
 

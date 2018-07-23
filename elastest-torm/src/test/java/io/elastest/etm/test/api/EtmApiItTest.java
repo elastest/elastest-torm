@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +36,6 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 public class EtmApiItTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-
 
     @Autowired
     TestRestTemplate httpClient;

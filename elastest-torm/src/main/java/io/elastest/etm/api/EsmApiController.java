@@ -25,11 +25,13 @@ public class EsmApiController implements EsmApi {
     private static final Logger logger = LoggerFactory
             .getLogger(EsmApiController.class);
 
-    @Autowired
-    EsmService esmService;
+    private EsmService esmService;
 
     @Autowired
-    UtilTools utilTools;
+    public EsmApiController(EsmService esmService) {
+        super();
+        this.esmService = esmService;
+    }
 
     @Override
     public ResponseEntity<List<String>> getSupportServicesNames() {
@@ -55,7 +57,7 @@ public class EsmApiController implements EsmApi {
     public ResponseEntity<String> provisionServiceInstance(
             @ApiParam(value = "Service Id", required = true) @PathVariable("serviceId") String serviceId) {
         logger.info("Service provision:" + serviceId);
-        String instanceId = utilTools.generateUniqueId();
+        String instanceId = UtilTools.generateUniqueId();
         esmService.provisionTJobExecServiceInstanceAsync(serviceId, null,
                 instanceId);
         return new ResponseEntity<String>(instanceId, HttpStatus.OK);
@@ -67,22 +69,26 @@ public class EsmApiController implements EsmApi {
         return new ResponseEntity<String>(
                 esmService.deprovisionServiceInstance(id, null), HttpStatus.OK);
     }
-    
+
     @Override
     public ResponseEntity<String> deprovisionTJobExecServiceInstance(
-            @PathVariable("id") String id, @PathVariable("tJobExecId") Long tJobExecId) {
+            @PathVariable("id") String id,
+            @PathVariable("tJobExecId") Long tJobExecId) {
         return new ResponseEntity<String>(
-                esmService.deprovisionTJobExecServiceInstance(id, tJobExecId), HttpStatus.OK);
+                esmService.deprovisionTJobExecServiceInstance(id, tJobExecId),
+                HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<String> deprovisionExternalTJobExecServiceInstance(
-            @PathVariable("id") String id, @PathVariable("externalTJobExecId") Long externalTJobExecId) {
+            @PathVariable("id") String id,
+            @PathVariable("externalTJobExecId") Long externalTJobExecId) {
         return new ResponseEntity<String>(
-                esmService.deprovisionExternalTJobExecServiceInstance(id, externalTJobExecId), HttpStatus.OK);
+                esmService.deprovisionExternalTJobExecServiceInstance(id,
+                        externalTJobExecId),
+                HttpStatus.OK);
     }
 
-    
     @Override
     public ResponseEntity<SupportServiceInstance> getSupportServiceInstanceById(
             @PathVariable("id") String id) {

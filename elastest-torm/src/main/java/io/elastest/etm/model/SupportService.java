@@ -1,14 +1,15 @@
 package io.elastest.etm.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Entity that represents an ElasTest Test Support Service")
+@SuppressWarnings("rawtypes")
 public class SupportService {
 
     @JsonProperty("id")
@@ -17,23 +18,59 @@ public class SupportService {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("shortName")
+    @JsonProperty("short_name")
+    @JsonAlias("shortName")
     private String shortName;
 
-    @JsonProperty("config")
-    private Map<String, Object> config = new HashMap<String, Object>();
+    @JsonProperty("manifest")
+    private TssManifest manifest;
+
+    @JsonProperty("bindable")
+    private boolean bindable;
+
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("plans")
+    private List plans;
+
+    @JsonProperty("plan_updateable")
+    @JsonAlias("planUpdateable")
+    private boolean planUpdateable;
+
+    @JsonProperty("requires")
+    private List requires;
+
+    @JsonProperty("tags")
+    private List tags;
 
     public SupportService() {
 
     }
 
     public SupportService(String id, String name, String shortName,
-            Map<String, Object> config) {
+            TssManifest manifest) {
         super();
         this.id = id;
         this.name = name;
         this.shortName = shortName;
-        this.config = config;
+        this.manifest = manifest;
+    }
+
+    public SupportService(String id, String name, String shortName,
+            TssManifest manifest, boolean bindable, String description,
+            List plans, boolean planUpdateable, List requires, List tags) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.shortName = shortName;
+        this.manifest = manifest;
+        this.bindable = bindable;
+        this.description = description;
+        this.plans = plans;
+        this.planUpdateable = planUpdateable;
+        this.requires = requires;
+        this.tags = tags;
     }
 
     /**
@@ -78,24 +115,70 @@ public class SupportService {
         this.shortName = shortName;
     }
 
-    /**
-     * Get the config of the TSS
-     * 
-     * @return The config of the TSS
-     **/
-    @ApiModelProperty(example = "EUS", value = "The config of the TSS.")
-    public Map<String, Object> getConfig() {
-        return config;
+    @ApiModelProperty(example = "EUS", value = "The manifest of the TSS.")
+    public TssManifest getManifest() {
+        return manifest;
     }
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    public void setManifest(TssManifest manifest) {
+        this.manifest = manifest;
+    }
+
+    public boolean isBindable() {
+        return bindable;
+    }
+
+    public void setBindable(boolean bindable) {
+        this.bindable = bindable;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List getPlans() {
+        return plans;
+    }
+
+    public void setPlans(List plans) {
+        this.plans = plans;
+    }
+
+    public boolean isPlanUpdateable() {
+        return planUpdateable;
+    }
+
+    public void setPlanUpdateable(boolean planUpdateable) {
+        this.planUpdateable = planUpdateable;
+    }
+
+    public List getRequires() {
+        return requires;
+    }
+
+    public void setRequires(List requires) {
+        this.requires = requires;
+    }
+
+    public List getTags() {
+        return tags;
+    }
+
+    public void setTags(List tags) {
+        this.tags = tags;
     }
 
     @Override
     public String toString() {
         return "SupportService [id=" + id + ", name=" + name + ", shortName="
-                + shortName + ", config=" + config + "]";
+                + shortName + ", manifest=" + manifest + ", bindable="
+                + bindable + ", description=" + description + ", plans=" + plans
+                + ", planUpdateable=" + planUpdateable + ", requires="
+                + requires + ", tags=" + tags + "]";
     }
 
 }

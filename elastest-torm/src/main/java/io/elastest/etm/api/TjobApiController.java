@@ -44,9 +44,9 @@ public class TjobApiController implements TjobApi {
     @Autowired
     EsmService esmService;
 
-    /*****************/
-    /***** TJobs *****/
-    /*****************/
+    /* *************** */
+    /* **** TJobs **** */
+    /* *************** */
 
     @JsonView(BasicAttTJob.class)
     public ResponseEntity<TJob> createTJob(
@@ -88,9 +88,9 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
-    /*********************/
-    /***** TJobExecs *****/
-    /*********************/
+    /* ******************* */
+    /* **** TJobExecs **** */
+    /* ******************* */
 
     @JsonView(BasicAttTJobExec.class)
     public ResponseEntity<TJobExecution> execTJob(

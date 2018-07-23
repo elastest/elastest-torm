@@ -3,12 +3,12 @@ services:
     etm-logstash:        
         image: elastest/etm-logstash:latest
         ports:
-            - 5002:5002
-            - 5003:5003
             - 37500:5000
             - 37501:5037
             - 37502:5044
             - 37503:5001
+            - 37504:5002
+            - 37505:5003
         depends_on:
             - etm-rabbitmq
             - edm-elasticsearch

@@ -43,7 +43,6 @@ export class ConfigurationService {
           host: (this.protocol === 'https:' ? 'https://' : 'http://') + this.host,
           proxyHost: (this.protocol === 'https:' ? 'https://' : 'http://') + proxyHost,
           hostApi: this.hostApi,
-          hostElasticsearch: servicesInfo.elasticSearchUrl + '/',
           hostEIM: (this.protocol === 'https:' ? 'https://' : 'http://') + environment.hostEIM + '/',
           hostWsServer: (this.protocol === 'https:' ? 'wss://' : 'ws://') + this.host + servicesInfo.rabbitPath,
           eusHost: eusUrl !== null ? eusUrl.hostname : null,
@@ -77,11 +76,6 @@ export class ConfigurationService {
   public getServicesInfo(): Observable<any> {
     let url: string = this.hostApi + '/context/services/info';
     return this.http.get(url).map((response) => response.json());
-  }
-
-  public getElasticsearchApi(): Observable<any> {
-    let url: string = this.hostApi + '/context/elasticsearch/api';
-    return this.http.get(url).map((response) => response['_body']);
   }
 
   public getWSHost(): Observable<any> {

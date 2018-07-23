@@ -81,3 +81,7 @@ export function getResultIconByString(result: defaultResult | string): any {
 export function sleep(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
+
+export function getDateIso8601Pattern(): string {
+  return 'yyyy-MM-ddTHH:mm:sssZ';
+}

@@ -21,11 +21,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
+import static org.junit.Assert.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -36,12 +36,17 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.epm.client.DockerComposeProject;
+import io.elastest.epm.client.dockercompose.DockerComposeContainer;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
+import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.JsonService;
 import io.elastest.epm.client.service.ShellService;
 
@@ -53,10 +58,12 @@ import io.elastest.epm.client.service.ShellService;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { DockerComposeService.class, DockerService.class,
-        JsonService.class, ShellService.class }, webEnvironment = RANDOM_PORT)
+        JsonService.class, ShellService.class, EpmService.class,
+        FilesService.class }, webEnvironment = RANDOM_PORT)
 @Tag("integration")
 @DisplayName("Integration test for Docker Compose Service")
 @EnableAutoConfiguration
+@PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 public class DockerComposeIntegrationTest {
 
     final Logger log = getLogger(lookup().lookupClass());
@@ -64,9 +71,10 @@ public class DockerComposeIntegrationTest {
     @Autowired
     private DockerComposeService dockerComposeService;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     @DisplayName("Start and stop Docker compose")
-    void testStartAndStop() throws IOException {
+    void testStartAndStop() throws Exception {
         // Test data
         String projectName = "elastest-eus";
         String dockerComposeFile = "docker-compose.yml";
@@ -84,10 +92,19 @@ public class DockerComposeIntegrationTest {
         assertThat(containersInfo.getContainers(), not(empty()));
 
         // List projects and assert YML content
-        List<DockerComposeProject> projects = dockerComposeService
+        List<DockerComposeContainer> projects = dockerComposeService
                 .listProjects();
-        for (DockerComposeProject project : projects) {
-            assertThat(project.getDockerComposeYml(), not(isEmptyString()));
+        for (DockerComposeContainer project : projects) {
+            boolean existFiles = true;
+            if (project.getComposeFiles() != null) {
+                for (File currentFile : (List<File>) project
+                        .getComposeFiles()) {
+                    existFiles = existFiles && currentFile.exists();
+                }
+            } else {
+                existFiles = false;
+            }
+            assertTrue(existFiles);
         }
 
         // Stop project

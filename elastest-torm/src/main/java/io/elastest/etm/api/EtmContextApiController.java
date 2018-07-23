@@ -145,15 +145,18 @@ public class EtmContextApiController implements EtmContextApi {
 
     public ResponseEntity<String> getSomeCoreServiceLogs(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
-            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) {
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) throws Exception {
         String logs = null;
-        try {
-            logs = etmContextService.getSomeCoreServiceLogs(coreServiceName,
-                    amount, false);
+
+        logs = etmContextService.getSomeCoreServiceLogs(coreServiceName, amount,
+                false);
+
+        if (logs != null) {
             return new ResponseEntity<String>(logs, HttpStatus.OK);
-        } catch (Exception e) {
+        } else {
             return new ResponseEntity<String>(logs, HttpStatus.NOT_FOUND);
         }
+
     }
 
     public ResponseEntity<String> getSomeCoreServiceLogsAndFollow(

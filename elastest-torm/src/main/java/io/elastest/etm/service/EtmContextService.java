@@ -5,14 +5,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.github.dockerjava.api.command.InspectImageResponse;
-import com.github.dockerjava.api.model.Container;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
@@ -31,14 +32,14 @@ public class EtmContextService {
 
     EsmService esmService;
     EtmContextAuxService etmContextAuxService;
-    DockerService2 dockerService;
+    DockerEtmService dockerEtmService;
 
     @Value("${et.public.host}")
     public String etPublicHost;
-    @Value("${et.in.prod}")
-    public boolean etInProd;
+
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
+
     @Value("${exec.mode}")
     String execMode;
 
@@ -60,8 +61,6 @@ public class EtmContextService {
     public String etEdmMysqlHost;
     @Value("${et.edm.mysql.port}")
     public String etEdmMysqlPort;
-    @Value("${et.edm.elasticsearch.api}")
-    public String etEdmElasticsearchApi;
     @Value("${et.edm.api}")
     public String etEdmApi;
     @Value("${et.epm.api}")
@@ -110,11 +109,11 @@ public class EtmContextService {
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
-            DockerService2 dockerService) {
+            DockerEtmService dockerEtmService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
         this.esmService = esmService;
         this.etmContextAuxService = etmContextAuxService;
-        this.dockerService = dockerService;
+        this.dockerEtmService = dockerEtmService;
     }
 
     public ContextInfo getContextInfo() {
@@ -159,19 +158,18 @@ public class EtmContextService {
         });
     }
 
-    private VersionInfo getImageVersionInfo(String imageName) {
-        InspectImageResponse imageInfo = dockerService
+    private VersionInfo getImageVersionInfo(String imageName) throws Exception {
+        ImageInfo imageInfo = dockerEtmService.dockerService
                 .getImageInfoByName(imageName);
-        return new VersionInfo(
-                imageInfo.getConfig().getLabels().get("git_commit"),
-                imageInfo.getConfig().getLabels().get("commit_date"),
-                imageInfo.getConfig().getLabels().get("version"));
+        return new VersionInfo(imageInfo.config().labels().get("git_commit"),
+                imageInfo.config().labels().get("commit_date"),
+                imageInfo.config().labels().get("version"));
     }
 
     private VersionInfo getImageVersionInfoByContainer(Container container) {
-        return new VersionInfo(container.getLabels().get("git_commit"),
-                container.getLabels().get("commit_date"),
-                container.getLabels().get("version"));
+        return new VersionInfo(container.labels().get("git_commit"),
+                container.labels().get("commit_date"),
+                container.labels().get("version"));
     }
 
     /* ********************* */
@@ -184,14 +182,14 @@ public class EtmContextService {
         imagesNames.forEach((imageName) -> {
             try {
                 CoreServiceInfo coreService = new CoreServiceInfo();
-                String version = dockerService
+                String version = dockerEtmService.dockerService
                         .getTagByCompleteImageName(imageName);
                 Container container;
                 if (version.equals("unspecified")) {
-                    container = dockerService
+                    container = dockerEtmService.dockerService
                             .getRunningContainersByImageName(imageName).get(0);
                 } else {
-                    container = dockerService
+                    container = dockerEtmService.dockerService
                             .getRunningContainersByImageNameAndVersion(
                                     imageName, version)
                             .get(0);
@@ -205,7 +203,7 @@ public class EtmContextService {
 
                 coreService.setVersionInfo(versionInfo);
 
-                coreService.setImageName(dockerService
+                coreService.setImageName(dockerEtmService.dockerService
                         .getImageNameByCompleteImageName(imageName));
                 coreService.setDataByContainer(container);
 
@@ -216,21 +214,28 @@ public class EtmContextService {
                         imageName);
 
                 CoreServiceInfo coreService = new CoreServiceInfo();
-                String version = dockerService
+                String version = dockerEtmService.dockerService
                         .getTagByCompleteImageName(imageName);
-                VersionInfo versionInfo = getImageVersionInfo(imageName);
-                versionInfo.setTag(version);
+                VersionInfo versionInfo;
+                try {
+                    versionInfo = getImageVersionInfo(imageName);
+                    versionInfo.setTag(version);
 
-                String serviceName = imageName.split("/")[1].split(":")[0];
-                coreService.setName(serviceName);
+                    String serviceName = imageName.split("/")[1].split(":")[0];
+                    coreService.setName(serviceName);
 
-                coreService.setVersionInfo(versionInfo);
+                    coreService.setVersionInfo(versionInfo);
 
-                coreService.setImageName(dockerService
-                        .getImageNameByCompleteImageName(imageName));
-                coreService.setStatus("Not Started");
+                    coreService.setImageName(dockerEtmService.dockerService
+                            .getImageNameByCompleteImageName(imageName));
+                    coreService.setStatus("Not Started");
 
-                coreServices.add(coreService);
+                    coreServices.add(coreService);
+                } catch (Exception e1) {
+                    logger.error(
+                            "Unable to retrieve ElasTest Core Service {} Information Definitively",
+                            imageName);
+                }
             }
         });
         return coreServices;
@@ -242,8 +247,8 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerService.getAllContainerLogs(containerName,
-                        withFollow);
+                return this.dockerEtmService.dockerService
+                        .getAllContainerLogs(containerName, withFollow);
             }
         }
         throw new Exception("Error on get " + coreServiceName
@@ -256,12 +261,11 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerService.getSomeContainerLogs(containerName,
-                        amount, withFollow);
+                return this.dockerEtmService.dockerService.getSomeContainerLogs(
+                        containerName, amount, withFollow);
             }
         }
-        throw new Exception("Error on get " + coreServiceName
-                + " logs. Invalid Core Service Name");
+        return null;
     }
 
     public String getCoreServiceLogsSince(String coreServiceName, int since,
@@ -270,8 +274,9 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerService.getContainerLogsSinceDate(
-                        containerName, since, withFollow);
+                return this.dockerEtmService.dockerService
+                        .getContainerLogsSinceDate(containerName, since,
+                                withFollow);
             }
         }
         throw new Exception("Error on get " + coreServiceName
@@ -296,10 +301,6 @@ public class EtmContextService {
         return imageName.startsWith("elastest/platform")
                 && !imageName.startsWith("elastest/platform-services");
     }
-
-    /* ******************** */
-    /* *** Log Analyzer *** */
-    /* ******************** */
 
     public Map<String, String> getTJobExecMonitoringEnvVars(
             TJobExecution tJobExec) {
@@ -328,6 +329,10 @@ public class EtmContextService {
         return monEnvs;
     }
 
+    /* ******************** */
+    /* *** Log Analyzer *** */
+    /* ******************** */
+
     public LogAnalyzerConfig saveLogAnalyzerConfig(
             LogAnalyzerConfig logAnalizerConfig) {
         if (logAnalizerConfig.getId() == 0) {
@@ -338,6 +343,9 @@ public class EtmContextService {
     }
 
     public LogAnalyzerConfig getLogAnalyzerConfig() {
-        return this.logAnalyzerRepository.findOne(new Long(1));
+        Optional<LogAnalyzerConfig> config = this.logAnalyzerRepository
+                .findById(new Long(1));
+        return config.isPresent() ? config.get() : null;
     }
+
 }

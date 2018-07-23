@@ -1,14 +1,14 @@
 package io.elastest.etm.service;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.spotify.docker.client.DockerClient;
 
+import io.elastest.epm.client.DockerContainer;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.TJobExecution;
 
 public class DockerExecution {
     private DockerClient dockerClient;
-    private CreateContainerResponse testcontainer, appContainer;
+    private DockerContainer testcontainer, appContainer;
     private String testContainerId, appContainerId;
 
     private String network;
@@ -32,7 +32,7 @@ public class DockerExecution {
 
     /* Getters and Setters */
 
-    public CreateContainerResponse getTestcontainer() {
+    public DockerContainer getTestcontainer() {
         return testcontainer;
     }
 
@@ -44,15 +44,15 @@ public class DockerExecution {
         this.dockerClient = dockerClient;
     }
 
-    public void setTestcontainer(CreateContainerResponse testcontainer) {
+    public void setTestcontainer(DockerContainer testcontainer) {
         this.testcontainer = testcontainer;
     }
 
-    public CreateContainerResponse getAppContainer() {
+    public DockerContainer getAppContainer() {
         return appContainer;
     }
 
-    public void setAppContainer(CreateContainerResponse appContainer) {
+    public void setAppContainer(DockerContainer appContainer) {
         this.appContainer = appContainer;
     }
 

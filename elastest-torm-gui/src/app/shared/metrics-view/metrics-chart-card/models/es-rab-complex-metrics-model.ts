@@ -3,12 +3,13 @@ import { LineChartMetricModel } from '../../models/linechart-metric-model';
 import { MetricsFieldModel } from './metrics-field-model';
 import { AllMetricsFields } from './all-metrics-fields-model';
 import { ColorSchemeModel } from '../../models/color-scheme-model';
-import { ElastestESService } from '../../../services/elastest-es.service';
 import { ComplexMetricsModel } from './complex-metrics-model';
-import { components, defaultStreamMap } from '../../../defaultESData-model';
+import { defaultStreamMap } from '../../../defaultESData-model';
+import { MonitoringService } from '../../../services/monitoring.service';
 
 export class ESRabComplexMetricsModel extends ComplexMetricsModel {
-  elastestESService: ElastestESService;
+  monitoringService: MonitoringService;
+
   allMetricsFields: AllMetricsFields;
   activatedFieldsList: boolean[];
   monitoringIndex: string;
@@ -19,9 +20,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   rightChartOneAllData: LineChartMetricModel[];
   rightChartTwoAllData: LineChartMetricModel[];
 
-  constructor(elastestESService: ElastestESService, ignoreComponent: string = '') {
+  constructor(monitoringService: MonitoringService, ignoreComponent: string = '') {
     super();
-    this.elastestESService = elastestESService;
+    this.monitoringService = monitoringService;
+
     this.allMetricsFields = new AllMetricsFields(true, ignoreComponent); // Object with a list of all metrics
     this.initActivatedFieldsList();
     this.monitoringIndex = '';
@@ -78,7 +80,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   getAllMetrics(): void {
     for (let metric of this.allMetricsFields.fieldsList) {
-      this.elastestESService.searchAllMetrics(this.monitoringIndex, metric).subscribe((data: LineChartMetricModel[]) => {
+      this.monitoringService.getAllMetrics(this.monitoringIndex, metric).subscribe((data: LineChartMetricModel[]) => {
         switch (metric.unit) {
           case 'percent':
             this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
@@ -102,6 +104,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
             break;
         }
       });
+      // }
     }
   }
 
@@ -109,7 +112,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     let positionsList: number[] = this.allMetricsFields.getPositionsList(trace['et_type'], trace.component, trace.stream);
     for (let position of positionsList) {
       let metric: MetricsFieldModel = this.allMetricsFields.fieldsList[position];
-      let parsedData: SingleMetricModel = this.elastestESService.convertToMetricTrace(trace, metric);
+      let parsedData: SingleMetricModel = this.monitoringService.convertToMetricTrace(trace, metric);
       if (parsedData !== undefined) {
         this.addData(metric, [parsedData]);
       }
@@ -177,7 +180,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   // Simple Metric (Not default metric)
 
-  initSimpleMetricLineChart(name: string) {
+  initSimpleMetricLineChart(name: string): void {
     this.initLineChartByGivenListName('left', name);
   }
 
@@ -218,20 +221,20 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     let compareTrace: any = this.getOldTrace();
     if (this.isDefault()) {
       // Default chart
-      let position: number = 0;
+      // Load previous of all charts, not only this
       for (let metric of this.allMetricsFields.fieldsList) {
-        this.elastestESService
+        this.monitoringService
           .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, metric)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addData(metric, data[0].series);
               this.prevLoaded = true;
-              this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+              this.monitoringService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
             } else {
-              this.elastestESService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
+              this.monitoringService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
             }
           });
-        position++;
+        // }
       }
     } else {
       // Custom chart
@@ -239,15 +242,15 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
         (currentIndividualChart: MetricsFieldModel) => currentIndividualChart.name === this.name.split(' ').join('_'),
       );
       if (individualChart) {
-        this.elastestESService
+        this.monitoringService
           .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, individualChart)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addSimpleMetricTraces(data);
               this.prevLoaded = true;
-              this.elastestESService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+              this.monitoringService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
             } else {
-              this.elastestESService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
+              this.monitoringService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
             }
           });
       }
@@ -377,7 +380,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   loadLastTraces(size: number = 10): void {
     for (let metric of this.allMetricsFields.fieldsList) {
-      // this.elastestESService.getLastMetricTraces(this.monitoringIndex, metric, size);
+      // this.monitoringService.getLastMetricTraces(this.monitoringIndex, metric, size);
     } // TODO
   }
 }

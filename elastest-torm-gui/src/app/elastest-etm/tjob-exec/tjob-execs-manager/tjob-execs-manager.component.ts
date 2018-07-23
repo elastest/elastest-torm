@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
-import { IConfirmConfig, TdDataTableSortingOrder } from '@covalent/core';
+import { IConfirmConfig } from '@covalent/core';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 import { TitlesService } from '../../../shared/services/titles.service';
@@ -66,6 +66,9 @@ export class TJobExecsManagerComponent implements OnInit {
         this.loadFinishedTJobExecs().subscribe(
           (finishedTJobExecs: TJobExecModel[]) => {
             runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
+            if (this.loadAllFinished) {
+              finishedTJobExecs = finishedTJobExecs.reverse();
+            }
 
             this.tJobExecsFinished = finishedTJobExecs;
             this.tJobExecsRunning = runningTJobExecs;

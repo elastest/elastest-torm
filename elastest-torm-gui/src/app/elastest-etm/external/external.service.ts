@@ -12,7 +12,6 @@ import { ExternalTestCaseModel } from './external-test-case/external-test-case-m
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
-import { SutModel } from '../sut/sut-model';
 
 @Injectable()
 export class ExternalService {

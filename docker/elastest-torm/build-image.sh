@@ -13,4 +13,4 @@ shopt -s extglob
 mv $(echo !(*-sources|*-javadoc).jar) elastest-torm.jar
 
 # Create docker image
-docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S)  . -t elastest/etm:latest
+docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S)  . -t elastest/etm:$1

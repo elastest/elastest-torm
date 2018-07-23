@@ -16,10 +16,14 @@
  */
 package io.elastest.epm.client.json;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.Container.PortMapping;
 
 /**
  * Utility class for deserialize container info from docker-compose-ui.
@@ -30,6 +34,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DockerContainerInfo {
 
     List<DockerContainer> containers;
+
+    public DockerContainerInfo() {
+        containers = new ArrayList<>();
+    }
 
     public List<DockerContainer> getContainers() {
         return containers;
@@ -42,10 +50,10 @@ public class DockerContainerInfo {
 
     public static class DockerContainer {
 
-    	//TODO Problem with @JsonProperty and underscore
-    	boolean is_running; 
-    	
-    	//TODO Problem with @JsonProperty and underscore
+        // TODO Problem with @JsonProperty and underscore
+        boolean is_running;
+
+        // TODO Problem with @JsonProperty and underscore
         String name_without_project;
 
         String command;
@@ -97,6 +105,26 @@ public class DockerContainerInfo {
                     + getState() + ", getVolumes()=" + getVolumes() + "]";
         }
 
+        public void initFromContainer(Container container) {
+            this.command = container.command();
+            this.is_running = container.status().startsWith("Up");
+            this.labels = new Labels(container.labels());
+            if (container.names().size() > 0) {
+                this.name = container.names().get(0).replaceFirst("/", "");
+            }
+            Map<String, List<PortInfo>> portsMap = new HashMap<>();
+            for (PortMapping port : container.ports()) {
+                List<PortInfo> ports = new ArrayList<>();
+                ports.add(new PortInfo(port));
+
+                portsMap.put(port.privatePort() + "/tcp", ports);
+            }
+            this.ports = portsMap;
+
+            // this.volumes = container.getVolumes TODO docker java has not
+            // volumes
+        }
+
     }
 
     public static class Labels {
@@ -117,6 +145,13 @@ public class DockerContainerInfo {
 
         @JsonProperty("com.docker.compose.version")
         String version;
+
+        public Labels() {
+        }
+
+        public Labels(Map<String, String> labelsMap) {
+            this.initFromMap(labelsMap);
+        }
 
         public String getConfigHash() {
             return configHash;
@@ -151,15 +186,58 @@ public class DockerContainerInfo {
                     + ", getVersion()=" + getVersion() + "]";
         }
 
+        public void initFromMap(Map<String, String> labelsMap) {
+            if (!labelsMap.isEmpty()) {
+                if (labelsMap.containsKey("com.docker.compose.config-hash")) {
+                    this.configHash = labelsMap
+                            .get("com.docker.compose.config-hash");
+                }
+
+                if (labelsMap
+                        .containsKey("com.docker.compose.container-number")) {
+                    this.containerNumber = labelsMap
+                            .get("com.docker.compose.container-number");
+                }
+
+                if (labelsMap.containsKey("com.docker.compose.oneoff")) {
+                    this.oneoff = labelsMap.get("com.docker.compose.oneoff");
+                }
+
+                if (labelsMap.containsKey("com.docker.compose.project")) {
+                    this.project = labelsMap.get("com.docker.compose.project");
+                }
+
+                if (labelsMap.containsKey("com.docker.compose.service")) {
+                    this.service = labelsMap.get("com.docker.compose.service");
+                }
+
+                if (labelsMap.containsKey("com.docker.compose.version")) {
+                    this.version = labelsMap.get("com.docker.compose.version");
+                }
+            }
+        }
+
     }
 
     public static class PortInfo {
-        
-    	//TODO Problem with @JsonProperty and upper case
+
+        // TODO Problem with @JsonProperty and upper case
         String HostIp;
 
-    	//TODO Problem with @JsonProperty and upper case
+        // TODO Problem with @JsonProperty and upper case
         String HostPort;
+
+        public PortInfo() {
+        }
+
+        public PortInfo(PortMapping port) {
+            if (port != null) {
+                this.HostIp = port.ip();
+                this.HostPort = port.publicPort() != null
+                        ? port.publicPort().toString()
+                        : null;
+            }
+        }
 
         public String getHostIp() {
             return HostIp;

@@ -3,12 +3,11 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TestCaseService } from './test-case.service';
 import { TestCaseModel } from './test-case-model';
-import { ElastestESService } from '../../shared/services/elastest-es.service';
-import { TreeNode } from 'angular-tree-component/dist/defs/api';
 import { ElastestLogAnalyzerComponent } from '../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { FileModel } from '../files-manager/file-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
+import { MonitoringService } from '../../shared/services/monitoring.service';
 
 @Component({
   selector: 'etm-test-case',
@@ -25,7 +24,7 @@ export class TestCaseComponent implements OnInit {
 
   constructor(
     private testCaseService: TestCaseService,
-    private elastestESService: ElastestESService,
+    private monitoringService: MonitoringService,
     public route: ActivatedRoute,
     private titlesService: TitlesService,
     private router: Router,

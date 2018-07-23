@@ -20,6 +20,7 @@ export class TestSuitesViewComponent implements OnInit {
 
   testCaseColumns: any[] = [
     { name: 'result', label: 'Result' },
+    { name: 'logAnalyzer', label: 'Log' },
     { name: 'name', label: 'Name' },
     { name: 'time', label: 'Time (s)' },
     { name: 'failureMessage', label: 'Failure Msg' },
@@ -27,7 +28,6 @@ export class TestSuitesViewComponent implements OnInit {
     { name: 'failureErrorLine', label: 'Failure Error Line' },
     { name: 'failureDetail', label: 'Failure Detail' },
     { name: 'files', label: 'Files' },
-    { name: 'logAnalyzer', label: 'Log' },
   ];
 
   constructor(

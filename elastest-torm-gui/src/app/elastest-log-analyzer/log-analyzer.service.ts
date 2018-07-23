@@ -1,21 +1,16 @@
-import { ElastestESService } from '../shared/services/elastest-es.service';
-import { ESMatchModel, ESRangeModel, ESTermModel } from '../shared/elasticsearch-model/es-query-model';
-import { ESSearchModel } from '../shared/elasticsearch-model/elasticsearch-model';
 import { Observable, Subject } from 'rxjs/Rx';
 import { Http, Response } from '@angular/http';
 import { ETModelsTransformServices } from '../shared/services/et-models-transform.service';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
-import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
+import { MonitoringService } from '../shared/services/monitoring.service';
+import { LogAnalyzerQueryModel } from '../shared/loganalyzer-query.model';
 
 @Injectable()
 export class LogAnalyzerService {
   public startTestCasePrefix: string = '##### Start test: ';
   public endTestCasePrefix: string = '##### Finish test: ';
-
-  public streamType: string = 'log';
-  public streamTypeTerm: ESTermModel = new ESTermModel();
 
   public filters: string[] = ['@timestamp', 'message', 'level', 'et_type', 'component', 'stream', 'stream_type', 'exec'];
 
@@ -24,16 +19,9 @@ export class LogAnalyzerService {
   constructor(
     private http: Http,
     private configurationService: ConfigurationService,
-    public elastestESService: ElastestESService,
+    public monitoringService: MonitoringService,
     private eTModelsTransformServices: ETModelsTransformServices,
-  ) {
-    this.initStreamTypeTerm();
-  }
-
-  initStreamTypeTerm(): void {
-    this.streamTypeTerm.name = 'stream_type';
-    this.streamTypeTerm.value = this.streamType;
-  }
+  ) {}
 
   public getLogAnalyzerConfig(): Observable<LogAnalyzerConfigModel> {
     let url: string = this.configurationService.configModel.hostApi + '/loganalyzerconfig/';
@@ -70,65 +58,57 @@ export class LogAnalyzerService {
     });
   }
 
-  public initAndGetESModel(): ESSearchModel {
-    let esSearchModel: ESSearchModel = new ESSearchModel();
-
-    // Add term stream_type === 'log'
-    esSearchModel.body.boolQuery.bool.must.termList.push(this.streamTypeTerm);
-    esSearchModel.body.sort.sortMap.set('@timestamp', 'asc');
-    esSearchModel.body.sort.sortMap.set('_uid', 'asc'); // Sort by _id too to prevent traces of the same millisecond being disordered
-    return esSearchModel;
-  }
-
-  setRangeToEsSearchModelByGiven(
-    esSearchModel: ESSearchModel,
+  setTimeRangeToLogAnalyzerQueryModel(
+    logAnalyzerQueryModel: LogAnalyzerQueryModel,
     from: Date | string,
     to: Date | string,
     includedFrom: boolean = true,
     includedTo: boolean = true,
-  ): ESSearchModel {
-    esSearchModel.body.boolQuery.bool.must.range = this.elastestESService.getRangeByGiven(from, to, includedFrom, includedTo);
+  ): LogAnalyzerQueryModel {
+    logAnalyzerQueryModel.rangeLT = undefined;
+    logAnalyzerQueryModel.rangeGT = undefined;
+    logAnalyzerQueryModel.rangeGTE = undefined;
+    logAnalyzerQueryModel.rangeLTE = undefined;
+    if (includedFrom) {
+      logAnalyzerQueryModel.rangeGTE = from;
+    } else {
+      logAnalyzerQueryModel.rangeGT = from;
+    }
 
-    return esSearchModel;
+    if (includedTo) {
+      logAnalyzerQueryModel.rangeLTE = to;
+    } else {
+      logAnalyzerQueryModel.rangeLT = to;
+    }
+
+    return logAnalyzerQueryModel;
   }
 
-  setMatchByGivenEsSearchModel(msg: string = '', esSearchModel: ESSearchModel): ESSearchModel {
+  setMatchByGivenLogAnalyzerQueryModel(msg: string = '', logAnalyzerQueryModel: LogAnalyzerQueryModel): LogAnalyzerQueryModel {
     /* Message field by default */
     if (msg !== '') {
-      let messageMatch: ESMatchModel = new ESMatchModel();
-      messageMatch.field = 'message';
-      messageMatch.query = '*' + msg + '*';
-      messageMatch.type = 'phrase_prefix';
-      esSearchModel.body.boolQuery.bool.must.matchList.push(messageMatch);
+      logAnalyzerQueryModel.matchMessage = msg;
     }
-    return esSearchModel;
+    return logAnalyzerQueryModel;
   }
 
   searchTraceByGivenMsg(
     msg: string,
     indices: string[],
-    from: Date,
-    to: Date,
+    from: Date | string,
+    to: Date | string,
     maxResults: number = this.maxResults,
   ): Observable<any> {
-    let esSearchModel: ESSearchModel = this.initAndGetESModel();
+    let logAnalyzerQueryModel: LogAnalyzerQueryModel = new LogAnalyzerQueryModel();
 
-    esSearchModel.indices = indices;
-    esSearchModel.filterPathList = this.filters;
-    esSearchModel.body.size = this.maxResults;
+    logAnalyzerQueryModel.indices = indices;
+    logAnalyzerQueryModel.filterPathList = this.filters;
+    logAnalyzerQueryModel.size = this.maxResults;
 
-    esSearchModel = this.setRangeToEsSearchModelByGiven(esSearchModel, from, to);
+    logAnalyzerQueryModel = this.setTimeRangeToLogAnalyzerQueryModel(logAnalyzerQueryModel, from, to);
+    this.setMatchByGivenLogAnalyzerQueryModel(msg, logAnalyzerQueryModel);
 
-    this.setMatchByGivenEsSearchModel(msg, esSearchModel);
-
-    let searchUrl: string = esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: object = esSearchModel.getSearchBody();
-
-    return this.elastestESService.search(searchUrl, searchBody);
-  }
-
-  searchTJobExecTraceByGivenMsg(msg: string, tJobExec: TJobExecModel, maxResults: number = this.maxResults): Observable<any> {
-    return this.searchTraceByGivenMsg(msg, [tJobExec.monitoringIndex], tJobExec.startDate, tJobExec.endDate);
+    return this.monitoringService.searchLogAnalyzerQuery(logAnalyzerQueryModel);
   }
 
   searchTestCaseStartTrace(
@@ -168,14 +148,12 @@ export class LogAnalyzerService {
     let startFinishObj: StartFinishTestCaseTraces = new StartFinishTestCaseTraces();
 
     this.searchTestCaseStartTrace(caseName, indices, from, to).subscribe(
-      (startData: any) => {
-        startData = this.elastestESService.getDataListFromRaw(startData, false);
+      (startData: any[]) => {
         if (startData.length > 0) {
           let startRow: any = startData[0];
           let startDate: Date = new Date(startRow['@timestamp']);
 
-          this.searchTestCaseFinishTrace(caseName, indices, from, to).subscribe((finishData: any) => {
-            finishData = this.elastestESService.getDataListFromRaw(finishData, false);
+          this.searchTestCaseFinishTrace(caseName, indices, from, to).subscribe((finishData: any[]) => {
             if (finishData.length > 0) {
               let finishRow: any = finishData[0];
               let finishDate: Date = new Date(finishRow['@timestamp']);
@@ -221,21 +199,19 @@ export class LogAnalyzerService {
     maxResults: number = this.maxResults,
   ): void {
     // Obtain start/finish traces first
-    let esSearchModel: ESSearchModel = this.initAndGetESModel();
-    esSearchModel.filterPathList = this.filters;
-    esSearchModel.body.size = this.maxResults;
+    let logAnalyzerQueryModel: LogAnalyzerQueryModel = new LogAnalyzerQueryModel();
 
-    esSearchModel.body.searchAfter = startFinishObj.startRow.sort;
-    esSearchModel.indices = indices;
-    this.setRangeToEsSearchModelByGiven(esSearchModel, startFinishObj.startDate, startFinishObj.finishDate);
+    logAnalyzerQueryModel.indices = indices;
+    logAnalyzerQueryModel.filterPathList = this.filters;
+    logAnalyzerQueryModel.size = this.maxResults;
+
+    logAnalyzerQueryModel.searchAfterTrace = startFinishObj.startRow;
+
+    this.setTimeRangeToLogAnalyzerQueryModel(logAnalyzerQueryModel, startFinishObj.startDate, startFinishObj.finishDate);
 
     // Load Logs
-    let searchUrl: string = esSearchModel.getSearchUrl(this.elastestESService.esUrl);
-    let searchBody: object = esSearchModel.getSearchBody();
-
-    this.elastestESService.search(searchUrl, searchBody).subscribe(
-      (data: any) => {
-        let logs: any[] = this.elastestESService.getDataListFromRaw(data, false);
+    this.monitoringService.searchLogAnalyzerQuery(logAnalyzerQueryModel).subscribe(
+      (logs: any[]) => {
         let finishRowFullMsg: string = startFinishObj.finishRow.message;
         let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);
         if (finishObj) {
@@ -243,7 +219,7 @@ export class LogAnalyzerService {
           logs.splice(finishIndex);
         }
 
-        let procesedLogs: any = this.elastestESService.getLogsObjFromRawSource(logs);
+        let procesedLogs: any = this.monitoringService.getLogsObjFromRawSource(logs);
         _logs.next(procesedLogs);
       },
       (error) => {

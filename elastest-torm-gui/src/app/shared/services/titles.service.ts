@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
-import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { TestLinkService } from '../../etm-testlink/testlink.service';

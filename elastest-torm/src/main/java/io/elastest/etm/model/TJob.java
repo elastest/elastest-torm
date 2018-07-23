@@ -5,7 +5,9 @@ import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
@@ -22,15 +24,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -48,7 +54,8 @@ public class TJob {
     @JsonView({ BasicAttTJob.class, BasicAttProject.class,
             BasicAttTJobExec.class })
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
     @JsonProperty("id")
     private Long id = null;
@@ -416,5 +423,43 @@ public class TJob {
         }
 
         return false;
+    }
+
+    public Map<String, String> getTJobTSSConfigEnvVars(String tssName)
+            throws Exception {
+        Map<String, String> tssConfigEnvVars = new HashMap<>();
+        List<ObjectNode> tJobTssList = getSupportServicesObj();
+
+        for (ObjectNode tJobSuportService : tJobTssList) {
+            JsonNode tJobTssNameObj = tJobSuportService.get("name");
+            if (tJobTssNameObj != null && tssName
+                    .equals(UtilTools.stringFromJsonNode(tJobTssNameObj))) {
+                JsonNode selectedObj = tJobSuportService.get("selected");
+                if (selectedObj != null && selectedObj.asBoolean()) {
+                    JsonNode manifestObj = tJobSuportService.get("manifest");
+                    if (manifestObj != null) {
+                        JsonNode configObj = manifestObj.get("config");
+                        if (configObj != null) {
+                            Iterable<String> singleConfigNamesIterator = () -> configObj
+                                    .fieldNames();
+                            for (String singleConfigName : singleConfigNamesIterator) {
+                                JsonNode singleConfig = configObj
+                                        .get(singleConfigName);
+                                String envName = singleConfigName.replaceAll(
+                                        "([a-z])_?([A-Z])", "$1_$2");
+                                envName = "ET_CONFIG_" + envName.toUpperCase();
+                                JsonNode valueObj = singleConfig.get("value");
+                                if (valueObj != null) {
+                                    tssConfigEnvVars.put(envName,
+                                            valueObj.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return tssConfigEnvVars;
     }
 }
