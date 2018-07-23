@@ -32,7 +32,7 @@
 
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
-                        sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
+                        sh 'cd ./epm-client; mvn install -Dgpg.skip -Djenkins=true;'
                         
                     
                     stage "Build elastest-torm-gui"

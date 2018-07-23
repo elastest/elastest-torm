@@ -43,6 +43,8 @@ import com.spotify.docker.client.messages.PortBinding;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
+import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.ShellService;
 
 /**
@@ -52,8 +54,8 @@ import io.elastest.epm.client.service.ShellService;
  * @since 0.0.1
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { DockerService.class,
-        ShellService.class }, webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = { DockerService.class, ShellService.class,
+        EpmService.class, FilesService.class }, webEnvironment = RANDOM_PORT)
 @Tag("integration")
 @DisplayName("Integration test for Docker Service")
 @EnableAutoConfiguration
@@ -94,6 +96,7 @@ public class DockerIntegrationTest {
                         Integer.toString(dockerService.findRandomOpenPort()))));
 
         dockerBuilder.portBindings(portBindings);
+        dockerService.pullImage(imageId);
         dockerService.createAndStartContainer(dockerBuilder.build(), false);
 
         // Assertions

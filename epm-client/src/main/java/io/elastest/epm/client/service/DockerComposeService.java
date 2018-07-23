@@ -104,9 +104,9 @@ public class DockerComposeService {
         return dockerComposeProject;
     }
 
-    public List<DockerComposeContainer> listProjects() throws IOException {// TODO
+    public List<DockerComposeContainer> listProjects() throws IOException {
         logger.debug("List Docker Compose projects");
-        return (List<DockerComposeContainer>) projects.values();
+        return new ArrayList(projects.values());
     }
 
     public String getYaml(String projectName) throws IOException {

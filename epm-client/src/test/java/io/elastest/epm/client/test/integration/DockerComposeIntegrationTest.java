@@ -45,6 +45,8 @@ import io.elastest.epm.client.dockercompose.DockerComposeContainer;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
+import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.JsonService;
 import io.elastest.epm.client.service.ShellService;
 
@@ -56,7 +58,8 @@ import io.elastest.epm.client.service.ShellService;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { DockerComposeService.class, DockerService.class,
-        JsonService.class, ShellService.class }, webEnvironment = RANDOM_PORT)
+        JsonService.class, ShellService.class, EpmService.class,
+        FilesService.class }, webEnvironment = RANDOM_PORT)
 @Tag("integration")
 @DisplayName("Integration test for Docker Compose Service")
 @EnableAutoConfiguration
