@@ -41,10 +41,11 @@ public class PcapApiItTest {
 
         log.info("Starting sut");
 
-        DockerBuilder dockerBuilder = new DockerBuilder(
-                "elastest/test-etm-sut3");
+        String imageName = "elastest/test-etm-sut3";
+        DockerBuilder dockerBuilder = new DockerBuilder(imageName);
         dockerBuilder.containerName("sut_" + execId);
 
+        this.dockerEtmService.dockerService.pullImage(imageName);
         String sutContainerId = this.dockerEtmService.dockerService
                 .createAndStartContainer(dockerBuilder.build(), false);
 
