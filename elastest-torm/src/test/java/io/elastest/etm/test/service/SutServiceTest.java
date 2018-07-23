@@ -17,8 +17,13 @@ import org.mockito.Mockito;
 
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
+import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.service.SutService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 
@@ -35,25 +40,30 @@ public class SutServiceTest {
     @InjectMocks
     public SutService sutService;
 
-    public SutExecution sutExec;
-
+    public Long sutId;
     public SutSpecification sut;
+
+    public Long sutExecId;
+    public SutExecution sutExec;
 
     @BeforeEach
     public void setUp() {
-        sut = new SutSpecification();
-        sutExec = new SutExecution(1L, sut, null, null);
+        sutId = 1L;
+        sut = new SutSpecification(sutId, "sut name", "sut Specification",
+                "sut desc", new Project(), null, SutTypeEnum.MANAGED, false,
+                null, InstrumentedByEnum.ELASTEST, null,
+                ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
+        sutExecId = 1L;
+        sutExec = new SutExecution(sutExecId, sut, null, null);
     }
 
     @Test
     public void testUndeploySut() {
+        when(sutRepository.findById(sutId).get()).thenReturn(sut);
+        when(sutExecutionRepository.findByIdAndSutSpecification(sutExecId,
+                Mockito.any(SutSpecification.class))).thenReturn(sutExec);
 
-        when(sutRepository.findById(Mockito.anyLong()).get()).thenReturn(sut);
-        when(sutExecutionRepository.findByIdAndSutSpecification(
-                Mockito.anyLong(), Mockito.any(SutSpecification.class)))
-                        .thenReturn(sutExec);
-
-        sutService.undeploySut(1L, 1L);
+        sutService.undeploySut(sutId, sutExecId);
         assertTrue(sutExec.getDeployStatus()
                 .equals(SutExecution.DeployStatusEnum.UNDEPLOYED));
 
@@ -61,11 +71,11 @@ public class SutServiceTest {
 
     @Test
     public void testCreateSutExecutionById() {
-        when(sutRepository.findById(Mockito.anyLong()).get()).thenReturn(sut);
+        when(sutRepository.findById(sutId).get()).thenReturn(sut);
         when(sutExecutionRepository.save(Mockito.any(SutExecution.class)))
                 .thenReturn(sutExec);
 
-        SutExecution sutExec = sutService.createSutExecutionById(1L);
+        SutExecution sutExec = sutService.createSutExecutionById(sutId);
         assertTrue(sutExec.getSutSpecification().getId() == this.sut.getId());
     }
 
@@ -81,7 +91,7 @@ public class SutServiceTest {
 
     @Test
     public void testDeleteSutExec() {
-        when(sutExecutionRepository.findById(Mockito.anyLong()).get())
+        when(sutExecutionRepository.findById(sutExecId).get())
                 .thenReturn(sutExec);
 
         sutService.deleteSutExec(sutExec.getId());
@@ -97,23 +107,22 @@ public class SutServiceTest {
         when(sutExecutionRepository.findAll()).thenReturn(sutExecutions);
 
         List<SutExecution> sutExecutionsResult = sutService
-                .getAllSutExecBySutId(1L);
+                .getAllSutExecBySutId(sutId);
         assertTrue(sutExecutionsResult.size() == 2);
     }
 
     @Test
     public void testGetSutExecutionById() {
-        when(sutExecutionRepository.findById(Mockito.anyLong()).get())
+        when(sutExecutionRepository.findById(sutExecId).get())
                 .thenReturn(sutExec);
 
-        SutExecution sutExecLocal = sutService
-                .getSutExecutionById(Mockito.anyLong());
-        assertTrue(sutExecLocal.getId() == 1L);
+        SutExecution sutExecLocal = sutService.getSutExecutionById(sutExecId);
+        assertTrue(sutExecLocal.getId() == sutExecId);
     }
 
     @Test
     public void testModifySutExec() {
-        when(sutExecutionRepository.findById(Mockito.anyLong()).get())
+        when(sutExecutionRepository.findById(sutExecId).get())
                 .thenReturn(sutExec);
         when(sutExecutionRepository.save(Mockito.any(SutExecution.class)))
                 .thenReturn(sutExec);
