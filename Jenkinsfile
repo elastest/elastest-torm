@@ -73,11 +73,6 @@
                     sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
 
 
-                stage "Build elastest-torm"
-                    echo ("Build elastest-torm")
-                    sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./elastest-torm; mvn -Pci package;'
-
-
                 stage "Create etm docker image"
                     echo ("Creating elastest/etm image..")                
                     sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./docker/elastest-torm; ./build-image.sh ${TAG};'
