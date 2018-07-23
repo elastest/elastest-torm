@@ -1,0 +1,3 @@
+name: example-name
+type: docker-compose
+pop: pop-name # OPTIONAL: specify the name of the pop for deploying the package

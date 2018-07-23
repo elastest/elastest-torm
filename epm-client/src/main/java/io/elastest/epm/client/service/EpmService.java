@@ -43,15 +43,17 @@ public class EpmService {
     private final int MAX_ATTEMPTS = 10;
     private final int TIME_BETWEEN_ATTEMPTS = 15;
 
+    @Value("${et.shared.folder}")
+    private String sharedFolder;
     @Value("${et.epm.packages.path}")
     private String packageFilePath;
     @Value("${et.epm.key.path}")
     private String keyFilePath;
+    public static String composePackageFilePath;
+    public static String sharedDataTmpFolder;
     public static boolean etMasterSlaveMode;
-
     private FilesService filesService;
     private RemoteEnvironment re;
-
     private PackageApi packageApiInstance;
     private WorkerApi workerApiInstance;
     private KeyApi keyApiInstance;
@@ -93,6 +95,17 @@ public class EpmService {
         etMasterSlaveMode = isMasterSlaveMode;
     }
 
+    @Value("${et.shared.data.tmp.folder}")
+    public String setSharedDataTmpFolder() {
+        return sharedDataTmpFolder;
+    }
+
+    @Value("${et.epm.compose.packages.path}")
+    public static void setComposePackageFilePath(
+            String composePackageFilePath) {
+        EpmService.composePackageFilePath = composePackageFilePath;
+    }
+
     @PostConstruct
     public void initRemoteenvironment() {
         if (etMasterSlaveMode) {
@@ -107,7 +120,7 @@ public class EpmService {
     }
 
     @PreDestroy
-    public void endRemoteenvironment() {
+    public void endRemoteEnvironment() {
         if (etMasterSlaveMode) {
             logger.info("Removing slave");
             try {
@@ -127,13 +140,14 @@ public class EpmService {
 
         try {
             // Providing VM
-            resourceGroup = registerAdapter(packageFilePath);
+            resourceGroup = sendPackage(packageFilePath, "m1tub.tar",
+                    sharedFolder + "/tmp" + "/ansible");
             re.setResourceGroup(resourceGroup);
             logger.debug("Virtual machine provided with id: {}",
                     resourceGroup.getId());
             // Registering privated key
-            Key key = addKey(
-                    filesService.getFileFromResources(keyFilePath, "key.json"));
+            Key key = addKey(filesService.getFileFromResources(keyFilePath,
+                    "key.json", sharedFolder + "/tmp" + "/ansible"));
             logger.debug("Key {} value: {}", key.getName(), key.getKey());
             re.setKey(key);
             int currentAttempts = 0;
@@ -169,7 +183,7 @@ public class EpmService {
             } else {
                 throw new ServiceException(
                         "Error provisioning a new remote environment",
-                        e.getCause());
+                        e.getCause(), ExceptionCode.ERROR_PROVISIONING_VM);
             }
         }
 
@@ -202,22 +216,38 @@ public class EpmService {
         }.getType());
     }
 
-    public ResourceGroup registerAdapter(String packagePath)
-            throws ServiceException {
+    public ResourceGroup sendPackage(String packagePath, String packageName,
+            String tmpFolder) throws ServiceException {
         logger.info("Registering adapter described in the file: {}",
                 packagePath);
         ResourceGroup result = null;
         try {
             File file = filesService.getFileFromResources(packagePath,
-                    "m1tub.tar");
+                    packageName, tmpFolder);
             result = packageApiInstance.receivePackage(file);
             logger.debug("New instance id: {} ", result.getId());
             logger.debug(String.valueOf(result));
         } catch (ApiException | IOException | URISyntaxException re) {
             re.printStackTrace();
-            throw new ServiceException(
-                    "Error provisioning a new remote environment",
-                    re.getCause(), ExceptionCode.ERROR_DEPROVISIONING_VM);
+            throw new ServiceException("Error sending package", re.getCause(),
+                    ExceptionCode.ERROR_SENDING_PACKAGE);
+        }
+
+        return result;
+    }
+    
+    public ResourceGroup sendPackage(File packageFile) throws ServiceException {
+        logger.info("Registering adapter described in the file: {}",
+                packageFile.getName());
+        ResourceGroup result = null;
+        try {            
+            result = packageApiInstance.receivePackage(packageFile);
+            logger.debug("New instance id: {} ", result.getId());
+            logger.debug(String.valueOf(result));
+        } catch (ApiException ae) {
+            ae.printStackTrace();
+            throw new ServiceException("Error sending package", ae.getCause(),
+                    ExceptionCode.ERROR_SENDING_PACKAGE);
         }
 
         return result;

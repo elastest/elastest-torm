@@ -8,6 +8,7 @@ public class ServiceException extends Exception {
     public enum ExceptionCode {
         ERROR_PROVISIONING_VM(1),
         ERROR_DEPROVISIONING_VM(2),
+        ERROR_SENDING_PACKAGE(3),
         GENERIC_ERROR(10);
 
         private int code;
