@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.service.DockerEtmService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilTools;
 
@@ -29,7 +29,7 @@ public class DockerServiceUnitTest {
 
     @Autowired
     @InjectMocks
-    public DockerEtmService dockerEtmService;
+    public DockerService dockerService;
 
     String image = "elastest/test-etm-test1";
 
@@ -40,9 +40,8 @@ public class DockerServiceUnitTest {
 
     @Test
     public void inspectImageTest() throws Exception {
-        this.dockerEtmService.dockerService.pullImage(image);
-        ImageInfo imageInfo = this.dockerEtmService.dockerService
-                .getImageInfoByName(image);
+        this.dockerService.pullImage(image);
+        ImageInfo imageInfo = this.dockerService.getImageInfoByName(image);
         assertNotNull(imageInfo);
     }
 
@@ -55,20 +54,18 @@ public class DockerServiceUnitTest {
         DockerBuilder dockerBuilder = new DockerBuilder(image);
         dockerBuilder.containerName(containerName);
 
-        String containerId = this.dockerEtmService.dockerService
+        String containerId = this.dockerService
                 .createAndStartContainer(dockerBuilder.build(), false);
         logger.info("Container {} started with id {}", containerName,
                 containerId);
 
-        assertTrue(this.dockerEtmService.dockerService
-                .existsContainer(containerName));
+        assertTrue(this.dockerService.existsContainer(containerName));
 
         logger.info("Stopping container {}", containerName);
-        this.dockerEtmService.dockerService.stopDockerContainer(containerId);
+        this.dockerService.stopDockerContainer(containerId);
         logger.info("Removing container {}", containerName);
-        this.dockerEtmService.removeDockerContainer(containerId);
-        assertFalse(this.dockerEtmService.dockerService
-                .existsContainer(containerName));
+        this.dockerService.removeDockerContainer(containerId);
+        assertFalse(this.dockerService.existsContainer(containerName));
     }
 
 }
