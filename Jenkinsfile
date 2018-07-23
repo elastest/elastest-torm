@@ -8,8 +8,8 @@
                 def mycontainer = docker.image('elastest/ci-docker-compose-siblings:node7-npm4')
                 mycontainer.pull() // make sure we have the latest available from Docker Hub
                 mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
-                def epmClientJavaDirectory = 'epm-client-java'
-                //withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {
+                    def epmClientJavaDirectory = 'epm-client-java'
+
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
                         if (epmClientDirectoryExists) {
@@ -39,52 +39,49 @@
                         sh 'export PATH=$MVN_CMD_DIR:$PATH;cd ./elastest-torm-gui; npm install; mvn package;'
                         
                     
-                     stage "Build elastest-torm"
-                         echo ("Build elastest-torm")
-                         sh 'cd ./elastest-torm; mvn -Pci package;'
+                    stage "Build elastest-torm"
+                        echo ("Build elastest-torm")
+                        sh 'cd ./elastest-torm; mvn -Pci package;'
                         
                     
-                      stage "Unit Test elastest-torm"
-                         echo ("Starting TORM unit tests")
-                         withMaven(maven: 'mvn3.3.9', mavenSettingsConfig: '0e7fd7e6-77b0-4ea2-b808-e8164667a6eb') {    
-                             sh 'cd ./elastest-torm; mvn -Pci-no-it-test test;'
-                             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-                         }
+                    stage "Unit Test elastest-torm"
+                        echo ("Starting TORM unit tests")
+                        sh 'cd ./elastest-torm; mvn -Pci-no-it-test test;'
+                        step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
                         
-                     stage "Test DB changes"
-                         echo ("Test DB changes")
-                         sh 'cd ./scripts/db; ls -lrt; chmod +777 test-liquibase-changelogs.sh;./test-liquibase-changelogs.sh;' 
+                    stage "Test DB changes"
+                        echo ("Test DB changes")
+                        sh 'cd ./scripts/db; ls -lrt; chmod +777 test-liquibase-changelogs.sh;./test-liquibase-changelogs.sh;' 
                         
-                     stage ("IT Test elastest-torm")
-                         echo ("Starting TORM integration tests")
-                         try{
-                             sh 'cd ./scripts; ./it.sh'
-                             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-                         } catch (err) {
-                             currentBuild.result = "UNSTABLE"
-                             throw err
-                         }
-                //    }
+                    stage ("IT Test elastest-torm")
+                        echo ("Starting TORM integration tests")
+                        try{
+                            sh 'cd ./scripts; ./it.sh'
+                            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+                        } catch (err) {
+                            currentBuild.result = "UNSTABLE"
+                            throw err
+                        }
 
-                stage "Upload coverage and quality reports"
-                    echo ("Upload reports to SonarCloud and Codecov")
+                    stage "Upload coverage and quality reports"
+                        echo ("Upload reports to SonarCloud and Codecov")
 
-                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
-                    sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
+                        sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
+                        sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
 
 
-                stage "Create etm docker image"
-                    echo ("Creating elastest/etm image..")                
-                    sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./docker/elastest-torm; ./build-image.sh ${TAG};'
+                    stage "Create etm docker image"
+                        echo ("Creating elastest/etm image..")                
+                        sh 'export PATH=$MVN_CMD_DIR:$PATH; cd ./docker/elastest-torm; ./build-image.sh ${TAG};'
 
-                stage "Publish etm docker image"
-                    echo ("Publish elastest/etm image")
-                    def myimage = docker.image('elastest/etm:${TAG}')
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                        myimage.push()
-                    }
+                    stage "Publish etm docker image"
+                        echo ("Publish elastest/etm image")
+                        def myimage = docker.image('elastest/etm:${TAG}')
+                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                            sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                            myimage.push()
+                        }
                 }
 
 
