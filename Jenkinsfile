@@ -25,14 +25,11 @@
                         }
                         
                         echo 'Installing epm-client-java'
-                            sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
+                        sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
                         
-
-                    git url: 'https://github.com/elastest/elastest-torm.git', branch: 'et-mini'
-
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
-                        sh 'cd ./epm-client; mvn install -DskipTests -Djenkins=true;'
+                        sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
                     
                     stage "Build elastest-torm-gui"
                         echo ("Build elastest-torm-gui")                        
