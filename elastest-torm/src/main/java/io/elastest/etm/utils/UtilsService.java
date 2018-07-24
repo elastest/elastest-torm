@@ -45,8 +45,6 @@ public class UtilsService {
     }
 
     public boolean isEtmInContainer() {
-        System.out.println("asdasd");
-        System.out.println(inContainer);
         return "true".equals(inContainer);
     }
 
