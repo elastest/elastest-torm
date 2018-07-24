@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -22,7 +23,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.LogConfig;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
@@ -57,6 +57,7 @@ public class DockerServiceItTest {
     }
 
     @Test
+    @Disabled
     public void readLogInRabbit() throws Exception {
 
         String imageId = "alpine";
