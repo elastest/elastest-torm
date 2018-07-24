@@ -21,6 +21,8 @@ public class EtmContextAuxService {
     public String etPublicHost;
     @Value("${et.in.prod}")
     public boolean etInProd;
+    @Value("${et.etm.incontainer}")
+    private static boolean etmInContainer;
 
     @Value("${et.proxy.port}")
     public String etProxyPort;
@@ -162,16 +164,16 @@ public class EtmContextAuxService {
             }
         }
 
-        if (etInProd) {
+        if (etInProd && etmInContainer) {
             contextInfo.setLogstashHttpUrl("http://" + proxyIp + ":" + proxyPort
                     + logstashPathWithProxy);
             contextInfo.setLogstashSSLHttpUrl("https://" + proxyIp + ":"
                     + proxySslPort + logstashPathWithProxy);
         } else {
-            contextInfo.setLogstashHttpUrl("http://" + logstashOrEtmMiniHost + ":"
-                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
-            contextInfo.setLogstashSSLHttpUrl("http://" + logstashOrEtmMiniHost + ":"
-                    + additionalServerPort + etMiniEtmMonitoringHttpPath);
+            contextInfo.setLogstashHttpUrl("http://" + logstashOrEtmMiniHost
+                    + ":" + additionalServerPort + etMiniEtmMonitoringHttpPath);
+            contextInfo.setLogstashSSLHttpUrl("http://" + logstashOrEtmMiniHost
+                    + ":" + additionalServerPort + etMiniEtmMonitoringHttpPath);
         }
 
         contextInfo.setLogstashIp(logstashOrEtmMiniHost);

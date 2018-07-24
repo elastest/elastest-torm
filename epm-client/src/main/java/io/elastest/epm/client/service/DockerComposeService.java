@@ -62,7 +62,7 @@ import io.elastest.epm.client.json.DockerContainerInfo;
 @PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DockerComposeService {
-    
+
     @Autowired
     EpmService epmService;
 
@@ -276,8 +276,8 @@ public class DockerComposeService {
         if (override) {
             file.delete();
         }
-        
-        file.getParentFile().mkdirs();
+
+        file.mkdirs();
         FileUtils.writeStringToFile(file, project.getYml(),
                 StandardCharsets.UTF_8);
         return ResourceUtils.getFile(filePath);
