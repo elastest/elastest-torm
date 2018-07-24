@@ -67,7 +67,7 @@ public class DockerEtmService {
     private static final Map<String, String> createdContainers = new HashMap<>();
 
     @Value("${logstash.host:#{null}}")
-    private String logstashHost;
+    private String logstashOrMiniHost;
 
     @Value("${et.etm.lstcp.port}")
     private String logstashTcpPort;
@@ -177,8 +177,8 @@ public class DockerEtmService {
     }
 
     private void initLogstashHostIfNecessary() throws Exception {
-        if (logstashHost == null) {
-            logstashHost = this.getLogstashHost();
+        if (logstashOrMiniHost == null) {
+            logstashOrMiniHost = this.getLogstashHost();
         }
     }
 
@@ -424,7 +424,7 @@ public class DockerEtmService {
         String envVar;
 
         // Get Parameters and insert into Env Vars¡
-        String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashHost;
+        String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
         if (tJob.isSelectedService("ems")) {
             String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
             String testRegex = "^test" + regexSuffix;
@@ -463,8 +463,8 @@ public class DockerEtmService {
         dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
 
         DockerContainer dockerContainer = dockerBuilder.build();
-        String containerId = dockerService
-                .createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
+        String containerId = dockerService.createAndStartContainer(
+                dockerContainer, EpmService.etMasterSlaveMode);
         this.insertCreatedContainer(containerId, containerName);
 
         try {
@@ -514,8 +514,8 @@ public class DockerEtmService {
             logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
             // Create and start container
-            String sutContainerId = dockerService
-                    .createAndStartContainer(dockerExec.getAppContainer(), EpmService.etMasterSlaveMode);
+            String sutContainerId = dockerService.createAndStartContainer(
+                    dockerExec.getAppContainer(), EpmService.etMasterSlaveMode);
             dockerExec.setAppContainerId(sutContainerId);
 
             String sutName = getSutName(dockerExec);
@@ -551,8 +551,8 @@ public class DockerEtmService {
             dockerBuilder.network(dockerExec.getNetwork());
 
             DockerContainer dockerContainer = dockerBuilder.build();
-            String checkContainerId = dockerService
-                    .createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
+            String checkContainerId = dockerService.createAndStartContainer(
+                    dockerContainer, EpmService.etMasterSlaveMode);
 
             this.insertCreatedContainer(checkContainerId, checkName);
 
@@ -605,8 +605,9 @@ public class DockerEtmService {
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
             // Create and start container
-            String testContainerId = dockerService
-                    .createAndStartContainer(dockerExec.getTestcontainer(), EpmService.etMasterSlaveMode);
+            String testContainerId = dockerService.createAndStartContainer(
+                    dockerExec.getTestcontainer(),
+                    EpmService.etMasterSlaveMode);
             dockerExec.setTestContainerId(testContainerId);
 
             resultMsg = "Executing Test";
@@ -649,6 +650,19 @@ public class DockerEtmService {
         return logConfig;
     }
 
+    public LogConfig getLogstashOrMiniLogConfig(String tag) {
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put("tag", tag);
+
+        LogConfig logConfig = null;
+
+        configMap.put("syslog-address",
+                "tcp://" + logstashOrMiniHost + ":" + logstashTcpPort);
+        logConfig = LogConfig.create("syslog", configMap);
+
+        return logConfig;
+    }
+
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) throws Exception {
 
@@ -656,9 +670,9 @@ public class DockerEtmService {
         port = masterSlavemode ? bindedLsTcpPort : port;
         logger.info(
                 "Logstash/Tcp Server Host to send logs from containers: {}. To port {}",
-                logstashHost, port);
+                logstashOrMiniHost, port);
 
-        return this.getLogConfig(logstashHost, port, tagPrefix, tagSuffix,
+        return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix,
                 dockerExec);
     }
 

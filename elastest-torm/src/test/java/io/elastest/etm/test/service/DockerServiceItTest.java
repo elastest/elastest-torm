@@ -3,8 +3,6 @@ package io.elastest.etm.test.service;
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -18,16 +16,13 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.exceptions.ImageNotFoundException;
 import com.spotify.docker.client.messages.LogConfig;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
@@ -46,11 +41,6 @@ public class DockerServiceItTest {
     @LocalServerPort
     int serverPort;
 
-    @Value("${logstash.host:#{null}}")
-    private String logstashHost;
-
-    private DockerClient dockerClient;
-
     @Autowired
     private DockerEtmService dockerEtmService;
 
@@ -58,8 +48,6 @@ public class DockerServiceItTest {
     public void before() throws Exception {
         log.info(
                 "-------------------------------------------------------------------------");
-
-        dockerClient = dockerEtmService.dockerService.getDockerClient(false);
     }
 
     @AfterEach
@@ -73,17 +61,15 @@ public class DockerServiceItTest {
 
         String imageId = "alpine";
 
-        if (!existsImage(imageId)) {
-            log.info("Pulling image '{}'", imageId);
-            dockerClient.pull(imageId);
-        }
+        log.info("Pulling image '{}'", imageId);
+        dockerEtmService.pullETExecImage(imageId, imageId, false);
 
         String queueId = "test.default_log.1.log";
         String tag = "test_1_exec";
 
         WaitForMessagesHandler handler = connectToRabbitQueue(queueId);
 
-        LogConfig logConfig = getLogConfig(tag);
+        LogConfig logConfig = dockerEtmService.getLogstashOrMiniLogConfig(tag);
 
         log.info("Creating and starting container");
 
@@ -120,12 +106,8 @@ public class DockerServiceItTest {
             try {
                 log.info("Removing container " + containerId);
 
-                try {
-                    dockerClient.stopContainer(containerId, 60);
-                } catch (Exception ex) {
-                    log.warn("Error stopping container {}", containerId, ex);
-                }
-                dockerClient.removeContainer(containerId);
+                dockerEtmService.dockerService
+                        .stopAndRemoveContainer(containerId);
             } catch (Exception ex) {
                 log.warn("Error on ending test execution {}", containerId, ex);
             }
@@ -134,35 +116,13 @@ public class DockerServiceItTest {
 
     public boolean existsImage(String imageId)
             throws DockerException, InterruptedException {
-        boolean exists = true;
-        try {
-            dockerClient.inspectImage(imageId);
+        boolean exists = dockerEtmService.dockerService.existsImage(imageId);
+        if (exists) {
             log.debug("Docker image {} already exists", imageId);
-
-        } catch (ImageNotFoundException e) {
-            log.trace("Image {} does not exist", imageId);
-            exists = false;
+        } else {
+            log.debug("Image {} does not exist", imageId);
         }
         return exists;
-    }
-
-    private LogConfig getLogConfig(String tag)
-            throws DockerException, InterruptedException {
-
-        if (logstashHost == null) {
-            logstashHost = dockerClient.inspectNetwork("bridge").ipam().config()
-                    .get(0).gateway();
-        }
-
-        log.info("Logstash IP to send logs from containers: {}", logstashHost);
-
-        Map<String, String> configMap = new HashMap<String, String>();
-        configMap.put("syslog-address", "tcp://" + logstashHost + ":" + 5000);
-        configMap.put("tag", tag);
-
-        LogConfig logConfig = LogConfig.create("syslog", configMap);
-
-        return logConfig;
     }
 
     private WaitForMessagesHandler connectToRabbitQueue(String queueId)
