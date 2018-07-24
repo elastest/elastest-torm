@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -38,6 +39,9 @@ public class DockerServiceItTest {
     private static final Logger log = LoggerFactory
             .getLogger(DockerServiceItTest.class);
 
+    @Value("${elastest.docker.network}")
+    private String elastestNetwork;
+
     @LocalServerPort
     int serverPort;
 
@@ -57,7 +61,6 @@ public class DockerServiceItTest {
     }
 
     @Test
-    @Disabled
     public void readLogInRabbit() throws Exception {
 
         String imageId = "alpine";
@@ -80,7 +83,7 @@ public class DockerServiceItTest {
         dockerBuilder.logConfig(logConfig);
         dockerBuilder.cmd(Arrays.asList("/bin/sh", "-c",
                 "while true; do echo hello; sleep 1; done"));
-        dockerBuilder.network("bridge");
+        dockerBuilder.network(elastestNetwork);
 
         long start = System.currentTimeMillis();
         String containerId = dockerEtmService.dockerService
