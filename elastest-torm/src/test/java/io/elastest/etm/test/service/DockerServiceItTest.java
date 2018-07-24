@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -41,7 +42,7 @@ public class DockerServiceItTest {
     @Value("${elastest.docker.network}")
     private String elastestNetwork;
 
-    @Value("${server.port}")
+    @LocalServerPort
     int serverPort;
 
     @Autowired
@@ -60,6 +61,7 @@ public class DockerServiceItTest {
     }
 
     @Test
+//    @Disabled
     public void readLogInRabbit() throws Exception {
 
         String imageId = "alpine";
