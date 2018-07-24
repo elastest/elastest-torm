@@ -71,6 +71,8 @@ public class DockerServiceItTest {
 
         LogConfig logConfig = dockerEtmService.getLogstashOrMiniLogConfig(tag);
 
+        log.info("Log config: {} -> {}", logConfig.logType(),
+                logConfig.logOptions());
         log.info("Creating and starting container");
 
         DockerBuilder dockerBuilder = new DockerBuilder(imageId);
