@@ -36,11 +36,7 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services
-<<<<<<< HEAD
-            - ET_SHARED_FOLDER=/shared-data
-=======
             - ET_SHARED_FOLDER=/shared-data/
->>>>>>> et-mini
             - ET_PROXY_PORT=37000
             - ET_PROXY_HOST=etm-proxy
             - ET_IN_PROD=true
@@ -50,10 +46,7 @@ services:
             - ET_DOCKER_IMG_DOCKBEAT=elastest/etm-dockbeat:latest
             - ET_INTERNET_DISABLED=false
             - ET_MASTER_SLAVE_MODE=false
-<<<<<<< HEAD
             - ET_EPM_BINDED_PORT=8180
-=======
->>>>>>> et-mini
         entrypoint: /run.sh
         expose:
             - 8091

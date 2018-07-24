@@ -8,21 +8,36 @@ import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessOutput;
 import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+
+import io.elastest.epm.client.model.ResourceGroup;
+import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.FilesService;
+import io.elastest.epm.client.service.ServiceException;
 
 /**
  * Container which launches Docker Compose, for the purposes of launching a
@@ -45,6 +60,8 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private List<String> imagesList = new ArrayList<>();
     boolean started = false;
 
+    EpmService epmService;
+    private String basePath;
     /* ******************** */
     /* *** Constructors *** */
     /* ******************** */
@@ -54,22 +71,26 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     }
 
     public DockerComposeContainer(List<File> composeFiles) {
-        this(Base58.randomString(6).toLowerCase(), true, composeFiles);
+        this(Base58.randomString(6).toLowerCase(), true, null, null,
+                composeFiles);
     }
 
     public DockerComposeContainer(String identifier, File... composeFiles) {
-        this(identifier, false, Arrays.asList(composeFiles));
+        this(identifier, false, null, null, Arrays.asList(composeFiles));
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            File... composeFiles) {
-        this(identifier, withUniqueId, Arrays.asList(composeFiles));
+            EpmService epmService, String basePath, File... composeFiles) {
+        this(identifier, withUniqueId, epmService, basePath,
+                Arrays.asList(composeFiles));
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            List<File> composeFiles) {
+            EpmService epmService, String basePath, List<File> composeFiles) {
         this.composeFiles = composeFiles;
         this.identifier = identifier;
+        this.epmService = epmService;
+        this.basePath = basePath;
 
         if (withUniqueId) {
             project = randomProjectId();
@@ -82,7 +103,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     /* **** Methods **** */
     /* ***************** */
 
-    public void start() throws InterruptedException {
+    public void start() throws InterruptedException, ServiceException {
         synchronized (MUTEX) {
             if (pull) {
                 runWithCompose("pull");
@@ -96,13 +117,24 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
         }
     }
 
-    private ProcessResult runWithCompose(String cmd) {
+    private ProcessResult runWithCompose(String cmd) throws ServiceException {
         final DockerCompose dockerCompose;
-        dockerCompose = new LocalDockerCompose(composeFiles, project);
-        return dockerCompose.withCommand(cmd).withEnv(env).invoke();
+        ProcessResult processResult;
+
+        if (EpmService.etMasterSlaveMode && epmService != null) {
+            dockerCompose = new RemoteDockerCompose(composeFiles.get(0),
+                    this.composeYmlList.get(0), project, epmService, basePath);
+            processResult = dockerCompose.invoke();
+        } else {
+            dockerCompose = new LocalDockerCompose(composeFiles, project);
+            processResult = dockerCompose.withCommand(cmd).withEnv(env)
+                    .invoke();
+        }
+
+        return processResult;
     }
 
-    private void applyScaling() {
+    private void applyScaling() throws ServiceException {
         // Apply scaling
         if (!scalingPreferences.isEmpty()) {
             StringBuilder sb = new StringBuilder("scale");
@@ -116,11 +148,13 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
         }
     }
 
-    public void stop() {
+    public void stop() throws IOException {
         synchronized (MUTEX) {
             try {
                 // Kill the services using docker-compose
                 runWithCompose("down -v");
+            } catch (ServiceException se) {
+                throw new IOException(se.getMessage(), se.getCause());
             } finally {
                 project = randomProjectId();
             }
@@ -216,6 +250,124 @@ interface DockerCompose {
         checkNotNull(composeFiles);
         checkArgument(!composeFiles.isEmpty(),
                 "No docker compose file have been provided");
+    }
+}
+
+class RemoteDockerCompose implements DockerCompose {
+    final Logger logger = getLogger(lookup().lookupClass());
+
+    private final File composeFile;
+    private final String composeYml;
+    private final String identifier;
+    private final EpmService epmService;
+    private final String basePath;
+
+    public RemoteDockerCompose(File composeFile, String composeYml,
+            String identifier, EpmService epmService, String basePath) {
+        this.composeFile = composeFile;
+        this.composeYml = composeYml;
+        this.identifier = identifier;
+        this.epmService = epmService;
+        this.basePath = basePath;
+    }
+
+    @Override
+    public DockerCompose withCommand(String cmd) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public DockerCompose withEnv(Map<String, String> env) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProcessResult invoke() {
+        WebApplicationContext context = ContextLoader
+                .getCurrentWebApplicationContext();
+        FilesService filesService = context.getBean(FilesService.class);
+
+        String packageDirPath = filesService.createTempFolderName(basePath,
+                "compose-package");
+        File packageDir = new File(packageDirPath);
+        logger.info("Folder's name: {}", packageDirPath);
+        packageDir.mkdirs();
+
+        // Prepare metadata file
+        String metadataContent;
+        try {
+            metadataContent = filesService.readFile(filesService
+                    .getFileFromResources(EpmService.composePackageFilePath,
+                            "metadata.yaml", basePath));
+            HashMap<String, String> ymlMap = stringYmlToMap(metadataContent);
+            ymlMap.put("pop-name", epmService
+                    .getPopName(epmService.getRe().getHostIp(), "compose"));
+            String metadataFilePath = packageDirPath + "/metadata.yaml";
+            File metadataFile = new File(metadataFilePath);
+            logger.info("Folder's name: {}", packageDirPath);
+            filesService.writeFileFromString(simpleYmlMapToString(ymlMap),
+                    metadataFile);
+
+        } catch (Exception e) {
+            throw new ContainerLaunchException(
+                    "Error reading the metadata template file.");
+        }
+
+        // Prepare compose fileCreate package as tar file
+        try {
+            String composeFilePath = packageDirPath + "/docker-compose.yml";
+            File composeFile = new File(composeFilePath);
+            filesService.writeFileFromString(composeYml, composeFile);
+        } catch (Exception e) {
+            throw new ContainerLaunchException(
+                    "Error creating the compose file to send to the EPM.");
+        }
+
+        // Create package as tar file
+        File packageTarFile = null;
+        try {
+            packageTarFile = filesService.createTarFile(packageDirPath,
+                    packageDir);
+        } catch (IOException e) {
+            throw new ContainerLaunchException(
+                    "Error creating a new package to send to the EPM.");
+        }
+
+        // Send package to the EPM
+        try {
+            ResourceGroup result = epmService.sendPackage(packageTarFile);
+        } catch (ServiceException e) {
+            throw new ContainerLaunchException(
+                    "Error sending a package to the EPM.");
+        }
+
+        BigInteger bIng = BigInteger.valueOf(0);
+        return new ProcessResult(0, new ProcessOutput(bIng.toByteArray()));
+    }
+
+    private HashMap<String, String> stringYmlToMap(String yml)
+            throws Exception {
+        if (yml != null && !yml.isEmpty()) {
+            YAMLFactory yf = new YAMLFactory();
+            ObjectMapper mapper = new ObjectMapper(yf);
+            Object object;
+            object = mapper.readValue(yml, Object.class);
+
+            return (HashMap) object;
+        } else {
+            throw new Exception("Error on get yml services: the yml is empty");
+        }
+    }
+
+    private String simpleYmlMapToString(HashMap<String, String> ymlMap)
+            throws IOException {
+        YAMLFactory yf = new YAMLFactory();
+        StringWriter writer = new StringWriter();
+
+        yf.createGenerator(writer).writeObject(ymlMap);
+        return writer.toString();
     }
 }
 

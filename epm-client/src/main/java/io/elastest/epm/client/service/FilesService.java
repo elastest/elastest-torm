@@ -2,16 +2,25 @@ package io.elastest.epm.client.service;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,41 +87,30 @@ public class FilesService {
         }
     }
 
-    public File getFileFromResources(String path, String fileName)
-            throws IOException, URISyntaxException {
+    public File getFileFromResources(String path, String fileName,
+            String tmpFolder) throws IOException, URISyntaxException {
         File file = null;
-        try {
-            logger.info("Load file in dev mode");
-            Resource resource = new ClassPathResource(path);
-            logger.info("Resource loading ok? {}", resource.exists());
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(resource.getInputStream()), 1024)) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    logger.info("File name (dev mode):" + line);
-                    if (line.equals(fileName)) {
-                        file = new ClassPathResource(path + line).getFile();
-                        return file;
-                    }
+
+        logger.info("Load file in dev mode");
+        Resource resource = new ClassPathResource(path);
+        logger.info("Resource loading ok? {}", resource.exists());
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(resource.getInputStream()), 1024)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                logger.info("File name (dev mode):" + line);
+                if (line.equals(fileName)) {
+                    file = new ClassPathResource(path + line).getFile();
+                    return file;
                 }
             }
+        }
 
-            if (file == null || !file.exists()) {
-                logger.info("Load file prod mode");
-                file = getFileFromJarFile("/" + path + fileName,
-                        sharedFolder + "/tmp/" + fileName);
-                logger.info("File loaded");
-            }
-
-        } catch (IOException ioe) {
-            logger.error("Error reading the files. The file with the path "
-                    + path + " does not exist:");
-            try {
-                file = getFileFromJarFile("/" + path + fileName,
-                        sharedFolder + "/tmp/" + fileName);
-            } catch (Exception e) {
-                throw e;
-            }
+        if (file == null || !file.exists()) {
+            logger.info("Load file prod mode");
+            file = getFileFromJarFile("/" + path + fileName,
+                    tmpFolder + "/" + fileName);
+            logger.info("File loaded");
         }
         return file;
     }
@@ -158,6 +156,11 @@ public class FilesService {
         return content;
     }
 
+    public void writeFileFromString(String content, File file)
+            throws IOException {
+        FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
+    }
+
     public void createExecFilesFolder(String path) {
         logger.debug("Try to create folder structure: {}", path);
         File folderStructure = new File(path);
@@ -191,6 +194,47 @@ public class FilesService {
             logger.info("Folder removed.");
         }
 
+    }
+
+    private TarArchiveOutputStream getTarArchiveOutputStream(String name)
+            throws FileNotFoundException {
+        TarArchiveOutputStream taos = new TarArchiveOutputStream(
+                new FileOutputStream(name));
+        taos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
+        taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+        taos.setAddPaxHeadersForNonAsciiNames(true);
+        return taos;
+    }
+
+    private void addToArchiveCompression(TarArchiveOutputStream out, File file,
+            String dir) throws IOException {
+        String entry = dir;
+        if (file.isFile()) {
+            entry = File.separator + file.getName();
+            out.putArchiveEntry(new TarArchiveEntry(file, entry));
+            try (FileInputStream in = new FileInputStream(file)) {
+                IOUtils.copy(in, out);
+            }
+            out.closeArchiveEntry();
+        } else if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    addToArchiveCompression(out, child, entry);
+                }
+            }
+        } else {
+            System.out.println(file.getName() + "is not supported");
+        }
+    }
+
+    public String createTempFolderName(String basePath, String prefix) {
+        Date date = Calendar.getInstance().getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat(
+                "yyyy-MM-dd-hh.mm.ss");
+        return basePath != null && !basePath.isEmpty()
+                ? basePath + File.separator + prefix + formatter.format(date)
+                : prefix + formatter.format(date);
     }
 
 }

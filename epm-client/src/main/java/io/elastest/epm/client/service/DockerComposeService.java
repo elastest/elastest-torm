@@ -62,6 +62,9 @@ import io.elastest.epm.client.json.DockerContainerInfo;
 @PropertySources({ @PropertySource(value = "classpath:epm-client.properties") })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DockerComposeService {
+    
+    @Autowired
+    EpmService epmService;
 
     final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
@@ -137,7 +140,7 @@ public class DockerComposeService {
         }
 
         DockerComposeContainer compose = new DockerComposeContainer<>(
-                project.getName(), false, ymlFile)
+                project.getName(), false, epmService, targetPath, ymlFile)
                         .setComposeYmlList(Arrays.asList(project.getYml()));
 
         if (project.getEnv() != null && !project.getEnv().isEmpty()) {
@@ -193,7 +196,7 @@ public class DockerComposeService {
                 this.pullImages(projects.get(projectName));
             }
             projects.get(projectName).start();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | ServiceException e) {
             throw new DockerException(
                     "Error on starting project " + projectName, e);
         }
