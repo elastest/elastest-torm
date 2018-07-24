@@ -11,14 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.springframework.web.context.ContextLoader;

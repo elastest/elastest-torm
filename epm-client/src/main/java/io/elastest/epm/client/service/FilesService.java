@@ -196,6 +196,15 @@ public class FilesService {
 
     }
 
+    public File createTarFile(String path, File... files) throws IOException {
+        try (TarArchiveOutputStream out = getTarArchiveOutputStream(path)) {
+            for (File file : files) {
+                addToArchiveCompression(out, file, ".");
+            }
+        }
+        return null;
+    }
+
     private TarArchiveOutputStream getTarArchiveOutputStream(String name)
             throws FileNotFoundException {
         TarArchiveOutputStream taos = new TarArchiveOutputStream(
