@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -57,6 +58,7 @@ public class DockerServiceItTest {
     }
 
     @Test
+    @Disabled
     public void readLogInRabbit() throws Exception {
 
         String imageId = "alpine";
@@ -114,17 +116,6 @@ public class DockerServiceItTest {
                 log.warn("Error on ending test execution {}", containerId, ex);
             }
         }
-    }
-
-    public boolean existsImage(String imageId)
-            throws DockerException, InterruptedException {
-        boolean exists = dockerEtmService.dockerService.existsImage(imageId);
-        if (exists) {
-            log.debug("Docker image {} already exists", imageId);
-        } else {
-            log.debug("Image {} does not exist", imageId);
-        }
-        return exists;
     }
 
     private WaitForMessagesHandler connectToRabbitQueue(String queueId)
