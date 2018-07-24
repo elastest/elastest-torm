@@ -12,6 +12,7 @@ import javax.websocket.WebSocketContainer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.converter.GenericMessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -25,116 +26,130 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 public class StompTestUtils {
-	
-	private static final Logger log = LoggerFactory.getLogger(StompTestUtils.class);
 
-	public static class WaitForMessagesHandler implements StompFrameHandler {
+    private static final Logger log = LoggerFactory
+            .getLogger(StompTestUtils.class);
 
-		private CountDownLatch latch = new CountDownLatch(1);
-		private Predicate<String> messagePattern;
-		private boolean receivedMsg = false;
-		private String name;
+    public static class WaitForMessagesHandler implements StompFrameHandler {
 
-		public WaitForMessagesHandler(Predicate<String> messagePattern) {
-			this.messagePattern = messagePattern;
-		}
+        private CountDownLatch latch = new CountDownLatch(1);
+        private Predicate<String> messagePattern;
+        private boolean receivedMsg = false;
+        private String name;
 
-		public WaitForMessagesHandler() {
-		}
-		
-		public WaitForMessagesHandler(String name) {
-			this.name = name;
-		}
+        public WaitForMessagesHandler(Predicate<String> messagePattern) {
+            this.messagePattern = messagePattern;
+        }
 
-		@Override
-		public Type getPayloadType(StompHeaders stompHeaders) {
-			return String.class;
-		}
+        public WaitForMessagesHandler() {
+        }
 
-		@Override
-		public void handleFrame(StompHeaders stompHeaders, Object msg) {
+        public WaitForMessagesHandler(String name) {
+            this.name = name;
+        }
 
-			if(!receivedMsg){
-				receivedMsg = true;
-				log.info("Stomp message ({}): {}", name, msg);
-			}			
+        @Override
+        public Type getPayloadType(StompHeaders stompHeaders) {
+            return String.class;
+        }
 
-			String strMsg = (String) msg;
+        @Override
+        public void handleFrame(StompHeaders stompHeaders, Object msg) {
 
-			if (messagePattern == null || messagePattern.test(strMsg)) {
-				latch.countDown();
-			}
-		}
+            if (!receivedMsg) {
+                receivedMsg = true;
+                log.info("Stomp message ({}): {}", name, msg);
+            }
 
-		public void waitForCompletion(int time, TimeUnit unit) throws InterruptedException {
-			if (!latch.await(time, unit)) {
-				throw new RuntimeException("Timeout of " + time+" " + unit + " waiting for message"
-						+ (messagePattern == null ? "" : " with pattern"));
-			}
-		}
-	}
+            String strMsg = (String) msg;
 
-	private static class LogConnectedSessionHandler extends StompSessionHandlerAdapter {
+            if (messagePattern == null || messagePattern.test(strMsg)) {
+                latch.countDown();
+            }
+        }
 
-		public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-			log.info("STOMP Client connected");
-		}
+        public void waitForCompletion(int time, TimeUnit unit)
+                throws InterruptedException {
+            if (!latch.await(time, unit)) {
+                throw new RuntimeException("Timeout of " + time + " " + unit
+                        + " waiting for message"
+                        + (messagePattern == null ? "" : " with pattern"));
+            }
+        }
+    }
 
-		@Override
-		public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload,
-				Throwable exception) {
-			log.info("handleException: StopmSession:" + session + " StompCommand:" + command + " Exception:"
-					+ exception);
-		}
+    private static class LogConnectedSessionHandler
+            extends StompSessionHandlerAdapter {
 
-		@Override
-		public void handleTransportError(StompSession session, Throwable exception) {
-			log.info("handleTransportError: StopmSession:" + session + " Exception:" + exception);
-		}
-	}
-	
-	public static StompSession connectToRabbitMQ(int serverPort) throws InterruptedException, ExecutionException, TimeoutException {
+        public void afterConnected(StompSession stompSession,
+                StompHeaders stompHeaders) {
+            log.info("STOMP Client connected");
+        }
 
-		WebSocketContainer cont = ContainerProvider.getWebSocketContainer();
-		cont.setDefaultMaxTextMessageBufferSize(65500);
-		WebSocketClient webSocketClient = new StandardWebSocketClient(cont);
+        @Override
+        public void handleException(StompSession session, StompCommand command,
+                StompHeaders headers, byte[] payload, Throwable exception) {
+            log.info("handleException: StompSession:" + session
+                    + " StompCommand:" + command + " Exception:" + exception);
+        }
 
-		WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
-		stompClient.setMessageConverter(new StringMessageConverter());
-		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-		taskScheduler.initialize();
-		stompClient.setTaskScheduler(taskScheduler); // for heartbeats
-		stompClient.setDefaultHeartbeat(new long[] { 10000, 10000 });
+        @Override
+        public void handleTransportError(StompSession session,
+                Throwable exception) {
+            log.info("handleTransportError: StompSession:" + session
+                    + " Exception:" + exception);
+        }
+    }
 
-		String url = "ws://localhost:" + serverPort + "/rabbitMq";
-		StompSessionHandler sessionHandler = new LogConnectedSessionHandler();
+    public static StompSession connectToRabbitMQ(int serverPort, boolean etMini)
+            throws InterruptedException, ExecutionException, TimeoutException {
 
-		final int MAX_RETRIES = 5;
+        WebSocketContainer cont = ContainerProvider.getWebSocketContainer();
+        cont.setDefaultMaxTextMessageBufferSize(65500);
+        WebSocketClient webSocketClient = new StandardWebSocketClient(cont);
 
-		int retry = 0;
-		while(true) {
+        WebSocketStompClient stompClient = new WebSocketStompClient(
+                webSocketClient);
+        if (etMini) {
+            stompClient.setMessageConverter(new GenericMessageConverter());
+        } else {
+            stompClient.setMessageConverter(new StringMessageConverter());
+        }
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.initialize();
+        stompClient.setTaskScheduler(taskScheduler); // for heartbeats
+        stompClient.setDefaultHeartbeat(new long[] { 10000, 10000 });
 
-			try {
+        String url = "ws://localhost:" + serverPort + "/rabbitMq";
+        StompSessionHandler sessionHandler = new LogConnectedSessionHandler();
 
-				StompSession stompSession = stompClient.connect(url, sessionHandler).get(10, TimeUnit.SECONDS);
-				
-				log.info("Test connected to RabbitMQ in URL '{}'", url);
-				return stompSession;
-				
-			} catch (Exception e) {
-				
-				if(retry < MAX_RETRIES){
-					retry++;
-					log.warn("Exception trying to connect to RabbitMQ: {}:{}", e.getClass().getName(), e.getMessage());
-					log.info("Retrying {}/{} in 5 second",retry,MAX_RETRIES);
-					Thread.sleep(5000);	
-				} else {
-					throw e;
-				}				
-			}
-		}
-		
-		
-	}
-	
+        final int MAX_RETRIES = 5;
+
+        int retry = 0;
+        while (true) {
+
+            try {
+
+                StompSession stompSession = stompClient
+                        .connect(url, sessionHandler).get(10, TimeUnit.SECONDS);
+
+                log.info("Test connected to RabbitMQ in URL '{}'", url);
+                return stompSession;
+
+            } catch (Exception e) {
+
+                if (retry < MAX_RETRIES) {
+                    retry++;
+                    log.warn("Exception trying to connect to RabbitMQ: {}:{}",
+                            e.getClass().getName(), e.getMessage());
+                    log.info("Retrying {}/{} in 5 second", retry, MAX_RETRIES);
+                    Thread.sleep(5000);
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+    }
+
 }

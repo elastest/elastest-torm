@@ -123,7 +123,8 @@ public class DockerServiceItTest {
 
     private WaitForMessagesHandler connectToRabbitQueue(String queueId)
             throws InterruptedException, ExecutionException, TimeoutException {
-        StompSession stompSession = connectToRabbitMQ(serverPort);
+        StompSession stompSession = connectToRabbitMQ(serverPort,
+                dockerEtmService.utilsService.isElastestMini());
 
         String queueToSuscribe = "/topic/" + queueId;
 
