@@ -177,7 +177,7 @@ public class DockerEtmService {
     }
 
     private void initLogstashHostIfNecessary() throws Exception {
-        if (logstashOrMiniHost == null) {
+        if (logstashOrMiniHost == null || logstashOrMiniHost == "") {
             logstashOrMiniHost = this.getLogstashHost();
         }
     }
