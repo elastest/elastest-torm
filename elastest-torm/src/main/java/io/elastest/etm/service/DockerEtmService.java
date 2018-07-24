@@ -72,6 +72,9 @@ public class DockerEtmService {
     @Value("${et.etm.lstcp.port}")
     private String logstashTcpPort;
 
+    @Value("${et.etm.internal.lsbeats.port}")
+    private String lsInternalBeatsPort;
+
     @Value("${elastest.docker.network}")
     private String elastestNetwork;
 
@@ -425,6 +428,9 @@ public class DockerEtmService {
 
         // Get Parameters and insert into Env Vars¡
         String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
+        String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                + lsInternalBeatsPort;
+
         if (tJob.isSelectedService("ems")) {
             String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
             String testRegex = "^test" + regexSuffix;
@@ -435,14 +441,14 @@ public class DockerEtmService {
             // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
             // envList.add(envVar);
 
-            envVar = "LOGSTASHPORT" + "="
+            lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
                     + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
-            envList.add(envVar);
 
             lsHostEnvVar = "LOGSTASHHOST" + "="
                     + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
         }
         envList.add(lsHostEnvVar);
+        envList.add(lsInternalBeatsPortEnvVar);
 
         // dockerSock
         Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)

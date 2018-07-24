@@ -34,7 +34,7 @@ public class UtilsService {
     public String tcFinishMsgPrefix;
 
     @Value("${et.etm.incontainer}")
-    private static boolean inContainer;
+    private String inContainer;
 
     public boolean isElastestMini() {
         return enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL);
@@ -45,7 +45,9 @@ public class UtilsService {
     }
 
     public boolean isEtmInContainer() {
-        return inContainer;
+        System.out.println("asdasd");
+        System.out.println(inContainer);
+        return "true".equals(inContainer);
     }
 
     public String getIso8601String() {
