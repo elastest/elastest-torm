@@ -276,6 +276,8 @@ public class DockerComposeService {
         if (override) {
             file.delete();
         }
+        
+        file.getParentFile().mkdirs();
         FileUtils.writeStringToFile(file, project.getYml(),
                 StandardCharsets.UTF_8);
         return ResourceUtils.getFile(filePath);

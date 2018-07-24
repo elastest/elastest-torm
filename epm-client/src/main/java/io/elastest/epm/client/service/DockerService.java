@@ -49,7 +49,6 @@ import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.LogsParam;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.ProgressHandler;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.AttachedNetwork;
 import com.spotify.docker.client.messages.Container;
@@ -184,9 +183,14 @@ public class DockerService {
     /* *************************** */
 
     public String createAndStartContainer(DockerClient dockerClient,
-            DockerContainer dockerContainer) throws DockerException,
-            InterruptedException, DockerCertificateException {
+            DockerContainer dockerContainer, boolean withPull)
+            throws Exception {
         String imageId = dockerContainer.getImageId();
+
+        if (withPull) {
+            this.pullImage(imageId);
+        }
+
         logger.info("Starting Docker container {}", imageId);
 
         HostConfig.Builder hostConfigBuilder = HostConfig.builder();
@@ -273,10 +277,19 @@ public class DockerService {
         return containerId;
     }
 
-    public String createAndStartContainer(DockerContainer dockerContainer, boolean remotely)
+
+    public String createAndStartContainerWithPull(
+            DockerContainer dockerContainer, boolean remotely, boolean withPull)
             throws Exception {
         DockerClient dockerClient = this.getDockerClient(remotely);
-        return this.createAndStartContainer(dockerClient, dockerContainer);
+        return this.createAndStartContainer(dockerClient, dockerContainer,
+                withPull);
+    }
+
+    public String createAndStartContainer(DockerContainer dockerContainer,
+            boolean remotely) throws Exception {
+        return this.createAndStartContainerWithPull(dockerContainer, remotely,
+                false);
     }
 
     public void removeDockerContainer(String containerId) throws Exception {
@@ -926,7 +939,8 @@ public class DockerService {
 
     }
 
-    public List<Container> getContainersByPrefix(String prefix) throws DockerException, InterruptedException, Exception {
+    public List<Container> getContainersByPrefix(String prefix)
+            throws DockerException, InterruptedException, Exception {
         return getDockerClient(true)
                 .listContainers(ListContainersParam.allContainers(true))
                 .stream()

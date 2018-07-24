@@ -49,12 +49,12 @@ public class PcapService {
             containersList.put(containerName, dockerContainer);
 
             try {
-                dockerService.createAndStartContainer(dockerContainer, EpmService.etMasterSlaveMode);
+                dockerService.createAndStartContainerWithPull(dockerContainer,
+                        EpmService.etMasterSlaveMode, true);
                 return true;
             } catch (InterruptedException e) {
                 log.error("Pcap not started {}", execId, e);
             } catch (Exception e) {
-                log.error("Pcap not started {}", execId, e);
             }
         }
 
