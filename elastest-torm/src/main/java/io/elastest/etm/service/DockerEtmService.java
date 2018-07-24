@@ -650,7 +650,9 @@ public class DockerEtmService {
         return logConfig;
     }
 
-    public LogConfig getLogstashOrMiniLogConfig(String tag) {
+    public LogConfig getLogstashOrMiniLogConfig(String tag) throws Exception {
+        this.initLogstashHostIfNecessary();
+
         Map<String, String> configMap = new HashMap<String, String>();
         configMap.put("tag", tag);
 
