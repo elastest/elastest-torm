@@ -579,11 +579,13 @@ public class EsmService {
 
     }
 
-    public String getTJobExecFolderPath(TJobExecution tJobExec) {
+    public String getTJobExecFolderPath(TJobExecution tJobExec) {        
         String fileSeparator = "/";
-        return etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
+        String path = etSharedFolder + fileSeparator + tJobsFolder + fileSeparator
                 + tJobFolderPrefix + tJobExec.getTjob().getId() + fileSeparator
                 + tJobExecFolderPefix + tJobExec.getId() + fileSeparator;
+        logger.info("TJob Workspace: {}", path);
+        return path;
 
     }
 

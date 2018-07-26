@@ -76,6 +76,7 @@ public class TJobExecOrchestratorService {
     private MonitoringServiceInterface monitoringService;
 
     private EtmContextService etmContextService;
+    
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -755,8 +756,10 @@ public class TJobExecOrchestratorService {
             Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
             for (HashMap.Entry<String, HashMap> service : servicesMap
                     .entrySet()) {
-                // Pull images
-                this.pullDockerComposeYmlService(service, dockerExec);
+                // Pull images in a local execution
+                if (!etmContextService.etMasterSlaveMode ) {
+                    this.pullDockerComposeYmlService(service, dockerExec);
+                }
 
                 // Set Logging
                 service = this.setLoggingToDockerComposeYmlService(service,

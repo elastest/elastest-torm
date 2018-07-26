@@ -103,8 +103,7 @@ public class EpmService {
     }
 
     @Value("${et.epm.compose.packages.path}")
-    public static void setComposePackageFilePath(
-            String composePackageFilePath) {
+    public void setComposePackageFilePath(String composePackageFilePath) {
         EpmService.composePackageFilePath = composePackageFilePath;
     }
 
@@ -113,8 +112,13 @@ public class EpmService {
         if (etMasterSlaveMode) {
             logger.info("Creating slave");
             try {
-                re = provisionRemoteEnvironment();
-            } catch (ServiceException se) {
+                //if (workerApiInstance.getAllWorkers().size() > 0) {
+                    re = provisionRemoteEnvironment();
+               // }
+                //if (popApi.getAllPoPs().isEmpty()) {
+                //    re = provisionRemoteEnvironment();
+                //}
+            } catch (ServiceException /*| ApiException | ApiException */ se) {
                 etMasterSlaveMode = false;
                 se.printStackTrace();
             }
@@ -126,7 +130,10 @@ public class EpmService {
         if (etMasterSlaveMode) {
             logger.info("Removing slave");
             try {
-                deprovisionRemoteEnvironment(re);
+                if (re != null) {
+                    deprovisionRemoteEnvironment(re);
+                }
+
             } catch (ServiceException se) {
                 se.printStackTrace();
             }
@@ -141,17 +148,19 @@ public class EpmService {
         Worker worker = null;
 
         try {
-            // Providing VM
+            // Providing a new remote VM
             resourceGroup = sendPackage(packageFilePath, "m1tub.tar",
                     sharedFolder + "/tmp" + "/ansible");
             re.setResourceGroup(resourceGroup);
             logger.debug("Virtual machine provided with id: {}",
                     resourceGroup.getId());
-            // Registering privated key
+            // Registering the privated key
             Key key = addKey(filesService.getFileFromResources(keyFilePath,
                     "key.json", sharedFolder + "/tmp" + "/ansible"));
             logger.debug("Key {} value: {}", key.getName(), key.getKey());
             re.setKey(key);
+            
+            // Registering a Worker
             int currentAttempts = 0;
             boolean registeredWorker = false;
             while (currentAttempts < MAX_ATTEMPTS && !registeredWorker) {
@@ -171,6 +180,8 @@ public class EpmService {
             }
             re.setWorker(worker);
             re.setHostIp(worker.getIp());
+            
+            // Installing adapters
             logger.debug("Worker id: {}", worker.getId());
             adapters.put(AdaptersNames.DOCKER.getName(), installAdapter(
                     worker.getId(), AdaptersNames.DOCKER.getName()));
@@ -237,12 +248,12 @@ public class EpmService {
 
         return result;
     }
-    
+
     public ResourceGroup sendPackage(File packageFile) throws ServiceException {
         logger.info("Registering adapter described in the file: {}",
                 packageFile.getName());
         ResourceGroup result = null;
-        try {            
+        try {
             result = packageApiInstance.receivePackage(packageFile);
             logger.debug("New instance id: {} ", result.getId());
             logger.debug(String.valueOf(result));

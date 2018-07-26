@@ -66,6 +66,9 @@ public class DockerComposeService {
     @Autowired
     EpmService epmService;
 
+    @Autowired
+    FilesService filesService;
+
     final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, DockerComposeContainer> projects = new HashMap<>();
 
@@ -140,8 +143,8 @@ public class DockerComposeService {
         }
 
         DockerComposeContainer compose = new DockerComposeContainer<>(
-                project.getName(), false, epmService, targetPath, ymlFile)
-                        .setComposeYmlList(Arrays.asList(project.getYml()));
+                project.getName(), false, epmService, filesService, targetPath,
+                ymlFile).setComposeYmlList(Arrays.asList(project.getYml()));
 
         if (project.getEnv() != null && !project.getEnv().isEmpty()) {
             compose.withEnv(project.getEnv());

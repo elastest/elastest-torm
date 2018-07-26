@@ -19,8 +19,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessOutput;
@@ -59,6 +57,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     boolean started = false;
 
     EpmService epmService;
+    FilesService filesService;
     private String basePath;
     /* ******************** */
     /* *** Constructors *** */
@@ -69,25 +68,28 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     }
 
     public DockerComposeContainer(List<File> composeFiles) {
-        this(Base58.randomString(6).toLowerCase(), true, null, null,
+        this(Base58.randomString(6).toLowerCase(), true, null, null, null,
                 composeFiles);
     }
 
     public DockerComposeContainer(String identifier, File... composeFiles) {
-        this(identifier, false, null, null, Arrays.asList(composeFiles));
+        this(identifier, false, null, null, null, Arrays.asList(composeFiles));
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            EpmService epmService, String basePath, File... composeFiles) {
-        this(identifier, withUniqueId, epmService, basePath,
+            EpmService epmService, FilesService filesService, String basePath,
+            File... composeFiles) {
+        this(identifier, withUniqueId, epmService, filesService, basePath,
                 Arrays.asList(composeFiles));
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            EpmService epmService, String basePath, List<File> composeFiles) {
+            EpmService epmService, FilesService filesServices, String basePath,
+            List<File> composeFiles) {
         this.composeFiles = composeFiles;
         this.identifier = identifier;
         this.epmService = epmService;
+        this.filesService = filesServices;
         this.basePath = basePath;
 
         if (withUniqueId) {
@@ -108,7 +110,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
             }
             // scale before up, so that all scaled instances are available first
             // for linking
-            applyScaling();
+            //applyScaling();
             // Run the docker-compose container, which starts up the services
             ProcessResult result = runWithCompose("up -d");
             this.started = result.getExitValue() == 0;
@@ -120,10 +122,13 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
         ProcessResult processResult;
 
         if (EpmService.etMasterSlaveMode && epmService != null) {
+            logger.info("Deploying SUT in a Slave.");
             dockerCompose = new RemoteDockerCompose(composeFiles.get(0),
-                    this.composeYmlList.get(0), project, epmService, basePath);
+                    this.composeYmlList.get(0), project, epmService,
+                    filesService, basePath);
             processResult = dockerCompose.invoke();
         } else {
+            logger.info("Deploying SUT in Master.");
             dockerCompose = new LocalDockerCompose(composeFiles, project);
             processResult = dockerCompose.withCommand(cmd).withEnv(env)
                     .invoke();
@@ -258,14 +263,17 @@ class RemoteDockerCompose implements DockerCompose {
     private final String composeYml;
     private final String identifier;
     private final EpmService epmService;
+    private final FilesService filesService;
     private final String basePath;
 
     public RemoteDockerCompose(File composeFile, String composeYml,
-            String identifier, EpmService epmService, String basePath) {
+            String identifier, EpmService epmService, FilesService filesService,
+            String basePath) {
         this.composeFile = composeFile;
         this.composeYml = composeYml;
         this.identifier = identifier;
         this.epmService = epmService;
+        this.filesService = filesService;
         this.basePath = basePath;
     }
 
@@ -283,9 +291,6 @@ class RemoteDockerCompose implements DockerCompose {
 
     @Override
     public ProcessResult invoke() {
-        WebApplicationContext context = ContextLoader
-                .getCurrentWebApplicationContext();
-        FilesService filesService = context.getBean(FilesService.class);
 
         String packageDirPath = filesService.createTempFolderName(basePath,
                 "compose-package");
@@ -296,24 +301,36 @@ class RemoteDockerCompose implements DockerCompose {
         // Prepare metadata file
         String metadataContent;
         try {
+            logger.info("Metadata file path: {}",
+                    EpmService.composePackageFilePath);
             metadataContent = filesService.readFile(filesService
                     .getFileFromResources(EpmService.composePackageFilePath,
                             "metadata.yaml", basePath));
-            HashMap<String, String> ymlMap = stringYmlToMap(metadataContent);
-            ymlMap.put("pop-name", epmService
-                    .getPopName(epmService.getRe().getHostIp(), "compose"));
+            logger.info("Metadata: {}", metadataContent);
+            // HashMap<String, String> ymlMap = stringYmlToMap(metadataContent);
+            // ymlMap.put("pop-name", epmService
+            // .getPopName(epmService.getRe().getHostIp(), "compose"));
+            // logger.info("New value for the field pop-name: {}",
+            // ymlMap.get("pop-name"));
+
             String metadataFilePath = packageDirPath + "/metadata.yaml";
             File metadataFile = new File(metadataFilePath);
             logger.info("Folder's name: {}", packageDirPath);
-            filesService.writeFileFromString(simpleYmlMapToString(ymlMap),
-                    metadataFile);
+            String metadataUpdated = replacePopNameValueInYmlFile(
+                    metadataContent);
+            // logger.info("New metadata content: {}",
+            // simpleYmlMapToString(ymlMap));
+            // filesService.writeFileFromString(simpleYmlMapToString(ymlMap),
+            // metadataFile);
+            filesService.writeFileFromString(metadataUpdated, metadataFile);
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ContainerLaunchException(
                     "Error reading the metadata template file.");
         }
 
-        // Prepare compose fileCreate package as tar file
+        // Creating compose file inside the package directory
         try {
             String composeFilePath = packageDirPath + "/docker-compose.yml";
             File composeFile = new File(composeFilePath);
@@ -326,9 +343,10 @@ class RemoteDockerCompose implements DockerCompose {
         // Create package as tar file
         File packageTarFile = null;
         try {
-            packageTarFile = filesService.createTarFile(packageDirPath,
+            packageTarFile = filesService.createTarFile(packageDirPath + ".tar",
                     packageDir);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ContainerLaunchException(
                     "Error creating a new package to send to the EPM.");
         }
@@ -343,6 +361,30 @@ class RemoteDockerCompose implements DockerCompose {
 
         BigInteger bIng = BigInteger.valueOf(0);
         return new ProcessResult(0, new ProcessOutput(bIng.toByteArray()));
+    }
+
+    private String replacePopNameValueInYmlFile(String metadataContent)
+            throws Exception {
+        if (metadataContent != null && !metadataContent.isEmpty()) {
+            YAMLFactory yf = new YAMLFactory();
+            ObjectMapper mapper = new ObjectMapper(yf);
+            Object object;
+            object = mapper.readValue(metadataContent, Object.class);
+
+            HashMap<String, String> metadataMap = (HashMap) object;
+            metadataMap.put("pop", epmService
+                    .getPopName(epmService.getRe().getHostIp(), "compose"));
+            logger.info("New value for the field pop-name: {}",
+                    metadataMap.get("pop-name"));
+
+            StringWriter writer = new StringWriter();
+
+            yf.createGenerator(writer).writeObject(metadataMap);
+            return writer.toString();
+
+        } else {
+            throw new Exception("Error on replace pop-name value");
+        }
     }
 
     private HashMap<String, String> stringYmlToMap(String yml)

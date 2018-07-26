@@ -42,6 +42,8 @@ public class EtmContextService {
 
     @Value("${exec.mode}")
     String execMode;
+    @Value("${et.master.slave.mode}")
+    public boolean etMasterSlaveMode;
 
     @Value("${et.images}")
     String etImages;

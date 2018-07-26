@@ -91,7 +91,8 @@ public class FilesService {
             String tmpFolder) throws IOException, URISyntaxException {
         File file = null;
 
-        logger.info("Load file in dev mode");
+        logger.info("Load file in dev mode. Path {}, file {}, target path {}",
+                path, fileName, tmpFolder);
         Resource resource = new ClassPathResource(path);
         logger.info("Resource loading ok? {}", resource.exists());
         try (BufferedReader br = new BufferedReader(
@@ -197,16 +198,21 @@ public class FilesService {
     }
 
     public File createTarFile(String path, File... files) throws IOException {
+        logger.info("Directory path to cormpress: {}", path);
+        logger.info("Init tar compression.");
         try (TarArchiveOutputStream out = getTarArchiveOutputStream(path)) {
             for (File file : files) {
                 addToArchiveCompression(out, file, ".");
             }
         }
-        return null;
+        
+        logger.info("Path of the tar file: {}", files[0].getAbsolutePath() + ".tar");
+        return new File(files[0].getAbsolutePath() + ".tar");
     }
 
     private TarArchiveOutputStream getTarArchiveOutputStream(String name)
             throws FileNotFoundException {
+        logger.info("Creating output for the tar file.");
         TarArchiveOutputStream taos = new TarArchiveOutputStream(
                 new FileOutputStream(name));
         taos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
@@ -217,15 +223,18 @@ public class FilesService {
 
     private void addToArchiveCompression(TarArchiveOutputStream out, File file,
             String dir) throws IOException {
+        logger.info("Add files to the tar file.");
         String entry = dir;
         if (file.isFile()) {
             entry = File.separator + file.getName();
+            logger.info("File to add to the tar file: {}", entry);
             out.putArchiveEntry(new TarArchiveEntry(file, entry));
             try (FileInputStream in = new FileInputStream(file)) {
                 IOUtils.copy(in, out);
             }
             out.closeArchiveEntry();
         } else if (file.isDirectory()) {
+            logger.info("Directory to compress: {}", file.getName());
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
@@ -242,7 +251,7 @@ public class FilesService {
         SimpleDateFormat formatter = new SimpleDateFormat(
                 "yyyy-MM-dd-hh.mm.ss");
         return basePath != null && !basePath.isEmpty()
-                ? basePath + File.separator + prefix + formatter.format(date)
+                ? basePath + prefix + formatter.format(date)
                 : prefix + formatter.format(date);
     }
 
