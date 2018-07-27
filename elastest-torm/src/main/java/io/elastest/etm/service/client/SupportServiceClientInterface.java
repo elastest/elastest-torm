@@ -40,4 +40,7 @@ public interface SupportServiceClientInterface {
     public ObjectNode getServiceInstanceInfo(String instanceId);
 
     public TssManifest getManifestById(String manifestId);
+
+    public TssManifest getManifestBySupportServiceInstance(
+            SupportServiceInstance serviceInstance);
 }

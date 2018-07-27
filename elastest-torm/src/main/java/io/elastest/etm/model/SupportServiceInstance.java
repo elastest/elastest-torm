@@ -17,6 +17,8 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Entity that represents an ElasTest Test Support Service Instance")
 public class SupportServiceInstance {
 
+    private static final String API_STATUS_KEY = "api-status";
+
     public interface ProvisionView {
     }
 
@@ -397,8 +399,8 @@ public class SupportServiceInstance {
                 + ", plan_id=" + plan_id + ", organization_guid="
                 + organization_guid + ", parameters=" + parameters
                 + ", context=" + context + ", space_guid=" + space_guid
-                + ", tJobExecIdList=" + tJobExecIdList + ", serviceIp=" + serviceIp
-                + ", servicePort=" + servicePort + ", containerIp="
+                + ", tJobExecIdList=" + tJobExecIdList + ", serviceIp="
+                + serviceIp + ", servicePort=" + servicePort + ", containerIp="
                 + containerIp + ", containerName=" + containerName
                 + ", manifestId=" + manifestId + ", urls=" + urls
                 + ", subServices=" + subServices + ", endpointName="
@@ -409,10 +411,18 @@ public class SupportServiceInstance {
 
     public String getApiUrlIfExist() {
         for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
-            if (urlHash.getValue().contains("http")
+            if (!urlHash.getKey().equals(API_STATUS_KEY)
+                    && urlHash.getValue().contains("http")
                     || urlHash.getValue().contains("https")) {
                 return urlHash.getValue();
             }
+        }
+        return null;
+    }
+
+    public String getApiStatusUrlIfExist() {
+        if (getUrls().containsKey(API_STATUS_KEY)) {
+            return getUrls().get(API_STATUS_KEY);
         }
         return null;
     }

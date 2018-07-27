@@ -43,6 +43,7 @@ import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.SupportServiceInstance.SSIStatusEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -53,6 +54,7 @@ import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.eus.service.DynamicDataService;
 
 @Service
 public class EsmService {
@@ -133,6 +135,21 @@ public class EsmService {
     @Value("${et.shared.folder}")
     private String sharedFolder;
 
+    @Value("${server.port}")
+    public String etmServerPort;
+
+    @Value("${et.proxy.port}")
+    public String etProxyPort;
+
+    @Value("${et.etm.incontainer}")
+    private String inContainer;
+
+    @Value("${api.context.path:#{null}}")
+    private String eusApiPath;
+
+    @Value("${eus.tss.id}")
+    public String EUS_TSS_ID;
+
     public SupportServiceClientInterface supportServiceClient;
     public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
@@ -162,13 +179,15 @@ public class EsmService {
 
     private final TJobExecRepository tJobExecRepositoryImpl;
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
+    private final DynamicDataService dynamicDataService;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
             DockerEtmService dockerEtmService, EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService, EpmService epmService,
             TJobExecRepository tJobExecRepositoryImpl,
-            ExternalTJobExecutionRepository externalTJobExecutionRepository) {
+            ExternalTJobExecutionRepository externalTJobExecutionRepository,
+            DynamicDataService dynamicDataService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -184,6 +203,7 @@ public class EsmService {
         this.epmService = epmService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
+        this.dynamicDataService = dynamicDataService;
     }
 
     @PostConstruct
@@ -195,8 +215,15 @@ public class EsmService {
                 tSSIdLoadedOnInit.forEach((serviceId) -> {
                     String serviceName = getServiceNameByServiceId(serviceId)
                             .toUpperCase();
-                    String tssInstanceId = provisionServiceInstanceSync(
-                            serviceId);
+
+                    String tssInstanceId = null;
+                    if (serviceName.equals("EUS")) {
+                        tssInstanceId = startIntegratedEus(serviceId);
+
+                    } else {
+                        tssInstanceId = provisionServiceInstanceSync(serviceId);
+                    }
+
                     tssLoadedOnInitMap.put(serviceName, tssInstanceId);
 
                     logger.debug("{} is started from ElasTest in normal mode",
@@ -207,6 +234,73 @@ public class EsmService {
         } catch (Exception e) {
             logger.warn("Error during the services registry. ", e);
         }
+    }
+
+    private String startIntegratedEus(String serviceId) {
+        String tssInstanceId;
+        tssInstanceId = UtilTools.generateUniqueId();
+        try {
+            SupportServiceInstance eusInstance = this
+                    .createNewServiceInstance(serviceId, null, tssInstanceId);
+            TssManifest manifest = supportServiceClient
+                    .getManifestBySupportServiceInstance(eusInstance);
+            eusInstance.setManifestId(manifest.getId());
+
+            String etmHost = dockerEtmService.getEtmHost();
+
+            eusInstance.setContainerIp(etmHost);
+
+            String serviceIp = etmHost;
+            int servicePort = Integer.parseInt(etmServerPort);
+            if (!etPublicHost.equals("localhost")) {
+                serviceIp = etPublicHost;
+                if ("true".equals(inContainer)) {
+                    servicePort = Integer.parseInt(etProxyPort);
+                }
+            }
+            eusInstance.setServiceIp(serviceIp);
+
+            eusInstance = buildTssInstanceUrls(eusInstance);
+
+            // Replace EUS port to ETM port
+            String originalPort = String.valueOf(eusInstance.getServicePort());
+            for (String key : eusInstance.getUrls().keySet()) {
+                String newValue = eusInstance.getUrls().get(key)
+                        .replaceAll(originalPort, String.valueOf(servicePort));
+                eusInstance.getUrls().put(key, newValue);
+
+            }
+            for (String key : eusInstance.getEndpointsData().keySet()) {
+                JsonNode node = eusInstance.getEndpointsData().get(key);
+
+                for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+                    String field = it.next();
+
+                    if (node.get(field).asText().equals(originalPort)) {
+                        ((ObjectNode) node).put(field, servicePort);
+                    }
+
+                }
+            }
+
+            eusInstance.setServicePort(servicePort);
+
+            String apiUrl = eusInstance.getApiUrlIfExist();
+
+            eusInstance.getUrls().put("api-status", apiUrl + "status");
+
+            eusInstance.setServiceReady(true);
+            eusInstance.setServiceStatus(SSIStatusEnum.READY);
+
+            dynamicDataService.setLogstashHttpsApi(etmContextAuxService
+                    .getContextInfo().getLogstashSSLHttpUrl());
+
+            servicesInstances.put(tssInstanceId, eusInstance);
+
+        } catch (Exception e) {
+            logger.error("Error on start integrated EUS:", e);
+        }
+        return tssInstanceId;
     }
 
     @PreDestroy
@@ -403,11 +497,11 @@ public class EsmService {
             String eusApi = servicesInstances.get(tssInstanceId)
                     .getApiUrlIfExist();
 
-            EusExecutionData eusExecutionDate = new EusExecutionData(tJobExec,
+            EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     "");
 
             String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/unregister/" + eusExecutionDate.getKey();
+            url += "execution/unregister/" + eusExecutionData.getKey();
 
             // Register execution in EUS
             RestTemplate restTemplate = new RestTemplate();
@@ -998,10 +1092,16 @@ public class EsmService {
         externalTJobServicesInstances = null;
 
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            deprovisionServiceInstance(tSSInstanceId, servicesInstances);
+            // If is not EUS in normal mode, deprovision
+            if (!execMode.equals(ElastestConstants.MODE_NORMAL)
+                    || (execMode.equals(ElastestConstants.MODE_NORMAL)
+                            && "EUS".equals(tSSInstance.getServiceName()))) {
+                deprovisionServiceInstance(tSSInstanceId, servicesInstances);
+            }
         });
 
         servicesInstances = null;
+
     }
 
     public String deprovisionTJobExecServiceInstance(String instanceId,
@@ -1207,7 +1307,11 @@ public class EsmService {
         int responseCode = 0;
         if (tSSInstance != null) {
             if (tSSInstance.getUrls() != null) {
-                String urlValue = tSSInstance.getApiUrlIfExist();
+                // First check if api status url exist (for integrated EUS)
+                String urlValue = tSSInstance.getApiStatusUrlIfExist();
+                if (urlValue == null) {
+                    tSSInstance.getApiUrlIfExist();
+                }
                 up = true;
                 if (urlValue != null) {
                     URL url;

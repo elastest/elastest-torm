@@ -32,6 +32,11 @@
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
                         sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
+
+                    stage "Install EUS as library"
+                        echo ("Install EUS as library")
+                        git 'https://github.com/elastest/elastest-user-emulator-service.git'
+                        sh 'cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
                     
                     stage "Build elastest-torm-gui"
                         echo ("Build elastest-torm-gui")                        

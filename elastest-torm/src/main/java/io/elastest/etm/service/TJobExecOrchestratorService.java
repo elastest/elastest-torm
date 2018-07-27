@@ -474,7 +474,7 @@ public class TJobExecOrchestratorService {
                 EusExecutionData eusExecutionDate = new EusExecutionData(
                         tJobExec, "");
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-                eusApi += "/execution/" + eusExecutionDate.getKey() + "/";
+                eusApi += "execution/" + eusExecutionDate.getKey() + "/";
                 envVars.put(etEusApiKey, eusApi);
             }
         }

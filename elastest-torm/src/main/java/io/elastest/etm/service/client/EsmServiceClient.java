@@ -277,6 +277,12 @@ public class EsmServiceClient implements SupportServiceClientInterface {
     }
 
     @Override
+    public TssManifest getManifestBySupportServiceInstance(
+            SupportServiceInstance serviceInstance) {
+        return null; // TODO
+    }
+
+    @Override
     public SupportServiceInstance initSupportServiceInstanceData(
             SupportServiceInstance serviceInstance) {
         ObjectNode serviceInstanceDetail = getServiceInstanceInfo(

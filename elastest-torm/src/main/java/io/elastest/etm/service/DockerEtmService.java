@@ -190,12 +190,7 @@ public class DockerEtmService {
             return etPublicHost;
         } else {
             if (utilsService.isElastestMini()) {
-                if (utilsService.isEtmInContainer()) {
-                    return dockerService.getContainerIpByNetwork(
-                            etEtmContainerName, elastestNetwork);
-                } else {
-                    return dockerService.getHostIpByNetwork(elastestNetwork);
-                }
+                return getEtmHost();
             } else {
                 return dockerService.getContainerIpByNetwork(
                         etEtmLogstashContainerName, elastestNetwork);
@@ -203,6 +198,15 @@ public class DockerEtmService {
         }
     }
 
+    public String getEtmHost() throws Exception {
+        if (utilsService.isEtmInContainer()) {
+            return dockerService.getContainerIpByNetwork(etEtmContainerName,
+                    elastestNetwork);
+        } else {
+            return dockerService.getHostIpByNetwork(elastestNetwork);
+        }
+
+    }
     /* *************************** */
     /* **** Container Methods **** */
     /* *************************** */

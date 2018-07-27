@@ -154,6 +154,15 @@ public class EtmMiniSupportServiceClient
     }
 
     @Override
+    public TssManifest getManifestBySupportServiceInstance(
+            SupportServiceInstance serviceInstance) {
+        return supportServicesMap.containsKey(serviceInstance.getService_id())
+                ? supportServicesMap.get(serviceInstance.getService_id())
+                        .getManifest()
+                : null;
+    }
+
+    @Override
     public SupportServiceInstance initSupportServiceInstanceData(
             SupportServiceInstance serviceInstance) {
         TssManifest manifest = supportServicesMap

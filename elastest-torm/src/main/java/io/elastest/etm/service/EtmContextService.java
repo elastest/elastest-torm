@@ -25,7 +25,9 @@ import io.elastest.etm.model.VersionInfo;
 
 @Service
 public class EtmContextService {
-    public static final String EUS_TSS_ID = "29216b91-497c-43b7-a5c4-6613f13fa0e9";
+    @Value("${eus.tss.id}")
+    public String EUS_TSS_ID;
+    
     private static final Logger logger = LoggerFactory
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
