@@ -5,7 +5,7 @@
             try {
 
                 echo("the node is up")
-                def mycontainer = docker.image('elastest/ci-docker-compose-siblings:node7-npm4-3')
+                def mycontainer = docker.image('elastest/ci-docker-compose-siblings:node7-npm4-4')
                 mycontainer.pull() // make sure we have the latest available from Docker Hub
                 mycontainer.inside("-u jenkins -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
                     def epmClientJavaDirectory = 'epm-client-java'
