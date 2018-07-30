@@ -29,11 +29,9 @@
                         sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
 
                     stage "Install EUS as library"
-
-
                         def eusDirectoryExists = fileExists eusJavaDirectory
                         if (eusDirectoryExists) {
-                            echo 'EPM client directory exists'
+                            echo 'EUS client directory exists'
                         } else {
                             echo 'There isn not EUS directory'
                             sh 'mkdir ' + eusJavaDirectory
@@ -45,7 +43,7 @@
                         }
                     
                         echo ("Install EUS as library")
-                        sh 'cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
+                        sh 'pwd; cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
 
 	            git 'https://github.com/elastest/elastest-torm.git'
                         
