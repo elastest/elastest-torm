@@ -43,7 +43,7 @@
                         }
                     
                         echo ("Install EUS as library")
-                        sh 'pwd; cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
+                        sh 'cd $eusJavaDirectory; cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
 
 	            git 'https://github.com/elastest/elastest-torm.git'
                         
