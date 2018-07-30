@@ -335,7 +335,7 @@ public class EsmService {
             if (content != null) {
                 ObjectNode serviceDefJson = ParserService
                         .fromStringToJson(content);
-                if (execMode.equals("normal")) {
+                if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
                     logger.debug("TSS file {}", serviceFile.getName());
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
@@ -437,7 +437,7 @@ public class EsmService {
             TJobExecution tJobExec) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If mode normal and is shared tss
-        if (serviceName != null && execMode.equals("normal")
+        if (serviceName != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
@@ -524,7 +524,7 @@ public class EsmService {
 
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If mode normal and is shared tss
-        if (serviceName != null && execMode.equals("normal")
+        if (serviceName != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
@@ -1114,7 +1114,7 @@ public class EsmService {
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If mode normal and is shared tss
-        if (serviceName != null && execMode.equals("normal")
+        if (serviceName != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
 
             if (serviceName.equals("EUS")) {
@@ -1146,7 +1146,7 @@ public class EsmService {
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If mode normal and is shared tss
-        if (serviceName != null && execMode.equals("normal")
+        if (serviceName != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
 
             if (serviceName.equals("EUS")) {
@@ -1489,7 +1489,7 @@ public class EsmService {
 
     private void setTSSFilesConfig(
             SupportServiceInstance supportServiceInstance) {
-        if (execMode.equals("normal")) {
+        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder
@@ -1744,7 +1744,7 @@ public class EsmService {
 
     public String getSharedTssInstanceId(String serviceName) {
         // If mode normal and is shared tss
-        if (serviceName != null && execMode.equals("normal")
+        if (serviceName != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
             return tssLoadedOnInitMap.get(serviceName.toUpperCase());
         }
@@ -1753,7 +1753,7 @@ public class EsmService {
 
     public SupportServiceInstance getSharedTssInstance(String instanceId) {
         // If mode normal and is shared tss
-        if (instanceId != null && execMode.equals("normal")
+        if (instanceId != null && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && servicesInstances.containsKey(instanceId)) {
             return servicesInstances.get(instanceId);
         }

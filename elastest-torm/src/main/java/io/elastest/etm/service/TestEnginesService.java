@@ -23,6 +23,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.etm.utils.ElastestConstants;
 
 @Service
 public class TestEnginesService {
@@ -70,7 +71,7 @@ public class TestEnginesService {
 
     @PostConstruct
     public void init() {
-        if (!execmode.equals("normal")) {
+        if (!execmode.equals(ElastestConstants.MODE_NORMAL)) {
             registerEngines();
             for (String engine : this.enginesList) {
                 createProject(engine);
@@ -80,7 +81,7 @@ public class TestEnginesService {
 
     @PreDestroy
     public void destroy() {
-        if (!execmode.equals("normal") && enginesList != null) {
+        if (!execmode.equals(ElastestConstants.MODE_NORMAL) && enginesList != null) {
             for (String engine : this.enginesList) {
                 removeProject(engine);
             }

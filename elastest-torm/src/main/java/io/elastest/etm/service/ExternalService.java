@@ -35,6 +35,7 @@ import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -395,7 +396,7 @@ public class ExternalService {
         if (eus != null) {
             String instanceId = UtilTools.generateUniqueId();
 
-            if (execMode.equals("normal")) { // use started instance
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) { // use started instance
                 instanceId = esmService
                         .provisionExternalTJobExecServiceInstanceSync(
                                 eus.getId(), exec);

@@ -50,6 +50,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
+import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
 
 @Service
@@ -468,7 +469,7 @@ public class TJobExecOrchestratorService {
 
         // In normal mode, tjobs make use of started EUS
         String etEusApiKey = "ET_EUS_API";
-        if (execMode.equals("normal") && envVars.containsKey(etEusApiKey)) {
+        if (execMode.equals(ElastestConstants.MODE_NORMAL) && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
                 EusExecutionData eusExecutionDate = new EusExecutionData(

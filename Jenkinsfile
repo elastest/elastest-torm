@@ -9,6 +9,7 @@
                 mycontainer.pull() // make sure we have the latest available from Docker Hub
                 mycontainer.inside("-u jenkins -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
                     def epmClientJavaDirectory = 'epm-client-java'
+                    def eusJavaDirectory = 'eus-java'
 
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
@@ -27,16 +28,31 @@
                         echo 'Installing epm-client-java'
                         sh 'export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd epm-client-java; mvn clean install -Dmaven.test.skip=true'
 
+                    stage "Install EUS as library"
+
+
+                        def eusDirectoryExists = fileExists eusJavaDirectory
+                        if (eusDirectoryExists) {
+                            echo 'EPM client directory exists'
+                        } else {
+                            echo 'There isn not EUS directory'
+                            sh 'mkdir ' + eusJavaDirectory
+                        }
+                        
+                        dir(eusJavaDirectory) {
+                            echo 'Existing files before cloning the git repository'
+                            git 'https://github.com/elastest/elastest-user-emulator-service.git'
+                        }
+                    
+                        echo ("Install EUS as library")
+                        sh 'cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
+
 	            git 'https://github.com/elastest/elastest-torm.git'
                         
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
                         sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
 
-                    stage "Install EUS as library"
-                        echo ("Install EUS as library")
-                        git 'https://github.com/elastest/elastest-user-emulator-service.git'
-                        sh 'cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;'
                     
                     stage "Build elastest-torm-gui"
                         echo ("Build elastest-torm-gui")                        
