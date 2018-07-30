@@ -38,7 +38,7 @@ elastest-torm/.project
 elastest-torm/.settings/
 elastest-torm/.swagger-codegen-ignore
 elastest-torm/.swagger-codegen/VERSION
-# TMP disabled elastest-torm-gui/bin
+elastest-torm-gui/bin
 
 
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
