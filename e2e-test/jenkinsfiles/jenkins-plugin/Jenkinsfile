@@ -47,7 +47,7 @@ node {
                     dir(pluginDirectory) {
                         git 'https://github.com/elastest/elastest-jenkins.git'
                         echo 'Build ElasTest plugin'
-                        sh 'cd elastest-plugin; pwd; ls -lrt; mvn clean package -B'
+                        sh 'pwd; ls -lrt; mvn clean package -B'
                     }
                 
                 stage ('prepare test')
