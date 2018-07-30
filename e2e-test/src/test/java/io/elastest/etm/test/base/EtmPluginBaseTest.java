@@ -19,8 +19,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     protected String jenkinsCIUrl = "http://172.17.0.1:8080";
     protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
-    protected String jenkinsUser = "admin";
-    protected String jenkinsPass = "admin";
+    protected String jenkinsUser = "elastest";
+    protected String jenkinsPass = "elastest";
 
     @BeforeEach
     void pluginSetup() {
