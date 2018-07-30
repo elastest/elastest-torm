@@ -26,7 +26,7 @@
                         }
                         
                         echo 'Installing epm-client-java'
-                        sh "export PATH=$MVN_CMD_DIR:$PATH;ls -lrt; cd $epmClientJavaDirectory; mvn clean install -Dmaven.test.skip=true"
+                        sh "ls -lrt; cd $epmClientJavaDirectory; mvn clean install -Dmaven.test.skip=true"
 
                     stage "Install EUS as library"
                         def eusDirectoryExists = fileExists eusJavaDirectory
