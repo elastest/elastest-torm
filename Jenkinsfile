@@ -44,12 +44,13 @@
                     
                         echo ("Install EUS as library")
                         sh "cd $eusJavaDirectory; cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;"
+                        sh "pwd; ls"
 
 	            git 'https://github.com/elastest/elastest-torm.git'
                         
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
-                        sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
+                        sh 'pwd;ls;cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
 
                     
                     stage "Build elastest-torm-gui"
