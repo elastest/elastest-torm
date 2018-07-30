@@ -299,4 +299,32 @@ public class ContextInfo {
     public void setEdmCommandUrl(String edmCommandUrl) {
         this.edmCommandUrl = edmCommandUrl;
     }
+
+    @Override
+    public String toString() {
+        return "ContextInfo [elasticSearchUrl=" + elasticSearchUrl
+                + ", elasticSearchSSlUrl=" + elasticSearchSSlUrl
+                + ", elasticsearchPath=" + elasticsearchPath
+                + ", logstashHttpUrl=" + logstashHttpUrl
+                + ", logstashSSLHttpUrl=" + logstashSSLHttpUrl
+                + ", logstashHttpPort=" + logstashHttpPort
+                + ", logstashTcpHost=" + logstashTcpHost + ", logstashTcpPort="
+                + logstashTcpPort + ", logstashInternalTcpPort="
+                + logstashInternalTcpPort + ", logstashBeatsHost="
+                + logstashBeatsHost + ", logstashBeatsPort=" + logstashBeatsPort
+                + ", internalLogstashBeatsPort=" + internalLogstashBeatsPort
+                + ", logstashBindedTcpHost=" + logstashBindedTcpHost
+                + ", logstashBindedTcpPort=" + logstashBindedTcpPort
+                + ", logstashBindedInternalTcpPort="
+                + logstashBindedInternalTcpPort + ", logstashBindedBeatsHost="
+                + logstashBindedBeatsHost + ", logstashBindedBeatsPort="
+                + logstashBindedBeatsPort + ", logstashBindedInternalBeatsPort="
+                + logstashBindedInternalBeatsPort + ", logstashIp=" + logstashIp
+                + ", logstashPath=" + logstashPath + ", rabbitPath="
+                + rabbitPath + ", elasTestExecMode=" + elasTestExecMode
+                + ", eusSSInstance=" + eusSSInstance + ", testLinkStarted="
+                + testLinkStarted + ", empGrafanaUrl=" + empGrafanaUrl
+                + ", edmCommandUrl=" + edmCommandUrl + "]";
+    }
+
 }

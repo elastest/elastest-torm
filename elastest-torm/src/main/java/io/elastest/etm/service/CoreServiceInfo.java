@@ -102,4 +102,12 @@ public class CoreServiceInfo {
         return containerName;
     }
 
+    @Override
+    public String toString() {
+        return "CoreServiceInfo [name=" + name + ", versionInfo=" + versionInfo
+                + ", imageName=" + imageName + ", containerNames="
+                + containerNames + ", ports=" + ports + ", status=" + status
+                + ", networks=" + networks + "]";
+    }
+
 }

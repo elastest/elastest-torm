@@ -277,7 +277,6 @@ public class DockerService {
         return containerId;
     }
 
-
     public String createAndStartContainerWithPull(
             DockerContainer dockerContainer, boolean remotely, boolean withPull)
             throws Exception {
@@ -765,7 +764,9 @@ public class DockerService {
                 .listContainers(ListContainersParam.allContainers());
         List<Container> imageContainers = new ArrayList<>();
         for (Container currentContainer : allContainers) {
-            if (currentContainer.image().equals(imageName)) {
+            String currentImageName = currentContainer.image();
+            if (currentImageName != null
+                    && currentImageName.equals(imageName.trim())) {
                 imageContainers.add(currentContainer);
             }
         }
