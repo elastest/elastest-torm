@@ -58,6 +58,7 @@ ELASTEST_DOCKER_NETWORK=${projectName}_elastest
 ET_IN_PROD=true
 ET_PROXY_PORT=37000
 ET_ETM_LOGSTASH_CONTAINER_NAME=${projectName}_etm-logstash_1
+ET_EDM_MYSQL_CONTAINER_NAME=${projectName}_edm-mysql_1
 # TestLink Container Name
 ET_ETM_TESTLINK_HOST=$(docker ps | awk '{print $NF}' | grep ".*etm-testlink.*")
 
