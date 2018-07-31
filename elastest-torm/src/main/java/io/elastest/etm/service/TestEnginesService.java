@@ -1,5 +1,8 @@
 package io.elastest.etm.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -13,7 +16,6 @@ import javax.annotation.PreDestroy;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +28,13 @@ import io.elastest.epm.client.service.DockerComposeService;
 
 @Service
 public class TestEnginesService {
-
-    private final static Logger log = LoggerFactory
-            .getLogger(TestEnginesService.class);
+    final Logger logger = getLogger(lookup().lookupClass());
 
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
 
     public List<String> enginesList = new ArrayList<>();
+    public List<String> noEnginesList = new ArrayList<>();
 
     @Value("${elastest.docker.network}")
     public String network;
@@ -66,13 +67,18 @@ public class TestEnginesService {
         this.enginesList.add("ece");
         this.enginesList.add("ere"); // It's necessary to auth:
                                      // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
+        this.noEnginesList.add("eim");
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception {
         registerEngines();
         for (String engine : this.enginesList) {
             createProject(engine);
+        }
+
+        for (String engine : this.noEnginesList) {
+            createNoEngineProject(engine);
         }
     }
 
@@ -81,10 +87,31 @@ public class TestEnginesService {
         for (String engine : this.enginesList) {
             removeProject(engine);
         }
+        for (String engine : this.noEnginesList) {
+            removeProject(engine);
+        }
     }
 
     public void createProject(String name) {
         String dockerComposeYml = getDockerCompose(name);
+        this.createProject(name, dockerComposeYml);
+    }
+
+    public void createNoEngineProject(String name) throws Exception {
+        String dockerComposeYml = getDockerCompose(name);
+        if ("eim".equals(name)) {
+            try {
+                String mysqlHost = dockerEtmService.getEdmMySqlHost();
+                dockerComposeYml = dockerComposeYml.replace("edm-mysql",
+                        mysqlHost);
+            } catch (Exception e) {
+                throw new Exception("Error on get MySQL host", e);
+            }
+        }
+        this.createProject(name, dockerComposeYml);
+    }
+
+    public void createProject(String name, String dockerComposeYml) {
         try {
             String path = sharedFolder.endsWith("/") ? sharedFolder
                     : sharedFolder + "/";
@@ -92,7 +119,7 @@ public class TestEnginesService {
             dockerComposeService.createProject(name, dockerComposeYml, path,
                     true);
         } catch (Exception e) {
-            log.error("Exception creating project {}", name, e);
+            logger.error("Exception creating project {}", name, e);
         }
     }
 
@@ -115,18 +142,18 @@ public class TestEnginesService {
 
     public String createInstance(String engineName) {
         String url = "";
-        log.error("Checking if {} is not already running", engineName);
+        logger.error("Checking if {} is not already running", engineName);
         if (!isRunning(engineName)) {
             try {
-                log.error("Creating {} instance", engineName);
+                logger.error("Creating {} instance", engineName);
                 dockerComposeService.startProject(engineName, true);
                 insertIntoETNetwork(engineName);
                 url = getServiceUrl(engineName);
             } catch (IOException e) {
-                log.error("Cannot create {} instance", engineName, e);
+                logger.error("Cannot create {} instance", engineName, e);
             } catch (Exception e) {
-                log.error("{}", e.getMessage());
-                log.error("Stopping service {}", engineName);
+                logger.error("{}", e.getMessage());
+                logger.error("Stopping service {}", engineName);
                 this.stopInstance(engineName);
             }
         } else {
@@ -161,7 +188,7 @@ public class TestEnginesService {
             for (DockerContainer container : dockerComposeService
                     .getContainers(serviceName).getContainers()) {
 
-                log.debug("Container info: {}", container);
+                logger.debug("Container info: {}", container);
 
                 String containerName = serviceName + "_" + serviceName + "_1"; // example:
                                                                                // ece_ece_1
@@ -195,12 +222,12 @@ public class TestEnginesService {
                     if (serviceName.equals("ere")) {
                         url += "/ere-app";
                     }
-                    log.debug("Url: " + url);
+                    logger.debug("Url: " + url);
                 }
             }
 
         } catch (Exception e) {
-            log.error("Service url not exist {}", serviceName, e);
+            logger.error("Service url not exist {}", serviceName, e);
         }
         return url;
     }
@@ -215,19 +242,19 @@ public class TestEnginesService {
         URL url;
         try {
             url = new URL(engineUrl);
-            log.info("Service url to check: " + engineUrl);
+            logger.info("Service url to check: " + engineUrl);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
             up = (responseCode >= 200 && responseCode <= 299);
             if (!up) {
-                log.info("Service no ready at url: " + engineUrl);
+                logger.info("Service no ready at url: " + engineUrl);
                 return up;
             }
         } catch (IOException e) {
             return false;
         }
 
-        log.info("Service ready at url: " + engineUrl);
+        logger.info("Service ready at url: " + engineUrl);
 
         return up;
     }
@@ -236,7 +263,7 @@ public class TestEnginesService {
         try {
             dockerComposeService.stopProject(engineName);
         } catch (IOException e) {
-            log.error("Error while stopping engine {}", engineName);
+            logger.error("Error while stopping engine {}", engineName);
         }
     }
 
@@ -256,7 +283,7 @@ public class TestEnginesService {
             return false;
 
         } catch (Exception e) {
-            log.error("Engine not started or not exist {}", engineName, e);
+            logger.error("Engine not started or not exist {}", engineName, e);
             return false;
         }
     }

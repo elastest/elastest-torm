@@ -1,0 +1,11 @@
+version: '3'
+services:
+  eim:
+    image: elastest/eim:latest
+    stdin_open: true
+    tty: true
+    environment:
+    - ET_EDM_MYSQL_HOST=edm-mysql
+    - ET_EDM_MYSQL_PORT=3306
+    expose:
+    - 8080

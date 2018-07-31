@@ -24,6 +24,8 @@ import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.EimMonitoringConfig.ApiEimMonitoringConfig;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
+import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EimService {
@@ -33,6 +35,11 @@ public class EimService {
     private final EimConfigRepository eimConfigRepository;
     private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
     private final EimBeatConfigRepository eimBeatConfigRepository;
+    private final TestEnginesService testEnginesService;
+    private final UtilsService utilsService;
+
+    @Value("${exec.mode}")
+    public String execMode;
 
     @Value("${et.eim.api}")
     public String eimUrl;
@@ -43,10 +50,13 @@ public class EimService {
 
     public EimService(EimConfigRepository eimConfigRepository,
             EimMonitoringConfigRepository eimMonitoringConfigRepository,
-            EimBeatConfigRepository eimBeatConfigRepository) {
+            EimBeatConfigRepository eimBeatConfigRepository,
+            TestEnginesService testEnginesService, UtilsService utilsService) {
         this.eimConfigRepository = eimConfigRepository;
         this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
         this.eimBeatConfigRepository = eimBeatConfigRepository;
+        this.testEnginesService = testEnginesService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -68,6 +78,8 @@ public class EimService {
 
     @SuppressWarnings("unchecked")
     public EimConfig instrumentalize(EimConfig eimConfig) throws Exception {
+        this.startEimIfNotStarted();
+
         RestTemplate restTemplate = new RestTemplate();
 
         Map<String, String> body = new HashMap<>();
@@ -78,9 +90,16 @@ public class EimService {
             body.put("password", eimConfig.getPassword());
         }
         body.put("private_key", eimConfig.getPrivateKey());
-        body.put("logstash_ip", eimConfig.getLogstashBindedBeatsHost());
-        body.put("logstash_port", eimConfig.getLogstashBindedBeatsPort());
 
+        // Dev
+        if (!utilsService.isEtmInContainer()
+                || utilsService.isEtmInDevelopment()) {
+            body.put("logstash_ip", eimConfig.getLogstashIp());
+            body.put("logstash_port", eimConfig.getLogstashBeatsPort());
+        } else { // Prod
+            body.put("logstash_ip", eimConfig.getLogstashBindedBeatsHost());
+            body.put("logstash_port", eimConfig.getLogstashBindedBeatsPort());
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(
@@ -99,7 +118,35 @@ public class EimService {
         return this.eimConfigRepository.save(eimConfig);
     }
 
+    private void startEimIfNotStarted() {
+        // Only in normal mode
+        String eimProjectName = "eim";
+        if (execMode.equals(ElastestConstants.MODE_NORMAL)
+                && !testEnginesService.isRunning(eimProjectName)) {
+            testEnginesService.createInstance(eimProjectName);
+            while (!testEnginesService.checkIfEngineUrlIsUp(eimProjectName)) {
+                // Wait
+                try {
+                    Thread.sleep(2500);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            // Init URL
+            this.eimUrl = testEnginesService.getServiceUrl(eimProjectName);
+            this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
+                    : this.eimUrl + "/";
+            this.eimApiPath = this.eimApiPath.startsWith("/")
+                    ? this.eimApiPath.substring(1)
+                    : this.eimApiPath;
+            this.initEimApiUrl();
+            logger.debug("EIM is now ready at {}", this.eimApiUrl);
+        }
+    }
+
     public EimConfig deinstrumentalize(EimConfig eimConfig) {
+        this.startEimIfNotStarted();
+
         RestTemplate restTemplate = new RestTemplate();
         restTemplate
                 .delete(this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
@@ -146,6 +193,8 @@ public class EimService {
 
     public void unDeployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) {
+        this.startEimIfNotStarted();
+
         RestTemplate restTemplate = new RestTemplate();
 
         try {

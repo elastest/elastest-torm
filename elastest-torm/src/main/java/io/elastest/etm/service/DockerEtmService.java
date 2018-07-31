@@ -96,6 +96,9 @@ public class DockerEtmService {
     @Value("${et.etm.container.name}")
     private String etEtmContainerName;
 
+    @Value("${et.edm.mysql.container.name}")
+    private String etEdmMysqlContainerName;
+
     @Value("${et.master.slave.mode}")
     private boolean masterSlavemode;
 
@@ -206,6 +209,11 @@ public class DockerEtmService {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
 
+    }
+
+    public String getEdmMySqlHost() throws Exception {
+        return dockerService.getContainerIpByNetwork(etEdmMysqlContainerName,
+                elastestNetwork);
     }
     /* *************************** */
     /* **** Container Methods **** */

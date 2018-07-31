@@ -39,8 +39,7 @@
                 No Instrumentation
               </md-radio-button>
 
-              <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right"
-                *ngIf="elasTestExecMode !== 'normal'">
+              <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right">
                 Instrumented by ElasTest
               </md-radio-button>
 
@@ -154,7 +153,7 @@
           </div>
 
           <!-- Deployed: Instrumented By Elastest fields -->
-          <div layout="column" class="push-top" *ngIf="elasTestExecMode !== 'normal' && deployedChecked && elastestInsCheck">
+          <div layout="column" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
             <div layout="row">
 
               <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
