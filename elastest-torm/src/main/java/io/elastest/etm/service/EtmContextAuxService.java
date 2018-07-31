@@ -143,9 +143,19 @@ public class EtmContextAuxService {
         } catch (Exception e) {
             logger.error("Error on get logstash host ip", e);
         }
+
         String proxyIp = etPublicHost;
         String proxyPort = etProxyPort;
         String proxySslPort = etProxySSLPort;
+
+        String hostIpByNetwork = proxyIp;
+        try {
+            hostIpByNetwork = dockerEtmService.dockerService
+                    .getHostIpByNetwork(elastestNetwork);
+        } catch (Exception e) {
+            logger.error("Error on get host ip", e);
+        }
+
         if (etInProd) {
             if ("localhost".equals(etPublicHost)) {
                 try {
@@ -154,14 +164,14 @@ public class EtmContextAuxService {
                     proxySslPort = etProxyInternalSSLPort;
                 } catch (Exception e) {
                 }
+
+                // Binded TCP/Beats Host are etPublicHost => set host ip
+                contextInfo.setLogstashBindedTcpHost(hostIpByNetwork);
+                contextInfo.setLogstashBindedBeatsHost(hostIpByNetwork);
+
             }
         } else {
-            try {
-                proxyIp = dockerEtmService.dockerService
-                        .getHostIpByNetwork(elastestNetwork);
-            } catch (Exception e) {
-                logger.error("Error on get proxy host ip", e);
-            }
+            proxyIp = hostIpByNetwork;
         }
 
         if (etInProd && etmInContainer) {
