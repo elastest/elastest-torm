@@ -71,20 +71,16 @@ public class TestEnginesService {
 
     @PostConstruct
     public void init() {
-        if (!execmode.equals(ElastestConstants.MODE_NORMAL)) {
-            registerEngines();
-            for (String engine : this.enginesList) {
-                createProject(engine);
-            }
+        registerEngines();
+        for (String engine : this.enginesList) {
+            createProject(engine);
         }
     }
 
     @PreDestroy
     public void destroy() {
-        if (!execmode.equals(ElastestConstants.MODE_NORMAL) && enginesList != null) {
-            for (String engine : this.enginesList) {
-                removeProject(engine);
-            }
+        for (String engine : this.enginesList) {
+            removeProject(engine);
         }
     }
 

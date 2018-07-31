@@ -43,7 +43,7 @@
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()"
         md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/test-engines']" id="nav_test_engines">
         <md-icon md-list-icon>battery_charging_full</md-icon>
