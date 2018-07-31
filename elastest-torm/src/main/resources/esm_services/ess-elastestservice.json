@@ -33,7 +33,7 @@
     },
     "manifest": {
         "id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
-        "manifest_content": "version: '2.1'\nservices:\n   ess:\n      image: elastest/ess:latest\n      networks:\n            - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
+        "manifest_content": "version: '2.1'\nservices:\n   ess:\n      image: elastest/ess:latest\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - /shared-data:/shared-data\nnetworks:\n  elastest_elastest:\n    external: true",
         "manifest_type": "docker-compose",
         "plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
         "service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
@@ -44,10 +44,10 @@
                 "api": {
                     "protocol": "http",
                     "port": 80,
-                    "path": "/ess/api/r3"
+                    "path": "/ess/api/r4"
                 },
-        "gui": {
-            "protocol": "http",
+                "gui": {
+                    "protocol": "http",
                     "path": "/gui/",
                     "port": 80
                 }

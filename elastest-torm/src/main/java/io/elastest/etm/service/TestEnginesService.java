@@ -23,7 +23,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.service.DockerComposeService;
-import io.elastest.etm.utils.ElastestConstants;
 
 @Service
 public class TestEnginesService {

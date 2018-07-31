@@ -43,23 +43,23 @@
         <md-icon md-list-icon>folder_multiple</md-icon>
         Projects
       </a>
-      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/test-engines']" id="nav_test_engines">
-        <md-icon md-list-icon>battery_charging_full</md-icon>
-        Test Engines
-      </a>
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/support-services']" id="nav_support_services">
-        <md-icon md-list-icon>settings_input_component</md-icon>
-        Test Support Services
-      </a>
       <a *ngIf="configService.configModel.elasTestExecMode === 'normal'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
         md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/eus']" id="nav_support_services">
         <md-icon md-list-icon>open_in_browser</md-icon>
         Web Browsers
+      </a>
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/test-engines']" id="nav_test_engines">
+        <md-icon md-list-icon>battery_charging_full</md-icon>
+        Test Engines
+      </a>
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/support-services']" id="nav_support_services">
+        <md-icon md-list-icon>settings_input_component</md-icon>
+        Test Support Services
       </a>
       <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
@@ -75,16 +75,16 @@
         TestLink
       </a>
       <a *ngIf="configService.configModel.elasTestExecMode === 'experimental'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
-      md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-      [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/edm']" id="nav_edm">
-      <md-icon md-list-icon>storage</md-icon>
-      Data Manager (EDM)
+        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/edm']" id="nav_edm">
+        <md-icon md-list-icon>storage</md-icon>
+        Data Manager (EDM)
       </a>
       <a *ngIf="configService.configModel.elasTestExecMode === 'experimental'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
-      md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-      [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/emp']" id="nav_emp">
-      <md-icon md-list-icon>insert_chart</md-icon>
-      Monitoring Platfrom (EMP)
+        md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/emp']" id="nav_emp">
+        <md-icon md-list-icon>insert_chart</md-icon>
+        Monitoring Platfrom (EMP)
       </a>
       <!-- <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"

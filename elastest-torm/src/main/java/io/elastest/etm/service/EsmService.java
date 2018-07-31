@@ -339,13 +339,12 @@ public class EsmService {
                     logger.debug("TSS file {}", serviceFile.getName());
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
+                    logger.debug("TSS {} will be registered in normal mode.",
+                            serviceName);
+                    registerElasTestService(serviceDefJson);
+                    String tssId = serviceDefJson.get("register").get("id")
+                            .toString().replaceAll("\"", "");
                     if (tSSNameLoadedOnInit.contains(serviceName)) {
-                        logger.debug(
-                                "TSS {} will be registered in normal mode.",
-                                serviceName);
-                        registerElasTestService(serviceDefJson);
-                        String tssId = serviceDefJson.get("register").get("id")
-                                .toString().replaceAll("\"", "");
                         tSSIdLoadedOnInit.add(tssId);
                     }
                 } else {
@@ -1096,15 +1095,25 @@ public class EsmService {
 
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             // If is not EUS in normal mode, deprovision
-            if (!execMode.equals(ElastestConstants.MODE_NORMAL)
-                    || (execMode.equals(ElastestConstants.MODE_NORMAL)
-                            && !"EUS".equals(tSSInstance.getServiceName()))) {
+            if (!isIntegratedEUS(tSSInstance)) {
                 deprovisionServiceInstance(tSSInstanceId, servicesInstances);
             }
         });
 
         servicesInstances = null;
 
+    }
+
+    public boolean isIntegratedEUS(String serviceName, String instanceId) {
+        return execMode.equals(ElastestConstants.MODE_NORMAL)
+                && "EUS".equals(serviceName)
+                && tssLoadedOnInitMap.containsKey(serviceName)
+                && tssLoadedOnInitMap.containsValue(instanceId);
+    }
+
+    public boolean isIntegratedEUS(SupportServiceInstance instance) {
+        return this.isIntegratedEUS(instance.getServiceName(),
+                instance.getInstanceId());
     }
 
     public String deprovisionTJobExecServiceInstance(String instanceId,
@@ -1180,7 +1189,9 @@ public class EsmService {
         String result = "Instance deleted.";
 
         SupportServiceInstance serviceInstance = ssiMap.get(instanceId);
-        if (serviceInstance != null) {
+
+        // If not empty and not integrated EUS
+        if (serviceInstance != null && !this.isIntegratedEUS(serviceInstance)) {
             serviceInstance.setServiceReady(false);
 
             for (String containerId : serviceInstance
@@ -1211,7 +1222,6 @@ public class EsmService {
                     }
                 }
             }
-
             supportServiceClient.deprovisionServiceInstance(instanceId,
                     serviceInstance);
         }
@@ -1268,11 +1278,14 @@ public class EsmService {
     }
 
     public List<SupportServiceInstance> getServicesInstancesAsList() {
+        ArrayList<SupportServiceInstance> servicesInstancesList = new ArrayList<>();
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            tSSInstance.setServiceReady(checkInstanceUrlIsUp(tSSInstance));
+            if (!this.isIntegratedEUS(tSSInstance)) {
+                tSSInstance.setServiceReady(checkInstanceUrlIsUp(tSSInstance));
+                servicesInstancesList.add(tSSInstance);
+            }
         });
-        return new ArrayList<SupportServiceInstance>(
-                servicesInstances.values());
+        return servicesInstancesList;
     }
 
     public Map<String, SupportServiceInstance> getServicesInstances() {
@@ -1311,12 +1324,14 @@ public class EsmService {
         boolean up = false;
         int responseCode = 0;
         if (tSSInstance != null) {
-            if (tSSInstance.getUrls() != null) {
+            if (tSSInstance.getUrls() != null
+                    && !tSSInstance.getUrls().isEmpty()) {
                 // First check if api status url exist (for integrated EUS)
                 String urlValue = tSSInstance.getApiStatusUrlIfExist();
                 if (urlValue == null) {
                     tSSInstance.getApiUrlIfExist();
                 }
+
                 up = true;
                 if (urlValue != null) {
                     URL url;
@@ -1348,8 +1363,8 @@ public class EsmService {
                 }
             }
             String checklMessage = up
-                    ? tSSInstance.getServiceName() + "Service is ready."
-                    : tSSInstance.getServiceName() + " Service is not ready.";
+                    ? tSSInstance.getServiceName() + " Service is ready."
+                    : tSSInstance.getServiceName() + " Service is not ready yet.";
 
             logger.info(checklMessage);
         }

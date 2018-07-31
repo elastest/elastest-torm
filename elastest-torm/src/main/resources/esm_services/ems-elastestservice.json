@@ -12,20 +12,20 @@
                 "description": "Basic plan for EMS usage",
                 "metadata": {
                     "costs": {
-                        "name": "On Demand 5 + Charges",
-                        "type": "ONDEMAND",
-                        "fix_cost": {
-                            "deployment": 5
+                        "description": "cost model for ems",
+                        "currency": "eur",
+                        "model": "pay-as-you-go",
+                        "model_param": {
+                            "setup_cost": 4.2
                         },
-                        "var_rate": {
-                            "disk": 1,
-                            "memory": 10,
-                            "cpus": 50
-                        },
-                        "components": {
-                            
-                        },
-                        "description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
+                        "meter_list": [
+                            {
+                                "meter_name": "disk_storage",
+                                "meter_type": "gauge",
+                                "unit_cost": 0.125,
+                                "unit": "gb-hour"
+                            }
+                        ]
                     }
                 }
             }
@@ -34,7 +34,6 @@
     "manifest": {
         "id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
         "manifest_content": "version: '2.1'\nservices:\n    ems:\n        image: elastest/ems:latest\n        expose:\n            - \"5044\"\n            - \"8888\"\n            - \"8181\"\n            - \"3232\"\n            - \"5000\"\n            - \"5001\"\n        networks:\n            - elastest_elastest\n      \nnetworks:\n  elastest_elastest:\n    external: true ",
-
         "manifest_type": "docker-compose",
         "plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
         "service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
@@ -84,7 +83,6 @@
                         "protocol": "http",
                         "port": 3232,
                         "path": "/"
-
                     }
                 ]
             }
