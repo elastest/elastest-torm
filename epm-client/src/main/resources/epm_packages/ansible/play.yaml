@@ -15,7 +15,7 @@
         name: vm3
         state: present
         timeout: 200
-        network: 9e909eed-34ca-424c-88f4-027385be7aa8
+        network: selfservice
         security_groups:
           - SSH
           - Elastest
