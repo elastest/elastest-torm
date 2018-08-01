@@ -226,7 +226,7 @@ public class FilesService {
         logger.info("Add files to the tar file.");
         String entry = dir;
         if (file.isFile()) {
-            entry = File.separator + file.getName();
+            entry = file.getName();
             logger.info("File to add to the tar file: {}", entry);
             out.putArchiveEntry(new TarArchiveEntry(file, entry));
             try (FileInputStream in = new FileInputStream(file)) {
