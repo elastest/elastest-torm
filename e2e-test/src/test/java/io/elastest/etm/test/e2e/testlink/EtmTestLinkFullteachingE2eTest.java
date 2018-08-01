@@ -60,7 +60,8 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
     static String fullteachingUrl = null;
 
     @BeforeAll
-    public static void getFullteachingIp() {
+    public void init() {
+        // Get FullTeaching URL
         String fullteachingIp = getProperty("fullteachingIp");
         String fullteachingPort = getProperty("fullteachingPort");
 
@@ -72,6 +73,9 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
     void tlFullteachingDataTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
+        this.driver = driver;
+        this.startTestLinkIfNecessaryWithNavigate(driver);
+        
         log.info("Creating Fullteaching Data in TestLink...");
         SampleTLData fullteachingTLData = this
                 .createFullteachingTLDataTest(driver);

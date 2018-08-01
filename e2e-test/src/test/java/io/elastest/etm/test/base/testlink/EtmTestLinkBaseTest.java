@@ -19,10 +19,13 @@ package io.elastest.etm.test.base.testlink;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -40,20 +43,21 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         log.info("Navigate to TestLink Section");
         this.getElementByXpath(driver, "//a[@id='nav_testlink']").get(0)
                 .click();
+        this.getElementById(driver, "testlinkPage", 5);
     }
 
     protected void openTestlinkPage(WebDriver driver) {
         this.navigateToTestlinkSection(driver);
         log.info("Open TestLink Page");
 
-        driver.findElement(By.xpath("//a[@id='openTestLink']")).click();
+        this.getElementById(driver, "openTestLink", 10).get(0).click();
     }
 
     protected String getTestlinkPageUrl(WebDriver driver) {
         this.navigateToTestlinkSection(driver);
         log.info("Getting TestLink Page");
 
-        return driver.findElement(By.xpath("//a[@id='openTestLink']"))
+        return this.getElementById(driver, "openTestLink", 10).get(0)
                 .getAttribute("href");
     }
 
@@ -70,6 +74,27 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         waitService.until(elementToBeClickable(
                 this.getElementByIdXpath(driver, id, xpath).get(0)));
 
+    }
+
+    protected void startTestLinkIfNecessary(WebDriver driver) {
+        By startTestLinkBtnId = By.id("startTestLink");
+        WebElement startTestLinkBtn = driver.findElements(startTestLinkBtnId)
+                .size() > 0 ? driver.findElements(startTestLinkBtnId).get(0)
+                        : null;
+        if (startTestLinkBtn != null) {
+            log.debug("Starting TestLink container...");
+            startTestLinkBtn.click();
+            new WebDriverWait(driver, 120)
+                    .until(invisibilityOfElementLocated(startTestLinkBtnId));
+
+        }
+    }
+
+    protected void startTestLinkIfNecessaryWithNavigate(WebDriver driver) {
+        // Start TestLink if necessary
+        this.navigateToTorm(driver);
+        this.navigateToTestlinkSection(driver);
+        this.startTestLinkIfNecessary(driver);
     }
 
     /* *************** */
