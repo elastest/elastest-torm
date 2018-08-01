@@ -307,8 +307,10 @@ public class DockerEtmService {
                 logger.error("Cannot get Ems Log config", e);
             }
         } else {
-            logConfig = getDefaultLogConfig(logstashTcpPort, prefix, suffix,
-                    dockerExec);
+            logConfig = getDefaultLogConfig(
+                    (EpmService.etMasterSlaveMode ? bindedLsTcpPort
+                            : logstashTcpPort),
+                    prefix, suffix, dockerExec);
         }
         // Pull Image
         this.pullETExecutionImage(dockerExec, image, type, false);
