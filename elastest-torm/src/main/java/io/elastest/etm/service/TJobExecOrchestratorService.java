@@ -33,6 +33,7 @@ import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
+import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
@@ -60,9 +61,12 @@ public class TJobExecOrchestratorService {
 
     @Value("${exec.mode}")
     public String execMode;
-
     @Value("${elastest.docker.network}")
     private String elastestDockerNetwork;
+    @Value("${et.etm.lstcp.port}")
+    private String logstashTcpPort;
+    @Value("${et.etm.binded.lstcp.port}")
+    public String bindedLsTcpPort;
 
     private final DockerEtmService dockerEtmService;
     private final DockerComposeService dockerComposeService;
@@ -847,7 +851,8 @@ public class TJobExecOrchestratorService {
         HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
 
         String host = "";
-        String port = "5000";
+        String port = EpmService.etMasterSlaveMode ? bindedLsTcpPort
+                : logstashTcpPort;
 
         if (tJobExec.getTjob().isSelectedService("ems")) {
             host = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
