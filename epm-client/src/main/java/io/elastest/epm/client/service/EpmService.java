@@ -113,7 +113,7 @@ public class EpmService {
             logger.info("Creating slave");
             try {
                 //if (workerApiInstance.getAllWorkers().size() > 0) {
-                    re = provisionRemoteEnvironment();
+                    re = provideRemoteEnvironment();
                // }
                 //if (popApi.getAllPoPs().isEmpty()) {
                 //    re = provisionRemoteEnvironment();
@@ -140,7 +140,7 @@ public class EpmService {
         }
     }
 
-    public RemoteEnvironment provisionRemoteEnvironment()
+    public RemoteEnvironment provideRemoteEnvironment()
             throws ServiceException {
         logger.info("Provisioning virtual machine.");
         RemoteEnvironment re = new RemoteEnvironment();
