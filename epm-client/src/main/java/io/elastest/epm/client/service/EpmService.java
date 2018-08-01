@@ -64,6 +64,7 @@ public class EpmService {
     private JSON json;
 
     private Map<String, String> adapters;
+    private Map<String, ResourceGroup> deployedDockerCompose;
 
     public enum AdaptersNames {
         DOCKER("docker"), DOCKER_COMPOSE("docker-compose");
@@ -89,6 +90,7 @@ public class EpmService {
         json = new JSON(apiClient);
         this.filesService = filesService;
         adapters = new HashMap<>();
+        deployedDockerCompose = new HashMap<>();
 
     }
 
@@ -347,5 +349,14 @@ public class EpmService {
 
     public void setRe(RemoteEnvironment re) {
         this.re = re;
+    }
+
+    public Map<String, ResourceGroup> getDeployedDockerCompose() {
+        return deployedDockerCompose;
+    }
+
+    public void setDeployedDockerCompose(
+            Map<String, ResourceGroup> deployedDockerCompose) {
+        this.deployedDockerCompose = deployedDockerCompose;
     }
 }

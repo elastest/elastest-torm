@@ -126,7 +126,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
             logger.info("Deploying SUT in a Slave.");
             dockerCompose = new RemoteDockerCompose(composeFiles.get(0),
                     this.composeYmlList.get(0), project, epmService,
-                    filesService, basePath);
+                    filesService, basePath, cmd);
             processResult = dockerCompose.invoke();
         } else {
             logger.info("Deploying SUT in Master.");
@@ -275,16 +275,18 @@ class RemoteDockerCompose implements DockerCompose {
     private final EpmService epmService;
     private final FilesService filesService;
     private final String basePath;
+    private final String cmd;
 
     public RemoteDockerCompose(File composeFile, String composeYml,
             String identifier, EpmService epmService, FilesService filesService,
-            String basePath) {
+            String basePath, String cmd) {
         this.composeFile = composeFile;
         this.composeYml = composeYml;
         this.identifier = identifier;
         this.epmService = epmService;
         this.filesService = filesService;
         this.basePath = basePath;
+        this.cmd = cmd;
     }
 
     @Override
@@ -363,7 +365,15 @@ class RemoteDockerCompose implements DockerCompose {
 
         // Send package to the EPM
         try {
-            ResourceGroup result = epmService.sendPackage(packageTarFile);
+            if (!cmd.contains("down")) {
+                ResourceGroup result = epmService.sendPackage(packageTarFile);
+                epmService.getDeployedDockerCompose().put(identifier, result);
+            } else {
+                epmService.deleteAdapter(epmService.getDeployedDockerCompose()
+                        .get(identifier).getId());
+                epmService.getDeployedDockerCompose().remove(identifier);
+            }
+
         } catch (ServiceException e) {
             throw new ContainerLaunchException(
                     "Error sending a package to the EPM.");
