@@ -365,6 +365,7 @@ class RemoteDockerCompose implements DockerCompose {
 
         // Send package to the EPM
         try {
+            logger.info("Command to execute: {}", cmd);
             if (!cmd.contains("down")) {
                 ResourceGroup result = epmService.sendPackage(packageTarFile);
                 epmService.getDeployedDockerCompose().put(identifier, result);
