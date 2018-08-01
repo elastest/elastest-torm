@@ -36,6 +36,9 @@ public class TestEnginesService {
     public List<String> enginesList = new ArrayList<>();
     public List<String> noEnginesList = new ArrayList<>();
 
+    @Value("${et.compose.project.name}")
+    String etComposeProjectName;
+
     @Value("${elastest.docker.network}")
     public String network;
 
@@ -68,6 +71,7 @@ public class TestEnginesService {
         this.enginesList.add("ere"); // It's necessary to auth:
                                      // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
         this.noEnginesList.add("eim");
+        this.noEnginesList.add("testlink");
     }
 
     @PostConstruct
@@ -99,7 +103,7 @@ public class TestEnginesService {
 
     public void createNoEngineProject(String name) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
-        if ("eim".equals(name)) {
+        if ("eim".equals(name) || "testlink".equals(name)) {
             try {
                 String mysqlHost = dockerEtmService.getEdmMySqlHost();
                 dockerComposeYml = dockerComposeYml.replace("edm-mysql",
@@ -108,19 +112,30 @@ public class TestEnginesService {
                 throw new Exception("Error on get MySQL host", e);
             }
         }
-        this.createProject(name, dockerComposeYml);
+
+        if ("testlink".equals(name)) {
+            // Create project and bind exposed ports to random host port
+            this.createProject(name, dockerComposeYml, true, false);
+        } else {
+            this.createProject(name, dockerComposeYml);
+        }
     }
 
-    public void createProject(String name, String dockerComposeYml) {
+    public void createProject(String name, String dockerComposeYml,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes) {
         try {
             String path = sharedFolder.endsWith("/") ? sharedFolder
                     : sharedFolder + "/";
             path += "tmp-engines-yml";
             dockerComposeService.createProject(name, dockerComposeYml, path,
-                    true);
+                    true, withBindedExposedPortsToRandom, withRemoveVolumes);
         } catch (Exception e) {
             logger.error("Exception creating project {}", name, e);
         }
+    }
+
+    public void createProject(String name, String dockerComposeYml) {
+        this.createProject(name, dockerComposeYml, false, false);
     }
 
     private void removeProject(String engineName) {
@@ -136,6 +151,8 @@ public class TestEnginesService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        content = this.replaceProjectNameMatchesByElastestProjectName(content);
 
         return content;
     }
@@ -190,8 +207,8 @@ public class TestEnginesService {
 
                 logger.debug("Container info: {}", container);
 
-                String containerName = serviceName + "_" + serviceName + "_1"; // example:
-                                                                               // ece_ece_1
+                String containerName = container.getName(); // example:
+                                                            // ece_ece_1
                 if (container.getName() != null
                         && container.getName().equals(containerName)) {
                     String ip = etPublicHost;
@@ -217,7 +234,16 @@ public class TestEnginesService {
                         throw new Exception("Port not found");
                     }
 
-                    url = "http://" + ip + ":" + port;
+                    if ("testlink".equals(serviceName)) {
+                        port = "80";
+                    }
+
+                    String protocol = "http";
+                    if ("443".equals(port)) {
+                        protocol = "https";
+                    }
+
+                    url = protocol + "://" + ip + ":" + port;
 
                     if (serviceName.equals("ere")) {
                         url += "/ere-app";
@@ -290,6 +316,22 @@ public class TestEnginesService {
 
     public List<String> getTestEngines() {
         return enginesList;
+    }
+
+    public boolean waitForReady(String projectName, int interval) {
+        while (!this.checkIfEngineUrlIsUp(projectName)) {
+            // Wait
+            try { // TODO timeout
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
+            }
+        }
+        return true;
+    }
+
+    private String replaceProjectNameMatchesByElastestProjectName(
+            String content) {
+        return content.replaceAll("projectnametoreplace", etComposeProjectName);
     }
 
 }

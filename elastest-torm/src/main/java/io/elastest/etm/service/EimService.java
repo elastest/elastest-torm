@@ -124,13 +124,7 @@ public class EimService {
         if (execMode.equals(ElastestConstants.MODE_NORMAL)
                 && !testEnginesService.isRunning(eimProjectName)) {
             testEnginesService.createInstance(eimProjectName);
-            while (!testEnginesService.checkIfEngineUrlIsUp(eimProjectName)) {
-                // Wait
-                try {
-                    Thread.sleep(2500);
-                } catch (InterruptedException e) {
-                }
-            }
+            testEnginesService.waitForReady(eimProjectName, 2500);
 
             // Init URL
             this.eimUrl = testEnginesService.getServiceUrl(eimProjectName);

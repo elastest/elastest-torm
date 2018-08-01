@@ -29,6 +29,24 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/testlink")
 public interface TestLinkApi extends EtmApiRoot {
 
+    @ApiOperation(value = "Returns if TestLink is started", notes = "Returns if TestLink is started.", response = Boolean.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/started", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<Boolean> isStarted();
+
+    @ApiOperation(value = "Starts TestLink if not is started", notes = "Starts TestLink if not is started.", response = Boolean.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/start", produces = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<Boolean> startTestLink();
+
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/

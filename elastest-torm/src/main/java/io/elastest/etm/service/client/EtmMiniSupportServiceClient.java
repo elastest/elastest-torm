@@ -90,7 +90,7 @@ public class EtmMiniSupportServiceClient
 
         try {
             dockerComposeService.createProjectWithEnv(instanceId, composeYml,
-                    path, true, serviceInstance.getParameters());
+                    path, true, serviceInstance.getParameters(), false, false);
             dockerComposeService.startProject(instanceId, false);
             supportServiceInstanceMap.put(instanceId, serviceInstance);
             logger.info("Registered service.");

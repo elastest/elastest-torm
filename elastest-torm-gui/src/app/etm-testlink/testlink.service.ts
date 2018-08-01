@@ -35,6 +35,16 @@ export class TestLinkService {
   /******** Others *******/
   /***********************/
 
+  public isStarted(): Observable<boolean> {
+    let url: string = this.hostApi + '/testlink/started';
+    return this.http.get(url).map((response: Response) => response.json());
+  }
+
+  public startTestLink(): Observable<boolean> {
+    let url: string = this.hostApi + '/testlink/start';
+    return this.http.post(url, undefined).map((response: Response) => response.json());
+  }
+
   public getTestlinkUrl(): Observable<String> {
     let url: string = this.hostApi + '/testlink/url';
     return this.http.get(url).map((response: Response) => response['_body']);

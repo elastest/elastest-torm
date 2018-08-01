@@ -16,7 +16,9 @@
  */
 package io.elastest.epm.client.json;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -146,6 +148,50 @@ public class DockerComposeCreateProject {
         return images;
     }
 
+    /* ** Exposed ports ** */
+
+    public void bindAllExposedPortsToRandom() throws Exception {
+        HashMap<String, HashMap> servicesMap = getYmlServices();
+        for (HashMap.Entry<String, HashMap> service : servicesMap.entrySet()) {
+            service = this.bindExposedServicePortsToRandom(service);
+        }
+        setYmlServices(servicesMap);
+    }
+
+    private HashMap.Entry<String, HashMap> bindExposedServicePortsToRandom(
+            HashMap.Entry<String, HashMap> service) throws IOException {
+
+        HashMap serviceContent = service.getValue();
+        String exposedKey = "expose";
+        String bindKey = "ports";
+
+        if (serviceContent.containsKey(exposedKey)) {
+
+            List<Integer> exposedPorts = (List<Integer>) serviceContent
+                    .get(exposedKey);
+
+            for (Integer exposedPort : exposedPorts) {
+                int hostPort = this.findRandomOpenPort();
+
+                List<String> bindList = new ArrayList<>();
+                if (serviceContent.containsKey(bindKey)) {
+                    bindList = (List) serviceContent.get(bindKey);
+                }
+
+                bindList.add(hostPort + ":" + exposedPort);
+
+                // Add to service
+                serviceContent.put(bindKey, bindList);
+            }
+
+            serviceContent.remove(exposedKey);
+        }
+
+        return service;
+    }
+
+    /* ** Env vars ** */
+
     public void setEnvVarsToYmlServices() throws Exception {
         HashMap<String, HashMap> servicesMap = getYmlServices();
         for (HashMap.Entry<String, HashMap> service : servicesMap.entrySet()) {
@@ -177,6 +223,12 @@ public class DockerComposeCreateProject {
             serviceContent.put(environmentKey, envs);
         }
         return service;
+    }
+
+    public int findRandomOpenPort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
     }
 
 }

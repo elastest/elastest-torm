@@ -81,7 +81,6 @@ public class TJobExecOrchestratorService {
     private MonitoringServiceInterface monitoringService;
 
     private EtmContextService etmContextService;
-    
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -473,7 +472,8 @@ public class TJobExecOrchestratorService {
 
         // In normal mode, tjobs make use of started EUS
         String etEusApiKey = "ET_EUS_API";
-        if (execMode.equals(ElastestConstants.MODE_NORMAL) && envVars.containsKey(etEusApiKey)) {
+        if (execMode.equals(ElastestConstants.MODE_NORMAL)
+                && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
                 EusExecutionData eusExecutionDate = new EusExecutionData(
@@ -714,7 +714,7 @@ public class TJobExecOrchestratorService {
         String pathToSaveTmpYml = esmService
                 .getTJobExecFolderPath(dockerExec.gettJobexec());
         boolean created = dockerComposeService.createProject(project,
-                pathToSaveTmpYml, false);
+                pathToSaveTmpYml, false, false, false);
 
         // Start Containers
         if (!created) {
@@ -762,7 +762,7 @@ public class TJobExecOrchestratorService {
             for (HashMap.Entry<String, HashMap> service : servicesMap
                     .entrySet()) {
                 // Pull images in a local execution
-                if (!etmContextService.etMasterSlaveMode ) {
+                if (!etmContextService.etMasterSlaveMode) {
                     this.pullDockerComposeYmlService(service, dockerExec);
                 }
 

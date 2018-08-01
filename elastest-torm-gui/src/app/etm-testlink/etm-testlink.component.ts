@@ -14,6 +14,8 @@ import { MdDialog } from '@angular/material';
 })
 export class EtmTestlinkComponent implements OnInit {
   @Input() isNested: boolean = false;
+  isStarted: boolean = false;
+  startingInProcess: boolean = true;
   testLinkUrl: string;
 
   disableBtns: boolean = false;
@@ -50,6 +52,36 @@ export class EtmTestlinkComponent implements OnInit {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Testlink Projects');
     }
+
+    this.testlinkService.isStarted().subscribe(
+      (started: boolean) => {
+        this.isStarted = started;
+        if (started) {
+          this.init();
+        }
+
+        this.startingInProcess = false;
+      },
+      (error: Error) => console.log(error),
+    );
+  }
+
+  startTestLink(): void {
+    this.startingInProcess = true;
+    this.testlinkService.startTestLink().subscribe(
+      (started: boolean) => {
+        this.isStarted = started;
+        this.init();
+        this.startingInProcess = false;
+      },
+      (error: Error) => {
+        console.log(error);
+        this.startingInProcess = false;
+      },
+    );
+  }
+
+  init(): void {
     this.loadTestLinkUrl();
     this.loadProjects();
   }

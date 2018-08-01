@@ -1,51 +1,67 @@
 <div class="md-content">
-    <div layout="column" *ngIf="testLinkUrl">
-        <div flex-gt-sm="100">
-            <md-card>
-                <md-card-title>
-                    <div layout="row">
-                        <span>TestLink</span>
-                        <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" mdTooltip="Open TestLink in new tab">
-                            <md-icon color="accent">open_in_new</md-icon>
-                        </a>
-                        <span flex></span>
-                        <button md-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" mdTooltip="Sync data with ElasTest" [disabled]="disableBtns">
-                            <md-icon>sync</md-icon>
-                        </button>
-                    </div>
-                </md-card-title>
+    <div *ngIf="!isStarted; else showTestLink">
+        <md-card>
+            <md-card-title>
+                TestLink container not started yet
+            </md-card-title>
+            <md-card-content>
+                <button md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()" mdTooltip="Start TestLink container"
+                    [disabled]="startingInProcess">
+                    <md-icon>play_circle_outline</md-icon> Start TestLink
+                </button>
+            </md-card-content>
+        </md-card>
+    </div>
 
-                <md-divider></md-divider>
-                <md-card-content class="push-bottom-none">
-                    <div class="md-title push-bottom-sm">Test Projects</div>
-                    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-                    <div *ngIf="!showSpinner && projectsList.length === 0" class="push-top-important messageEmptyCard">
-                        <md-icon>assignment</md-icon>
-                        <p>No Test Projects created</p>
-                    </div>
-                    <td-data-table #projectsTable id="tlProjects" *ngIf="projectsList.length > 0" [class]="tableStyle" [data]="projectsList" [columns]="projectColumns"
-                        [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
-                        [style.height.px]="200">
-                        <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-                            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects', row.id]" class="hover-pointer">
-                                <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
-                                <div *ngIf="column.name !== 'notes'">{{value}}</div>
-                            </div>
-                        </ng-template>
-                        <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                            <div layout="row" class="optionsColumn">
-                                <button md-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
-                                    <md-icon>mode_edit</md-icon>
-                                </button>
-                                <!-- <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
+    <ng-template #showTestLink>
+        <div layout="column" *ngIf="testLinkUrl">
+            <div flex-gt-sm="100">
+                <md-card>
+                    <md-card-title>
+                        <div layout="row">
+                            <span>TestLink</span>
+                            <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" mdTooltip="Open TestLink in new tab">
+                                <md-icon color="accent">open_in_new</md-icon>
+                            </a>
+                            <span flex></span>
+                            <button md-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" mdTooltip="Sync data with ElasTest" [disabled]="disableBtns">
+                                <md-icon>sync</md-icon>
+                            </button>
+                        </div>
+                    </md-card-title>
+
+                    <md-divider></md-divider>
+                    <md-card-content class="push-bottom-none">
+                        <div class="md-title push-bottom-sm">Test Projects</div>
+                        <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                        <div *ngIf="!showSpinner && projectsList.length === 0" class="push-top-important messageEmptyCard">
+                            <md-icon>assignment</md-icon>
+                            <p>No Test Projects created</p>
+                        </div>
+                        <td-data-table #projectsTable id="tlProjects" *ngIf="projectsList.length > 0" [class]="tableStyle" [data]="projectsList"
+                            [columns]="projectColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
+                            [sortOrder]="sortOrder" [style.height.px]="200">
+                            <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+                                <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects', row.id]" class="hover-pointer">
+                                    <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+                                    <div *ngIf="column.name !== 'notes'">{{value}}</div>
+                                </div>
+                            </ng-template>
+                            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                                <div layout="row" class="optionsColumn">
+                                    <button md-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
+                                        <md-icon>mode_edit</md-icon>
+                                    </button>
+                                    <!-- <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
                                     <md-icon>delete</md-icon>
                                 </button> -->
-                            </div>
-                        </ng-template>
-                    </td-data-table>
+                                </div>
+                            </ng-template>
+                        </td-data-table>
 
-                </md-card-content>
-            </md-card>
+                    </md-card-content>
+                </md-card>
+            </div>
         </div>
-    </div>
+    </ng-template>
 </div>

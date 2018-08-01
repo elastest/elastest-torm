@@ -131,7 +131,13 @@ public class DockerComposeService {
 
     // Create project from yml string
     public boolean createProject(DockerComposeCreateProject project,
-            String targetPath, boolean override) throws IOException {
+            String targetPath, boolean override,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes)
+            throws Exception {
+
+        if (withBindedExposedPortsToRandom) {
+            project.bindAllExposedPortsToRandom();
+        }
 
         logger.debug("Creating Docker Compose with data: {}", project);
         File ymlFile = createFileFromProject(project, targetPath, override);
@@ -149,6 +155,9 @@ public class DockerComposeService {
         if (project.getEnv() != null && !project.getEnv().isEmpty()) {
             compose.withEnv(project.getEnv());
         }
+
+        compose.withRemoveVolumes(withRemoveVolumes);
+
         if (images != null && images.size() > 0) {
             compose.withImages(images);
         }
@@ -162,26 +171,33 @@ public class DockerComposeService {
 
     public boolean createProjectWithEnv(String projectName,
             String dockerComposeYml, String targetPath, boolean override,
-            Map<String, String> envs) throws Exception {
+            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
+            boolean withRemoveVolumes) throws Exception {
         DockerComposeCreateProject createProject = new DockerComposeCreateProject(
                 projectName, dockerComposeYml.replaceAll("'", "\""));
         if (envs != null) {
             createProject.getEnv().putAll(envs);
             createProject.setEnvVarsToYmlServices();
         }
-        return createProject(createProject, targetPath, override);
+
+        return createProject(createProject, targetPath, override,
+                withBindedExposedPortsToRandom, withRemoveVolumes);
     }
 
     public boolean createProject(String projectName, String dockerComposeYml,
-            String targetPath, boolean override) throws Exception {
+            String targetPath, boolean override,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes)
+            throws Exception {
 
         return createProjectWithEnv(projectName, dockerComposeYml, targetPath,
-                override, null);
+                override, null, withBindedExposedPortsToRandom,
+                withRemoveVolumes);
     }
 
     public boolean createProject(String projectName, String dockerComposeYml,
             String targetPath) throws Exception {
-        return createProject(projectName, dockerComposeYml, targetPath, false);
+        return createProject(projectName, dockerComposeYml, targetPath, false,
+                false, false);
     }
 
     public boolean startProject(String projectName, boolean withPull)

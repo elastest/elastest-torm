@@ -28,6 +28,17 @@ public class TestLinkApiController implements TestLinkApi {
     @Autowired
     TestLinkService testLinkService;
 
+    public ResponseEntity<Boolean> isStarted() {
+        return new ResponseEntity<Boolean>(testLinkService.isStarted(),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Boolean> startTestLink() {
+        return new ResponseEntity<Boolean>(testLinkService.startTLOnDemand(),
+                HttpStatus.OK);
+    }
+
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/
     /* ************************************************************************/
@@ -78,7 +89,8 @@ public class TestLinkApiController implements TestLinkApi {
             @ApiParam(value = "ID of the Test Project.", required = true) @PathVariable("projectId") Integer projectId,
             @ApiParam(value = "Name of the suite.", required = true) @PathVariable("suiteName") String suiteName) {
         return new ResponseEntity<TestSuite>(
-                testLinkService.getTestSuiteByName(suiteName, projectId), HttpStatus.OK);
+                testLinkService.getTestSuiteByName(suiteName, projectId),
+                HttpStatus.OK);
     }
 
     public ResponseEntity<TestSuite[]> getProjectTestSuites(
@@ -362,4 +374,5 @@ public class TestLinkApiController implements TestLinkApi {
                 testLinkService.getExternalTestExecByExecutionId(execId),
                 HttpStatus.OK);
     }
+
 }

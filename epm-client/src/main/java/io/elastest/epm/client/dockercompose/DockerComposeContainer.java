@@ -54,7 +54,8 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private Map<String, String> env = new HashMap<>();
 
     private List<String> imagesList = new ArrayList<>();
-    boolean started = false;
+    private boolean started = false;
+    private boolean removeVolumes = false;
 
     EpmService epmService;
     FilesService filesService;
@@ -110,7 +111,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
             }
             // scale before up, so that all scaled instances are available first
             // for linking
-            //applyScaling();
+            // applyScaling();
             // Run the docker-compose container, which starts up the services
             ProcessResult result = runWithCompose("up -d");
             this.started = result.getExitValue() == 0;
@@ -154,8 +155,12 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     public void stop() throws IOException {
         synchronized (MUTEX) {
             try {
+                String stopCommand = "down";
+                if (removeVolumes) {
+                    stopCommand += " -v";
+                }
                 // Kill the services using docker-compose
-                runWithCompose("down -v");
+                runWithCompose(stopCommand);
             } catch (ServiceException se) {
                 throw new IOException(se.getMessage(), se.getCause());
             } finally {
@@ -177,6 +182,11 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
 
     public SELF withEnv(Map<String, String> envs) {
         this.env.putAll(envs);
+        return self();
+    }
+
+    public SELF withRemoveVolumes(boolean remove) {
+        this.removeVolumes = remove;
         return self();
     }
 

@@ -33,12 +33,12 @@ import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalProject.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.utils.UtilTools;
 import net.minidev.json.JSONObject;
-import io.elastest.etm.model.external.ExternalProject.TypeEnum;
-import io.elastest.etm.model.external.ExternalTJob;
 
 @Service
 public class TestLinkService {
@@ -63,37 +63,74 @@ public class TestLinkService {
     @Value("${et.public.host}")
     public String etPublicHost;
 
+    private boolean startedOnDemand = false;
+    private boolean startingOnDemand = false;
+
     @Autowired
     TestLinkDBService testLinkDBService;
 
     public String testLinkHost;
     public String testLinkPort;
+    public String testLinkUrl;
 
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
     private final DockerEtmService dockerEtmService;
+    private final TestEnginesService testEnginesService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
-    URL testlinkURL = null;
+    URL testlinkApiURL = null;
 
     public TestLinkService(ExternalProjectRepository externalProjectRepository,
             ExternalTestCaseRepository externalTestCaseRepository,
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
-            DockerEtmService dockerEtmService) {
+            DockerEtmService dockerEtmService,
+            TestEnginesService testEnginesService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
         this.dockerEtmService = dockerEtmService;
+        this.testEnginesService = testEnginesService;
     }
 
     @PostConstruct
     public void init() {
-        if (!etEtmTestLinkHost.equals("none")) {
+        if (this.isStarted()) {
+            this.initTLHostAndPort();
+            this.initTestLink(this.getTestLinkUrl());
+        }
+    }
+
+    private void initTestLink(String url) {
+        if (this.isStarted()) {
+            this.testLinkUrl = url;
+            url += "/lib/api/xmlrpc/v1/xmlrpc.php";
+            logger.info("Teslink api url: {}", url);
+
+            try {
+                testlinkApiURL = new URL(url);
+            } catch (MalformedURLException mue) {
+                mue.printStackTrace();
+            }
+
+            try {
+                api = new TestLinkAPI(testlinkApiURL, devKey);
+                if (api == null) {
+                    logger.error("Api object hasn't been created");
+                }
+            } catch (TestLinkAPIException te) {
+                logger.error("Error on init TestLink Api: {}", te.getMessage());
+            }
+        }
+    }
+
+    public void initTLHostAndPort() {
+        if (this.isStarted()) {
             if (etEtmTestLinkServiceName.equals(etEtmTestLinkHost)) {
                 etEtmTestLinkHost = etEtmTestLinkContainerName;
             }
@@ -120,29 +157,31 @@ public class TestLinkService {
                         this.testLinkPort = etEtmTestLinkPort;
                     }
                 }
-
-                String url = this.getTestLinkUrl()
-                        + "/lib/api/xmlrpc/v1/xmlrpc.php";
-                logger.info("Teslink api url: {}", url);
-
-                try {
-                    testlinkURL = new URL(url);
-                } catch (MalformedURLException mue) {
-                    mue.printStackTrace();
-                }
-
-                try {
-                    api = new TestLinkAPI(testlinkURL, devKey);
-                    if (api == null) {
-                        logger.error("Api object hasn't been created");
-                    }
-                } catch (TestLinkAPIException te) {
-                    logger.error(te.getMessage());
-                }
             } catch (Exception e) {
                 logger.error("Cannot get TestLink container ip");
             }
         }
+    }
+
+    public boolean startTLOnDemand() {
+        String testlinkName = "testlink";
+        if (!testEnginesService.isRunning(testlinkName)) {
+            startingOnDemand = true;
+            testEnginesService.createInstance(testlinkName);
+            testEnginesService.waitForReady(testlinkName, 2500);
+            this.testLinkUrl = testEnginesService.getServiceUrl(testlinkName);
+
+            startedOnDemand = true;
+            startingOnDemand = false;
+
+            this.initTestLink(this.testLinkUrl);
+        }
+        return isStarted();
+    }
+
+    public boolean isStarted() {
+        return !etEtmTestLinkHost.equals("none")
+                || (!startingOnDemand && startedOnDemand);
     }
 
     public String getTestLinkInfo() {
@@ -154,7 +193,8 @@ public class TestLinkService {
     }
 
     public String getTestLinkUrl() {
-        return "http://" + this.testLinkHost + ":" + this.testLinkPort;
+        return this.testLinkUrl != null ? this.testLinkUrl
+                : "http://" + this.testLinkHost + ":" + this.testLinkPort;
     }
 
     /* *****************************************************************/
