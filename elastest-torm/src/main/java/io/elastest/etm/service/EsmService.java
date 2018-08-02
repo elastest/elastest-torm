@@ -371,7 +371,7 @@ public class EsmService {
                 + serviceDefJson
                         .get("manifest").get("manifest_content").toString()
                 + ", \"manifest_type\": "
-                + (EpmService.etMasterSlaveMode ? "epm"
+                + (EpmService.etMasterSlaveMode ? "\"epm\""
                         : serviceDefJson.get("manifest").get("manifest_type")
                                 .toString())
                 + ", \"plan_id\": "
