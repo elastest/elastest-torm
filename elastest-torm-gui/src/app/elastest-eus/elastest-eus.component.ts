@@ -64,7 +64,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Web Browsers');
     }
-    this.configurationService.configModel.eusServiceUrl
+    this.configurationService.configModel.eusServiceUrl;
     if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
       console.log('Uses data from backend.');
       this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
@@ -105,7 +105,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     if (this.websocket) {
       this.websocket.close();
     }
-    if (this.sessionId && this.sessionId !== '') {
+    if (this.sessionId !== null && this.sessionId !== undefined && this.sessionId !== '') {
       this.stopSession();
     }
   }

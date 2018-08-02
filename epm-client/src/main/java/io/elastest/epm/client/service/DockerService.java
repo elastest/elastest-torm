@@ -3,12 +3,15 @@ package io.elastest.epm.client.service;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +37,9 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +51,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerClient.ExecCreateParam;
+import com.spotify.docker.client.DockerClient.ExecStartParameter;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.LogsParam;
 import com.spotify.docker.client.LogStream;
@@ -54,6 +62,7 @@ import com.spotify.docker.client.messages.AttachedNetwork;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerInfo;
+import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.ImageInfo;
@@ -208,6 +217,7 @@ public class DockerService {
             logger.trace("Using network: {}", network.get());
             hostConfigBuilder.networkMode(network.get());
         }
+
         Optional<Map<String, List<PortBinding>>> portBindings = dockerContainer
                 .getPortBindings();
         if (portBindings.isPresent()) {
@@ -215,6 +225,7 @@ public class DockerService {
             hostConfigBuilder.portBindings(portBindings.get());
             containerConfigBuilder.exposedPorts(portBindings.get().keySet());
         }
+
         Optional<List<String>> binds = dockerContainer.getBinds();
         if (binds.isPresent()) {
             logger.trace("Using binds: {}", binds.get());
@@ -233,6 +244,18 @@ public class DockerService {
             logger.trace("Using volumeBindList: {}", volumeBindList.get());
             hostConfigBuilder.appendBinds(volumeBindList.get()
                     .toArray(new Bind[volumeBindList.get().size()]));
+        }
+
+        Optional<Long> shmSize = dockerContainer.getShmSize();
+        if (shmSize.isPresent()) {
+            logger.trace("Using shm size {}", shmSize.get());
+            hostConfigBuilder.shmSize(shmSize.get());
+        }
+
+        Optional<List<String>> capAdd = dockerContainer.getCapAdd();
+        if (capAdd.isPresent()) {
+            logger.trace("Using capAdd: {}", capAdd.get());
+            hostConfigBuilder.capAdd(capAdd.get());
         }
 
         Optional<List<String>> exposedPorts = dockerContainer.getExposedPorts();
@@ -296,6 +319,12 @@ public class DockerService {
         dockerClient.removeContainer(containerId);
     }
 
+    public void stopDockerContainer(DockerClient dockerClient,
+            String containerId) throws DockerException, InterruptedException {
+        int killAfterSeconds = 60;
+        dockerClient.stopContainer(containerId, killAfterSeconds);
+    }
+
     public void stopDockerContainer(String containerId) throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
         this.stopDockerContainer(dockerClient, containerId);
@@ -306,10 +335,11 @@ public class DockerService {
         this.removeDockerContainer(containerId);
     }
 
-    public void stopDockerContainer(DockerClient dockerClient,
-            String containerId) throws DockerException, InterruptedException {
-        int killAfterSeconds = 60;
+    public void stopAndRemoveContainerWithKillTimeout(String containerId,
+            int killAfterSeconds) throws Exception {
+        DockerClient dockerClient = this.getDockerClient(true);
         dockerClient.stopContainer(containerId, killAfterSeconds);
+        this.removeDockerContainer(containerId);
     }
 
     /* ******************************* */
@@ -495,6 +525,19 @@ public class DockerService {
                 this.getDockerClient(true), containerId, network, timeout);
     }
 
+    public String waitForContainerIpWith(String containerId, String network)
+            throws Exception {
+        return this.waitForContainerIpWithDockerClient(
+                this.getDockerClient(true), containerId, network,
+                dockerWaitTimeoutSec);
+    }
+
+    public String waitForContainerIpWith(String containerId) throws Exception {
+        return this.waitForContainerIpWithDockerClient(
+                this.getDockerClient(true), containerId, "bridge",
+                dockerWaitTimeoutSec);
+    }
+
     public String waitForContainerIpWithDockerClient(DockerClient dockerClient,
             String containerId, String network, long timeout) throws Exception {
         long start_time = System.currentTimeMillis();
@@ -545,6 +588,11 @@ public class DockerService {
         } else {
             return created;
         }
+    }
+
+    public boolean waitForContainerCreated(String containerId)
+            throws Exception {
+        return this.waitForContainerCreated(containerId, dockerWaitTimeoutSec);
     }
 
     public String getContainerIpByNetwork(String containerId, String network)
@@ -804,10 +852,18 @@ public class DockerService {
         return prefix + randomSufix;
     }
 
+    public String generateEUSBrowserContainerName(String prefix) {
+        return prefix + randomUUID().toString();
+    }
+
     public int findRandomOpenPort() throws IOException {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         }
+    }
+
+    public String findRandomOpenPortAsString() throws IOException {
+        return Integer.toString(this.findRandomOpenPort());
     }
 
     public String getDockerServerIp() throws IOException {
@@ -949,5 +1005,69 @@ public class DockerService {
                         .stream(container.names().toArray(new String[0]))
                         .anyMatch(name -> name.startsWith("/" + prefix)))
                 .collect(toList());
+    }
+
+    public String execCommand(String containerName, boolean awaitCompletion,
+            String... command) throws Exception {
+        assert (command.length > 0);
+
+        String output = null;
+        String commandStr = Arrays.toString(command);
+
+        logger.trace(
+                "Executing command {} in container {} (await completion {})",
+                commandStr, containerName, awaitCompletion);
+
+        if (existsContainer(containerName)) {
+            DockerClient dockerClient = getDockerClient(true);
+            ExecCreation exec = dockerClient.execCreate(containerName, command,
+                    ExecCreateParam.tty(), ExecCreateParam.attachStdin(true),
+                    ExecCreateParam.attachStdout(true),
+                    ExecCreateParam.attachStderr(true),
+                    ExecCreateParam.detach(false));
+            logger.debug("Command executed. Exec id: {}", exec.id());
+
+            LogStream startResultCallback = dockerClient.execStart(exec.id(),
+                    ExecStartParameter.TTY);
+
+            // output = startResultCallback.readFully(); //TODO not working...
+
+            logger.trace("Callback terminated. Result: {}", output);
+
+        }
+        return output;
+    }
+
+    private void unTar(TarArchiveInputStream tis, File destFolder)
+            throws IOException {
+        TarArchiveEntry entry = null;
+        while ((entry = tis.getNextTarEntry()) != null) {
+            FileOutputStream fos = null;
+            try {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                File curfile = new File(destFolder, entry.getName());
+                File parent = curfile.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                fos = new FileOutputStream(curfile);
+                IOUtils.copy(tis, fos);
+            } catch (Exception e) {
+                logger.warn("Exception extracting recording {} to {}", tis,
+                        destFolder, e);
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.flush();
+                        fos.getFD().sync();
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    logger.warn("Exception closing {}", fos, e);
+                }
+            }
+        }
     }
 }
