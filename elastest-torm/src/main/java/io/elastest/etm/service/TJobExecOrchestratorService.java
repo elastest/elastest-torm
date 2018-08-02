@@ -81,6 +81,7 @@ public class TJobExecOrchestratorService {
     private MonitoringServiceInterface monitoringService;
 
     private EtmContextService etmContextService;
+    private EpmService epmService;
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -88,7 +89,8 @@ public class TJobExecOrchestratorService {
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
             MonitoringServiceInterface monitoringService,
-            EtmContextService etmContextService) {
+            EtmContextService etmContextService,
+            EpmService epmService) {
         super();
         this.dockerEtmService = dockerEtmService;
         this.testSuiteRepo = testSuiteRepo;
@@ -100,6 +102,7 @@ public class TJobExecOrchestratorService {
         this.dockerComposeService = dockerComposeService;
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
+        this.epmService = epmService;
     }
 
     @PostConstruct
@@ -565,9 +568,16 @@ public class TJobExecOrchestratorService {
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
-            String sutContainerId = dockerExec.getAppContainerId();
-            String sutIP = dockerEtmService.getContainerIpWithDockerExecution(
-                    sutContainerId, dockerExec);
+            
+            String sutIp;
+            if (EpmService.etMasterSlaveMode) {
+                sutIp = epmService.getRe().getHostIp();
+            } else {
+                String sutContainerId = dockerExec.getAppContainerId();
+                sutIp = dockerEtmService.getContainerIpWithDockerExecution(
+                        sutContainerId, dockerExec);
+            }
+            
             // If port is defined, wait for SuT ready
             if (sut.getPort() != null) {
                 String sutPort = sut.getPort();
@@ -578,22 +588,22 @@ public class TJobExecOrchestratorService {
 
                 // If is Sut In new Container
                 if (sut.isSutInNewContainer()) {
-                    sutIP = this.waitForSutInContainer(dockerExec, 480000); // 8min
+                    sutIp = this.waitForSutInContainer(dockerExec, 480000); // 8min
                 }
 
                 // Wait for SuT started
-                resultMsg = "Waiting for SuT service ready at ip " + sutIP
+                resultMsg = "Waiting for SuT service ready at ip " + sutIp
                         + " and port " + sutPort;
                 logger.debug(resultMsg);
-                dockerEtmService.checkSut(dockerExec, sutIP, sutPort);
+                dockerEtmService.checkSut(dockerExec, sutIp, sutPort);
                 endCheckSutExec(dockerExec);
             }
 
             // Save SuTUrl and Ip into sutexec
-            String sutUrl = "http://" + sutIP + ":"
+            String sutUrl = "http://" + sutIp + ":"
                     + (sut.getPort() != null ? sut.getPort() : "");
             sutExec.setUrl(sutUrl);
-            sutExec.setIp(sutIP);
+            sutExec.setIp(sutIp);
 
         } catch (TJobStoppedException e) {
             throw e;
@@ -690,7 +700,7 @@ public class TJobExecOrchestratorService {
 
         // Set logging, network and do pull of images
         dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
-                dockerComposeYml, composeProjectName, dockerExec);
+                dockerComposeYml, composeProjectName, dockerExec, mainService);
 
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
@@ -724,33 +734,34 @@ public class TJobExecOrchestratorService {
 
         dockerComposeService.startProject(composeProjectName, false);
 
-        for (DockerContainer container : dockerComposeService
-                .getContainers(composeProjectName).getContainers()) {
-            String containerId = dockerEtmService.dockerService
-                    .getContainerIdByName(container.getName());
+        if (!EpmService.etMasterSlaveMode) {
+            for (DockerContainer container : dockerComposeService
+                    .getContainers(composeProjectName).getContainers()) {
+                String containerId = dockerEtmService.dockerService
+                        .getContainerIdByName(container.getName());
 
-            // Insert container into containers list
-            dockerEtmService.insertCreatedContainer(containerId,
-                    container.getName());
-            // If is main service container, set app id
-            if (container.getName()
-                    .equals(composeProjectName + "_" + mainService + "_1")) {
-                dockerExec.setAppContainerId(containerId);
+                // Insert container into containers list
+                dockerEtmService.insertCreatedContainer(containerId,
+                        container.getName());
+                // If is main service container, set app id
+                if (container.getName().equals(
+                        composeProjectName + "_" + mainService + "_1")) {
+                    dockerExec.setAppContainerId(containerId);
+                }
+
+                if (dockerExec.getAppContainerId() == null
+                        || dockerExec.getAppContainerId().isEmpty()) {
+                    throw new Exception(
+                            "Main Sut service from docker compose not started");
+                }
             }
         }
-
-        if (dockerExec.getAppContainerId() == null
-                || dockerExec.getAppContainerId().isEmpty()) {
-            throw new Exception(
-                    "Main Sut service from docker compose not started");
-        }
-
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public String prepareElasTestConfigInDockerComposeYml(
             String dockerComposeYml, String composeProjectName,
-            DockerExecution dockerExec) throws Exception {
+            DockerExecution dockerExec, String mainService) throws Exception {
         YAMLFactory yf = new YAMLFactory();
         ObjectMapper mapper = new ObjectMapper(yf);
         Object object;
@@ -773,6 +784,13 @@ public class TJobExecOrchestratorService {
                 // Set Elastest Network
                 service = this.setNetworkToDockerComposeYmlService(service,
                         composeProjectName, dockerExec);
+
+                // Binding port of the main service if ElasTest is running in
+                // Master/Slave mode
+                if (EpmService.etMasterSlaveMode
+                        && service.getKey().equals(mainService)) {
+                    service = setBindingPortYmlService(service,composeProjectName);
+                }
             }
 
             dockerComposeMap = this.setNetworkToDockerComposeYmlRoot(
@@ -894,6 +912,26 @@ public class TJobExecOrchestratorService {
         List<String> networksList = new ArrayList<>();
         networksList.add(elastestDockerNetwork);
         serviceContent.put(networksKey, networksList);
+
+        return service;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public HashMap.Entry<String, HashMap> setBindingPortYmlService(
+            HashMap.Entry<String, HashMap> service, String composeProjectName)
+            throws TJobStoppedException {
+        HashMap<String, HashMap> serviceContent = service.getValue();
+        String portsKey = "ports";
+        String exposeKey = "expose";
+
+        HashMap<String, Object> ports = new HashMap<String, Object>();
+        List<String> bindingPorts = new ArrayList<>();
+        String servicePort = ((List<String>) (service.getValue())
+                .get(exposeKey)).get(0);
+        logger.info("Service port: {}", servicePort);
+        bindingPorts.add(servicePort + ":" + servicePort);
+        ports.put(portsKey, bindingPorts);
+        serviceContent.put(portsKey, ports);
 
         return service;
     }
