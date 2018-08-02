@@ -925,8 +925,8 @@ public class TJobExecOrchestratorService {
         String exposeKey = "expose";
 
         List<String> bindingPorts = new ArrayList<>();
-        String servicePort = ((List<String>) serviceContent.get(exposeKey))
-                .get(0);
+        String servicePort = ((List<Integer>) serviceContent.get(exposeKey))
+                .get(0).toString();
         logger.info("Service port: {}", servicePort);
         bindingPorts.add(servicePort + ":" + servicePort);
         serviceContent.put(portsKey, bindingPorts);
