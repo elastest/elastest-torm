@@ -328,7 +328,7 @@ class RemoteDockerCompose implements DockerCompose {
             String metadataFilePath = packageDirPath + "/metadata.yaml";
             File metadataFile = new File(metadataFilePath);
             logger.info("Folder's name: {}", packageDirPath);
-            String metadataUpdated = replacePopNameValueInYmlFile(
+            String metadataUpdated = prepareMetadataFile(
                     metadataContent);
             // logger.info("New metadata content: {}",
             // simpleYmlMapToString(ymlMap));
@@ -384,7 +384,7 @@ class RemoteDockerCompose implements DockerCompose {
         return new ProcessResult(0, new ProcessOutput(bIng.toByteArray()));
     }
 
-    private String replacePopNameValueInYmlFile(String metadataContent)
+    private String prepareMetadataFile(String metadataContent)
             throws Exception {
         if (metadataContent != null && !metadataContent.isEmpty()) {
             YAMLFactory yf = new YAMLFactory();
@@ -397,6 +397,10 @@ class RemoteDockerCompose implements DockerCompose {
                     .getPopName(epmService.getRe().getHostIp(), "compose"));
             logger.info("New value for the field pop-name: {}",
                     metadataMap.get("pop-name"));
+            
+            metadataMap.put("name", identifier);
+            logger.info("New value for the field name: {}",
+                    metadataMap.get("name"));
 
             StringWriter writer = new StringWriter();
 
