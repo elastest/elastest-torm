@@ -89,8 +89,7 @@ public class TJobExecOrchestratorService {
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
             MonitoringServiceInterface monitoringService,
-            EtmContextService etmContextService,
-            EpmService epmService) {
+            EtmContextService etmContextService, EpmService epmService) {
         super();
         this.dockerEtmService = dockerEtmService;
         this.testSuiteRepo = testSuiteRepo;
@@ -568,7 +567,6 @@ public class TJobExecOrchestratorService {
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
-            
             String sutIp;
             if (EpmService.etMasterSlaveMode) {
                 sutIp = epmService.getRe().getHostIp();
@@ -577,7 +575,7 @@ public class TJobExecOrchestratorService {
                 sutIp = dockerEtmService.getContainerIpWithDockerExecution(
                         sutContainerId, dockerExec);
             }
-            
+
             // If port is defined, wait for SuT ready
             if (sut.getPort() != null) {
                 String sutPort = sut.getPort();
@@ -789,7 +787,8 @@ public class TJobExecOrchestratorService {
                 // Master/Slave mode
                 if (EpmService.etMasterSlaveMode
                         && service.getKey().equals(mainService)) {
-                    service = setBindingPortYmlService(service,composeProjectName);
+                    service = setBindingPortYmlService(service,
+                            composeProjectName);
                 }
             }
 
@@ -804,8 +803,8 @@ public class TJobExecOrchestratorService {
             writer.close();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            throw new Exception(
-                    "Error on setting logging into docker compose yml");
+            e.printStackTrace();
+            throw new Exception("Error modifying the docker-compose file");
         }
 
         return dockerComposeYml;
@@ -915,23 +914,22 @@ public class TJobExecOrchestratorService {
 
         return service;
     }
-    
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setBindingPortYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName)
             throws TJobStoppedException {
-        HashMap<String, HashMap> serviceContent = service.getValue();
+        logger.info("Binding the port of the SUT");
+        HashMap serviceContent = service.getValue();
         String portsKey = "ports";
         String exposeKey = "expose";
 
-        HashMap<String, Object> ports = new HashMap<String, Object>();
         List<String> bindingPorts = new ArrayList<>();
-        String servicePort = ((List<String>) (service.getValue())
-                .get(exposeKey)).get(0);
+        String servicePort = ((List<String>) serviceContent.get(exposeKey))
+                .get(0);
         logger.info("Service port: {}", servicePort);
         bindingPorts.add(servicePort + ":" + servicePort);
-        ports.put(portsKey, bindingPorts);
-        serviceContent.put(portsKey, ports);
+        serviceContent.put(portsKey, bindingPorts);
 
         return service;
     }
