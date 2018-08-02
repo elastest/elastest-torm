@@ -362,20 +362,18 @@ public class EsmService {
         logger.debug("Registering the {} TSS.",
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
-        // JsonNode configJson = serviceDefJson.get("manifest") != null
-        // ? serviceDefJson.get("manifest").get("config")
-        // : null;
-        // String config = configJson != null ? serviceDefJson.toString() : "";
 
         supportServiceClient
                 .registerService(serviceDefJson.get("register").toString());
         supportServiceClient.registerManifest("{ " + "\"id\": "
                 + serviceDefJson.get("manifest").get("id").toString()
                 + ", \"manifest_content\": "
-                + serviceDefJson.get("manifest").get("manifest_content")
-                        .toString()
+                + serviceDefJson
+                        .get("manifest").get("manifest_content").toString()
                 + ", \"manifest_type\": "
-                + serviceDefJson.get("manifest").get("manifest_type").toString()
+                + (EpmService.etMasterSlaveMode ? "epm"
+                        : serviceDefJson.get("manifest").get("manifest_type")
+                                .toString())
                 + ", \"plan_id\": "
                 + serviceDefJson.get("manifest").get("plan_id").toString()
                 + ", \"service_id\": "
@@ -1364,7 +1362,8 @@ public class EsmService {
             }
             String checklMessage = up
                     ? tSSInstance.getServiceName() + " Service is ready."
-                    : tSSInstance.getServiceName() + " Service is not ready yet.";
+                    : tSSInstance.getServiceName()
+                            + " Service is not ready yet.";
 
             logger.info(checklMessage);
         }
