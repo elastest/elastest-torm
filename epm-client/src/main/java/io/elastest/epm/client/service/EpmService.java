@@ -345,9 +345,11 @@ public class EpmService {
     }
     
     public String getRemoteServiceIpByVduName(String vduName) {
+        logger.info("VDU name passed as parameter: {}", vduName);
         String serviceIp = null;
         for (VDU vdu: getRe().getResourceGroup().getVdus()) {
             if (vdu.getName().equals(vduName)) {
+                logger.info("VDU name: {}", vdu.getName());
                 serviceIp = vdu.getIp();
                 break;
             }
