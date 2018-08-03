@@ -43,6 +43,7 @@ import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
+import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
@@ -394,22 +395,12 @@ public class DockerEtmService {
             @Override
             public void progress(ProgressMessage message)
                     throws DockerException {
-                if (message.error() != null) {
-                    if (message.error().contains("404")
-                            || message.error().contains("not found")) {
-                        throw new ImageNotFoundException(image,
-                                message.toString());
-                    } else {
-                        throw new ImagePullFailedException(image,
-                                message.toString());
-                    }
-                }
                 dockerPullImageProgress.processNewMessage(message);
-
-                TJobExecution tJobExec = dockerExec.gettJobexec();
-                // tJobExec.setResult(result);
                 String msg = "Pulling " + name + " image (" + image + "): "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
+                
+                TJobExecution tJobExec = dockerExec.gettJobexec();
+                // tJobExec.setResult(result);
                 tJobExec.setResultMsg(msg);
                 tJobExecRepositoryImpl.save(tJobExec);
             }

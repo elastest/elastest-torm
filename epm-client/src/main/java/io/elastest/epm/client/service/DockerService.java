@@ -385,6 +385,24 @@ public class DockerService {
     /* ***** Images ***** */
     /* ****************** */
 
+    public void pullImageWithoutProgressHandler(DockerClient dockerClient,
+            String imageId) throws DockerException, InterruptedException {
+        logger.info("Pulling Docker image {}. Please wait...", imageId);
+
+        // If no tag, set latest
+        String finalImage = imageId.contains(":") ? imageId
+                : imageId.concat(":" + latestTag);
+
+        dockerClient.pull(finalImage);
+        logger.info("Docker image {} downloaded", imageId);
+    }
+
+    public void pullImageWithoutProgressHandler(String imageId)
+            throws Exception {
+        this.pullImageWithoutProgressHandler(this.getDockerClient(true),
+                imageId);
+    }
+
     public void pullImageWithProgressHandler(DockerClient dockerClient,
             String imageId, ProgressHandler progressHandler)
             throws DockerException, InterruptedException {
@@ -408,24 +426,14 @@ public class DockerService {
     public void pullImage(String imageId)
             throws DockerException, InterruptedException, Exception {
         this.pullImageWithProgressHandler(this.getDockerClient(true), imageId,
-                new ProgressHandler() {
-                    @Override
-                    public void progress(ProgressMessage message)
-                            throws DockerException {
-                    }
-                });
+                getEmptyProgressHandler());
     }
 
     public void pullImageIfNotExist(DockerClient dockerClient, String imageId)
             throws DockerException, InterruptedException {
         if (!existsImage(imageId)) {
             this.pullImageWithProgressHandler(dockerClient, imageId,
-                    new ProgressHandler() {
-                        @Override
-                        public void progress(ProgressMessage message)
-                                throws DockerException {
-                        }
-                    });
+                    getEmptyProgressHandler());
         }
     }
 
@@ -449,6 +457,15 @@ public class DockerService {
             throws DockerException, InterruptedException, Exception {
         this.pullImageIfNotExistWithProgressHandler(this.getDockerClient(true),
                 imageId, progressHandler);
+    }
+
+    public ProgressHandler getEmptyProgressHandler() {
+        return new ProgressHandler() {
+            @Override
+            public void progress(ProgressMessage message)
+                    throws DockerException {
+            }
+        };
     }
 
     public boolean existsImage(String imageId) {

@@ -163,7 +163,9 @@ public class TestEnginesService {
         if (!isRunning(engineName)) {
             try {
                 logger.error("Creating {} instance", engineName);
-                dockerComposeService.startProject(engineName, true);
+
+                dockerComposeService.pullImages(engineName);
+                dockerComposeService.startProject(engineName, false);
                 insertIntoETNetwork(engineName);
                 url = getServiceUrl(engineName);
             } catch (IOException e) {

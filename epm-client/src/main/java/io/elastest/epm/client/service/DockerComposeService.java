@@ -43,6 +43,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.messages.Container;
 
 import io.elastest.epm.client.DockerComposeProject;
@@ -321,18 +322,42 @@ public class DockerComposeService {
 
     }
 
-    private void pullImages(DockerComposeContainer dockerComposeContainer) {
+    public void pullImages(DockerComposeContainer dockerComposeContainer) {
+        this.pullImagesWithProgressHandler(dockerComposeContainer,
+                dockerService.getEmptyProgressHandler());
+    }
+
+    public void pullImagesWithProgressHandler(
+            DockerComposeContainer dockerComposeContainer,
+            ProgressHandler progressHandler) {
         if (dockerComposeContainer.getImagesList() != null) {
             for (String image : (List<String>) dockerComposeContainer
                     .getImagesList()) {
                 try {
-                    dockerService.pullImage(image);
+                    dockerService.pullImageWithProgressHandler(image,
+                            progressHandler);
                 } catch (Exception e) {
                     logger.error("Error on pull {} image", image);
                 }
             }
         }
 
+    }
+
+    public void pullImagesWithProgressHandler(String projectName,
+            ProgressHandler progressHandler) throws Exception {
+        if (!projects.containsKey(projectName)) {
+            throw new Exception("Error on Pull images of project " + projectName
+                    + ": Project does not exists");
+        }
+
+        this.pullImagesWithProgressHandler(projects.get(projectName),
+                progressHandler);
+    }
+
+    public void pullImages(String projectName) throws Exception {
+        this.pullImagesWithProgressHandler(projectName,
+                dockerService.getEmptyProgressHandler());
     }
 
 }

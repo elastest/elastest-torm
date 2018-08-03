@@ -1,4 +1,4 @@
-package io.elastest.etm.service;
+package io.elastest.epm.client.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.spotify.docker.client.exceptions.ImageNotFoundException;
+import com.spotify.docker.client.exceptions.ImagePullFailedException;
 import com.spotify.docker.client.messages.ProgressMessage;
 
 public class DockerPullImageProgress {
@@ -56,7 +58,17 @@ public class DockerPullImageProgress {
                 + image + "]";
     }
 
-    public void processNewMessage(ProgressMessage message) {
+    public void processNewMessage(ProgressMessage message)
+            throws ImageNotFoundException, ImagePullFailedException {
+        if (message.error() != null) {
+            if (message.error().contains("404")
+                    || message.error().contains("not found")) {
+                throw new ImageNotFoundException(image, message.toString());
+            } else {
+                throw new ImagePullFailedException(image, message.toString());
+            }
+        }
+
         DockerPullLayerStatus status = DockerPullLayerStatus
                 .fromValue(message.status());
         if (status == null) {
