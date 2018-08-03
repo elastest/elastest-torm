@@ -44,7 +44,7 @@ public interface TestEnginesApi extends EtmApiRoot {
     @ApiOperation(value = "Returns test engines list", notes = "Returns test engines list", response = TestEngine.class, responseContainer = "List", tags = {
             "Engines", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 200, message = "Successful operation", response = TestEngine.class),
             @ApiResponse(code = 400, message = "Not found.", response = TestEngine.class) })
     @RequestMapping(value = "/engines", produces = {
             "application/json" }, method = RequestMethod.GET)

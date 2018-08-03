@@ -4,9 +4,9 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -22,8 +22,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.test.util.Waiter;
-import io.elastest.etm.test.util.Waiter.TimedOut;
+import io.elastest.etm.model.TestEngine;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
@@ -47,12 +46,12 @@ public class TestEnginesApiItTest extends EtmApiItTest {
     @Test
     public void TestEnginesTest() throws Exception {
         log.debug("Getting Test Engines List");
-        List<String> testEngines = this.getTestEngines();
+        List<TestEngine> testEngines = this.getTestEngines();
         assertNotNull(testEngines);
         assertThat(testEngines.size() > 0);
         log.debug("The Test Engines List: {}", testEngines);
 
-        String testEngineName = testEngines.get(0);
+        String testEngineName = testEngines.get(0).getEngineName();
         log.debug("Starting Test Engine {}", testEngineName);
         this.startTestEngine(testEngineName);
 
@@ -78,15 +77,14 @@ public class TestEnginesApiItTest extends EtmApiItTest {
         log.debug("Test Engine {} has been stopped", testEngineName);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<String> getTestEngines() {
-        return httpClient.getForEntity("/api/engines", List.class).getBody();
+    public List<TestEngine> getTestEngines() {
+        return Arrays.asList(httpClient
+                .getForEntity("/api/engines", TestEngine[].class).getBody());
     }
 
-    public String startTestEngine(String engineName) {
-        return httpClient
-                .postForEntity("/api/engines", engineName, String.class)
-                .getBody();
+    public TestEngine startTestEngine(String engineName) {
+        return httpClient.postForEntity("/api/engines/" + engineName + "/start",
+                null, TestEngine.class).getBody();
     }
 
     public void stopTestEngine(String engineName) {
