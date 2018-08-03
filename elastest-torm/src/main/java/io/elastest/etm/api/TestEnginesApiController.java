@@ -2,57 +2,79 @@ package io.elastest.etm.api;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import io.elastest.epm.client.model.DockerServiceStatus.EngineStatus;
+import io.elastest.etm.model.TestEngine;
 import io.elastest.etm.service.TestEnginesService;
 import io.swagger.annotations.ApiParam;
 
 @Controller
 public class TestEnginesApiController implements TestEnginesApi {
 
-	@Autowired
-	TestEnginesService testEngineService;
+    @Autowired
+    TestEnginesService testEngineService;
 
-	public ResponseEntity<String> startTestEngine(
-			@ApiParam(value = "Data to create the new Test Engine", required = true) @Valid @RequestBody String engineName) {
-		String url = testEngineService.createInstance(engineName);
-		return new ResponseEntity<String>(url, HttpStatus.OK);
-	}
+    public ResponseEntity<TestEngine> startTestEngine(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        TestEngine engine = testEngineService.createInstance(name);
+        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+    }
 
-	public ResponseEntity<String> stopTestEngine(
-			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-		testEngineService.stopInstance(name);
-		return new ResponseEntity<String>(name, HttpStatus.OK);
-	}
+    public ResponseEntity<TestEngine> startTestEngineAsync(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        TestEngine engine = testEngineService.getTestEngine(name);
+        if (engine.getStatus().equals(EngineStatus.NOT_INITIALIZED)) {
+            engine.setStatus(EngineStatus.INITIALIZING);
+            engine.setStatusMsg("INITIALIZING...");
+        }
+        testEngineService.createInstanceAsync(name);
+        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+    }
 
-	public ResponseEntity<String> getUrlIfIsRunning(
-			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-		String url = this.testEngineService.getUrlIfIsRunning(name);
-		return new ResponseEntity<String>(url, HttpStatus.OK);
-	}
+    public ResponseEntity<List<TestEngine>> getTestEngines() {
+        List<TestEngine> testEngines = this.testEngineService.getTestEngines();
+        return new ResponseEntity<List<TestEngine>>(testEngines, HttpStatus.OK);
+    }
 
-	public ResponseEntity<Boolean> isRunning(
-			@ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-		Boolean started = this.testEngineService.isRunning(name);
-		return new ResponseEntity<Boolean>(started, HttpStatus.OK);
-	}
+    public ResponseEntity<TestEngine> getTestEngine(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        TestEngine testEngine = null;
+        try {
+            testEngine = this.testEngineService.getTestEngine(name);
+            return new ResponseEntity<TestEngine>(testEngine, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<TestEngine>(testEngine,
+                    HttpStatus.NOT_FOUND);
+        }
+    }
 
-	public ResponseEntity<Boolean> isWorking(
-			@ApiParam(value = "Engine Url.", required = true) @PathVariable("name") String name) {
-		Boolean working = this.testEngineService.checkIfEngineUrlIsUp(name);
-		return new ResponseEntity<Boolean>(working, HttpStatus.OK);
-	}
+    public ResponseEntity<TestEngine> stopTestEngine(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        TestEngine engine = testEngineService.stopInstance(name);
+        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+    }
 
-	public ResponseEntity<List<String>> getTestEngines() {
-		List<String> testEngines = this.testEngineService.getTestEngines();
-		return new ResponseEntity<List<String>>(testEngines, HttpStatus.OK);
-	}
+    public ResponseEntity<String> getUrlIfIsRunning(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        String url = this.testEngineService.getUrlIfIsRunning(name);
+        return new ResponseEntity<String>(url, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Boolean> isRunning(
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+        Boolean started = this.testEngineService.isRunning(name);
+        return new ResponseEntity<Boolean>(started, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Boolean> isWorking(
+            @ApiParam(value = "Engine Url.", required = true) @PathVariable("name") String name) {
+        Boolean working = this.testEngineService.checkIfEngineUrlIsUp(name);
+        return new ResponseEntity<Boolean>(working, HttpStatus.OK);
+    }
 
 }

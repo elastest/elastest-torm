@@ -360,4 +360,12 @@ public class DockerComposeService {
                 dockerService.getEmptyProgressHandler());
     }
 
+    public List<String> getProjectImages(String projectName) throws Exception {
+        if (!projects.containsKey(projectName)) {
+            throw new Exception("Error on Get images of project " + projectName
+                    + ": Project does not exists");
+        }
+
+        return projects.get(projectName).getImagesList();
+    }
 }

@@ -16,7 +16,9 @@ export class ElastestTestEnginesComponent implements OnInit {
 
   testEnginesColumns: any[] = [
     { name: 'name', label: 'Name' },
-    { name: 'started', label: 'Started' },
+    { name: 'status', label: 'Status' },
+    { name: 'statusMsg', label: 'Info' },
+    { name: 'url', label: 'Url' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -44,17 +46,10 @@ export class ElastestTestEnginesComponent implements OnInit {
         for (let testEngine of this.testEngines) {
           this.starting[testEngine.name] = false;
           this.stopping[testEngine.name] = false;
-          this.testEnginesService.isStarted(testEngine).subscribe(
-            (started: boolean) => {
-              testEngine.started = started;
-              if (started) {
-                this.testEnginesService.getUrl(testEngine.name).subscribe((url: string) => {
-                  this.checkIfIsReady(testEngine, url);
-                });
-              }
-            },
-            (error: Error) => console.log(error),
-          );
+
+          if (testEngine.isCreated() && !testEngine.isReady()) {
+            this.waitForReady(testEngine);
+          }
         }
       },
       (error: Error) => console.log(error),
@@ -63,9 +58,10 @@ export class ElastestTestEnginesComponent implements OnInit {
 
   startTestEngine(testEngine: TestEngineModel): void {
     this.starting[testEngine.name] = true;
-    this.testEnginesService.startTestEngine(testEngine).subscribe(
-      (url: string) => {
-        this.initStartedTest(testEngine, url);
+    this.testEnginesService.startTestEngineAsync(testEngine).subscribe(
+      (engine: TestEngineModel) => {
+        this.updateTestEngine(testEngine, engine);
+        this.waitForReady(engine);
         this.starting[testEngine.name] = false;
       },
       (error: Error) => {
@@ -76,55 +72,27 @@ export class ElastestTestEnginesComponent implements OnInit {
     );
   }
 
-  initStartedTest(testEngine: TestEngineModel, url: string): void {
-    this.updateTestEngine(testEngine, true, url);
-    if (url === '') {
-      this.popupService.openSnackBar('Error: Could not start service ' + testEngine.name, 'OK');
-    }
-    this.checkIfIsReady(testEngine, url);
-  }
-
-  checkIfIsReady(testEngine: TestEngineModel, url: string): void {
-    this.timer = Observable.interval(2000);
-    if (testEngine.started && url !== '' && (this.subscription === null || this.subscription === undefined)) {
+  waitForReady(testEngine: TestEngineModel): void {
+    this.timer = Observable.interval(2500);
+    if (testEngine.isCreated() && !testEngine.isReady() && (this.subscription === null || this.subscription === undefined)) {
       this.subscription = this.timer.subscribe(() => {
-        this.testEnginesService.isWorking(testEngine).subscribe((working: boolean) => {
-          if (working) {
+        this.testEnginesService.getEngine(testEngine.name).subscribe((engine: TestEngineModel) => {
+          this.updateTestEngine(testEngine, engine);
+          testEngine = engine;
+          if (engine.isReady()) {
             this.subscription.unsubscribe();
             this.subscription = undefined;
-            this.setReady(testEngine);
           }
         });
       });
     }
   }
 
-  updateTestEngine(testEngine: TestEngineModel, started: boolean, url: any = ''): void {
-    for (let engine of this.testEngines) {
-      if (engine.name === testEngine.name) {
-        engine.started = started && url !== '';
-        if (!engine.started) {
-          engine.ready = false;
-        }
-        engine.url = url;
-        break;
-      }
-    }
-  }
-
-  setReady(testEngine: TestEngineModel): void {
-    for (let engine of this.testEngines) {
-      if (engine.name === testEngine.name) {
-        engine.ready = true;
-      }
-    }
-  }
-
   stopTestEngine(testEngine: TestEngineModel): void {
     this.stopping[testEngine.name] = true;
     this.testEnginesService.stopTestEngine(testEngine).subscribe(
-      (data) => {
-        this.updateTestEngine(testEngine, false);
+      (engine: TestEngineModel) => {
+        this.updateTestEngine(testEngine, engine);
         this.stopping[testEngine.name] = false;
       },
       (error: Error) => {
@@ -132,6 +100,14 @@ export class ElastestTestEnginesComponent implements OnInit {
         this.stopping[testEngine.name] = false;
       },
     );
+  }
+
+  updateTestEngine(testEngine: TestEngineModel, newTestEngine: TestEngineModel): void {
+    let index: number = this.testEngines.indexOf(testEngine);
+    if (index !== undefined) {
+      this.testEngines[index] = newTestEngine;
+      this.testEngines = [...this.testEngines];
+    }
   }
 
   viewTestEngine(testEngine: TestEngineModel): void {

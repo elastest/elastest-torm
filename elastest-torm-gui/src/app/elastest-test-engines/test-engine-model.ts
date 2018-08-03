@@ -1,13 +1,31 @@
 export class TestEngineModel {
-    name: string;
-    started: boolean;
-    ready: boolean;
-    url: string;
+  name: string;
+  url: string;
+  imagesList: string[];
+  statusMsg: string;
+  status: '' | 'Not initialized' | 'Initializing' | 'Pulling' | 'Starting' | 'Ready';
 
-    constructor() {
-        this.name = '';
-        this.started = false;
-        this.ready = false;
-        this.url = '';
-    }
+  constructor() {
+    this.name = '';
+    this.url = '';
+    this.imagesList = [];
+    this.statusMsg = '';
+    this.status = '';
+  }
+
+  isNotInitialized(): boolean {
+    return this.status === 'Not initialized';
+  }
+
+  isStarting(): boolean {
+    return this.status === 'Starting';
+  }
+
+  isReady(): boolean {
+    return this.status === 'Ready';
+  }
+
+  isCreated(): boolean {
+    return !this.isNotInitialized();
+  }
 }

@@ -1,6 +1,6 @@
 import { TestEngineModel } from './test-engine-model';
 import { ConfigurationService } from '../config/configuration-service.service';
-import { Http, RequestOptions } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
@@ -10,41 +10,61 @@ export class TestEnginesService {
 
   constructor(private http: Http, private configurationService: ConfigurationService) {}
 
-  createTestEnginesList(testEnginesNames: any[]): TestEngineModel[] {
+  transformRawTestEnginesList(testEnginesRaw: any[]): TestEngineModel[] {
     let testEngines: TestEngineModel[] = [];
-    for (let name of testEnginesNames) {
-      let testEngine: TestEngineModel = new TestEngineModel();
-      testEngine.name = name;
-      testEngines.push(testEngine);
+    for (let rawEngine of testEnginesRaw) {
+      testEngines.push(this.transformRawTestEngine(rawEngine));
     }
     return testEngines;
   }
 
-  getTestEngines(): Observable<TestEngineModel[]> {
-    return this.http.get(this.mainUrl).map((response) => this.createTestEnginesList(response.json()));
+  transformRawTestEngine(rawEngine: any): TestEngineModel {
+    let testEngine: TestEngineModel = new TestEngineModel();
+    testEngine.name = rawEngine.engineName;
+    testEngine.url = rawEngine.url;
+    testEngine.imagesList = rawEngine.imagesList;
+    testEngine.status = rawEngine.status;
+    testEngine.statusMsg = rawEngine.statusMsg;
+    return testEngine;
   }
 
-  startTestEngine(testEngineModel: TestEngineModel) {
-    return this.http.post(this.mainUrl, testEngineModel.name).map((response) => response['_body']);
+  /* *** API *** */
+  getTestEngines(): Observable<TestEngineModel[]> {
+    return this.http.get(this.mainUrl).map((response: Response) => this.transformRawTestEnginesList(response.json()));
+  }
+
+  getEngine(engineName: string): Observable<TestEngineModel> {
+    let url: string = this.mainUrl + engineName;
+    return this.http.get(url).map((response: Response) => this.transformRawTestEngine(response.json()));
+  }
+
+  startTestEngine(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
+    let url: string = this.mainUrl + testEngineModel.name + '/start';
+    return this.http.post(url, undefined).map((response: Response) => this.transformRawTestEngine(response.json()));
+  }
+
+  startTestEngineAsync(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
+    let url: string = this.mainUrl + testEngineModel.name + '/start/async';
+    return this.http.post(url, undefined).map((response: Response) => this.transformRawTestEngine(response.json()));
+  }
+
+  stopTestEngine(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
+    let url: string = this.mainUrl + testEngineModel.name;
+    return this.http.delete(url).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
   isStarted(testEngineModel: TestEngineModel): Observable<boolean> {
     let url: string = this.mainUrl + testEngineModel.name + '/started';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url).map((response: Response) => response.json());
   }
 
   isWorking(testEngineModel: TestEngineModel) {
     let url: string = this.mainUrl + testEngineModel.name + '/working';
-    return this.http.get(url).map((response) => response.json());
-  }
-
-  stopTestEngine(testEngineModel: TestEngineModel) {
-    let url: string = this.mainUrl + testEngineModel.name;
-    return this.http.delete(url).map((response) => response);
+    return this.http.get(url).map((response: Response) => response.json());
   }
 
   getUrl(engineName: string) {
     let url: string = this.mainUrl + engineName + '/url';
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url).map((response: Response) => response['_body']);
   }
 }

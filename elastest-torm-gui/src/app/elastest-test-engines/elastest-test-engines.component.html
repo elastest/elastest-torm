@@ -12,19 +12,24 @@
         </ng-template>
         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
           <div layout="row" class="optionsColumn">
-            <ng-container #waitServiceReady *ngIf="(row.started && !row.ready) || (starting[row.name]!== undefined && starting[row.name] || stopping[row.name]!== undefined && stopping[row.name])">
+            <ng-container #waitServiceReady *ngIf="(row.isCreated() && !row.isReady()) || (starting[row.name]!== undefined && starting[row.name] || stopping[row.name]!== undefined && stopping[row.name])">
               <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
             </ng-container>
 
-            <button *ngIf="!row.started && starting[row.name]!== undefined && !starting[row.name]" md-button (click)="startTestEngine(row)"
-              class="iconBtn-lg" title="Start Engine">
+            <button *ngIf="!row.isCreated() && starting[row.name]!== undefined && !starting[row.name] && stopping[row.name]!== undefined && !stopping[row.name]"
+              md-button (click)="startTestEngine(row)" class="iconBtn-lg" title="Start Engine">
               <md-icon>play_circle_outline</md-icon>
             </button>
 
-            <button *ngIf="row.started && row.ready && stopping[row.name]!== undefined && !stopping[row.name]; else waitServiceReady" md-button (click)="viewTestEngine(row)" class="iconBtn-lg"
-              title="View Engine"><md-icon>remove_red_eye</md-icon></button>
+            <button *ngIf="row.isReady() && stopping[row.name]!== undefined && !stopping[row.name]; else waitServiceReady" md-button
+              (click)="viewTestEngine(row)" class="iconBtn-lg" title="View Engine">
+              <md-icon>remove_red_eye</md-icon>
+            </button>
 
-            <button *ngIf="row.started && stopping[row.name]!== undefined && !stopping[row.name]" md-button (click)="stopTestEngine(row)" class="iconBtn-lg" title="Stop Engine"><md-icon>delete</md-icon></button>
+            <button *ngIf="(row.isStarting() || row.isReady()) && stopping[row.name]!== undefined && !stopping[row.name]" md-button (click)="stopTestEngine(row)"
+              class="iconBtn-lg" title="Stop Engine">
+              <md-icon>delete</md-icon>
+            </button>
           </div>
         </ng-template>
       </td-data-table>

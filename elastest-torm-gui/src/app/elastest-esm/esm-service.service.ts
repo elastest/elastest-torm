@@ -3,7 +3,7 @@ import { EsmServiceInstanceModel } from './esm-service-instance.model';
 import { EsmServiceModel, TssManifest } from './esm-service.model';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';

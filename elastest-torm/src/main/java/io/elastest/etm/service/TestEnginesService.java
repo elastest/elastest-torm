@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -17,14 +19,20 @@ import javax.annotation.PreDestroy;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
+import io.elastest.epm.client.model.DockerPullImageProgress;
+import io.elastest.epm.client.model.DockerServiceStatus.EngineStatus;
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.etm.model.TestEngine;
 
 @Service
 public class TestEnginesService {
@@ -33,8 +41,8 @@ public class TestEnginesService {
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
 
-    public List<String> enginesList = new ArrayList<>();
-    public List<String> noEnginesList = new ArrayList<>();
+    Map<String, TestEngine> enginesMap = new HashMap<>();
+    Map<String, TestEngine> noEnginesMap = new HashMap<>();
 
     @Value("${et.compose.project.name}")
     String etComposeProjectName;
@@ -67,34 +75,40 @@ public class TestEnginesService {
     }
 
     public void registerEngines() {
-        this.enginesList.add("ece");
-        this.enginesList.add("ere"); // It's necessary to auth:
-                                     // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
-        this.noEnginesList.add("eim");
-        this.noEnginesList.add("testlink");
+        this.enginesMap.put("ece", new TestEngine("ece"));
+        // It's necessary to auth:
+        // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
+        this.enginesMap.put("ere", new TestEngine("ere"));
+
+        this.noEnginesMap.put("eim", new TestEngine("eim"));
+        this.noEnginesMap.put("testlink", new TestEngine("testlink"));
     }
 
     @PostConstruct
     public void init() throws Exception {
         registerEngines();
-        for (String engine : this.enginesList) {
+        for (String engine : this.enginesMap.keySet()) {
             createProject(engine);
         }
 
-        for (String engine : this.noEnginesList) {
+        for (String engine : this.noEnginesMap.keySet()) {
             createNoEngineProject(engine);
         }
     }
 
     @PreDestroy
     public void destroy() {
-        for (String engine : this.enginesList) {
+        for (String engine : this.enginesMap.keySet()) {
             removeProject(engine);
         }
-        for (String engine : this.noEnginesList) {
+        for (String engine : this.noEnginesMap.keySet()) {
             removeProject(engine);
         }
     }
+
+    /* ************************** */
+    /* *** *** */
+    /* ************************** */
 
     public void createProject(String name) {
         String dockerComposeYml = getDockerCompose(name);
@@ -157,17 +171,24 @@ public class TestEnginesService {
         return content;
     }
 
-    public String createInstance(String engineName) {
+    public TestEngine createInstance(String engineName) {
         String url = "";
         logger.error("Checking if {} is not already running", engineName);
         if (!isRunning(engineName)) {
+            // Initialize
+            this.getTestEngine(engineName).setStatus(EngineStatus.INITIALIZING);
+            this.getTestEngine(engineName).setStatusMsg("INITIALIZING...");
             try {
                 logger.error("Creating {} instance", engineName);
 
-                dockerComposeService.pullImages(engineName);
+                // Pull
+                this.pullProject(engineName);
+
+                // Start
+                this.getTestEngine(engineName).setStatus(EngineStatus.STARTING);
+                this.getTestEngine(engineName).setStatusMsg("Starting...");
                 dockerComposeService.startProject(engineName, false);
                 insertIntoETNetwork(engineName);
-                url = getServiceUrl(engineName);
             } catch (IOException e) {
                 logger.error("Cannot create {} instance", engineName, e);
             } catch (Exception e) {
@@ -175,10 +196,62 @@ public class TestEnginesService {
                 logger.error("Stopping service {}", engineName);
                 this.stopInstance(engineName);
             }
-        } else {
-            url = getServiceUrl(engineName);
         }
-        return url;
+
+        this.waitForReady(engineName, 2500);
+        url = getServiceUrl(engineName);
+        this.getTestEngine(engineName).setUrl(url);
+
+        return this.getTestEngine(engineName);
+    }
+
+    @Async
+    public void createInstanceAsync(String engineName) {
+        this.createInstance(engineName);
+    }
+
+    private void pullProject(String engineName) throws Exception {
+        Map<String, TestEngine> currentEngineMap;
+        if (enginesMap.containsKey(engineName)) {
+            currentEngineMap = enginesMap;
+        } else if (noEnginesMap.containsKey(engineName)) {
+            currentEngineMap = noEnginesMap;
+        } else {
+            throw new Exception("Error on pulling images of " + engineName
+                    + ": Engine project does not exists");
+        }
+
+        List<String> images = dockerComposeService.getProjectImages(engineName);
+        currentEngineMap.get(engineName).setImagesList(images);
+        for (String image : images) {
+            dockerComposeService.pullImagesWithProgressHandler(engineName,
+                    this.getEngineProgressHandler(currentEngineMap, engineName,
+                            image));
+        }
+    }
+
+    public ProgressHandler getEngineProgressHandler(Map<String, TestEngine> map,
+            String engineName, String image) {
+        DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
+        dockerPullImageProgress.setImage(image);
+        dockerPullImageProgress.setCurrentPercentage(0);
+
+        map.get(engineName).setStatus(EngineStatus.PULLING);
+        map.get(engineName).setStatusMsg("Pulling " + image + " image");
+        return new ProgressHandler() {
+            @Override
+            public void progress(ProgressMessage message)
+                    throws DockerException {
+                dockerPullImageProgress.processNewMessage(message);
+                String msg = "Pulling image " + image + " from " + engineName
+                        + " engine project: "
+                        + dockerPullImageProgress.getCurrentPercentage() + "%";
+
+                map.get(engineName).setStatusMsg(msg);
+            }
+
+        };
+
     }
 
     public void insertIntoETNetwork(String engineName) throws Exception {
@@ -262,7 +335,12 @@ public class TestEnginesService {
 
     public boolean checkIfEngineUrlIsUp(String engineName) {
         String url = getServiceUrl(engineName);
-        return checkIfUrlIsUp(url);
+        boolean isUp = checkIfUrlIsUp(url);
+        if (isUp) {
+            this.getTestEngine(engineName).setStatus(EngineStatus.READY);
+            this.getTestEngine(engineName).setStatusMsg("Ready");
+        }
+        return isUp;
     }
 
     public boolean checkIfUrlIsUp(String engineUrl) {
@@ -287,12 +365,14 @@ public class TestEnginesService {
         return up;
     }
 
-    public void stopInstance(String engineName) {
+    public TestEngine stopInstance(String engineName) {
         try {
             dockerComposeService.stopProject(engineName);
+            this.getTestEngine(engineName).initToDefault();
         } catch (IOException e) {
             logger.error("Error while stopping engine {}", engineName);
         }
+        return this.getTestEngine(engineName);
     }
 
     public String getUrlIfIsRunning(String engineName) {
@@ -316,12 +396,22 @@ public class TestEnginesService {
         }
     }
 
-    public List<String> getTestEngines() {
-        return enginesList;
+    public List<TestEngine> getTestEngines() {
+        return new ArrayList<>(enginesMap.values());
+    }
+
+    public TestEngine getTestEngine(String name) {
+        if (enginesMap.containsKey(name)) {
+            return enginesMap.get(name);
+        } else {
+            return noEnginesMap.get(name);
+        }
     }
 
     public boolean waitForReady(String projectName, int interval) {
-        while (!this.checkIfEngineUrlIsUp(projectName)) {
+        while (!this.getTestEngine(projectName).getStatus()
+                .equals(EngineStatus.NOT_INITIALIZED)
+                && !this.checkIfEngineUrlIsUp(projectName)) {
             // Wait
             try { // TODO timeout
                 Thread.sleep(interval);

@@ -168,7 +168,7 @@ public class TestLinkService {
         if (!testEnginesService.isRunning(testlinkName)) {
             startingOnDemand = true;
             testEnginesService.createInstance(testlinkName);
-            testEnginesService.waitForReady(testlinkName, 2500);
+
             this.testLinkUrl = testEnginesService.getServiceUrl(testlinkName);
 
             startedOnDemand = true;
