@@ -569,11 +569,12 @@ public class TJobExecOrchestratorService {
 
             String sutIp;
             if (EpmService.etMasterSlaveMode) {
-                logger.info("Sut main service url: {}", (dockerEtmService.getSutName(dockerExec) + "_"
+                logger.info("Sut main service name: {}", (dockerEtmService.getSutName(dockerExec) + "_"
                         + sut.getMainService() + "_1"));
                 sutIp = epmService.getRemoteServiceIpByVduName(
                         dockerEtmService.getSutName(dockerExec) + "_"
                                 + sut.getMainService() + "_1");
+                logger.info("Sut main service ip: {}", sutIp);
             } else {
                 String sutContainerId = dockerExec.getAppContainerId();
                 sutIp = dockerEtmService.getContainerIpWithDockerExecution(
