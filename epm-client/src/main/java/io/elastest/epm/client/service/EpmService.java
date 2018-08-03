@@ -32,6 +32,7 @@ import io.elastest.epm.client.model.Key;
 import io.elastest.epm.client.model.PoP;
 import io.elastest.epm.client.model.RemoteEnvironment;
 import io.elastest.epm.client.model.ResourceGroup;
+import io.elastest.epm.client.model.VDU;
 import io.elastest.epm.client.model.Worker;
 import io.elastest.epm.client.service.ServiceException.ExceptionCode;
 
@@ -341,6 +342,18 @@ public class EpmService {
                     ExceptionCode.GENERIC_ERROR);
         }
         return popName;
+    }
+    
+    public String getRemoteServiceIpByVduName(String vduName) {
+        String serviceIp = null;
+        for (VDU vdu: getRe().getResourceGroup().getVdus()) {
+            if (vdu.getName().equals(vduName)) {
+                serviceIp = vdu.getIp();
+                break;
+            }
+        }
+        
+        return serviceIp;
     }
 
     public RemoteEnvironment getRe() {
