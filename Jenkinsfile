@@ -27,6 +27,12 @@
                         
                         echo 'Installing epm-client-java'
                         sh "ls -lrt; cd $epmClientJavaDirectory; mvn clean install -Dmaven.test.skip=true"
+                        
+                    git 'https://github.com/elastest/elastest-torm.git'
+                        
+                    stage "Test and deploy epm-client"
+                        echo ("Test and deploy epm-client")
+                        sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
 
                     stage "Install EUS as library"
                         def eusDirectoryExists = fileExists eusJavaDirectory
@@ -44,13 +50,6 @@
                     
                         echo ("Install EUS as library")
                         sh "cd $eusJavaDirectory; cd ./eus; mvn clean package install -Pdependency -DskipTests -Dgpg.skip;"
-
-	            git 'https://github.com/elastest/elastest-torm.git'
-                        
-                    stage "Test and deploy epm-client"
-                        echo ("Test and deploy epm-client")
-                        sh 'cd ./epm-client; mvn install -DskipTests -Dgpg.skip -Djenkins=true;'
-
                     
                     stage "Build elastest-torm-gui"
                         echo ("Build elastest-torm-gui")                        
