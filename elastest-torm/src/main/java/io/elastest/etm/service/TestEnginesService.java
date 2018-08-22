@@ -288,29 +288,67 @@ public class TestEnginesService {
                         && container.getName().equals(containerName)) {
                     String ip = etPublicHost;
 
-                    String port = "";
-                    for (Entry<String, List<PortInfo>> portList : container
-                            .getPorts().entrySet()) {
-                        if (portList.getValue() != null) {
-                            if (ip.equals("localhost")) {
-                                port = portList.getKey().split("/")[0];
-                                ip = dockerEtmService.dockerService
-                                        .getContainerIpByNetwork(containerName,
-                                                network);
-                            } else {
-                                port = portList.getValue().get(0).getHostPort();
-                            }
-                            break;
+                    boolean useBindedPort = true;
+                    if (ip.equals("localhost")) {
+                        useBindedPort = false;
+                        ip = dockerEtmService.dockerService
+                                .getContainerIpByNetwork(containerName,
+                                        network);
+                    }
 
+                    String port = "";
+
+                    switch (serviceName) {
+                    case "testlink":
+                        if (!useBindedPort) {
+                            port = "80";
+                        } else {
+                            port = "37071";
                         }
+                        break;
+
+                    case "ere":
+                        if (!useBindedPort) {
+                            port = "9080";
+                        } else {
+                            port = "37007";
+                        }
+                        break;
+
+                    case "ece":
+                        if (!useBindedPort) {
+                            port = "8888";
+                        } else {
+                            port = "37008";
+                        }
+                        break;
+
+                    case "eim":
+                        if (!useBindedPort) {
+                            port = "8080";
+                        } else {
+                            port = "37004";
+                        }
+                        break;
+                    default:
+                        for (Entry<String, List<PortInfo>> portList : container
+                                .getPorts().entrySet()) {
+                            if (portList.getValue() != null) {
+                                if (!useBindedPort) {
+                                    port = portList.getKey().split("/")[0];
+                                } else {
+                                    port = portList.getValue().get(0)
+                                            .getHostPort();
+                                }
+                                break;
+
+                            }
+                        }
+                        break;
                     }
 
                     if ("".equals(port)) {
                         throw new Exception("Port not found");
-                    }
-
-                    if ("testlink".equals(serviceName)) {
-                        port = "80";
                     }
 
                     String protocol = "http";
@@ -319,8 +357,7 @@ public class TestEnginesService {
                     }
 
                     url = protocol + "://" + ip + ":" + port;
-
-                    if (serviceName.equals("ere")) {
+                    if ("ere".equals(serviceName)) {
                         url += "/ere-app";
                     }
                     logger.debug("Url: " + url);

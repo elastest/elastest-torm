@@ -9,3 +9,5 @@ services:
     - ET_EDM_MYSQL_PORT=3306
     expose:
     - 8080
+    ports:
+    - "37004:8080" 
