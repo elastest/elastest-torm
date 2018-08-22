@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 
@@ -71,7 +72,9 @@ public class UtilToolsTest {
 
     @Test
     public void testCheckIfUrlIsUp() throws IOException {
-        assertFalse(UtilTools.checkIfUrlIsUp("incorrectUrl"));
+        assertThrows(Exception.class, () -> {
+            UtilTools.checkIfUrlIsUp("incorrectUrl");
+        });
     }
 
 }
