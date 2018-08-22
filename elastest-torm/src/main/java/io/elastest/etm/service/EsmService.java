@@ -6,8 +6,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.dao.TJobExecRepository;
@@ -1279,7 +1278,16 @@ public class EsmService {
         ArrayList<SupportServiceInstance> servicesInstancesList = new ArrayList<>();
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             if (!this.isIntegratedEUS(tSSInstance)) {
-                tSSInstance.setServiceReady(checkInstanceUrlIsUp(tSSInstance));
+                boolean isUp = checkInstanceUrlIsUp(tSSInstance);
+                tSSInstance.setServiceReady(isUp);
+
+                if (isUp) {
+                    // TODO refactor to SupportServiceClient (to merge with
+                    // testEngines)
+                    tSSInstance.setStatus(DockerServiceStatusEnum.READY);
+                    tSSInstance.setStatusMsg("Ready");
+                }
+
                 servicesInstancesList.add(tSSInstance);
             }
         });
@@ -1332,19 +1340,11 @@ public class EsmService {
 
                 up = true;
                 if (urlValue != null) {
-                    URL url;
-
                     try {
-                        url = new URL(urlValue);
                         logger.debug(tSSInstance.getServiceName()
                                 + " Service URL: " + urlValue);
-                        HttpURLConnection huc = (HttpURLConnection) url
-                                .openConnection();
-                        huc.setConnectTimeout(2000);
-                        responseCode = huc.getResponseCode();
-                        up = up && ((responseCode >= 200 && responseCode <= 299)
-                                || (responseCode >= 400
-                                        && responseCode <= 415));
+
+                        up = up && UtilTools.checkIfUrlIsUp(urlValue);
                         logger.debug(tSSInstance.getServiceName()
                                 + " Service response: " + responseCode);
 

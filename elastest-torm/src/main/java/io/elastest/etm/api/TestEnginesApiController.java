@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import io.elastest.epm.client.model.DockerServiceStatus.EngineStatus;
+import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.etm.model.TestEngine;
 import io.elastest.etm.service.TestEnginesService;
 import io.swagger.annotations.ApiParam;
@@ -28,8 +28,8 @@ public class TestEnginesApiController implements TestEnginesApi {
     public ResponseEntity<TestEngine> startTestEngineAsync(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
         TestEngine engine = testEngineService.getTestEngine(name);
-        if (engine.getStatus().equals(EngineStatus.NOT_INITIALIZED)) {
-            engine.setStatus(EngineStatus.INITIALIZING);
+        if (engine.getStatus().equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {
+            engine.setStatus(DockerServiceStatusEnum.INITIALIZING);
             engine.setStatusMsg("INITIALIZING...");
         }
         testEngineService.createInstanceAsync(name);

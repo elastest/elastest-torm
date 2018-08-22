@@ -11,11 +11,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.elastest.epm.client.model.DockerServiceStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Entity that represents an ElasTest Test Support Service Instance")
-public class SupportServiceInstance {
+public class SupportServiceInstance extends DockerServiceStatus {
 
     private static final String API_STATUS_KEY = "api-status";
 
@@ -146,7 +147,21 @@ public class SupportServiceInstance {
 
     Map<String, String> endpointsBindingsPorts;
 
+    // Parent attrs
+    @Override
+    @JsonView({ ProvisionView.class, FrontView.class })
+    public DockerServiceStatusEnum getStatus() {
+        return super.getStatus();
+    }
+
+    @Override
+    @JsonView({ ProvisionView.class, FrontView.class })
+    public String getStatusMsg() {
+        return super.getStatusMsg();
+    }
+
     public SupportServiceInstance() {
+        super();
         this.urls = new HashMap<>();
         this.subServices = new ArrayList<>();
         this.endpointsData = new HashMap<>();

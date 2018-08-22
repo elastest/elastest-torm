@@ -140,7 +140,5 @@ public class UtilsService {
         String stringToConvert = String.valueOf(o);
         Long convertedLong = Long.parseLong(stringToConvert);
         return convertedLong;
-
     }
-
 }

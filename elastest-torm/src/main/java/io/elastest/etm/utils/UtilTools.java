@@ -236,24 +236,6 @@ public class UtilTools {
         }
     }
 
-    public static boolean checkIfUrlIsUp(String urlToCheck) {
-        boolean up = false;
-        URL url;
-        try {
-            url = new URL(urlToCheck);
-            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-            int responseCode = huc.getResponseCode();
-            up = (responseCode >= 200 && responseCode <= 299);
-            if (!up) {
-                return up;
-            }
-        } catch (IOException e) {
-            return false;
-        }
-
-        return up;
-    }
-
     public static String doPing(String ip) throws IOException {
         InetAddress ping;
         ping = InetAddress.getByName(ip);
@@ -335,4 +317,14 @@ public class UtilTools {
         return string;
     }
 
+    public static boolean checkIfUrlIsUp(String urlValue) throws IOException {
+        URL url = new URL(urlValue);
+        int responseCode = 0;
+
+        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+        huc.setConnectTimeout(2000);
+        responseCode = huc.getResponseCode();
+        return ((responseCode >= 200 && responseCode <= 299)
+                || (responseCode >= 400 && responseCode <= 415));
+    }
 }

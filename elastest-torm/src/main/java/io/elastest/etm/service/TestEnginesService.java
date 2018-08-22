@@ -30,7 +30,7 @@ import com.spotify.docker.client.messages.ProgressMessage;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.model.DockerPullImageProgress;
-import io.elastest.epm.client.model.DockerServiceStatus.EngineStatus;
+import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.TestEngine;
 
@@ -176,7 +176,7 @@ public class TestEnginesService {
         logger.error("Checking if {} is not already running", engineName);
         if (!isRunning(engineName)) {
             // Initialize
-            this.getTestEngine(engineName).setStatus(EngineStatus.INITIALIZING);
+            this.getTestEngine(engineName).setStatus(DockerServiceStatusEnum.INITIALIZING);
             this.getTestEngine(engineName).setStatusMsg("INITIALIZING...");
             try {
                 logger.error("Creating {} instance", engineName);
@@ -185,7 +185,7 @@ public class TestEnginesService {
                 this.pullProject(engineName);
 
                 // Start
-                this.getTestEngine(engineName).setStatus(EngineStatus.STARTING);
+                this.getTestEngine(engineName).setStatus(DockerServiceStatusEnum.STARTING);
                 this.getTestEngine(engineName).setStatusMsg("Starting...");
                 dockerComposeService.startProject(engineName, false);
                 insertIntoETNetwork(engineName);
@@ -236,7 +236,7 @@ public class TestEnginesService {
         dockerPullImageProgress.setImage(image);
         dockerPullImageProgress.setCurrentPercentage(0);
 
-        map.get(engineName).setStatus(EngineStatus.PULLING);
+        map.get(engineName).setStatus(DockerServiceStatusEnum.PULLING);
         map.get(engineName).setStatusMsg("Pulling " + image + " image");
         return new ProgressHandler() {
             @Override
@@ -374,7 +374,7 @@ public class TestEnginesService {
         String url = getServiceUrl(engineName);
         boolean isUp = checkIfUrlIsUp(url);
         if (isUp) {
-            this.getTestEngine(engineName).setStatus(EngineStatus.READY);
+            this.getTestEngine(engineName).setStatus(DockerServiceStatusEnum.READY);
             this.getTestEngine(engineName).setStatusMsg("Ready");
         }
         return isUp;
@@ -447,7 +447,7 @@ public class TestEnginesService {
 
     public boolean waitForReady(String projectName, int interval) {
         while (!this.getTestEngine(projectName).getStatus()
-                .equals(EngineStatus.NOT_INITIALIZED)
+                .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
                 && !this.checkIfEngineUrlIsUp(projectName)) {
             // Wait
             try { // TODO timeout

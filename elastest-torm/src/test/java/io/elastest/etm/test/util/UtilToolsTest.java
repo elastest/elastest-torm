@@ -70,7 +70,7 @@ public class UtilToolsTest {
     }
 
     @Test
-    public void testCheckIfUrlIsUp() {
+    public void testCheckIfUrlIsUp() throws IOException {
         assertFalse(UtilTools.checkIfUrlIsUp("incorrectUrl"));
     }
 

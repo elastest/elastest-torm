@@ -10,13 +10,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 @Component({
   selector: 'esm-instance-manager',
   templateUrl: './instances-manager.component.html',
-  styleUrls: ['./instances-manager.component.scss']
+  styleUrls: ['./instances-manager.component.scss'],
 })
 export class InstancesManagerComponent implements OnInit, OnDestroy {
-
   serviceColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'serviceName', label: 'Service' },
+    { name: 'status', label: 'Status' },
+    { name: 'statusMsg', label: 'Info' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -39,21 +40,28 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   subscription: Subscription;
   deleting: any = {};
 
-
   constructor(
     private titlesService: TitlesService,
-    private _dataTableService: TdDataTableService, private esmService: EsmService,
-    private route: ActivatedRoute, private router: Router) { }
+    private _dataTableService: TdDataTableService,
+    private esmService: EsmService,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Support Services');
     this.loadServiceInstances();
-    this.esmService.getSupportServices()
-      .subscribe(
-      (esmServices) => {
-        this.supportServices = esmServices; console.log(JSON.stringify(esmServices));
-      }
-      );
+    this.esmService.getSupportServices().subscribe((esmServices) => {
+      this.supportServices = esmServices;
+      console.log(JSON.stringify(esmServices));
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
+    }
   }
 
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
@@ -83,32 +91,28 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     this.filteredData = newData;
   }
 
-  loadServiceInstances() {
+  loadServiceInstances(): void {
     console.log('tSSIOnTheFly size:' + this.tSSIOnTheFly.length);
     this.timer = Observable.interval(2000);
     if (this.subscription === null || this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
-      this.subscription = this.timer
-        .subscribe(() => {
-          this.esmService.getSupportServicesInstances()
-            .subscribe(
-            (esmServicesInstances) => {
-              if (this.allServicesReady(esmServicesInstances)) {
-                console.log('Stop polling for check tssInstance status');
-                if (this.subscription !== undefined) {
-                  this.subscription.unsubscribe();
-                  this.subscription = undefined;
-                  this.deleting = {};
-                }
-              }
-              this.prepareDataTable(esmServicesInstances);
+      this.subscription = this.timer.subscribe(() => {
+        this.esmService.getSupportServicesInstances().subscribe((esmServicesInstances) => {
+          if (this.allServicesReady(esmServicesInstances)) {
+            console.log('Stop polling for check tssInstance status');
+            if (this.subscription !== undefined) {
+              this.subscription.unsubscribe();
+              this.subscription = undefined;
+              this.deleting = {};
             }
-            );
+          }
+          this.prepareDataTable(esmServicesInstances);
         });
+      });
     }
   }
 
-  allServicesReady(esmServicesInstances: EsmServiceInstanceModel[]) {
+  allServicesReady(esmServicesInstances: EsmServiceInstanceModel[]): boolean {
     for (let tSSInstance of esmServicesInstances) {
       if (tSSInstance.serviceReady) {
         this.tSSIOnTheFly.splice(this.tSSIOnTheFly.indexOf(tSSInstance.id), 1);
@@ -124,49 +128,36 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     }
   }
 
-  provisionServiceInstance() {
-    this.esmService.provisionServiceInstance(this.selectedService)
-      .subscribe(
-      (tSSInstance) => {
-        console.log('TSS InstanceId:' + tSSInstance);
-        this.tSSIOnTheFly.push(tSSInstance);
-        this.loadServiceInstances();
-      }
-      );
+  provisionServiceInstance(): void {
+    this.esmService.provisionServiceInstance(this.selectedService).subscribe((tSSInstance) => {
+      console.log('TSS InstanceId:' + tSSInstance);
+      this.tSSIOnTheFly.push(tSSInstance);
+      this.loadServiceInstances();
+    });
   }
 
-  deprovisionService(serviceInstance: EsmServiceInstanceModel) {
+  deprovisionService(serviceInstance: EsmServiceInstanceModel): void {
     this.deleting[serviceInstance.serviceName] = true;
-    this.esmService.deprovisionServiceInstance(serviceInstance.id)
-      .subscribe(
-      () => {
-        console.log("Call load ServiceInstances"); this.loadServiceInstances();
-      }
-      );
+    this.esmService.deprovisionServiceInstance(serviceInstance.id).subscribe(() => {
+      console.log('Call load ServiceInstances');
+      this.loadServiceInstances();
+    });
   }
 
-  goToServiceGui(serviceInstance: EsmServiceInstanceModel) {
-    console.log("Navigate to service gui:" + serviceInstance.uiUrl);
+  goToServiceGui(serviceInstance: EsmServiceInstanceModel): void {
+    console.log('Navigate to service gui:' + serviceInstance.uiUrl);
     this.router.navigate(['/support-services/service-gui'], { queryParams: { page: serviceInstance.uiUrl } });
-
   }
 
-  goToServiceDetail(serviceInstance: EsmServiceInstanceModel) {
+  goToServiceDetail(serviceInstance: EsmServiceInstanceModel): void {
     this.router.navigate(['/support-services/service-detail', serviceInstance.id]);
   }
 
-  prepareDataTable(servicesInstances: EsmServiceInstanceModel[]) {
+  prepareDataTable(servicesInstances: EsmServiceInstanceModel[]): void {
     this.instancesData = servicesInstances;
     this.showSpinner = false;
     this.filteredData = this.instancesData;
     this.filteredTotal = this.instancesData.length;
     this.filter();
-  }
-
-  ngOnDestroy() {
-    if (this.subscription !== undefined) {
-      this.subscription.unsubscribe();
-      this.subscription = undefined;
-    }
   }
 }

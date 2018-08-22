@@ -5,20 +5,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class DockerServiceStatus {
     private String statusMsg;
-    private EngineStatus status;
+    private DockerServiceStatusEnum status;
 
     public DockerServiceStatus() {
         this.initToDefault();
     }
 
-    public enum EngineStatus {
+    public enum DockerServiceStatusEnum {
         NOT_INITIALIZED("Not initialized"), INITIALIZING(
                 "Initializing"), PULLING(
                         "Pulling"), STARTING("Starting"), READY("Ready");
 
         private String value;
 
-        EngineStatus(String value) {
+        DockerServiceStatusEnum(String value) {
             this.value = value;
         }
 
@@ -29,8 +29,8 @@ public class DockerServiceStatus {
         }
 
         @JsonCreator
-        public static EngineStatus fromValue(String text) {
-            for (EngineStatus b : EngineStatus.values()) {
+        public static DockerServiceStatusEnum fromValue(String text) {
+            for (DockerServiceStatusEnum b : DockerServiceStatusEnum.values()) {
                 if (String.valueOf(b.value).equals(text)) {
                     return b;
                 }
@@ -48,11 +48,11 @@ public class DockerServiceStatus {
         this.statusMsg = msg;
     }
 
-    public EngineStatus getStatus() {
+    public DockerServiceStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(EngineStatus status) {
+    public void setStatus(DockerServiceStatusEnum status) {
         this.status = status;
     }
 
@@ -63,7 +63,7 @@ public class DockerServiceStatus {
     }
 
     public void initToDefault() {
-        this.setStatus(EngineStatus.NOT_INITIALIZED);
+        this.setStatus(DockerServiceStatusEnum.NOT_INITIALIZED);
         this.setStatusMsg(status.value);
     }
 }
