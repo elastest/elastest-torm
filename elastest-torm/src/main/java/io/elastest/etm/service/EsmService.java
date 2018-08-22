@@ -903,7 +903,7 @@ public class EsmService {
         newServiceInstance = supportServiceClient
                 .getServiceInstanceInfo(newServiceInstance);
 
-        buildTssInstanceUrls(newServiceInstance);
+        newServiceInstance = buildTssInstanceUrls(newServiceInstance);
 
         return newServiceInstance;
     }

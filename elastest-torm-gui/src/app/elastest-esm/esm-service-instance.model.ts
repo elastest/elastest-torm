@@ -1,6 +1,7 @@
 import { DockerServiceStatus } from '../shared/docker-service-status.model';
 export class EsmServiceInstanceModel extends DockerServiceStatus {
   id: string = '';
+  endpointName: string = '';
   serviceName: string = '';
   uiUrl: string = '';
   apiUrl: string = '';
@@ -20,7 +21,8 @@ export class EsmServiceInstanceModel extends DockerServiceStatus {
     super();
     if (serviceInstance) {
       this.id = serviceInstance.instanceId;
-      this.serviceName = serviceInstance.endpointName;
+      this.serviceName = serviceInstance.serviceName;
+      this.endpointName = serviceInstance.endpointName;
       this.uiUrl = serviceInstance.urls.gui !== undefined ? serviceInstance.urls.gui : '';
       this.apiUrl = serviceInstance.urls.api !== undefined ? serviceInstance.urls.api : '';
       this.ip = serviceInstance.serviceIp !== undefined ? serviceInstance.serviceIp : '';
