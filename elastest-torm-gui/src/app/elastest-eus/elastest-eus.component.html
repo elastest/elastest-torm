@@ -50,8 +50,9 @@
                 <ng-template #showBrowsersTable>
                     <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
                         <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
-                            <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer">open_in_new</i>
-                            <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')" id="view_automated" title="open as dialog">open_in_browser</i>
+                            <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer" mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
+                            <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')" id="view_automated" mdTooltip="Open as dialog"
+                                *ngIf="row.url !== undefined && row.url !== null">open_in_browser</i>
                         </ng-template>
                     </td-data-table>
                 </ng-template>
@@ -71,7 +72,7 @@
                     <p>No Recordings created yet</p>
                 </div>
                 <ng-template #showRecordingsTable>
-                    <td-data-table class="scroll_table" [data]="recordings" [columns]="testColumns">
+                    <td-data-table class="scroll_table" [data]="recordings" [columns]="recordingColumns">
                         <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                             <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording" mdTooltip="Delete recording">delete</i>
                             <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab" mdTooltip="Open in new tab">open_in_new</i>

@@ -30,7 +30,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   loading: boolean = true;
 
-  testColumns: any[] = [
+  recordingColumns: any[] = [
     { name: 'id', label: 'Session id' },
     { name: 'browser', label: 'Browser' },
     { name: 'version', label: 'Version' },
@@ -38,20 +38,29 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     { name: 'actions', label: 'Actions' },
   ];
 
+  testColumns: any[] = this.recordingColumns.concat([{ name: 'status', label: 'Status' }, { name: 'statusMsg', label: 'Info' }]);
+
   testData: EusTestModel[] = [];
+  testDataMap: Map<string, number> = new Map<string, number>();
   recordings: EusTestModel[] = [];
 
-  @Input() eusUrl: string = 'http://localhost:8040/eus/v1/';
+  @Input()
+  eusUrl: string = 'http://localhost:8040/eus/v1/';
 
-  @Input() eusHost: string = 'localhost';
+  @Input()
+  eusHost: string = 'localhost';
 
-  @Input() eusPort: number = 8040;
+  @Input()
+  eusPort: number = 8040;
 
-  @Input() standalone: boolean = true;
+  @Input()
+  standalone: boolean = true;
 
-  @Input() isNested: boolean = false;
+  @Input()
+  isNested: boolean = false;
 
-  @Output() onInitComponent = new EventEmitter<string>();
+  @Output()
+  onInitComponent = new EventEmitter<string>();
 
   constructor(
     private titlesService: TitlesService,
@@ -123,7 +132,6 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
       this.websocket.onmessage = (message) => {
         let json: any = JSON.parse(message.data);
-
         if (json.newSession) {
           let testModel: EusTestModel = new EusTestModel();
           testModel.id = json.newSession.id;
@@ -132,8 +140,20 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.creationTime = json.newSession.creationTime;
           testModel.url = json.newSession.url;
           testModel.hubContainerName = json.newSession.hubContainerName;
-          this.testData.push(testModel);
+          testModel.status = json.newSession.status;
+          testModel.statusMsg = json.newSession.statusMsg;
+          let hubContainerName: string = testModel.hubContainerName;
+
+          let position: number;
+          if (this.testDataMap.has(hubContainerName)) {
+            position = this.testDataMap.get(hubContainerName);
+            this.testData[position] = testModel;
+          } else {
+            position = this.testData.push(testModel) - 1;
+          }
           this.testData = Array.from(this.testData);
+
+          this.testDataMap.set(hubContainerName, position);
         } else if (json.recordedSession) {
           let testModel: EusTestModel = new EusTestModel();
           testModel.id = json.recordedSession.id;

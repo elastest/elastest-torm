@@ -47,6 +47,8 @@ export class EusService {
         testModel.version = json.value.version;
         testModel.creationTime = json.value.creationTime;
         testModel.url = json.value.url;
+        testModel.status = json.value.status;
+        testModel.statusMsg = json.value.statusMsg;
       }
 
       return testModel;
