@@ -20,7 +20,7 @@ export class TestEnginesService {
 
   transformRawTestEngine(rawEngine: any): TestEngineModel {
     let testEngine: TestEngineModel = new TestEngineModel();
-    testEngine.name = rawEngine.engineName;
+    testEngine.name = rawEngine.name;
     testEngine.url = rawEngine.url;
     testEngine.imagesList = rawEngine.imagesList;
     testEngine.status = rawEngine.status;
@@ -33,8 +33,8 @@ export class TestEnginesService {
     return this.http.get(this.mainUrl).map((response: Response) => this.transformRawTestEnginesList(response.json()));
   }
 
-  getEngine(engineName: string): Observable<TestEngineModel> {
-    let url: string = this.mainUrl + engineName;
+  getEngine(name: string): Observable<TestEngineModel> {
+    let url: string = this.mainUrl + name;
     return this.http.get(url).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
@@ -63,8 +63,8 @@ export class TestEnginesService {
     return this.http.get(url).map((response: Response) => response.json());
   }
 
-  getUrl(engineName: string) {
-    let url: string = this.mainUrl + engineName + '/url';
+  getUrl(name: string) {
+    let url: string = this.mainUrl + name + '/url';
     return this.http.get(url).map((response: Response) => response['_body']);
   }
 }

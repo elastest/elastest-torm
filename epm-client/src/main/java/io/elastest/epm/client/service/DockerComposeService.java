@@ -362,7 +362,7 @@ public class DockerComposeService {
 
     public List<String> getProjectImages(String projectName) throws Exception {
         if (!projects.containsKey(projectName)) {
-            throw new Exception("Error on Get images of project " + projectName
+            throw new Exception("Error on get images of project " + projectName
                     + ": Project does not exists");
         }
 

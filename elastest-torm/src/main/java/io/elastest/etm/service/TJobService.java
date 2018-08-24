@@ -210,7 +210,7 @@ public class TJobService {
                     tJobExec);
         }
         try {
-            tJobExecOrchestratorService.deprovideServices(tJobExec);
+            tJobExecOrchestratorService.deprovisionServices(tJobExec);
         } catch (Exception e) {
             logger.error(
                     "Exception during desprovisioning of the TSS associated with an External TJob.");

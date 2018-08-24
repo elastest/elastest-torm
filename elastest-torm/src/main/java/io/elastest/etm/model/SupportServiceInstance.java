@@ -11,12 +11,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import io.elastest.epm.client.model.DockerServiceStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Entity that represents an ElasTest Test Support Service Instance")
-public class SupportServiceInstance extends DockerServiceStatus {
+public class SupportServiceInstance extends EtPlugin {
 
     private static final String API_STATUS_KEY = "api-status";
 
@@ -93,10 +92,6 @@ public class SupportServiceInstance extends DockerServiceStatus {
     @JsonProperty("organization_guid")
     private String organization_guid;
 
-    @JsonView({ ProvisionView.class, FrontView.class })
-    @JsonProperty("parameters")
-    private Map<String, String> parameters;
-
     @JsonView(ProvisionView.class)
     @JsonProperty("context")
     private Map<String, String> context;
@@ -160,6 +155,13 @@ public class SupportServiceInstance extends DockerServiceStatus {
         return super.getStatusMsg();
     }
 
+    @JsonView({ ProvisionView.class, FrontView.class })
+    @JsonProperty("parameters")
+    @Override
+    public Map<String, String> getParameters() {
+        return super.getParameters();
+    }
+
     public SupportServiceInstance() {
         super();
         this.urls = new HashMap<>();
@@ -183,7 +185,6 @@ public class SupportServiceInstance extends DockerServiceStatus {
         this.serviceShortName = serviceShortName;
         this.plan_id = plan_id;
         this.tJobExecIdList = bindToTJob;
-        this.parameters = new HashMap<>();
         this.context = new HashMap<>();
         this.organization_guid = "org";
         this.space_guid = "space";
@@ -274,14 +275,6 @@ public class SupportServiceInstance extends DockerServiceStatus {
 
     public void setOrganization_guid(String organization_guid) {
         this.organization_guid = organization_guid;
-    }
-
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
     }
 
     public String getSpace_guid() {
@@ -412,7 +405,7 @@ public class SupportServiceInstance extends DockerServiceStatus {
                 + ", serviceShortName=" + serviceShortName + ", serviceReady="
                 + serviceReady + ", serviceStatus=" + serviceStatus
                 + ", plan_id=" + plan_id + ", organization_guid="
-                + organization_guid + ", parameters=" + parameters
+                + organization_guid + ", parameters=" + getParameters()
                 + ", context=" + context + ", space_guid=" + space_guid
                 + ", tJobExecIdList=" + tJobExecIdList + ", serviceIp="
                 + serviceIp + ", servicePort=" + servicePort + ", containerIp="

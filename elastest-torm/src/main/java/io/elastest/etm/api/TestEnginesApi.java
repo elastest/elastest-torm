@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.elastest.etm.model.TestEngine;
+import io.elastest.etm.model.EtPlugin;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,35 +20,35 @@ import io.swagger.annotations.ApiResponses;
 public interface TestEnginesApi extends EtmApiRoot {
 
     @ApiOperation(value = "Starts a new instance of a passed Test Engine", notes = "Starts a new instance of a passed Test Engine"
-            + " at least must receive as input a JSON with the following fields: String engineName", response = TestEngine.class, tags = {
+            + " at least must receive as input a JSON with the following fields: String engineName", response = EtPlugin.class, tags = {
                     "Engines", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Creation successful", response = TestEngine.class),
+            @ApiResponse(code = 200, message = "Creation successful", response = EtPlugin.class),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/engines/{name}/start", produces = {
             "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<TestEngine> startTestEngine(
+    ResponseEntity<EtPlugin> startTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 
     @ApiOperation(value = "Starts a new instance of a passed Test Engine asynchronously", notes = "Starts a new instance of a passed Test Engine"
-            + " at least must receive as input a JSON with the following fields: String engineName", response = TestEngine.class, tags = {
+            + " at least must receive as input a JSON with the following fields: String engineName", response = EtPlugin.class, tags = {
                     "Engines", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Creation successful", response = TestEngine.class),
+            @ApiResponse(code = 200, message = "Creation successful", response = EtPlugin.class),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/engines/{name}/start/async", produces = {
             "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<TestEngine> startTestEngineAsync(
+    ResponseEntity<EtPlugin> startTestEngineAsync(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 
-    @ApiOperation(value = "Returns test engines list", notes = "Returns test engines list", response = TestEngine.class, responseContainer = "List", tags = {
+    @ApiOperation(value = "Returns test engines list", notes = "Returns test engines list", response = EtPlugin.class, responseContainer = "List", tags = {
             "Engines", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TestEngine.class),
-            @ApiResponse(code = 400, message = "Not found.", response = TestEngine.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = EtPlugin.class),
+            @ApiResponse(code = 400, message = "Not found.", response = EtPlugin.class) })
     @RequestMapping(value = "/engines", produces = {
             "application/json" }, method = RequestMethod.GET)
-    ResponseEntity<List<TestEngine>> getTestEngines();
+    ResponseEntity<List<EtPlugin>> getTestEngines();
 
     @ApiOperation(value = "Returns test engines list", notes = "Returns test engines list", response = String.class, responseContainer = "List", tags = {
             "Engines", })
@@ -57,18 +57,18 @@ public interface TestEnginesApi extends EtmApiRoot {
             @ApiResponse(code = 400, message = "Not found.", response = String.class) })
     @RequestMapping(value = "/engines/{name}", produces = {
             "application/json" }, method = RequestMethod.GET)
-    ResponseEntity<TestEngine> getTestEngine(
+    ResponseEntity<EtPlugin> getTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 
     @ApiOperation(value = "Stops an instance of a passed Test Engine", notes = "Stops an instance of a passed Test Engine"
-            + " at least must receive as input a JSON with the following fields: String engineName", response = TestEngine.class, tags = {
+            + " at least must receive as input a JSON with the following fields: String engineName", response = EtPlugin.class, tags = {
                     "Engines", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Creation successful", response = TestEngine.class),
+            @ApiResponse(code = 200, message = "Creation successful", response = EtPlugin.class),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/engines/{name}", produces = {
             "application/json" }, method = RequestMethod.DELETE)
-    ResponseEntity<TestEngine> stopTestEngine(
+    ResponseEntity<EtPlugin> stopTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name);
 
     @ApiOperation(value = "Returns engine url if service is running", notes = "Returns engine url if service is running", response = String.class, tags = {

@@ -11,6 +11,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -18,7 +19,9 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TraceRepository;
+import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.ElasticsearchService;
+import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.MonitoringServiceInterface;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
@@ -31,7 +34,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @EnableAsync
-@ComponentScan(basePackages = {"io.elastest"})
+@ComponentScan(basePackages = { "io.elastest" })
 public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     private UtilsService utilsService;
@@ -40,6 +43,9 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
 
     @Autowired
     DockerComposeService dockerComposeService;
+
+    @Autowired
+    DockerEtmService dockerEtmService;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -78,9 +84,16 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     }
 
     @Bean
+    @Primary
+    public EtPluginsService getEtPluginsService() {
+        return new EtPluginsService(dockerComposeService, dockerEtmService);
+    }
+
+    @Bean
     public SupportServiceClientInterface getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
-            return new EtmMiniSupportServiceClient(dockerComposeService);
+            return new EtmMiniSupportServiceClient(dockerComposeService,
+                    getEtPluginsService());
         } else {
             return new EsmServiceClient();
         }

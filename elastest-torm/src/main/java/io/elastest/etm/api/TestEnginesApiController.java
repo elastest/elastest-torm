@@ -9,71 +9,72 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
-import io.elastest.etm.model.TestEngine;
-import io.elastest.etm.service.TestEnginesService;
+import io.elastest.etm.model.EtPlugin;
+import io.elastest.etm.service.EtPluginsService;
 import io.swagger.annotations.ApiParam;
 
 @Controller
 public class TestEnginesApiController implements TestEnginesApi {
 
     @Autowired
-    TestEnginesService testEngineService;
+    EtPluginsService etPluginsService;
 
-    public ResponseEntity<TestEngine> startTestEngine(
+    public ResponseEntity<EtPlugin> startTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        TestEngine engine = testEngineService.createInstance(name);
-        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+        EtPlugin engine = etPluginsService.startEngineOrUniquePlugin(name);
+        return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
-    public ResponseEntity<TestEngine> startTestEngineAsync(
+    public ResponseEntity<EtPlugin> startTestEngineAsync(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        TestEngine engine = testEngineService.getTestEngine(name);
-        if (engine.getStatus().equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {
+        EtPlugin engine = etPluginsService.getEtPlugin(name);
+        if (engine.getStatus()
+                .equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {
             engine.setStatus(DockerServiceStatusEnum.INITIALIZING);
             engine.setStatusMsg("INITIALIZING...");
         }
-        testEngineService.createInstanceAsync(name);
-        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+        etPluginsService.startEngineOrUniquePluginAsync(name);
+        return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<TestEngine>> getTestEngines() {
-        List<TestEngine> testEngines = this.testEngineService.getTestEngines();
-        return new ResponseEntity<List<TestEngine>>(testEngines, HttpStatus.OK);
+    public ResponseEntity<List<EtPlugin>> getTestEngines() {
+        List<EtPlugin> testEngines = this.etPluginsService.getEngines();
+        return new ResponseEntity<List<EtPlugin>>(testEngines, HttpStatus.OK);
     }
 
-    public ResponseEntity<TestEngine> getTestEngine(
+    public ResponseEntity<EtPlugin> getTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        TestEngine testEngine = null;
+        EtPlugin testEngine = null;
         try {
-            testEngine = this.testEngineService.getTestEngine(name);
-            return new ResponseEntity<TestEngine>(testEngine, HttpStatus.OK);
+            testEngine = this.etPluginsService.getEtPlugin(name);
+            return new ResponseEntity<EtPlugin>(testEngine, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<TestEngine>(testEngine,
+            return new ResponseEntity<EtPlugin>(testEngine,
                     HttpStatus.NOT_FOUND);
         }
     }
 
-    public ResponseEntity<TestEngine> stopTestEngine(
+    public ResponseEntity<EtPlugin> stopTestEngine(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        TestEngine engine = testEngineService.stopInstance(name);
-        return new ResponseEntity<TestEngine>(engine, HttpStatus.OK);
+        EtPlugin engine = etPluginsService.stopEtPlugin(name);
+        return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
     public ResponseEntity<String> getUrlIfIsRunning(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        String url = this.testEngineService.getUrlIfIsRunning(name);
+        String url = this.etPluginsService.getUrlIfIsRunning(name);
         return new ResponseEntity<String>(url, HttpStatus.OK);
     }
 
     public ResponseEntity<Boolean> isRunning(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
-        Boolean started = this.testEngineService.isRunning(name);
+        Boolean started = this.etPluginsService.isRunning(name);
         return new ResponseEntity<Boolean>(started, HttpStatus.OK);
     }
 
     public ResponseEntity<Boolean> isWorking(
             @ApiParam(value = "Engine Url.", required = true) @PathVariable("name") String name) {
-        Boolean working = this.testEngineService.checkIfEngineUrlIsUp(name);
+        Boolean working = this.etPluginsService.checkIfEngineUrlIsUp(name);
         return new ResponseEntity<Boolean>(working, HttpStatus.OK);
     }
 

@@ -22,7 +22,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.etm.ElasTestTormApp;
-import io.elastest.etm.model.TestEngine;
+import io.elastest.etm.model.EtPlugin;
 
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
@@ -46,12 +46,12 @@ public class TestEnginesApiItTest extends EtmApiItTest {
     @Test
     public void TestEnginesTest() throws Exception {
         log.debug("Getting Test Engines List");
-        List<TestEngine> testEngines = this.getTestEngines();
+        List<EtPlugin> testEngines = this.getTestEngines();
         assertNotNull(testEngines);
         assertThat(testEngines.size() > 0);
         log.debug("The Test Engines List: {}", testEngines);
 
-        String testEngineName = testEngines.get(0).getEngineName();
+        String testEngineName = testEngines.get(0).getName();
         log.debug("Starting Test Engine {}", testEngineName);
         this.startTestEngine(testEngineName);
 
@@ -77,14 +77,14 @@ public class TestEnginesApiItTest extends EtmApiItTest {
         log.debug("Test Engine {} has been stopped", testEngineName);
     }
 
-    public List<TestEngine> getTestEngines() {
+    public List<EtPlugin> getTestEngines() {
         return Arrays.asList(httpClient
-                .getForEntity("/api/engines", TestEngine[].class).getBody());
+                .getForEntity("/api/engines", EtPlugin[].class).getBody());
     }
 
-    public TestEngine startTestEngine(String engineName) {
+    public EtPlugin startTestEngine(String engineName) {
         return httpClient.postForEntity("/api/engines/" + engineName + "/start",
-                null, TestEngine.class).getBody();
+                null, EtPlugin.class).getBody();
     }
 
     public void stopTestEngine(String engineName) {

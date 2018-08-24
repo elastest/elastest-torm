@@ -35,7 +35,7 @@ public class EimService {
     private final EimConfigRepository eimConfigRepository;
     private final EimMonitoringConfigRepository eimMonitoringConfigRepository;
     private final EimBeatConfigRepository eimBeatConfigRepository;
-    private final TestEnginesService testEnginesService;
+    private final EtPluginsService etPluginsService;
     private final UtilsService utilsService;
 
     @Value("${exec.mode}")
@@ -51,11 +51,11 @@ public class EimService {
     public EimService(EimConfigRepository eimConfigRepository,
             EimMonitoringConfigRepository eimMonitoringConfigRepository,
             EimBeatConfigRepository eimBeatConfigRepository,
-            TestEnginesService testEnginesService, UtilsService utilsService) {
+            EtPluginsService testEnginesService, UtilsService utilsService) {
         this.eimConfigRepository = eimConfigRepository;
         this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
         this.eimBeatConfigRepository = eimBeatConfigRepository;
-        this.testEnginesService = testEnginesService;
+        this.etPluginsService = testEnginesService;
         this.utilsService = utilsService;
     }
 
@@ -122,11 +122,12 @@ public class EimService {
         // Only in normal mode
         String eimProjectName = "eim";
         if (execMode.equals(ElastestConstants.MODE_NORMAL)
-                && !testEnginesService.isRunning(eimProjectName)) {
-            testEnginesService.createInstance(eimProjectName);
+                && !etPluginsService.isRunning(eimProjectName)) {
+            etPluginsService.startEngineOrUniquePlugin(eimProjectName);
 
             // Init URL
-            this.eimUrl = testEnginesService.getServiceUrl(eimProjectName);
+            this.eimUrl = etPluginsService
+                    .getEngineOrEtPluginUrl(eimProjectName);
             this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
                     : this.eimUrl + "/";
             this.eimApiPath = this.eimApiPath.startsWith("/")

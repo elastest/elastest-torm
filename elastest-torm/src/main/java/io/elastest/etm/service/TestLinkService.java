@@ -78,7 +78,7 @@ public class TestLinkService {
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
     private final DockerEtmService dockerEtmService;
-    private final TestEnginesService testEnginesService;
+    private final EtPluginsService testEnginesService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -89,7 +89,7 @@ public class TestLinkService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             DockerEtmService dockerEtmService,
-            TestEnginesService testEnginesService) {
+            EtPluginsService testEnginesService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
@@ -167,9 +167,10 @@ public class TestLinkService {
         String testlinkName = "testlink";
         if (!testEnginesService.isRunning(testlinkName)) {
             startingOnDemand = true;
-            testEnginesService.createInstance(testlinkName);
+            testEnginesService.startEngineOrUniquePlugin(testlinkName);
 
-            this.testLinkUrl = testEnginesService.getServiceUrl(testlinkName);
+            this.testLinkUrl = testEnginesService
+                    .getEngineOrEtPluginUrl(testlinkName);
 
             startedOnDemand = true;
             startingOnDemand = false;

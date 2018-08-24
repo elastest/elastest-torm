@@ -5,7 +5,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,16 +14,12 @@ import org.springframework.scheduling.annotation.Async;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.spotify.docker.client.ProgressHandler;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ProgressMessage;
 
-import io.elastest.epm.client.model.DockerPullImageProgress;
-import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TssManifest;
+import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.utils.UtilTools;
 
 public class EtmMiniSupportServiceClient
@@ -42,16 +37,17 @@ public class EtmMiniSupportServiceClient
 
     Map<String, SupportService> supportServicesMap;
     Map<String, TssManifest> tssManifestMap;
-    Map<String, SupportServiceInstance> supportServiceInstanceMap;
 
     DockerComposeService dockerComposeService;
+    EtPluginsService etPluginsService;
 
     public EtmMiniSupportServiceClient(
-            DockerComposeService dockerComposeService) {
+            DockerComposeService dockerComposeService,
+            EtPluginsService etPluginsService) {
         this.dockerComposeService = dockerComposeService;
+        this.etPluginsService = etPluginsService;
         supportServicesMap = new HashMap<>();
         tssManifestMap = new HashMap<>();
-        supportServiceInstanceMap = new HashMap<>();
     }
 
     // @PreDestroy
@@ -90,28 +86,12 @@ public class EtmMiniSupportServiceClient
         String composeYml = manifest.getManifestContent();
 
         composeYml.replaceAll("\\\\n", "\\n");
-        String path = sharedFolder.endsWith("/") ? sharedFolder
-                : sharedFolder + "/";
-        path += "tmp-support-services-yml";
 
         try {
-            dockerComposeService.createProjectWithEnv(instanceId, composeYml,
-                    path, true, serviceInstance.getParameters(), false, false);
-
-            supportServiceInstanceMap.put(instanceId, serviceInstance);
-            this.pullImages(instanceId);
-
-            supportServiceInstanceMap.get(instanceId)
-                    .setStatusMsg("Starting...");
-            supportServiceInstanceMap.get(instanceId)
-                    .setStatus(DockerServiceStatusEnum.STARTING);
-
-            dockerComposeService.startProject(instanceId, false);
-            logger.info("Registered service.");
+            etPluginsService.createTssInstanceProject(instanceId, composeYml,
+                    serviceInstance);
+            etPluginsService.startEtPlugin(instanceId);
         } catch (Exception e) {
-            if (supportServiceInstanceMap.containsKey(instanceId)) {
-                supportServiceInstanceMap.remove(instanceId);
-            }
             throw new RuntimeException("Exception provisioning service \""
                     + serviceInstance.getService_id() + "\" with instanceId \""
                     + instanceId + "\"", e);
@@ -120,46 +100,11 @@ public class EtmMiniSupportServiceClient
         return "";
     }
 
-    private void pullImages(String instanceId) throws Exception {
-        List<String> images = dockerComposeService.getProjectImages(instanceId);
-        for (String image : images) {
-            dockerComposeService.pullImagesWithProgressHandler(instanceId,
-                    this.getTSSProgressHandler(instanceId, image));
-        }
-    }
-
-    public ProgressHandler getTSSProgressHandler(String projectName,
-            String image) {
-        DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
-        dockerPullImageProgress.setImage(image);
-        dockerPullImageProgress.setCurrentPercentage(0);
-
-        supportServiceInstanceMap.get(projectName)
-                .setStatus(DockerServiceStatusEnum.PULLING);
-        supportServiceInstanceMap.get(projectName)
-                .setStatusMsg("Pulling " + image + " image");
-        return new ProgressHandler() {
-            @Override
-            public void progress(ProgressMessage message)
-                    throws DockerException {
-                dockerPullImageProgress.processNewMessage(message);
-                String msg = "Pulling image " + image + " from " + projectName
-                        + ": " + dockerPullImageProgress.getCurrentPercentage()
-                        + "%";
-
-                supportServiceInstanceMap.get(projectName).setStatusMsg(msg);
-            }
-
-        };
-
-    }
-
     @Override
     @Async
     public void deprovisionServiceInstance(String instanceId,
             SupportServiceInstance serviceInstance) {
-        if (dockerComposeService.stopAndRemoveProject(instanceId)) {
-            supportServiceInstanceMap.remove(instanceId);
+        if (etPluginsService.stopAndRemoveProject(instanceId)) {
             logger.info("Service {} deprovisioned.",
                     serviceInstance.getServiceName());
         } else {
@@ -196,7 +141,8 @@ public class EtmMiniSupportServiceClient
     public SupportServiceInstance getServiceInstanceInfo(
             SupportServiceInstance instance) {
         return initSupportServiceInstanceData(
-                supportServiceInstanceMap.get(instance.getInstanceId()));
+                (SupportServiceInstance) etPluginsService
+                        .getEtPlugin(instance.getInstanceId()));
     }
 
     @Override

@@ -243,7 +243,7 @@ public class TJobExecOrchestratorService {
         } finally {
             if (tJobServices != null && tJobServices != "") {
                 try {
-                    deprovideServices(tJobExec);
+                    deprovisionServices(tJobExec);
                 } catch (Exception e) {
                     logger.error("Exception deprovision TSS: {}",
                             e.getMessage());
@@ -271,15 +271,15 @@ public class TJobExecOrchestratorService {
         } catch (TJobStoppedException e) {
             // Stop exception
         } catch (Exception e) {
-            logger.error("Exception during Force End execution", e);
+            logger.error("Exception during force end execution", e);
         }
 
         // Deprovision all TSS associated
         logger.debug("Requesting the TSS deprovision.");
         try {
-            deprovideServices(tJobExec);
+            deprovisionServices(tJobExec);
         } catch (Exception e) {
-            logger.error("Exception during Deprovide Services");
+            logger.error("Exception during the deprovision of services");
         }
 
         if (tJobExec.getTjob().isExternal()) {
@@ -490,15 +490,16 @@ public class TJobExecOrchestratorService {
         tJobExec.setEnvVars(envVars);
     }
 
-    public void deprovideServices(TJobExecution tJobExec) {
+    public void deprovisionServices(TJobExecution tJobExec) {
         logger.info("Start the service deprovision.");
         List<String> instancesAux = new ArrayList<String>();
         if (tJobExec.getServicesInstances().size() > 0) {
-            logger.debug("Deprovide TJob's TSSs stored in the TJob object");
+            logger.debug(
+                    "Deprovisioning TJob's TSSs stored in the TJob object");
             instancesAux = tJobExec.getServicesInstances();
         } else if (esmService.gettSSIByTJobExecAssociated()
                 .get(tJobExec.getId()) != null) {
-            logger.debug("Deprovide TJob's TSSs stored in the EsmService");
+            logger.debug("Deprovisioning TJob's TSSs stored in the EsmService");
             instancesAux = esmService.gettSSIByTJobExecAssociated()
                     .get(tJobExec.getId());
         }
@@ -508,7 +509,7 @@ public class TJobExecOrchestratorService {
         for (String instanceId : instancesAux) {
             esmService.deprovisionTJobExecServiceInstance(instanceId,
                     tJobExec.getId());
-            logger.debug("TSS Instance id to deprovide: {}", instanceId);
+            logger.debug("TSS Instance id to deprovision: {}", instanceId);
         }
     }
 
@@ -571,10 +572,11 @@ public class TJobExecOrchestratorService {
             String sutIp;
             if (EpmService.etMasterSlaveMode) {
                 logger.info("Sut main service name: {}",
-                        ("/" +dockerEtmService.getSutName(dockerExec).replaceAll("_",
-                                "") + "_" + sut.getMainService() + "_1"));
-                sutIp = epmService.getRemoteServiceIpByVduName("/" +
-                        dockerEtmService.getSutName(dockerExec) + "_"
+                        ("/" + dockerEtmService.getSutName(dockerExec)
+                                .replaceAll("_", "") + "_"
+                                + sut.getMainService() + "_1"));
+                sutIp = epmService.getRemoteServiceIpByVduName(
+                        "/" + dockerEtmService.getSutName(dockerExec) + "_"
                                 + sut.getMainService() + "_1");
                 logger.info("Sut main service ip: {}", sutIp);
             } else {
