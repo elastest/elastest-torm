@@ -54,6 +54,7 @@ import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.eus.service.DynamicDataService;
+import io.elastest.eus.service.WebDriverService;
 
 @Service
 public class EsmService {
@@ -179,6 +180,7 @@ public class EsmService {
     private final TJobExecRepository tJobExecRepositoryImpl;
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
     private final DynamicDataService dynamicDataService;
+    private final WebDriverService eusWebDriverService;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
@@ -186,7 +188,8 @@ public class EsmService {
             EtmContextAuxService etmContextAuxService, EpmService epmService,
             TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            DynamicDataService dynamicDataService) {
+            DynamicDataService dynamicDataService,
+            WebDriverService eusWebDriverService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -203,6 +206,7 @@ public class EsmService {
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.dynamicDataService = dynamicDataService;
+        this.eusWebDriverService = eusWebDriverService;
     }
 
     @PostConstruct
@@ -464,26 +468,34 @@ public class EsmService {
                     + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     folderPath);
+            String response = "";
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                response = eusWebDriverService
+                        .registerExecution(
+                                eusExecutionData.getAsExecutionData())
+                        .getBody();
+            } else {
 
-            String eusApi = servicesInstances.get(tssInstanceId)
-                    .getApiUrlIfExist();
+                String eusApi = servicesInstances.get(tssInstanceId)
+                        .getApiUrlIfExist();
 
-            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/register";
+                String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+                url += "execution/register";
 
-            // Register execution in EUS
-            RestTemplate restTemplate = new RestTemplate();
+                // Register execution in EUS
+                RestTemplate restTemplate = new RestTemplate();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(
-                    Collections.singletonList(MediaType.APPLICATION_JSON));
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(
+                        Collections.singletonList(MediaType.APPLICATION_JSON));
 
-            HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
-                    eusExecutionData, headers);
+                HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
+                        eusExecutionData, headers);
 
-            String response = restTemplate.postForObject(url, request,
-                    String.class);
+                response = restTemplate.postForObject(url, request,
+                        String.class);
+            }
             logger.debug("TJob Execution {} registered in EUS", response);
         }
     }
@@ -491,19 +503,24 @@ public class EsmService {
     public void unregisterTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String eusApi = servicesInstances.get(tssInstanceId)
-                    .getApiUrlIfExist();
-
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     "");
 
-            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/unregister/" + eusExecutionData.getKey();
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                eusWebDriverService
+                        .unregisterExecution(eusExecutionData.getKey());
+            } else {
+                String eusApi = servicesInstances.get(tssInstanceId)
+                        .getApiUrlIfExist();
 
-            // Register execution in EUS
-            RestTemplate restTemplate = new RestTemplate();
+                String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+                url += "execution/unregister/" + eusExecutionData.getKey();
 
-            restTemplate.delete(url);
+                // Register execution in EUS
+                RestTemplate restTemplate = new RestTemplate();
+
+                restTemplate.delete(url);
+            }
         }
     }
 
@@ -793,26 +810,33 @@ public class EsmService {
                     + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
+            String response = "";
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                response = eusWebDriverService
+                        .registerExecution(
+                                eusExecutionData.getAsExecutionData())
+                        .getBody();
+            } else {
+                String eusApi = servicesInstances.get(tssInstanceId)
+                        .getApiUrlIfExist();
 
-            String eusApi = servicesInstances.get(tssInstanceId)
-                    .getApiUrlIfExist();
+                String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+                url += "execution/register";
 
-            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/register";
+                // Register execution in EUS
+                RestTemplate restTemplate = new RestTemplate();
 
-            // Register execution in EUS
-            RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(
+                        Collections.singletonList(MediaType.APPLICATION_JSON));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(
-                    Collections.singletonList(MediaType.APPLICATION_JSON));
+                HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
+                        eusExecutionData, headers);
 
-            HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
-                    eusExecutionData, headers);
-
-            String response = restTemplate.postForObject(url, request,
-                    String.class);
+                response = restTemplate.postForObject(url, request,
+                        String.class);
+            }
             logger.debug("External TJob Execution {} registered in EUS",
                     response);
         }
@@ -821,18 +845,23 @@ public class EsmService {
     public void unregisterExternalTJobExecutionInEus(String tssInstanceId,
             String serviceName, ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String eusApi = servicesInstances.get(tssInstanceId)
-                    .getApiUrlIfExist();
-
-            EusExecutionData eusExecutionDate = new EusExecutionData(exTJobExec,
+            EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     "");
 
-            String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
-            url += "execution/unregister/" + eusExecutionDate.getKey();
+            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                eusWebDriverService
+                        .unregisterExecution(eusExecutionData.getKey());
+            } else {
+                String eusApi = servicesInstances.get(tssInstanceId)
+                        .getApiUrlIfExist();
 
-            // Unregister execution in EUS
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.delete(url);
+                String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
+                url += "execution/unregister/" + eusExecutionData.getKey();
+
+                // Unregister execution in EUS
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.delete(url);
+            }
         }
     }
 
