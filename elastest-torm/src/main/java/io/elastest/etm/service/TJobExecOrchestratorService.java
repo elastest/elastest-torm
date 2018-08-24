@@ -478,6 +478,7 @@ public class TJobExecOrchestratorService {
                 && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
+                logger.info("This is the EUS's API URL: {}", eusApi);
                 EusExecutionData eusExecutionDate = new EusExecutionData(
                         tJobExec, "");
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
