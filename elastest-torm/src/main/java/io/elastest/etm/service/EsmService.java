@@ -478,7 +478,10 @@ public class EsmService {
 
                 String eusApi = servicesInstances.get(tssInstanceId)
                         .getApiUrlIfExist();
-
+                String etEusApiKey = "ET_EUS_API";
+                if (!tJobExec.getEnvVars().containsKey(etEusApiKey)) {
+                    tJobExec.getEnvVars().put("ET_EUS_API", eusApi);
+                }
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/register";
 
