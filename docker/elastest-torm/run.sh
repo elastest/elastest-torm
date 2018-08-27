@@ -4,4 +4,4 @@ while ! nc -z edm-mysql 3306 ; do
     sleep 2
 done
 
-exec java -jar elastest-torm.jar
+exec java -jar -Djava.security.egd=file:/dev/./urandom elastest-torm.jar

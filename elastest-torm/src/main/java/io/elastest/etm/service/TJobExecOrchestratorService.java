@@ -408,6 +408,8 @@ public class TJobExecOrchestratorService {
     private String provideService(TJobSupportService service,
             TJobExecution tJobExec) {
         String instanceId = "";
+
+        // If normal mode, provision async and show pulling information
         if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
             instanceId = esmService.generateNewOrGetInstanceId(service.getId());
             esmService.provisionTJobExecServiceInstanceAsync(service.getId(),
@@ -418,7 +420,7 @@ public class TJobExecOrchestratorService {
 
             esmService.waitForTssStartedInMini(tJobExec, instanceId,
                     serviceName);
-        } else {
+        } else { // Sync provision
             instanceId = esmService.provisionTJobExecServiceInstanceSync(
                     service.getId(), tJobExec);
         }
