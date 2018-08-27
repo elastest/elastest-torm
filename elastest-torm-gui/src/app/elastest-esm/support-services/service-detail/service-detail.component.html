@@ -60,7 +60,7 @@
           <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
         </div>
 
-        <div *ngIf="serviceInstance.serviceName == 'elastest-eus'">
+        <div *ngIf="serviceInstance.serviceName.toLowerCase() === 'elastest-eus' || serviceInstance.serviceName.toLowerCase() === 'eus'">
           <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standaloneService"
             [isNested]="true"></app-elastest-eus>
         </div>
