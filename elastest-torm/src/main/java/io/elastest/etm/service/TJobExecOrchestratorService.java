@@ -354,9 +354,8 @@ public class TJobExecOrchestratorService {
                     esmService.gettJobServicesInstances().get(tSSInstId));
         });
 
-        logger.info("Waiting for the associated TSS to be ready: {}",
-                tSSInstAssocToTJob.keySet());
-        resultMsg = "Waiting for Test Support Services";
+        resultMsg = "Waiting for the Test Support Services to be ready";
+        logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
@@ -408,8 +407,21 @@ public class TJobExecOrchestratorService {
 
     private String provideService(TJobSupportService service,
             TJobExecution tJobExec) {
-        String instanceId = esmService.provisionTJobExecServiceInstanceSync(
-                service.getId(), tJobExec);
+        String instanceId = "";
+        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            instanceId = esmService.generateNewOrGetInstanceId(service.getId());
+            esmService.provisionTJobExecServiceInstanceAsync(service.getId(),
+                    tJobExec, instanceId);
+
+            String serviceName = esmService
+                    .getServiceNameByServiceId(service.getId()).toUpperCase();
+
+            esmService.waitForTssStartedInMini(tJobExec, instanceId,
+                    serviceName);
+        } else {
+            instanceId = esmService.provisionTJobExecServiceInstanceSync(
+                    service.getId(), tJobExec);
+        }
 
         tJobExec.getServicesInstances().add(instanceId);
         return instanceId;

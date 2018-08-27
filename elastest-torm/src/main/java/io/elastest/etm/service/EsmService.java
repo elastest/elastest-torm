@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
@@ -181,6 +182,7 @@ public class EsmService {
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
     private final DynamicDataService dynamicDataService;
     private final WebDriverService eusWebDriverService;
+    private final EtPluginsService etPluginsService;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
@@ -189,7 +191,8 @@ public class EsmService {
             TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             DynamicDataService dynamicDataService,
-            WebDriverService eusWebDriverService) {
+            WebDriverService eusWebDriverService,
+            EtPluginsService etPluginsService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -207,6 +210,8 @@ public class EsmService {
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.dynamicDataService = dynamicDataService;
         this.eusWebDriverService = eusWebDriverService;
+        this.etPluginsService = etPluginsService;
+
     }
 
     @PostConstruct
@@ -415,6 +420,18 @@ public class EsmService {
         return services;
     }
 
+    public String generateNewOrGetInstanceId(String serviceId) {
+        String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
+
+        if (serviceName != null
+                && execMode.equals(ElastestConstants.MODE_NORMAL)
+                && tssLoadedOnInitMap.containsKey(serviceName)) {
+            return tssLoadedOnInitMap.get(serviceName);
+        } else {
+            return UtilTools.generateUniqueId();
+        }
+    }
+
     @Async
     public void provisionServiceInstanceAsync(String serviceId,
             String instanceId) {
@@ -432,18 +449,24 @@ public class EsmService {
     @Async
     public void provisionTJobExecServiceInstanceAsync(String serviceId,
             TJobExecution tJobExec, String instanceId) throws RuntimeException {
-        provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
+        provisionTJobExecServiceInstanceSync(serviceId, tJobExec, instanceId);
     }
 
     public String provisionTJobExecServiceInstanceSync(String serviceId,
             TJobExecution tJobExec) {
+        String tssInstanceId = this.generateNewOrGetInstanceId(serviceId);
+        this.provisionTJobExecServiceInstanceSync(serviceId, tJobExec,
+                tssInstanceId);
+        return tssInstanceId;
+    }
+
+    public void provisionTJobExecServiceInstanceSync(String serviceId,
+            TJobExecution tJobExec, String tssInstanceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If mode normal and is shared tss
         if (serviceName != null
                 && execMode.equals(ElastestConstants.MODE_NORMAL)
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
-            String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
-
             if (serviceName.equals("EUS")) {
                 this.registerTJobExecutionInEus(tssInstanceId, serviceName,
                         tJobExec);
@@ -454,12 +477,11 @@ public class EsmService {
             instance.gettJobExecIdList().add(tJobExec.getId());
             tJobServicesInstances.put(tssInstanceId, instance);
 
-            return tssInstanceId;
+        } else {
+            // Else start new instance
+            provisionTJobExecServiceInstance(serviceId, tJobExec,
+                    tssInstanceId);
         }
-        // Else start new Eus instance
-        String instanceId = UtilTools.generateUniqueId();
-        provisionTJobExecServiceInstance(serviceId, tJobExec, instanceId);
-        return instanceId;
 
     }
 
@@ -671,6 +693,47 @@ public class EsmService {
             throw new RuntimeException(
                     "Service with name \"" + serviceId + "\" not found in ESM");
         }
+    }
+
+    public void waitForTssStartedInMini(TJobExecution tJobExec,
+            String instanceId, String serviceName) {
+
+        if (serviceName != null
+                && execMode.equals(ElastestConstants.MODE_NORMAL)
+                && tssLoadedOnInitMap.containsKey(serviceName)) {
+            // TSS Loaded on init
+            return;
+        }
+
+        SupportServiceInstance tssInstance = (SupportServiceInstance) etPluginsService
+                .getEtPlugin(instanceId);
+        if (tssInstance == null) {
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
+
+        } else {
+            if (!DockerServiceStatusEnum.STARTING
+                    .equals(tssInstance.getStatus())
+                    && !DockerServiceStatusEnum.READY
+                            .equals(tssInstance.getStatus())) {
+
+                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.STARTING_TSS,
+                        tssInstance.getStatusMsg());
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
+            }
+        }
+
     }
 
     private void setTJobExecTSSFilesConfig(
@@ -1366,8 +1429,6 @@ public class EsmService {
                 if (urlValue == null) {
                     urlValue = tSSInstance.getApiUrlIfExist();
                 }
-
-                logger.debug("apistatusurl: {}", urlValue);
 
                 up = true;
                 if (urlValue != null) {

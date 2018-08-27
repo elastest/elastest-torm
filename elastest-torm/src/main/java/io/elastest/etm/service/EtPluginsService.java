@@ -152,13 +152,19 @@ public class EtPluginsService {
         }
     }
 
-    public void createTssInstanceProject(String instanceId,
+    public SupportServiceInstance createTssInstanceProject(String instanceId,
             String dockerComposeYml, SupportServiceInstance serviceInstance)
             throws Exception {
         dockerComposeService.createProjectWithEnv(instanceId, dockerComposeYml,
                 tmpTssInstancesYmlFolder, true, serviceInstance.getParameters(),
                 false, false);
+
+        List<String> images = dockerComposeService.getProjectImages(instanceId);
+        serviceInstance.setImagesList(images);
+
         tssInstancesMap.put(instanceId, serviceInstance);
+
+        return serviceInstance;
     }
 
     /* ******************************* */
@@ -190,7 +196,7 @@ public class EtPluginsService {
             dockerComposeService.stopProject(projectName);
             this.getEtPlugin(projectName).initToDefault();
         } catch (IOException e) {
-            logger.error("Error while stopping engine {}", projectName);
+            logger.error("Error while stopping EtPlugin {}", projectName);
         }
         return this.getEtPlugin(projectName);
     }
@@ -239,10 +245,8 @@ public class EtPluginsService {
             this.getEtPlugin(projectName).setStatusMsg("Starting...");
             dockerComposeService.startProject(projectName, false);
             insertIntoETNetwork(projectName);
-        } catch (IOException e) {
-            logger.error("Cannot start {} plugin", projectName, e);
         } catch (Exception e) {
-            logger.error("{}", e.getMessage());
+            logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
             this.stopEtPlugin(projectName);
         }
@@ -285,9 +289,14 @@ public class EtPluginsService {
                     + ": EtPlugin project does not exists");
         }
 
-        List<String> images = dockerComposeService
-                .getProjectImages(projectName);
-        currentEtPluginMap.get(projectName).setImagesList(images);
+        List<String> images = currentEtPluginMap.get(projectName)
+                .getImagesList();
+
+        if (images == null || images.isEmpty()) {
+            images = dockerComposeService.getProjectImages(projectName);
+            currentEtPluginMap.get(projectName).setImagesList(images);
+        }
+
         for (String image : images) {
             dockerComposeService.pullImagesWithProgressHandler(projectName,
                     this.getEtPluginProgressHandler(currentEtPluginMap,
@@ -309,7 +318,7 @@ public class EtPluginsService {
                     throws DockerException {
                 dockerPullImageProgress.processNewMessage(message);
                 String msg = "Pulling image " + image + " from " + projectName
-                        + " engine project: "
+                        + " ET Plugin: "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
 
                 map.get(projectName).setStatusMsg(msg);
