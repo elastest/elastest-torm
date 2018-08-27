@@ -276,8 +276,9 @@ public class EsmService {
                 String newValue = eusInstance.getUrls().get(key)
                         .replaceAll(originalPort, String.valueOf(servicePort));
                 eusInstance.getUrls().put(key, newValue);
-                logger.info("Replace the port {} by {}", originalPort, servicePort);
-                logger.info("EUS URLs: {}:{}", key, newValue );
+                logger.info("Replace the port {} by {}", originalPort,
+                        servicePort);
+                logger.info("EUS URLs: {}:{}", key, newValue);
 
             }
             for (String key : eusInstance.getEndpointsData().keySet()) {
@@ -1785,7 +1786,11 @@ public class EsmService {
                             envValuePort = !publicEnvVars
                                     ? endpointBindingPort.getKey()
                                     : endpointBindingPort.getValue();
+                        } else if (entry.getValue().get("port").toString()
+                                .equals(etProxyPort)) {
+                            envValuePort = etProxyPort;
                         }
+
                     }
                 }
 
