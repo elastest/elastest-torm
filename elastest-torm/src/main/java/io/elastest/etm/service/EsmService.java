@@ -1362,8 +1362,10 @@ public class EsmService {
                 // First check if api status url exist (for integrated EUS)
                 String urlValue = tSSInstance.getApiStatusUrlIfExist();
                 if (urlValue == null) {
-                    tSSInstance.getApiUrlIfExist();
+                    urlValue = tSSInstance.getApiUrlIfExist();
                 }
+
+                logger.debug("apistatusurl: {}", urlValue);
 
                 up = true;
                 if (urlValue != null) {

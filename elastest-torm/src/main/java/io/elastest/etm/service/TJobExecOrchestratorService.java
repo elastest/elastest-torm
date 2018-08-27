@@ -354,7 +354,8 @@ public class TJobExecOrchestratorService {
                     esmService.gettJobServicesInstances().get(tSSInstId));
         });
 
-        logger.info("Waiting for associated TSS {}", tSSInstAssocToTJob);
+        logger.info("Waiting for the associated TSS to be ready: {}",
+                tSSInstAssocToTJob.keySet());
         resultMsg = "Waiting for Test Support Services";
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
                 TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
