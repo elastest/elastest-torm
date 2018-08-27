@@ -14,7 +14,7 @@ filebeat.autodiscover:
       templates:
         - condition:
             regexp:
-              docker.container.name: "^(test|sut)(_)?(\\d*)(.*)?"
+              docker.container.name: ${ET_MON_CONTAINERS_NAME:"^(test|sut)(_)?(\\d*)(.*)?"}
           config:
             - type: log
               paths:
