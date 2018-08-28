@@ -1789,7 +1789,7 @@ public class EsmService {
                         } else if (entry.getValue().get("port").toString()
                                 .equals(etProxyPort)) {
                             envValuePort = publicEnvVars ? etProxyPort
-                                    : endpointBindingPort.getKey();
+                                    : etmServerPort;
                         }
 
                     }
