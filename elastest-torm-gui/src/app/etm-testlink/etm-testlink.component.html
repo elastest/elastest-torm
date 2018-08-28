@@ -2,13 +2,14 @@
     <div *ngIf="!isStarted; else showTestLink">
         <md-card>
             <md-card-title>
-                TestLink container not started yet
+                {{startingInProcess ? 'Starting TestLink...' : 'TestLink container not started yet'}}
             </md-card-title>
             <md-card-content>
-                <button md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()" mdTooltip="Start TestLink container"
-                    [disabled]="startingInProcess">
+                <button *ngIf="!startingInProcess" md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()"
+                    mdTooltip="Start TestLink container" [disabled]="startingInProcess">
                     <md-icon>play_circle_outline</md-icon> Start TestLink
                 </button>
+                <md-spinner strokeWidth="6" *ngIf="startingInProcess" color="accent" class="push-top-sm"></md-spinner>
             </md-card-content>
         </md-card>
     </div>
@@ -23,6 +24,12 @@
                             <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" mdTooltip="Open TestLink in new tab">
                                 <md-icon color="accent">open_in_new</md-icon>
                             </a>
+                            <span class="push-left-sm">
+                                <div layout="column" class="md-caption">
+                                    <div><b>user:</b> admin</div>
+                                    <div><b>password:</b> elastest</div>
+                                </div>
+                            </span>
                             <span flex></span>
                             <button md-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" mdTooltip="Sync data with ElasTest" [disabled]="disableBtns">
                                 <md-icon>sync</md-icon>
