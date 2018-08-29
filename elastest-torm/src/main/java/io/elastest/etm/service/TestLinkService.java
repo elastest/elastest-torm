@@ -175,6 +175,7 @@ public class TestLinkService {
             startedOnDemand = true;
             startingOnDemand = false;
 
+            this.testLinkDBService.init();
             this.initTestLink(this.testLinkUrl);
         }
         return isStarted();
@@ -647,7 +648,6 @@ public class TestLinkService {
         TestPlan plan = null;
         try {
             TestPlan[] plans = this.testLinkDBService.getAllTestPlans();
-            logger.error("Checking if plan {} is in {}", planId, plans);
             if (plans != null) {
                 for (TestPlan currentPlan : plans) {
                     if (currentPlan.getId().equals(planId)) {
