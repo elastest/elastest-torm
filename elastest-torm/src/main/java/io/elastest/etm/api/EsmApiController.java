@@ -57,9 +57,8 @@ public class EsmApiController implements EsmApi {
     public ResponseEntity<String> provisionServiceInstance(
             @ApiParam(value = "Service Id", required = true) @PathVariable("serviceId") String serviceId) {
         logger.info("Service provision:" + serviceId);
-        String instanceId = esmService.generateNewOrGetInstanceId(serviceId);
-        esmService.provisionTJobExecServiceInstanceAsync(serviceId, null,
-                instanceId);
+        String instanceId = UtilTools.generateUniqueId();
+        esmService.provisionServiceInstanceAsync(serviceId, instanceId);
         return new ResponseEntity<String>(instanceId, HttpStatus.OK);
     }
 

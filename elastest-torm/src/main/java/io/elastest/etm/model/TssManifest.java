@@ -41,6 +41,13 @@ public class TssManifest {
     public TssManifest() {
     }
 
+    public TssManifest(TssManifest manifest) {
+        this(manifest.getId(), manifest.getManifestContent(),
+                manifest.getManifestType(), manifest.getPlanId(),
+                manifest.getServiceId(), manifest.getEndpoints().deepCopy(),
+                manifest.getConfig());
+    }
+
     public TssManifest(Map<String, Object> config) {
         this.config = config;
     }

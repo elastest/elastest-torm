@@ -31,7 +31,7 @@ public class TestEnginesApiController implements TestEnginesApi {
         if (engine.getStatus()
                 .equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {
             engine.setStatus(DockerServiceStatusEnum.INITIALIZING);
-            engine.setStatusMsg("INITIALIZING...");
+            engine.setStatusMsg("Initializing...");
         }
         etPluginsService.startEngineOrUniquePluginAsync(name);
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);

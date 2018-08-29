@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
@@ -70,8 +69,7 @@ public class EsmService {
 
     @Value("${et.public.host}")
     public String etPublicHost;
-    @Value("${server.port}")
-    public String serverPort;
+
     @Value("${elastest.docker.network}")
     private String etDockerNetwork;
     @Value("${et.edm.alluxio.api}")
@@ -1088,6 +1086,7 @@ public class EsmService {
                         "Error building endpoints info: " + e.getMessage());
             }
         }
+
         return serviceInstance;
     }
 
@@ -1146,6 +1145,7 @@ public class EsmService {
                             || node.get("protocol").toString().contains("https")
                             || node.get("protocol").toString()
                                     .contains("ws"))) {
+                
                 serviceInstance.setServicePort(Integer.parseInt(
                         node.get("port").toString().replaceAll("\"", "")));
                 serviceInstance.getUrls().put(nodeName,
@@ -1629,7 +1629,7 @@ public class EsmService {
                 etEtmLstcpPort);
 
         supportServiceInstance.getParameters().put("ET_CONTEXT_API",
-                "http://" + UtilTools.getMyIp() + ":" + serverPort
+                "http://" + UtilTools.getMyIp() + ":" + etmServerPort
                         + "/api/context/tss/"
                         + supportServiceInstance.getInstanceId());
 
