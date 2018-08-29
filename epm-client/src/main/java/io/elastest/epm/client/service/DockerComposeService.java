@@ -327,6 +327,32 @@ public class DockerComposeService {
                 dockerService.getEmptyProgressHandler());
     }
 
+    public void pullImageWithProgressHandler(
+            DockerComposeContainer dockerComposeContainer,
+            ProgressHandler progressHandler, String image) {
+        if (dockerComposeContainer.getImagesList() != null
+                && dockerComposeContainer.getImagesList().contains(image)) {
+            try {
+                dockerService.pullImageWithProgressHandler(image,
+                        progressHandler);
+            } catch (Exception e) {
+                logger.error("Error on pull {} image", image);
+            }
+        }
+
+    }
+
+    public void pullImageWithProgressHandler(String projectName,
+            ProgressHandler progressHandler, String image) throws Exception {
+        if (!projects.containsKey(projectName)) {
+            throw new Exception("Error on Pull image " + image + " of project "
+                    + projectName + ": Project does not exists");
+        }
+
+        this.pullImageWithProgressHandler(projects.get(projectName),
+                progressHandler, image);
+    }
+
     public void pullImagesWithProgressHandler(
             DockerComposeContainer dockerComposeContainer,
             ProgressHandler progressHandler) {

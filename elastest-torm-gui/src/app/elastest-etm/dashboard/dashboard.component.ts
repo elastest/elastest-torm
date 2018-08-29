@@ -20,7 +20,8 @@ import { TJobService } from '../tjob/tjob.service';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('logsAndMetrics')
+  logsAndMetrics: EtmMonitoringViewComponent;
 
   elastestMode: string;
 
@@ -150,7 +151,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
                   this.tJobExec = finishedTJobExec;
                   this.statusIcon = this.tJobExec.getResultIcon();
                 });
-              this.popupService.openSnackBar('TJob Execution Finished with status ' + this.tJobExec.result);
+              this.popupService.openSnackBar(
+                'TJob Execution ' + this.tJobExec.id + ' Finished with status ' + this.tJobExec.result,
+              );
             }
           },
           (error) => console.log(error),
@@ -172,13 +175,16 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   stopExec(): void {
     this.disableStopBtn = true;
-    this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec).subscribe((tJobExec: TJobExecModel) => {
-      this.tJobExec = tJobExec;
-      let msg: string = 'The execution has been stopped';
-      if (!this.tJobExec.stopped()) {
-        msg = 'The execution has finished before stopping it';
-      }
-      this.popupService.openSnackBar(msg);
-    }, (error) => (this.disableStopBtn = false));
+    this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec).subscribe(
+      (tJobExec: TJobExecModel) => {
+        this.tJobExec = tJobExec;
+        let msg: string = 'The execution has been stopped';
+        if (!this.tJobExec.stopped()) {
+          msg = 'The execution has finished before stopping it';
+        }
+        this.popupService.openSnackBar(msg);
+      },
+      (error) => (this.disableStopBtn = false),
+    );
   }
 }

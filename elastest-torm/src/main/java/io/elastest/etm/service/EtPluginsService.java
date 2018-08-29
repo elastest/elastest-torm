@@ -298,9 +298,11 @@ public class EtPluginsService {
         }
 
         for (String image : images) {
-            dockerComposeService.pullImagesWithProgressHandler(projectName,
-                    this.getEtPluginProgressHandler(currentEtPluginMap,
-                            projectName, image));
+            ProgressHandler progressHandler = this.getEtPluginProgressHandler(
+                    currentEtPluginMap, projectName, image);
+
+            dockerComposeService.pullImageWithProgressHandler(projectName,
+                    progressHandler, image);
         }
     }
 
