@@ -647,6 +647,7 @@ public class TestLinkService {
         TestPlan plan = null;
         try {
             TestPlan[] plans = this.testLinkDBService.getAllTestPlans();
+            logger.error("Checking if plan {} is in {}", planId, plans);
             if (plans != null) {
                 for (TestPlan currentPlan : plans) {
                     if (currentPlan.getId().equals(planId)) {
@@ -656,6 +657,8 @@ public class TestLinkService {
                 }
             }
         } catch (Exception e) {
+            logger.error("Error on get TestPlan with id {}", planId, e);
+
         }
         if (plan == null) {
             logger.info("Test Plan with id {} does not exist", planId);
