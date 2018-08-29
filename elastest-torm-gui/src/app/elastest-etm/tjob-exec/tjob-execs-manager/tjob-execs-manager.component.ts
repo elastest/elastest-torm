@@ -31,7 +31,6 @@ export class TJobExecsManagerComponent implements OnInit {
     { name: 'result', label: 'Result' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
-    { name: 'lastExecutionDate', label: 'Last Execution' },
     // { name: 'duration', label: 'Duration' },
     // { name: 'sutExecution', label: 'Sut Execution' },
     // { name: 'error', label: 'Error' },
