@@ -30,7 +30,7 @@ export class ConfigurationService {
     return new Promise((resolve, reject) => {
       this.getServicesInfo().subscribe((servicesInfo) => {
         let eusUrl: URL =
-          servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+          servicesInfo.elasTestExecMode !== 'experimental' && servicesInfo.eusSSInstance !== null
             ? new URL(servicesInfo.eusSSInstance.urls.api)
             : null;
 
@@ -49,13 +49,13 @@ export class ConfigurationService {
           eusPort: eusUrl !== null ? eusUrl.port : null,
           eusServiceUrlNoPath: (this.protocol === 'https:' ? 'https://' : 'http://') + environment.eus,
           eusServiceUrl:
-            servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+            servicesInfo.elasTestExecMode !== 'experimental' && servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
                 ? String(servicesInfo.eusSSInstance.urls.api).replace('http://', 'https://')
                 : servicesInfo.eusSSInstance.urls.api
               : null,
           eusWebSocketUrl:
-            servicesInfo.elasTestExecMode === 'normal' && servicesInfo.eusSSInstance !== null
+            servicesInfo.elasTestExecMode !== 'experimental' && servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
                 ? String(servicesInfo.eusSSInstance.urls.eusWSapi).replace('ws://', 'wss://')
                 : servicesInfo.eusSSInstance.urls.eusWSapi

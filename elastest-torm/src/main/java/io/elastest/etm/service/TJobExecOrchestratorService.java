@@ -53,6 +53,7 @@ import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class TJobExecOrchestratorService {
@@ -82,6 +83,7 @@ public class TJobExecOrchestratorService {
 
     private EtmContextService etmContextService;
     private EpmService epmService;
+    private UtilsService utilsService;
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -89,7 +91,8 @@ public class TJobExecOrchestratorService {
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, DockerComposeService dockerComposeService,
             MonitoringServiceInterface monitoringService,
-            EtmContextService etmContextService, EpmService epmService) {
+            EtmContextService etmContextService, EpmService epmService,
+            UtilsService utilsService) {
         super();
         this.dockerEtmService = dockerEtmService;
         this.testSuiteRepo = testSuiteRepo;
@@ -102,6 +105,7 @@ public class TJobExecOrchestratorService {
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
         this.epmService = epmService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -409,8 +413,9 @@ public class TJobExecOrchestratorService {
             TJobExecution tJobExec) {
         String instanceId = "";
 
-        // If normal mode, provision async and show pulling information
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        // If normal/experimental-lite mode, provision async and show pulling
+        // information
+        if (utilsService.isElastestMini()) {
             instanceId = esmService.generateNewOrGetInstanceId(service.getId());
             esmService.provisionTJobExecServiceInstanceAsync(service.getId(),
                     tJobExec, instanceId);
@@ -489,8 +494,7 @@ public class TJobExecOrchestratorService {
 
         // In normal mode, tjobs make use of started EUS
         String etEusApiKey = "ET_EUS_API";
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)
-                && envVars.containsKey(etEusApiKey)) {
+        if (utilsService.isElastestMini() && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
                 logger.info("This is the EUS's API URL: {}", eusApi);

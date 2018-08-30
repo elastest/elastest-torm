@@ -53,6 +53,7 @@ import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 import io.elastest.eus.service.DynamicDataService;
 import io.elastest.eus.service.WebDriverService;
 
@@ -181,6 +182,7 @@ public class EsmService {
     private final DynamicDataService dynamicDataService;
     private final WebDriverService eusWebDriverService;
     private final EtPluginsService etPluginsService;
+    private final UtilsService utilsService;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
@@ -190,7 +192,7 @@ public class EsmService {
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             DynamicDataService dynamicDataService,
             WebDriverService eusWebDriverService,
-            EtPluginsService etPluginsService) {
+            EtPluginsService etPluginsService, UtilsService utilsService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
@@ -209,7 +211,7 @@ public class EsmService {
         this.dynamicDataService = dynamicDataService;
         this.eusWebDriverService = eusWebDriverService;
         this.etPluginsService = etPluginsService;
-
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -217,7 +219,7 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (utilsService.isElastestMini()) {
                 tSSIdLoadedOnInit.forEach((serviceId) -> {
                     String serviceName = getServiceNameByServiceId(serviceId)
                             .toUpperCase();
@@ -344,7 +346,7 @@ public class EsmService {
             if (content != null) {
                 ObjectNode serviceDefJson = ParserService
                         .fromStringToJson(content);
-                if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                if (utilsService.isElastestMini()) {
                     logger.debug("TSS file {}", serviceFile.getName());
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
@@ -422,8 +424,7 @@ public class EsmService {
     public String generateNewOrGetInstanceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             return tssLoadedOnInitMap.get(serviceName);
         } else {
@@ -463,8 +464,7 @@ public class EsmService {
             TJobExecution tJobExec, String tssInstanceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If mode normal and is shared tss
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             if (serviceName.equals("EUS")) {
                 this.registerTJobExecutionInEus(tssInstanceId, serviceName,
@@ -492,7 +492,7 @@ public class EsmService {
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     folderPath);
             String response = "";
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (utilsService.isElastestMini()) {
                 response = eusWebDriverService
                         .registerExecution(
                                 eusExecutionData.getAsExecutionData())
@@ -527,7 +527,7 @@ public class EsmService {
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     "");
 
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (utilsService.isElastestMini()) {
                 eusWebDriverService
                         .unregisterExecution(eusExecutionData.getKey());
             } else {
@@ -559,8 +559,7 @@ public class EsmService {
 
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If mode normal and is shared tss
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
@@ -697,8 +696,7 @@ public class EsmService {
     public void waitForTssStartedInMini(TJobExecution tJobExec,
             String instanceId, String serviceName) {
 
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             // TSS Loaded on init
             return;
@@ -873,7 +871,7 @@ public class EsmService {
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
             String response = "";
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (utilsService.isElastestMini()) {
                 response = eusWebDriverService
                         .registerExecution(
                                 eusExecutionData.getAsExecutionData())
@@ -910,7 +908,7 @@ public class EsmService {
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     "");
 
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+            if (utilsService.isElastestMini()) {
                 eusWebDriverService
                         .unregisterExecution(eusExecutionData.getKey());
             } else {
@@ -1145,7 +1143,7 @@ public class EsmService {
                             || node.get("protocol").toString().contains("https")
                             || node.get("protocol").toString()
                                     .contains("ws"))) {
-                
+
                 serviceInstance.setServicePort(Integer.parseInt(
                         node.get("port").toString().replaceAll("\"", "")));
                 serviceInstance.getUrls().put(nodeName,
@@ -1195,8 +1193,7 @@ public class EsmService {
     }
 
     public boolean isIntegratedEUS(String serviceName, String instanceId) {
-        return execMode.equals(ElastestConstants.MODE_NORMAL)
-                && "EUS".equals(serviceName)
+        return utilsService.isElastestMini() && "EUS".equals(serviceName)
                 && tssLoadedOnInitMap.containsKey(serviceName)
                 && tssLoadedOnInitMap.containsValue(instanceId);
     }
@@ -1216,8 +1213,7 @@ public class EsmService {
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If mode normal and is shared tss
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
 
             if (serviceName.equals("EUS")) {
@@ -1249,8 +1245,7 @@ public class EsmService {
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If mode normal and is shared tss
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
 
             if (serviceName.equals("EUS")) {
@@ -1601,7 +1596,7 @@ public class EsmService {
 
     private void setTSSFilesConfig(
             SupportServiceInstance supportServiceInstance) {
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+        if (utilsService.isElastestMini()) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     etSharedFolder
@@ -1861,8 +1856,7 @@ public class EsmService {
 
     public String getSharedTssInstanceId(String serviceName) {
         // If mode normal and is shared tss
-        if (serviceName != null
-                && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
             return tssLoadedOnInitMap.get(serviceName.toUpperCase());
         }
@@ -1871,7 +1865,7 @@ public class EsmService {
 
     public SupportServiceInstance getSharedTssInstance(String instanceId) {
         // If mode normal and is shared tss
-        if (instanceId != null && execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (instanceId != null && utilsService.isElastestMini()
                 && servicesInstances.containsKey(instanceId)) {
             return servicesInstances.get(instanceId);
         }

@@ -37,6 +37,7 @@ import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 /**
@@ -89,6 +90,7 @@ public class ExternalService {
     private LogstashService logstashService;
 
     private MonitoringServiceInterface monitoringService;
+    private UtilsService utilsService;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
@@ -99,7 +101,7 @@ public class ExternalService {
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             EsmService esmService, MonitoringServiceInterface monitoringService,
             EtmContextService etmContextService,
-            LogstashService logstashService) {
+            LogstashService logstashService, UtilsService utilsService) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
@@ -113,6 +115,7 @@ public class ExternalService {
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
         this.logstashService = logstashService;
+        this.utilsService = utilsService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob)
@@ -396,7 +399,7 @@ public class ExternalService {
         if (eus != null) {
             String instanceId = UtilTools.generateUniqueId();
 
-            if (execMode.equals(ElastestConstants.MODE_NORMAL)) { // use started instance
+            if (utilsService.isElastestMini()) { // use started instance
                 instanceId = esmService
                         .provisionExternalTJobExecServiceInstanceSync(
                                 eus.getId(), exec);

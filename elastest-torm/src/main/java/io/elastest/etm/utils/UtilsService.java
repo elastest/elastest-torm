@@ -37,7 +37,8 @@ public class UtilsService {
     private String inContainer;
 
     public boolean isElastestMini() {
-        return enableETMini && execMode.equals(ElastestConstants.MODE_NORMAL);
+        return enableETMini && (execMode.equals(ElastestConstants.MODE_NORMAL)
+                || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE));
     }
 
     public boolean isEtmInDevelopment() {

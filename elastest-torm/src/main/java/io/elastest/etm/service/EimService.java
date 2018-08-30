@@ -121,7 +121,7 @@ public class EimService {
     private void startEimIfNotStarted() {
         // Only in normal mode
         String eimProjectName = "eim";
-        if (execMode.equals(ElastestConstants.MODE_NORMAL)
+        if (utilsService.isElastestMini()
                 && !etPluginsService.isRunning(eimProjectName)) {
             etPluginsService.startEngineOrUniquePlugin(eimProjectName);
 
@@ -259,7 +259,7 @@ public class EimService {
             }
         } catch (Exception e) {
             throw new Exception(
-                    "EIM is not started or response is an 500 Internal Server Error",
+                    "EIM is not started or response is a 500 Internal Server Error",
                     e);
         }
     }
