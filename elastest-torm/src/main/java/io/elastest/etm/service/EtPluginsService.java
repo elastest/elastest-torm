@@ -144,7 +144,7 @@ public class EtPluginsService {
 
         if ("testlink".equals(name)) {
             // Create project and bind exposed ports to random host port
-            this.createProject(name, dockerComposeYml, true, false,
+            this.createProject(name, dockerComposeYml,
                     uniqueEtPluginsYmlFolder);
         } else {
             this.createProject(name, dockerComposeYml,
