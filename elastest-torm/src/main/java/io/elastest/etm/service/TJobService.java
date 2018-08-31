@@ -48,7 +48,7 @@ public class TJobService {
 
     private final TJobRepository tJobRepo;
     private final TJobExecRepository tJobExecRepositoryImpl;
-    private final TJobExecOrchestratorService tJobExecOrchestratorService;
+    public final TJobExecOrchestratorService tJobExecOrchestratorService;
     private final EsmService esmService;
     private DatabaseSessionManager dbmanager;
 

@@ -194,4 +194,8 @@ public class ExternalTJob implements Serializable {
         this.execDashboardConfig = execDashboardConfig;
     }
 
+    public boolean isWithSut() {
+        return this.sut != null;
+    }
+
 }

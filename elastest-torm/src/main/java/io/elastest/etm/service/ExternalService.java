@@ -52,6 +52,7 @@ public class ExternalService {
 
     private ProjectService projectService;
     private TJobService tJobService;
+    private TJobExecOrchestratorService tJobExecOrchestratorService;
 
     @Value("${exec.mode}")
     public String execMode;
@@ -103,6 +104,7 @@ public class ExternalService {
             EsmService esmService, MonitoringServiceInterface monitoringService,
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
+            TJobExecOrchestratorService tJobExecOrchestratorService,
             SutService sutService) {
         super();
         this.projectService = projectService;
@@ -118,6 +120,7 @@ public class ExternalService {
         this.etmContextService = etmContextService;
         this.logstashService = logstashService;
         this.utilsService = utilsService;
+        this.tJobExecOrchestratorService = tJobExecOrchestratorService;
         this.sutService = sutService;
     }
 
@@ -384,7 +387,7 @@ public class ExternalService {
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
 
-        this.externalTJobExecutionRepository.save(exec);
+        exec = this.externalTJobExecutionRepository.save(exec);
         exec.generateMonitoringIndex();
         exec = this.externalTJobExecutionRepository.save(exec);
 
@@ -394,17 +397,26 @@ public class ExternalService {
             exec = startEus(exec);
         }
 
+        tJobExecOrchestratorService.executeExternalTJob(exec);
+
         monitoringService
                 .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
     }
 
+    // Modify or end ExternalTJobExecution
     public ExternalTJobExecution modifyExternalTJobExec(
             ExternalTJobExecution externalTJobExec) {
         if (externalTJobExecutionRepository
                 .findById(externalTJobExec.getId()) != null) {
-            return externalTJobExecutionRepository.save(externalTJobExec);
+            externalTJobExec = externalTJobExecutionRepository
+                    .save(externalTJobExec);
+
+            // End if is finished
+            tJobExecOrchestratorService.endExternalTJob(externalTJobExec);
+
+            return externalTJobExec;
         } else {
             throw new HTTPException(405);
         }

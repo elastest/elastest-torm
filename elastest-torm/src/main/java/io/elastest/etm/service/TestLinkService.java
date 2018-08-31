@@ -78,7 +78,7 @@ public class TestLinkService {
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
     private final DockerEtmService dockerEtmService;
-    private final EtPluginsService testEnginesService;
+    private final EtPluginsService etPluginsService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -95,7 +95,7 @@ public class TestLinkService {
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
         this.dockerEtmService = dockerEtmService;
-        this.testEnginesService = testEnginesService;
+        this.etPluginsService = testEnginesService;
     }
 
     @PostConstruct
@@ -165,11 +165,11 @@ public class TestLinkService {
 
     public boolean startTLOnDemand() {
         String testlinkName = "testlink";
-        if (!testEnginesService.isRunning(testlinkName)) {
+        if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
-            testEnginesService.startEngineOrUniquePlugin(testlinkName);
+            etPluginsService.startEngineOrUniquePlugin(testlinkName);
 
-            this.testLinkUrl = testEnginesService
+            this.testLinkUrl = etPluginsService
                     .getEngineOrEtPluginUrl(testlinkName);
 
             startedOnDemand = true;
@@ -647,7 +647,7 @@ public class TestLinkService {
     public TestPlan getTestPlanById(Integer planId) {
         TestPlan plan = null;
         try {
-            TestPlan[] plans = this.testLinkDBService.getAllTestPlans();
+            TestPlan[] plans = this.testLinkDBService.getAllTestPlans();            
             if (plans != null) {
                 for (TestPlan currentPlan : plans) {
                     if (currentPlan.getId().equals(planId)) {

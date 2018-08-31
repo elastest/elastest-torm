@@ -7,7 +7,7 @@ import { ETExternalModelsTransformService } from './et-external-models-transform
 import { Observable } from 'rxjs/Observable';
 import { ExternalProjectModel } from './external-project/external-project-model';
 import { ExternalTJobModel } from './external-tjob/external-tjob-model';
-import { ExternalTJobExecModel } from './external-tjob-execution/external-tjob-execution-model';
+import { ExternalTJobExecModel, ExternalTJobExecFinishedModel } from './external-tjob-execution/external-tjob-execution-model';
 import { ExternalTestCaseModel } from './external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
 import { Subscription } from 'rxjs/Subscription';
@@ -139,10 +139,10 @@ export class ExternalService {
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
   }
 
-  public modifyExternalTJobExec(tJobExec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
+  public modifyExternalTJobExec(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
     return this.http
-      .put(url, tJobExec)
+      .put(url, exec)
       .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
   }
 
@@ -163,8 +163,11 @@ export class ExternalService {
     timer: Observable<number>,
     subscription: Subscription,
   ): PullingObjectModel {
-    let _obs: Subject<boolean> = new Subject<boolean>();
-    let obs: Observable<boolean> = _obs.asObservable();
+    let _obs: Subject<ExternalTJobExecFinishedModel> = new Subject<{
+      finished: boolean;
+      exec: ExternalTJobExecModel;
+    }>();
+    let obs: Observable<ExternalTJobExecFinishedModel> = _obs.asObservable();
 
     timer = Observable.interval(2000);
     if (subscription === null || subscription === undefined) {
@@ -175,8 +178,12 @@ export class ExternalService {
               if (subscription !== undefined) {
                 subscription.unsubscribe();
                 subscription = undefined;
-                _obs.next(true);
+                _obs.next(new ExternalTJobExecFinishedModel(true, exec));
+              } else {
+                _obs.next(new ExternalTJobExecFinishedModel(false, exec));
               }
+            } else {
+              _obs.next(new ExternalTJobExecFinishedModel(false, exec));
             }
           },
           (error) => console.log(error),

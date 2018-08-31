@@ -9,7 +9,7 @@ import { IExternalExecution } from '../../models/external-execution-interface';
 import { ExternalTJobModel } from '../../external-tjob/external-tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ServiceType } from '../../external-project/external-project-model';
-import { ExternalTJobExecModel } from '../external-tjob-execution-model';
+import { ExternalTJobExecModel, ExternalTJobExecFinishedModel } from '../external-tjob-execution-model';
 import { EsmService } from '../../../../elastest-esm/esm-service.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -24,8 +24,10 @@ import { EusTestModel } from '../../../../elastest-eus/elastest-eus-test-model';
   styleUrls: ['./external-tjob-execution-new.component.scss'],
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
-  @ViewChild('etmCaseExecutionView') etmCaseExecutionView: CaseExecutionViewComponent;
+  @ViewChild('logsAndMetrics')
+  logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('etmCaseExecutionView')
+  etmCaseExecutionView: CaseExecutionViewComponent;
 
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
@@ -99,8 +101,10 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     );
     this.execFinishedSubscription = responseObj.subscription;
 
-    responseObj.observable.subscribe((finished: boolean) => {
-      if (finished) {
+    responseObj.observable.subscribe((externalExecFinished: ExternalTJobExecFinishedModel) => {
+      this.exTJobExec.result = externalExecFinished.exec.result;
+      this.exTJobExec.resultMsg = externalExecFinished.exec.resultMsg;
+      if (externalExecFinished.finished) {
         this.end();
       }
     });

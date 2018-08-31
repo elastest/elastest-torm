@@ -49,7 +49,6 @@ import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
@@ -350,8 +349,14 @@ public class EsmService {
                     logger.debug("TSS file {}", serviceFile.getName());
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
-                    logger.debug("TSS {} will be registered in normal mode.",
-                            serviceName);
+
+                    // if (execMode.equals(ElastestConstants.MODE_NORMAL)) {
+                    // //TODO filter TSS
+                    //
+                    // }
+
+                    logger.debug("TSS {} will be registered in {} mode.",
+                            serviceName, execMode);
                     registerElasTestService(serviceDefJson);
                     String tssId = serviceDefJson.get("register").get("id")
                             .toString().replaceAll("\"", "");

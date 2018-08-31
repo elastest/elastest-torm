@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 
 @Service
 public class EtmFilesService {
@@ -137,8 +138,8 @@ public class EtmFilesService {
         return ResourceUtils.getFile(targetPath);
     }
 
-    public File createFileFromString(String string,
-            String targetPath) throws IOException {
+    public File createFileFromString(String string, String targetPath)
+            throws IOException {
         File file = new File(targetPath);
         FileUtils.writeStringToFile(file, string, StandardCharsets.UTF_8);
         return ResourceUtils.getFile(targetPath);
@@ -160,23 +161,54 @@ public class EtmFilesService {
         return content;
     }
 
-    public String buildFilesPath(TJobExecution tJobExec, String folder) {
+    public String buildExecutionFilesPath(Long tJobId, Long tJobExecId,
+            boolean isExternal, String folder) {
+        String path = "";
+
+        // etmcontextService.getMonitoringEnvVars
+        String fileSeparator = "/";
+        String parsedSharedFolder = sharedFolder;
+        if (parsedSharedFolder.endsWith(fileSeparator)) {
+            parsedSharedFolder = parsedSharedFolder.substring(0,
+                    parsedSharedFolder.length() - 1);
+        }
+
+        String tJobsFolder = ElastestConstants.TJOBS_FOLDER;
+        String tJobFolder = ElastestConstants.TJOB_FOLDER_PREFIX;
+        String tJobExecFolder = ElastestConstants.TJOB_EXEC_FOLDER_PREFIX;
+
+        if (isExternal) {
+            tJobsFolder = ElastestConstants.EXTERNAL_TJOBS_FOLDER;
+            tJobFolder = ElastestConstants.EXTERNAL_TJOB_FOLDER_PREFIX;
+            tJobExecFolder = ElastestConstants.EXTERNAL_TJOB_EXEC_FOLDER_PREFIX;
+        }
+
+        path = parsedSharedFolder + fileSeparator + tJobsFolder + fileSeparator
+                + tJobFolder + tJobId + fileSeparator + tJobExecFolder
+                + tJobExecId + fileSeparator + folder + fileSeparator;
+
+        return path;
+    }
+
+    public String buildTJobFilesPath(TJobExecution tJobExec, String folder) {
         String path = "";
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId = tJobExec.getTjob().getId();
             Long tJobExecId = tJobExec.getId();
-            // etmcontextService.getMonitoringEnvVars
-            String fileSeparator = "/";
-            String parsedSharedFolder = sharedFolder;
-            if (parsedSharedFolder.endsWith(fileSeparator)) {
-                parsedSharedFolder = parsedSharedFolder.substring(0,
-                        parsedSharedFolder.length() - 1);
-            }
-            path = parsedSharedFolder + fileSeparator
-                    + ElastestConstants.TJOBS_FOLDER + fileSeparator
-                    + ElastestConstants.TJOB_FOLDER_PREFIX + tJobId
-                    + fileSeparator + ElastestConstants.TJOB_EXEC_FOLDER_PREFIX
-                    + tJobExecId + fileSeparator + folder + fileSeparator;
+            path = buildExecutionFilesPath(tJobId, tJobExecId, false, folder);
+        }
+
+        return path;
+    }
+
+    public String buildExternalTJobFilesPath(
+            ExternalTJobExecution externalTJobExec, String folder) {
+        String path = "";
+        if (externalTJobExec != null && externalTJobExec.getExTJob() != null) {
+            Long externalTJobId = externalTJobExec.getExTJob().getId();
+            Long externalTJobExecId = externalTJobExec.getId();
+            path = buildExecutionFilesPath(externalTJobId, externalTJobExecId,
+                    true, folder);
         }
 
         return path;

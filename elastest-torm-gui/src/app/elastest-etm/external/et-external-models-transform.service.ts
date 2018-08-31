@@ -114,6 +114,7 @@ export class ETExternalModelsTransformService {
     newTJobExec.monitoringIndex = tjobexec.monitoringIndex;
     newTJobExec.envVars = tjobexec.envVars;
     newTJobExec.result = tjobexec.result;
+    newTJobExec.resultMsg = tjobexec.resultMsg;
 
     if (tjobexec.exTJob !== undefined && tjobexec.exTJob !== null) {
       if (!fromTJob) {

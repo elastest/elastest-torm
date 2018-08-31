@@ -77,6 +77,12 @@ public class ExternalTJobExecution implements Serializable {
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTJobExecutionView.class, ExternalTestCaseView.class,
             ExternalTestExecutionView.class })
+    @Column(name = "resultMsg")
+    private String resultMsg = null;
+
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @ElementCollection
     @MapKeyColumn(name = "VAR_NAME", length = 200)
     @Column(name = "value", length = 400)
@@ -151,6 +157,14 @@ public class ExternalTJobExecution implements Serializable {
         this.result = result;
     }
 
+    public String getResultMsg() {
+        return resultMsg;
+    }
+
+    public void setResultMsg(String resultMsg) {
+        this.resultMsg = resultMsg;
+    }
+
     public Map<String, String> getEnvVars() {
         return envVars;
     }
@@ -199,6 +213,19 @@ public class ExternalTJobExecution implements Serializable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public boolean isWithSut() {
+        return this.exTJob != null && this.exTJob.isWithSut();
+    }
+
+    @Override
+    public String toString() {
+        return "ExternalTJobExecution [id=" + id + ", exTJob=" + exTJob
+                + ", monitoringIndex=" + monitoringIndex + ", result=" + result
+                + ", resultMsg=" + resultMsg + ", envVars=" + envVars
+                + ", exTestExecs=" + exTestExecs + ", startDate=" + startDate
+                + ", endDate=" + endDate + "]";
     }
 
 }

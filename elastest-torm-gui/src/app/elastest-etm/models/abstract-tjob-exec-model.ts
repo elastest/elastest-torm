@@ -63,8 +63,16 @@ export class AbstractTJobExecModel {
     return this.result === 'NOT_EXECUTED';
   }
 
+  finishedOrNotExecuted(): boolean {
+    return this.finished() || this.notExecuted();
+  }
+
   starting(): boolean {
     return this.result === 'IN PROGRESS' || this.result === 'STARTING TSS' || this.result === 'WAITING TSS';
+  }
+
+  executing(): boolean {
+    return this.result === 'EXECUTING_TEST' || this.result === 'EXECUTING TEST';
   }
 
   stopped(): boolean {

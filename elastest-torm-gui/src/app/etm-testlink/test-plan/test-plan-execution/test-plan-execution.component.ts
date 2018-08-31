@@ -1,20 +1,21 @@
 import { ExecutionFormComponent } from '../../execution/execution-form/execution-form.component';
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { ExternalTJobModel } from '../../../elastest-etm/external/external-tjob/external-tjob-model';
-import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import {
+  ExternalTJobExecModel,
+  ExternalTJobExecFinishedModel,
+} from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 import { ExternalService } from '../../../elastest-etm/external/external.service';
 import { Router, Params, ActivatedRoute } from '@angular/router';
 import { TestLinkService } from '../../testlink.service';
 import { EusService } from '../../../elastest-eus/elastest-eus.service';
 import { ExternalTestCaseModel } from '../../../elastest-etm/external/external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
-import { CompleteUrlObj } from '../../../shared/utils';
 import { BuildModel } from '../../models/build-model';
 import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { TLTestCaseModel } from '../../models/test-case-model';
 import { Observable, Subscription } from 'rxjs';
-import { CaseExecutionViewComponent } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-new/case-execution-view/case-execution-view.component';
 import { EtmMonitoringViewComponent } from '../../../elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { PullingObjectModel } from '../../../shared/pulling-obj.model';
 import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
@@ -30,8 +31,10 @@ import { TitlesService } from '../../../shared/services/titles.service';
   styleUrls: ['./test-plan-execution.component.scss'],
 })
 export class TestPlanExecutionComponent implements OnInit {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
-  @ViewChild('tlExecutionForm') tlExecutionForm: ExecutionFormComponent;
+  @ViewChild('logsAndMetrics')
+  logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('tlExecutionForm')
+  tlExecutionForm: ExecutionFormComponent;
 
   params: Params;
 
@@ -81,6 +84,8 @@ export class TestPlanExecutionComponent implements OnInit {
   disableTLNextBtn: boolean = false;
   execFinished: boolean = false;
 
+  stopping: boolean = false;
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -104,13 +109,22 @@ export class TestPlanExecutionComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.alreadyLeave = true;
-    this.end();
+
+    if (this.exTJobExec.finished()) {
+      this.end();
+    } else {
+      this.forceEnd();
+    }
   }
 
   @HostListener('window:beforeunload')
   beforeunloadHandler() {
     // On window closed leave session
-    this.end();
+    if (this.exTJobExec.finished()) {
+      this.end();
+    } else {
+      this.forceEnd();
+    }
   }
 
   loadPlanAndBuild(): void {
@@ -165,8 +179,12 @@ export class TestPlanExecutionComponent implements OnInit {
     );
     this.execFinishedSubscription = responseObj.subscription;
 
-    responseObj.observable.subscribe((finished: boolean) => {
-      if (finished) {
+    responseObj.observable.subscribe((externalExecFinished: ExternalTJobExecFinishedModel) => {
+      if (!this.stopping) {
+        this.exTJobExec.result = externalExecFinished.exec.result;
+        this.exTJobExec.resultMsg = externalExecFinished.exec.resultMsg;
+      }
+      if (externalExecFinished.finished) {
         // this.end();
         if (!this.alreadyLeave) {
           // On Navigate to ended exec ngondestroy will deprovision EUS and browser
@@ -302,11 +320,13 @@ export class TestPlanExecutionComponent implements OnInit {
   }
 
   forceEnd(): void {
+    this.stopping = true;
     this.executionCardMsg = 'The execution has been stopped!';
     this.showStopBtn = false;
     this.exTJobExec.result = 'STOPPED';
+    this.exTJobExec.resultMsg = 'Stopping...';
     this.exTJobExec.endDate = new Date();
-    this.externalService.modifyExternalTJobExec(this.exTJobExec);
+    this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
     this.end();
   }
 

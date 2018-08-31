@@ -9,7 +9,6 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   envVars: any;
   exTestExecs: ExternalTestExecutionModel[];
 
-
   constructor() {
     super();
     this.id = 0;
@@ -68,5 +67,15 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
       result = result === 'SUCCESS' && exec.result === 'PASSED' ? 'SUCCESS' : 'FAIL';
     }
     this.result = result;
+  }
+}
+
+export class ExternalTJobExecFinishedModel {
+  finished: boolean;
+  exec: ExternalTJobExecModel;
+
+  constructor(finished: boolean, exec: ExternalTJobExecModel) {
+    this.finished = finished;
+    this.exec = exec;
   }
 }

@@ -3,30 +3,36 @@
     <md-card tdMediaToggle="gt-xs" flex style="overflow: auto;">
       <div layout="column" layout-fill>
         <md-card-title>
-          <div layout="row" *ngIf="exTJobExec">
-            <span>
-              <button md-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
-                <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
-              </button>
-              <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
-            </span>
-            <span id="executingTitle">Executing Test Plan "{{testPlan.name}}" - Build "{{selectedBuild.name}}"- Exec {{exTJobExec.id}} </span>
-            <span flex></span>
-            <span>
-              <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
-                <md-icon>stop</md-icon>
-              </button>
-            </span>
-            <span>
-              <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
-                <md-icon>settings</md-icon>
-              </button>
-            </span>
+          <div layout="column" *ngIf="exTJobExec">
+            <div layout="row">
+              <span>
+                <button md-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
+                  <md-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</md-icon>
+                </button>
+              </span>
+              <span id="executingTitle">Executing Test Plan "{{testPlan.name}}" - Build "{{selectedBuild.name}}"- Exec {{exTJobExec.id}}
+              </span>
+              <span flex></span>
+              <span>
+                <button *ngIf="showStopBtn" md-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
+                  <md-icon>stop</md-icon>
+                </button>
+              </span>
+              <span>
+                <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
+                  <md-icon>settings</md-icon>
+                </button>
+              </span>
+            </div>
+            <div layout="row" class="push-top-sm">
+              <span id="resultMsgText" class="md-subhead" style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
+            </div>
           </div>
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content flex class="push-bottom-none">
-          <div *ngIf="!browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished(); else showMessage" layout="column" layout-fill>
+          <div *ngIf="!browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished() && exTJobExec.executing(); else showMessage"
+            layout="column" layout-fill>
             <div id="testLinkExec" flex>
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>

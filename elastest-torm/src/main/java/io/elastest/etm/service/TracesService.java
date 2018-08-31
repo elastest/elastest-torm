@@ -45,8 +45,14 @@ public class TracesService {
 
     String javaLogLevelExpression = "%{JAVALOGLEVEL:level}";
     String containerNameExpression = "%{CONTAINERNAME:containerName}";
-    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>\\d*)(_(?<componentService>[^_]*(?=_\\d*)?))?";
-    String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_\\d*|sut_\\d*|dynamic_\\d*)\\D*(?>_exec)\\[.*\\][:][\\s]";
+    String monitoringExecExpression = "(\\d+|ext\\d+_e\\d+|s\\d+_e\\d+)";
+    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>"
+            + monitoringExecExpression
+            + ")(_(?<componentService>[^_]*(?=_\\d*)?))?";
+    String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_"
+            + monitoringExecExpression + "|sut_" + monitoringExecExpression
+            + "|dynamic_" + monitoringExecExpression
+            + ")\\D*(?>_exec)\\[.*\\][:][\\s]";
 
     String startsWithTestOrSutExpression = "^(test|sut)(_)?(\\d*)(.*)?";
 
@@ -216,7 +222,7 @@ public class TracesService {
         if (timestampAsStr == null) {
             timestampAsStr = utilsService.getIso8601UTCStrFromDate(new Date());
         }
-        
+
         trace.setTimestamp(
                 utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
@@ -323,8 +329,9 @@ public class TracesService {
                         return;
                     }
                     if (trace.getStream().equals(dockbeatStream)) {
-                        if (trace.getContainerName() != null && trace.getContainerName()
-                                .matches(startsWithTestOrSutExpression)) {
+                        if (trace.getContainerName() != null
+                                && trace.getContainerName().matches(
+                                        startsWithTestOrSutExpression)) {
                             trace.setStreamType(StreamType.COMPOSED_METRICS);
                             if (trace.getComponentService() != null) {
                                 trace.setComponent(trace.getComponent() + "_"
