@@ -7,8 +7,10 @@ import { LogViewModel } from '../logs-view/log-view-model';
   styleUrls: ['./logs-view-text.component.scss'],
 })
 export class LogsViewTextComponent implements OnInit {
-  @ViewChild('scrollMe') private myScrollContainer: ElementRef;
-  @Input() public model: LogViewModel;
+  @ViewChild('scrollMe')
+  private myScrollContainer: ElementRef;
+  @Input()
+  public model: LogViewModel;
 
   public lockScroll: boolean = false;
 
@@ -53,9 +55,11 @@ export class LogsViewTextComponent implements OnInit {
   }
 
   scrollIsInBottom(event: Event | any): boolean {
+    let errorMarginOfDifference: number = 1;
     let pos: number = event.srcElement.scrollTop + event.srcElement.offsetHeight;
     let max: number = event.srcElement.scrollHeight;
-    return pos === max;
+
+    return pos === max || max - pos < errorMarginOfDifference;
   }
 
   scrollIsInTop(event: Event | any) {
