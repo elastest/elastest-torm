@@ -449,8 +449,15 @@ public class DockerEtmService {
     /* ****************** */
 
     public String getDockbeatContainerName(DockerExecution dockerExec) {
-        return "elastest_dockbeat_" + dockerExec.getExecutionId();
+        String prefix = "elastest_dockbeat_";
 
+        // elastest_dockbeat_X | elastest_dockbeat_extX_eX
+        String suffix = dockerExec.isExternal()
+                ? dockerExec.getExternalTJobExec()
+                        .getExternalTJobExecMonitoringIndex()
+                : dockerExec.getExecutionId().toString();
+
+        return prefix + suffix;
     }
 
     public void startDockbeat(DockerExecution dockerExec) throws Exception {
@@ -530,21 +537,25 @@ public class DockerEtmService {
     }
 
     public String getSutPrefix(DockerExecution dockerExec) {
-        SutSpecification sut = dockerExec.getSut();
+//        SutSpecification sut = dockerExec.getSut();
 
-        String externalExecSuffix = dockerExec.isExternal() ? "ext_" : "";
+        String prefix = "sut";
+        String suffix = dockerExec.isExternal()
+                ? dockerExec.getExternalTJobExec()
+                        .getExternalTJobExecMonitoringIndex()
+                : dockerExec.getExecutionId().toString();
 
-        String prefix = "sut_" + externalExecSuffix
-                + dockerExec.getExecutionId();
+        // sut_X | sut_extX_eX
+        prefix += "_" + suffix;
 
-        if (sut.isDockerCommandsSut() && sut.isSutInNewContainer()) {
-            // If is Docker compose Sut
-            if (sut.getMainService() != null
-                    && !"".equals(sut.getMainService())) {
-                prefix = "sut" + externalExecSuffix
-                        + dockerExec.getExecutionId();
-            }
-        }
+//        if (sut.isDockerCommandsSut() && sut.isSutInNewContainer()) {
+//            // If is Docker compose Sut
+//            if (sut.getMainService() != null
+//                    && !"".equals(sut.getMainService())) {
+//                // sutX | sutextX_eX
+//                prefix += suffix;
+//            }
+//        }
 
         return prefix;
 
