@@ -1,0 +1,16 @@
+version: '3'
+services:        
+    etm-jenkins:
+      image: 'elastest/etm-jenkins:latest'
+      expose:
+            - 8080
+      environment:
+            -JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      networks:
+             - elastest
+      volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - $PWD/jenkins_home:/var/jenkins_home
+networks:
+    elastest:
+      driver: bridge

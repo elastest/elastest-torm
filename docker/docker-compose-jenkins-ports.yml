@@ -1,0 +1,5 @@
+version: '3'
+services:
+    etm-jenkins:
+        ports:
+            - 37092:8080

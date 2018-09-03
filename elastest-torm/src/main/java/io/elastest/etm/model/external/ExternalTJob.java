@@ -103,6 +103,9 @@ public class ExternalTJob implements Serializable {
     @JsonIgnoreProperties(value = "exTJobs", allowSetters = true)
     private SutSpecification sut = null;
 
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+        ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+        ExternalTestExecutionView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
