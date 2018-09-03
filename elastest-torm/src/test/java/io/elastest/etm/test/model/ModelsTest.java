@@ -201,7 +201,7 @@ public class ModelsTest {
         // assertPojoMethodsFor(testCaseClass).areWellImplemented();
 
         assertPojoMethodsFor(pojoClass,
-                exclude("tJobexec", "externalTJob", "tJob", "sut"))
+                exclude("tJobExec", "externalTJob", "externalTJobExec", "tJob", "sut", "isExternal"))
                         .testing(Method.GETTER, Method.SETTER)
                         // .testing(Method.EQUALS)
                         // .testing(Method.HASH_CODE)
