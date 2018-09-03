@@ -200,12 +200,13 @@ public class ModelsTest {
         final Class<?> pojoClass = DockerExecution.class;
         // assertPojoMethodsFor(testCaseClass).areWellImplemented();
 
-        assertPojoMethodsFor(pojoClass, exclude("tJobexec"))
-                .testing(Method.GETTER, Method.SETTER)
-                // .testing(Method.EQUALS)
-                // .testing(Method.HASH_CODE)
-                // .testing(Method.CONSTRUCTOR)
-                .areWellImplemented();
+        assertPojoMethodsFor(pojoClass,
+                exclude("tJobexec", "externalTJob", "tJob", "sut"))
+                        .testing(Method.GETTER, Method.SETTER)
+                        // .testing(Method.EQUALS)
+                        // .testing(Method.HASH_CODE)
+                        // .testing(Method.CONSTRUCTOR)
+                        .areWellImplemented();
 
     }
 
