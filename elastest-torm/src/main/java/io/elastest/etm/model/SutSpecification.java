@@ -188,7 +188,7 @@ public class SutSpecification {
 
     public SutSpecification() {
     }
-
+ 
     public SutSpecification(Long id, String name, String specification,
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,

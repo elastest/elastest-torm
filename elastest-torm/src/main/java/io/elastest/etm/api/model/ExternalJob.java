@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-
 @ApiModel(description = "Object that contains the exchange information between Jenkins and ElasTest.")
 public class ExternalJob {
 
@@ -43,16 +42,19 @@ public class ExternalJob {
 
     @JsonProperty("result")
     private int result;
-    
+
     @JsonProperty("isReady")
     private boolean isReady;
-    
+
     @JsonProperty("testResultFilePattern")
     private String testResultFilePattern;
 
     @JsonProperty("testResults")
     private List<String> testResults;
-    
+
+    @JsonProperty("sut")
+    private Sut sut;
+
     public ExternalJob() {
     }
 
@@ -60,7 +62,8 @@ public class ExternalJob {
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> envVars, int result, boolean isReady,
-            String testResultFilePattern, List<String> testResults) {
+            String testResultFilePattern, List<String> testResults,
+            io.elastest.etm.api.model.Sut sut) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -74,6 +77,7 @@ public class ExternalJob {
         this.isReady = isReady;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
+        this.sut = sut;
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
@@ -131,6 +135,7 @@ public class ExternalJob {
         this.servicesIp = servicesIp;
     }
 
+    @ApiModelProperty(example = "EUS", value = "List where an external Job stores it's TSS.")
     public List<TestSupportServices> getTSServices() {
         return tSServices;
     }
@@ -139,6 +144,7 @@ public class ExternalJob {
         this.tSServices = tSServices;
     }
 
+    @ApiModelProperty(example = "{\"ET_EUS_API\": \"http://dev.elastest.io:37000/eus/v1/execution/tJob_17_220/\"}", value = "Map where the env vars are stored.")
     public Map<String, String> getEnvVars() {
         return envVars;
     }
@@ -162,7 +168,7 @@ public class ExternalJob {
     public void setReady(boolean isReady) {
         this.isReady = isReady;
     }
-    
+
     public String getTestResultFilePattern() {
         return testResultFilePattern;
     }
@@ -177,6 +183,15 @@ public class ExternalJob {
 
     public void setTestResults(List<String> testResults) {
         this.testResults = testResults;
+    }
+
+    @ApiModelProperty(example = "Sut object", value = "Object where information related to a Sut is stored.")
+    public Sut getSut() {
+        return sut;
+    }
+
+    public void setSut(Sut sut) {
+        this.sut = sut;
     }
 
     @Override
@@ -201,14 +216,15 @@ public class ExternalJob {
                 && this.isReady == externalJob.isReady
                 && Objects.equals(this.testResultFilePattern,
                         externalJob.testResultFilePattern)
-                && Objects.equals(this.testResults, externalJob.testResults);
+                && Objects.equals(this.testResults, externalJob.testResults)
+                && Objects.equals(this.sut, externalJob.sut);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
                 logstashPort, servicesIp, tSServices, envVars, result, isReady,
-                testResultFilePattern, testResults);
+                testResultFilePattern, testResults, sut);
     }
 
     @Override
@@ -238,6 +254,7 @@ public class ExternalJob {
                 .append(toIndentedString(testResultFilePattern)).append("\n");
         sb.append("    testResults: ").append(toIndentedString(testResults))
                 .append("\n");
+        sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
         sb.append("}");
 
         return sb.toString();

@@ -25,6 +25,7 @@ import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -35,7 +36,6 @@ import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -91,6 +91,7 @@ public class ExternalService {
 
     private MonitoringServiceInterface monitoringService;
     private UtilsService utilsService;
+    private SutService sutService;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
@@ -101,7 +102,8 @@ public class ExternalService {
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             EsmService esmService, MonitoringServiceInterface monitoringService,
             EtmContextService etmContextService,
-            LogstashService logstashService, UtilsService utilsService) {
+            LogstashService logstashService, UtilsService utilsService,
+            SutService sutService) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
@@ -116,6 +118,7 @@ public class ExternalService {
         this.etmContextService = etmContextService;
         this.logstashService = logstashService;
         this.utilsService = utilsService;
+        this.sutService = sutService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob)
@@ -210,6 +213,28 @@ public class ExternalService {
                 project.setId(0L);
                 project.setName(externalJob.getJobName());
                 project = projectService.createProject(project);
+            }
+
+            if (externalJob.getSut() != null
+                    && externalJob.getSut().getId() != null) {
+                SutSpecification sutAux = null;
+                boolean sutExists = false;
+                for (SutSpecification sutSpec : project.getSuts()) {
+                    if (sutSpec.getId() == externalJob.getSut().getId()) {
+                        sutExists = true;
+                        sutAux = sutSpec;
+                    }
+                }
+
+                if (!sutExists) {
+                    sutAux = sutService
+                            .getSutSpecById(externalJob.gettJobExecId());
+                    project.getSuts().add(sutAux);
+                    projectService.createProject(project);
+                }
+
+                externalJob.getSut()
+                        .setIp(sutAux.getSpecification());
             }
 
             logger.debug("Creating TJob.");
