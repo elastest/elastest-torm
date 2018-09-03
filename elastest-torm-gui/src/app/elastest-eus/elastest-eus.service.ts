@@ -115,6 +115,17 @@ export class EusService {
     return this.http.get(url);
   }
 
+  public navigateToUrl(sessionId: string, urlToOpen: string): Observable<any> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/url';
+    return this.http.post(url, { url: urlToOpen }).map((response: Response) => {
+      if (response) {
+        return response;
+      } else {
+        return undefined;
+      }
+    });
+  }
+
   public setEusUrl(eusUrl: string): void {
     this.eusUrl = eusUrl;
   }

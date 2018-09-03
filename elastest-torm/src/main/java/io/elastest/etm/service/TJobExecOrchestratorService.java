@@ -634,13 +634,18 @@ public class TJobExecOrchestratorService {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
-            String sutUrl = "http://" + sutIP + ":"
-                    + (sut.getPort() != null ? sut.getPort() : "");
+            String sutUrl = "http://" + sutIP
+                    + (sut.getPort() != null ? ":" + sut.getPort() : "");
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIP);
         }
 
         dockerExec.setSutExec(sutExec);
+
+        if (dockerExec.isExternal()) {
+            dockerExec.getExternalTJobExec().getEnvVars().put("ET_SUT_URL",
+                    sutExec.getUrl());
+        }
     }
 
     public void initSut(TJobExecution tJobExec) throws Exception {
@@ -722,9 +727,9 @@ public class TJobExecOrchestratorService {
                 endCheckSutExec(dockerExec);
             }
 
-            // Save SuTUrl and Ip into sutexec
-            String sutUrl = "http://" + sutIp + ":"
-                    + (sut.getPort() != null ? sut.getPort() : "");
+            // Save SuT Url and Ip into sutexec
+            String sutUrl = "http://" + sutIp
+                    + (sut.getPort() != null ? ":" + sut.getPort() : "");
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIp);
 

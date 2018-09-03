@@ -90,6 +90,8 @@ export class TestPlanExecutionComponent implements OnInit {
 
   stopping: boolean = false;
 
+  sutUrl: string = '';
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -187,6 +189,7 @@ export class TestPlanExecutionComponent implements OnInit {
       if (!this.stopping) {
         this.exTJobExec.result = externalExecFinished.exec.result;
         this.exTJobExec.resultMsg = externalExecFinished.exec.resultMsg;
+        this.exTJobExec.envVars = externalExecFinished.exec.envVars;
       }
       if (externalExecFinished.finished) {
         // this.end();
@@ -241,7 +244,7 @@ export class TestPlanExecutionComponent implements OnInit {
       this.browserCardMsg = 'The session will start once the SuT is ready';
       this.executionCardMsg = 'Waiting for SuT...';
       if (!this.exTJobExec.executing()) {
-        sleep(2200).then(() => {
+        sleep(2000).then(() => {
           this.loadBrowser(withWait);
         });
       } else {
@@ -269,6 +272,7 @@ export class TestPlanExecutionComponent implements OnInit {
         }
         this.eusService.getVncUrl(this.sessionId).subscribe(
           (vncUrl: string) => {
+            this.openSutUrl();
             this.vncBrowserUrl = vncUrl;
             this.browserAndEusLoading = false;
             this.startExecution();
@@ -278,6 +282,15 @@ export class TestPlanExecutionComponent implements OnInit {
       },
       (error) => console.log(error),
     );
+  }
+
+  openSutUrl(): void {
+    if (this.exTJob.withSut()) {
+      if (this.exTJobExec.envVars['ET_SUT_URL'] !== undefined) {
+        this.sutUrl = this.exTJobExec.envVars['ET_SUT_URL'];
+        this.eusService.navigateToUrl(this.sessionId, this.sutUrl).subscribe();
+      }
+    }
   }
 
   startExecution(): void {

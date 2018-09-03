@@ -147,8 +147,9 @@
 
 
             <!-- Port -->
-            <md-input-container flex="100" *ngIf="managedSut.checked">
-              <input mdInput trim="blur" type="text" placeholder="Wait for http port" [(ngModel)]="sut.port" name="port">
+            <md-input-container flex="100">
+              <input mdInput trim="blur" type="text" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}" [(ngModel)]="sut.port"
+                name="port">
             </md-input-container>
           </div>
 
