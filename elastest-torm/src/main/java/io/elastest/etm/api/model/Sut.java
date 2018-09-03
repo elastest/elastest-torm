@@ -18,6 +18,13 @@ public class Sut implements Serializable{
     @JsonProperty("ip")
     private String ip;
     
+    public Sut() {
+    }
+    
+    public Sut(Long id) {
+        super();
+        this.id = id;
+    }
     
     public Sut(Long id, String ip) {
         super();

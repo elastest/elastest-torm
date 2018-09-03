@@ -218,9 +218,11 @@ public class ExternalService {
                 project = projectService.createProject(project);
             }
 
+            SutSpecification sutAux = null;
             if (externalJob.getSut() != null
                     && externalJob.getSut().getId() != null) {
-                SutSpecification sutAux = null;
+                logger.debug("Sut id requested by the Jenkins' Job {}",
+                        externalJob.getSut().getId());
                 boolean sutExists = false;
                 for (SutSpecification sutSpec : project.getSuts()) {
                     if (sutSpec.getId() == externalJob.getSut().getId()) {
@@ -231,12 +233,10 @@ public class ExternalService {
 
                 if (!sutExists) {
                     sutAux = sutService
-                            .getSutSpecById(externalJob.gettJobExecId());
+                            .getSutSpecById(externalJob.getSut().getId());
                     project.getSuts().add(sutAux);
                     projectService.createProject(project);
                 }
-
-                externalJob.getSut().setIp(sutAux.getSpecification());
             }
 
             logger.debug("Creating TJob.");
@@ -246,8 +246,13 @@ public class ExternalService {
                 tJob.setName(externalJob.getJobName());
                 tJob.setProject(project);
                 tJob.setExternal(true);
-                tJob = tJobService.createTJob(tJob);
             }
+
+            if (sutAux != null) {
+                tJob.setSut(sutAux);
+            }
+            
+            tJob = tJobService.createTJob(tJob);
 
             if (externalJob.getTSServices() != null
                     && externalJob.getTSServices().size() > 0) {

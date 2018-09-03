@@ -523,8 +523,10 @@ public class TJobExecOrchestratorService {
         }
 
         // Add env var for the SUT host if a SUT is required
+        logger.debug("Below the SUT host ip will displayed if there is SUT execution");
         if (tJobExec.getSutExecution() != null) {
-            envVars.put("ET_SUT_HOST", tJobExec.getSutExecution().getUrl());
+            envVars.put("ET_SUT_HOST", tJobExec.getSutExecution().getIp());
+            logger.debug("ET_SUT_HOST: {}",tJobExec.getSutExecution().getIp());
         }
 
         tJobExec.setEnvVars(envVars);
