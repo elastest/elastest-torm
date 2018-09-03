@@ -60,7 +60,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   isNested: boolean = false;
 
   @Output()
-  onInitComponent = new EventEmitter<string>();
+  onInitComponent: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(
     private titlesService: TitlesService,
@@ -124,7 +124,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
         this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
       } else {
-        this.websocket = new WebSocket('ws://' + this.eusHost + ':' + this.eusPort + '/eus/v1/eus-ws');
+        this.websocket = new WebSocket(this.eusService.getEusWsByHostAndPort(this.eusHost, this.eusPort));
       }
 
       this.websocket.onopen = () => this.websocket.send('getSessions');

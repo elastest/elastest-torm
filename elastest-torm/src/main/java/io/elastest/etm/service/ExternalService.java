@@ -236,8 +236,7 @@ public class ExternalService {
                     projectService.createProject(project);
                 }
 
-                externalJob.getSut()
-                        .setIp(sutAux.getSpecification());
+                externalJob.getSut().setIp(sutAux.getSpecification());
             }
 
             logger.debug("Creating TJob.");
@@ -450,6 +449,14 @@ public class ExternalService {
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 eusApi += "/execution/" + eusExecutionDate.getKey() + "/";
                 exec.getEnvVars().put(etEusApiKey, eusApi);
+
+                String eusHost = esmService.getSharedTssInstance(instanceId)
+                        .getServiceIp();
+                exec.getEnvVars().put("ET_EUS_HOST", eusHost);
+
+                String eusPort = Integer.toString(esmService
+                        .getSharedTssInstance(instanceId).getServicePort());
+                exec.getEnvVars().put("ET_EUS_PORT", eusPort);
 
             } else { // Start new EUS instance
                 esmService.provisionExternalTJobExecServiceInstanceAsync(

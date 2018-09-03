@@ -16,7 +16,7 @@ export class EusService {
 
   constructor(private http: Http, private configurationService: ConfigurationService) {}
 
-  public startSession(browser: string, version: string, extraCapabilities?: any): Observable<EusTestModel> {
+  public startSession(browser: string, version: string, extraCapabilities?: any, live: boolean = true): Observable<EusTestModel> {
     let url: string = this.eusUrl + this.sessionPath;
     let versionValue: string = version;
     if (!versionValue) {
@@ -26,7 +26,7 @@ export class EusService {
     if (browser === 'opera') {
       browserName = 'operablink';
     }
-    let capabilities: any = { browserName: browserName, version: versionValue, platform: 'ANY', live: true };
+    let capabilities: any = { browserName: browserName, version: versionValue, platform: 'ANY', live: live };
     if (extraCapabilities) {
       capabilities = { ...capabilities, ...extraCapabilities };
     }
@@ -121,5 +121,9 @@ export class EusService {
 
   public setEusHost(eusHost: string): void {
     this.hostName = eusHost;
+  }
+
+  public getEusWsByHostAndPort(host: string, port: string | number): string {
+    return 'ws://' + host + ':' + port + '/eus/v1/eus-ws';
   }
 }

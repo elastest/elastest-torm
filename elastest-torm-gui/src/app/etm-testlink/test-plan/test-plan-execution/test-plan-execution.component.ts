@@ -24,6 +24,7 @@ import { TestPlanModel } from '../../models/test-plan-model';
 import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { Response } from '@angular/http';
 import { TitlesService } from '../../../shared/services/titles.service';
+import { sleep } from '../../../shared/utils';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -66,6 +67,9 @@ export class TestPlanExecutionComponent implements OnInit {
   browserCardMsg: string = 'Loading...';
   browserAndEusLoading: boolean = true;
   browserAndEusDeprovided: boolean = false;
+
+  websocket: WebSocket;
+  eusTestModel: EusTestModel = new EusTestModel();
 
   // Browser
   sessionId: string;
@@ -204,7 +208,12 @@ export class TestPlanExecutionComponent implements OnInit {
         // If EUS is shared (started on init)
         this.eusUrl = exTJobExec.envVars['ET_EUS_API'];
         this.eusService.setEusUrl(this.eusUrl);
-        this.loadChromeBrowser();
+
+        this.startWebSocket(
+          this.eusService.getEusWsByHostAndPort(exTJobExec.envVars['ET_EUS_HOST'], exTJobExec.envVars['ET_EUS_PORT']),
+        );
+
+        this.loadBrowser();
       } else {
         let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
           this.eusInstanceId,
@@ -218,7 +227,8 @@ export class TestPlanExecutionComponent implements OnInit {
           (eus: EsmServiceInstanceModel) => {
             this.eusUrl = eus.apiUrl;
             this.eusService.setEusUrl(this.eusUrl);
-            this.loadChromeBrowser();
+            this.startWebSocket(this.eusService.getEusWsByHostAndPort(eus.ip, eus.port));
+            this.loadBrowser();
           },
           (error) => console.log(error),
         );
@@ -226,12 +236,29 @@ export class TestPlanExecutionComponent implements OnInit {
     }
   }
 
+  loadBrowser(withWait: boolean = true) {
+    if (this.exTJob.withSut()) {
+      this.browserCardMsg = 'The session will start once the SuT is ready';
+      this.executionCardMsg = 'Waiting for SuT...';
+      if (!this.exTJobExec.executing()) {
+        sleep(2200).then(() => {
+          this.loadBrowser(withWait);
+        });
+      } else {
+        this.loadChromeBrowser();
+      }
+    } else {
+      this.loadChromeBrowser();
+    }
+  }
+
   loadChromeBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
     let extraCapabilities: any = { manualRecording: true };
-    this.eusService.startSession('chrome', 'latest', extraCapabilities).subscribe(
+    this.eusService.startSession('chrome', 'latest', extraCapabilities, false).subscribe(
       (eusTestModel: EusTestModel) => {
+        this.eusTestModel = eusTestModel;
         this.sessionId = eusTestModel.id;
         this.hubContainerName = eusTestModel.hubContainerName;
         this.showStopBtn = true;
@@ -481,5 +508,25 @@ export class TestPlanExecutionComponent implements OnInit {
 
   viewEndedTJobExec(): void {
     this.router.navigate(['/external/projects/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
+  }
+
+  startWebSocket(wsUrl: string): void {
+    if (!this.websocket && wsUrl !== undefined) {
+      this.websocket = new WebSocket(wsUrl);
+
+      this.websocket.onopen = () => this.websocket.send('getSessions');
+      this.websocket.onopen = () => this.websocket.send('getRecordings');
+
+      this.websocket.onmessage = (message) => {
+        let json: any = JSON.parse(message.data);
+        if (json.newSession) {
+          if (this.eusTestModel !== undefined) {
+            this.eusTestModel.status = json.newSession.status;
+            this.eusTestModel.statusMsg = json.newSession.statusMsg;
+          }
+        } else if (json.removeSession) {
+        }
+      };
+    }
   }
 }

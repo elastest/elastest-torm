@@ -3,7 +3,7 @@
     <md-card tdMediaToggle="gt-xs" flex style="overflow: auto;">
       <div layout="column" layout-fill>
         <md-card-title>
-          <div layout="column" *ngIf="exTJobExec">
+          <div layout="column" layout-align="none" *ngIf="exTJobExec">
             <div layout="row">
               <span>
                 <button md-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
@@ -55,13 +55,20 @@
     <md-card tdMediaToggle="gt-xs" flex>
       <div layout="column" layout-fill>
         <md-card-title>
-          <div layout="row">
-            <span>Browser</span>
-            <span flex></span>
-            <a *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined" md-button [attr.href]="vncBrowserUrl" class="iconBtn" target="_blank"
-              mdTooltip="Open in new tab">
-              <md-icon>open_in_new</md-icon>
-            </a>
+          <div layout="column" layout-align="none">
+            <div layout="row">
+              <span>Browser</span>
+              <span flex></span>
+              <a *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined" md-button [attr.href]="vncBrowserUrl" class="iconBtn" target="_blank"
+                mdTooltip="Open in new tab">
+                <md-icon>open_in_new</md-icon>
+              </a>
+            </div>
+
+            <div *ngIf="browserAndEusLoading && eusTestModel !== undefined && eusTestModel.statusMsg !== undefined && eusTestModel.statusMsg !== ''"
+              layout="row" class="push-top-sm">
+              <span id="resultMsgText" class="md-subhead" style="vertical-align: middle;">{{eusTestModel.statusMsg}}</span>
+            </div>
           </div>
         </md-card-title>
         <md-divider></md-divider>
