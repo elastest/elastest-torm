@@ -6,6 +6,7 @@ services:
             - 8080
       environment:
             - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+            - INTEGRATED_JENKINS=true
       networks:
              - elastest
       volumes:
