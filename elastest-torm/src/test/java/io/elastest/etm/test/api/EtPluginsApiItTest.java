@@ -27,7 +27,7 @@ import io.elastest.etm.model.EtPlugin;
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TestEnginesApiItTest extends EtmApiItTest {
+public class EtPluginsApiItTest extends EtmApiItTest {
     final Logger log = getLogger(lookup().lookupClass());
 
     @Autowired
@@ -79,33 +79,33 @@ public class TestEnginesApiItTest extends EtmApiItTest {
 
     public List<EtPlugin> getTestEngines() {
         return Arrays.asList(httpClient
-                .getForEntity("/api/engines", EtPlugin[].class).getBody());
+                .getForEntity("/api/etplugins", EtPlugin[].class).getBody());
     }
 
     public EtPlugin startTestEngine(String engineName) {
-        return httpClient.postForEntity("/api/engines/" + engineName + "/start",
+        return httpClient.postForEntity("/api/etplugins/" + engineName + "/start",
                 null, EtPlugin.class).getBody();
     }
 
     public void stopTestEngine(String engineName) {
-        httpClient.delete("/api/engines/" + engineName);
+        httpClient.delete("/api/etplugins/" + engineName);
     }
 
     public boolean isRunning(String engineName) {
         return httpClient
-                .getForEntity("/api/engines/" + engineName + "/started",
+                .getForEntity("/api/etplugins/" + engineName + "/started",
                         boolean.class)
                 .getBody();
     }
 
     public String getUrlIfIsRunning(String engineName) {
-        return httpClient.getForEntity("/api/engines/" + engineName + "/url",
+        return httpClient.getForEntity("/api/etplugins/" + engineName + "/url",
                 String.class).getBody();
     }
 
     public boolean isWorking(String engineName) {
         return httpClient
-                .getForEntity("/api/engines/" + engineName + "/working",
+                .getForEntity("/api/etplugins/" + engineName + "/working",
                         boolean.class)
                 .getBody();
     }
