@@ -2,9 +2,10 @@ import { TitlesService } from '../shared/services/titles.service';
 import { PopupService } from '../shared/services/popup.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { EtPluginModel } from './test-engine-model';
+
 import { TestEnginesService } from './test-engines.service';
 import { Component, OnInit } from '@angular/core';
+import { EtPluginModel } from './et-plugin-model';
 
 @Component({
   selector: 'elastest-test-engines',
