@@ -14,18 +14,18 @@ import io.elastest.etm.service.EtPluginsService;
 import io.swagger.annotations.ApiParam;
 
 @Controller
-public class TestEnginesApiController implements TestEnginesApi {
+public class EtPluginsApiController implements EtPluginsApi {
 
     @Autowired
     EtPluginsService etPluginsService;
 
-    public ResponseEntity<EtPlugin> startTestEngine(
+    public ResponseEntity<EtPlugin> startEtPlugin(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
         EtPlugin engine = etPluginsService.startEngineOrUniquePlugin(name);
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
-    public ResponseEntity<EtPlugin> startTestEngineAsync(
+    public ResponseEntity<EtPlugin> startEtPluginAsync(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
         EtPlugin engine = etPluginsService.getEtPlugin(name);
         if (engine.getStatus()
@@ -37,12 +37,12 @@ public class TestEnginesApiController implements TestEnginesApi {
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<EtPlugin>> getTestEngines() {
+    public ResponseEntity<List<EtPlugin>> getEtPlugins() {
         List<EtPlugin> testEngines = this.etPluginsService.getEngines();
         return new ResponseEntity<List<EtPlugin>>(testEngines, HttpStatus.OK);
     }
 
-    public ResponseEntity<EtPlugin> getTestEngine(
+    public ResponseEntity<EtPlugin> getEtPlugin(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
         EtPlugin testEngine = null;
         try {
@@ -54,7 +54,7 @@ public class TestEnginesApiController implements TestEnginesApi {
         }
     }
 
-    public ResponseEntity<EtPlugin> stopTestEngine(
+    public ResponseEntity<EtPlugin> stopEtPlugin(
             @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
         EtPlugin engine = etPluginsService.stopEtPlugin(name);
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
@@ -74,8 +74,22 @@ public class TestEnginesApiController implements TestEnginesApi {
 
     public ResponseEntity<Boolean> isWorking(
             @ApiParam(value = "Engine Url.", required = true) @PathVariable("name") String name) {
-        Boolean working = this.etPluginsService.checkIfEngineUrlIsUp(name);
+        Boolean working = this.etPluginsService.checkIfEtPluginUrlIsUp(name);
         return new ResponseEntity<Boolean>(working, HttpStatus.OK);
     }
 
+    /* **************************************************************** */
+    /* *********************** SPECIFIC METHODS *********************** */
+    /* **************************************************************** */
+
+    public ResponseEntity<List<EtPlugin>> getUniqueEtPlugins() {
+        return new ResponseEntity<List<EtPlugin>>(
+                this.etPluginsService.getUniqueEtPlugins(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<EtPlugin> getUniqueEtPlugin(
+            @ApiParam(value = "Unique EtPlugin Name.", required = true) @PathVariable("name") String name) {
+        return new ResponseEntity<EtPlugin>(
+                this.etPluginsService.getUniqueEtPlugin(name), HttpStatus.OK);
+    }
 }

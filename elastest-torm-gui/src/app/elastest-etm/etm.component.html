@@ -74,6 +74,12 @@
         <md-icon md-list-icon>gps_not_fixed</md-icon>
         TestLink
       </a>
+      <a md-list-item (click)="!media.query('gt-sm') && manageList.close()" md-ripple class="block relative" md-ripple class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
+        [routerLink]="['/jenkins']" id="nav_jenkins">
+        <md-icon md-list-icon>face</md-icon>
+        Jenkins
+      </a>
       <a *ngIf="configService.configModel.elasTestExecMode === 'experimental'" md-list-item (click)="!media.query('gt-sm') && manageList.close()"
         md-ripple class="block relative" md-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
         [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/edm']" id="nav_edm">

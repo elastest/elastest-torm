@@ -22,6 +22,16 @@ public class EtPlugin extends DockerServiceStatus {
         this.parameters = new HashMap<>();
     }
 
+    public EtPlugin(EtPlugin plugin) {
+        super();
+        this.name = plugin.name;
+        this.url = plugin.url;
+        this.imagesList = new ArrayList<>(plugin.imagesList);
+        this.parameters = new HashMap<>(plugin.parameters);
+        this.setStatus(plugin.getStatus());
+        this.setStatusMsg(plugin.getStatusMsg());
+    }
+
     public String getName() {
         return name;
     }
@@ -56,9 +66,9 @@ public class EtPlugin extends DockerServiceStatus {
 
     @Override
     public String toString() {
-        return "TestEngine [name=" + name + ", url=" + url
-                + ", imagesList=" + imagesList + ", statusMsg=" + getStatusMsg()
-                + ", status=" + getStatusMsg() + "]";
+        return "TestEngine [name=" + name + ", url=" + url + ", imagesList="
+                + imagesList + ", statusMsg=" + getStatusMsg() + ", status="
+                + getStatusMsg() + "]";
     }
 
     public void initToDefault() {

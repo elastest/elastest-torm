@@ -52,6 +52,7 @@ import { EmpContainerComponent } from './elastest-emp/emp-container/emp-containe
 import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
 import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.component';
 import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
+import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 
 const routes: Routes = [
   {
@@ -281,6 +282,15 @@ const routes: Routes = [
       {
         path: 'help',
         component: HelpComponent,
+      },
+      {
+        path: 'jenkins',
+        children: [
+          {
+            component: EtmJenkinsComponent,
+            path: '',
+          },
+        ],
       },
       {
         path: 'testlink',

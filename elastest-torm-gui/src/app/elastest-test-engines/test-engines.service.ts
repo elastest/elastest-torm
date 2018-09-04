@@ -1,4 +1,4 @@
-import { TestEngineModel } from './test-engine-model';
+import { EtPluginModel } from './et-plugin-model';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Http, Response } from '@angular/http';
 import { Injectable } from '@angular/core';
@@ -6,20 +6,20 @@ import { Observable } from 'rxjs/Rx';
 
 @Injectable()
 export class TestEnginesService {
-  mainUrl: string = this.configurationService.configModel.hostApi + '/engines/';
+  mainUrl: string = this.configurationService.configModel.hostApi + '/etplugins/';
 
   constructor(private http: Http, private configurationService: ConfigurationService) {}
 
-  transformRawTestEnginesList(testEnginesRaw: any[]): TestEngineModel[] {
-    let testEngines: TestEngineModel[] = [];
+  transformRawTestEnginesList(testEnginesRaw: any[]): EtPluginModel[] {
+    let testEngines: EtPluginModel[] = [];
     for (let rawEngine of testEnginesRaw) {
       testEngines.push(this.transformRawTestEngine(rawEngine));
     }
     return testEngines;
   }
 
-  transformRawTestEngine(rawEngine: any): TestEngineModel {
-    let testEngine: TestEngineModel = new TestEngineModel();
+  transformRawTestEngine(rawEngine: any): EtPluginModel {
+    let testEngine: EtPluginModel = new EtPluginModel();
     testEngine.name = rawEngine.name;
     testEngine.url = rawEngine.url;
     testEngine.imagesList = rawEngine.imagesList;
@@ -29,42 +29,54 @@ export class TestEnginesService {
   }
 
   /* *** API *** */
-  getTestEngines(): Observable<TestEngineModel[]> {
+  getEtPlugins(): Observable<EtPluginModel[]> {
     return this.http.get(this.mainUrl).map((response: Response) => this.transformRawTestEnginesList(response.json()));
   }
 
-  getEngine(name: string): Observable<TestEngineModel> {
+  getEtPlugin(name: string): Observable<EtPluginModel> {
     let url: string = this.mainUrl + name;
     return this.http.get(url).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
-  startTestEngine(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
-    let url: string = this.mainUrl + testEngineModel.name + '/start';
+  startEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
+    let url: string = this.mainUrl + etPluginModel.name + '/start';
     return this.http.post(url, undefined).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
-  startTestEngineAsync(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
-    let url: string = this.mainUrl + testEngineModel.name + '/start/async';
+  startEtPluginAsync(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
+    let url: string = this.mainUrl + etPluginModel.name + '/start/async';
     return this.http.post(url, undefined).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
-  stopTestEngine(testEngineModel: TestEngineModel): Observable<TestEngineModel> {
-    let url: string = this.mainUrl + testEngineModel.name;
+  stopEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
+    let url: string = this.mainUrl + etPluginModel.name;
     return this.http.delete(url).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 
-  isStarted(testEngineModel: TestEngineModel): Observable<boolean> {
-    let url: string = this.mainUrl + testEngineModel.name + '/started';
+  isStarted(etPluginModel: EtPluginModel): Observable<boolean> {
+    let url: string = this.mainUrl + etPluginModel.name + '/started';
     return this.http.get(url).map((response: Response) => response.json());
   }
 
-  isWorking(testEngineModel: TestEngineModel) {
-    let url: string = this.mainUrl + testEngineModel.name + '/working';
+  isWorking(etPluginModel: EtPluginModel) {
+    let url: string = this.mainUrl + etPluginModel.name + '/working';
     return this.http.get(url).map((response: Response) => response.json());
   }
 
   getUrl(name: string) {
     let url: string = this.mainUrl + name + '/url';
     return this.http.get(url).map((response: Response) => response['_body']);
+  }
+
+  /* **************************************************************** */
+  /* *********************** SPECIFIC METHODS *********************** */
+  /* **************************************************************** */
+  getUniqueEtPlugins(): Observable<EtPluginModel[]> {
+    return this.http.get(this.mainUrl + 'unique').map((response: Response) => this.transformRawTestEnginesList(response.json()));
+  }
+
+  getUniqueEtPlugin(name: string): Observable<EtPluginModel> {
+    let url: string = this.mainUrl + 'unique/' + name;
+    return this.http.get(url).map((response: Response) => this.transformRawTestEngine(response.json()));
   }
 }

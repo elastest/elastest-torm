@@ -37,6 +37,16 @@ import io.elastest.etm.model.SupportServiceInstance;
 
 @Service
 public class EtPluginsService {
+    private static final String TESTLINK_NAME = "testlink";
+
+    private static final String ERE_NAME = "ere";
+
+    private static final String ECE_NAME = "ece";
+
+    private static final String EIM_NAME = "eim";
+
+    private static final String JENKINS_NAME = "jenkins";
+
     final Logger logger = getLogger(lookup().lookupClass());
 
     public DockerComposeService dockerComposeService;
@@ -70,6 +80,18 @@ public class EtPluginsService {
     @Value("${et.shared.folder}")
     private String sharedFolder;
 
+    @Value("${et.etm.testlink.host}")
+    public String etEtmTestLinkHost;
+
+    @Value("${et.etm.jenkins.host}")
+    public String etEtmJenkinsHost;
+
+    @Value("${et.etm.jenkins.port}")
+    public String etEtmJenkinsPort;
+
+    @Value("${et.etm.jenkins.container.name}")
+    public String etEtmJenkinsContainerName;
+
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
@@ -81,13 +103,14 @@ public class EtPluginsService {
     }
 
     public void registerEngines() {
-        this.enginesMap.put("ece", new EtPlugin("ece"));
+        this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME));
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
-        this.enginesMap.put("ere", new EtPlugin("ere"));
+        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME));
 
-        this.uniqueEtPluginsMap.put("eim", new EtPlugin("eim"));
-        this.uniqueEtPluginsMap.put("testlink", new EtPlugin("testlink"));
+        this.uniqueEtPluginsMap.put(EIM_NAME, new EtPlugin(EIM_NAME));
+        this.uniqueEtPluginsMap.put(TESTLINK_NAME, new EtPlugin(TESTLINK_NAME));
+        this.uniqueEtPluginsMap.put(JENKINS_NAME, new EtPlugin(JENKINS_NAME));
     }
 
     @PostConstruct
@@ -132,7 +155,7 @@ public class EtPluginsService {
 
     public void createUniqueEtPluginProject(String name) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
-        if ("eim".equals(name) || "testlink".equals(name)) {
+        if (EIM_NAME.equals(name) || TESTLINK_NAME.equals(name)) {
             try {
                 String mysqlHost = dockerEtmService.getEdmMySqlHost();
                 dockerComposeYml = dockerComposeYml.replace("edm-mysql",
@@ -142,14 +165,8 @@ public class EtPluginsService {
             }
         }
 
-        if ("testlink".equals(name)) {
-            // Create project and bind exposed ports to random host port
-            this.createProject(name, dockerComposeYml,
-                    uniqueEtPluginsYmlFolder);
-        } else {
-            this.createProject(name, dockerComposeYml,
-                    uniqueEtPluginsYmlFolder);
-        }
+        this.createProject(name, dockerComposeYml, uniqueEtPluginsYmlFolder);
+
     }
 
     public SupportServiceInstance createTssInstanceProject(String instanceId,
@@ -266,7 +283,7 @@ public class EtPluginsService {
         }
 
         this.waitForReady(projectName, 2500);
-        url = getEngineOrEtPluginUrl(projectName);
+        url = getEtPluginUrl(projectName);
         this.getEtPlugin(projectName).setUrl(url);
 
         return this.getEtPlugin(projectName);
@@ -334,9 +351,14 @@ public class EtPluginsService {
     /* *** Wait/Check methods *** */
     /* ************************** */
 
-    public String getEngineOrEtPluginUrl(String serviceName) {
+    public String getEtPluginUrl(String serviceName) {
         String url = "";
         try {
+            // Check first if is Unique EtPlugin started on init
+            if (isUniqueEtPluginStartedOnInit(serviceName)) {
+                return this.getUniqueEtPlugin(serviceName).getUrl();
+            }
+
             for (DockerContainer container : dockerComposeService
                     .getContainers(serviceName).getContainers()) {
                 String containerName = container.getName(); // example:
@@ -358,7 +380,7 @@ public class EtPluginsService {
                     String port = "";
 
                     switch (serviceName) {
-                    case "testlink":
+                    case TESTLINK_NAME:
                         if (!useBindedPort) {
                             port = "80";
                         } else {
@@ -366,7 +388,7 @@ public class EtPluginsService {
                         }
                         break;
 
-                    case "ere":
+                    case ERE_NAME:
                         if (!useBindedPort) {
                             port = "9080";
                         } else {
@@ -374,7 +396,7 @@ public class EtPluginsService {
                         }
                         break;
 
-                    case "ece":
+                    case ECE_NAME:
                         if (!useBindedPort) {
                             port = "8888";
                         } else {
@@ -382,11 +404,18 @@ public class EtPluginsService {
                         }
                         break;
 
-                    case "eim":
+                    case EIM_NAME:
                         if (!useBindedPort) {
                             port = "8080";
                         } else {
                             port = "37004";
+                        }
+                        break;
+                    case JENKINS_NAME:
+                        if (!useBindedPort) {
+                            port = "8080";
+                        } else {
+                            port = "37092";
                         }
                         break;
                     default:
@@ -416,7 +445,7 @@ public class EtPluginsService {
                     }
 
                     url = protocol + "://" + ip + ":" + port;
-                    if ("ere".equals(serviceName)) {
+                    if (ERE_NAME.equals(serviceName)) {
                         url += "/ere-app";
                     }
                     logger.debug("Url: " + url);
@@ -430,8 +459,8 @@ public class EtPluginsService {
         return url;
     }
 
-    public boolean checkIfEngineUrlIsUp(String engineName) {
-        String url = getEngineOrEtPluginUrl(engineName);
+    public boolean checkIfEtPluginUrlIsUp(String engineName) {
+        String url = getEtPluginUrl(engineName);
         boolean isUp = checkIfUrlIsUp(url);
         if (isUp) {
             this.getEtPlugin(engineName)
@@ -466,7 +495,7 @@ public class EtPluginsService {
     public boolean waitForReady(String projectName, int interval) {
         while (!this.getEtPlugin(projectName).getStatus()
                 .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
-                && !this.checkIfEngineUrlIsUp(projectName)) {
+                && !this.checkIfEtPluginUrlIsUp(projectName)) {
             // Wait
             try { // TODO timeout
                 Thread.sleep(interval);
@@ -476,21 +505,66 @@ public class EtPluginsService {
         return true;
     }
 
-    public Boolean isRunning(String engineName) {
+    public Boolean isRunning(String serviceName) {
         try {
+            // First check if is unique plugin started on init:
+            if (isUniqueEtPluginStartedOnInit(serviceName)) {
+                return true;
+            }
+
             for (DockerContainer container : dockerComposeService
-                    .getContainers(engineName).getContainers()) {
-                String containerName = engineName + "_" + engineName + "_1";
-                if (container.getName().equals(containerName)) {
+                    .getContainers(serviceName).getContainers()) {
+                String containerName = serviceName + "_" + serviceName + "_1";
+                if (container.getName().equals(containerName)
+                        || container.getName().endsWith(serviceName + "_1")) {
                     return container.isRunning();
                 }
             }
             return false;
 
         } catch (Exception e) {
-            logger.error("Engine not started or not exist {}", engineName, e);
+            logger.error("EtPlugin {} not started or not exist", serviceName, e);
             return false;
         }
+    }
+
+    public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
+        switch (serviceName) {
+        case JENKINS_NAME:
+            return !etEtmJenkinsHost.equals("none");
+        case TESTLINK_NAME:
+            return !etEtmTestLinkHost.equals("none");
+        default:
+            return false;
+        }
+    }
+
+    public EtPlugin getUniqueEtPlugin(String serviceName) {
+        switch (serviceName) {
+        case JENKINS_NAME:
+            EtPlugin jenkins = new EtPlugin(
+                    this.uniqueEtPluginsMap.get(JENKINS_NAME));
+
+            if (!etEtmJenkinsHost.equals("none")) {
+                jenkins = new EtPlugin(jenkins);
+                try {
+                    String url = "http://"
+                            + dockerEtmService.dockerService.getContainerIp(
+                                    etEtmJenkinsContainerName, network)
+                            + ":" + etEtmJenkinsPort;
+                    jenkins.setUrl(url);
+                } catch (Exception e) {
+                    logger.error("Error on get {} url", serviceName, e);
+                }
+                jenkins.setStatus(DockerServiceStatusEnum.READY);
+                jenkins.setStatusMsg("Ready");
+            }
+
+            return jenkins;
+        default:
+            return null;
+        }
+
     }
 
     /* ************************* */
@@ -513,14 +587,14 @@ public class EtPluginsService {
         if (enginesMap.containsKey(name)) {
             return enginesMap.get(name);
         } else if (uniqueEtPluginsMap.containsKey(name)) {
-            return uniqueEtPluginsMap.get(name);
+            return this.getUniqueEtPlugin(name);
         } else {
             return tssInstancesMap.get(name);
         }
     }
 
     public String getUrlIfIsRunning(String engineName) {
-        return getEngineOrEtPluginUrl(engineName);
+        return getEtPluginUrl(engineName);
     }
 
     public String getDockerCompose(String engineName) {

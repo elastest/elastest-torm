@@ -48,6 +48,7 @@
     "@swimlane/ngx-charts": "6.0.1",
     "ag-grid": "14.1.0",
     "ag-grid-angular": "14.1.0",
+    "angular-tree-component": "7.0.2-beta1",
     "angular2-autosize": "1.0.2",
     "core-js": "^2.4.1",
     "d3": "^4.9.0",
@@ -59,9 +60,8 @@
     "showdown": "1.6.4",
     "sockjs-client": "^1.1.4",
     "stompjs": "^2.3.3",
-    "zone.js": "^0.8.5",
-    "angular-tree-component": "7.0.2-beta1",
-    "time-ago-pipe": "1.2.1"
+    "time-ago-pipe": "1.2.1",
+    "zone.js": "^0.8.5"
   },
   "devDependencies": {
     "@angular/cli": "1.0.3",

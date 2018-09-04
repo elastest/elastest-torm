@@ -1,0 +1,13 @@
+version: '3.4'
+services:        
+    etm-jenkins:
+      image: 'elastest/etm-jenkins:latest'
+      expose:
+            - 8080
+      ports:
+            - "37092:8080"
+      environment:
+            - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /shared-data/jenkins_home:/var/jenkins_home

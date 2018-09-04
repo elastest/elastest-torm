@@ -1,0 +1,44 @@
+<div id="jenkinsPage" class="md-content">
+  <div *ngIf="!isStarted; else showJenkins">
+    <md-card>
+      <md-card-title>
+        {{startingInProcess ? 'Starting Jenkins...' : 'Jenkins container not started yet'}}
+      </md-card-title>
+      <md-card-content>
+        <button *ngIf="!startingInProcess" md-button md-raised-button color="accent" id="startJenkins" (click)="startJenkins()" mdTooltip="Start Jenkins container"
+          [disabled]="startingInProcess">
+          <md-icon>play_circle_outline</md-icon> Start Jenkins
+        </button>
+        <md-spinner strokeWidth="6" *ngIf="startingInProcess" color="accent" class="push-top-sm"></md-spinner>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <ng-template #showJenkins>
+    <div layout="column" *ngIf="jenkinsUrl">
+      <div flex-gt-sm="100">
+        <md-card>
+          <md-card-title>
+            <div layout="row">
+              <span>Jenkins</span>
+              <a href="{{jenkinsUrl}}" id="openJenkins" class="iconBtn" target="_blank" mdTooltip="Open Jenkins in new tab">
+                <md-icon color="accent">open_in_new</md-icon>
+              </a>
+              <span class="push-left-sm" *ngIf="false">
+                <div layout="column" class="md-caption">
+                  <div><b>user:</b> admin</div>
+                  <div><b>password:</b> elastest</div>
+                </div>
+              </span>
+            </div>
+          </md-card-title>
+
+          <md-divider></md-divider>
+          <md-card-content class="push-bottom-none">
+
+          </md-card-content>
+        </md-card>
+      </div>
+    </div>
+  </ng-template>
+</div>

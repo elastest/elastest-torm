@@ -127,7 +127,7 @@ public class EimService {
 
             // Init URL
             this.eimUrl = etPluginsService
-                    .getEngineOrEtPluginUrl(eimProjectName);
+                    .getEtPluginUrl(eimProjectName);
             this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
                     : this.eimUrl + "/";
             this.eimApiPath = this.eimApiPath.startsWith("/")

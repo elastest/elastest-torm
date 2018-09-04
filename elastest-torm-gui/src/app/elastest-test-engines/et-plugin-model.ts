@@ -1,6 +1,6 @@
 import { DockerServiceStatus } from '../shared/docker-service-status.model';
 
-export class TestEngineModel extends DockerServiceStatus {
+export class EtPluginModel extends DockerServiceStatus {
   name: string;
   url: string;
   imagesList: string[];

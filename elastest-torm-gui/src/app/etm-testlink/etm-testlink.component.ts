@@ -40,11 +40,7 @@ export class EtmTestlinkComponent implements OnInit {
 
   constructor(
     private titlesService: TitlesService,
-    private _dataTableService: TdDataTableService,
     private testlinkService: TestLinkService,
-    private router: Router,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
     public dialog: MdDialog,
   ) {}
 

@@ -2,7 +2,7 @@ import { TitlesService } from '../shared/services/titles.service';
 import { PopupService } from '../shared/services/popup.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { TestEngineModel } from './test-engine-model';
+import { EtPluginModel } from './test-engine-model';
 import { TestEnginesService } from './test-engines.service';
 import { Component, OnInit } from '@angular/core';
 
@@ -12,7 +12,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./elastest-test-engines.component.scss'],
 })
 export class ElastestTestEnginesComponent implements OnInit {
-  testEngines: TestEngineModel[];
+  testEngines: EtPluginModel[];
 
   testEnginesColumns: any[] = [
     { name: 'name', label: 'Name' },
@@ -40,8 +40,8 @@ export class ElastestTestEnginesComponent implements OnInit {
   }
 
   getTestEngines(): void {
-    this.testEnginesService.getTestEngines().subscribe(
-      (data: TestEngineModel[]) => {
+    this.testEnginesService.getEtPlugins().subscribe(
+      (data: EtPluginModel[]) => {
         this.testEngines = data;
         for (let testEngine of this.testEngines) {
           this.starting[testEngine.name] = false;
@@ -56,10 +56,10 @@ export class ElastestTestEnginesComponent implements OnInit {
     );
   }
 
-  startTestEngine(testEngine: TestEngineModel): void {
+  startTestEngine(testEngine: EtPluginModel): void {
     this.starting[testEngine.name] = true;
-    this.testEnginesService.startTestEngineAsync(testEngine).subscribe(
-      (engine: TestEngineModel) => {
+    this.testEnginesService.startEtPlugin(testEngine).subscribe(
+      (engine: EtPluginModel) => {
         this.updateTestEngine(testEngine, engine);
         this.waitForReady(engine);
         this.starting[testEngine.name] = false;
@@ -72,11 +72,11 @@ export class ElastestTestEnginesComponent implements OnInit {
     );
   }
 
-  waitForReady(testEngine: TestEngineModel): void {
+  waitForReady(testEngine: EtPluginModel): void {
     this.timer = Observable.interval(2500);
     if (testEngine.isCreated() && !testEngine.isReady() && (this.subscription === null || this.subscription === undefined)) {
       this.subscription = this.timer.subscribe(() => {
-        this.testEnginesService.getEngine(testEngine.name).subscribe((engine: TestEngineModel) => {
+        this.testEnginesService.getEtPlugin(testEngine.name).subscribe((engine: EtPluginModel) => {
           this.updateTestEngine(testEngine, engine);
           testEngine = engine;
           if (engine.isReady()) {
@@ -88,10 +88,10 @@ export class ElastestTestEnginesComponent implements OnInit {
     }
   }
 
-  stopTestEngine(testEngine: TestEngineModel): void {
+  stopTestEngine(testEngine: EtPluginModel): void {
     this.stopping[testEngine.name] = true;
-    this.testEnginesService.stopTestEngine(testEngine).subscribe(
-      (engine: TestEngineModel) => {
+    this.testEnginesService.stopEtPlugin(testEngine).subscribe(
+      (engine: EtPluginModel) => {
         this.updateTestEngine(testEngine, engine);
         this.stopping[testEngine.name] = false;
       },
@@ -102,7 +102,7 @@ export class ElastestTestEnginesComponent implements OnInit {
     );
   }
 
-  updateTestEngine(testEngine: TestEngineModel, newTestEngine: TestEngineModel): void {
+  updateTestEngine(testEngine: EtPluginModel, newTestEngine: EtPluginModel): void {
     let index: number = this.testEngines.indexOf(testEngine);
     if (index !== undefined) {
       this.testEngines[index] = newTestEngine;
@@ -110,7 +110,7 @@ export class ElastestTestEnginesComponent implements OnInit {
     }
   }
 
-  viewTestEngine(testEngine: TestEngineModel): void {
+  viewTestEngine(testEngine: EtPluginModel): void {
     this.router.navigate(['/test-engines', testEngine.name]);
   }
 }

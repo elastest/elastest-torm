@@ -125,6 +125,7 @@ import { EmpContainerComponent } from './elastest-emp/emp-container/emp-containe
 import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-execution/test-plan-execution.component';
 import { SelectBuildModalComponent } from './etm-testlink/test-plan/select-build-modal/select-build-modal.component';
 import { TimeAgoPipe } from 'time-ago-pipe';
+import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -177,6 +178,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExecutionComponent,
     TestCaseExecsComponent,
     Autosize,
+    CaseExecutionViewComponent,
     ExternalProjectComponent,
     ExternalTestCaseComponent,
     ExternalTestExecutionComponent,
@@ -186,37 +188,26 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExternalTjobComponent,
     ExternalTjobExecutionComponent,
     ExternalTjobExecutionNewComponent,
-    CaseExecutionViewComponent,
-    ExternalTjobExecsViewComponent,
-    ExternalTjobFormComponent,
-    TestSuitesViewComponent,
-    TestCasesViewComponent,
-    SupportServiceConfigViewComponent,
-    ExternalTestExecutionsViewComponent,
     EdmContainerComponent,
     EmpContainerComponent,
-    TestPlanExecutionComponent,
+    EtmJenkinsComponent,
+    ExternalTestExecutionsViewComponent,
+    ExternalTjobExecsViewComponent,
+    ExternalTjobFormComponent,
     SelectBuildModalComponent,
+    SupportServiceConfigViewComponent,
+    TestCasesViewComponent,
+    // TestEnginesService,
+    TestPlanExecutionComponent,
+    TestSuitesViewComponent,
     TimeAgoPipe,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
     AppRoutingModule,
+    AgGridModule.withComponents([]),
     BrowserModule,
     BrowserAnimationsModule,
-    SharedModule,
-    MdDatepickerModule,
-    MdNativeDateModule,
-    MdRadioModule,
-    BrowserModule,
-    FormsModule,
-    MdButtonToggleModule,
-    MdDialogModule,
-    MdSidenavModule,
-    MdProgressSpinnerModule,
-    AgGridModule.withComponents([]),
-    TreeModule,
-    InputTrimModule,
     CovalentExpansionPanelModule,
     CovalentMessageModule,
     CovalentHttpModule.forRoot({
@@ -229,6 +220,17 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     }),
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    FormsModule,
+    InputTrimModule,
+    MdDatepickerModule,
+    MdButtonToggleModule,
+    MdDialogModule,
+    MdNativeDateModule,
+    MdProgressSpinnerModule,
+    MdRadioModule,
+    MdSidenavModule,
+    SharedModule,
+    TreeModule,
   ], // modules needed to run this module
   providers: [
     httpInterceptorProviders,

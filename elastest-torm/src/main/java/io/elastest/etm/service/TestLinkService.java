@@ -170,7 +170,7 @@ public class TestLinkService {
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
 
             this.testLinkUrl = etPluginsService
-                    .getEngineOrEtPluginUrl(testlinkName);
+                    .getEtPluginUrl(testlinkName);
 
             startedOnDemand = true;
             startingOnDemand = false;

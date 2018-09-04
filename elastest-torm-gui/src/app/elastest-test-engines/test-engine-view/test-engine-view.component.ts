@@ -1,6 +1,5 @@
 import { TestEnginesService } from '../test-engines.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { TestEngineModel } from '../test-engine-model';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
