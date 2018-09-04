@@ -170,14 +170,13 @@ public class TJobExecOrchestratorService {
             resultMsg = "Executing Test";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-            dbmanager.unbindSession();
         } catch (Exception e) {
             logger.error("Error starting TSS", e);
             resultMsg = "Error starting TSS";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.STARTING_TSS, resultMsg);
+                    TJobExecution.ResultEnum.ERROR, resultMsg);
         }
-
+        dbmanager.unbindSession();
     }
 
     @Async
@@ -523,10 +522,11 @@ public class TJobExecOrchestratorService {
         }
 
         // Add env var for the SUT host if a SUT is required
-        logger.debug("Below the SUT host ip will displayed if there is SUT execution");
+        logger.debug(
+                "Below the SUT host ip will displayed if there is SUT execution");
         if (tJobExec.getSutExecution() != null) {
             envVars.put("ET_SUT_HOST", tJobExec.getSutExecution().getIp());
-            logger.debug("ET_SUT_HOST: {}",tJobExec.getSutExecution().getIp());
+            logger.debug("ET_SUT_HOST: {}", tJobExec.getSutExecution().getIp());
         }
 
         tJobExec.setEnvVars(envVars);
@@ -653,20 +653,24 @@ public class TJobExecOrchestratorService {
     public void initSut(TJobExecution tJobExec) throws Exception {
         SutSpecification sut = tJobExec.getTjob().getSut();
         SutExecution sutExec;
-
         String sutIP = "";
 
         // If it's DEPLOYED SuT
-
-        Long currentSutExecId = sut.getCurrentSutExec();
-        sutExec = sutService.getSutExecutionById(currentSutExecId);
-        sutIP = sut.getSpecification();
-        String sutUrl = "http://" + sutIP + ":"
-                + (sut.getPort() != null ? sut.getPort() : "");
-        sutExec.setUrl(sutUrl);
-        sutExec.setIp(sutIP);
-
-        tJobExec.setSutExecution(sutExec);
+        try {
+            String resultMsg = "Preparing External SuT";
+            dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                    TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+            Long currentSutExecId = sut.getCurrentSutExec();
+            sutExec = sutService.getSutExecutionById(currentSutExecId);
+            sutIP = sut.getSpecification();
+            String sutUrl = "http://" + sutIP + ":"
+                    + (sut.getPort() != null ? sut.getPort() : "");
+            sutExec.setUrl(sutUrl);
+            sutExec.setIp(sutIP);
+            tJobExec.setSutExecution(sutExec);
+        } catch (Exception e) {
+            throw new Exception("Error preparing the Sut to use in a test.");
+        }
     }
 
     private SutExecution startManagedSut(DockerExecution dockerExec)

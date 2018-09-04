@@ -41,22 +41,13 @@ public class ExternalApiController implements ExternalApi {
     @Override
     public ExternalJob execTJobFromExternalTJob(
             @ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
-        try {
             return externalService.executeExternalTJob(body);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     @Override
     public void finishExternalJob(
             @ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
-        try {
             externalService.endExtTJobExecution(body);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

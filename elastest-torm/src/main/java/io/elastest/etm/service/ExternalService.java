@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.api.model.ExternalJob;
+import io.elastest.etm.api.model.ExternalJob.ExternalJobStatusEnum;
 import io.elastest.etm.api.model.TestSupportServices;
 import io.elastest.etm.dao.external.ExternalProjectRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
@@ -28,6 +29,7 @@ import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
@@ -124,9 +126,9 @@ public class ExternalService {
         this.sutService = sutService;
     }
 
-    public ExternalJob executeExternalTJob(ExternalJob externalJob)
-            throws Exception {
+    public ExternalJob executeExternalTJob(ExternalJob externalJob) {
         logger.info("Executing TJob from external Job.");
+        externalJob.setStatus(ExternalJobStatusEnum.STARTING);
         try {
             logger.debug("Creating TJob data structure.");
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
@@ -155,7 +157,8 @@ public class ExternalService {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error message: " + e.getMessage());
-            throw e;
+            externalJob.setStatus(ExternalJobStatusEnum.ERROR);
+            externalJob.setError(e.getMessage());
         }
 
         return externalJob;
@@ -170,23 +173,30 @@ public class ExternalService {
 
     public ExternalJob isReadyTJobForExternalExecution(Long tJobExecId) {
         ExternalJob externalJob = runningExternalJobs.get(tJobExecId);
-        if (externalJob.getTSServices() != null
-                && externalJob.getTSServices().size() > 0) {
-            TJobExecution tJobExecution = tJobService
-                    .getTJobExecById(externalJob.gettJobExecId());
-            if (tJobExecution.getEnvVars() != null
-                    && !tJobExecution.getEnvVars().isEmpty()) {
-                externalJob.setEnvVars(tJobExecution.getEnvVars());
-                externalJob.setReady(true);
-                return externalJob;
+        TJobExecution tJobExecution = tJobService
+                .getTJobExecById(externalJob.gettJobExecId());
+        if (tJobExecution.getResult() != (ResultEnum.ERROR)) {
+            if (externalJob.getTSServices() != null
+                    && externalJob.getTSServices().size() > 0) {
+                if (tJobExecution.getEnvVars() != null
+                        && !tJobExecution.getEnvVars().isEmpty()) {
+                    externalJob.setEnvVars(tJobExecution.getEnvVars());
+                    externalJob.setReady(true);
+                    externalJob.setStatus(ExternalJobStatusEnum.READY);
+
+                } else {
+                    externalJob.setReady(false);
+                }
             } else {
-                externalJob.setReady(false);
-                return externalJob;
+                externalJob.setReady(true);
+                externalJob.setStatus(ExternalJobStatusEnum.READY);
             }
         } else {
-            externalJob.setReady(true);
-            return externalJob;
+            externalJob.setReady(false);
+            externalJob.setStatus(ExternalJobStatusEnum.ERROR);
+            externalJob.setError(tJobExecution.getResultMsg());
         }
+        return externalJob;
     }
 
     public String getElasTestVersion() {
@@ -218,6 +228,8 @@ public class ExternalService {
                 project = projectService.createProject(project);
             }
 
+            // If a SUT is required, retrieved to associate it with both the
+            // Project and the TJob
             SutSpecification sutAux = null;
             if (externalJob.getSut() != null
                     && externalJob.getSut().getId() != null) {
@@ -232,10 +244,16 @@ public class ExternalService {
                 }
 
                 if (!sutExists) {
-                    sutAux = sutService
-                            .getSutSpecById(externalJob.getSut().getId());
-                    project.getSuts().add(sutAux);
-                    projectService.createProject(project);
+                    try {
+                        sutAux = sutService
+                                .getSutSpecById(externalJob.getSut().getId());
+                        project.getSuts().add(sutAux);
+                        projectService.createProject(project);
+                    } catch (Exception e) {
+                        throw new Exception(
+                                "There isn't Sut with the provided id: "
+                                        + externalJob.getSut().getId());
+                    }
                 }
             }
 
@@ -251,7 +269,7 @@ public class ExternalService {
             if (sutAux != null) {
                 tJob.setSut(sutAux);
             }
-            
+
             tJob = tJobService.createTJob(tJob);
 
             if (externalJob.getTSServices() != null

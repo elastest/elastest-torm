@@ -8,7 +8,9 @@ import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,7 +39,7 @@ public class ExternalJob {
     @JsonProperty("tSServices")
     private List<TestSupportServices> tSServices;
 
-    @JsonProperty("tSSEnvVars")
+    @JsonProperty("envVars")
     private Map<String, String> envVars;
 
     @JsonProperty("result")
@@ -45,6 +47,12 @@ public class ExternalJob {
 
     @JsonProperty("isReady")
     private boolean isReady;
+    
+    @JsonProperty("status")
+    private ExternalJobStatusEnum status;
+    
+    @JsonProperty("error")
+    private String error;
 
     @JsonProperty("testResultFilePattern")
     private String testResultFilePattern;
@@ -62,8 +70,8 @@ public class ExternalJob {
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> envVars, int result, boolean isReady,
-            String testResultFilePattern, List<String> testResults,
-            io.elastest.etm.api.model.Sut sut) {
+            ExternalJobStatusEnum status, String error,
+            String testResultFilePattern, List<String> testResults, Sut sut) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -75,9 +83,40 @@ public class ExternalJob {
         this.envVars = envVars;
         this.result = result;
         this.isReady = isReady;
+        this.status = status;
+        this.error = error;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
         this.sut = sut;
+    }
+
+    public enum ExternalJobStatusEnum {
+        STARTING("Starting"), 
+        READY("Ready"),
+        ERROR("Error");
+
+        private String value;
+
+        ExternalJobStatusEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ExternalJobStatusEnum fromValue(String text) {
+            for (ExternalJobStatusEnum b : ExternalJobStatusEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
     }
 
     @ApiModelProperty(example = "job1", required = true, value = "Job name on any external system.")
@@ -194,6 +233,22 @@ public class ExternalJob {
         this.sut = sut;
     }
 
+    public ExternalJobStatusEnum getStatus() {
+        return status;
+    }
+
+    public void setStatus(ExternalJobStatusEnum status) {
+        this.status = status;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -217,14 +272,16 @@ public class ExternalJob {
                 && Objects.equals(this.testResultFilePattern,
                         externalJob.testResultFilePattern)
                 && Objects.equals(this.testResults, externalJob.testResults)
-                && Objects.equals(this.sut, externalJob.sut);
+                && Objects.equals(this.sut, externalJob.sut)
+                && Objects.equals(this.status, externalJob.status)
+                && Objects.equals(this.error, externalJob.error);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
                 logstashPort, servicesIp, tSServices, envVars, result, isReady,
-                testResultFilePattern, testResults, sut);
+                testResultFilePattern, testResults, sut, status, error);
     }
 
     @Override
@@ -236,7 +293,7 @@ public class ExternalJob {
         sb.append("    executionUrl: ").append(toIndentedString(executionUrl))
                 .append("\n");
         sb.append("    logAnalyzerUrl: ")
-                .append(toIndentedString(logAnalyzerUrl)).append("\n");
+                .append(toIndentedString(logAnalyzerUrl)).append(   "\n");
         sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId))
                 .append("\n");
         sb.append("    logstashPort: ").append(toIndentedString(logstashPort))
@@ -255,6 +312,8 @@ public class ExternalJob {
         sb.append("    testResults: ").append(toIndentedString(testResults))
                 .append("\n");
         sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
+        sb.append("    status: ").append(toIndentedString(status)).append("\n");
+        sb.append("    error: ").append(toIndentedString(error)).append("\n");
         sb.append("}");
 
         return sb.toString();
