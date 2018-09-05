@@ -523,7 +523,8 @@ public class EtPluginsService {
             return false;
 
         } catch (Exception e) {
-            logger.error("EtPlugin {} not started or not exist", serviceName, e);
+            logger.error("EtPlugin {} not started or not exist", serviceName,
+                    e);
             return false;
         }
     }
@@ -562,7 +563,7 @@ public class EtPluginsService {
 
             return jenkins;
         default:
-            return null;
+            return this.uniqueEtPluginsMap.get(serviceName);
         }
 
     }
