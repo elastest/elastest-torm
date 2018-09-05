@@ -21,6 +21,7 @@ import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -56,7 +57,7 @@ public class SutServiceTest {
         sut = new SutSpecification(sutId, "sut name", "sut Specification",
                 "sut desc", new Project(), null, SutTypeEnum.MANAGED, false,
                 null, InstrumentedByEnum.ELASTEST, null,
-                ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
+                ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
         sutExecId = 1L;
         sutExec = new SutExecution(sutExecId, sut, null, null);
 

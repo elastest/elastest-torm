@@ -12,6 +12,7 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
 import io.elastest.etm.api.model.ExternalJob;
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
@@ -47,11 +48,13 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
+                ProtocolEnum.HTTP);
         SutSpecification sut2 = new SutSpecification(34l, "name",
                 "specification", "description", project2, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
+                ProtocolEnum.HTTP);
 
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
@@ -70,7 +73,8 @@ public class ModelsTest {
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
                 SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT);
+                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
+                ProtocolEnum.HTTP);
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
 
@@ -201,12 +205,13 @@ public class ModelsTest {
         // assertPojoMethodsFor(testCaseClass).areWellImplemented();
 
         assertPojoMethodsFor(pojoClass,
-                exclude("tJobExec", "externalTJob", "externalTJobExec", "tJob", "sut", "isExternal"))
-                        .testing(Method.GETTER, Method.SETTER)
-                        // .testing(Method.EQUALS)
-                        // .testing(Method.HASH_CODE)
-                        // .testing(Method.CONSTRUCTOR)
-                        .areWellImplemented();
+                exclude("tJobExec", "externalTJob", "externalTJobExec", "tJob",
+                        "sut", "isExternal"))
+                                .testing(Method.GETTER, Method.SETTER)
+                                // .testing(Method.EQUALS)
+                                // .testing(Method.HASH_CODE)
+                                // .testing(Method.CONSTRUCTOR)
+                                .areWellImplemented();
 
     }
 

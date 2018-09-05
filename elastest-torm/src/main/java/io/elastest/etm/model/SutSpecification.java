@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
@@ -133,6 +134,12 @@ public class SutSpecification {
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
             ExternalTJobView.class, BasicAttTJob.class })
+    @Column(name = "protocol")
+    @JsonProperty("protocol")
+    private ProtocolEnum protocol = ProtocolEnum.HTTP;
+
+    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
+            ExternalTJobView.class, BasicAttTJob.class })
     @Column(name = "port")
     @JsonProperty("port")
     private String port = null;
@@ -160,6 +167,12 @@ public class SutSpecification {
     @JsonProperty("commands")
     private String commands;
 
+    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
+            ExternalTJobView.class, BasicAttTJob.class })
+    @Column(name = "commandsOption", nullable = false)
+    @JsonProperty("commandsOption")
+    private CommandsOptionEnum commandsOption;
+
     /* ** External ** */
 
     @JsonView({ SutView.class })
@@ -176,25 +189,19 @@ public class SutSpecification {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<ExternalTJob> exTJobs;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
-    @Column(name = "commandsOption", nullable = false)
-    @JsonProperty("commandsOption")
-    private CommandsOptionEnum commandsOption;
-
     /* **************************/
     /* ***** Constructors *******/
     /* **************************/
 
     public SutSpecification() {
     }
- 
+
     public SutSpecification(Long id, String name, String specification,
             String description, Project project, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
-            CommandsOptionEnum commandsOption) {
+            CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -208,6 +215,7 @@ public class SutSpecification {
         this.port = port;
         this.managedDockerType = managedDockerType;
         this.commandsOption = commandsOption;
+        this.protocol = protocol;
     }
 
     public SutSpecification(Long id, String name, String specification,
@@ -215,7 +223,7 @@ public class SutSpecification {
             SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
-            CommandsOptionEnum commandsOption) {
+            CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
@@ -229,6 +237,7 @@ public class SutSpecification {
         this.port = port;
         this.managedDockerType = managedDockerType;
         this.commandsOption = commandsOption;
+        this.protocol = protocol;
     }
 
     /* *****************************/
@@ -577,6 +586,22 @@ public class SutSpecification {
     }
 
     /**
+     * Get protocol
+     * 
+     * @return protocol
+     **/
+    public ProtocolEnum getProtocol() {
+        if (protocol == null) {
+            return ProtocolEnum.HTTP;
+        }
+        return protocol;
+    }
+
+    public void setProtocol(ProtocolEnum protocol) {
+        this.protocol = protocol;
+    }
+
+    /**
      * Get port
      * 
      * @return port
@@ -733,6 +758,7 @@ public class SutSpecification {
                         sutSpecification.currentSutExec)
                 && Objects.equals(this.instrumentedBy,
                         sutSpecification.instrumentedBy)
+                && Objects.equals(this.protocol, sutSpecification.protocol)
                 && Objects.equals(this.port, sutSpecification.port)
                 && Objects.equals(this.managedDockerType,
                         sutSpecification.managedDockerType)
@@ -751,7 +777,7 @@ public class SutSpecification {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, eimMonitoringConfig, instrumentedBy, port,
                 managedDockerType, mainService, parameters, commands, exProject,
-                exTJobs, commandsOption);
+                exTJobs, commandsOption, protocol);
     }
 
     @Override
@@ -778,6 +804,8 @@ public class SutSpecification {
                 .append(toIndentedString(currentSutExec)).append("\n");
         sb.append("    instrumentedBy: ")
                 .append(toIndentedString(instrumentedBy)).append("\n");
+        sb.append("    protocol: ").append(toIndentedString(protocol))
+                .append("\n");
         sb.append("    port: ").append(toIndentedString(port)).append("\n");
         sb.append("    managedDockerType: ")
                 .append(toIndentedString(managedDockerType)).append("\n");
@@ -801,4 +829,18 @@ public class SutSpecification {
         return "s" + this.getId() + "_e" + this.getCurrentSutExec();
     }
 
+    public String getDefaultPortByProtocol() {
+        if (this.getProtocol().equals(ProtocolEnum.HTTP)) {
+            return "80";
+        } else if (this.getProtocol().equals(ProtocolEnum.HTTPS)) {
+            return "443";
+        }
+        return "80";
+    }
+
+    public String getSutUrlByGivenIp(String sutIp) {
+        return getProtocol() + "://" + sutIp
+                + (getPort() != null ? ":" + getPort()
+                        : (":" + getDefaultPortByProtocol()));
+    }
 }

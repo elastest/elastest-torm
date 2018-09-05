@@ -32,6 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.elastest.etm.ElasTestTormApp;
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
@@ -151,7 +152,7 @@ public class SutApiItTest extends EtmApiItTest {
         Project project = new Project();
         project.setId(projectId);
         String name = "sut_definition_Webapp";
-        
+
         SutSpecification sut = new SutSpecification();
         sut.setId(new Long(0));
         sut.setName(name);
@@ -164,6 +165,7 @@ public class SutApiItTest extends EtmApiItTest {
         sut.setInstrumentalize(false);
         sut.setCurrentSutExec(null);
         sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
+        sut.setProtocol(ProtocolEnum.HTTP);
         sut.setPort("8080");
 
         ResponseEntity<SutSpecification> response = createSutByGiven(sut);
@@ -174,8 +176,7 @@ public class SutApiItTest extends EtmApiItTest {
         deleteSut(response.getBody().getId());
 
         assertAll("Validating sutSpecification Properties",
-                () -> assertTrue(response.getBody().getName()
-                        .equals(name)),
+                () -> assertTrue(response.getBody().getName().equals(name)),
                 () -> assertNotNull(response.getBody().getId()),
                 () -> assertTrue(response.getBody().getId() > 0));
     }

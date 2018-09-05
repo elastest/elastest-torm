@@ -527,7 +527,8 @@ public class TJobExecOrchestratorService {
         if (tJobExec.getSutExecution() != null) {
             envVars.put("ET_SUT_HOST", tJobExec.getSutExecution().getIp());
             logger.debug("ET_SUT_HOST: {}", tJobExec.getSutExecution().getIp());
-            String sutPort = tJobExec.getSutExecution().getSutSpecification().getPort();
+            String sutPort = tJobExec.getSutExecution().getSutSpecification()
+                    .getPort();
             if (sutPort != null && !sutPort.isEmpty()) {
                 envVars.put("ET_SUT_PORT", sutPort);
                 logger.debug("ET_SUT_PORT: {}", sutPort);
@@ -641,8 +642,7 @@ public class TJobExecOrchestratorService {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
-            String sutUrl = "http://" + sutIP
-                    + (sut.getPort() != null ? ":" + sut.getPort() : "");
+            String sutUrl = sut.getSutUrlByGivenIp(sutIP);
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIP);
         }
@@ -668,8 +668,7 @@ public class TJobExecOrchestratorService {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
-            String sutUrl = "http://" + sutIP + ":"
-                    + (sut.getPort() != null ? sut.getPort() : "");
+            String sutUrl = sut.getSutUrlByGivenIp(sutIP);
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIP);
             tJobExec.setSutExecution(sutExec);
@@ -739,8 +738,7 @@ public class TJobExecOrchestratorService {
             }
 
             // Save SuT Url and Ip into sutexec
-            String sutUrl = "http://" + sutIp
-                    + (sut.getPort() != null ? ":" + sut.getPort() : "");
+            String sutUrl = sut.getSutUrlByGivenIp(sutIp);
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIp);
 

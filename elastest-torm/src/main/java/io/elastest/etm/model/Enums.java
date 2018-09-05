@@ -82,4 +82,40 @@ public class Enums {
             return null;
         }
     }
+
+    public enum ProtocolEnum {
+        HTTP("http"),
+
+        HTTPS("https");
+
+        private String value;
+
+        ProtocolEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ProtocolEnum fromValue(String text) {
+            for (ProtocolEnum b : ProtocolEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+        public boolean isHttp() {
+            return ProtocolEnum.HTTP.equals(ProtocolEnum.fromValue(value));
+        }
+
+        public boolean isHttps() {
+            return ProtocolEnum.HTTPS.equals(ProtocolEnum.fromValue(value));
+        }
+    }
 }
