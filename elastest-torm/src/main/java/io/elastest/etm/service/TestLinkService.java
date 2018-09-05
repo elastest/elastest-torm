@@ -63,6 +63,9 @@ public class TestLinkService {
     @Value("${et.public.host}")
     public String etPublicHost;
 
+    @Value("${et.etm.testlink.binded.port}")
+    public String etEtmTestlinkBindedPort;
+
     private boolean startedOnDemand = false;
     private boolean startingOnDemand = false;
 
@@ -143,19 +146,11 @@ public class TestLinkService {
 
                 // If not development, start socat
                 if (!etPublicHost.equals("localhost")) {
-                    try {
-                        String testLinkIp = UtilTools.doPing(etEtmTestLinkHost);
-                        logger.info("Real TestLink Ip: {}", testLinkIp);
-                        SocatBindedPort socatBindedPort = dockerEtmService
-                                .bindingPort(testLinkIp, etEtmTestLinkPort,
-                                        etDockerNetwork, false);
-                        this.testLinkHost = etPublicHost;
-                        this.testLinkPort = socatBindedPort.getListenPort();
-                    } catch (Exception e) {
-                        logger.error("Cannot get Testlink socat data", e);
-                        this.testLinkHost = etEtmTestLinkHost;
-                        this.testLinkPort = etEtmTestLinkPort;
-                    }
+                    logger.info("Real TestLink Ip: {}", etPublicHost);
+                    this.testLinkHost = etPublicHost;
+                    logger.info("Real TestLink port: {}",
+                            etEtmTestlinkBindedPort);
+                    this.testLinkPort = etEtmTestlinkBindedPort;
                 }
             } catch (Exception e) {
                 logger.error("Cannot get TestLink container ip");
@@ -169,8 +164,7 @@ public class TestLinkService {
             startingOnDemand = true;
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
 
-            this.testLinkUrl = etPluginsService
-                    .getEtPluginUrl(testlinkName);
+            this.testLinkUrl = etPluginsService.getEtPluginUrl(testlinkName);
 
             startedOnDemand = true;
             startingOnDemand = false;
@@ -647,7 +641,7 @@ public class TestLinkService {
     public TestPlan getTestPlanById(Integer planId) {
         TestPlan plan = null;
         try {
-            TestPlan[] plans = this.testLinkDBService.getAllTestPlans();            
+            TestPlan[] plans = this.testLinkDBService.getAllTestPlans();
             if (plans != null) {
                 for (TestPlan currentPlan : plans) {
                     if (currentPlan.getId().equals(planId)) {
