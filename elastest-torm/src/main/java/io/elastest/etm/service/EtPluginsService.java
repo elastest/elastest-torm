@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -246,22 +247,22 @@ public class EtPluginsService {
     }
 
     public EtPlugin startEtPlugin(String projectName) {
-        // Initialize
-        this.getEtPlugin(projectName)
-                .setStatus(DockerServiceStatusEnum.INITIALIZING);
-        this.getEtPlugin(projectName).setStatusMsg("Initializing...");
         try {
-            logger.debug("Starting {} plugin", projectName);
+            // Initialize
+            this.updateStatus(projectName, DockerServiceStatusEnum.INITIALIZING,
+                    "Initializing...");
+            logger.debug("Initializing {} plugin...", projectName);
 
             // Pull
             this.pullProject(projectName);
 
             // Start
-            this.getEtPlugin(projectName)
-                    .setStatus(DockerServiceStatusEnum.STARTING);
-            this.getEtPlugin(projectName).setStatusMsg("Starting...");
+            this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
+                    "Starting...");
+            logger.debug("Starting {} plugin...", projectName);
             dockerComposeService.startProject(projectName, false);
             insertIntoETNetwork(projectName);
+            this.checkIfEtPluginUrlIsUp(projectName);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -303,7 +304,7 @@ public class EtPluginsService {
             currentEtPluginMap = tssInstancesMap;
         } else {
             throw new Exception("Error on pulling images of " + projectName
-                    + ": EtPlugin project does not exists");
+                    + ": EtPlugin does not exists");
         }
 
         List<String> images = currentEtPluginMap.get(projectName)
@@ -315,22 +316,22 @@ public class EtPluginsService {
         }
 
         for (String image : images) {
-            ProgressHandler progressHandler = this.getEtPluginProgressHandler(
-                    currentEtPluginMap, projectName, image);
+            ProgressHandler progressHandler = this
+                    .getEtPluginProgressHandler(projectName, image);
 
             dockerComposeService.pullImageWithProgressHandler(projectName,
                     progressHandler, image);
         }
     }
 
-    public ProgressHandler getEtPluginProgressHandler(Map<String, EtPlugin> map,
-            String projectName, String image) {
+    public ProgressHandler getEtPluginProgressHandler(String projectName,
+            String image) {
         DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
         dockerPullImageProgress.setImage(image);
         dockerPullImageProgress.setCurrentPercentage(0);
 
-        map.get(projectName).setStatus(DockerServiceStatusEnum.PULLING);
-        map.get(projectName).setStatusMsg("Pulling " + image + " image");
+        this.updateStatus(projectName, DockerServiceStatusEnum.PULLING,
+                "Pulling " + image + " image");
         return new ProgressHandler() {
             @Override
             public void progress(ProgressMessage message)
@@ -340,7 +341,7 @@ public class EtPluginsService {
                         + " ET Plugin: "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
 
-                map.get(projectName).setStatusMsg(msg);
+                updateStatus(projectName, DockerServiceStatusEnum.PULLING, msg);
             }
 
         };
@@ -459,35 +460,34 @@ public class EtPluginsService {
         return url;
     }
 
-    public boolean checkIfEtPluginUrlIsUp(String engineName) {
-        String url = getEtPluginUrl(engineName);
+    public boolean checkIfEtPluginUrlIsUp(String serviceName) {
+        String url = getEtPluginUrl(serviceName);
         boolean isUp = checkIfUrlIsUp(url);
         if (isUp) {
-            this.getEtPlugin(engineName)
-                    .setStatus(DockerServiceStatusEnum.READY);
-            this.getEtPlugin(engineName).setStatusMsg("Ready");
+            this.updateStatus(serviceName, DockerServiceStatusEnum.READY,
+                    "Ready");
         }
         return isUp;
     }
 
-    public boolean checkIfUrlIsUp(String engineUrl) {
+    public boolean checkIfUrlIsUp(String etPluginUrl) {
         boolean up = false;
         URL url;
         try {
-            url = new URL(engineUrl);
-            logger.info("Service url to check: " + engineUrl);
+            url = new URL(etPluginUrl);
+            logger.info("Service url to check: " + etPluginUrl);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
             up = (responseCode >= 200 && responseCode <= 299);
             if (!up) {
-                logger.info("Service no ready at url: " + engineUrl);
+                logger.info("Service not ready at url: " + etPluginUrl);
                 return up;
             }
         } catch (IOException e) {
             return false;
         }
 
-        logger.info("Service ready at url: " + engineUrl);
+        logger.info("Service ready at url: " + etPluginUrl);
 
         return up;
     }
@@ -507,6 +507,7 @@ public class EtPluginsService {
 
     public Boolean isRunning(String serviceName) {
         try {
+            checkIfEtPluginUrlIsUp(serviceName);
             // First check if is unique plugin started on init:
             if (isUniqueEtPluginStartedOnInit(serviceName)) {
                 return true;
@@ -557,8 +558,17 @@ public class EtPluginsService {
                 } catch (Exception e) {
                     logger.error("Error on get {} url", serviceName, e);
                 }
+
                 jenkins.setStatus(DockerServiceStatusEnum.READY);
                 jenkins.setStatusMsg("Ready");
+                updateStatus(JENKINS_NAME, DockerServiceStatusEnum.READY,
+                        "Ready");
+            } else {
+                // Check if ready and update
+                if (!jenkins.getStatus()
+                        .equals(DockerServiceStatusEnum.READY)) {
+                    this.checkIfEtPluginUrlIsUp(JENKINS_NAME);
+                }
             }
 
             return jenkins;
@@ -594,6 +604,19 @@ public class EtPluginsService {
         }
     }
 
+    public Map<String, EtPlugin> getMapThatContainsEtPlugin(String serviceName)
+            throws NotFoundException {
+        if (enginesMap.containsKey(serviceName)) {
+            return enginesMap;
+        } else if (uniqueEtPluginsMap.containsKey(serviceName)) {
+            return uniqueEtPluginsMap;
+        } else if (tssInstancesMap.containsKey(serviceName)) {
+            return tssInstancesMap;
+        }
+        throw new NotFoundException(
+                "The EtPlugin " + serviceName + " does not exist");
+    }
+
     public String getUrlIfIsRunning(String engineName) {
         return getEtPluginUrl(engineName);
     }
@@ -616,6 +639,15 @@ public class EtPluginsService {
     /* ******************** */
     /* ****** Others ****** */
     /* ******************** */
+
+    public void updateStatus(String serviceName, DockerServiceStatusEnum status,
+            String statusMsg) throws NotFoundException {
+        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(serviceName);
+        if (map != null) {
+            map.get(serviceName).setStatus(status);
+            map.get(serviceName).setStatusMsg(statusMsg);
+        }
+    }
 
     public void insertIntoETNetwork(String engineName) throws Exception {
         try {

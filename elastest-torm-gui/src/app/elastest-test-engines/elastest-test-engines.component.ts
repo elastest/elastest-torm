@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
 
 import { TestEnginesService } from './test-engines.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { EtPluginModel } from './et-plugin-model';
 
 @Component({
@@ -12,7 +12,7 @@ import { EtPluginModel } from './et-plugin-model';
   templateUrl: './elastest-test-engines.component.html',
   styleUrls: ['./elastest-test-engines.component.scss'],
 })
-export class ElastestTestEnginesComponent implements OnInit {
+export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
   testEngines: EtPluginModel[];
 
   testEnginesColumns: any[] = [
@@ -38,6 +38,16 @@ export class ElastestTestEnginesComponent implements OnInit {
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Engines');
     this.getTestEngines();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.unsubscribe();
   }
 
   getTestEngines(): void {
@@ -81,11 +91,17 @@ export class ElastestTestEnginesComponent implements OnInit {
           this.updateTestEngine(testEngine, engine);
           testEngine = engine;
           if (engine.isReady()) {
-            this.subscription.unsubscribe();
-            this.subscription = undefined;
+            this.unsubscribe();
           }
         });
       });
+    }
+  }
+
+  unsubscribe(): void {
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
     }
   }
 
