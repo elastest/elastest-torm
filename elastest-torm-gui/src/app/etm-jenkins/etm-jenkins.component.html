@@ -5,11 +5,16 @@
         {{startingInProcess ? 'Starting Jenkins...' : 'Jenkins container not started yet'}}
       </md-card-title>
       <md-card-content>
-        <button *ngIf="!startingInProcess" md-button md-raised-button color="accent" id="startJenkins" (click)="startJenkins()" mdTooltip="Start Jenkins container"
-          [disabled]="startingInProcess">
+        <button *ngIf="!startingInProcess; else showProgress" md-button md-raised-button color="accent" id="startJenkins" (click)="startJenkins()"
+          mdTooltip="Start Jenkins container" [disabled]="startingInProcess">
           <md-icon>play_circle_outline</md-icon> Start Jenkins
         </button>
-        <md-spinner strokeWidth="6" *ngIf="startingInProcess" color="accent" class="push-top-sm"></md-spinner>
+        <ng-template #showProgress>
+          <div class="md-subhead" *ngIf="jenkinsModel && jenkinsModel.statusMsg">
+            {{ jenkinsModel.statusMsg }}
+          </div>
+          <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+        </ng-template>
       </md-card-content>
     </md-card>
   </div>

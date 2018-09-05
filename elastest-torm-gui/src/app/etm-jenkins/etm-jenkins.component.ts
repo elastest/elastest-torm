@@ -59,7 +59,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(): void {
-    this.timer = Observable.interval(2500);
+    this.timer = Observable.interval(1800);
     if (
       this.jenkinsModel.isCreated() &&
       !this.jenkinsModel.isReady() &&
@@ -83,7 +83,8 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
       (started: boolean) => {
         this.isStarted = started;
         if (started) {
-          this.init();
+          this.startingInProcess = false;
+          this.loadJenkinsUrl();
         }
       },
       (error: Error) => console.log(error),
@@ -92,21 +93,16 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
 
   startJenkins(): void {
     this.startingInProcess = true;
-    this.testEnginesService.startEtPlugin(this.jenkinsModel).subscribe(
+    this.testEnginesService.startEtPluginAsync(this.jenkinsModel).subscribe(
       (jenkinsModel: EtPluginModel) => {
         this.jenkinsModel = jenkinsModel;
-        this.initIfStarted();
-        this.startingInProcess = false;
+        this.waitForReady();
       },
       (error: Error) => {
         console.log(error);
         this.startingInProcess = false;
       },
     );
-  }
-
-  init(): void {
-    this.loadJenkinsUrl();
   }
 
   loadJenkinsUrl(): void {
