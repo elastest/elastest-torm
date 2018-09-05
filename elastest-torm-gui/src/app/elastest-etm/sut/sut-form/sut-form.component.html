@@ -145,12 +145,20 @@
               </md-input-container>
             </ng-container>
 
+            <div layout="row">
+              <!-- Protocol -->
+              <md-select flex="45" [(ngModel)]="sut.protocol" placeholder="Select a protocol" required name="protocol" class="push-right">
+                <md-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
+                  {{protocol.toLowerCase()}}
+                </md-option>
+              </md-select>
 
-            <!-- Port -->
-            <md-input-container flex="100">
-              <input mdInput trim="blur" type="text" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}" [(ngModel)]="sut.port"
-                name="port">
-            </md-input-container>
+              <!-- Port -->
+              <md-input-container flex="45" flex-offset="5">
+                <input mdInput trim="blur" type="text" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}" [(ngModel)]="sut.port"
+                  name="port">
+              </md-input-container>
+            </div>
           </div>
 
           <!-- Deployed: Instrumented By Elastest fields -->

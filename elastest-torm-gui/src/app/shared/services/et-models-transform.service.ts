@@ -256,6 +256,7 @@ export class ETModelsTransformServices {
     }
     newSut.currentSutExec = sut.currentSutExec;
     newSut.instrumentedBy = sut.instrumentedBy;
+    newSut.protocol = sut.protocol !== undefined && sut.protocol !== null ? sut.protocol : 'http';
     newSut.port = sut.port;
     newSut.mainService = sut.mainService;
     newSut.parameters = sut.parameters;

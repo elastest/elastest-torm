@@ -2,7 +2,6 @@ import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 import { ExternalProjectModel } from '../external/external-project/external-project-model';
 import { EimMonitoringConfigModel } from './eim-monitoring-config.model';
-import { defaultStreamMap } from '../../shared/defaultESData-model';
 
 export class SutModel {
   id: number;
@@ -16,6 +15,7 @@ export class SutModel {
   instrumentalize: boolean;
   currentSutExec: string;
   instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | '';
+  protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   port: string;
   managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
@@ -37,6 +37,7 @@ export class SutModel {
     this.instrumentalize = false;
     this.currentSutExec = undefined;
     this.instrumentedBy = '';
+    this.protocol = 'http';
     this.port = undefined;
     this.managedDockerType = '';
     this.mainService = '';
@@ -45,6 +46,10 @@ export class SutModel {
     this.commandsOption = '';
 
     this.exProject = undefined;
+  }
+
+  public getProtocolsList(): string[] {
+    return ['http', 'https'];
   }
 
   public getRouteString(): string {
