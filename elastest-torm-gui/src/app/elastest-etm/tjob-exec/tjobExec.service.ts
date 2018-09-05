@@ -36,7 +36,10 @@ export class TJobExecService {
     }
 
     return this.http.post(url, body).map((response: Response) => {
-      let data: any = response.json();
+      let data: any = undefined;
+      try {
+        data = response.json();
+      } catch (e) {}
       if (response.status !== 200) {
         let msg: string = 'Sut instrumented by Elastest is still activating beats. Wait and try again';
         this.popupService.openSnackBar(response.status + ' Code: ' + msg, 'OK', 5000);

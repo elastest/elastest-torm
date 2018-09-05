@@ -239,7 +239,11 @@ public class TracesService {
 
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
-
+                // Ignore Packetbeat from EIM temporally
+                if(trace.getStream() != null && "et_packetbeat".equals(trace.getStream())){
+                    return;
+                }
+                
                 if (fromDockbeat) {
                     trace.setStream(dockbeatStream);
                 }

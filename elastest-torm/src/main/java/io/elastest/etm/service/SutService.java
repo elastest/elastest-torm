@@ -64,8 +64,8 @@ public class SutService {
                     sut = this.instrumentalizeSut(sut);
                 } else if (savedSut.isInstrumentalize()
                         && !sut.isInstrumentalize()) { // Deinstrumentalize
-                    logger.debug("Deinstrumentalizing SuT \"" + sut.getName()
-                            + "\"");
+                    logger.debug("Starting 'Deinstrumentalizing SuT \""
+                            + sut.getName() + "\"'");
                     this.eimService.deInstrumentalizeAndUnDeployBeats(
                             sut.getEimConfig(), sut.getEimMonitoringConfig());
                 } else {
@@ -107,7 +107,8 @@ public class SutService {
         eimMonitoringConfig.setExec(sut.getSutMonitoringIndex());
         sut.setEimMonitoringConfig(eimMonitoringConfig);
 
-        logger.debug("Instrumentalizing SuT \"" + sut.getName() + "\"");
+        logger.debug(
+                "Startint 'Instrumentalizing SuT \"" + sut.getName() + "\"'");
         try {
             this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(),
                     sut.getEimMonitoringConfig());

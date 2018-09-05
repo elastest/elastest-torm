@@ -24,7 +24,6 @@ import io.elastest.etm.model.EimConfig;
 import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.EimMonitoringConfig.ApiEimMonitoringConfig;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -37,6 +36,7 @@ public class EimService {
     private final EimBeatConfigRepository eimBeatConfigRepository;
     private final EtPluginsService etPluginsService;
     private final UtilsService utilsService;
+    private DatabaseSessionManager dbmanager;
 
     @Value("${exec.mode}")
     public String execMode;
@@ -51,17 +51,38 @@ public class EimService {
     public EimService(EimConfigRepository eimConfigRepository,
             EimMonitoringConfigRepository eimMonitoringConfigRepository,
             EimBeatConfigRepository eimBeatConfigRepository,
-            EtPluginsService testEnginesService, UtilsService utilsService) {
+            EtPluginsService testEnginesService, UtilsService utilsService,
+            DatabaseSessionManager dbmanager) {
         this.eimConfigRepository = eimConfigRepository;
         this.eimMonitoringConfigRepository = eimMonitoringConfigRepository;
         this.eimBeatConfigRepository = eimBeatConfigRepository;
         this.etPluginsService = testEnginesService;
         this.utilsService = utilsService;
+        this.dbmanager = dbmanager;
     }
 
     @PostConstruct
     public void initEimApiUrl() {
         this.eimApiUrl = this.eimUrl + eimApiPath;
+    }
+
+    private void startEimIfNotStarted() {
+        // Only in normal mode
+        String eimProjectName = "eim";
+        if (utilsService.isElastestMini()
+                && !etPluginsService.isRunning(eimProjectName)) {
+            etPluginsService.startEngineOrUniquePlugin(eimProjectName);
+
+            // Init URL
+            this.eimUrl = etPluginsService.getEtPluginUrl(eimProjectName);
+            this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
+                    : this.eimUrl + "/";
+            this.eimApiPath = this.eimApiPath.startsWith("/")
+                    ? this.eimApiPath.substring(1)
+                    : this.eimApiPath;
+            this.initEimApiUrl();
+            logger.debug("EIM is now ready at {}", this.eimApiUrl);
+        }
     }
 
     /* ***************** */
@@ -79,7 +100,6 @@ public class EimService {
     @SuppressWarnings("unchecked")
     public EimConfig instrumentalize(EimConfig eimConfig) throws Exception {
         this.startEimIfNotStarted();
-
         RestTemplate restTemplate = new RestTemplate();
 
         Map<String, String> body = new HashMap<>();
@@ -110,32 +130,12 @@ public class EimService {
                 body, headers);
 
         String url = this.eimApiUrl + "/agent";
-        logger.debug("Instrumentalizing SuT: " + url);
+        logger.debug("Instrumentalizing SuT: {}", url);
         Map<String, String> response = restTemplate.postForObject(url, request,
                 Map.class);
         logger.debug("Instrumentalized! Saving agentId into SuT EimConfig");
         eimConfig.setAgentId(response.get("agentId"));
         return this.eimConfigRepository.save(eimConfig);
-    }
-
-    private void startEimIfNotStarted() {
-        // Only in normal mode
-        String eimProjectName = "eim";
-        if (utilsService.isElastestMini()
-                && !etPluginsService.isRunning(eimProjectName)) {
-            etPluginsService.startEngineOrUniquePlugin(eimProjectName);
-
-            // Init URL
-            this.eimUrl = etPluginsService
-                    .getEtPluginUrl(eimProjectName);
-            this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
-                    : this.eimUrl + "/";
-            this.eimApiPath = this.eimApiPath.startsWith("/")
-                    ? this.eimApiPath.substring(1)
-                    : this.eimApiPath;
-            this.initEimApiUrl();
-            logger.debug("EIM is now ready at {}", this.eimApiUrl);
-        }
     }
 
     public EimConfig deinstrumentalize(EimConfig eimConfig) {
@@ -152,6 +152,10 @@ public class EimService {
     @SuppressWarnings("unchecked")
     public void deployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) throws Exception {
+        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                eimMonitoringConfig, BeatsStatusEnum.ACTIVATING);
+        this.startEimIfNotStarted();
+
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -168,15 +172,12 @@ public class EimService {
                 + "/monitor";
         logger.debug("Activating beats: {} {}", url, request);
 
-        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
-                eimMonitoringConfig, BeatsStatusEnum.ACTIVATING);
-
         Map<String, Object> response = restTemplate.postForObject(url, request,
                 Map.class);
         if (response.get("monitored").toString().equals("true")) {
             eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                     eimMonitoringConfig, BeatsStatusEnum.ACTIVATED);
-            logger.debug("Beats activated!");
+            logger.debug("Beats activated successfully!");
         } else {
             eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                     eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
@@ -187,22 +188,24 @@ public class EimService {
 
     public void unDeployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) {
+        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
         this.startEimIfNotStarted();
+
+        String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId()
+                + "/unmonitor";
+        logger.debug("Deactivating beats: {}", url);
 
         RestTemplate restTemplate = new RestTemplate();
 
         try {
-            String url = this.eimApiUrl + "/agent/" + eimConfig.getAgentId()
-                    + "/unmonitor";
-            logger.debug("Deactivating beats: " + url);
-            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
-                    eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
-            restTemplate.delete(
-                    this.eimApiUrl + "/agent/" + eimConfig.getAgentId());
+            restTemplate.delete(url);
             eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                     eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
         } catch (Exception e) {
             logger.error("Error on Deactivate Beats: not Deactivated", e);
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.ACTIVATED);
         }
     }
 
@@ -250,25 +253,36 @@ public class EimService {
     public void instrumentalizeAndDeployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) throws Exception {
         try {
+            dbmanager.bindSession();
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.ACTIVATING);
+
             eimConfig = this.instrumentalize(eimConfig);
             try {
                 this.deployBeats(eimConfig, eimMonitoringConfig);
             } catch (Exception e) {
+                dbmanager.unbindSession();
                 throw new Exception("Error on activate Beats: not activated",
                         e);
             }
         } catch (Exception e) {
+            dbmanager.unbindSession();
             throw new Exception(
                     "EIM is not started or response is a 500 Internal Server Error",
                     e);
         }
+        dbmanager.unbindSession();
     }
 
     @Async
     public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) {
+        dbmanager.bindSession();
+        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
         this.unDeployBeats(eimConfig, eimMonitoringConfig);
         this.deinstrumentalize(eimConfig);
+        dbmanager.unbindSession();
     }
 
 }
