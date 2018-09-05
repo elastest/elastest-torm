@@ -10,6 +10,6 @@
   </div>
 </md-dialog-content>
 <md-dialog-actions>
-  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()">Run TJob</button>
+  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run TJob</button>
   <button md-button md-dialog-close>Cancel</button>
 </md-dialog-actions>
