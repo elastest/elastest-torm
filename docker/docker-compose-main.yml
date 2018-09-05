@@ -10,6 +10,7 @@ services:
         environment:
             - EXEC_MODE=normal
             - ET_PUBLIC_HOST=localhost
+            - ET_ETM_INTERNAL_HOST=etm
             - ET_IMAGES=elastest/platform
             - ET_CORE_IMAGES=elastest/platform
             - ET_EDM_ALLUXIO_API=http://edm-alluxio-master:19998/
