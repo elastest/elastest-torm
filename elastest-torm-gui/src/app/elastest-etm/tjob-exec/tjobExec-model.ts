@@ -12,6 +12,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
   tJob: TJobModel;
   testSuites: TestSuiteModel[];
   parameters: any[];
+  externalUrls: any;
 
   constructor() {
     super();
@@ -23,6 +24,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
     this.tJob = undefined;
     this.testSuites = [];
     this.parameters = [];
+    this.externalUrls = undefined;
   }
 
   public hasSutExec(): boolean {
@@ -35,5 +37,14 @@ export class TJobExecModel extends AbstractTJobExecModel {
 
   public getAbstractTJobExecClass(): string {
     return 'TJobExecModel';
+  }
+
+  public getExternalUrl(): string {
+    if (this.externalUrls !== undefined) {
+      let url: string = this.externalUrls['jenkins-build-url'];
+      return url !== undefined && url !== null && url !== '' ? url : undefined;
+    } else {
+      return undefined;
+    }
   }
 }

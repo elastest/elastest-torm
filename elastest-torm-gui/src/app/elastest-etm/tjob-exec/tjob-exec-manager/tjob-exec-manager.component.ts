@@ -15,12 +15,13 @@ import { MdDialog } from '@angular/material';
 import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
 
 @Component({
-  selector: 'app-tjob-exec-manager',
+  selector: 'etm-tjob-exec-manager',
   templateUrl: './tjob-exec-manager.component.html',
   styleUrls: ['./tjob-exec-manager.component.scss'],
 })
 export class TjobExecManagerComponent implements OnInit {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('logsAndMetrics')
+  logsAndMetrics: EtmMonitoringViewComponent;
 
   tJobId: number;
   tJobExecId: number;
@@ -183,5 +184,12 @@ export class TjobExecManagerComponent implements OnInit {
         this.monitoringService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
       },
     );
+  }
+
+  openExternalUrl(): void {
+    let url: string = this.tJobExec.getExternalUrl();
+    if (url !== undefined) {
+      window.open(url);
+    }
   }
 }

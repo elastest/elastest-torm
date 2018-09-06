@@ -31,14 +31,13 @@
           <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <span *ngIf="!tJob.external">
-                <button md-button (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
-                  <md-icon>play_circle_outline</md-icon>
-                </button>
-                <button md-button (click)="editTJob()" class="iconBtn-lg" title="Edit TJob">
-                  <md-icon>mode_edit</md-icon>
-                </button>
-              </span>
+              <button md-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
+                <md-icon>play_circle_outline</md-icon>
+              </button>
+              <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()" class="iconBtn-lg"
+                title="Edit TJob">
+                <md-icon>mode_edit</md-icon>
+              </button>
               <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
                 <md-icon>delete</md-icon>
               </button>
@@ -79,8 +78,8 @@
         <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="scroll_table" [data]="tJobExecData" [columns]="tJobExecColumns"
           [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'" (click)="viewTJobExec(row)"
-              class="hover-pointer">
+            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'"
+              (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
@@ -98,12 +97,12 @@
             </div>
             <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
               <ng-container *ngIf="value !== undefined; else notExecuted">
-                  {{value | timeAgo}}
+                {{value | timeAgo}}
               </ng-container>
               <ng-template #notExecuted>
-                  Not Executed Yet
+                Not Executed Yet
               </ng-template>
-          </div>
+            </div>
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">

@@ -21,6 +21,7 @@ export class TJobModel extends AbstractTJobModel {
   esmServices: EsmServiceModel[];
   esmServicesChecked: number;
   external: boolean;
+  externalUrls: any;
 
   constructor() {
     super();
@@ -39,6 +40,7 @@ export class TJobModel extends AbstractTJobModel {
     this.esmServices = [];
     this.esmServicesChecked = 0;
     this.external = false;
+    this.externalUrls = undefined;
   }
 
   public cloneTJob(): TJobModel {
@@ -80,5 +82,13 @@ export class TJobModel extends AbstractTJobModel {
       return this.tjobExecs[this.tjobExecs.length - 1];
     }
     return undefined;
+  }
+
+  public getExternalEditPage(): string {
+    if (this.external && this.externalUrls['jenkins-Job']) {
+      return this.externalUrls['jenkins-Job'];
+    } else {
+      return undefined;
+    }
   }
 }

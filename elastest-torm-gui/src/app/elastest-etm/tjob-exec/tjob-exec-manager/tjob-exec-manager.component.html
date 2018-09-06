@@ -13,6 +13,10 @@
                     <span>: Execution {{tJobExecId}}</span>
                     <span flex></span>
                     <div>
+                        <button md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick mdTooltip="Open External URL"
+                            class="onlyIconBtn iconBtn-lg">
+                            <md-icon>open_in_new</md-icon>
+                        </button>
                         <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" mdTooltip="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>

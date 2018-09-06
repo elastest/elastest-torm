@@ -105,6 +105,7 @@ export class ETModelsTransformServices {
       }
     }
     newTJob.external = tjob.external;
+    newTJob.externalUrls = tjob.externalUrls;
 
     return newTJob;
   }
@@ -149,6 +150,8 @@ export class ETModelsTransformServices {
     if (tjobExec.endDate !== undefined && tjobExec.endDate !== null) {
       newTJobExec.endDate = new Date(tjobExec.endDate);
     }
+
+    newTJobExec.externalUrls = tjobExec.externalUrls;
 
     return newTJobExec;
   }

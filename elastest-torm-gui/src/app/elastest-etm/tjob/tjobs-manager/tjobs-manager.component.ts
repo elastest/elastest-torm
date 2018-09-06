@@ -18,7 +18,8 @@ import { ETModelsTransformServices } from '../../../shared/services/et-models-tr
   styleUrls: ['./tjobs-manager.component.scss'],
 })
 export class TJobsManagerComponent implements OnInit {
-  @Input() projectId: string;
+  @Input()
+  projectId: string;
 
   project: ProjectModel;
   tJobs: TJobModel[] = [];
@@ -100,7 +101,7 @@ export class TJobsManagerComponent implements OnInit {
   runTJob(tJob: TJobModel, project: ProjectModel): void {
     if (tJob.hasParameters()) {
       tJob.project = project;
-      let dialogRef = this.dialog.open(RunTJobModalComponent, {
+      this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),
       });
     } else {
@@ -112,9 +113,15 @@ export class TJobsManagerComponent implements OnInit {
       );
     }
   }
+  
   editTJob(tJob: TJobModel): void {
-    this.router.navigate(['/projects', this.project.id, 'tjob', 'edit', tJob.id]);
+    if (tJob.external && tJob.getExternalEditPage()) {
+      window.open(tJob.getExternalEditPage());
+    } else {
+      this.router.navigate(['/projects', this.project.id, 'tjob', 'edit', tJob.id]);
+    }
   }
+
   deleteTJob(tJob: TJobModel): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob ' + tJob.id + ' will be deleted with all TJob Executions, do you want to continue?',
@@ -153,7 +160,7 @@ export class TJobsManagerComponent implements OnInit {
     for (let tjob of this.tJobs) {
       if (tjob.getLastExecution() !== undefined) {
         lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(tjob.getLastExecution(), true);
-        tjob['lastExecutionDate'] = lastExecution.endDate ?  lastExecution.endDate :  lastExecution.startDate;
+        tjob['lastExecutionDate'] = lastExecution.endDate ? lastExecution.endDate : lastExecution.startDate;
         tjob['result'] = lastExecution.getResultIcon();
       } else {
         lastExecution = new TJobExecModel();
