@@ -31,13 +31,11 @@ import io.elastest.etm.dao.external.ExternalProjectRepository;
 import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
-import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
-import io.elastest.etm.utils.UtilTools;
 import net.minidev.json.JSONObject;
 
 @Service

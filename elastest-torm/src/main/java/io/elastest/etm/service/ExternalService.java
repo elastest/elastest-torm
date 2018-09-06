@@ -137,7 +137,7 @@ public class ExternalService {
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
 
             logger.debug("Creating TJobExecution.");
-            TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
+            TJobExecution tJobExec = tJobService.executeTJob(externalJob, tJob.getId(),
                     new ArrayList<>(), new ArrayList<>());
 
             externalJob.setExecutionUrl(
@@ -276,6 +276,11 @@ public class ExternalService {
                 tJob.setSut(sutAux);
             }
 
+            if (externalJob.getJobUrl() != null
+                    && !externalJob.getJobUrl().isEmpty()) {
+                tJob.getExternalUrls().put("jenkins-Job",
+                        externalJob.getJobUrl());
+            }
             tJob = tJobService.createTJob(tJob);
 
             if (externalJob.getTSServices() != null

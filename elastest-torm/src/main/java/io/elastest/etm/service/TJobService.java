@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.xml.sax.SAXException;
 
+import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
@@ -148,6 +149,46 @@ public class TJobService {
             tJobExecOrchestratorService.executeExternalJob(tJobExec);
         }
 
+        return tJobExec;
+    }
+
+    public TJobExecution executeTJob(ExternalJob externalJob, Long tJobId,
+            List<Parameter> parameters, List<Parameter> sutParameters)
+            throws HttpClientErrorException {
+        TJob tJob = tJobRepo.findById(tJobId).get();
+
+        SutSpecification sut = tJob.getSut();
+        // Checks if has sut instrumented by elastest and beats status is
+        // activating yet
+        if (sut != null && sut.isInstrumentedByElastest()
+                && sut.getEimMonitoringConfig() != null
+                && sut.getEimMonitoringConfig()
+                        .getBeatsStatus() == BeatsStatusEnum.ACTIVATING) {
+            throw new HttpClientErrorException(HttpStatus.ACCEPTED);
+        }
+
+        TJobExecution tJobExec = new TJobExecution();
+        tJobExec.setStartDate(new Date());
+        if (tJob.getSut() != null && sutParameters != null
+                && !sutParameters.isEmpty()) {
+            tJob.getSut().setParameters(sutParameters);
+        }
+        tJobExec.setTjob(tJob);
+        if (parameters != null && !parameters.isEmpty()) {
+            tJobExec.setParameters(parameters);
+        }
+        if (externalJob.getBuildUrl() != null
+                && !externalJob.getBuildUrl().isEmpty()) {
+            tJobExec.getExternalUrls().put("jenkins-build-url",
+                    externalJob.getBuildUrl());
+        }
+        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+
+        // After first save, get real Id
+        tJobExec.generateMonitoringIndex();
+        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+
+        tJobExecOrchestratorService.executeExternalJob(tJobExec);
         return tJobExec;
     }
 

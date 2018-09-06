@@ -21,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiModel;
@@ -121,6 +123,14 @@ public class TJob {
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
+    
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+        BasicAttProject.class })
+    @ElementCollection
+    @MapKeyColumn(name = "URL_NAME", length = 100)
+    @Column(name = "URL_VALUE", length = 400)
+    @CollectionTable(name = "TJOB_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB"))
+    private Map<String, String> externalUrls;
 
     public TJob() {
     }
@@ -136,6 +146,7 @@ public class TJob {
         this.external = external;
         this.execDashboardConfig = execDashboardConfig;
         this.selectedServices = selectedServices;
+        this.externalUrls = new HashMap<>();
     }
 
     /**
@@ -306,6 +317,14 @@ public class TJob {
 
     public void setSelectedServices(String selectedServices) {
         this.selectedServices = selectedServices;
+    }
+
+    public Map<String, String> getExternalUrls() {
+        return externalUrls;
+    }
+
+    public void setExternalUrls(Map<String, String> externalUrls) {
+        this.externalUrls = externalUrls;
     }
 
     /* Others */

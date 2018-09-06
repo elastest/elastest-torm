@@ -1,0 +1,37 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="frdiaz (generated)" id="1536158550984-1">
+        <createTable tableName="TJOB_EXEC_EXTERNAL_URLS">
+            <column name="TJOB_EXEC" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="URL_VALUE" type="VARCHAR(400)"/>
+            <column name="URL_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1536158550984-2">
+        <createTable tableName="TJOB_EXTERNAL_URLS">
+            <column name="TJOB" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="URL_VALUE" type="VARCHAR(400)"/>
+            <column name="URL_NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1536158550984-3">
+        <addPrimaryKey columnNames="TJOB_EXEC, URL_NAME" tableName="TJOB_EXEC_EXTERNAL_URLS"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1536158550984-4">
+        <addPrimaryKey columnNames="TJOB, URL_NAME" tableName="TJOB_EXTERNAL_URLS"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1536158550984-5">
+        <addForeignKeyConstraint baseColumnNames="TJOB_EXEC" baseTableName="TJOB_EXEC_EXTERNAL_URLS" constraintName="FK5rxyo02afchutb81or0kaq32q" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="TJobExecution"/>
+    </changeSet>
+    <changeSet author="frdiaz (generated)" id="1536158550984-6">
+        <addForeignKeyConstraint baseColumnNames="TJOB" baseTableName="TJOB_EXTERNAL_URLS" constraintName="FK8qc60wibaq1dfpd5grjx0akyc" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="TJob"/>
+    </changeSet>
+</databaseChangeLog>

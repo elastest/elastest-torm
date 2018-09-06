@@ -129,6 +129,14 @@ public class TJobExecution {
             BasicAttProject.class })
     @Column(name = "endDate")
     private Date endDate = null;
+    
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+        BasicAttProject.class })
+    @ElementCollection
+    @MapKeyColumn(name = "URL_NAME", length = 100)
+    @Column(name = "URL_VALUE", length = 400)
+    @CollectionTable(name = "TJOB_EXEC_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB_EXEC"))
+    private Map<String, String> externalUrls;
 
     // Constructors
     public TJobExecution() {
@@ -138,6 +146,7 @@ public class TJobExecution {
         this.servicesInstances = new ArrayList<>();
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
+        this.externalUrls = new HashMap<>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -147,6 +156,7 @@ public class TJobExecution {
         this.servicesInstances = new ArrayList<>();
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
+        this.externalUrls = new HashMap<>();
     }
 
     /**
@@ -418,6 +428,14 @@ public class TJobExecution {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public Map<String, String> getExternalUrls() {
+        return externalUrls;
+    }
+
+    public void setExternalUrls(Map<String, String> externalUrls) {
+        this.externalUrls = externalUrls;
     }
 
     // Others
