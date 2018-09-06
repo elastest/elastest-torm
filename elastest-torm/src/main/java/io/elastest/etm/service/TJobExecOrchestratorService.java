@@ -533,6 +533,13 @@ public class TJobExecOrchestratorService {
                 envVars.put("ET_SUT_PORT", sutPort);
                 logger.debug("ET_SUT_PORT: {}", sutPort);
             }
+            
+            String sutProtocol = tJobExec.getSutExecution().getSutSpecification()
+                    .getProtocol().toString();
+            if (sutProtocol != null && !sutProtocol.isEmpty()) {
+                envVars.put("ET_SUT_PROTOCOL", sutProtocol);
+                logger.debug("ET_SUT_PROTOCOL: {}", sutProtocol);
+            }
         }
 
         tJobExec.setEnvVars(envVars);
