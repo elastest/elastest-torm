@@ -1,4 +1,4 @@
-import { TestEnginesService } from '../test-engines.service';
+import { EtPluginsService } from '../et-plugins.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Component, Input, OnInit } from '@angular/core';
 
@@ -13,13 +13,13 @@ export class TestEngineViewComponent implements OnInit {
 
   url: string;
 
-  constructor(private route: ActivatedRoute, private testEnginesService: TestEnginesService) { }
+  constructor(private route: ActivatedRoute, private tetPluginsService: EtPluginsService) { }
 
   ngOnInit() {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.engineName = params['name'];
-        this.testEnginesService.getUrl(params['name'])
+        this.tetPluginsService.getUrl(params['name'])
           .subscribe((url: any) => {
             this.url = url;
           },

@@ -10,7 +10,7 @@ import { EtmMonitoringViewComponent } from './elastest-etm/etm-monitoring-view/e
 import { ETModelsTransformServices } from './shared/services/et-models-transform.service';
 import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-models-transform.service';
 import { TitlesService } from './shared/services/titles.service';
-import { TestEnginesService } from './elastest-test-engines/test-engines.service';
+import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
@@ -197,7 +197,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     SelectBuildModalComponent,
     SupportServiceConfigViewComponent,
     TestCasesViewComponent,
-    // TestEnginesService,
     TestPlanExecutionComponent,
     TestSuitesViewComponent,
     TimeAgoPipe,
@@ -268,7 +267,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     EusService,
     ElastestEusDialogService,
     EsmService,
-    TestEnginesService,
+    EtPluginsService,
     LogAnalyzerService,
   ],
   entryComponents: [

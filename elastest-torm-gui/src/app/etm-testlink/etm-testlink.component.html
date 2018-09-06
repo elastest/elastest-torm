@@ -5,11 +5,16 @@
                 {{startingInProcess ? 'Starting TestLink...' : 'TestLink container not started yet'}}
             </md-card-title>
             <md-card-content>
-                <button *ngIf="!startingInProcess" md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()"
+                <button *ngIf="!startingInProcess; else showProgress" md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()"
                     mdTooltip="Start TestLink container" [disabled]="startingInProcess">
                     <md-icon>play_circle_outline</md-icon> Start TestLink
                 </button>
-                <md-spinner strokeWidth="6" *ngIf="startingInProcess" color="accent" class="push-top-sm"></md-spinner>
+                <ng-template #showProgress>
+                    <div class="md-subhead" *ngIf="testLinkModel && testLinkModel.statusMsg">
+                        {{ testLinkModel.statusMsg }}
+                    </div>
+                    <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+                </ng-template>
             </md-card-content>
         </md-card>
     </div>

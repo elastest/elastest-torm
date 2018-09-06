@@ -16,6 +16,8 @@ import { ExternalTJobModel } from '../elastest-etm/external/external-tjob/extern
 import { ExternalTestCaseModel } from '../elastest-etm/external/external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from '../elastest-etm/external/external-test-execution/external-test-execution-model';
 import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
+import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
 
 @Injectable()
 export class TestLinkService {
@@ -27,6 +29,7 @@ export class TestLinkService {
     public eTTestlinkModelsTransformService: ETTestlinkModelsTransformService,
     public eTExternalModelsTransformService: ETExternalModelsTransformService,
     public popupService: PopupService,
+    public etPluginsService: EtPluginsService,
   ) {
     this.hostApi = this.configurationService.configModel.hostApi;
   }
@@ -40,9 +43,11 @@ export class TestLinkService {
     return this.http.get(url).map((response: Response) => response.json());
   }
 
-  public startTestLink(): Observable<boolean> {
+  public startTestLink(): Observable<EtPluginModel> {
     let url: string = this.hostApi + '/testlink/start';
-    return this.http.post(url, undefined).map((response: Response) => response.json());
+    return this.http
+      .post(url, undefined)
+      .map((response: Response) => this.etPluginsService.transformRawTestEngine(response.json()));
   }
 
   public getTestlinkUrl(): Observable<String> {

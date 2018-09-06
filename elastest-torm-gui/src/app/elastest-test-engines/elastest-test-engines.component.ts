@@ -3,7 +3,7 @@ import { PopupService } from '../shared/services/popup.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
 
-import { TestEnginesService } from './test-engines.service';
+import { EtPluginsService } from './et-plugins.service';
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { EtPluginModel } from './et-plugin-model';
 
@@ -30,7 +30,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
 
   constructor(
     private titlesService: TitlesService,
-    private testEnginesService: TestEnginesService,
+    private tetPluginsService: EtPluginsService,
     private router: Router,
     public popupService: PopupService,
   ) {}
@@ -51,7 +51,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
   }
 
   getTestEngines(): void {
-    this.testEnginesService.getEtPlugins().subscribe(
+    this.tetPluginsService.getEtPlugins().subscribe(
       (data: EtPluginModel[]) => {
         this.testEngines = data;
         for (let testEngine of this.testEngines) {
@@ -69,7 +69,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
 
   startTestEngine(testEngine: EtPluginModel): void {
     this.starting[testEngine.name] = true;
-    this.testEnginesService.startEtPlugin(testEngine).subscribe(
+    this.tetPluginsService.startEtPlugin(testEngine).subscribe(
       (engine: EtPluginModel) => {
         this.updateTestEngine(testEngine, engine);
         this.waitForReady(engine);
@@ -87,7 +87,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
     this.timer = Observable.interval(2500);
     if (testEngine.isCreated() && !testEngine.isReady() && (this.subscription === null || this.subscription === undefined)) {
       this.subscription = this.timer.subscribe(() => {
-        this.testEnginesService.getEtPlugin(testEngine.name).subscribe((engine: EtPluginModel) => {
+        this.tetPluginsService.getEtPlugin(testEngine.name).subscribe((engine: EtPluginModel) => {
           this.updateTestEngine(testEngine, engine);
           testEngine = engine;
           if (engine.isReady()) {
@@ -107,7 +107,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
 
   stopTestEngine(testEngine: EtPluginModel): void {
     this.stopping[testEngine.name] = true;
-    this.testEnginesService.stopEtPlugin(testEngine).subscribe(
+    this.tetPluginsService.stopEtPlugin(testEngine).subscribe(
       (engine: EtPluginModel) => {
         this.updateTestEngine(testEngine, engine);
         this.stopping[testEngine.name] = false;

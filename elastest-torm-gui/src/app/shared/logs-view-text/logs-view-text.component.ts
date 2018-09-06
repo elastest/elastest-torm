@@ -55,7 +55,7 @@ export class LogsViewTextComponent implements OnInit {
   }
 
   scrollIsInBottom(event: Event | any): boolean {
-    let errorMarginOfDifference: number = 1;
+    let errorMarginOfDifference: number = 2;
     let pos: number = event.srcElement.scrollTop + event.srcElement.offsetHeight;
     let max: number = event.srcElement.scrollHeight;
 

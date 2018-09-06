@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnDestroy, HostListener } from '@angular/core';
 import { TitlesService } from '../shared/services/titles.service';
-import { TestEnginesService } from '../elastest-test-engines/test-engines.service';
+import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
 import { Subscription, Observable } from 'rxjs';
 
@@ -20,14 +20,14 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   timer: Observable<number>;
   subscription: Subscription;
 
-  constructor(private titlesService: TitlesService, private testEnginesService: TestEnginesService) {}
+  constructor(private titlesService: TitlesService, private etPluginsService: EtPluginsService) {}
 
   ngOnInit() {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Jenkins');
     }
 
-    this.testEnginesService.getUniqueEtPlugin('jenkins').subscribe(
+    this.etPluginsService.getUniqueEtPlugin('jenkins').subscribe(
       (jenkinsModel: EtPluginModel) => {
         this.jenkinsModel = jenkinsModel;
         this.initIfStarted();
@@ -66,7 +66,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
       (this.subscription === null || this.subscription === undefined)
     ) {
       this.subscription = this.timer.subscribe(() => {
-        this.testEnginesService.getEtPlugin(this.jenkinsModel.name).subscribe((etPlugin: EtPluginModel) => {
+        this.etPluginsService.getEtPlugin(this.jenkinsModel.name).subscribe((etPlugin: EtPluginModel) => {
           this.jenkinsModel = etPlugin;
           if (etPlugin.isReady()) {
             this.initIfStarted();
@@ -79,7 +79,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   initIfStarted(): void {
-    this.testEnginesService.isStarted(this.jenkinsModel).subscribe(
+    this.etPluginsService.isStarted(this.jenkinsModel).subscribe(
       (started: boolean) => {
         this.isStarted = started;
         if (started) {
@@ -93,7 +93,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
 
   startJenkins(): void {
     this.startingInProcess = true;
-    this.testEnginesService.startEtPluginAsync(this.jenkinsModel).subscribe(
+    this.etPluginsService.startEtPluginAsync(this.jenkinsModel).subscribe(
       (jenkinsModel: EtPluginModel) => {
         this.jenkinsModel = jenkinsModel;
         this.waitForReady();
@@ -106,7 +106,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   loadJenkinsUrl(): void {
-    this.testEnginesService.getUrl(this.jenkinsModel.name).subscribe((url: string) => {
+    this.etPluginsService.getUrl(this.jenkinsModel.name).subscribe((url: string) => {
       this.jenkinsUrl = url;
     });
   }

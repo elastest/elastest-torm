@@ -14,6 +14,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
+import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
@@ -45,7 +46,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/testlink/start", produces = {
             "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<Boolean> startTestLink();
+    ResponseEntity<EtPlugin> startTestLink();
 
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import br.eti.kinoshita.testlinkjavaapi.TestLinkAPI;
@@ -79,7 +80,7 @@ public class TestLinkService {
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
     private final DockerEtmService dockerEtmService;
-    private final EtPluginsService etPluginsService;
+    public final EtPluginsService etPluginsService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -156,8 +157,10 @@ public class TestLinkService {
         }
     }
 
-    public boolean startTLOnDemand() {
+    @Async
+    public void startTLOnDemand() {
         String testlinkName = "testlink";
+
         if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
@@ -170,7 +173,6 @@ public class TestLinkService {
             this.testLinkDBService.init();
             this.initTestLink(this.testLinkUrl);
         }
-        return isStarted();
     }
 
     public boolean isStarted() {

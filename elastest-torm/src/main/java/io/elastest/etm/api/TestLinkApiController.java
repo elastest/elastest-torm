@@ -16,10 +16,13 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.TestLinkAPIException;
+import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
+import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.TestLinkService;
 import io.swagger.annotations.ApiParam;
 
@@ -28,15 +31,26 @@ public class TestLinkApiController implements TestLinkApi {
     @Autowired
     TestLinkService testLinkService;
 
+    @Autowired
+    EtPluginsService etPluginsService;
+
     public ResponseEntity<Boolean> isStarted() {
         return new ResponseEntity<Boolean>(testLinkService.isStarted(),
                 HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Boolean> startTestLink() {
-        return new ResponseEntity<Boolean>(testLinkService.startTLOnDemand(),
-                HttpStatus.OK);
+    public ResponseEntity<EtPlugin> startTestLink() {
+        EtPlugin engine = etPluginsService.getUniqueEtPlugin("testlink");
+
+        if (engine.getStatus()
+                .equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {
+            engine.setStatus(DockerServiceStatusEnum.INITIALIZING);
+            engine.setStatusMsg("Initializing...");
+        }
+        testLinkService.startTLOnDemand();
+
+        return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
     /* ************************************************************************/

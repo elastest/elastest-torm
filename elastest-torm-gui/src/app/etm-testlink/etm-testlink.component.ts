@@ -3,22 +3,29 @@ import { Router } from '@angular/router';
 import { TdDataTableService } from '@covalent/core';
 import { TitlesService } from '../shared/services/titles.service';
 import { TestProjectModel } from './models/test-project-model';
-import { Component, Input, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, ViewContainerRef, HostListener, OnDestroy } from '@angular/core';
 import { TestLinkService } from './testlink.service';
 import { MdDialog } from '@angular/material';
+import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
+import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
+import { Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'etm-testlink',
   templateUrl: './etm-testlink.component.html',
   styleUrls: ['./etm-testlink.component.scss'],
 })
-export class EtmTestlinkComponent implements OnInit {
-  @Input() isNested: boolean = false;
+export class EtmTestlinkComponent implements OnInit, OnDestroy {
+  @Input()
+  isNested: boolean = false;
   isStarted: boolean = false;
   startingInProcess: boolean = true;
   testLinkUrl: string;
 
   disableBtns: boolean = false;
+
+  timer: Observable<number>;
+  subscription: Subscription;
 
   // Project data
   projectColumns: any[] = [
@@ -38,25 +45,79 @@ export class EtmTestlinkComponent implements OnInit {
   projectsList: TestProjectModel[] = [];
   showSpinner: boolean = true;
 
+  testLinkModel: EtPluginModel;
+
   constructor(
     private titlesService: TitlesService,
     private testlinkService: TestLinkService,
     public dialog: MdDialog,
+    private etPluginsService: EtPluginsService,
   ) {}
 
   ngOnInit() {
     if (!this.isNested) {
-      this.titlesService.setHeadTitle('Testlink Projects');
+      this.titlesService.setHeadTitle('TestLink');
     }
 
-    this.testlinkService.isStarted().subscribe(
+    this.etPluginsService.getUniqueEtPlugin('testlink').subscribe(
+      (testLinkModel: EtPluginModel) => {
+        this.testLinkModel = testLinkModel;
+        this.initIfStarted();
+        if (testLinkModel.isNotInitialized()) {
+          this.startingInProcess = false;
+        } else {
+          this.waitForReady();
+        }
+      },
+      (error: Error) => console.log(error),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.unsubscribe();
+  }
+
+  unsubscribe(): void {
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
+    }
+  }
+
+  waitForReady(): void {
+    this.timer = Observable.interval(1800);
+    if (
+      this.testLinkModel.isCreated() &&
+      !this.testLinkModel.isReady() &&
+      (this.subscription === null || this.subscription === undefined)
+    ) {
+      this.subscription = this.timer.subscribe(() => {
+        this.etPluginsService.getEtPlugin(this.testLinkModel.name).subscribe((etPlugin: EtPluginModel) => {
+          this.testLinkModel = etPlugin;
+          if (etPlugin.isReady()) {
+            this.initIfStarted();
+            this.subscription.unsubscribe();
+            this.subscription = undefined;
+          }
+        });
+      });
+    }
+  }
+
+  initIfStarted(): void {
+    this.etPluginsService.isStarted(this.testLinkModel).subscribe(
       (started: boolean) => {
         this.isStarted = started;
         if (started) {
-          this.init();
+          this.startingInProcess = false;
+          this.loadData();
         }
-
-        this.startingInProcess = false;
       },
       (error: Error) => console.log(error),
     );
@@ -65,10 +126,9 @@ export class EtmTestlinkComponent implements OnInit {
   startTestLink(): void {
     this.startingInProcess = true;
     this.testlinkService.startTestLink().subscribe(
-      (started: boolean) => {
-        this.isStarted = started;
-        this.init();
-        this.startingInProcess = false;
+      (testLinkModel: EtPluginModel) => {
+        this.testLinkModel = testLinkModel;
+        this.waitForReady();
       },
       (error: Error) => {
         console.log(error);
@@ -77,7 +137,7 @@ export class EtmTestlinkComponent implements OnInit {
     );
   }
 
-  init(): void {
+  loadData(): void {
     this.loadTestLinkUrl();
     this.loadProjects();
   }
@@ -103,7 +163,7 @@ export class EtmTestlinkComponent implements OnInit {
         this.testlinkService.popupService.openSnackBar('Successfully synchronized with Elastest!');
         this.disableBtns = false;
       },
-      (error) => {
+      (error: Error) => {
         this.disableBtns = false;
         console.log(error);
       },

@@ -5,12 +5,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
 @Injectable()
-export class TestEnginesService {
+export class EtPluginsService {
   mainUrl: string = this.configurationService.configModel.hostApi + '/etplugins/';
 
   constructor(private http: Http, private configurationService: ConfigurationService) {}
 
-  transformRawTestEnginesList(testEnginesRaw: any[]): EtPluginModel[] {
+  public transformRawTestEnginesList(testEnginesRaw: any[]): EtPluginModel[] {
     let testEngines: EtPluginModel[] = [];
     for (let rawEngine of testEnginesRaw) {
       testEngines.push(this.transformRawTestEngine(rawEngine));
@@ -18,7 +18,7 @@ export class TestEnginesService {
     return testEngines;
   }
 
-  transformRawTestEngine(rawEngine: any): EtPluginModel {
+  public transformRawTestEngine(rawEngine: any): EtPluginModel {
     let testEngine: EtPluginModel = new EtPluginModel();
     testEngine.name = rawEngine.name;
     testEngine.url = rawEngine.url;
