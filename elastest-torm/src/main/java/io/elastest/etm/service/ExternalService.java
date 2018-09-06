@@ -248,7 +248,6 @@ public class ExternalService {
                         sutAux = sutSpec;
                     }
                 }
-
                 if (!sutExists) {
                     try {
                         sutAux = sutService
@@ -271,13 +270,14 @@ public class ExternalService {
                 tJob.setProject(project);
                 tJob.setExternal(true);
             }
-
             if (sutAux != null) {
                 tJob.setSut(sutAux);
             }
-
             if (externalJob.getJobUrl() != null
                     && !externalJob.getJobUrl().isEmpty()) {
+                if (tJob.getExternalUrls() == null) {
+                    tJob.setExternalUrls(new HashMap<>());
+                }
                 tJob.getExternalUrls().put("jenkins-Job",
                         externalJob.getJobUrl());
             }
