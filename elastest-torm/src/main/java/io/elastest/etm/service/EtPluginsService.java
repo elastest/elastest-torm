@@ -548,68 +548,49 @@ public class EtPluginsService {
     }
 
     public EtPlugin getUniqueEtPlugin(String serviceName) {
+        String host = "";
+        String port = "";
+        String containerName = "";
+
         switch (serviceName) {
         case JENKINS_NAME:
-            EtPlugin jenkins = new EtPlugin(
-                    this.uniqueEtPluginsMap.get(JENKINS_NAME));
-
-            if (!etEtmJenkinsHost.equals("none")) {
-                jenkins = new EtPlugin(jenkins);
-                try {
-                    String url = "http://"
-                            + dockerEtmService.dockerService.getContainerIp(
-                                    etEtmJenkinsContainerName, network)
-                            + ":" + etEtmJenkinsPort;
-                    jenkins.setUrl(url);
-                } catch (Exception e) {
-                    logger.error("Error on get {} url", serviceName, e);
-                }
-
-                jenkins.setStatus(DockerServiceStatusEnum.READY);
-                jenkins.setStatusMsg("Ready");
-                updateStatus(JENKINS_NAME, DockerServiceStatusEnum.READY,
-                        "Ready");
-            } else {
-                // Check if ready and update
-                if (!jenkins.getStatus()
-                        .equals(DockerServiceStatusEnum.READY)) {
-                    this.checkIfEtPluginUrlIsUp(JENKINS_NAME);
-                }
-            }
-
-            return jenkins;
+            host = etEtmJenkinsHost;
+            port = etEtmJenkinsPort;
+            containerName = etEtmJenkinsContainerName;
+            break;
         case TESTLINK_NAME:
-            EtPlugin testlink = new EtPlugin(
-                    this.uniqueEtPluginsMap.get(TESTLINK_NAME));
-
-            if (!etEtmTestLinkHost.equals("none")) {
-                testlink = new EtPlugin(testlink);
-                try {
-                    String url = "http://"
-                            + dockerEtmService.dockerService.getContainerIp(
-                                    etEtmTestLinkContainerName, network)
-                            + ":" + etEtmTestLinkPort;
-                    testlink.setUrl(url);
-                } catch (Exception e) {
-                    logger.error("Error on get {} url", serviceName, e);
-                }
-
-                testlink.setStatus(DockerServiceStatusEnum.READY);
-                testlink.setStatusMsg("Ready");
-                updateStatus(TESTLINK_NAME, DockerServiceStatusEnum.READY,
-                        "Ready");
-            } else {
-                // Check if ready and update
-                if (!testlink.getStatus()
-                        .equals(DockerServiceStatusEnum.READY)) {
-                    this.checkIfEtPluginUrlIsUp(TESTLINK_NAME);
-                }
-            }
-
-            return testlink;
+            host = etEtmTestLinkHost;
+            port = etEtmTestLinkPort;
+            containerName = etEtmTestLinkContainerName;
+            break;
         default:
             return this.uniqueEtPluginsMap.get(serviceName);
         }
+
+        EtPlugin etPlugin = new EtPlugin(
+                this.uniqueEtPluginsMap.get(serviceName));
+
+        if (!host.equals("none")) {
+            etPlugin = new EtPlugin(etPlugin);
+            try {
+                String url = "http://" + dockerEtmService.dockerService
+                        .getContainerIp(containerName, network) + ":" + port;
+                etPlugin.setUrl(url);
+            } catch (Exception e) {
+                logger.error("Error on get {} url", serviceName, e);
+            }
+
+            etPlugin.setStatus(DockerServiceStatusEnum.READY);
+            etPlugin.setStatusMsg("Ready");
+            updateStatus(serviceName, DockerServiceStatusEnum.READY, "Ready");
+        } else {
+            // Check if ready and update
+            if (!etPlugin.getStatus().equals(DockerServiceStatusEnum.READY)) {
+                this.checkIfEtPluginUrlIsUp(serviceName);
+            }
+        }
+
+        return etPlugin;
 
     }
 
