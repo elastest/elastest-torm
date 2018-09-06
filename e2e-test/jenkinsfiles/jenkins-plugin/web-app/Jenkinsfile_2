@@ -1,0 +1,35 @@
+node{
+    elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', monitoring: true) {
+        stage ('Executing Test') {
+            echo 'Print env variables'
+            sh 'env'
+            def sutImage = docker.image('elastest/demo-web-java-test-sut')
+            echo 'Start SUT'
+            sutImage.withRun("--name ${env.ET_SUT_CONTAINER_NAME} --network=elastest_elastest") { c ->
+                echo "${c.id}"
+                def sutIp = containerIp("${env.ET_SUT_CONTAINER_NAME}")
+                sh 'docker run -e IP=' + sutIp + ' -e PORT=8080 --network=elastest_elastest elastest/etm-check-service-up'
+                withEnv(['ET_SUT_HOST=' + sutIp]) {
+                    echo 'Set up test environment'
+                    mvnHome = tool 'M3.3.9'
+                    echo 'Cloning repository'
+                    git 'https://github.com/elastest/demo-projects'
+                    echo 'Run test'
+                    sh "cd ./web-java-test/;'${mvnHome}/bin/mvn' -Dtest=WebAppTest test"
+                }
+            }
+            
+        }        
+    }
+}
+
+def containerIp(containerName) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
+}
