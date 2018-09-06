@@ -717,7 +717,7 @@ public class TJobExecOrchestratorService {
             }
 
             // If port is defined, wait for SuT ready
-            if (sut.getPort() != null) {
+            if (sut.getPort() != null && !"".equals(sut.getPort())) {
                 String sutPort = sut.getPort();
                 resultMsg = "Waiting for dockerized SuT";
                 logger.info(resultMsg);
