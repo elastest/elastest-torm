@@ -1,0 +1,15 @@
+node{
+    elastest(surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml') {
+        stage ('Executing Test') {
+            echo 'Print env variables'
+            sh 'env'
+            echo 'Set up test environment'
+            mvnHome = tool 'M3.3.9'
+            echo 'Cloning repository'
+            git 'https://github.com/elastest/demo-projects'
+            echo 'Run test'
+            sh "cd ./unit-java-test;'${mvnHome}/bin/mvn' -B test"
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+        }
+    }
+}
