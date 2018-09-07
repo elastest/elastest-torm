@@ -194,6 +194,7 @@ public class ExternalService {
                     externalJob.setReady(false);
                 }
             } else {
+                externalJob.setEnvVars(tJobExecution.getEnvVars());
                 externalJob.setReady(true);
                 externalJob.setStatus(ExternalJobStatusEnum.READY);
             }
