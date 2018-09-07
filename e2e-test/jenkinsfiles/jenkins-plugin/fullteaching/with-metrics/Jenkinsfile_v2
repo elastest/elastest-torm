@@ -1,0 +1,39 @@
+node{
+    def sutIp
+    elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', monitoring: true) {
+        stage("Setting environment") {
+            echo 'Environment variables'
+            sh "env"
+            git "https://github.com/elastest/full-teaching-experiment.git"
+        }
+        try {
+            stage("Start Sut") {
+                sh "cd docker-compose/full-teaching-et-network; export BUG_TAG=demo; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} up -d"
+                sutIp = containerIp(env.ET_SUT_CONTAINER_NAME + "_full-teaching_1")
+                echo 'Sut ip: '+ sutIp
+                sh 'docker run -e IP=' + sutIp + ' -e PORT=5001 --network=elastest_elastest elastest/etm-check-service-up'
+            }
+        	stage("Run Tests") {
+                echo 'Running test'
+                mvnHome = tool 'M3.3.9'
+                sh "'${mvnHome}/bin/mvn' -Dapp.url=https://" + sutIp +":5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B test"
+                step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+        	}
+        } finally {
+                echo 'Stopping SUT'
+                sh "cd docker-compose/full-teaching-env; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} down"
+        }
+    }
+}
+
+
+def containerIp(containerName) {
+    echo "Inside containerIp function"
+    containerIp = sh (
+        script: "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" "+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+" IP = " + containerIp;
+    return containerIp;
+}
