@@ -137,8 +137,8 @@ public class ExternalService {
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
 
             logger.debug("Creating TJobExecution.");
-            TJobExecution tJobExec = tJobService.executeTJob(externalJob, tJob.getId(),
-                    new ArrayList<>(), new ArrayList<>());
+            TJobExecution tJobExec = tJobService.executeTJob(externalJob,
+                    tJob.getId(), new ArrayList<>(), new ArrayList<>());
 
             externalJob.setExecutionUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
@@ -182,21 +182,14 @@ public class ExternalService {
         TJobExecution tJobExecution = tJobService
                 .getTJobExecById(externalJob.gettJobExecId());
         if (tJobExecution.getResult() != (ResultEnum.ERROR)) {
-            if (externalJob.getTSServices() != null
-                    && externalJob.getTSServices().size() > 0) {
-                if (tJobExecution.getEnvVars() != null
-                        && !tJobExecution.getEnvVars().isEmpty()) {
-                    externalJob.setEnvVars(tJobExecution.getEnvVars());
-                    externalJob.setReady(true);
-                    externalJob.setStatus(ExternalJobStatusEnum.READY);
-
-                } else {
-                    externalJob.setReady(false);
-                }
-            } else {
+            if (tJobExecution.getEnvVars() != null
+                    && !tJobExecution.getEnvVars().isEmpty()) {
                 externalJob.setEnvVars(tJobExecution.getEnvVars());
                 externalJob.setReady(true);
                 externalJob.setStatus(ExternalJobStatusEnum.READY);
+
+            } else {
+                externalJob.setReady(false);
             }
         } else {
             externalJob.setReady(false);
