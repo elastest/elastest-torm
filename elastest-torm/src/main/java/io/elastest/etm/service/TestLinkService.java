@@ -112,7 +112,7 @@ public class TestLinkService {
         if (this.isStarted()) {
             this.testLinkUrl = url;
             url += "/lib/api/xmlrpc/v1/xmlrpc.php";
-            logger.info("Teslink api url: {}", url);
+            logger.info("Testlink api url: {}", url);
 
             try {
                 testlinkApiURL = new URL(url);
@@ -126,7 +126,7 @@ public class TestLinkService {
                     logger.error("Api object hasn't been created");
                 }
             } catch (TestLinkAPIException te) {
-                logger.error("Error on init TestLink Api: {}", te.getMessage());
+                logger.error("Error on init TestLink Api: {}", te);
             }
         }
     }
@@ -164,12 +164,9 @@ public class TestLinkService {
         if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
-
             this.testLinkUrl = etPluginsService.getEtPluginUrl(testlinkName);
-
             startedOnDemand = true;
             startingOnDemand = false;
-
             this.testLinkDBService.init();
             this.initTestLink(this.testLinkUrl);
         }

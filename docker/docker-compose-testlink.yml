@@ -10,7 +10,6 @@ services:
       environment:
             TESTLINK_USERNAME: admin
             TESTLINK_PASSWORD: elastest
-            DB_HOST: edm-mysql
             MARIADB_HOST: edm-mysql
             MARIADB_PASSWORD:
             MARIADB_PORT_NUMBER: 3306

@@ -162,18 +162,7 @@ public class EtPluginsService {
 
     public void createUniqueEtPluginProject(String name) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
-        if (EIM_NAME.equals(name) || TESTLINK_NAME.equals(name)) {
-            try {
-                String mysqlHost = dockerEtmService.getEdmMySqlHost();
-                dockerComposeYml = dockerComposeYml.replace("edm-mysql",
-                        mysqlHost);
-            } catch (Exception e) {
-                throw new Exception("Error on get MySQL host", e);
-            }
-        }
-
         this.createProject(name, dockerComposeYml, uniqueEtPluginsYmlFolder);
-
     }
 
     public SupportServiceInstance createTssInstanceProject(String instanceId,
@@ -379,9 +368,15 @@ public class EtPluginsService {
                     boolean useBindedPort = true;
                     if (ip.equals("localhost")) {
                         useBindedPort = false;
-                        ip = dockerEtmService.dockerService
-                                .getContainerIpByNetwork(containerName,
-                                        network);
+                        if (dockerEtmService.dockerService
+                                .isContainerIntoNetwork(network,
+                                        containerName)) {
+                            ip = dockerEtmService.dockerService
+                                    .getContainerIpByNetwork(containerName,
+                                            network);
+                        } else {
+                            return "";
+                        }
                     }
 
                     String port = "";

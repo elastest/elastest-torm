@@ -30,7 +30,5 @@ RUN chmod 777 /app-entrypoint.sh
 COPY testlink_create_tables.sql /opt/bitnami/testlink/install/sql/mysql
 COPY testlink_create_default_data.sql /opt/bitnami/testlink/install/sql/mysql
 
-
-COPY config_db.inc.php /
-
 CMD ["nami","start","--foreground","apache"]
+
