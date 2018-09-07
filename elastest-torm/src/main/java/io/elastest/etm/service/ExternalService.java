@@ -273,6 +273,8 @@ public class ExternalService {
             }
             if (sutAux != null) {
                 tJob.setSut(sutAux);
+            } else if (tJob.getSut() != null) {
+                tJob.setSut(null);
             }
             if (externalJob.getJobUrl() != null
                     && !externalJob.getJobUrl().isEmpty()) {
@@ -295,6 +297,8 @@ public class ExternalService {
                 }
 
                 tJob.setSelectedServices(tJob.getSelectedServices() + "]");
+            } else {
+                tJob.setSelectedServices(null);
             }
 
             return tJob;
