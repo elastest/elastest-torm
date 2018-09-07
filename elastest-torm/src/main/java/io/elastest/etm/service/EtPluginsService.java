@@ -260,7 +260,7 @@ public class EtPluginsService {
             logger.debug("Initializing {} plugin...", projectName);
 
             // Pull
-            this.pullProject(projectName);
+//            this.pullProject(projectName);
 
             // Start
             this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,

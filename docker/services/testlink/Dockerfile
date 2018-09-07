@@ -1,4 +1,4 @@
-FROM bitnami/testlink:1.9.16-r8
+FROM bitnami/testlink:1.9.16-r12
 
 # Set Image Labels
 ARG GIT_COMMIT=unspecified
