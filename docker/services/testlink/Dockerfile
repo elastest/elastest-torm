@@ -1,4 +1,4 @@
-FROM bitnami/testlink:1.9.16-r12
+FROM bitnami/testlink:1.9.16-r8
 
 # Set Image Labels
 ARG GIT_COMMIT=unspecified
@@ -29,5 +29,8 @@ RUN chmod 777 /app-entrypoint.sh
 # Copy tables and data files for DB with ET data
 COPY testlink_create_tables.sql /opt/bitnami/testlink/install/sql/mysql
 COPY testlink_create_default_data.sql /opt/bitnami/testlink/install/sql/mysql
+
+
+COPY config_db.inc.php /
 
 CMD ["nami","start","--foreground","apache"]
