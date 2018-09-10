@@ -162,7 +162,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           testModel.creationTime = json.recordedSession.creationTime;
           testModel.hubContainerName = json.recordedSession.hubContainerName;
           this.recordings.push(testModel);
-          this.recordings = Array.from(this.recordings);
+          this.sortRecordings();
         } else if (json.removeSession) {
           let entry: EusTestModel;
           let newTestData: EusTestModel[] = [];
@@ -174,6 +174,59 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           this.testData = Array.from(newTestData);
         }
       };
+    }
+  }
+
+  sortRecordings(): void {
+    try {
+      this.recordings = Array.from(
+        this.recordings.sort((recording1: EusTestModel, recording2: EusTestModel) => {
+          let time1: Date = this.getDateFromEusCreationTime(recording1.creationTime);
+          let time2: Date = this.getDateFromEusCreationTime(recording2.creationTime);
+
+          if (time1 > time2) {
+            return -1;
+          } else if (time1 < time2) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }),
+      );
+    } catch (e) {
+      this.recordings = Array.from(this.recordings);
+    }
+  }
+
+  getDateFromEusCreationTime(time: string): Date {
+    // time format:  03-09-2018 01:46:49 CEST
+    if (time === undefined) {
+      return undefined;
+    }
+    try {
+      let date: Date = new Date();
+
+      let fullYear: string = time.split(' ')[0];
+
+      let fullYearObj: any = {
+        day: fullYear.split('-')[0],
+        month: fullYear.split('-')[1],
+        year: fullYear.split('-')[2],
+      };
+
+      let fullTime: string = time.split(' ')[1];
+      let fullTimeObj: any = {
+        hour: fullTime.split(':')[0],
+        min: fullTime.split(':')[1],
+        sec: fullTime.split(':')[2],
+      };
+
+      date.setFullYear(fullYearObj.year, fullYearObj.month, fullYearObj.day);
+
+      date.setHours(fullTimeObj.hour, fullTimeObj.min, fullTimeObj.sec);
+      return date;
+    } catch (e) {
+      console.log(e);
     }
   }
 
