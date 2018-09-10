@@ -194,6 +194,9 @@ public class SutSpecification {
     /* **************************/
 
     public SutSpecification() {
+        this.id = new Long(0);
+        this.commandsOption = CommandsOptionEnum.DEFAULT;
+        this.instrumentedBy = InstrumentedByEnum.WITHOUT;
     }
 
     public SutSpecification(Long id, String name, String specification,

@@ -194,6 +194,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         }),
       );
     } catch (e) {
+      console.log(e);
       this.recordings = Array.from(this.recordings);
     }
   }

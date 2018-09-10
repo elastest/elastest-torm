@@ -38,6 +38,8 @@ import io.elastest.etm.model.SupportServiceInstance;
 
 @Service
 public class EtPluginsService {
+    final Logger logger = getLogger(lookup().lookupClass());
+
     private static final String TESTLINK_NAME = "testlink";
 
     private static final String ERE_NAME = "ere";
@@ -47,8 +49,6 @@ public class EtPluginsService {
     private static final String EIM_NAME = "eim";
 
     private static final String JENKINS_NAME = "jenkins";
-
-    final Logger logger = getLogger(lookup().lookupClass());
 
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;

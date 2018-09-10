@@ -149,9 +149,9 @@ export class TjobManagerComponent implements OnInit {
     this.router.navigate(['/projects', this.tJob.project.id, 'sut', 'edit', this.tJob.sut.id]);
   }
 
-  editTJob(tJob: TJobModel): void {
-    if (tJob.external && tJob.getExternalEditPage()) {
-      window.open(tJob.getExternalEditPage());
+  editTJob(): void {
+    if (this.tJob.external && this.tJob.getExternalEditPage()) {
+      window.open(this.tJob.getExternalEditPage());
     } else {
       this.router.navigate(['/projects', this.tJob.project.id, 'tjob', 'edit', this.tJob.id]);
     }

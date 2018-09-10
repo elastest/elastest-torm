@@ -19,7 +19,8 @@ import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model'
   styleUrls: ['./tjob-form.component.scss'],
 })
 export class TJobFormComponent implements OnInit, DoCheck {
-  @ViewChild('tjobNameInput') tjobNameInput: ElementRef;
+  @ViewChild('tjobNameInput')
+  tjobNameInput: ElementRef;
   alreadyFocusedTJobNameInput: boolean = false;
 
   tJob: TJobModel;
@@ -61,7 +62,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
     // this.tJob = new TJobModel();
     this.action = this.route.snapshot.url[0].path;
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.esmService.getSupportServices().subscribe((response) => {
+      this.esmService.getSupportServices().subscribe((response: EsmServiceModel[]) => {
         this.esmServicesCatalog = response;
         if (this.action === 'edit') {
           this.titlesService.setHeadTitle('Edit TJob');

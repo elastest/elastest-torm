@@ -46,6 +46,7 @@ services:
             - ET_ETM_TESTLINK_BINDED_PORT=37071
             - ET_ETM_JENKINS_HOST=etm-jenkins
             - ET_ETM_JENKINS_PORT=8080
+            - ET_ETM_JENKINS_BINDED_PORT=37092
             - ET_DOCKER_IMG_SOCAT=elastest/etm-socat:latest
             - ET_DOCKER_IMG_DOCKBEAT=elastest/etm-dockbeat:latest
             - ET_INTERNET_DISABLED=false
