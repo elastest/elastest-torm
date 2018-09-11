@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -216,16 +217,38 @@ public class ExternalService {
     private TJob createElasTestEntitiesForExtJob(ExternalJob externalJob)
             throws Exception {
         logger.info("Creating external job entities.");
-
         try {
+            Project project = null;
+            if (externalJob.getProject() != null
+                    && !externalJob.getProject().isEmpty()) {
+                if (NumberUtils.isDigits(externalJob.getProject())) {
+                    project = projectService.getProjectById(
+                            Long.parseLong(externalJob.getProject())) != null
+                                    ? projectService
+                                            .getProjectById(Long.parseLong(
+                                                    externalJob.getProject()))
+                                    : projectService.getProjectByName(
+                                            externalJob.getProject());
+
+                } else {
+                    project = projectService
+                            .getProjectByName(externalJob.getProject());
+                }
+            } else {
+                project = projectService
+                        .getProjectByName(externalJob.getJobName());
+            }
             logger.debug("Creating Project.");
-            Project project = projectService
-                    .getProjectByName(externalJob.getJobName());
-            if (project == null) {
+
+            if (project == null && (externalJob.getProject() == null
+                    || externalJob.getProject().isEmpty())) {
                 project = new Project();
                 project.setId(0L);
                 project.setName(externalJob.getJobName());
                 project = projectService.createProject(project);
+            } else {
+                throw new Exception(
+                        "No projects with this name or id have been found.");
             }
 
             // If a SUT is required, retrieved to associate it with both the

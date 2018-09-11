@@ -21,6 +21,9 @@ public class ExternalJob {
     @JsonProperty("jobName")
     private String jobName;
 
+    @JsonProperty("project")
+    private String project;
+
     @JsonProperty("executionUrl")
     private String executionUrl;
 
@@ -81,7 +84,8 @@ public class ExternalJob {
             Map<String, String> envVars, int result, boolean isReady,
             ExternalJobStatusEnum status, String error,
             String testResultFilePattern, List<String> testResults, Sut sut,
-            boolean fromIntegratedJenkins, String buildUrl, String jobUrl) {
+            boolean fromIntegratedJenkins, String buildUrl, String jobUrl,
+            String project) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -101,6 +105,7 @@ public class ExternalJob {
         this.fromIntegratedJenkins = fromIntegratedJenkins;
         this.buildUrl = buildUrl;
         this.jobUrl = jobUrl;
+        this.project = project;
     }
 
     public enum ExternalJobStatusEnum {
@@ -284,6 +289,14 @@ public class ExternalJob {
         this.jobUrl = jobUrl;
     }
 
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -313,7 +326,8 @@ public class ExternalJob {
                 && this.isFromIntegratedJenkins() == externalJob
                         .isFromIntegratedJenkins()
                 && Objects.equals(this.buildUrl, externalJob.buildUrl)
-                && Objects.equals(this.jobUrl, externalJob.jobUrl);
+                && Objects.equals(this.jobUrl, externalJob.jobUrl)
+                && Objects.equals(this.project, externalJob.project);
     }
 
     @Override
@@ -321,7 +335,7 @@ public class ExternalJob {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
                 logstashPort, servicesIp, tSServices, envVars, result, isReady,
                 testResultFilePattern, testResults, sut, status, error,
-                fromIntegratedJenkins, buildUrl, jobUrl);
+                fromIntegratedJenkins, buildUrl, jobUrl, project);
     }
 
     @Override
@@ -359,6 +373,8 @@ public class ExternalJob {
         sb.append("    buildUrl: ").append(toIndentedString(buildUrl))
                 .append("\n");
         sb.append("    jobBuild: ").append(toIndentedString(jobUrl))
+                .append("\n");
+        sb.append("    project: ").append(toIndentedString(project))
                 .append("\n");
         sb.append("}");
 
