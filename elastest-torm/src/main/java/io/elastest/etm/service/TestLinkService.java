@@ -131,7 +131,8 @@ public class TestLinkService {
                     logger.error("Api object hasn't been created");
                 }
                 isInitialized = true;
-                logger.info("TestLink is ready to use now!");
+                logger.info("TestLink is ready to use now! ({})",
+                        this.testLinkUrl);
             } catch (TestLinkAPIException te) {
                 logger.error("Error on init TestLink Api: {}", te);
             }

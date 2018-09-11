@@ -25,6 +25,7 @@ import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { Response } from '@angular/http';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { sleep } from '../../../shared/utils';
+import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -100,6 +101,7 @@ export class TestPlanExecutionComponent implements OnInit {
     private eusService: EusService,
     private testLinkService: TestLinkService,
     private titlesService: TitlesService,
+    private elastestRabbitmqService: ElastestRabbitmqService,
   ) {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
@@ -115,22 +117,22 @@ export class TestPlanExecutionComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.alreadyLeave = true;
-
-    if (this.exTJobExec.finished()) {
-      this.end();
-    } else {
-      this.forceEnd();
-    }
+    this.clear();
   }
 
   @HostListener('window:beforeunload')
   beforeunloadHandler() {
     // On window closed leave session
+    this.clear();
+  }
+
+  clear(): void {
     if (this.exTJobExec.finished()) {
       this.end();
     } else {
       this.forceEnd();
     }
+    this.elastestRabbitmqService.unsubscribeWSDestination();
   }
 
   loadPlanAndBuild(): void {
@@ -172,6 +174,8 @@ export class TestPlanExecutionComponent implements OnInit {
     this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+      this.elastestRabbitmqService.subscribeToDefaultExternalJobTopics(this.exTJobExec);
+
       this.checkFinished();
       this.waitForEus(exTJobExec);
     });

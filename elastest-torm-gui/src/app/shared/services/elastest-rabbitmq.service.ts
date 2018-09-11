@@ -3,6 +3,7 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Rx';
 import { defaultStreamMap } from '../defaultESData-model';
+import { ExternalTJobExecModel } from '../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 
 @Injectable()
 export class ElastestRabbitmqService {
@@ -55,6 +56,18 @@ export class ElastestRabbitmqService {
 
       if (withSut) {
         let sutIndex: string = tjobExecution.getSutIndex();
+        this.createAndSubscribeToTopic(sutIndex, type, 'sut', defaultStreamMap[type]);
+      }
+    }
+  }
+
+  public subscribeToDefaultExternalJobTopics(exTJobExec: ExternalTJobExecModel): void {
+    let withSut: boolean = exTJobExec.exTJob.hasSut();
+    // let testIndex: string = exTJobExec.getTJobIndex();
+    for (let type in defaultStreamMap) {
+      // this.createAndSubscribeToTopic(testIndex, type, 'test', defaultStreamMap[type]);
+      if (withSut) {
+        let sutIndex: string = exTJobExec.getSutIndex();
         this.createAndSubscribeToTopic(sutIndex, type, 'sut', defaultStreamMap[type]);
       }
     }
