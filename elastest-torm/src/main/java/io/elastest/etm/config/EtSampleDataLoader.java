@@ -360,9 +360,8 @@ public class EtSampleDataLoader {
 
             List<TestCaseStep> case3StepsList = Arrays.asList(case3Step1,
                     case3Step2, case3Step3);
-            Map<String, Object> aaa = etDataLoader
-                    .createTestCaseSteps(case3StepsList, case3);
-            logger.debug("aglia {}", aaa);
+            etDataLoader.createTestCaseSteps(case3StepsList, case3);
+
             case3.setSteps(case3StepsList);
 
             case3.setTestProjectId(project.getId());
