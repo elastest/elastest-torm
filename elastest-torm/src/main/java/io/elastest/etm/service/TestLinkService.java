@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -19,11 +20,13 @@ import org.springframework.stereotype.Service;
 
 import br.eti.kinoshita.testlinkjavaapi.TestLinkAPI;
 import br.eti.kinoshita.testlinkjavaapi.constants.TestCaseDetails;
+import br.eti.kinoshita.testlinkjavaapi.constants.TestCaseStepAction;
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.Execution;
 import br.eti.kinoshita.testlinkjavaapi.model.Platform;
 import br.eti.kinoshita.testlinkjavaapi.model.ReportTCResultResponse;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCaseStep;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
@@ -74,6 +77,7 @@ public class TestLinkService {
     public String testLinkHost;
     public String testLinkPort;
     public String testLinkUrl;
+    private final static String testlinkName = "testlink";
 
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
@@ -159,8 +163,6 @@ public class TestLinkService {
 
     @Async
     public void startTLOnDemand() {
-        String testlinkName = "testlink";
-
         if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
@@ -173,8 +175,8 @@ public class TestLinkService {
     }
 
     public boolean isStarted() {
-        return !etEtmTestLinkHost.equals("none")
-                || (!startingOnDemand && startedOnDemand);
+        return !etEtmTestLinkHost.equals("none") || (!startingOnDemand
+                && startedOnDemand && etPluginsService.isRunning(testlinkName));
     }
 
     public String getTestLinkInfo() {
@@ -213,6 +215,10 @@ public class TestLinkService {
         }
         return project;
 
+    }
+
+    public boolean projectExistsByName(String name) {
+        return this.getProjectByName(name) != null;
     }
 
     public TestProject getProjectById(Integer projectId) {
@@ -527,6 +533,17 @@ public class TestLinkService {
                 testCase.getPlatform() != null ? testCase.getPlatform().getId()
                         : null,
                 testCase.getOrder(), null);
+    }
+
+    /* *****************************************************************/
+    /* ************************** Test Steps ***************************/
+    /* *****************************************************************/
+
+    public Map<String, Object> createTestCaseSteps(
+            List<TestCaseStep> testCaseSteps, TestCase tCase) {
+        return this.api.createTestCaseSteps(tCase.getId(),
+                tCase.getFullExternalId(), tCase.getVersion(),
+                TestCaseStepAction.CREATE, testCaseSteps);
     }
 
     /* *****************************************************************/

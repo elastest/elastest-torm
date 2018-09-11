@@ -3,49 +3,50 @@ package io.elastest.etm.config;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.Project;
-import io.elastest.etm.model.SupportService;
-import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
-import io.elastest.etm.model.SutSpecification.ManagedDockerType;
-import io.elastest.etm.model.SutSpecification.SutTypeEnum;
-import io.elastest.etm.model.TJob;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
+import br.eti.kinoshita.testlinkjavaapi.model.TestCaseStep;
+import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
+import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
+import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.Enums.ProtocolEnum;
-import io.elastest.etm.service.EsmService;
-import io.elastest.etm.service.ProjectService;
-import io.elastest.etm.service.SutService;
-import io.elastest.etm.service.TJobService;
+import io.elastest.etm.model.Project;
+import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.external.ExternalProject;
+import io.elastest.etm.model.external.ExternalTJob;
+import io.elastest.etm.service.ExternalService;
 
 @Service
 public class EtSampleDataLoader {
     final Logger logger = getLogger(lookup().lookupClass());
 
-    private ProjectService projectService;
-    private TJobService tJobService;
-    private SutService sutService;
-    private EsmService esmService;
+    private EtDataLoader etDataLoader;
+    private ExternalService externalService;
 
     private static final String EXEC_DASHBOARD_CONFIG = "{\"showComplexMetrics\":true,\"allMetricsFields\":{\"fieldsList\":[{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_cpu_totalUsage\",\"activated\":false,\"type\":\"cpu\",\"subtype\":\"totalUsage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_usage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"usage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_maxUsage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"maxUsage\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_read_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"read_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_write_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"write_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_total_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"total_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxPackets_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txPackets_ps\",\"unit\":\"amount/sec\"}]},\"allLogsTypes\":{\"logsList\":[{\"component\":\"test\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"test_default_log_log\",\"activated\":true},{\"component\":\"sut\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_default_log_log\",\"activated\":false}]}}";
     private static final String EXEC_DASHBOARD_CONFIG_WITH_SUT = "{\"showComplexMetrics\":true,\"allMetricsFields\":{\"fieldsList\":[{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_cpu_totalUsage\",\"activated\":false,\"type\":\"cpu\",\"subtype\":\"totalUsage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_usage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"usage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_maxUsage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"maxUsage\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_read_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"read_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_write_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"write_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_total_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"total_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxPackets_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txPackets_ps\",\"unit\":\"amount/sec\"}]},\"allLogsTypes\":{\"logsList\":[{\"component\":\"test\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"test_default_log_log\",\"activated\":true},{\"component\":\"sut\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_default_log_log\",\"activated\":true}]}}";
     private static final String EXEC_DASHBOARD_CONFIG_FULLTEACHING = "{\"showAllInOne\":false,\"allMetricsFields\":{\"fieldsList\":[{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_cpu_totalUsage\",\"activated\":false,\"etType\":\"cpu\",\"subtype\":\"totalUsage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_usage\",\"activated\":false,\"etType\":\"memory\",\"subtype\":\"usage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_maxUsage\",\"activated\":false,\"etType\":\"memory\",\"subtype\":\"maxUsage\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_read_ps\",\"activated\":false,\"etType\":\"blkio\",\"subtype\":\"read_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_write_ps\",\"activated\":false,\"etType\":\"blkio\",\"subtype\":\"write_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_total_ps\",\"activated\":false,\"etType\":\"blkio\",\"subtype\":\"total_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxBytes_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"rxBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxErrors_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"rxErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxPackets_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"rxPackets_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txBytes_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"txBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txErrors_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"txErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txPackets_ps\",\"activated\":false,\"etType\":\"net\",\"subtype\":\"txPackets_ps\",\"unit\":\"amount/sec\"}]},\"allLogsTypes\":{\"logsList\":[{\"component\":\"test\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"test_default_log_log\",\"activated\":true},{\"component\":\"sut\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_default_log_log\",\"activated\":false},{\"component\":\"sut_full_teaching_mysql\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_full_teaching_mysql_default_log_log\",\"activated\":true},{\"component\":\"sut_full_teaching\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_full_teaching_default_log_log\",\"activated\":true},{\"component\":\"sut_full_teaching_openvidu_server_kms\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_full_teaching_openvidu_server_kms_default_log_log\",\"activated\":true}]}}";
+    private static final String EXEC_DASHBOARD_CONFIG_FOR_TESTLINK = "{\"showComplexMetrics\":true,\"allMetricsFields\":{\"fieldsList\":[{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_cpu_totalUsage\",\"activated\":false,\"type\":\"cpu\",\"subtype\":\"totalUsage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_usage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"usage\",\"unit\":\"percent\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_memory_maxUsage\",\"activated\":false,\"type\":\"memory\",\"subtype\":\"maxUsage\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_read_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"read_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_write_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"write_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_blkio_total_ps\",\"activated\":false,\"type\":\"blkio\",\"subtype\":\"total_ps\",\"unit\":\"bytes\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_rxPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"rxPackets_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txBytes_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txBytes_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txErrors_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txErrors_ps\",\"unit\":\"amount/sec\"},{\"component\":\"\",\"stream\":\"et_dockbeat\",\"streamType\":\"composed_metrics\",\"name\":\"et_dockbeat_net_txPackets_ps\",\"activated\":false,\"type\":\"net\",\"subtype\":\"txPackets_ps\",\"unit\":\"amount/sec\"}]},\"allLogsTypes\":{\"logsList\":[{\"component\":\"test\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"test_default_log_log\",\"activated\":false},{\"component\":\"sut\",\"stream\":\"default_log\",\"streamType\":\"log\",\"name\":\"sut_default_log_log\",\"activated\":true}]}}";
 
-    public EtSampleDataLoader(ProjectService projectService,
-            TJobService tJobService, SutService sutService,
-            EsmService esmService) {
-        this.projectService = projectService;
-        this.tJobService = tJobService;
-        this.sutService = sutService;
-        this.esmService = esmService;
+    private static final String webAppSutName = "Webapp";
+    private static final String webAppSutDesc = "SpringBoot app with a form";
+    private static final String webAppSutImage = "elastest/demo-web-java-test-sut";
+    private static final ProtocolEnum webAppSutProtocol = ProtocolEnum.HTTP;
+    private static final String webAppSutPort = "8080";
+
+    public EtSampleDataLoader(EtDataLoader etDataLoader,
+            ExternalService externalService) {
+        this.etDataLoader = etDataLoader;
+        this.externalService = externalService;
     }
 
     @PostConstruct
@@ -55,11 +56,18 @@ public class EtSampleDataLoader {
         this.createWebapp();
         this.createOpenVidu();
         this.createFullteaching();
+        if (etDataLoader.isStartedTestLink()) {
+            this.createTestLink();
+        }
+    }
+
+    public void printLog(String pjName) {
+        logger.debug("Creating '{}' Sample Data...", pjName);
     }
 
     public void createHelloWorld() {
         String pjName = "Hello World";
-        if (!projectExists(pjName)) {
+        if (!etDataLoader.projectExists(pjName)) {
             String tJobName = "My first TJob";
             String resultsPath = "/demo-projects/unit-java-test/target/surefire-reports/";
             String image = "elastest/test-etm-alpinegitjava";
@@ -67,17 +75,17 @@ public class EtSampleDataLoader {
 
             this.printLog(pjName);
             // Create Hello World Project
-            Project project = this.createProject(pjName);
+            Project project = etDataLoader.createProject(pjName);
 
             // Create Hello World TJob associated with the Hello project
-            this.createTJob(project, tJobName, resultsPath, image, false,
-                    commands, EXEC_DASHBOARD_CONFIG, null, null, null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, image,
+                    false, commands, EXEC_DASHBOARD_CONFIG, null, null, null);
         }
     }
 
     public void createRestApi() {
         String pjName = "REST API";
-        if (!projectExists(pjName)) {
+        if (!etDataLoader.projectExists(pjName)) {
             String sutName = "REST App";
             String sutDesc = "Simple SpringBoot app";
             String sutImage = "elastest/demo-rest-java-test-sut";
@@ -91,28 +99,24 @@ public class EtSampleDataLoader {
 
             this.printLog(pjName);
             // Create Project
-            Project project = this.createProject(pjName);
+            Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = this
-                    .createSutDeployedByElastestWithDockerImage(project,
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithDockerImage(project, null,
                             sutName, sutDesc, sutImage, sutProtocol, sutPort,
                             null);
 
             // Create TJob
-            this.createTJob(project, tJobName, resultsPath, tJobImage, false,
-                    commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
+                    false, commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null,
+                    sut);
         }
     }
 
     public void createWebapp() {
         String pjName = "Webapp";
-        if (!projectExists(pjName)) {
-            String sutName = "Webapp";
-            String sutDesc = "SpringBoot app with a form";
-            String sutImage = "elastest/demo-web-java-test-sut";
-            ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
-            String sutPort = "8080";
+        if (!etDataLoader.projectExists(pjName)) {
 
             String tJob1Name = "Chrome Test";
             String resultsPath = "/demo-projects/web-java-test/target/surefire-reports/";
@@ -125,26 +129,28 @@ public class EtSampleDataLoader {
 
             this.printLog(pjName);
             // Create Project
-            Project project = this.createProject(pjName);
+            Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = this
-                    .createSutDeployedByElastestWithDockerImage(project,
-                            sutName, sutDesc, sutImage, sutProtocol, sutPort,
-                            null);
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithDockerImage(project, null,
+                            webAppSutName, webAppSutDesc, webAppSutImage,
+                            webAppSutProtocol, webAppSutPort, null);
 
             // Create TJob1
-            this.createTJob(project, tJob1Name, resultsPath, tJobImage, false,
-                    commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut);
+            etDataLoader.createTJob(project, tJob1Name, resultsPath, tJobImage,
+                    false, commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
+                    sut);
             // Create TJob2
-            this.createTJob(project, tJob2Name, resultsPath, tJobImage, false,
-                    commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut);
+            etDataLoader.createTJob(project, tJob2Name, resultsPath, tJobImage,
+                    false, commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
+                    sut);
         }
     }
 
     public void createOpenVidu() {
         String pjName = "OpenVidu WebRTC";
-        if (!projectExists(pjName)) {
+        if (!etDataLoader.projectExists(pjName)) {
             String sutName = "OpenVidu Test App";
             String sutDesc = "OpenVidu Test App";
             String sutImage = "openvidu/testapp:elastest";
@@ -159,23 +165,24 @@ public class EtSampleDataLoader {
 
             this.printLog(pjName);
             // Create Project
-            Project project = this.createProject(pjName);
+            Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = this
-                    .createSutDeployedByElastestWithDockerImage(project,
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithDockerImage(project, null,
                             sutName, sutDesc, sutImage, sutProtocol, sutPort,
                             null);
 
             // Create TJob
-            this.createTJob(project, tJobName, resultsPath, tJobImage, false,
-                    commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
+                    false, commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
+                    sut);
         }
     }
 
     public void createFullteaching() {
         String pjName = "FullTeaching";
-        if (!projectExists(pjName)) {
+        if (!etDataLoader.projectExists(pjName)) {
             String sut1Name = "OpenVidu Test App";
             String sut1Desc = "FullTeaching Software under Test";
 
@@ -222,237 +229,162 @@ public class EtSampleDataLoader {
 
             this.printLog(pjName);
             // Create Project
-            Project project = this.createProject(pjName);
+            Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = this.createSutDeployedByElastestWithCompose(
-                    project, sut1Name, sut1Desc, sut1Compose, "full-teaching",
-                    sut1Protocol, sut1Port, null);
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithCompose(project, null,
+                            sut1Name, sut1Desc, sut1Compose, "full-teaching",
+                            sut1Protocol, sut1Port, null);
 
             // Create TJob
-            this.createTJob(project, tJobName, resultsPath, tJobImage, false,
-                    commands, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
+                    false, commands, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null,
+                    tss, sut);
         }
     }
 
-    public void printLog(String pjName) {
-        logger.debug("Creating '{}' Sample Data...", pjName);
-    }
+    /* *** TestLink *** */
 
-    /* ********************** */
-    /* *** Create Methods *** */
-    /* ********************** */
-
-    /* *** Project *** */
-    public boolean projectExists(String name) {
-        return projectService.getProjectByName(name) != null;
-    }
-
-    public Project createProject(String projectName) {
-        Project project = new Project();
-        project.setName(projectName);
-        return this.createProject(project);
-    }
-
-    public Project createProject(Project project) {
-        return projectService.createProject(project);
-    }
-
-    /* *** TJob *** */
-
-    public TJob createTJob(Project project, String name, String resultsPath,
-            String image, boolean useImageCommands, String commands,
-            String execDashboardConfig, List<Parameter> parameters,
-            List<String> activatedTSSList, SutSpecification sut) {
-        TJob tJob = new TJob();
-
-        tJob.setProject(project);
-        tJob.setName(name);
-        if (resultsPath != null && !"".equals(resultsPath)) {
-            tJob.setResultsPath(resultsPath);
-        }
-        tJob.setImageName(image);
-        if (!useImageCommands) {
-            tJob.setCommands(commands);
-        }
-        tJob.setExecDashboardConfigPath(execDashboardConfig);
-
-        if (parameters != null) {
-            tJob.setParameters(parameters);
-        }
-
-        if (sut != null && sut.getId() > 0) {
-            tJob.setSut(sut);
-        }
-
-        // TSS
-        if (activatedTSSList != null && activatedTSSList.size() > 0) {
-            List<String> selectedServices = new ArrayList<>();
-
-            List<SupportService> servicesList = esmService
-                    .getRegisteredServices();
-
-            for (String activatedTSSName : activatedTSSList) {
-                for (SupportService tss : servicesList) {
-                    if (tss.getName().toLowerCase()
-                            .equals(activatedTSSName.toLowerCase())) {
-                        String selectedService = "{" + "\"id\":" + "\""
-                                + tss.getId() + "\"," + "\"name\":" + "\""
-                                + tss.getName() + "\"," + "\"selected\":true"
-                                + "}";
-                        selectedServices.add(selectedService);
-                        break;
-                    }
-                }
+    @Async
+    public void createTestLinkAsync() {
+        while (!etDataLoader.testLinkService.isStarted()) {
+            // Wait
+            try { // TODO timeout
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
             }
-
-            String selectedServicesString = "[";
-            boolean first = true;
-            for (String selectedService : selectedServices) {
-                if (!first) {
-                    selectedServicesString += ",";
-                } else {
-                    first = false;
-                }
-                selectedServicesString += selectedService;
-            }
-            selectedServicesString += "]";
-            tJob.setSelectedServices(selectedServicesString);
-
         }
-        return this.createTJob(tJob);
+        this.createTestLink();
     }
 
-    public TJob createTJob(TJob tJob) {
-        return tJobService.createTJob(tJob);
-    }
+    public void createTestLink() {
+        String pjName = "Webapp";
+        if (!etDataLoader.tlProjectExists(pjName)) {
+            this.printLog("TestLink " + pjName);
 
-    /* *** Sut *** */
+            TestProject project = etDataLoader.createTlTestProject(pjName, "WA",
+                    "WebApp Project");
+            TestSuite suite = etDataLoader.createTlTestSuite(project.getId(),
+                    "Webapp Suite", "Suite of Webapp");
+            TestPlan plan = etDataLoader.createTlTestPlan("WebApp Plan", pjName,
+                    "Plan of Webapp");
 
-    public SutSpecification createSutDeployedByElastestWithCommands(
-            Project project, String name, String desc, String image,
-            String commands, CommandsOptionEnum commandsOption,
-            ProtocolEnum protocol, String port, List<Parameter> parameters) {
-        SutSpecification sut = new SutSpecification();
-        sut.setSutType(SutTypeEnum.MANAGED);
-        sut.setManagedDockerType(ManagedDockerType.COMMANDS);
+            etDataLoader.createTlBuild(plan.getId(), "Webapp Build",
+                    "The Build of Webapp");
 
-        sut.setProject(project);
-        sut.setName(name);
-        sut.setDescription(desc);
-        sut.setSpecification(image);
-        sut.setCommands(commands);
-        sut.setCommandsOption(commandsOption);
+            // case 1
 
-        if (protocol != null) {
-            sut.setProtocol(protocol);
+            TestCase case1 = new TestCase();
+            case1.setName("checkTitleAndBodyNoEmpty");
+            case1.setTestSuiteId(suite.getId());
+            case1.setTestProjectId(project.getId());
+
+            case1.setSummary(
+                    "Add empty data and check if new entry is not empty. This test must always fail");
+            case1.setPreconditions(
+                    "The Webapp application must be available and must be clean of data");
+
+            case1 = etDataLoader.createTlTestCase(case1);
+
+            TestCaseStep case1Step1 = etDataLoader.getNewCaseStep(
+                    "Press 'New' button",
+                    "New entry with empty Title and Description added", 1);
+
+            List<TestCaseStep> case1StepsList = Arrays.asList(case1Step1);
+            etDataLoader.createTestCaseSteps(case1StepsList, case1);
+            case1.setSteps(case1StepsList);
+
+            case1.setTestProjectId(project.getId());
+            etDataLoader.addTlTestCaseToPlan(case1, plan);
+
+            // case 2
+            TestCase case2 = new TestCase();
+            case2.setName("addMsgAndClear");
+            case2.setTestSuiteId(suite.getId());
+            case2.setTestProjectId(project.getId());
+            case2.setSummary(
+                    "Add data, press clear button and check if the data has been removed.");
+            case2.setPreconditions(
+                    "The Webapp application must be available and must be clean of data");
+
+            case2 = etDataLoader.createTlTestCase(case2);
+
+            TestCaseStep case2Step1 = etDataLoader.getNewCaseStep(
+                    "Type 'MessageTitle' into Title field",
+                    "'MessageTitle' will be shown into Title field", 1);
+
+            TestCaseStep case2Step2 = etDataLoader.getNewCaseStep(
+                    "Type 'MessageBody' into Body field",
+                    "'MessageBody' will be shown into Body field", 2);
+
+            TestCaseStep case2Step3 = etDataLoader.getNewCaseStep(
+                    "Press 'New' button",
+                    "New entry with Title='MessageTitle' and Description='MessageBody' added",
+                    3);
+
+            TestCaseStep case2Step4 = etDataLoader.getNewCaseStep(
+                    "Press 'Clear' button",
+                    "The entry created should have been removed", 4);
+
+            List<TestCaseStep> case2StepsList = Arrays.asList(case2Step1,
+                    case2Step2, case2Step3, case2Step4);
+            etDataLoader.createTestCaseSteps(case2StepsList, case2);
+            case2.setSteps(case2StepsList);
+
+            case2.setTestProjectId(project.getId());
+            etDataLoader.addTlTestCaseToPlan(case2, plan);
+
+            // case 3
+            TestCase case3 = new TestCase();
+            case3.setName("findTitleAndBody");
+            case3.setTestSuiteId(suite.getId());
+            case3.setTestProjectId(project.getId());
+            case3.setSummary("Add data and check if the data has been showed.");
+            case3.setPreconditions(
+                    "The Webapp application must be available and must be clean of data");
+            case3 = etDataLoader.createTlTestCase(case3);
+
+            TestCaseStep case3Step1 = etDataLoader.getNewCaseStep(
+                    "Type 'MessageTitle' into Title field",
+                    "'MessageTitle' will be shown into Title field", 1);
+
+            TestCaseStep case3Step2 = etDataLoader.getNewCaseStep(
+                    "Type 'MessageBody' into Body field",
+                    "'MessageBody' will be shown into Body field", 2);
+
+            TestCaseStep case3Step3 = etDataLoader.getNewCaseStep(
+                    "Press 'New' button",
+                    "New entry with Title='MessageTitle' and Description='MessageBody' added",
+                    3);
+
+            List<TestCaseStep> case3StepsList = Arrays.asList(case3Step1,
+                    case3Step2, case3Step3);
+            Map<String, Object> aaa = etDataLoader
+                    .createTestCaseSteps(case3StepsList, case3);
+            logger.debug("aglia {}", aaa);
+            case3.setSteps(case3StepsList);
+
+            case3.setTestProjectId(project.getId());
+            etDataLoader.addTlTestCaseToPlan(case3, plan);
+
+            // Sync with ElasTest
+            etDataLoader.syncTestLink();
+
+            // Create Sut
+            ExternalProject exProject = etDataLoader
+                    .getExternalProjectByTestProjectId(project.getId());
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithDockerImage(null, exProject,
+                            webAppSutName, webAppSutDesc, webAppSutImage,
+                            webAppSutProtocol, webAppSutPort, null);
+
+            ExternalTJob exTJob = etDataLoader
+                    .getExternalTJobByPlanId(plan.getId());
+            exTJob.setSut(sut);
+            exTJob.setExecDashboardConfig(EXEC_DASHBOARD_CONFIG_FOR_TESTLINK);
+
+            this.externalService.modifyExternalTJob(exTJob);
         }
-
-        if (port != null && !"".equals(port)) {
-            sut.setPort(port);
-        }
-
-        if (parameters != null) {
-            sut.setParameters(parameters);
-        }
-
-        return this.createSut(sut);
     }
-
-    public SutSpecification createSutDeployedByElastestWithDockerImage(
-            Project project, String name, String desc, String image,
-            ProtocolEnum protocol, String port, List<Parameter> parameters) {
-        SutSpecification sut = new SutSpecification();
-        sut.setSutType(SutTypeEnum.MANAGED);
-        sut.setManagedDockerType(ManagedDockerType.IMAGE);
-
-        sut.setProject(project);
-        sut.setName(name);
-        sut.setDescription(desc);
-        sut.setSpecification(image);
-
-        if (protocol != null) {
-            sut.setProtocol(protocol);
-        }
-
-        if (port != null && !"".equals(port)) {
-            sut.setPort(port);
-        }
-
-        if (parameters != null) {
-            sut.setParameters(parameters);
-        }
-
-        return this.createSut(sut);
-    }
-
-    public SutSpecification createSutDeployedByElastestWithCompose(
-            Project project, String name, String desc, String compose,
-            String mainServiceName, ProtocolEnum protocol, String port,
-            List<Parameter> parameters) {
-        SutSpecification sut = new SutSpecification();
-        sut.setSutType(SutTypeEnum.MANAGED);
-        sut.setManagedDockerType(ManagedDockerType.COMPOSE);
-
-        sut.setProject(project);
-        sut.setName(name);
-        sut.setDescription(desc);
-        sut.setSpecification(compose);
-        sut.setMainService(mainServiceName);
-
-        if (protocol != null) {
-            sut.setProtocol(protocol);
-        }
-
-        if (port != null && !"".equals(port)) {
-            sut.setPort(port);
-        }
-
-        if (parameters != null) {
-            sut.setParameters(parameters);
-        }
-
-        return this.createSut(sut);
-    }
-
-    public SutSpecification createSut(SutSpecification sut) {
-        return this.sutService.createSutSpecification(sut);
-    }
-
-    /* **************** */
-    /* *** Services *** */
-    /* **************** */
-
-    public ProjectService getProjectService() {
-        return projectService;
-    }
-
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    public TJobService gettJobService() {
-        return tJobService;
-    }
-
-    public void settJobService(TJobService tJobService) {
-        this.tJobService = tJobService;
-    }
-
-    public SutService getSutService() {
-        return sutService;
-    }
-
-    public void setSutService(SutService sutService) {
-        this.sutService = sutService;
-    }
-
-    public EsmService getEsmService() {
-        return esmService;
-    }
-
-    public void setEsmService(EsmService esmService) {
-        this.esmService = esmService;
-    }
-
 }

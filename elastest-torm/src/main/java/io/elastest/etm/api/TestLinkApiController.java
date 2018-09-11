@@ -17,6 +17,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.TestLinkAPIException;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
+import io.elastest.etm.config.EtSampleDataLoader;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -34,6 +35,9 @@ public class TestLinkApiController implements TestLinkApi {
     @Autowired
     EtPluginsService etPluginsService;
 
+    @Autowired
+    EtSampleDataLoader etSampleDataLoader;
+
     public ResponseEntity<Boolean> isStarted() {
         return new ResponseEntity<Boolean>(testLinkService.isStarted(),
                 HttpStatus.OK);
@@ -49,6 +53,8 @@ public class TestLinkApiController implements TestLinkApi {
             engine.setStatusMsg("Initializing...");
         }
         testLinkService.startTLOnDemand();
+
+        etSampleDataLoader.createTestLinkAsync();
 
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
