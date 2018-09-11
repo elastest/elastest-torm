@@ -43,6 +43,11 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
+    public ResponseEntity<Boolean> isReady() {
+        return new ResponseEntity<Boolean>(testLinkService.isReady(),
+                HttpStatus.OK);
+    }
+
     @Override
     public ResponseEntity<EtPlugin> startTestLink() {
         EtPlugin engine = etPluginsService.getUniqueEtPlugin("testlink");

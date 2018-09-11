@@ -1,5 +1,5 @@
 <div id="testlinkPage" class="md-content">
-    <div *ngIf="!isStarted; else showTestLink">
+    <div *ngIf="!isRunning; else showTestLink">
         <md-card>
             <md-card-title>
                 {{startingInProcess ? 'Starting TestLink...' : 'TestLink container not started yet'}}

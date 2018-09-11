@@ -5,7 +5,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -248,13 +247,19 @@ public class EtSampleDataLoader {
 
     @Async
     public void createTestLinkAsync() {
-        while (!etDataLoader.testLinkService.isStarted()) {
+        while (!etDataLoader.isReadyTestLink()) {
             // Wait
             try { // TODO timeout
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
             }
         }
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
+
         this.createTestLink();
     }
 

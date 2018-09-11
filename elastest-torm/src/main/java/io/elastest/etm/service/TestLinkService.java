@@ -70,6 +70,7 @@ public class TestLinkService {
 
     private boolean startedOnDemand = false;
     private boolean startingOnDemand = false;
+    private boolean isInitialized = false;
 
     @Autowired
     TestLinkDBService testLinkDBService;
@@ -129,6 +130,8 @@ public class TestLinkService {
                 if (api == null) {
                     logger.error("Api object hasn't been created");
                 }
+                isInitialized = true;
+                logger.info("TestLink is ready to use now!");
             } catch (TestLinkAPIException te) {
                 logger.error("Error on init TestLink Api: {}", te);
             }
@@ -175,8 +178,14 @@ public class TestLinkService {
     }
 
     public boolean isStarted() {
+        return this.isReady() || (startingOnDemand && !startedOnDemand)
+                || (!startingOnDemand && startedOnDemand);
+    }
+
+    public boolean isReady() {
         return !etEtmTestLinkHost.equals("none") || (!startingOnDemand
-                && startedOnDemand && etPluginsService.isRunning(testlinkName));
+                && startedOnDemand && etPluginsService.isRunning(testlinkName)
+                && isInitialized);
     }
 
     public String getTestLinkInfo() {

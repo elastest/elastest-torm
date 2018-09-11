@@ -18,7 +18,7 @@ import { Subscription, Observable } from 'rxjs';
 export class EtmTestlinkComponent implements OnInit, OnDestroy {
   @Input()
   isNested: boolean = false;
-  isStarted: boolean = false;
+  isRunning: boolean = false;
   startingInProcess: boolean = true;
   testLinkUrl: string;
 
@@ -111,10 +111,10 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   initIfStarted(): void {
-    this.etPluginsService.isStarted(this.testLinkModel).subscribe(
-      (started: boolean) => {
-        this.isStarted = started;
-        if (started) {
+    this.testlinkService.isReady().subscribe(
+      (ready: boolean) => {
+        this.isRunning = ready;
+        if (ready) {
           this.startingInProcess = false;
           this.loadData();
         }

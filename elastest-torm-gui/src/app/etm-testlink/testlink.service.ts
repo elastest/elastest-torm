@@ -43,6 +43,11 @@ export class TestLinkService {
     return this.http.get(url).map((response: Response) => response.json());
   }
 
+  public isReady(): Observable<boolean> {
+    let url: string = this.hostApi + '/testlink/ready';
+    return this.http.get(url).map((response: Response) => response.json());
+  }
+
   public startTestLink(): Observable<EtPluginModel> {
     let url: string = this.hostApi + '/testlink/start';
     return this.http

@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/testlink")
 public interface TestLinkApi extends EtmApiRoot {
 
-    @ApiOperation(value = "Returns if TestLink is started", notes = "Returns if TestLink is started.", response = Boolean.class, tags = {
+    @ApiOperation(value = "Returns if TestLink is started (it is possible that it is fully started or not) ", notes = "Returns if TestLink is started (it is possible that it is fully started or not).", response = Boolean.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
@@ -38,6 +38,15 @@ public interface TestLinkApi extends EtmApiRoot {
     @RequestMapping(value = "/testlink/started", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Boolean> isStarted();
+
+    @ApiOperation(value = "Returns if TestLink is ready to be used ", notes = "Returns if TestLink is ready to be used.", response = Boolean.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/ready", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<Boolean> isReady();
 
     @ApiOperation(value = "Starts TestLink if not is started", notes = "Starts TestLink if not is started.", response = Boolean.class, tags = {
             "TestLink", })

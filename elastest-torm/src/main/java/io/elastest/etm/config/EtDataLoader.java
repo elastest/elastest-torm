@@ -342,7 +342,7 @@ public class EtDataLoader {
         step.setActive(true);
         step.setExpectedResults(expectedResults);
         step.setExecutionType(ExecutionType.MANUAL);
-//        step.setTestCaseVersionId(testCaseVersionId);
+        // step.setTestCaseVersionId(testCaseVersionId);
         step.setNumber(number);
         return step;
     }
@@ -367,6 +367,10 @@ public class EtDataLoader {
 
     public boolean isStartedTestLink() {
         return testLinkService.isStarted();
+    }
+
+    public boolean isReadyTestLink() {
+        return testLinkService.isReady();
     }
 
 }
