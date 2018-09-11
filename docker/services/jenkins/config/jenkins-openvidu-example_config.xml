@@ -1,0 +1,47 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.17">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
+    <script>node{
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+        stage (&apos;Executing Test&apos;) {
+            echo &apos;Print env variables&apos;
+            sh &apos;env&apos;
+            def sutImage = docker.image(&apos;openvidu/testapp:elastest&apos;)
+            echo &apos;Start SUT&apos;
+            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME}  --network=elastest_elastest&quot;) { c -&gt;
+                echo &quot;${c.id}&quot;
+                def sutIp = containerIp(&quot;${env.ET_SUT_CONTAINER_NAME}&quot;)
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=4443 --network=elastest_elastest elastest/etm-check-service-up&apos;
+                withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
+                    echo &apos;Set up test environment&apos;
+                    mvnHome = tool &apos;M3.3.9&apos;
+                    echo &apos;Cloning repository&apos;
+                    git &apos;https://github.com/elastest/demo-projects&apos;
+                    echo &apos;Run test&apos;
+                    sh &quot;cd ./openvidu-test/;&apos;${mvnHome}/bin/mvn&apos; test&quot;
+                    step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
+                }
+            }
+        }        
+    }
+}
+
+def containerIp(containerName) {
+    echo &quot;Inside containerIp function&quot;
+    containerIp = sh (
+        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\&quot; &quot;+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; IP = &quot; + containerIp;
+    return containerIp;
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

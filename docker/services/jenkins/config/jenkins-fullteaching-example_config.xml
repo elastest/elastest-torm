@@ -1,0 +1,52 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.17">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
+    <script>node{
+    def sutIp
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+        stage(&quot;Setting environment&quot;) {
+            echo &apos;Environment variables&apos;
+            sh &quot;env&quot;
+            git &quot;https://github.com/elastest/full-teaching-experiment.git&quot;
+        }
+        try {
+            stage(&quot;Start Sut&quot;) {
+                sh &quot;cd docker-compose/full-teaching-et-network; export BUG_TAG=demo; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} up -d&quot;
+                sutIp = containerIp(env.ET_SUT_CONTAINER_NAME + &quot;_full-teaching_1&quot;)
+                echo &apos;Sut ip: &apos;+ sutIp
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=5001 --network=elastest_elastest elastest/etm-check-service-up&apos;
+            }
+        	stage(&quot;Run Tests&quot;) {
+                echo &apos;Running test&apos;
+                mvnHome = tool &apos;M3.3.9&apos;
+                sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B test&quot;
+                step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
+        	}
+        } finally {
+                echo &apos;Stopping SUT&apos;
+                sh &quot;cd docker-compose/full-teaching-env; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} down&quot;
+        }
+    }
+}
+
+
+def containerIp(containerName) {
+    echo &quot;Inside containerIp function&quot;
+    containerIp = sh (
+        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\&quot; &quot;+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; IP = &quot; + containerIp;
+    return containerIp;
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

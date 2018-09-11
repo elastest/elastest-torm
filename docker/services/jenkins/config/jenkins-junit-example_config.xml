@@ -1,0 +1,28 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.17">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
+    <script>node{
+    elastest(surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;) {
+        stage (&apos;Executing Test&apos;) {
+            echo &apos;Print env variables&apos;
+            sh &apos;env&apos;
+            echo &apos;Set up test environment&apos;
+            mvnHome = tool &apos;M3.3.9&apos;
+            echo &apos;Cloning repository&apos;
+            git &apos;https://github.com/elastest/demo-projects&apos;
+            echo &apos;Run test&apos;
+            sh &quot;cd ./unit-java-test;&apos;${mvnHome}/bin/mvn&apos; -B test&quot;
+            step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
+        
+        }        
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
