@@ -27,7 +27,7 @@ import io.elastest.etm.model.VersionInfo;
 public class EtmContextService {
     @Value("${eus.tss.id}")
     public String EUS_TSS_ID;
-    
+
     private static final Logger logger = LoggerFactory
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
@@ -313,7 +313,8 @@ public class EtmContextService {
 
         if (tJobExec != null) {
             monEnvs.put("ET_MON_LOG_TAG", "sut_" + tJobExec.getId() + "_exec");
-            monEnvs.put("ET_SUT_CONTAINER_NAME", "sut_" + tJobExec.getId());
+            monEnvs.put("ET_SUT_CONTAINER_NAME", dockerEtmService
+                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
             monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
             if (tJobExec.getTjob().isExternal()) {
                 monEnvs.put("ET_SUT_LOG_TAG",

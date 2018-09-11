@@ -536,29 +536,19 @@ public class DockerEtmService {
                         : "");
     }
 
+    // Hardcoded in EUS, if you make changes here, make them too in EUS
     public String getSutPrefix(DockerExecution dockerExec) {
-//        SutSpecification sut = dockerExec.getSut();
-
-        String prefix = "sut";
         String suffix = dockerExec.isExternal()
                 ? dockerExec.getExternalTJobExec()
                         .getExternalTJobExecMonitoringIndex()
                 : dockerExec.getExecutionId().toString();
 
-        // sut_X | sut_extX_eX
-        prefix += "_" + suffix;
+        return getSutPrefixBySuffix(suffix);
+    }
 
-//        if (sut.isDockerCommandsSut() && sut.isSutInNewContainer()) {
-//            // If is Docker compose Sut
-//            if (sut.getMainService() != null
-//                    && !"".equals(sut.getMainService())) {
-//                // sutX | sutextX_eX
-//                prefix += suffix;
-//            }
-//        }
-
-        return prefix;
-
+    public String getSutPrefixBySuffix(String suffix) {
+        String prefix = "sut";
+        return prefix + "_" + suffix;
     }
 
     public void createAndStartSutContainer(DockerExecution dockerExec)

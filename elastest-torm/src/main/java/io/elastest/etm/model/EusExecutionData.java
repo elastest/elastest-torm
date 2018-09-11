@@ -8,7 +8,6 @@ import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.eus.api.model.ExecutionData;
 
 public class EusExecutionData {
-
     @JsonProperty("type")
     String type;
 
@@ -22,17 +21,24 @@ public class EusExecutionData {
     String monitoringIndex;
 
     @JsonProperty("webRtcStatsActivated")
-    boolean webRtcStatsActivated;
+    boolean webRtcStatsActivated = false;
 
     @JsonProperty("folderPath")
     String folderPath;
+
+    @JsonProperty("useSutNetwork")
+    boolean useSutNetwork = false;
+
+    @JsonProperty("sutContainerPrefix")
+    String sutContainerPrefix;
 
     public EusExecutionData() {
     }
 
     public EusExecutionData(String type, Long tJobId, Long tJobExecId,
             String monitoringIndex, boolean webRtcStatsActivated,
-            String folderPath) {
+            String folderPath, boolean useSutNetwork,
+            String sutContainerPrefix) {
         super();
         this.type = type;
         this.tJobId = tJobId;
@@ -40,6 +46,20 @@ public class EusExecutionData {
         this.monitoringIndex = monitoringIndex;
         this.webRtcStatsActivated = webRtcStatsActivated;
         this.folderPath = folderPath;
+        this.useSutNetwork = useSutNetwork;
+        this.sutContainerPrefix = sutContainerPrefix;
+    }
+
+    public EusExecutionData(TJobExecution tJobExec, String folderPath,
+            boolean useSutNetwork, String sutContainerPrefix) {
+        this.type = "tJob";
+        this.tJobId = tJobExec.getTjob().getId();
+        this.tJobExecId = tJobExec.getId();
+        this.monitoringIndex = tJobExec.getMonitoringIndex();
+        this.folderPath = folderPath;
+        initWebRtcStatsActivated(tJobExec);
+        this.useSutNetwork = useSutNetwork;
+        this.sutContainerPrefix = sutContainerPrefix;
     }
 
     public EusExecutionData(TJobExecution tJobExec, String folderPath) {
@@ -49,6 +69,7 @@ public class EusExecutionData {
         this.monitoringIndex = tJobExec.getMonitoringIndex();
         this.folderPath = folderPath;
         initWebRtcStatsActivated(tJobExec);
+        this.useSutNetwork = false;
     }
 
     public EusExecutionData(ExternalTJobExecution exTJobExec,
@@ -60,6 +81,8 @@ public class EusExecutionData {
         this.folderPath = folderPath;
         // initWebRtcStatsActivated(exTJobExec);
         this.webRtcStatsActivated = false;
+        this.useSutNetwork = false;
+
     }
 
     private void initWebRtcStatsActivated(TJobExecution tJobExec) {
@@ -125,10 +148,18 @@ public class EusExecutionData {
         this.folderPath = folderPath;
     }
 
+    public String getSutContainerPrefix() {
+        return sutContainerPrefix;
+    }
+
+    public void setSutContainerPrefix(String sutContainerPrefix) {
+        this.sutContainerPrefix = sutContainerPrefix;
+    }
+
     public ExecutionData getAsExecutionData() {
         return new ExecutionData(this.type, this.tJobId, this.tJobExecId,
                 this.monitoringIndex, this.webRtcStatsActivated,
-                this.folderPath);
+                this.folderPath, this.useSutNetwork, this.sutContainerPrefix);
     }
 
     @Override
@@ -136,7 +167,8 @@ public class EusExecutionData {
         return "EusExecutionData [type=" + type + ", tJobId=" + tJobId
                 + ", tJobExecId=" + tJobExecId + ", monitoringIndex="
                 + monitoringIndex + ", webRtcStatsActivated="
-                + webRtcStatsActivated + ", folderPath=" + folderPath + "]";
+                + webRtcStatsActivated + ", folderPath=" + folderPath
+                + ", sutContainerPrefix=" + sutContainerPrefix + "]";
     }
 
     public String getKey() {

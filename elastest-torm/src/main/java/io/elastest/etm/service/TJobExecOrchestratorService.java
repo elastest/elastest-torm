@@ -513,8 +513,14 @@ public class TJobExecOrchestratorService {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
                 logger.info("This is the EUS's API URL: {}", eusApi);
+
+                // If is Jenkins, config EUS to start browsers at sut network
+                boolean useSutNetwork = tJobExec.getTjob().isExternal();
+                String sutContainerPrefix = dockerEtmService
+                        .getSutPrefixBySuffix(tJobExec.getId().toString());
+
                 EusExecutionData eusExecutionDate = new EusExecutionData(
-                        tJobExec, "");
+                        tJobExec, "", useSutNetwork, sutContainerPrefix);
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 eusApi += "execution/" + eusExecutionDate.getKey() + "/";
                 envVars.put(etEusApiKey, eusApi);
@@ -533,9 +539,9 @@ public class TJobExecOrchestratorService {
                 envVars.put("ET_SUT_PORT", sutPort);
                 logger.debug("ET_SUT_PORT: {}", sutPort);
             }
-            
-            String sutProtocol = tJobExec.getSutExecution().getSutSpecification()
-                    .getProtocol().toString();
+
+            String sutProtocol = tJobExec.getSutExecution()
+                    .getSutSpecification().getProtocol().toString();
             if (sutProtocol != null && !sutProtocol.isEmpty()) {
                 envVars.put("ET_SUT_PROTOCOL", sutProtocol);
                 logger.debug("ET_SUT_PROTOCOL: {}", sutProtocol);

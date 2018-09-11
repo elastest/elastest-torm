@@ -626,6 +626,10 @@ public class DockerService {
                 .networkSettings().networks().keySet().toArray()[0];
     }
 
+    public String getNetworkName(String containerId) throws Exception {
+        return this.getNetworkName(containerId, this.getDockerClient(true));
+    }
+
     public String getHostIpByNetwork(String network) throws Exception {
         return this.getDockerClient(false).inspectNetwork(network).ipam()
                 .config().get(0).gateway();
@@ -656,12 +660,16 @@ public class DockerService {
 
     public List<Container> getContainersByNamePrefix(String prefix,
             String network) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
-        List<Container> containers = dockerClient
-                .listContainers(ListContainersParam.allContainers());
+        List<Container> containers = getContainersByNamePrefix(prefix);
 
         return this.getContainersByNamePrefixByGivenList(containers, prefix,
                 ContainersListActionEnum.NONE, network);
+    }
+
+    public List<Container> getContainersByNamePrefix(String prefix)
+            throws Exception {
+        DockerClient dockerClient = this.getDockerClient(true);
+        return dockerClient.listContainers(ListContainersParam.allContainers());
     }
 
     public List<Container> getContainersCreatedSinceId(String startId)

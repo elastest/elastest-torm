@@ -497,8 +497,14 @@ public class EsmService {
         if (servicesInstances.containsKey(tssInstanceId)) {
             String folderPath = this.getTJobExecFolderPath(tJobExec)
                     + serviceName.toLowerCase() + "/";
+
+            // If is Jenkins, config EUS to start browsers at sut network
+            boolean useSutNetwork = tJobExec.getTjob().isExternal();
+            String sutContainerPrefix = dockerEtmService
+                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
-                    folderPath);
+                    folderPath, useSutNetwork, sutContainerPrefix);
             String response = "";
             if (utilsService.isElastestMini()) {
                 response = eusWebDriverService
@@ -532,8 +538,13 @@ public class EsmService {
     public void unregisterTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
+
+            boolean useSutNetwork = tJobExec.getTjob().isExternal();
+            String sutContainerPrefix = dockerEtmService
+                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
-                    "");
+                    "", useSutNetwork, sutContainerPrefix);
 
             if (utilsService.isElastestMini()) {
                 eusWebDriverService
