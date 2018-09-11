@@ -117,9 +117,6 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 # ===================
 USER root
 
-# Add the Jenkins user to the docker group
-# RUN usermod -aG docker jenkins
-
 # Install maven
 RUN apt-get update -y && apt-get install maven -y
 
@@ -144,7 +141,8 @@ RUN apt-get install docker-ce -y
 RUN curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
-USER ${user}
+# Add the Jenkins user to the docker group
+RUN usermod -aG docker ${user}
 
 # Set some configurations
 # Add the main config file to the jenkins path  
