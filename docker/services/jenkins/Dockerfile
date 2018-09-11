@@ -1,5 +1,7 @@
 FROM openjdk:8-jdk
 
+USER root
+
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 ARG user=jenkins
@@ -115,8 +117,6 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
 # Install other tools
 # ===================
-USER root
-
 # Install maven
 RUN apt-get update -y && apt-get install maven -y
 
@@ -142,7 +142,7 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-co
 RUN chmod +x /usr/local/bin/docker-compose
 
 # Add the Jenkins user to the docker group
-RUN usermod -aG docker ${user}
+#RUN usermod -aG docker ${user}
 
 # Set some configurations
 # Add the main config file to the jenkins path  
