@@ -221,42 +221,34 @@ public class ExternalService {
             Project project = null;
             if (externalJob.getProject() != null
                     && !externalJob.getProject().isEmpty()) {
-                logger.debug("Project from external Job: {}",
-                        externalJob.getProject());
                 if (NumberUtils.isDigits(externalJob.getProject())) {
                     project = projectService.getProjectById(
-                            Long.parseLong(externalJob.getProject()));
-                    project = (project != null ? project
-                            : projectService.getProjectByName(
-                                    externalJob.getProject()));
-                    logger.debug("Project id: {}", project.getId());
+                            Long.parseLong(externalJob.getProject())) != null
+                                    ? projectService
+                                            .getProjectById(Long.parseLong(
+                                                    externalJob.getProject()))
+                                    : projectService.getProjectByName(
+                                            externalJob.getProject());
 
                 } else {
-                    logger.debug("Project name from external Job: {}",
-                            externalJob.getProject());
                     project = projectService
                             .getProjectByName(externalJob.getProject());
                 }
-
-                if (project == null) {
-                    throw new Exception(
-                            "No projects with this name or id have been found.");
-                }
-
             } else {
-                logger.debug(
-                        "Retrieve the Project from the ElasTest DB if it exists : {}",
-                        externalJob.getProject());
                 project = projectService
                         .getProjectByName(externalJob.getJobName());
             }
+            logger.debug("Creating Project.");
 
-            if (project == null) {
-                logger.debug("Creating Project.");
+            if (project == null && (externalJob.getProject() == null
+                    || externalJob.getProject().isEmpty())) {
                 project = new Project();
                 project.setId(0L);
                 project.setName(externalJob.getJobName());
                 project = projectService.createProject(project);
+            } else {
+                throw new Exception(
+                        "No projects with this name or id have been found.");
             }
 
             // If a SUT is required, retrieved to associate it with both the
@@ -287,14 +279,9 @@ public class ExternalService {
                 }
             }
 
-            logger.debug("Creating TJob or retrieving a TJob.");
-            TJob tJob = null;
-            Optional<TJob> tJobOptional = project.getTJobs().stream()
-                    .filter(t -> t.getName().equals(externalJob.getJobName())).findFirst();
-            tJob = tJobOptional.orElse(null);
-            
+            logger.debug("Creating TJob.");
+            TJob tJob = tJobService.getTJobByName(externalJob.getJobName());
             if (tJob == null) {
-                logger.debug("Creating a new TJob.");
                 tJob = new TJob();
                 tJob.setName(externalJob.getJobName());
                 tJob.setProject(project);
