@@ -99,6 +99,9 @@ public class EtPluginsService {
     @Value("${et.etm.jenkins.container.name}")
     public String etEtmJenkinsContainerName;
 
+    @Value("${et.etm.jenkins.binded.port}")
+    public String etEtmJenkinsBindedPort;
+
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
@@ -162,7 +165,19 @@ public class EtPluginsService {
 
     public void createUniqueEtPluginProject(String name) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
-        this.createProject(name, dockerComposeYml, uniqueEtPluginsYmlFolder);
+        if (name.equals(JENKINS_NAME)) {
+            Map<String, String> envVars = new HashMap<>();
+            if (!etPublicHost.equals("localhost")) {
+                envVars.put("JENKINS_LOCATION", "http://" + etPublicHost + ":"
+                        + etEtmJenkinsBindedPort);
+            }
+            this.createProjectWithEnv(name, dockerComposeYml,
+                    uniqueEtPluginsYmlFolder, envVars);
+        } else {
+            this.createProject(name, dockerComposeYml,
+                    uniqueEtPluginsYmlFolder);
+        }
+
     }
 
     public SupportServiceInstance createTssInstanceProject(String instanceId,
@@ -198,6 +213,24 @@ public class EtPluginsService {
     public void createProject(String name, String dockerComposeYml,
             String ymlPath) {
         this.createProject(name, dockerComposeYml, false, false, ymlPath);
+    }
+
+    public void createProjectWithEnv(String name, String dockerComposeYml,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
+            String ymlPath, Map<String, String> envs) {
+        try {
+            dockerComposeService.createProjectWithEnv(name, dockerComposeYml,
+                    ymlPath, true, envs, withBindedExposedPortsToRandom,
+                    withRemoveVolumes);
+        } catch (Exception e) {
+            logger.error("Exception creating project {}", name, e);
+        }
+    }
+
+    public void createProjectWithEnv(String name, String dockerComposeYml,
+            String ymlPath, Map<String, String> envs) {
+        this.createProjectWithEnv(name, dockerComposeYml, false, false, ymlPath,
+                envs);
     }
 
     /* **************************** */
