@@ -10,6 +10,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
+import { TJobModel } from '../../tjob/tjob-model';
 
 @Component({
   selector: 'etm-logs-group',
@@ -17,11 +18,15 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./etm-logs-group.component.scss'],
 })
 export class EtmLogsGroupComponent implements OnInit {
-  @ViewChildren(LogsViewComponent) logsViewComponents: QueryList<LogsViewComponent>;
+  @ViewChildren(LogsViewComponent)
+  logsViewComponents: QueryList<LogsViewComponent>;
 
-  @Input() public live: boolean;
-  @Input() tJob: AbstractTJobModel;
-  @Input() tJobExec: AbstractTJobExecModel;
+  @Input()
+  public live: boolean;
+  @Input()
+  tJob: AbstractTJobModel;
+  @Input()
+  tJobExec: AbstractTJobExecModel;
 
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
@@ -72,8 +77,15 @@ export class EtmLogsGroupComponent implements OnInit {
         individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
         if (!this.live) {
           individualLogs.getAllLogs();
-        } else if (!this.isDefault(individualLogs)) {
-          this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+        } else {
+          if (!this.isDefault(individualLogs)) {
+            this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+          } else {
+            // If Jenkins Job, subscribe to sut logs
+            if (tJob instanceof TJobModel && log.component === 'sut' && tJob.external && !tJob.hasSut()) {
+              this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+            }
+          }
         }
         this.logsList.push(individualLogs);
       }
