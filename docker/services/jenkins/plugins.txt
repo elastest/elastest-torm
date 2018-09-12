@@ -77,4 +77,4 @@ workflow-step-api:2.14
 docker-java-api:3.0.14
 plain-credentials:1.4
 simple-theme-plugin:0.4
-elastest:1.0-beta4
+elastest:1.0-beta5
