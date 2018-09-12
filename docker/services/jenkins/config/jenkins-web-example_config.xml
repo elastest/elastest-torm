@@ -12,10 +12,12 @@
             sh &apos;env&apos;
             def sutImage = docker.image(&apos;elastest/demo-web-java-test-sut&apos;)
             echo &apos;Start SUT&apos;
-            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME} --network=elastest_elastest&quot;) { c -&gt;
+            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME}&quot;) { c -&gt;
                 echo &quot;${c.id}&quot;
-                def sutIp = containerIp(&quot;${env.ET_SUT_CONTAINER_NAME}&quot;)
-                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=8080 --network=elastest_elastest elastest/etm-check-service-up&apos;
+                def sutContainerName = env.ET_SUT_CONTAINER_NAME;
+                def sutNetwork = getFirstNetwork(sutContainerName)
+                def sutIp = containerIp(sutContainerName,network)
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=8080 --network=&apos; + sutNetwork + &apos; elastest/etm-check-service-up&apos;
                 withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
                     echo &apos;Set up test environment&apos;
                     mvnHome = tool &apos;M3.3.9&apos;
@@ -30,10 +32,21 @@
     }
 }
 
-def containerIp(containerName) {
+def getFirstNetwork(containerName) {
+    echo &quot;Inside getFirstNetwork function&quot;
+    network = sh (
+        script: &quot;docker inspect &quot; + containerName + &quot; -f \&quot;{{json .NetworkSettings.Networks}}\&quot; | awk \&quot;{sub(/:.*/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/{/,\\\&quot;\\\&quot;)}1\&quot;&quot;,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; Network = &quot; + network;
+    return network;
+}
+
+def containerIp(containerName, network) {
     echo &quot;Inside containerIp function&quot;
     containerIp = sh (
-        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\&quot; &quot;+ containerName,
+        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.&quot; + network + &quot;.IPAddress}}\&quot; &quot;+ containerName,
         returnStdout: true
     ).trim()
     

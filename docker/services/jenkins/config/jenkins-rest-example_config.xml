@@ -6,47 +6,53 @@
   <properties/>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
     <script>node{
-    def sutIp
-    elastest(surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
-        stage(&quot;Setting environment&quot;) {
-            echo &apos;Environment variables&apos;
-            sh &quot;env&quot;
-            git &quot;https://github.com/elastest/full-teaching-experiment.git&quot;
-        }
-        try {
-            stage(&quot;Start Sut&quot;) {
-                sh &quot;cd docker-compose/full-teaching-et-network; export BUG_TAG=demo; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} up -d&quot;
-                sutIp = containerIp(env.ET_SUT_CONTAINER_NAME + &quot;_full-teaching_1&quot;)
-                echo &apos;Sut ip: &apos;+ sutIp
-                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=5001 --network=elastest_elastest elastest/etm-check-service-up&apos;
-            }
-        	stage(&quot;Run Tests&quot;) {
-        	    echo &apos;Running test&apos;
-        	    withEnv([&apos;ET_SUT_HOST=&apos; + sutIp, &apos;ET_SUT_PORT=5001&apos;]) {
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+        stage (&apos;Executing Test&apos;) {
+            echo &apos;Print env variables&apos;
+            sh &apos;env&apos;
+            def sutImage = docker.image(&apos;elastest/demo-rest-java-test-sut&apos;)
+            echo &apos;Start SUT&apos;
+            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME} --network=elastest_elastest&quot;) { c -&gt;
+                echo &quot;${c.id}&quot;
+                def sutContainerName = env.ET_SUT_CONTAINER_NAME;
+                def sutNetwork = getFirstNetwork(sutContainerName)
+                def sutIp = containerIp(sutContainerName,network)
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=8080 --network=&apos; + sutNetwork + &apos; elastest/etm-check-service-up&apos;
+                withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
+                    echo &apos;Set up test environment&apos;
                     mvnHome = tool &apos;M3.3.9&apos;
-                    sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5000/ -Dtest=UserRestTest -B test&quot;
-                    step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
-        	    }
-        	}
-        } finally {
-                echo &apos;Stopping SUT&apos;
-                sh &quot;cd docker-compose/full-teaching-env; docker-compose --no-ansi -p ${env.ET_SUT_CONTAINER_NAME} down&quot;
-        }
+                    echo &apos;Cloning repository&apos;
+                    git &apos;https://github.com/elastest/demo-projects&apos;
+                    echo &apos;Run test&apos;
+                    sh &quot;cd ./rest-java-test;&apos;${mvnHome}/bin/mvn&apos; -B test&quot;
+                }
+            }
+            
+        }        
     }
 }
 
+def getFirstNetwork(containerName) {
+    echo &quot;Inside getFirstNetwork function&quot;
+    network = sh (
+        script: &quot;docker inspect &quot; + containerName + &quot; -f \&quot;{{json .NetworkSettings.Networks}}\&quot; | awk \&quot;{sub(/:.*/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/{/,\\\&quot;\\\&quot;)}1\&quot;&quot;,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; Network = &quot; + network;
+    return network;
+}
 
-def containerIp(containerName) {
+def containerIp(containerName, network) {
     echo &quot;Inside containerIp function&quot;
     containerIp = sh (
-        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\&quot; &quot;+ containerName,
+        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.&quot; + network + &quot;.IPAddress}}\&quot; &quot;+ containerName,
         returnStdout: true
     ).trim()
     
     echo containerName+&quot; IP = &quot; + containerIp;
     return containerIp;
-}
-</script>
+}</script>
     <sandbox>true</sandbox>
   </definition>
   <triggers/>
