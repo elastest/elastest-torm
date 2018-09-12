@@ -83,6 +83,9 @@ public class ExternalService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
+    
+    @Value("${enable.et.mini}")
+    private boolean enableEtMini;
 
     private Map<Long, ExternalJob> runningExternalJobs;
 
@@ -151,12 +154,11 @@ public class ExternalService {
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName=" + tJobExec.getId());
-            // externalJob.setEnvVars(tJobExec.getEnvVars());
             externalJob.setServicesIp((externalJob.isFromIntegratedJenkins()
-                    && etPublicHost.equals("localhost")) ? etEtmInternalHost
+                    && enableEtMini) ? etEtmInternalHost
                             : etPublicHost);
             externalJob.setLogstashPort((externalJob.isFromIntegratedJenkins()
-                    && etPublicHost.equals("localhost")) ? etEtmLsHttpPort
+                    && enableEtMini) ? etEtmLsHttpPort
                             : etProxyPort);
             externalJob.settJobExecId(tJobExec.getId());
 
