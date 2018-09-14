@@ -15,24 +15,20 @@ if ((elasTestConfig.getElasTestUrl() == null
     elasTestConfig.setElasTestUrl("http://etm:8091");
 }
 
-if (env['ET_USER'] && env['ET_PASS']) {
-    elasTestConfig.setUsername(env['ET_USER'])
-    elasTestConfig.setPassword(env['ET_PASS'])
-}
-
-println "--> Set Jenkins location"
+println "--> Set Jenkins configuration"
+println "----> Set Jenkins location"
 def config = JenkinsLocationConfiguration.get();
-println ("Jenkins URL Location:" + config.getUrl())
-if (env['JENKINS_LOCATION']) {
+println ("------> Current Jenkins URL Location:" + config.getUrl())
+if (env['JENKINS_LOCATION'] && env['JENKINS_LOCATION'] != "none" ) {
     config.setUrl(env['JENKINS_LOCATION'])
 } else {
     def stdout = new StringWriter()
     def stderr = new StringWriter()
     ['/bin/sh', '-c', "docker inspect --format=\"{{.NetworkSettings.Networks.elastest_elastest.IPAddress}}\" " + env['HOSTNAME']].execute().waitForProcessOutput(stdout, stderr)
-
-    println "OUTPUT: " + stdout.toString()
-    println "ERRORS: " + stderr.toString()
-    config.setUrl("http://" + stdout.toString() + ":8080")
+    println "------> Jenkins docker container ip: " + stdout.toString()
+    println "------> ERROR: " + stderr.toString()    
+    config.setUrl("http://" + stdout.toString().trim() + ":8080")
+    println "------> New Jenkins Location: " + config.getUrl();
 }
 
 config.save();
