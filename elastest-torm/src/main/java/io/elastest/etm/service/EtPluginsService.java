@@ -582,10 +582,8 @@ public class EtPluginsService {
 
         switch (serviceName) {
         case JENKINS_NAME:
-            host = etPublicHost.equals("localhost") ? etEtmJenkinsHost
-                    : etPublicHost;
-            port = etPublicHost.equals("localhost") ? etEtmJenkinsPort
-                    : etEtmJenkinsBindedPort;
+            host = etEtmJenkinsHost;
+            port = etEtmJenkinsPort;
             containerName = etEtmJenkinsContainerName;
             break;
         case TESTLINK_NAME:
@@ -603,8 +601,22 @@ public class EtPluginsService {
         if (!host.equals("none")) {
             etPlugin = new EtPlugin(etPlugin);
             try {
-                String url = "http://" + dockerEtmService.dockerService
-                        .getContainerIp(containerName, network) + ":" + port;
+                // TODO Review with Edu to see if it is possible to apply the
+                // Jenkins way for the rest
+                String url = "";
+                if (serviceName.equals(JENKINS_NAME)) {
+                    url = "http://" + (etPublicHost.equals("localhost")
+                            ? dockerEtmService.dockerService
+                                    .getContainerIp(containerName, network)
+                            : etPublicHost) + ":"
+                            + (etPublicHost.equals("localhost") ? port
+                                    : etEtmJenkinsBindedPort);
+                } else {
+                    url = "http://" + dockerEtmService.dockerService
+                            .getContainerIp(containerName, network) + ":"
+                            + port;
+                }
+
                 etPlugin.setUrl(url);
             } catch (Exception e) {
                 logger.error("Error on get {} url", serviceName, e);
