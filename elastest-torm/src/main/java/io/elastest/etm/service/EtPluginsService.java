@@ -582,8 +582,10 @@ public class EtPluginsService {
 
         switch (serviceName) {
         case JENKINS_NAME:
-            host = etEtmJenkinsHost;
-            port = etEtmJenkinsPort;
+            host = etPublicHost.equals("localhost") ? etEtmJenkinsHost
+                    : etPublicHost;
+            port = etPublicHost.equals("localhost") ? etEtmJenkinsPort
+                    : etEtmJenkinsBindedPort;
             containerName = etEtmJenkinsContainerName;
             break;
         case TESTLINK_NAME:
