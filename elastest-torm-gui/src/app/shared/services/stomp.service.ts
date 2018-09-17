@@ -136,8 +136,8 @@ export class StompService {
   /**
    * Unsubscribe
    */
-  public unsubscribe(subscription: any) {
-    subscription.unsubscribe();
+  public unsubscribe(subscription: any): any {
+    return subscription.unsubscribe();
   }
 
   /**

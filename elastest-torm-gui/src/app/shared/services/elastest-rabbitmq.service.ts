@@ -1,9 +1,6 @@
 import { StompWSManager } from './stomp-ws-manager.service';
-import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Rx';
-import { defaultStreamMap } from '../defaultESData-model';
-import { ExternalTJobExecModel } from '../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 
 @Injectable()
 export class ElastestRabbitmqService {
@@ -11,7 +8,6 @@ export class ElastestRabbitmqService {
 
   constructor(private stompWSManager: StompWSManager) {
     this.subjectMap = new Map<string, Subject<any>>();
-    this.initDefaultSubjects();
   }
 
   public configWSConnection(): void {
@@ -27,13 +23,6 @@ export class ElastestRabbitmqService {
 
   // Create Subjects
 
-  public initDefaultSubjects(): void {
-    for (let type in defaultStreamMap) {
-      this.createSubject(type, 'test', defaultStreamMap[type]);
-      this.createSubject(type, 'sut', defaultStreamMap[type]);
-    }
-  }
-
   public createSubject(streamType: string, component: string, stream: string): Subject<any> {
     let name: string = this.getSubjectName(component, stream, streamType);
     if (this.existObs(name)) {
@@ -48,31 +37,6 @@ export class ElastestRabbitmqService {
 
   // Create and Subscribe
 
-  public subscribeToDefaultTopics(tjobExecution: TJobExecModel): void {
-    let withSut: boolean = tjobExecution.tJob.hasSut();
-    let testIndex: string = tjobExecution.getTJobIndex();
-    for (let type in defaultStreamMap) {
-      this.createAndSubscribeToTopic(testIndex, type, 'test', defaultStreamMap[type]);
-
-      if (withSut) {
-        let sutIndex: string = tjobExecution.getSutIndex();
-        this.createAndSubscribeToTopic(sutIndex, type, 'sut', defaultStreamMap[type]);
-      }
-    }
-  }
-
-  public subscribeToDefaultExternalJobTopics(exTJobExec: ExternalTJobExecModel): void {
-    let withSut: boolean = exTJobExec.exTJob.hasSut();
-    // let testIndex: string = exTJobExec.getTJobIndex();
-    for (let type in defaultStreamMap) {
-      // this.createAndSubscribeToTopic(testIndex, type, 'test', defaultStreamMap[type]);
-      if (withSut) {
-        let sutIndex: string = exTJobExec.getSutIndex();
-        this.createAndSubscribeToTopic(sutIndex, type, 'sut', defaultStreamMap[type]);
-      }
-    }
-  }
-
   public createAndSubscribeToTopic(exec: string, streamType: string, component: string, stream: string): Subject<any> {
     let topicPrefix: string = component + '.' + stream;
     this.stompWSManager.subscribeToTopicDestination(topicPrefix + '.' + exec + '.' + streamType, this.dynamicObsResponse);
@@ -82,9 +46,13 @@ export class ElastestRabbitmqService {
   }
 
   public unsuscribeFromTopic(exec: string, streamType: string, component: string, stream: string): void {
-    let topicPrefix: string = component + '.' + stream;
-    let destination: string = topicPrefix + '.' + exec + '.' + streamType;
+    let destination: string = this.getDestinationFromData(exec, streamType, component, stream);
     this.stompWSManager.unsubscribeSpecificWSDestination(destination);
+  }
+
+  public getDestinationFromData(exec: string, streamType: string, component: string, stream: string): string {
+    let topicPrefix: string = component + '.' + stream;
+    return topicPrefix + '.' + exec + '.' + streamType;
   }
 
   // Response

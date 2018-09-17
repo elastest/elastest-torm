@@ -10,6 +10,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
+import { TJobModel } from '../../tjob/tjob-model';
 
 @Component({
   selector: 'etm-logs-group',
@@ -17,19 +18,22 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./etm-logs-group.component.scss'],
 })
 export class EtmLogsGroupComponent implements OnInit {
-  @ViewChildren(LogsViewComponent) logsViewComponents: QueryList<LogsViewComponent>;
+  @ViewChildren(LogsViewComponent)
+  logsViewComponents: QueryList<LogsViewComponent>;
 
-  @Input() public live: boolean;
-  @Input() tJob: AbstractTJobModel;
-  @Input() tJobExec: AbstractTJobExecModel;
+  @Input()
+  public live: boolean;
+  @Input()
+  tJob: AbstractTJobModel;
+  @Input()
+  tJobExec: AbstractTJobExecModel;
 
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
 
-  loaded: boolean = false;
+  subscriptions: Map<string, Subscription> = new Map();
 
-  testLogsSubscription: Subscription;
-  sutLogsSubscription: Subscription;
+  loaded: boolean = false;
 
   selectedTraces: number[][] = [];
 
@@ -37,22 +41,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   ngOnInit() {}
 
-  ngAfterViewInit(): void {
-    if (this.live) {
-      this.initObservables();
-    }
-  }
-
-  initObservables(): void {
-    // Get default Rabbit queues
-    let subjectMap: Map<string, Subject<string>> = this.elastestRabbitmqService.subjectMap;
-    subjectMap.forEach((obs: Subject<string>, key: string) => {
-      let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
-      if (subjectData.streamType === 'log') {
-        obs.subscribe((data) => this.updateLogsData(data, subjectData.component));
-      }
-    });
-  }
+  ngAfterViewInit(): void {}
 
   initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
@@ -72,8 +61,12 @@ export class EtmLogsGroupComponent implements OnInit {
         individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
         if (!this.live) {
           individualLogs.getAllLogs();
-        } else if (!this.isDefault(individualLogs)) {
-          this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+        } else {
+          if (log.component !== 'sut') {
+            this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+          } else if (tJob.hasSut() || (tJob instanceof TJobModel && tJob.external && !tJob.hasSut())) {
+            this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+          }
         }
         this.logsList.push(individualLogs);
       }
@@ -107,10 +100,13 @@ export class EtmLogsGroupComponent implements OnInit {
   createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
     let index: string = this.getAbstractTJobExecIndex(component);
     if (index) {
+      let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
       this.elastestRabbitmqService.createSubject(streamType, component, stream);
-      this.elastestRabbitmqService
+      let subscription: Subscription = this.elastestRabbitmqService
         .createAndSubscribeToTopic(index, streamType, component, stream)
         .subscribe((data) => this.updateLogsData(data, component, stream));
+
+      this.subscriptions.set(key, subscription);
     }
   }
 
@@ -220,12 +216,19 @@ export class EtmLogsGroupComponent implements OnInit {
     let component: string = this.logsList[pos].component;
     let stream: string = this.logsList[pos].stream;
     let name: string = this.logsList[pos].name;
+    let streamType: string = 'log';
+
     // If is live, unsubscribe
     if (this.live) {
-      let streamType: string = 'log';
       let index: string = this.getAbstractTJobExecIndex(component);
 
       this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
+
+      let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+      if (this.subscriptions.has(key)) {
+        this.subscriptions.get(key).unsubscribe();
+        this.subscriptions.delete(key);
+      }
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();

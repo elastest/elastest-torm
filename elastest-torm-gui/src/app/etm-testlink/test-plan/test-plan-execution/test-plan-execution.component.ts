@@ -174,7 +174,6 @@ export class TestPlanExecutionComponent implements OnInit {
     this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
       this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
-      this.elastestRabbitmqService.subscribeToDefaultExternalJobTopics(this.exTJobExec);
 
       this.checkFinished();
       this.waitForEus(exTJobExec);

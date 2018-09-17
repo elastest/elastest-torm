@@ -101,7 +101,6 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
             // If it's already started, get last trace(s)
             this.logsAndMetrics.loadLastTraces();
           }
-          this.elastestRabbitmqService.subscribeToDefaultTopics(this.tJobExec);
         }
       });
     });

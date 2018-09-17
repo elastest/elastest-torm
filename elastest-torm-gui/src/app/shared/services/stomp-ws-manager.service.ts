@@ -5,7 +5,7 @@ import { Http } from '@angular/http';
 
 @Injectable()
 export class StompWSManager {
-  private wsConf = {
+  private wsConf: any = {
     host: '/rabbitMq',
     debug: false,
     queue: { init: false },
@@ -52,22 +52,23 @@ export class StompWSManager {
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string): void {
     if (!this.subscriptions.has(destination)) {
-      console.log('SUBSCRIBE TO', destination);
+      console.log('SUBSCRIBED TO', destination);
       this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
     }
   }
 
   unsubscribeWSDestination(): void {
+    console.log('UNSUBSCRIBING TO ALL:');
+
     this.subscriptions.forEach((value, key) => {
-      console.log('UNSUBSCRIBE TOPICS', key, value);
-      this.stomp.unsubscribe(value);
-      this.subscriptions.delete(key);
+      this.unsubscribeSpecificWSDestination(key);
     });
   }
 
   unsubscribeSpecificWSDestination(key: string): void {
     let value = this.subscriptions.get(key);
     if (value !== undefined) {
+      console.log('UNSUBSCRIBED TO', key);
       this.stomp.unsubscribe(value);
       this.subscriptions.delete(key);
     }
