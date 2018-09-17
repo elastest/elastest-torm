@@ -31,7 +31,5 @@ sudo openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -subj '/CN=localh
 #nginx -g "daemon off;"
 envsubst < /etc/nginx/conf.d/default-template.conf > /etc/nginx/conf.d/default.conf 
 rm /etc/nginx/conf.d/default-template.conf
-nginx -g 'daemon off;' || cat /etc/nginx/conf.d/default.conf
-
-sleep 60
+exec nginx -g 'daemon off;' || cat /etc/nginx/conf.d/default.conf
 

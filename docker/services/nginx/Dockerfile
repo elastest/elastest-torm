@@ -1,4 +1,4 @@
-FROM nginx:1.13-alpine
+FROM nginx:1.15.3-alpine
 
 RUN apk add --no-cache \
 	apache2-ssl \
@@ -39,4 +39,5 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION
 
-CMD cd /; sh start-nginx.sh
+CMD ["sh","/start-nginx.sh"]
+
