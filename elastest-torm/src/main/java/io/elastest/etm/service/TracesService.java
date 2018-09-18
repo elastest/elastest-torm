@@ -75,6 +75,9 @@ public class TracesService {
                 .getResourceAsStream("/" + grokPatternsFilePath);
         grokCompiler.register(inputStream, StandardCharsets.UTF_8);
 
+        // TODO remove debug
+        logger.debug("Date: {}", new Date());
+
     }
 
     public Map<String, String> processGrokExpression(String message,
@@ -150,7 +153,8 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.trace("Processing trace {} with timestamp {}", message,
+        // TODO change debug to trace
+        logger.debug("Processing trace {} with timestamp {}", message,
                 timestamp);
 
         if (message != null && !message.isEmpty()) {
@@ -240,10 +244,11 @@ public class TracesService {
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
                 // Ignore Packetbeat from EIM temporally
-                if(trace.getStream() != null && "et_packetbeat".equals(trace.getStream())){
+                if (trace.getStream() != null
+                        && "et_packetbeat".equals(trace.getStream())) {
                     return;
                 }
-                
+
                 if (fromDockbeat) {
                     trace.setStream(dockbeatStream);
                 }
