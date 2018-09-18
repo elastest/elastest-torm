@@ -74,6 +74,10 @@ public class TracesService {
         InputStream inputStream = getClass()
                 .getResourceAsStream("/" + grokPatternsFilePath);
         grokCompiler.register(inputStream, StandardCharsets.UTF_8);
+
+        // TODO remove debug
+        logger.debug("Date: {}", new Date());
+
     }
 
     public Map<String, String> processGrokExpression(String message,
@@ -149,7 +153,8 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.trace("Processing trace {} with timestamp {}", message,
+        // TODO change debug to trace
+        logger.debug("Processing trace {} with timestamp {}", message,
                 timestamp);
 
         if (message != null && !message.isEmpty()) {
