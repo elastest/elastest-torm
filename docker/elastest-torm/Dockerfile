@@ -4,7 +4,8 @@ FROM openjdk:alpine
 RUN apk update \
 	&& apk add py-pip \
 	&& apk add docker \
-	&& pip install docker-compose
+	&& pip install docker-compose \
+	&& apk add tzdata
 
 RUN apk --no-cache add netcat-openbsd
 COPY elastest-torm.jar /

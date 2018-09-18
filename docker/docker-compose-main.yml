@@ -52,6 +52,7 @@ services:
             - ET_INTERNET_DISABLED=false
             - ET_MASTER_SLAVE_MODE=false
             - ET_EPM_BINDED_PORT=8180
+            - HOST_TIMEZONE=UTC
         entrypoint: /run.sh
         expose:
             - 8091
@@ -65,8 +66,6 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - platform-services:/platform-services
             - /shared-data:/shared-data
-            - /etc/timezone:/etc/timezone:ro
-            - /etc/localtime:/etc/localtime:ro
         networks:
             - elastest
 networks:
