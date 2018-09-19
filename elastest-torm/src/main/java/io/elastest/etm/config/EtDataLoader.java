@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import br.eti.kinoshita.testlinkjavaapi.constants.ActionOnDuplicate;
@@ -40,6 +41,9 @@ import io.elastest.etm.service.TestLinkService;
 @Service
 public class EtDataLoader {
     final Logger logger = getLogger(lookup().lookupClass());
+    
+    @Value("${et.user}")
+    private String etUser;
 
     private ProjectService projectService;
     private TJobService tJobService;
@@ -318,7 +322,7 @@ public class EtDataLoader {
             tCase.setId(0);
         }
         tCase.setTestCaseStatus(TestCaseStatus.DRAFT);
-        tCase.setAuthorLogin("admin");
+        tCase.setAuthorLogin(etUser);
         tCase.setTestImportance(TestImportance.MEDIUM);
         tCase.setExecutionType(ExecutionType.MANUAL);
         // tCase.setOrder();
