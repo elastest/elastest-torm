@@ -49,7 +49,6 @@ public class TcpServerService {
                 @Override
                 public void event(SyslogServerIF syslogServer,
                         SyslogServerEventIF event) {
-//                    log.debug("The TCP message: {}", event.getMessage());
                     tracesService.processTcpTrace(event.getMessage(),
                             event.getDate());
                 }

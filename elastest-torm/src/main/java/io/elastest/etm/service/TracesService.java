@@ -156,7 +156,7 @@ public class TracesService {
         // TODO change debug to trace
         logger.debug("Processing trace {} with timestamp {}", message,
                 timestamp);
-
+        utilsService.getUTCDateFromLiveDate(timestamp);
         if (message != null && !message.isEmpty()) {
             try {
                 Trace trace = new Trace();

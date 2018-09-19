@@ -94,6 +94,12 @@ public class UtilsService {
         return this.getIso8601UTCDateFromStr(dateStr);
     }
 
+    public Date getUTCDateFromLiveDate(Date date) {
+        int timezoneOffsetMin = date.getTimezoneOffset();
+        logger.debug("timezoneOffset {}", timezoneOffsetMin);
+        return date;
+    }
+
     /* ********************************************************************* */
     /* *** Date conversion from LogAnalyzer Date (yyyy-MM-dd'T'HH:mm:ss) *** */
     /* ********************************************************************* */
