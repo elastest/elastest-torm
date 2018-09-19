@@ -18,4 +18,6 @@ public interface ElastestConstants {
 
     public static final String TAG_LATEST = ":latest";
 
+    public static final String DEFAULT_ET_PUBLIC_HOST = "default";
+    public static final String SERVER_ADDRESS_ET_PUBLIC_HOST = "server_address";
 }

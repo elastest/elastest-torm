@@ -25,15 +25,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.SupportServiceInstance.ProvisionView;
+import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 public class EsmServiceClient implements SupportServiceClientInterface {
     final Logger logger = getLogger(lookup().lookupClass());
-
-    @Value("${et.public.host}")
-    private String etPublicHost;
 
     @Value("${elastest.esm.port}")
     private String esmPort;
@@ -62,7 +60,10 @@ public class EsmServiceClient implements SupportServiceClientInterface {
     RestTemplate httpClient;
     HttpHeaders headers;
 
-    public EsmServiceClient() {
+    UtilsService utilsService;
+
+    public EsmServiceClient(UtilsService utilsService) {
+        this.utilsService = utilsService;
         httpClient = new RestTemplate();
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -320,8 +321,10 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                     String containerIp = serviceInstanceDetail.get("context")
                             .get(fieldName).toString().replaceAll("\"", "");
 
-                    logger.info("ET_PUBLIC_HOST value: " + etPublicHost);
-                    serviceIp = !etPublicHost.equals("localhost") ? etPublicHost
+                    logger.info("ET_PUBLIC_HOST value: "
+                            + utilsService.getEtPublicHostValue());
+                    serviceIp = !utilsService.isDefaultEtPublicHost()
+                            ? utilsService.getEtPublicHostValue()
                             : containerIp;
                     serviceInstance.setContainerIp(containerIp);
                     serviceInstance.setServiceIp(serviceIp);

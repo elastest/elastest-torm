@@ -53,10 +53,6 @@ public class ExternalService {
     private static final Logger logger = LoggerFactory
             .getLogger(ExternalService.class);
 
-    private ProjectService projectService;
-    private TJobService tJobService;
-    private TJobExecOrchestratorService tJobExecOrchestratorService;
-
     @Value("${exec.mode}")
     public String execMode;
 
@@ -65,9 +61,6 @@ public class ExternalService {
 
     @Value("${et.etm.lshttp.port}")
     private String etEtmLsHttpPort;
-
-    @Value("${et.public.host}")
-    private String etPublicHost;
 
     @Value("${et.etm.api}")
     private String etEtmApi;
@@ -83,11 +76,15 @@ public class ExternalService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
-    
+
     @Value("${enable.et.mini}")
     private boolean enableEtMini;
 
     private Map<Long, ExternalJob> runningExternalJobs;
+
+    private ProjectService projectService;
+    private TJobService tJobService;
+    private TJobExecOrchestratorService tJobExecOrchestratorService;
 
     private final ExternalProjectRepository externalProjectRepository;
     private final ExternalTestCaseRepository externalTestCaseRepository;
@@ -144,6 +141,8 @@ public class ExternalService {
             TJobExecution tJobExec = tJobService.executeTJob(externalJob,
                     tJob.getId(), new ArrayList<>(), new ArrayList<>());
 
+            String etPublicHost = utilsService.getEtPublicHostValue();
+
             externalJob.setExecutionUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
@@ -154,11 +153,13 @@ public class ExternalService {
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName=" + tJobExec.getId());
-            externalJob.setServicesIp((externalJob.isFromIntegratedJenkins()
-                    && enableEtMini) ? etEtmInternalHost
+            externalJob.setServicesIp(
+                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
+                            ? etEtmInternalHost
                             : etPublicHost);
-            externalJob.setLogstashPort((externalJob.isFromIntegratedJenkins()
-                    && enableEtMini) ? etEtmLsHttpPort
+            externalJob.setLogstashPort(
+                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
+                            ? etEtmLsHttpPort
                             : etProxyPort);
             externalJob.settJobExecId(tJobExec.getId());
 

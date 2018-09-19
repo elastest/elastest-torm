@@ -68,9 +68,6 @@ public class EsmService {
     @Value("${et.internet.disabled}")
     public String etInternetDisabled;
 
-    @Value("${et.public.host}")
-    public String etPublicHost;
-
     @Value("${elastest.docker.network}")
     private String etDockerNetwork;
     @Value("${et.edm.alluxio.api}")
@@ -260,8 +257,8 @@ public class EsmService {
 
             String serviceIp = etmHost;
             int servicePort = Integer.parseInt(etmServerPort);
-            if (!etPublicHost.equals("localhost")) {
-                serviceIp = etPublicHost;
+            if (!utilsService.isDefaultEtPublicHost()) {
+                serviceIp = utilsService.getEtPublicHostValue();
                 if ("true".equals(inContainer)) {
                     servicePort = Integer.parseInt(etProxyPort);
                 }
@@ -1114,7 +1111,7 @@ public class EsmService {
         int auxPort = 37000;
 
         if (node != null) {
-            if (!etPublicHost.equals("localhost")) {
+            if (!utilsService.isDefaultEtPublicHost()) {
                 if (node.get("port") != null) {
                     String nodePort = node.get("port").toString()
                             .replaceAll("\"", "");
@@ -1650,7 +1647,7 @@ public class EsmService {
         supportServiceInstance.getParameters().put("ET_INTERNET_DISABLED",
                 etInternetDisabled);
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST",
-                etPublicHost);
+                utilsService.getEtPublicHostValue());
         supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API",
                 etEdmAlluxioApi);
         supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST",
@@ -1784,7 +1781,7 @@ public class EsmService {
                 String envNamePort = prefix + "_PORT";
 
                 String envValuePort = "";
-                if (etPublicHost.equals("localhost")) {
+                if (utilsService.isDefaultEtPublicHost()) {
                     envValuePort = entry.getValue().get("port").toString();
                 } else {
                     for (Map.Entry<String, String> endpointBindingPort : ssi

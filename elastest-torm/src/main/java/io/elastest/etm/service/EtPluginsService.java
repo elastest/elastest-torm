@@ -36,6 +36,8 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.utils.PasswordFactory;
+import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtPluginsService {
@@ -53,6 +55,7 @@ public class EtPluginsService {
 
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
+    private UtilsService utilsService;
 
     Map<String, EtPlugin> enginesMap = new HashMap<>();
     Map<String, EtPlugin> uniqueEtPluginsMap = new HashMap<>();
@@ -69,9 +72,6 @@ public class EtPluginsService {
 
     @Value("${exec.mode}")
     public String execmode;
-
-    @Value("${et.public.host}")
-    public String etPublicHost;
 
     @Value("${et.user}")
     public String etUser;
@@ -114,9 +114,10 @@ public class EtPluginsService {
     private String tmpTssInstancesYmlFolder;
 
     public EtPluginsService(DockerComposeService dockerComposeService,
-            DockerEtmService dockerEtmService) {
+            DockerEtmService dockerEtmService, UtilsService utilsService) {
         this.dockerComposeService = dockerComposeService;
         this.dockerEtmService = dockerEtmService;
+        this.utilsService = utilsService;
     }
 
     public void registerEngines() {
@@ -191,8 +192,8 @@ public class EtPluginsService {
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
             logger.debug("etpass: {}", etPass);
             logger.debug("Password sended to container for the service {}: {}", name, this.uniqueEtPluginsMap.get(name).getPass());
-            if (!etPublicHost.equals("localhost")) {
-                envVars.put("JENKINS_LOCATION", "http://" + etPublicHost + ":"
+            if (!utilsService.isDefaultEtPublicHost()) {
+                envVars.put("JENKINS_LOCATION", "http://" + utilsService.getEtPublicHostValue() + ":"
                         + etEtmJenkinsBindedPort);
             }
             envVars.put("ET_USER", etUser);
@@ -428,10 +429,10 @@ public class EtPluginsService {
                         && containerName.endsWith(serviceName + "_1")) {
                     logger.debug("Container info: {}", container);
 
-                    String ip = etPublicHost;
+                    String ip = utilsService.getEtPublicHostValue();
 
                     boolean useBindedPort = true;
-                    if (ip.equals("localhost")) {
+                    if (ElastestConstants.DEFAULT_ET_PUBLIC_HOST.equals(ip)) {
                         useBindedPort = false;
                         if (dockerEtmService.dockerService
                                 .isContainerIntoNetwork(network,
@@ -643,11 +644,11 @@ public class EtPluginsService {
                 // Jenkins way for the rest
                 String url = "";
                 if (serviceName.equals(JENKINS_NAME)) {
-                    url = "http://" + (etPublicHost.equals("localhost")
+                    url = "http://" + (utilsService.isDefaultEtPublicHost()
                             ? dockerEtmService.dockerService
                                     .getContainerIp(containerName, network)
-                            : etPublicHost) + ":"
-                            + (etPublicHost.equals("localhost") ? port
+                            : utilsService.getEtPublicHostValue()) + ":"
+                            + (utilsService.isDefaultEtPublicHost() ? port
                                     : etEtmJenkinsBindedPort);
                 } else {
                     url = "http://" + dockerEtmService.dockerService

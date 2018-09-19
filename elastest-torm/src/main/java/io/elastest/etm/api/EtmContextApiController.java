@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,6 +22,7 @@ import io.elastest.etm.model.LogAnalyzerConfig.BasicAttLogAnalyzerConfig;
 import io.elastest.etm.service.CoreServiceInfo;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
+import io.elastest.etm.utils.UtilsService;
 import io.swagger.annotations.ApiParam;
 
 @Controller
@@ -32,8 +32,8 @@ public class EtmContextApiController implements EtmContextApi {
     EsmService esmService;
     @Autowired
     EtmContextService etmContextService;
-    @Value("${et.public.host}")
-    public String publicHost;
+    @Autowired
+    UtilsService utilsService;
 
     @Override
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
@@ -56,20 +56,23 @@ public class EtmContextApiController implements EtmContextApi {
 
     @Override
     public ResponseEntity<String> getElasticsearchApiUrl() {
-        return new ResponseEntity<String>(
-                "http://" + publicHost + ":37000/elasticsearch", HttpStatus.OK);
+        return new ResponseEntity<String>("http://"
+                + utilsService.getEtPublicHostValue() + ":37000/elasticsearch",
+                HttpStatus.OK);
         // return new ResponseEntity<String>(elasticsearchApi, HttpStatus.OK);
         // TODO
     }
 
     @Override
     public ResponseEntity<String> getRabbitHost() {
-        return new ResponseEntity<String>(publicHost + ":37006", HttpStatus.OK);
+        return new ResponseEntity<String>(
+                utilsService.getEtPublicHostValue() + ":37006", HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<String> getLogstashIp() {
-        return new ResponseEntity<String>(publicHost, HttpStatus.OK);
+        return new ResponseEntity<String>(utilsService.getEtPublicHostValue(),
+                HttpStatus.OK);
         // TODO real logstash ip with proxy
     }
 
@@ -145,7 +148,8 @@ public class EtmContextApiController implements EtmContextApi {
 
     public ResponseEntity<String> getSomeCoreServiceLogs(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
-            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) throws Exception {
+            @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount)
+            throws Exception {
         String logs = null;
 
         logs = etmContextService.getSomeCoreServiceLogs(coreServiceName, amount,

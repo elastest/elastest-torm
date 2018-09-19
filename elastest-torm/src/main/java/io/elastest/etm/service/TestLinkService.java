@@ -40,6 +40,7 @@ import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.utils.UtilsService;
 import net.minidev.json.JSONObject;
 
 @Service
@@ -62,9 +63,6 @@ public class TestLinkService {
     @Value("${elastest.docker.network}")
     private String etDockerNetwork;
 
-    @Value("${et.public.host}")
-    public String etPublicHost;
-
     @Value("${et.etm.testlink.binded.port}")
     public String etEtmTestlinkBindedPort;
 
@@ -86,6 +84,7 @@ public class TestLinkService {
     private final ExternalTJobRepository externalTJobRepository;
     private final DockerEtmService dockerEtmService;
     public final EtPluginsService etPluginsService;
+    private final UtilsService utilsService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -96,13 +95,14 @@ public class TestLinkService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             DockerEtmService dockerEtmService,
-            EtPluginsService testEnginesService) {
+            EtPluginsService testEnginesService, UtilsService utilsService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
         this.dockerEtmService = dockerEtmService;
         this.etPluginsService = testEnginesService;
+        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -152,7 +152,8 @@ public class TestLinkService {
                 this.testLinkPort = etEtmTestLinkPort;
 
                 // If not development, start socat
-                if (!etPublicHost.equals("localhost")) {
+                if (!utilsService.isDefaultEtPublicHost()) {
+                    String etPublicHost = utilsService.getEtPublicHostValue();
                     logger.info("Real TestLink Ip: {}", etPublicHost);
                     this.testLinkHost = etPublicHost;
                     logger.info("Real TestLink port: {}",

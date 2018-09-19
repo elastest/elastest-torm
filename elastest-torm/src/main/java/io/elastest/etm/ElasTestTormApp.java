@@ -86,16 +86,17 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Bean
     @Primary
     public EtPluginsService getEtPluginsService() {
-        return new EtPluginsService(dockerComposeService, dockerEtmService);
+        return new EtPluginsService(dockerComposeService, dockerEtmService,
+                utilsService);
     }
 
     @Bean
     public SupportServiceClientInterface getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
             return new EtmMiniSupportServiceClient(dockerComposeService,
-                    getEtPluginsService());
+                    getEtPluginsService(), utilsService);
         } else {
-            return new EsmServiceClient();
+            return new EsmServiceClient(utilsService);
         }
     }
 

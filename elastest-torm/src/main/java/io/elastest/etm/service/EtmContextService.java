@@ -22,6 +22,7 @@ import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtmContextService {
@@ -35,9 +36,7 @@ public class EtmContextService {
     EsmService esmService;
     EtmContextAuxService etmContextAuxService;
     DockerEtmService dockerEtmService;
-
-    @Value("${et.public.host}")
-    public String etPublicHost;
+    UtilsService utilsService;
 
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
@@ -113,11 +112,12 @@ public class EtmContextService {
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
-            DockerEtmService dockerEtmService) {
+            DockerEtmService dockerEtmService, UtilsService utilsService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
         this.esmService = esmService;
         this.etmContextAuxService = etmContextAuxService;
         this.dockerEtmService = dockerEtmService;
+        this.utilsService = utilsService;
     }
 
     public ContextInfo getContextInfo() {
@@ -321,12 +321,15 @@ public class EtmContextService {
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
                 monEnvs.put("ET_MON_LSHTTP_API",
-                        "http://" + etPublicHost + ":" + etEtmLsHttpPort);
-                monEnvs.put("ET_MON_LSBEATS_HOST", etPublicHost);
+                        "http://" + utilsService.getEtPublicHostValue() + ":"
+                                + etEtmLsHttpPort);
+                monEnvs.put("ET_MON_LSBEATS_HOST",
+                        utilsService.getEtPublicHostValue());
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
                 monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
                         etEtmBindedInternalLsbeatsPort);
-                monEnvs.put("ET_MON_LSTCP_HOST", etPublicHost);
+                monEnvs.put("ET_MON_LSTCP_HOST",
+                        utilsService.getEtPublicHostValue());
                 monEnvs.put("ET_MON_LSTCP_PORT", etEtmBindedLstcpPort);
             }
         }

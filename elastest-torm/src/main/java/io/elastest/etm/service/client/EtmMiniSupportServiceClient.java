@@ -21,13 +21,11 @@ import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 public class EtmMiniSupportServiceClient
         implements SupportServiceClientInterface {
     final Logger logger = getLogger(lookup().lookupClass());
-
-    @Value("${et.public.host}")
-    private String etPublicHost;
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
@@ -41,11 +39,14 @@ public class EtmMiniSupportServiceClient
     DockerComposeService dockerComposeService;
     EtPluginsService etPluginsService;
 
+    UtilsService utilsService;
+
     public EtmMiniSupportServiceClient(
             DockerComposeService dockerComposeService,
-            EtPluginsService etPluginsService) {
+            EtPluginsService etPluginsService, UtilsService utilsService) {
         this.dockerComposeService = dockerComposeService;
         this.etPluginsService = etPluginsService;
+        this.utilsService = utilsService;
         supportServicesMap = new HashMap<>();
         tssManifestMap = new HashMap<>();
     }
@@ -154,8 +155,8 @@ public class EtmMiniSupportServiceClient
     public TssManifest getManifestBySupportServiceInstance(
             SupportServiceInstance serviceInstance) {
         return supportServicesMap.containsKey(serviceInstance.getService_id())
-                ? new TssManifest(supportServicesMap.get(serviceInstance.getService_id())
-                        .getManifest())
+                ? new TssManifest(supportServicesMap
+                        .get(serviceInstance.getService_id()).getManifest())
                 : null;
     }
 
@@ -172,9 +173,10 @@ public class EtmMiniSupportServiceClient
                     .getContainerIp(serviceInstance.getContainerName(),
                             etDockerNetwork);
             serviceInstance.setContainerIp(containerIp);
-            logger.info("ET_PUBLIC_HOST value: " + etPublicHost);
-            String serviceIp = !etPublicHost.equals("localhost") ? etPublicHost
-                    : containerIp;
+            logger.info("ET_PUBLIC_HOST value: " + utilsService.getEtPublicHostValue());
+            String serviceIp = !utilsService.isDefaultEtPublicHost()
+                            ? utilsService.getEtPublicHostValue()
+                            : containerIp;
             serviceInstance.setServiceIp(serviceIp);
         } catch (Exception e) {
             logger.warn("Error on getting TSS instance container ip", e);

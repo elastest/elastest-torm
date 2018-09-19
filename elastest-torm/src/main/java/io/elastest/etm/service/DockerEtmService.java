@@ -103,9 +103,6 @@ public class DockerEtmService {
     @Value("${et.master.slave.mode}")
     private boolean masterSlavemode;
 
-    @Value("${et.public.host}")
-    private String etPublicHost;
-
     @Value("${et.etm.binded.lsbeats.port)")
     private String etEtmBindedLsbeatsPort;
 
@@ -194,7 +191,7 @@ public class DockerEtmService {
 
     public String getLogstashHost() throws Exception {
         if (masterSlavemode) {
-            return etPublicHost;
+            return utilsService.getEtPublicHostValue();
         } else {
             if (utilsService.isElastestMini()) {
                 return getEtmHost();

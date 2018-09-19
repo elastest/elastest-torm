@@ -36,6 +36,12 @@ public class UtilsService {
     @Value("${et.etm.incontainer}")
     private String inContainer;
 
+    @Value("${et.public.host}")
+    public String etPublicHost;
+
+    @Value("${et.public.host.type}")
+    public String etPublicHostType;
+
     public boolean isElastestMini() {
         return enableETMini && (execMode.equals(ElastestConstants.MODE_NORMAL)
                 || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE));
@@ -47,6 +53,15 @@ public class UtilsService {
 
     public boolean isEtmInContainer() {
         return "true".equals(inContainer);
+    }
+
+    public boolean isDefaultEtPublicHost() {
+        return ElastestConstants.DEFAULT_ET_PUBLIC_HOST
+                .equals(etPublicHostType);
+    }
+
+    public String getEtPublicHostValue() {
+        return etPublicHost;
     }
 
     public String getIso8601String() {
@@ -95,29 +110,33 @@ public class UtilsService {
     }
 
     public Date getLocaltimeDateFromLiveDate(Date date) {
-        logger.debug("Date received: {}", date);
-        Date currentDate = new Date();
-        logger.debug("Current Date: {}", currentDate);
+        try {
+            // logger.debug("Date received: {}", date);
+            Date currentDate = new Date();
+            // logger.debug("Current Date: {}", currentDate);
 
-        int hourInMinutes = date.getHours() * 60;
-        int totalMinutes = hourInMinutes + date.getMinutes();
+            int hourInMinutes = date.getHours() * 60;
+            int totalMinutes = hourInMinutes + date.getMinutes();
 
-        int currentHourInMinutes = currentDate.getHours() * 60;
-        int currentTotalMinutes = currentHourInMinutes
-                + currentDate.getMinutes();
+            int currentHourInMinutes = currentDate.getHours() * 60;
+            int currentTotalMinutes = currentHourInMinutes
+                    + currentDate.getMinutes();
 
-        int difference = currentTotalMinutes - totalMinutes;
+            int difference = currentTotalMinutes - totalMinutes;
 
-        if (Math.abs(difference) < 59) {
-            logger.debug("Received date is in the same timezone!");
-            return date;
-        } else {
-            logger.debug("Received date is NOT in the same timezone!");
-            int differenceInHours = (new Double(difference / 60)).intValue();
-            logger.debug("difference in hours: {}", differenceInHours);
-            int newHour = date.getHours() + differenceInHours;
-            date.setHours(newHour);
-            logger.debug("New date: {}", date);
+            if (Math.abs(difference) < 59) {
+                // logger.debug("Received date is in the same timezone!");
+            } else {
+                // logger.debug("Received date is NOT in the same timezone!");
+                int differenceInHours = (new Double(difference / 60))
+                        .intValue();
+                // logger.debug("difference in hours: {}", differenceInHours);
+                int newHour = date.getHours() + differenceInHours;
+                date.setHours(newHour);
+                // logger.debug("New date: {}", date);
+            }
+        } catch (NullPointerException e) {
+            date = new Date();
         }
 
         return date;

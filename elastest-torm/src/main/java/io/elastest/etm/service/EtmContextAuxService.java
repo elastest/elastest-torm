@@ -12,13 +12,12 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtmContextAuxService {
     final Logger logger = getLogger(lookup().lookupClass());
 
-    @Value("${et.public.host}")
-    public String etPublicHost;
     @Value("${et.in.prod}")
     public boolean etInProd;
     @Value("${et.etm.incontainer}")
@@ -110,9 +109,12 @@ public class EtmContextAuxService {
     private String etEdmCommandContextPath;
 
     private DockerEtmService dockerEtmService;
+    private UtilsService utilsService;
 
-    public EtmContextAuxService(DockerEtmService dockerEtmService) {
+    public EtmContextAuxService(DockerEtmService dockerEtmService,
+            UtilsService utilsService) {
         this.dockerEtmService = dockerEtmService;
+        this.utilsService = utilsService;
     }
 
     public ContextInfo getContextInfo() {
@@ -144,7 +146,7 @@ public class EtmContextAuxService {
             logger.error("Error on get logstash host ip", e);
         }
 
-        String proxyIp = etPublicHost;
+        String proxyIp = utilsService.getEtPublicHostValue();
         String proxyPort = etProxyPort;
         String proxySslPort = etProxySSLPort;
 
@@ -157,7 +159,7 @@ public class EtmContextAuxService {
         }
 
         if (etInProd) {
-            if ("localhost".equals(etPublicHost)) {
+            if (utilsService.isDefaultEtPublicHost()) {
                 try {
                     proxyIp = UtilTools.doPing(etProxyHost);
                     proxyPort = etProxyInternalPort;
