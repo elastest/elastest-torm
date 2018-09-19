@@ -219,7 +219,7 @@ node('docker'){
                     "Create Jenkins docker image"
                     try {
                     	echo ("Show content of the enable_jenkins_security file")
-                    	sh ' cat ./docker/services/jenkins/config/init.groovy.d/enable_jenkins_security.g'
+                    	sh ' cat ./docker/services/jenkins/config/init.groovy.d/enable_jenkins_security.groovy'
                     } catch (noImage) {
                     	echo ("There are no Jenkins images")
                     }
