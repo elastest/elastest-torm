@@ -219,7 +219,7 @@ node('docker'){
                     "Create Jenkins docker image"
                 
                     echo ("Creating elastest/etm-jenkins image..")                
-                    sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest .'
+                    sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest . -no-cache=true'
         
                 stage "Publish Jenkins docker image"
         
