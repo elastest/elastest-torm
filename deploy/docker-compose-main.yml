@@ -13,6 +13,8 @@ services:
         env_file:
             - ./docker-compose.env
         environment:
+            - ET_PUBLIC_HOST_TYPE=default
+            - ET_PUBLIC_HOST=localhost
             - EXEC_MODE=experimental
             - ET_IMAGES=elastest/platform
             - ET_CORE_IMAGES=elastest/platform
@@ -38,7 +40,6 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services/
-            - ET_PUBLIC_HOST=localhost
             - ET_ETM_INTERNAL_HOST=etm
             - ET_SHARED_FOLDER=/shared-data/
             - ET_PROXY_PORT=37000
