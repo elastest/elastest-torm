@@ -149,9 +149,10 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
                 .subscribe((finishedTJobExec: TJobExecModel) => {
                   this.tJobExec = finishedTJobExec;
                   this.statusIcon = this.tJobExec.getResultIcon();
+                  this.navigateToResultPage();
                 });
               this.popupService.openSnackBar(
-                'TJob Execution ' + this.tJobExec.id + ' Finished with status ' + this.tJobExec.result,
+                'TJob Execution ' + this.tJobExec.id + ' finished with status ' + this.tJobExec.result,
               );
             }
           },
