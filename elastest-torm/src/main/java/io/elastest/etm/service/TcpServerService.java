@@ -31,7 +31,8 @@ public class TcpServerService {
     private TracesService tracesService;
     public UtilsService utilsService;
 
-    public TcpServerService(TracesService tracesService, UtilsService utilsService) {
+    public TcpServerService(TracesService tracesService,
+            UtilsService utilsService) {
         this.tracesService = tracesService;
         this.utilsService = utilsService;
     }
@@ -49,12 +50,13 @@ public class TcpServerService {
                 @Override
                 public void event(SyslogServerIF syslogServer,
                         SyslogServerEventIF event) {
+                    event.setDate(utilsService
+                            .getLocaltimeDateFromLiveDate(event.getDate()));
                     tracesService.processTcpTrace(event.getMessage(),
                             event.getDate());
                 }
             };
             serverConfig.addEventHandler(handler);
-
             server = SyslogServer.createThreadedInstance("tcp_session",
                     serverConfig);
             log.info("Listen at {} TCP Port", tcpPort);

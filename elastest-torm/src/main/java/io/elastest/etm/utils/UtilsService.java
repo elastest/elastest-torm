@@ -94,9 +94,32 @@ public class UtilsService {
         return this.getIso8601UTCDateFromStr(dateStr);
     }
 
-    public Date getUTCDateFromLiveDate(Date date) {
-        int timezoneOffsetMin = date.getTimezoneOffset();
-        logger.debug("timezoneOffset {}", timezoneOffsetMin);
+    public Date getLocaltimeDateFromLiveDate(Date date) {
+        logger.debug("Date received: {}", date);
+        Date currentDate = new Date();
+        logger.debug("Current Date: {}", currentDate);
+
+        int hourInMinutes = date.getHours() * 60;
+        int totalMinutes = hourInMinutes + date.getMinutes();
+
+        int currentHourInMinutes = currentDate.getHours() * 60;
+        int currentTotalMinutes = currentHourInMinutes
+                + currentDate.getMinutes();
+
+        int difference = currentTotalMinutes - totalMinutes;
+
+        if (Math.abs(difference) < 59) {
+            logger.debug("Received date is in the same timezone!");
+            return date;
+        } else {
+            logger.debug("Received date is NOT in the same timezone!");
+            int differenceInHours = (new Double(difference / 60)).intValue();
+            logger.debug("difference in hours: {}", differenceInHours);
+            int newHour = date.getHours() + differenceInHours;
+            date.setHours(newHour);
+            logger.debug("New date: {}", date);
+        }
+
         return date;
     }
 
