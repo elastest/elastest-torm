@@ -35,6 +35,7 @@ import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.utils.PasswordFactory;
 
 @Service
 public class EtPluginsService {
@@ -66,11 +67,17 @@ public class EtPluginsService {
     @Value("${et.test.engines.path}")
     public String ET_TEST_ENGINES_PATH;
 
-    @Value("${exec.mode")
+    @Value("${exec.mode}")
     public String execmode;
 
     @Value("${et.public.host}")
     public String etPublicHost;
+
+    @Value("${et.user}")
+    public String etUser;
+
+    @Value("${et.pass}")
+    public String etPass;
 
     @Value("${et.edm.mysql.host}")
     public String etEdmMysqlHost;
@@ -131,6 +138,18 @@ public class EtPluginsService {
         this.tmpTssInstancesYmlFolder = path + "tmp-support-services-yml";
         this.uniqueEtPluginsYmlFolder = path + "tmp-unique-etplugins-yml";
 
+        // Set credentials for ET Plugin
+        logger.debug("Initial plugin user: {}", etUser);
+        logger.debug("Initial plugin password: {}", etPass);
+        if (etUser.equals("none") && etPass.equals("none")) {
+            etUser = "elastest";
+            etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
+                    + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
+        }
+        
+        logger.debug("final plugin user: {}", etUser);
+        logger.debug("Final plugin password: {}", etPass);
+
         registerEngines();
         for (String engine : this.enginesMap.keySet()) {
             createTestEngineProject(engine);
@@ -165,19 +184,32 @@ public class EtPluginsService {
 
     public void createUniqueEtPluginProject(String name) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
+        Map<String, String> envVars = new HashMap<>();
+
         if (name.equals(JENKINS_NAME)) {
-            Map<String, String> envVars = new HashMap<>();
+            this.uniqueEtPluginsMap.get(name).setUser(etUser);
+            this.uniqueEtPluginsMap.get(name).setPass(etPass);
+            logger.debug("etpass: {}", etPass);
+            logger.debug("Password sended to container for the service {}: {}", name, this.uniqueEtPluginsMap.get(name).getPass());
             if (!etPublicHost.equals("localhost")) {
                 envVars.put("JENKINS_LOCATION", "http://" + etPublicHost + ":"
                         + etEtmJenkinsBindedPort);
             }
+            envVars.put("ET_USER", etUser);
+            envVars.put("ET_PASS", etPass);
+            this.createProjectWithEnv(name, dockerComposeYml,
+                    uniqueEtPluginsYmlFolder, envVars);
+        } else if (name.equals(TESTLINK_NAME)) {
+            this.uniqueEtPluginsMap.get(name).setUser(etUser);
+            this.uniqueEtPluginsMap.get(name).setPass(etPass);
+            envVars.put("TESTLINK_USERNAME", etUser);
+            envVars.put("TESTLINK_PASSWORD", etPass);
             this.createProjectWithEnv(name, dockerComposeYml,
                     uniqueEtPluginsYmlFolder, envVars);
         } else {
             this.createProject(name, dockerComposeYml,
                     uniqueEtPluginsYmlFolder);
         }
-
     }
 
     public SupportServiceInstance createTssInstanceProject(String instanceId,
@@ -512,12 +544,15 @@ public class EtPluginsService {
             logger.info("Service url to check: " + etPluginUrl);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
-            up = (responseCode >= 200 && responseCode <= 299);
+            logger.info("Code returned: {}", responseCode);
+            up = ((responseCode >= 200 && responseCode <= 299)
+                    || responseCode == 403);
             if (!up) {
                 logger.info("Service not ready at url: " + etPluginUrl);
                 return up;
             }
         } catch (IOException e) {
+            logger.warn("No url to check yet");
             return false;
         }
 
@@ -597,6 +632,9 @@ public class EtPluginsService {
 
         EtPlugin etPlugin = new EtPlugin(
                 this.uniqueEtPluginsMap.get(serviceName));
+        logger.debug("Get unique service: {}", serviceName);
+        logger.debug("Password stored: {}", this.uniqueEtPluginsMap.get(serviceName).getPass());
+        logger.debug("Plugin password returned: {}", etPlugin.getPass());
 
         if (!host.equals("none")) {
             etPlugin = new EtPlugin(etPlugin);

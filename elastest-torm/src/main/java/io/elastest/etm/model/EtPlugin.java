@@ -12,6 +12,8 @@ public class EtPlugin extends DockerServiceStatus {
     private String url;
     private List<String> imagesList = new ArrayList<>();
     private Map<String, String> parameters;
+    private String user;
+    private String pass;
 
     public EtPlugin() {
     }
@@ -30,6 +32,8 @@ public class EtPlugin extends DockerServiceStatus {
         this.parameters = new HashMap<>(plugin.parameters);
         this.setStatus(plugin.getStatus());
         this.setStatusMsg(plugin.getStatusMsg());
+        this.user = plugin.user;
+        this.pass = plugin.pass;
     }
 
     public String getName() {
@@ -62,6 +66,22 @@ public class EtPlugin extends DockerServiceStatus {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 
     @Override

@@ -8,6 +8,8 @@ services:
             - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
             - INTEGRATED_JENKINS=true
             - JENKINS_LOCATION=none
+            - ET_USER=none
+            - ET_PASS=none
       networks:
              - elastest
       volumes:
