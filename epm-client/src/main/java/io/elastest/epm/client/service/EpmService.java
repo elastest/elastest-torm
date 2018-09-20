@@ -292,7 +292,6 @@ public class EpmService {
         Worker result = null;
         try {
             result = workerApiInstance.registerWorker(worker);
-            System.out.println(result);
         } catch (ApiException e) {
             System.err
                     .println("Exception when calling WorkerApi#registerWorker");
