@@ -1648,6 +1648,8 @@ public class EsmService {
                 etInternetDisabled);
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST",
                 utilsService.getEtPublicHostValue());
+        supportServiceInstance.getParameters().put("ET_PUBLIC_HOST_TYPE",
+                utilsService.getEtPublicHostType());
         supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API",
                 etEdmAlluxioApi);
         supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST",

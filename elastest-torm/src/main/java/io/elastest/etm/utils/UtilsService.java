@@ -60,6 +60,10 @@ public class UtilsService {
                 .equals(etPublicHostType);
     }
 
+    public String getEtPublicHostType() {
+        return etPublicHostType;
+    }
+
     public String getEtPublicHostValue() {
         return etPublicHost;
     }
