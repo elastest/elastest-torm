@@ -36,7 +36,6 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.utils.PasswordFactory;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -94,6 +93,9 @@ public class EtPluginsService {
     @Value("${et.etm.testlink.port}")
     public String etEtmTestLinkPort;
 
+    @Value("${et.etm.testlink.binded.port}")
+    public String etEtmTestLinkBindedPort;
+
     @Value("${et.etm.testlink.container.name}")
     public String etEtmTestLinkContainerName;
 
@@ -147,7 +149,7 @@ public class EtPluginsService {
             etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
                     + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
         }
-        
+
         logger.debug("final plugin user: {}", etUser);
         logger.debug("Final plugin password: {}", etPass);
 
@@ -191,10 +193,12 @@ public class EtPluginsService {
             this.uniqueEtPluginsMap.get(name).setUser(etUser);
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
             logger.debug("etpass: {}", etPass);
-            logger.debug("Password sended to container for the service {}: {}", name, this.uniqueEtPluginsMap.get(name).getPass());
+            logger.debug("Password sended to container for the service {}: {}",
+                    name, this.uniqueEtPluginsMap.get(name).getPass());
             if (!utilsService.isDefaultEtPublicHost()) {
-                envVars.put("JENKINS_LOCATION", "http://" + utilsService.getEtPublicHostValue() + ":"
-                        + etEtmJenkinsBindedPort);
+                envVars.put("JENKINS_LOCATION",
+                        "http://" + utilsService.getEtPublicHostValue() + ":"
+                                + etEtmJenkinsBindedPort);
             }
             envVars.put("ET_USER", etUser);
             envVars.put("ET_PASS", etPass);
@@ -432,7 +436,7 @@ public class EtPluginsService {
                     String ip = utilsService.getEtPublicHostValue();
 
                     boolean useBindedPort = true;
-                    if (ElastestConstants.DEFAULT_ET_PUBLIC_HOST.equals(ip)) {
+                    if (utilsService.isDefaultEtPublicHost()) {
                         useBindedPort = false;
                         if (dockerEtmService.dockerService
                                 .isContainerIntoNetwork(network,
@@ -619,12 +623,14 @@ public class EtPluginsService {
         switch (serviceName) {
         case JENKINS_NAME:
             host = etEtmJenkinsHost;
-            port = etEtmJenkinsPort;
+            port = utilsService.isDefaultEtPublicHost() ? etEtmJenkinsPort
+                    : etEtmJenkinsBindedPort;
             containerName = etEtmJenkinsContainerName;
             break;
         case TESTLINK_NAME:
             host = etEtmTestLinkHost;
-            port = etEtmTestLinkPort;
+            port = utilsService.isDefaultEtPublicHost() ? etEtmTestLinkPort
+                    : etEtmTestLinkBindedPort;
             containerName = etEtmTestLinkContainerName;
             break;
         default:
@@ -634,27 +640,23 @@ public class EtPluginsService {
         EtPlugin etPlugin = new EtPlugin(
                 this.uniqueEtPluginsMap.get(serviceName));
         logger.debug("Get unique service: {}", serviceName);
-        logger.debug("Password stored: {}", this.uniqueEtPluginsMap.get(serviceName).getPass());
+        logger.debug("Password stored: {}",
+                this.uniqueEtPluginsMap.get(serviceName).getPass());
         logger.debug("Plugin password returned: {}", etPlugin.getPass());
 
         if (!host.equals("none")) {
             etPlugin = new EtPlugin(etPlugin);
             try {
-                // TODO Review with Edu to see if it is possible to apply the
-                // Jenkins way for the rest
-                String url = "";
-                if (serviceName.equals(JENKINS_NAME)) {
-                    url = "http://" + (utilsService.isDefaultEtPublicHost()
-                            ? dockerEtmService.dockerService
-                                    .getContainerIp(containerName, network)
-                            : utilsService.getEtPublicHostValue()) + ":"
-                            + (utilsService.isDefaultEtPublicHost() ? port
-                                    : etEtmJenkinsBindedPort);
-                } else {
-                    url = "http://" + dockerEtmService.dockerService
-                            .getContainerIp(containerName, network) + ":"
-                            + port;
+                // Default or development
+                String finalHost = this.dockerEtmService.dockerService
+                        .getContainerIpByNetwork(containerName, network);
+
+                // If not development or default, start socat
+                if (!utilsService.isDefaultEtPublicHost()) {
+                    finalHost = utilsService.getEtPublicHostValue();
                 }
+
+                String url = "http://" + finalHost + ":" + port;
 
                 etPlugin.setUrl(url);
             } catch (Exception e) {

@@ -141,17 +141,19 @@ public class TestLinkService {
 
     public void initTLHostAndPort() {
         if (this.isStarted()) {
+            
+            // TODO refactor: use EtPluginsService
             if (etEtmTestLinkServiceName.equals(etEtmTestLinkHost)) {
                 etEtmTestLinkHost = etEtmTestLinkContainerName;
             }
             try {
-                // Default development
+                // Default or development
                 this.testLinkHost = this.dockerEtmService.dockerService
                         .getContainerIpByNetwork(etEtmTestLinkHost,
                                 etDockerNetwork);
                 this.testLinkPort = etEtmTestLinkPort;
 
-                // If not development, start socat
+                // If not development or default, start socat
                 if (!utilsService.isDefaultEtPublicHost()) {
                     String etPublicHost = utilsService.getEtPublicHostValue();
                     logger.info("Real TestLink Ip: {}", etPublicHost);
