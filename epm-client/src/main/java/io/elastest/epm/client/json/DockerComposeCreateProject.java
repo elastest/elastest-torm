@@ -21,10 +21,9 @@ import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -85,6 +84,35 @@ public class DockerComposeCreateProject {
         List<String> envList = new ArrayList<>();
         if (this.env != null && !this.env.isEmpty()) {
             for (HashMap.Entry<String, String> currentEnv : this.env
+                    .entrySet()) {
+                String envString = currentEnv.getKey() + "="
+                        + currentEnv.getValue();
+                envList.add(envString);
+            }
+        }
+
+        return envList;
+    }
+
+    public Map<String, String> mapFromStringList(List<String> list,
+            String splitCharacter) {
+        Map<String, String> map = null;
+        if (list != null
+                && (splitCharacter != null && !splitCharacter.isEmpty())) {
+            map = new HashMap<>();
+            for (String entry : list) {
+                String[] entryArray = entry.split(splitCharacter);
+                map.put(entryArray[0],
+                        entryArray.length > 1 ? entryArray[1] : "");
+            }
+        }
+        return map;
+    }
+
+    public List<String> envsAsList(Map<String, String> envsMap) {
+        List<String> envList = new ArrayList<>();
+        if (envsMap != null && !envsMap.isEmpty()) {
+            for (HashMap.Entry<String, String> currentEnv : envsMap
                     .entrySet()) {
                 String envString = currentEnv.getKey() + "="
                         + currentEnv.getValue();
@@ -202,25 +230,21 @@ public class DockerComposeCreateProject {
 
     private HashMap.Entry<String, HashMap> setEnvVarsToYmlService(
             HashMap.Entry<String, HashMap> service) {
-        List<String> envs = envsAsList();
-        if (envs.size() > 0) {
+        if (this.env.size() > 0) {
             HashMap serviceContent = service.getValue();
             String environmentKey = "environment";
+            Map<String, String> serviceEnvironments = new HashMap<>();
             if (serviceContent.containsKey(environmentKey)) {
                 List<String> existentEnvs = (List<String>) serviceContent
                         .get(environmentKey);
-                envs.addAll(existentEnvs);
+                serviceEnvironments = mapFromStringList(existentEnvs, "=");
                 serviceContent.remove(environmentKey);
             }
-
-            // Remove duplicated
-            Set<String> hs = new HashSet<>();
-            hs.addAll(envs);
-            envs.clear();
-            envs.addAll(hs);
-
+            for (Entry<String, String> entry : this.env.entrySet()) {
+                serviceEnvironments.put(entry.getKey(), entry.getValue());
+            }
             // Add to service
-            serviceContent.put(environmentKey, envs);
+            serviceContent.put(environmentKey, envsAsList(serviceEnvironments));
         }
         return service;
     }
