@@ -212,7 +212,6 @@ public class DockerComposeService {
             return false;
         }
         
-        logger.debug("Doquer compose to up: {}",projects.get(projectName).getComposeFiles().get(0));
         try {
             if (withPull) {
                 this.pullImages(projects.get(projectName));

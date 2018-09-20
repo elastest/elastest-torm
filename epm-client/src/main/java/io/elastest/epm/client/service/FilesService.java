@@ -242,7 +242,7 @@ public class FilesService {
                 }
             }
         } else {
-            System.out.println(file.getName() + "is not supported");
+            logger.warn("{} is not supported", file.getName());
         }
     }
 
