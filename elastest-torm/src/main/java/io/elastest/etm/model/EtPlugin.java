@@ -9,6 +9,8 @@ import io.elastest.epm.client.model.DockerServiceStatus;
 
 public class EtPlugin extends DockerServiceStatus {
     private String name;
+    private String internalUrl;
+    private String bindedUrl;
     private String url;
     private List<String> imagesList = new ArrayList<>();
     private Map<String, String> parameters;
@@ -27,6 +29,8 @@ public class EtPlugin extends DockerServiceStatus {
     public EtPlugin(EtPlugin plugin) {
         super();
         this.name = plugin.name;
+        this.internalUrl = plugin.internalUrl;
+        this.bindedUrl = plugin.bindedUrl;
         this.url = plugin.url;
         this.imagesList = new ArrayList<>(plugin.imagesList);
         this.parameters = new HashMap<>(plugin.parameters);
@@ -42,6 +46,22 @@ public class EtPlugin extends DockerServiceStatus {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getInternalUrl() {
+        return internalUrl;
+    }
+
+    public void setInternalUrl(String internalUrl) {
+        this.internalUrl = internalUrl;
+    }
+
+    public String getBindedUrl() {
+        return bindedUrl;
+    }
+
+    public void setBindedUrl(String bindedUrl) {
+        this.bindedUrl = bindedUrl;
     }
 
     public String getUrl() {
