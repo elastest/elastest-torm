@@ -11,7 +11,7 @@ services:
     - TESTLINK_USERNAME=none
     - TESTLINK_PASSWORD=none
     - MARIADB_HOST=edm-mysql
-    - MARIADB_PASSWORD=null
+    - MARIADB_PASSWORD=
     - MARIADB_PORT_NUMBER=3306
     - MARIADB_USER=root
     volumes:
