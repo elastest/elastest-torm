@@ -542,6 +542,10 @@ public class EtPluginsService {
     }
 
     public boolean checkIfUrlIsUp(String etPluginUrl) {
+        if (etPluginUrl == null || "".equals(etPluginUrl)) {
+            logger.debug("Service url to check is empty!");
+            return false;
+        }
         boolean up = false;
         URL url;
         try {
@@ -557,7 +561,7 @@ public class EtPluginsService {
                 return up;
             }
         } catch (IOException e) {
-            logger.warn("No url to check yet");
+            logger.warn("No url to check yet", e);
             return false;
         }
 
@@ -644,6 +648,7 @@ public class EtPluginsService {
                 this.uniqueEtPluginsMap.get(serviceName).getPass());
         logger.debug("Plugin password returned: {}", etPlugin.getPass());
 
+        // If started on init (platform)
         if (!host.equals("none")) {
             etPlugin = new EtPlugin(etPlugin);
             try {
