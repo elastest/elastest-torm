@@ -542,10 +542,6 @@ public class EtPluginsService {
     }
 
     public boolean checkIfUrlIsUp(String etPluginUrl) {
-        if (etPluginUrl == null || "".equals(etPluginUrl)) {
-            logger.debug("Service url to check is empty!");
-            return false;
-        }
         boolean up = false;
         URL url;
         try {
@@ -561,7 +557,7 @@ public class EtPluginsService {
                 return up;
             }
         } catch (IOException e) {
-            logger.warn("No url to check yet", e);
+            logger.warn("No url to check or not available yet");
             return false;
         }
 
@@ -672,6 +668,7 @@ public class EtPluginsService {
             etPlugin.setStatusMsg("Ready");
             updateStatus(serviceName, DockerServiceStatusEnum.READY, "Ready");
         } else {
+            etPlugin.setUrl(getEtPluginUrl(serviceName));
             // Check if ready and update
             if (!etPlugin.getStatus().equals(DockerServiceStatusEnum.READY)) {
                 this.checkIfEtPluginUrlIsUp(serviceName);
