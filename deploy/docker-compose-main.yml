@@ -41,7 +41,8 @@ services:
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
             - ET_ESM_SS_DESC_FILES_PATH=/platform-services/
             - ET_ETM_INTERNAL_HOST=etm
-            - ET_SHARED_FOLDER=/shared-data/
+            - ET_SHARED_FOLDER=${ET_DATA_IN_CONTAINER}
+            - ET_DATA_IN_HOST=${ET_DATA_IN_HOST}
             - ET_PROXY_PORT=37000
             - ET_PROXY_HOST=etm-proxy
             - ET_IN_PROD=true
@@ -65,7 +66,7 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - platform-services:/platform-services
-            - /shared-data:/shared-data
+            - ${ET_DATA_IN_HOST}:${ET_DATA_IN_CONTAINER}
         networks:
             - elastest
 

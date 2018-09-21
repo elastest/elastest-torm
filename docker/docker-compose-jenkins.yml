@@ -14,7 +14,7 @@ services:
              - elastest
       volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - /shared-data/jenkins_home:/var/jenkins_home
+            - ${ET_DATA_IN_HOST}/jenkins_home:/var/jenkins_home
 networks:
     elastest:
       driver: bridge
