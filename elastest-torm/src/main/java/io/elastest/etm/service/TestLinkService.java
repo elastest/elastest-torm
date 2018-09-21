@@ -40,7 +40,6 @@ import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
-import io.elastest.etm.utils.UtilsService;
 import net.minidev.json.JSONObject;
 
 @Service
@@ -82,9 +81,7 @@ public class TestLinkService {
     private final ExternalTestCaseRepository externalTestCaseRepository;
     private final ExternalTestExecutionRepository externalTestExecutionRepository;
     private final ExternalTJobRepository externalTJobRepository;
-    private final DockerEtmService dockerEtmService;
     public final EtPluginsService etPluginsService;
-    private final UtilsService utilsService;
 
     String devKey = "20b9a66e17597842404062c3b628b938";
     TestLinkAPI api = null;
@@ -94,33 +91,29 @@ public class TestLinkService {
             ExternalTestCaseRepository externalTestCaseRepository,
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
-            DockerEtmService dockerEtmService,
-            EtPluginsService testEnginesService, UtilsService utilsService) {
+            EtPluginsService testEnginesService) {
         this.externalProjectRepository = externalProjectRepository;
         this.externalTestCaseRepository = externalTestCaseRepository;
         this.externalTestExecutionRepository = externalTestExecutionRepository;
         this.externalTJobRepository = externalTJobRepository;
-        this.dockerEtmService = dockerEtmService;
         this.etPluginsService = testEnginesService;
-        this.utilsService = utilsService;
     }
 
     @PostConstruct
     public void init() {
         if (this.isStarted()) {
-            this.initTLHostAndPort();
-            this.initTestLink(this.getTestLinkUrl());
+            this.initTestLink();
         }
     }
 
-    private void initTestLink(String url) {
+    private void initTestLink() {
         if (this.isStarted()) {
-            this.testLinkUrl = url;
-            url += "/lib/api/xmlrpc/v1/xmlrpc.php";
-            logger.info("Testlink api url: {}", url);
+            this.testLinkUrl = this.getTestLinkUrl();
+            String apiUrl = this.testLinkUrl + "/lib/api/xmlrpc/v1/xmlrpc.php";
+            logger.info("Testlink api url: {}", apiUrl);
 
             try {
-                testlinkApiURL = new URL(url);
+                testlinkApiURL = new URL(apiUrl);
             } catch (MalformedURLException mue) {
                 mue.printStackTrace();
             }
@@ -139,45 +132,15 @@ public class TestLinkService {
         }
     }
 
-    public void initTLHostAndPort() {
-        if (this.isStarted()) {
-            
-            // TODO refactor: use EtPluginsService
-            if (etEtmTestLinkServiceName.equals(etEtmTestLinkHost)) {
-                etEtmTestLinkHost = etEtmTestLinkContainerName;
-            }
-            try {
-                // Default or development
-                this.testLinkHost = this.dockerEtmService.dockerService
-                        .getContainerIpByNetwork(etEtmTestLinkHost,
-                                etDockerNetwork);
-                this.testLinkPort = etEtmTestLinkPort;
-
-                // If not development or default, start socat
-                if (!utilsService.isDefaultEtPublicHost()) {
-                    String etPublicHost = utilsService.getEtPublicHostValue();
-                    logger.info("Real TestLink Ip: {}", etPublicHost);
-                    this.testLinkHost = etPublicHost;
-                    logger.info("Real TestLink port: {}",
-                            etEtmTestlinkBindedPort);
-                    this.testLinkPort = etEtmTestlinkBindedPort;
-                }
-            } catch (Exception e) {
-                logger.error("Cannot get TestLink container ip");
-            }
-        }
-    }
-
     @Async
     public void startTLOnDemand() {
         if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
             etPluginsService.startEngineOrUniquePlugin(testlinkName);
-            this.testLinkUrl = etPluginsService.getEtPluginUrl(testlinkName);
             startedOnDemand = true;
             startingOnDemand = false;
             this.testLinkDBService.init();
-            this.initTestLink(this.testLinkUrl);
+            this.initTestLink();
         }
     }
 
@@ -201,8 +164,7 @@ public class TestLinkService {
     }
 
     public String getTestLinkUrl() {
-        return this.testLinkUrl != null ? this.testLinkUrl
-                : "http://" + this.testLinkHost + ":" + this.testLinkPort;
+        return etPluginsService.getEtPluginUrl(testlinkName);
     }
 
     /* *****************************************************************/

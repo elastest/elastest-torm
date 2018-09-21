@@ -102,8 +102,6 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
           this.testLinkModel = etPlugin;
           if (etPlugin.isReady()) {
             this.initIfStarted();
-            this.subscription.unsubscribe();
-            this.subscription = undefined;
           }
         });
       });
@@ -115,6 +113,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
       (ready: boolean) => {
         this.isRunning = ready;
         if (ready) {
+          this.unsubscribe();
           this.startingInProcess = false;
           this.loadData();
         }
@@ -143,7 +142,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   loadTestLinkUrl(): void {
-    this.testlinkService.getTestlinkUrl().subscribe((url: string) => {
+    this.etPluginsService.getUrl(this.testLinkModel.name).subscribe((url: string) => {
       this.testLinkUrl = url;
     });
   }

@@ -633,13 +633,12 @@ public class EtPluginsService {
                     return container.isRunning();
                 }
             }
-            return false;
 
         } catch (Exception e) {
             logger.error("EtPlugin {} not started or not exist", serviceName,
                     e);
-            return false;
         }
+        return false;
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
@@ -706,7 +705,7 @@ public class EtPluginsService {
             }
 
         } catch (Exception e) {
-            logger.error("Error on get {} url", serviceName, e);
+            logger.error("Error on get {} url", serviceName);
         }
         String bindedHost = utilsService.getEtPublicHostValue();
 
