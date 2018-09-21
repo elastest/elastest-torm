@@ -685,9 +685,6 @@ public class EtPluginsService {
         EtPlugin etPlugin = new EtPlugin(
                 this.uniqueEtPluginsMap.get(serviceName));
         logger.debug("Get unique service: {}", serviceName);
-        logger.debug("Password stored: {}",
-                this.uniqueEtPluginsMap.get(serviceName).getPass());
-        logger.debug("Plugin password returned: {}", etPlugin.getPass());
 
         String internalHost = null;
         try {
