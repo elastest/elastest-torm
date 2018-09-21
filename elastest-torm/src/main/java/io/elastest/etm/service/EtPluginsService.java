@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
@@ -690,22 +691,23 @@ public class EtPluginsService {
 
         String internalHost = null;
         try {
-            for (DockerContainer container : dockerComposeService
-                    .getContainers(serviceName).getContainers()) {
-                containerName = container.getName(); // example:
+            for (Container container : dockerComposeService.dockerService
+                    .getAllContainers()) {
+                String currentContainerName = container.names().get(0); // example:
 
-                if (containerName != null
-                        && containerName.endsWith(serviceName + "_1")
+                if (currentContainerName != null
+                        && currentContainerName.endsWith(serviceName + "_1")
                         && dockerEtmService.dockerService
                                 .isContainerIntoNetwork(network,
-                                        containerName)) {
+                                        currentContainerName)) {
+                    containerName = currentContainerName;
                     internalHost = this.dockerEtmService.dockerService
                             .getContainerIpByNetwork(containerName, network);
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error on get {} url", serviceName);
+            logger.error("Error on get {} internal url", serviceName);
         }
         String bindedHost = utilsService.getEtPublicHostValue();
 

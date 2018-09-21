@@ -820,6 +820,11 @@ public class DockerService {
         return response;
     }
 
+    public List<Container> getAllContainers() throws Exception {
+        DockerClient dockerClient = getDockerClient(false);
+        return dockerClient.listContainers(ListContainersParam.allContainers());
+    }
+
     public List<Container> getRunningContainersByImageName(String imageName)
             throws Exception {
         imageName += ":";

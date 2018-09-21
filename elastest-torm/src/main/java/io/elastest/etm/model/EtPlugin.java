@@ -106,9 +106,10 @@ public class EtPlugin extends DockerServiceStatus {
 
     @Override
     public String toString() {
-        return "TestEngine [name=" + name + ", url=" + url + ", imagesList="
-                + imagesList + ", statusMsg=" + getStatusMsg() + ", status="
-                + getStatusMsg() + "]";
+        return "EtPlugin [name=" + name + ", internalUrl=" + internalUrl
+                + ", bindedUrl=" + bindedUrl + ", url=" + url + ", imagesList="
+                + imagesList + ", parameters=" + parameters + ", user=" + user
+                + ", pass=" + pass + "]";
     }
 
     public void initToDefault() {
