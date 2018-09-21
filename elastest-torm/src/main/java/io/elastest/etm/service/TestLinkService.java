@@ -164,7 +164,7 @@ public class TestLinkService {
     }
 
     public String getTestLinkUrl() {
-        return etPluginsService.getEtPluginUrl(testlinkName);
+        return etPluginsService.getUniqueEtPlugin(testlinkName).getUrl();
     }
 
     /* *****************************************************************/
