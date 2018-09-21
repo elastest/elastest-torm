@@ -714,6 +714,8 @@ public class EsmService {
 
         if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
+            logger.debug("Service {} is loaded on init. It's not necessary to wait for the service",
+                    serviceName);
             // TSS Loaded on init
             return;
         }
