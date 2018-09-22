@@ -60,6 +60,7 @@ ET_PROXY_PORT=37000
 ET_ETM_LOGSTASH_CONTAINER_NAME=${projectName}_etm-logstash_1
 ET_EDM_MYSQL_CONTAINER_NAME=${projectName}_edm-mysql_1
 ET_COMPOSE_PROJECT_NAME=${projectName}
+export ET_SHARED_FOLDER='/data'
 
 # TestLink Container Name
 ET_ETM_TESTLINK_HOST=$(docker ps | awk '{print $NF}' | grep ".*etm-testlink.*")
