@@ -363,6 +363,7 @@ public class TJobExecOrchestratorService {
             throws Exception {
         String resultMsg = "";
 
+        // TODO exit if there are no TSS
         if (tJobServices != null && tJobServices != "") {
             provideServices(tJobServices, tJobExec);
         }
@@ -373,6 +374,7 @@ public class TJobExecOrchestratorService {
                     esmService.gettJobServicesInstances().get(tSSInstId));
         });
 
+        // TODO if is mini, not wait for TSS (already waiting for them individually in provideService)
         resultMsg = "Waiting for the Test Support Services to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
         dockerEtmService.updateTJobExecResultStatus(tJobExec,

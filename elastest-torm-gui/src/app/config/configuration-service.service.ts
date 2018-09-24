@@ -4,7 +4,6 @@ import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { ConfigModel } from './config-model';
-import { ETM_API } from '../../config/api.config';
 import { Observable } from 'rxjs/Rx';
 import { CoreServiceModel } from '../elastest-etm/models/core-service.model';
 
