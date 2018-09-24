@@ -256,21 +256,26 @@ public class EsmService {
             eusInstance.setContainerIp(etmHost);
 
             String serviceIp = etmHost;
-            int servicePort = Integer.parseInt(etmServerPort);
+            int internalServicePort = Integer.parseInt(etmServerPort);
+            int bindedServicePort = Integer.parseInt(etProxyPort);
+
+            int servicePort = internalServicePort;
+
             eusInstance.setInternalServiceIp(serviceIp);
-            eusInstance.setInternalServicePort(servicePort);
 
             if (!utilsService.isDefaultEtPublicHost()) {
                 serviceIp = utilsService.getEtPublicHostValue();
                 eusInstance.setBindedServiceIp(serviceIp);
                 if ("true".equals(inContainer)) {
-                    servicePort = Integer.parseInt(etProxyPort);
-                    eusInstance.setBindedServicePort(servicePort);
+                    servicePort = bindedServicePort;
                 }
             }
             eusInstance.setServiceIp(serviceIp);
-
             eusInstance = buildTssInstanceUrls(eusInstance);
+
+            // Set ports after buildTssInstanceUrls to update
+            eusInstance.setInternalServicePort(internalServicePort);
+            eusInstance.setBindedServicePort(bindedServicePort);
 
             // Replace EUS port to ETM port
             String originalPort = String.valueOf(eusInstance.getServicePort());
@@ -280,7 +285,7 @@ public class EsmService {
                 eusInstance.getUrls().put(key, newValue);
                 logger.info("Replace the port {} by {}", originalPort,
                         servicePort);
-                logger.info("EUS URLs: {}:{}", key, newValue);
+                logger.info("EUS URLs: {} => {}", key, newValue);
 
             }
             for (String key : eusInstance.getEndpointsData().keySet()) {
@@ -1046,11 +1051,12 @@ public class EsmService {
 
             SupportServiceInstance auxServiceInstance = null;
 
+            // Main instance
             if (manifestEndpointService.get("main") != null
                     && manifestEndpointService.get("main").booleanValue()) {
                 logger.info("Principal instance {}:" + serviceName);
                 auxServiceInstance = serviceInstance;
-            } else {
+            } else { // Subservice
                 auxServiceInstance = new SupportServiceInstance();
                 auxServiceInstance.setEndpointName(serviceName);
 
