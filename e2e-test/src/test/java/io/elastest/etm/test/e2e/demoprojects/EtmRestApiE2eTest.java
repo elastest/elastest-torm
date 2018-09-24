@@ -65,7 +65,7 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
 
     @Test
     @DisplayName("Create REST API project Test")
-    void testCreateUnitTest(
+    void testCreateRestTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;

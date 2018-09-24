@@ -51,7 +51,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
 
     @Test
     @DisplayName("Check TJob Execution logs in Log Analyzer")
-    void testCreateUnitTest(
+    void testExecuteAndCheckLogsInLogAnalyzer(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
