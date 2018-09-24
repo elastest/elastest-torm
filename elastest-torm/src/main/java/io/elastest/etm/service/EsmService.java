@@ -1647,14 +1647,13 @@ public class EsmService {
 
     private void setTSSFilesConfig(
             SupportServiceInstance supportServiceInstance) {
-        if (utilsService.isElastestMini()) {
-            String fileSeparator = "/";
-            supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    etSharedFolder
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
-                            + fileSeparator);
-        }
+        String fileSeparator = "/";
+        supportServiceInstance.getParameters().put("ET_FILES_PATH",
+                etSharedFolder + fileSeparator
+                        + supportServiceInstance.getServiceName().toLowerCase()
+                        + fileSeparator);
+        supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
+                etSharedFolder);
     }
 
     private void fillEnvVariablesToTSS(
