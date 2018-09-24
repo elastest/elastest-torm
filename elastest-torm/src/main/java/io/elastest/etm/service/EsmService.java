@@ -1145,38 +1145,40 @@ public class EsmService {
             int internalPort = Integer.parseInt(nodePort);
             serviceInstance.setInternalServicePort(internalPort);
 
-            int bindedPort;
-
-            if (serviceInstance.getEndpointsBindingsPorts()
-                    .containsKey(nodePort)) {
-                bindedPort = Integer.parseInt(serviceInstance
-                        .getEndpointsBindingsPorts().get(nodePort));
-            } else {
-                try {
-                    SocatBindedPort socatBindedPortObj = dockerEtmService
-                            .bindingPort(serviceInstance.getContainerIp(),
-                                    node.get("port").toString(), networkName,
-                                    epmService.etMasterSlaveMode);
-                    serviceInstance.getPortBindingContainers()
-                            .add(socatBindedPortObj.getBindedPort());
-                    bindedPort = Integer
-                            .parseInt(socatBindedPortObj.getListenPort());
-                    serviceInstance.getEndpointsBindingsPorts().put(nodePort,
-                            String.valueOf(bindedPort));
-                } catch (Exception e) {
-                    logger.error("Ports binding fails: {} ", e.getMessage());
-                    throw new Exception(
-                            "Ports binding fails: " + e.getMessage());
-                }
-
-            }
-
-            serviceInstance.setBindedServicePort(bindedPort);
-
             // If server address, binded
             if (!utilsService.isDefaultEtPublicHost()) {
+                int bindedPort;
+                if (serviceInstance.getEndpointsBindingsPorts()
+                        .containsKey(nodePort)) {
+                    bindedPort = Integer.parseInt(serviceInstance
+                            .getEndpointsBindingsPorts().get(nodePort));
+                } else {
+                    try {
+                        SocatBindedPort socatBindedPortObj = dockerEtmService
+                                .bindingPort(serviceInstance.getContainerIp(),
+                                        node.get("port").toString(),
+                                        networkName,
+                                        epmService.etMasterSlaveMode);
+                        serviceInstance.getPortBindingContainers()
+                                .add(socatBindedPortObj.getBindedPort());
+                        bindedPort = Integer
+                                .parseInt(socatBindedPortObj.getListenPort());
+                        serviceInstance.getEndpointsBindingsPorts()
+                                .put(nodePort, String.valueOf(bindedPort));
+                    } catch (Exception e) {
+                        logger.error("Ports binding fails: {} ",
+                                e.getMessage());
+                        throw new Exception(
+                                "Ports binding fails: " + e.getMessage());
+                    }
+
+                }
+
+                serviceInstance.setBindedServicePort(bindedPort);
+
                 auxPort = bindedPort;
                 ((ObjectNode) node).put("port", auxPort);
+
             } else {
                 auxPort = internalPort;
             }
