@@ -173,10 +173,18 @@ public class EtmMiniSupportServiceClient
                     .getContainerIp(serviceInstance.getContainerName(),
                             etDockerNetwork);
             serviceInstance.setContainerIp(containerIp);
-            logger.info("ET_PUBLIC_HOST value: " + utilsService.getEtPublicHostValue());
+            logger.info("ET_PUBLIC_HOST value: "
+                    + utilsService.getEtPublicHostValue());
+
+            String internalServiceIp = containerIp;
+            serviceInstance.setInternalServiceIp(internalServiceIp);
+            String bindedServiceIp = utilsService.getEtPublicHostValue();
+            serviceInstance.setBindedServiceIp(bindedServiceIp);
+
             String serviceIp = !utilsService.isDefaultEtPublicHost()
-                            ? utilsService.getEtPublicHostValue()
-                            : containerIp;
+                    ? bindedServiceIp
+                    : internalServiceIp;
+
             serviceInstance.setServiceIp(serviceIp);
         } catch (Exception e) {
             logger.warn("Error on getting TSS instance container ip", e);

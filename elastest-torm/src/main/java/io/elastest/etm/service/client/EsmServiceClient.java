@@ -323,9 +323,17 @@ public class EsmServiceClient implements SupportServiceClientInterface {
 
                     logger.info("ET_PUBLIC_HOST value: "
                             + utilsService.getEtPublicHostValue());
+
+                    String internalServiceIp = containerIp;
+                    serviceInstance.setInternalServiceIp(internalServiceIp);
+                    String bindedServiceIp = utilsService
+                            .getEtPublicHostValue();
+                    serviceInstance.setBindedServiceIp(bindedServiceIp);
+
                     serviceIp = !utilsService.isDefaultEtPublicHost()
-                            ? utilsService.getEtPublicHostValue()
-                            : containerIp;
+                            ? bindedServiceIp
+                            : internalServiceIp;
+
                     serviceInstance.setContainerIp(containerIp);
                     serviceInstance.setServiceIp(serviceIp);
                     logger.info(

@@ -257,10 +257,15 @@ public class EsmService {
 
             String serviceIp = etmHost;
             int servicePort = Integer.parseInt(etmServerPort);
+            eusInstance.setInternalServiceIp(serviceIp);
+            eusInstance.setInternalServicePort(servicePort);
+
             if (!utilsService.isDefaultEtPublicHost()) {
                 serviceIp = utilsService.getEtPublicHostValue();
+                eusInstance.setBindedServiceIp(serviceIp);
                 if ("true".equals(inContainer)) {
                     servicePort = Integer.parseInt(etProxyPort);
+                    eusInstance.setBindedServicePort(servicePort);
                 }
             }
             eusInstance.setServiceIp(serviceIp);
@@ -714,7 +719,8 @@ public class EsmService {
 
         if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
-            logger.debug("Service {} is loaded on init. It's not necessary to wait for the service",
+            logger.debug(
+                    "Service {} is loaded on init. It's not necessary to wait for the service",
                     serviceName);
             // TSS Loaded on init
             return;
@@ -1047,9 +1053,24 @@ public class EsmService {
             } else {
                 auxServiceInstance = new SupportServiceInstance();
                 auxServiceInstance.setEndpointName(serviceName);
+
+                // SetIp ports
                 auxServiceInstance
                         .setContainerIp(serviceInstance.getContainerIp());
                 auxServiceInstance.setServiceIp(serviceInstance.getServiceIp());
+                auxServiceInstance
+                        .setServicePort(serviceInstance.getServicePort());
+
+                auxServiceInstance.setInternalServiceIp(
+                        serviceInstance.getInternalServiceIp());
+                auxServiceInstance.setInternalServicePort(
+                        serviceInstance.getInternalServicePort());
+
+                auxServiceInstance.setBindedServiceIp(
+                        serviceInstance.getBindedServiceIp());
+                auxServiceInstance.setBindedServicePort(
+                        serviceInstance.getBindedServicePort());
+
                 auxServiceInstance
                         .setParameters(serviceInstance.getParameters());
                 serviceInstance.getSubServices().add(auxServiceInstance);
@@ -1112,62 +1133,59 @@ public class EsmService {
             throws Exception {
         int auxPort = 37000;
 
-        if (node != null) {
+        if (node != null && node.get("port") != null) {
+            String nodePort = node.get("port").toString().replaceAll("\"", "");
+
+            int internalPort = Integer.parseInt(nodePort);
+            serviceInstance.setInternalServicePort(internalPort);
+
+            int bindedPort;
+
+            if (serviceInstance.getEndpointsBindingsPorts()
+                    .containsKey(nodePort)) {
+                bindedPort = Integer.parseInt(serviceInstance
+                        .getEndpointsBindingsPorts().get(nodePort));
+            } else {
+                try {
+                    SocatBindedPort socatBindedPortObj = dockerEtmService
+                            .bindingPort(serviceInstance.getContainerIp(),
+                                    node.get("port").toString(), networkName,
+                                    epmService.etMasterSlaveMode);
+                    serviceInstance.getPortBindingContainers()
+                            .add(socatBindedPortObj.getBindedPort());
+                    bindedPort = Integer
+                            .parseInt(socatBindedPortObj.getListenPort());
+                    serviceInstance.getEndpointsBindingsPorts().put(nodePort,
+                            String.valueOf(bindedPort));
+                } catch (Exception e) {
+                    logger.error("Ports binding fails: {} ", e.getMessage());
+                    throw new Exception(
+                            "Ports binding fails: " + e.getMessage());
+                }
+
+            }
+
+            serviceInstance.setBindedServicePort(bindedPort);
+
+            // If server address, binded
             if (!utilsService.isDefaultEtPublicHost()) {
-                if (node.get("port") != null) {
-                    String nodePort = node.get("port").toString()
-                            .replaceAll("\"", "");
-                    if (serviceInstance.getEndpointsBindingsPorts()
-                            .containsKey(nodePort)) {
-                        auxPort = Integer.parseInt(serviceInstance
-                                .getEndpointsBindingsPorts().get(nodePort));
-                    } else {
-                        try {
-                            SocatBindedPort socatBindedPortObj = dockerEtmService
-                                    .bindingPort(
-                                            serviceInstance.getContainerIp(),
-                                            node.get("port").toString(),
-                                            networkName,
-                                            epmService.etMasterSlaveMode);
-                            serviceInstance.getPortBindingContainers()
-                                    .add(socatBindedPortObj.getBindedPort());
-                            auxPort = Integer.parseInt(
-                                    socatBindedPortObj.getListenPort());
-                            serviceInstance.getEndpointsBindingsPorts()
-                                    .put(nodePort, String.valueOf(auxPort));
-                        } catch (Exception e) {
-                            logger.error("Ports binding fails: {} ",
-                                    e.getMessage());
-                            throw new Exception(
-                                    "Ports binding fails: " + e.getMessage());
-                        }
-
-                    }
-                }
-
+                auxPort = bindedPort;
                 ((ObjectNode) node).put("port", auxPort);
+            } else {
+                auxPort = internalPort;
+            }
 
-                if (node.get("protocol") != null && (node.get("protocol")
-                        .toString().contains("http")
-                        || node.get("protocol").toString().contains("https")
-                        || node.get("protocol").toString().contains("ws"))) {
-                    serviceInstance.setServicePort(auxPort);
-                    serviceInstance.getUrls().put(nodeName,
-                            createServiceInstanceUrl(node,
-                                    serviceInstance.getServiceIp()));
-                }
-            } else if (node.get("port") != null && node.get("protocol") != null
-                    && (node.get("protocol").toString().contains("http")
-                            || node.get("protocol").toString().contains("https")
-                            || node.get("protocol").toString()
-                                    .contains("ws"))) {
+            if (node.get("protocol") != null && (node.get("protocol").toString()
+                    .contains("http")
+                    || node.get("protocol").toString().contains("https")
+                    || node.get("protocol").toString().contains("ws"))) {
+                serviceInstance.setServicePort(auxPort);
 
-                serviceInstance.setServicePort(Integer.parseInt(
-                        node.get("port").toString().replaceAll("\"", "")));
                 serviceInstance.getUrls().put(nodeName,
                         createServiceInstanceUrl(node,
                                 serviceInstance.getServiceIp()));
             }
+
             serviceInstance.getEndpointsData().put(nodeName, node);
         }
         return serviceInstance;
@@ -1438,10 +1456,17 @@ public class EsmService {
         if (tSSInstance != null) {
             if (tSSInstance.getUrls() != null
                     && !tSSInstance.getUrls().isEmpty()) {
-                // First check if api status url exist (for integrated EUS)
-                String urlValue = tSSInstance.getApiStatusUrlIfExist();
+                // First check if internal api url exists
+                String urlValue = tSSInstance.getInternalApiUrlIfExist();
                 if (urlValue == null) {
-                    urlValue = tSSInstance.getApiUrlIfExist();
+
+                    // else if api status url exist (for integrated EUS)
+                    urlValue = tSSInstance.getApiStatusUrlIfExist();
+
+                    // else normal url
+                    if (urlValue == null) {
+                        urlValue = tSSInstance.getApiUrlIfExist();
+                    }
                 }
 
                 up = true;

@@ -105,6 +105,22 @@ public class SupportServiceInstance extends EtPlugin {
     private List<Long> tJobExecIdList;
 
     @JsonView(FrontView.class)
+    @JsonProperty("internalServiceIp")
+    private String internalServiceIp;
+
+    @JsonView(FrontView.class)
+    @JsonProperty("internalServicePort")
+    private int internalServicePort;
+
+    @JsonView(FrontView.class)
+    @JsonProperty("bindedServiceIp")
+    private String bindedServiceIp;
+
+    @JsonView(FrontView.class)
+    @JsonProperty("bindedServicePort")
+    private int bindedServicePort;
+
+    @JsonView(FrontView.class)
     @JsonProperty("serviceIp")
     private String serviceIp;
 
@@ -293,6 +309,38 @@ public class SupportServiceInstance extends EtPlugin {
         this.space_guid = space_guid;
     }
 
+    public String getInternalServiceIp() {
+        return internalServiceIp;
+    }
+
+    public void setInternalServiceIp(String internalServiceIp) {
+        this.internalServiceIp = internalServiceIp;
+    }
+
+    public int getInternalServicePort() {
+        return internalServicePort;
+    }
+
+    public void setInternalServicePort(int internalServicePort) {
+        this.internalServicePort = internalServicePort;
+    }
+
+    public String getBindedServiceIp() {
+        return bindedServiceIp;
+    }
+
+    public void setBindedServiceIp(String bindedServiceIp) {
+        this.bindedServiceIp = bindedServiceIp;
+    }
+
+    public int getBindedServicePort() {
+        return bindedServicePort;
+    }
+
+    public void setBindedServicePort(int bindedServicePort) {
+        this.bindedServicePort = bindedServicePort;
+    }
+
     public String getServiceIp() {
         return serviceIp;
     }
@@ -405,9 +453,12 @@ public class SupportServiceInstance extends EtPlugin {
                 + ", serviceShortName=" + serviceShortName + ", serviceReady="
                 + serviceReady + ", serviceStatus=" + serviceStatus
                 + ", plan_id=" + plan_id + ", organization_guid="
-                + organization_guid + ", parameters=" + getParameters()
-                + ", context=" + context + ", space_guid=" + space_guid
-                + ", tJobExecIdList=" + tJobExecIdList + ", serviceIp="
+                + organization_guid + ", context=" + context + ", space_guid="
+                + space_guid + ", tJobExecIdList=" + tJobExecIdList
+                + ", internalServiceIp=" + internalServiceIp
+                + ", internalServicePort=" + internalServicePort
+                + ", bindedServiceIp=" + bindedServiceIp
+                + ", bindedServicePort=" + bindedServicePort + ", serviceIp="
                 + serviceIp + ", servicePort=" + servicePort + ", containerIp="
                 + containerIp + ", containerName=" + containerName
                 + ", manifestId=" + manifestId + ", urls=" + urls
@@ -424,6 +475,29 @@ public class SupportServiceInstance extends EtPlugin {
                     || urlHash.getValue().contains("https")) {
                 return urlHash.getValue();
             }
+        }
+        return null;
+    }
+
+    public String getInternalApiUrlIfExist() {
+        if (this.getInternalServiceIp() != null
+                && !"".equals(this.getInternalServiceIp())
+                && this.getInternalServicePort() != 0) {
+
+            for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
+                if (!urlHash.getKey().equals(API_STATUS_KEY)
+                        && urlHash.getValue().contains("http")
+                        || urlHash.getValue().contains("https")) {
+
+                    String protocol = urlHash.getValue().split("://")[0];
+                    String internalUrl = protocol + "://"
+                            + this.getInternalServiceIp() + ":"
+                            + this.getInternalServicePort();
+
+                    return internalUrl;
+                }
+            }
+
         }
         return null;
     }
