@@ -114,11 +114,8 @@ public class UtilsService {
     }
 
     public Date getLocaltimeDateFromLiveDate(Date date) {
+        Date currentDate = new Date();
         try {
-            // logger.debug("Date received: {}", date);
-            Date currentDate = new Date();
-            // logger.debug("Current Date: {}", currentDate);
-
             int hourInMinutes = date.getHours() * 60;
             int totalMinutes = hourInMinutes + date.getMinutes();
 
@@ -129,18 +126,16 @@ public class UtilsService {
             int difference = currentTotalMinutes - totalMinutes;
 
             if (Math.abs(difference) < 59) {
-                // logger.debug("Received date is in the same timezone!");
+                // Received date is in the same timezone
             } else {
-                // logger.debug("Received date is NOT in the same timezone!");
+                // Received date is NOT in the same timezone
                 int differenceInHours = (new Double(difference / 60))
                         .intValue();
-                // logger.debug("difference in hours: {}", differenceInHours);
                 int newHour = date.getHours() + differenceInHours;
                 date.setHours(newHour);
-                // logger.debug("New date: {}", date);
             }
         } catch (NullPointerException e) {
-            date = new Date();
+            date = currentDate;
         }
 
         return date;

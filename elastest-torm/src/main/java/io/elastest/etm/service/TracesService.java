@@ -128,14 +128,24 @@ public class TracesService {
             }
 
             // Container Name
-            Map<String, String> containerNameMap = processGrokExpression(
-                    message, containerNameExpression);
-            String containerName = containerNameMap.get("containerName");
+
+            String containerName = this.getContainerNameFromMessage(message);
             if (containerName != null) {
                 trace.setContainerName(containerName);
             }
         }
         return trace;
+    }
+
+    public String getContainerNameFromMessage(String message) {
+        if (message != null) {
+            // Container Name
+            Map<String, String> containerNameMap = processGrokExpression(
+                    message, containerNameExpression);
+            return containerNameMap.get("containerName");
+        } else {
+            return null;
+        }
     }
 
     public void saveTrace(Trace trace) {

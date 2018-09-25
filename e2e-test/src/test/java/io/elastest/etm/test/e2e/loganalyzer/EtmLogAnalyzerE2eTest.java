@@ -65,7 +65,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
 
         this.checkFinishTJobExec(driver, 180, "SUCCESS", false);
 
-        // Refresh to redirect to results page
+        // Refresh to redirect to results page (TODO remove, now ElasTest has autoredirect)
         this.driver.navigate().refresh();
         Thread.sleep(1000);
         

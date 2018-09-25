@@ -3,6 +3,10 @@ package io.elastest.etm.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -16,15 +20,19 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Charsets;
+
 import io.elastest.etm.utils.UtilsService;
 
 // docker run --name sut_3718_fullteaching --rm  -itd --log-driver=syslog --log-opt syslog-address=tcp://localhost:5000 --log-opt tag=sut_3718_fullteaching_exec elastest/test-etm-alpinegitjava sh -c "while true; do echo "aaaaa"; sleep 2; done"
 @Service
 public class TcpServerService {
-    public final Logger log = getLogger(lookup().lookupClass());
+    public final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.etm.lstcp.port}")
     public String lsTcpPort;
+
+    private Map<String, Boolean> executionWithDifferentTimezone = new HashMap<>();
 
     private SyslogServerIF server;
     private int tcpPort;
@@ -50,8 +58,7 @@ public class TcpServerService {
                 @Override
                 public void event(SyslogServerIF syslogServer,
                         SyslogServerEventIF event) {
-                    event.setDate(utilsService
-                            .getLocaltimeDateFromLiveDate(event.getDate()));
+                    event = processDateIfIsNecessary(event);
                     tracesService.processTcpTrace(event.getMessage(),
                             event.getDate());
                 }
@@ -59,23 +66,59 @@ public class TcpServerService {
             serverConfig.addEventHandler(handler);
             server = SyslogServer.createThreadedInstance("tcp_session",
                     serverConfig);
-            log.info("Listen at {} TCP Port", tcpPort);
+            logger.info("Listen at {} TCP Port", tcpPort);
         }
+    }
+
+    private SyslogServerEventIF processDateIfIsNecessary(
+            SyslogServerEventIF event) {
+        if (event.getDate() != null) {
+            String containerName = tracesService
+                    .getContainerNameFromMessage(event.getMessage());
+
+            // Checks first trace only, if is different timezone, checks all
+            // Checks always too if containerName does not exists
+            if (!executionWithDifferentTimezone.containsKey(containerName)
+                    || (executionWithDifferentTimezone
+                            .containsKey(containerName)
+                            && executionWithDifferentTimezone
+                                    .get(containerName))) {
+                Date beforeDate = event.getDate();
+                Date afterDate = utilsService
+                        .getLocaltimeDateFromLiveDate(event.getDate());
+                event.setDate(afterDate);
+
+                Boolean differentTimezone = false;
+                if (beforeDate != null) {
+                    int comparission = afterDate.compareTo(beforeDate);
+                    differentTimezone = comparission != 0;
+                }
+
+                if (containerName != null && beforeDate != null) {
+                    executionWithDifferentTimezone.put(containerName,
+                            differentTimezone);
+                }
+            }
+        } else {
+            event.setDate(new Date());
+        }
+        return event;
+
     }
 
     @PreDestroy
     void stopServer() throws InterruptedException {
         if (utilsService.isElastestMini()) {
-            log.info("Starting shuting down TCP server");
+            logger.info("Starting shuting down TCP server");
             if (server.getThread().isAlive()) {
                 try {
-                    log.info("Interrupting TCP server thread");
+                    logger.info("Interrupting TCP server thread");
                     server.getThread().interrupt();
                 } catch (Exception e) {
-                    log.error("Error on Interrupting TCP server thread");
+                    logger.error("Error on Interrupting TCP server thread");
                 }
             }
-            log.info("Shuting down TCP server");
+            logger.info("Shuting down TCP server");
             server.shutdown();
             SyslogServer.shutdown();
         }

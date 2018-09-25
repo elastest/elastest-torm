@@ -61,6 +61,7 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
 
     @BeforeAll
     public void init() {
+        // TODO create SuT managed by ElasTest instead of start FT from Jenkinsfile
         // Get FullTeaching URL
         String fullteachingIp = getProperty("fullteachingIp");
         String fullteachingPort = getProperty("fullteachingPort");
