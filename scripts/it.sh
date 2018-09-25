@@ -60,7 +60,6 @@ ET_PROXY_PORT=37000
 ET_ETM_LOGSTASH_CONTAINER_NAME=${projectName}_etm-logstash_1
 ET_EDM_MYSQL_CONTAINER_NAME=${projectName}_edm-mysql_1
 ET_COMPOSE_PROJECT_NAME=${projectName}
-export ET_SHARED_FOLDER='/data'
 
 # TestLink Container Name
 ET_ETM_TESTLINK_HOST=$(docker ps | awk '{print $NF}' | grep ".*etm-testlink.*")
@@ -70,7 +69,9 @@ ET_ETM_LSHTTP_PORT=37501
 ET_ETM_LSBEATS_PORT=37502
 ET_ETM_INTERNAL_LSBEATS_PORT=37503
 
-
+# Env variables to set the data folder of ElasTest
+export ET_SHARED_FOLDER='/data'
+export ET_DATA_IN_HOST='/tmp/.elastest'
 
 
 # Execute Integration tests
