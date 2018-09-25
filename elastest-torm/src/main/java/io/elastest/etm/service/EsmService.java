@@ -65,6 +65,8 @@ public class EsmService {
     public String etEsmSsDescFilesPath;
     @Value("${et.shared.folder}")
     public String etSharedFolder;
+    @Value("${et.data.in.host}")
+    public String etDataInHost;
     @Value("${et.internet.disabled}")
     public String etInternetDisabled;
 
@@ -129,8 +131,6 @@ public class EsmService {
     private String contextPath;
     @Value("${registry.contextPath}")
     private String registryContextPath;
-    @Value("${et.shared.folder}")
-    private String sharedFolder;
 
     @Value("${server.port}")
     public String etmServerPort;
@@ -502,7 +502,7 @@ public class EsmService {
     public void registerTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getTJobExecFolderPath(tJobExec)
+            String folderPath = this.getTJobExecFolderPath(tJobExec, true)
                     + serviceName.toLowerCase() + "/";
 
             // If is Jenkins, config EUS to start browsers at sut network
@@ -773,19 +773,26 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
+            supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
+                    etSharedFolder);
+            supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
+                    etDataInHost);
         }
 
     }
 
     public String getTJobExecFolderPath(TJobExecution tJobExec) {
+        return getTJobExecFolderPath(tJobExec, false);
+    }
+    
+    public String getTJobExecFolderPath(TJobExecution tJobExec, boolean relativePath) {
         String fileSeparator = "/";
-        String path = etSharedFolder + fileSeparator + tJobsFolder
+        String path = (relativePath ? "": etSharedFolder) + fileSeparator + tJobsFolder
                 + fileSeparator + tJobFolderPrefix + tJobExec.getTjob().getId()
                 + fileSeparator + tJobExecFolderPefix + tJobExec.getId()
                 + fileSeparator;
         logger.info("TJob Workspace: {}", path);
         return path;
-
     }
 
     private void fillTJobExecEnvVariablesToTSS(
@@ -895,7 +902,7 @@ public class EsmService {
     public void registerExternalTJobExecutionInEus(String tssInstanceId,
             String serviceName, ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec)
+            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec, true)
                     + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
@@ -964,18 +971,26 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
+            supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
+                    etSharedFolder);
+            supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
+                    etDataInHost);
         }
     }
 
     public String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExec) {
+            ExternalTJobExecution exTJobExe) {
+        return getExternalTJobExecFolderPath(exTJobExe, false);
+    }
+
+    public String getExternalTJobExecFolderPath(
+            ExternalTJobExecution exTJobExec, boolean relativePath) {
         String fileSeparator = "/";
-        return etSharedFolder + fileSeparator + externalTJobsFolder
-                + fileSeparator + externalTJobFolderPrefix
+        return (relativePath ? "" : etSharedFolder) + fileSeparator
+                + externalTJobsFolder + fileSeparator + externalTJobFolderPrefix
                 + exTJobExec.getExTJob().getId() + fileSeparator
                 + externalTJobExecFolderPefix + exTJobExec.getId()
                 + fileSeparator;
-
     }
 
     private void fillExternalTJobExecEnvVariablesToTSS(
@@ -1555,9 +1570,9 @@ public class EsmService {
             String tJobExecFilePath) throws InterruptedException, IOException {
         List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
 
-        String tJobExecFolder = sharedFolder.endsWith(fileSeparator)
-                ? sharedFolder
-                : sharedFolder + fileSeparator;
+        String tJobExecFolder = etSharedFolder.endsWith(fileSeparator)
+                ? etSharedFolder
+                : etSharedFolder + fileSeparator;
         tJobExecFolder += tJobExecFilePath;
         logger.debug("Shared folder: " + tJobExecFolder);
 
@@ -1590,12 +1605,12 @@ public class EsmService {
     public List<TJobExecutionFile> getFilesByFolder(File folder,
             String relativePath, String serviceName, String fileSeparator)
             throws IOException {
-        String absolutePath = sharedFolder + relativePath;
-        if (sharedFolder.endsWith("/") && relativePath.startsWith("/")) {
-            absolutePath = sharedFolder + relativePath.replaceFirst("/", "");
+        String absolutePath = etSharedFolder + relativePath;
+        if (etSharedFolder.endsWith("/") && relativePath.startsWith("/")) {
+            absolutePath = etSharedFolder + relativePath.replaceFirst("/", "");
         } else {
-            if (!sharedFolder.endsWith("/") && !relativePath.startsWith("/")) {
-                absolutePath = sharedFolder + "/" + relativePath;
+            if (!etSharedFolder.endsWith("/") && !relativePath.startsWith("/")) {
+                absolutePath = etSharedFolder + "/" + relativePath;
             }
         }
         List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
@@ -1654,6 +1669,9 @@ public class EsmService {
                         + fileSeparator);
         supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                 etSharedFolder);
+        supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
+                etDataInHost);
+        
     }
 
     private void fillEnvVariablesToTSS(
