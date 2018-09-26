@@ -511,7 +511,7 @@ public class TJobExecOrchestratorService {
 
         // In normal mode, tjobs make use of started EUS
         String etEusApiKey = "ET_EUS_API";
-        if (envVars.containsKey(etEusApiKey)) {
+        if (utilsService.isElastestMini() && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
             if (eusApi != null) {
                 logger.info("This is the EUS's API URL: {}", eusApi);
