@@ -151,7 +151,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
     protected void createPipelineJob(WebDriver driver, String jobName,
             String script) {
-        log.info("Creating a Freestyle Job");
+        log.info("Creating a Pipeline Job");
         driver.findElement(By.id("name")).sendKeys(jobName);
 
         log.info("Select the Job's type");

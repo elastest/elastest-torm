@@ -143,16 +143,11 @@ public class EtPluginsService {
         this.uniqueEtPluginsYmlFolder = path + "tmp-unique-etplugins-yml";
 
         // Set credentials for ET Plugin
-        logger.debug("Initial plugin user: {}", etUser);
-        logger.debug("Initial plugin password: {}", etPass);
         if (etUser.equals("none") && etPass.equals("none")) {
             etUser = "elastest";
             etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
                     + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
         }
-
-        logger.debug("final plugin user: {}", etUser);
-        logger.debug("Final plugin password: {}", etPass);
 
         registerEngines();
         for (String engine : this.enginesMap.keySet()) {
@@ -193,9 +188,6 @@ public class EtPluginsService {
         if (name.equals(JENKINS_NAME)) {
             this.uniqueEtPluginsMap.get(name).setUser(etUser);
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
-            logger.debug("etpass: {}", etPass);
-            logger.debug("Password sended to container for the service {}: {}",
-                    name, this.uniqueEtPluginsMap.get(name).getPass());
             if (!utilsService.isDefaultEtPublicHost()) {
                 envVars.put("JENKINS_LOCATION",
                         "http://" + utilsService.getEtPublicHostValue() + ":"
