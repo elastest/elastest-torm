@@ -773,6 +773,14 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
+            if (!utilsService.isElastestMini()) {
+                supportServiceInstance.getParameters()
+                        .put("ET_FILES_PATH_IN_HOST", etDataInHost
+                                + this.getTJobExecFolderPath(tJobExec, true)
+                                + supportServiceInstance.getServiceName()
+                                        .toLowerCase()
+                                + fileSeparator);
+            }
             supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                     etSharedFolder);
             supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
@@ -971,6 +979,15 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
+            if (!utilsService.isElastestMini()) {
+                supportServiceInstance.getParameters()
+                        .put("ET_FILES_PATH_IN_HOST", etDataInHost
+                                + this.getExternalTJobExecFolderPath(exTJobExec,
+                                        true)
+                                + supportServiceInstance.getServiceName()
+                                        .toLowerCase()
+                                + fileSeparator);
+            }
             supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                     etSharedFolder);
             supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
@@ -1667,6 +1684,13 @@ public class EsmService {
                 etSharedFolder + fileSeparator
                         + supportServiceInstance.getServiceName().toLowerCase()
                         + fileSeparator);
+        if (!utilsService.isElastestMini()) {
+            supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
+                    etDataInHost
+                            + fileSeparator + supportServiceInstance
+                                    .getServiceName().toLowerCase()
+                            + fileSeparator);
+        }
         supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                 etSharedFolder);
         supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
