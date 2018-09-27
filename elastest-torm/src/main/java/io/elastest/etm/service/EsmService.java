@@ -1684,7 +1684,8 @@ public class EsmService {
                 etSharedFolder + fileSeparator
                         + supportServiceInstance.getServiceName().toLowerCase()
                         + fileSeparator);
-        if (!utilsService.isElastestMini()) {
+        if (execMode.equals(ElastestConstants.MODE_EXPERIMENTAL)
+                || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE)) {
             supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
                     etDataInHost
                             + fileSeparator + supportServiceInstance
