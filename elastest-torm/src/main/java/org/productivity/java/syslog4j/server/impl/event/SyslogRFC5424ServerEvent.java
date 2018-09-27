@@ -170,12 +170,13 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
         if (this.isValidCurrentTraceArray() && this.isValidTraceInfoArray()
                 && this.traceInfoArray.size() >= 2) {
             String rawDate = this.traceInfoArray.get(1);
-            rawDate = this.truncateTimestampStrTo3Millis(rawDate);
-            DateFormat dateFormat = new SimpleDateFormat(
-                    SYSLOG_RFC5424_DATE_FORMAT);
             try {
+                rawDate = this.truncateTimestampStrTo3Millis(rawDate);
+                DateFormat dateFormat = new SimpleDateFormat(
+                        SYSLOG_RFC5424_DATE_FORMAT);
                 this.date = dateFormat.parse(rawDate);
-            } catch (ParseException pe) {
+            } catch (ArrayIndexOutOfBoundsException | ParseException pe) {
+                System.out.println("Date exception: " + rawDate + " . Creating new date...");
                 this.date = new Date();
             }
         }

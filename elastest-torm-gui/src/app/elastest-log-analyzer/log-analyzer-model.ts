@@ -26,7 +26,7 @@ export class LogAnalyzerModel {
     this.selectedIndices = ['*'];
     this.fromDate = this.getDefaultFromDate();
     this.toDate = this.getDefaultToDate();
-    this.maxResults = 800;
+    this.maxResults = 2400;
     this.tail = false;
     this.tailSubscription = undefined;
     this.pauseTail = false;
