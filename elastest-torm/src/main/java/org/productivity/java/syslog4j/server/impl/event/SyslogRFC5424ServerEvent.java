@@ -96,7 +96,10 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
     protected void parseProcid() {
         if (this.isValidCurrentTraceArray() && this.isValidTraceInfoArray()
                 && this.traceInfoArray.size() >= 5) {
-            this.procid = Long.valueOf(this.traceInfoArray.get(4));
+            try {
+                this.procid = Long.valueOf(this.traceInfoArray.get(4));
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -176,7 +179,8 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
                         SYSLOG_RFC5424_DATE_FORMAT);
                 this.date = dateFormat.parse(rawDate);
             } catch (ArrayIndexOutOfBoundsException | ParseException pe) {
-                System.out.println("Date exception: " + rawDate + " . Creating new date...");
+                System.out.println("Date exception: " + rawDate
+                        + " . Creating new date...");
                 this.date = new Date();
             }
         }
