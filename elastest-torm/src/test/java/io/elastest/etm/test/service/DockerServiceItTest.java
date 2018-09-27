@@ -60,7 +60,7 @@ public class DockerServiceItTest {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     public void readLogInRabbit() throws Exception {
 
         String imageId = "alpine";
