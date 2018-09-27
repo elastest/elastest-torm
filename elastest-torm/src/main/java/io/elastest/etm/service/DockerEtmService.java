@@ -714,6 +714,8 @@ public class DockerEtmService {
 
         configMap.put("syslog-address",
                 "tcp://" + logstashOrMiniHost + ":" + logstashTcpPort);
+        configMap.put("syslog-format", "rfc5424micro");
+
         logConfig = LogConfig.create("syslog", configMap);
 
         return logConfig;
