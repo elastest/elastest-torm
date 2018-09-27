@@ -55,7 +55,7 @@ public class Trace {
     String etType;
 
     @JsonView({ TraceView.class })
-    @Column(name = "timestamp")
+    @Column(name = "timestamp", columnDefinition = "DATETIME(3) NOT NULL", length = 3)
     @JsonProperty("timestamp")
     Date timestamp;
 

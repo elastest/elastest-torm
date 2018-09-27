@@ -1047,6 +1047,8 @@ public class TJobExecOrchestratorService {
         }
         loggingOptionsContent.put("syslog-address",
                 "tcp://" + host + ":" + port);
+        loggingOptionsContent.put("syslog-format", "rfc5424micro");
+
 
         loggingOptionsContent.put("tag",
                 composeProjectName + "_" + service.getKey() + "_exec");

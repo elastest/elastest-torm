@@ -3,6 +3,7 @@ package io.elastest.etm.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.net.SocketAddress;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,17 +11,15 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.productivity.java.syslog4j.server.SyslogRFC5424ServerSessionEventHandlerIF;
 import org.productivity.java.syslog4j.server.SyslogServer;
-import org.productivity.java.syslog4j.server.SyslogServerConfigIF;
-import org.productivity.java.syslog4j.server.SyslogServerEventHandlerIF;
-import org.productivity.java.syslog4j.server.SyslogServerEventIF;
 import org.productivity.java.syslog4j.server.SyslogServerIF;
-import org.productivity.java.syslog4j.server.impl.net.tcp.TCPNetSyslogServerConfig;
+import org.productivity.java.syslog4j.server.impl.event.SyslogRFC5424ServerEvent;
+import org.productivity.java.syslog4j.server.impl.net.tcp.TCPNetSyslogRFC5424Server;
+import org.productivity.java.syslog4j.server.impl.net.tcp.TCPNetSyslogRFC5424ServerConfig;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Charsets;
 
 import io.elastest.etm.utils.UtilsService;
 
@@ -34,7 +33,7 @@ public class TcpServerService {
 
     private Map<String, Boolean> executionWithDifferentTimezone = new HashMap<>();
 
-    private SyslogServerIF server;
+    private TCPNetSyslogRFC5424Server server;
     private int tcpPort;
     private TracesService tracesService;
     public UtilsService utilsService;
@@ -49,32 +48,87 @@ public class TcpServerService {
     void init() throws InterruptedException {
         if (utilsService.isElastestMini()) {
             tcpPort = Integer.parseInt(lsTcpPort);
-            SyslogServerConfigIF serverConfig = new TCPNetSyslogServerConfig(
+            TCPNetSyslogRFC5424ServerConfig serverConfig = new TCPNetSyslogRFC5424ServerConfig(
                     tcpPort);
 
-            SyslogServerEventHandlerIF handler = new SyslogServerEventHandlerIF() {
+            SyslogRFC5424ServerSessionEventHandlerIF handler = new SyslogRFC5424ServerSessionEventHandlerIF() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                public void event(SyslogServerIF syslogServer,
-                        SyslogServerEventIF event) {
-                    event = processDateIfIsNecessary(event);
-                    tracesService.processTcpTrace(event.getMessage(),
-                            event.getDate());
+                public void event(Object session, SyslogServerIF syslogServer,
+                        SocketAddress socketAddress,
+                        SyslogRFC5424ServerEvent event) {
+                    // Process
+                    try {
+                        String finalLogMsg = event.getMsgid() + " - "
+                                + event.getMessage();
+
+                        try {
+                            Date timestamp = event.getDate();
+                            logger.trace("Received Date {}", timestamp);
+                            timestamp = processDateIfIsNecessary(timestamp,
+                                    finalLogMsg);
+                            logger.trace("Modified Date {}", timestamp);
+                            tracesService.processTcpTrace(finalLogMsg,
+                                    timestamp);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            logger.error("Error on parse timestamp {}:",
+                                    event.getDate(), e);
+                        }
+                    } catch (Exception e) {
+                        // RAW: empty raw;
+                    }
+
                 }
+
+                @Override
+                public Object sessionOpened(SyslogServerIF syslogServer,
+                        SocketAddress socketAddress) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                @Override
+                public void exception(Object session,
+                        SyslogServerIF syslogServer,
+                        SocketAddress socketAddress, Exception exception) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void sessionClosed(Object session,
+                        SyslogServerIF syslogServer,
+                        SocketAddress socketAddress, boolean timeout) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void initialize(SyslogServerIF syslogServer) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void destroy(SyslogServerIF syslogServer) {
+                    // TODO Auto-generated method stub
+
+                }
+
             };
+
             serverConfig.addEventHandler(handler);
-            server = SyslogServer.createThreadedInstance("tcp_session",
-                    serverConfig);
+            server = (TCPNetSyslogRFC5424Server) SyslogServer
+                    .createThreadedInstance("tcp_session", serverConfig);
             logger.info("Listen at {} TCP Port", tcpPort);
         }
     }
 
-    private SyslogServerEventIF processDateIfIsNecessary(
-            SyslogServerEventIF event) {
-        if (event.getDate() != null) {
+    private Date processDateIfIsNecessary(Date date, String message) {
+        if (date != null) {
             String containerName = tracesService
-                    .getContainerNameFromMessage(event.getMessage());
+                    .getContainerNameFromMessage(message);
 
             // Checks first trace only, if is different timezone, checks all
             // Checks always too if containerName does not exists
@@ -83,10 +137,10 @@ public class TcpServerService {
                             .containsKey(containerName)
                             && executionWithDifferentTimezone
                                     .get(containerName))) {
-                Date beforeDate = event.getDate();
+                Date beforeDate = date;
                 Date afterDate = utilsService
-                        .getLocaltimeDateFromLiveDate(event.getDate());
-                event.setDate(afterDate);
+                        .getLocaltimeDateFromLiveDate(date);
+                date = afterDate;
 
                 Boolean differentTimezone = false;
                 if (beforeDate != null) {
@@ -99,10 +153,10 @@ public class TcpServerService {
                             differentTimezone);
                 }
             }
+            return date;
         } else {
-            event.setDate(new Date());
+            return new Date();
         }
-        return event;
 
     }
 

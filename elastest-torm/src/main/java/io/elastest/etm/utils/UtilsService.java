@@ -6,7 +6,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -113,23 +115,60 @@ public class UtilsService {
         return this.getIso8601UTCDateFromStr(dateStr);
     }
 
+    // RFC5424 micro
+
+    public String truncateTimestampStrTo3Millis(String timestamp)
+            throws ArrayIndexOutOfBoundsException {
+        // 2018-09-26T09:33:15.942765+02:00 to 2018-09-26T09:33:15.942
+        // because date does not understand more than 3 milliseconds and
+        // transform them to seconds
+
+        List<String> splitedTime = Arrays.asList(timestamp.split("\\."));
+        String milliseconds = splitedTime.get(1);
+
+        return splitedTime.get(0) + "." + milliseconds.substring(0, 3);
+    }
+
+    public String getRFC5424MicroString() {
+        // return "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX";
+        return "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    }
+
+    public DateFormat getRFC5424MicroDateFormat() {
+        return new SimpleDateFormat(getRFC5424MicroString());
+    }
+
+    public Date getDateFromRFC5424MicroString(String dateStr)
+            throws ParseException, ArrayIndexOutOfBoundsException {
+        dateStr = truncateTimestampStrTo3Millis(dateStr);
+        DateFormat df = getRFC5424MicroDateFormat();
+        // df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+
+        return df.parse(dateStr);
+    }
+
+    public String getRFC5424MicroStrFromDate(Date date)
+            throws ParseException, ArrayIndexOutOfBoundsException {
+        DateFormat df = getRFC5424MicroDateFormat();
+        // df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+
+        return df.format(date);
+    }
+
+    // other
+
     public Date getLocaltimeDateFromLiveDate(Date date) {
         Date currentDate = new Date();
         try {
-            int hourInMinutes = date.getHours() * 60;
-            int totalMinutes = hourInMinutes + date.getMinutes();
-
-            int currentHourInMinutes = currentDate.getHours() * 60;
-            int currentTotalMinutes = currentHourInMinutes
-                    + currentDate.getMinutes();
-
-            int difference = currentTotalMinutes - totalMinutes;
-
-            if (Math.abs(difference) < 59) {
+            // 59 min = 3540000 ms
+            int allowedDifference = 3540000;
+            // ms
+            long difference = date.getTime() - currentDate.getTime();
+            if (Math.abs(difference) < allowedDifference) {
                 // Received date is in the same timezone
             } else {
                 // Received date is NOT in the same timezone
-                int differenceInHours = (new Double(difference / 60))
+                int differenceInHours = (new Double(difference / (1000 * 3600)))
                         .intValue();
                 int newHour = date.getHours() + differenceInHours;
                 date.setHours(newHour);
@@ -148,24 +187,38 @@ public class UtilsService {
     public Date getDateUTCFromLogAnalyzerStrDate(String logAnalyzerDate)
             throws ParseException {
         try {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                    Locale.UK);
-
-            return df.parse(logAnalyzerDate);
-        } catch (Exception e) {
             DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
 
             return df.parse(logAnalyzerDate);
+        } catch (Exception e) {
+            try {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                        Locale.UK);
+
+                return df.parse(logAnalyzerDate);
+            } catch (Exception e1) {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm",
+                        Locale.UK);
+
+                return df.parse(logAnalyzerDate);
+            }
         }
     }
 
     public String getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
             String logAnalyzerDate) throws ParseException {
         Date date = this.getDateUTCFromLogAnalyzerStrDate(logAnalyzerDate);
-        DateFormat df = new SimpleDateFormat(
-                getIso8601With6MillisecondsString(), Locale.UK);
 
-        return df.format(date);
+        try {
+            DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
+
+            return df.format(date);
+        } catch (Exception e) {
+            DateFormat df = new SimpleDateFormat(
+                    getIso8601With6MillisecondsString(), Locale.UK);
+
+            return df.format(date);
+        }
     }
 
     public String getStrIso8601With6MillisUTCFromLogAnalyzerDate(

@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
-    <include file="classpath:db/liquibase-initial-changelog.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-1234567.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180307.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180307140258.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180317112001.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180323095730.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180326101734.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180405142825.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180523151751.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180606142702.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180607114253.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180621144205.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180622094254.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180830141822.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180905115107.xml" />
-    <include
-        file="classpath:db/changelogs/liquibase-diff-changeLog-20180905164219.xml" />
+	<include file="classpath:db/liquibase-initial-changelog.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-1234567.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180307.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180307140258.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180317112001.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180323095730.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180326101734.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180405142825.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180523151751.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180606142702.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180607114253.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180621144205.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180622094254.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180830141822.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180905115107.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180905164219.xml" />
+	<include
+		file="classpath:db/changelogs/liquibase-diff-changeLog-20180926114804.xml" />
 
-    <!--includeAll path="src/main/resources/db/changelogs/"/ -->
+	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

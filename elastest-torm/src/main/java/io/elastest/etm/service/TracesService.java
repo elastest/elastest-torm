@@ -49,10 +49,11 @@ public class TracesService {
     String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>"
             + monitoringExecExpression
             + ")(_(?<componentService>[^_]*(?=_\\d*)?))?";
+    
     String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_"
             + monitoringExecExpression + "|sut_" + monitoringExecExpression
             + "|dynamic_" + monitoringExecExpression
-            + ")\\D*(?>_exec)\\[.*\\][:][\\s]";
+            + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
     String startsWithTestOrSutExpression = "^(test|sut)(_)?(\\d*)(.*)?";
 
