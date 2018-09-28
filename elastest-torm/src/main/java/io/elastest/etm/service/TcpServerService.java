@@ -69,7 +69,7 @@ public class TcpServerService {
                             timestamp = processDateIfIsNecessary(timestamp,
                                     finalLogMsg);
                             logger.trace("Modified Date {}", timestamp);
-                            
+
                             // Process trace
                             tracesService.processTcpTrace(finalLogMsg,
                                     timestamp);
@@ -139,17 +139,19 @@ public class TcpServerService {
                             .containsKey(containerName)
                             && executionWithDifferentTimezone
                                     .get(containerName))) {
-                Date beforeDate = date;
-                Date afterDate = utilsService
-                        .getLocaltimeDateFromLiveDate(date);
-                date = afterDate;
+                Date beforeDate = new Date(date.getTime());
+                date = utilsService.getLocaltimeDateFromLiveDate(date);
+                Date afterDate = new Date(date.getTime());
 
                 Boolean differentTimezone = false;
                 if (beforeDate != null) {
                     int comparission = afterDate.compareTo(beforeDate);
                     differentTimezone = comparission != 0;
                 }
-
+                logger.debug("Before check date: {}", beforeDate);
+                logger.debug("After check and edit date: {}", afterDate);
+                logger.debug("Different timezone: {}", differentTimezone);
+                
                 if (containerName != null && beforeDate != null) {
                     executionWithDifferentTimezone.put(containerName,
                             differentTimezone);
