@@ -22,8 +22,7 @@ import javax.net.ServerSocketFactory;
 import org.productivity.java.syslog4j.SyslogConstants;
 import org.productivity.java.syslog4j.SyslogRuntimeException;
 import org.productivity.java.syslog4j.server.SyslogRFC5424ServerSessionEventHandlerIF;
-import org.productivity.java.syslog4j.server.SyslogServerConfigIF;
-import org.productivity.java.syslog4j.server.SyslogServerIF;
+import org.productivity.java.syslog4j.server.SyslogServerSessionEventHandlerIF;
 import org.productivity.java.syslog4j.server.SyslogServerSessionlessEventHandlerIF;
 import org.productivity.java.syslog4j.server.impl.AbstractSyslogServer;
 import org.productivity.java.syslog4j.server.impl.event.SyslogRFC5424ServerEvent;
@@ -45,13 +44,13 @@ import org.slf4j.Logger;
  */
 public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
 
-    public static class TCPNetSyslogSocketHandler implements Runnable {
+    public static class TCPNetSyslogRFC5424SocketHandler implements Runnable {
         public final Logger logger = getLogger(lookup().lookupClass());
         protected TCPNetSyslogServer server = null;
         protected Socket socket = null;
         protected Sessions sessions = null;
 
-        public TCPNetSyslogSocketHandler(Sessions sessions,
+        public TCPNetSyslogRFC5424SocketHandler(Sessions sessions,
                 TCPNetSyslogServer server, Socket socket) {
             this.sessions = sessions;
             this.server = server;
@@ -64,9 +63,9 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
 
         public void run() {
             boolean timeout = false;
-
             try {
                 Scanner scanner = new Scanner(this.socket.getInputStream());
+                 scanner.useDelimiter(System.lineSeparator());
 
                 // Syslog rfc 5424 pattern
                 // <30>1 2018-09-27T08:47:12.822535+02:00 HOSTNAME APP_NAME
@@ -75,10 +74,8 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 Pattern pattern = Pattern.compile(regex);
                 String line = scanner.nextLine();
                 if (line != null) {
-                    AbstractSyslogServer.handleSessionOpen(this.sessions,
-                            this.server, this.socket);
+                    handleSessionOpen(this.sessions, this.server, this.socket);
                 }
-
                 String currentCompleteLine = line;
 
                 while (line != null && line.length() != 0) {
@@ -105,8 +102,9 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                     }
 
                     SyslogRFC5424ServerEvent event = createEvent(
-                            this.server.getConfig(), currentCompleteLine,
-                            this.socket.getInetAddress());
+                            (TCPNetSyslogRFC5424ServerConfigIF) this.server
+                                    .getConfig(),
+                            currentCompleteLine, this.socket.getInetAddress());
 
                     if (event.isValidCurrentTraceArray()) {
                         handleEvent(this.sessions, this.server, this.socket,
@@ -141,8 +139,9 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
             }
 
             try {
-                AbstractSyslogServer.handleSessionClosed(this.sessions,
-                        this.server, this.socket, timeout);
+                handleSessionClosed(this.sessions,
+                        (TCPNetSyslogRFC5424Server) this.server, this.socket,
+                        timeout);
 
                 this.sessions.removeSocket(this.socket);
 
@@ -154,35 +153,101 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
             }
         }
 
+        public static void handleSessionOpen(Sessions sessions,
+                TCPNetSyslogServer syslogServer, Socket socket) {
+            List eventHandlers = syslogServer.getConfig().getEventHandlers();
+
+            for (int i = 0; i < eventHandlers.size(); i++) {
+                SyslogRFC5424ServerSessionEventHandlerIF eventHandler = (SyslogRFC5424ServerSessionEventHandlerIF) eventHandlers
+                        .get(i);
+
+                if (eventHandler instanceof SyslogRFC5424ServerSessionEventHandlerIF) {
+                    try {
+                        Object session = ((SyslogRFC5424ServerSessionEventHandlerIF) eventHandler)
+                                .sessionOpened(syslogServer,
+                                        socket.getRemoteSocketAddress());
+
+                        if (session != null) {
+                            sessions.addSession(socket, eventHandler, session);
+                        }
+
+                    } catch (Exception exception) {
+                        try {
+                            ((SyslogRFC5424ServerSessionEventHandlerIF) eventHandler)
+                                    .exception(null, syslogServer,
+                                            socket.getRemoteSocketAddress(),
+                                            exception);
+
+                        } catch (Exception e) {
+                            //
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void handleSessionClosed(Sessions sessions,
+                TCPNetSyslogServer syslogServer, Socket socket,
+                boolean timeout) {
+            List eventHandlers = syslogServer.getConfig().getEventHandlers();
+
+            for (int i = 0; i < eventHandlers.size(); i++) {
+                SyslogRFC5424ServerSessionEventHandlerIF eventHandler = (SyslogRFC5424ServerSessionEventHandlerIF) eventHandlers
+                        .get(i);
+
+                if (eventHandler instanceof SyslogServerSessionEventHandlerIF) {
+                    Object session = sessions.getSession(socket, eventHandler);
+
+                    try {
+                        ((SyslogServerSessionEventHandlerIF) eventHandler)
+                                .sessionClosed(session, syslogServer,
+                                        socket.getRemoteSocketAddress(),
+                                        timeout);
+
+                    } catch (Exception exception) {
+                        try {
+                            ((SyslogServerSessionEventHandlerIF) eventHandler)
+                                    .exception(session, syslogServer,
+                                            socket.getRemoteSocketAddress(),
+                                            exception);
+
+                        } catch (Exception e) {
+                            //
+                        }
+                    }
+                }
+            }
+        }
+
         protected static SyslogRFC5424ServerEvent createEvent(
-                SyslogServerConfigIF serverConfig, byte[] lineBytes,
-                int lineBytesLength, InetAddress inetAddr) {
+                TCPNetSyslogRFC5424ServerConfigIF serverConfig,
+                byte[] lineBytes, int lineBytesLength, InetAddress inetAddr) {
             return new SyslogRFC5424ServerEvent(lineBytes, lineBytesLength,
                     inetAddr);
         }
 
         protected static SyslogRFC5424ServerEvent createEvent(
-                SyslogServerConfigIF serverConfig, String line,
+                TCPNetSyslogRFC5424ServerConfigIF serverConfig, String line,
                 InetAddress inetAddr) {
             return new SyslogRFC5424ServerEvent(line, inetAddr);
         }
 
         public static void handleEvent(Sessions sessions,
-                SyslogServerIF syslogServer, DatagramPacket packet,
+                TCPNetSyslogServer syslogServer, DatagramPacket packet,
                 SyslogRFC5424ServerEvent event) {
             handleEvent(sessions, syslogServer, null, packet.getSocketAddress(),
                     event);
         }
 
         public static void handleEvent(Sessions sessions,
-                SyslogServerIF syslogServer, Socket socket,
+                TCPNetSyslogServer syslogServer, Socket socket,
                 SyslogRFC5424ServerEvent event) {
             handleEvent(sessions, syslogServer, socket,
                     socket.getRemoteSocketAddress(), event);
         }
 
         protected static void handleEvent(Sessions sessions,
-                SyslogServerIF syslogServer, Socket socket,
+                TCPNetSyslogServer syslogServer, Socket socket,
                 SocketAddress socketAddress, SyslogRFC5424ServerEvent event) {
             List eventHandlers = syslogServer.getConfig().getEventHandlers();
 
@@ -386,7 +451,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 }
 
                 if (socket != null) {
-                    TCPNetSyslogSocketHandler handler = new TCPNetSyslogSocketHandler(
+                    TCPNetSyslogRFC5424SocketHandler handler = new TCPNetSyslogRFC5424SocketHandler(
                             this.sessions, this, socket);
 
                     Thread t = new Thread(handler);

@@ -367,14 +367,16 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
 
     @Override
     public String toString() {
-        return "SyslogServerEvent [charSet=" + charSet + ", rawString="
+        return "SyslogRFC5424ServerEvent [charSet=" + charSet + ", rawString="
                 + rawString + ", rawBytes=" + Arrays.toString(rawBytes)
                 + ", rawLength=" + rawLength + ", date=" + date + ", level="
                 + level + ", facility=" + facility + ", hostName=" + hostName
                 + ", host=" + host + ", appName=" + appName + ", procid="
                 + procid + ", msgid=" + msgid + ", isHostStrippedFromMessage="
                 + isHostStrippedFromMessage + ", message=" + message
-                + ", inetAddress=" + inetAddress + "]";
+                + ", inetAddress=" + inetAddress + ", currentTraceArray="
+                + currentTraceArray + ", traceInfoArray=" + traceInfoArray
+                + "]";
     }
 
 }
