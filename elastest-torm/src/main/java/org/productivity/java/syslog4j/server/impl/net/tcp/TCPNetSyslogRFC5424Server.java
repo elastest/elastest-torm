@@ -70,7 +70,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 // Syslog rfc 5424 pattern
                 // <30>1 2018-09-27T08:47:12.822535+02:00 HOSTNAME APP_NAME
                 // PROCID MSGID - MESSAGE
-                String regex = "([<]\\d*[>].*[\\s]\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d.\\d*[+]\\d\\d:\\d\\d[\\s].*[\\s].*[\\s]\\d*[\\s].*[\\s]-[\\s].*)";
+                String regex = "([<]\\d*[>].*[\\s]\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d.\\d*([+]\\d\\d:?\\d\\d|Z)[\\s].*[\\s].*[\\s]\\d*[\\s].*[\\s]-[\\s].*)";
                 Pattern pattern = Pattern.compile(regex);
                 String line = scanner.nextLine();
                 if (line != null) {
