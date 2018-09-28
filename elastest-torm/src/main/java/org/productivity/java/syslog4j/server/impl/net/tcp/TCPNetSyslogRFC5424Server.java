@@ -82,6 +82,8 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 String currentCompleteLine = line;
 
                 while (line != null && line.length() != 0) {
+                    logger.debug("Readed line: {}", currentCompleteLine);
+
                     // Load next
                     String nextLine = null;
                     if (scanner.hasNextLine()) {
@@ -111,6 +113,8 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                                 event);
                     }
 
+                    logger.debug("Current complete line: {}",
+                            currentCompleteLine);
                     line = nextLine;
                     currentCompleteLine = line;
                 }
