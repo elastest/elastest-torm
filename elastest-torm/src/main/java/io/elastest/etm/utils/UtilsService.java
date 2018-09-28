@@ -159,6 +159,7 @@ public class UtilsService {
 
     public Date getLocaltimeDateFromLiveDate(Date date) {
         Date currentDate = new Date();
+        logger.debug("getLocaltimeDateFromLiveDate current system date (new Date()): {}", date);
         try {
             // 59 min = 3540000 ms
             int allowedDifference = 3540000;
