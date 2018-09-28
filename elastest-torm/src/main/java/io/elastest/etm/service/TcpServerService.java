@@ -65,10 +65,12 @@ public class TcpServerService {
 
                         try {
                             Date timestamp = event.getDate();
-                            logger.debug("Received Date {}", timestamp);
+                            logger.trace("Received Date {}", timestamp);
                             timestamp = processDateIfIsNecessary(timestamp,
                                     finalLogMsg);
-                            logger.debug("Modified Date {}", timestamp);
+                            logger.trace("Modified Date {}", timestamp);
+                            
+                            // Process trace
                             tracesService.processTcpTrace(finalLogMsg,
                                     timestamp);
                         } catch (ArrayIndexOutOfBoundsException e) {
