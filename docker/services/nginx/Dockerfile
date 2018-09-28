@@ -22,6 +22,7 @@ COPY nginx-base-location.conf /etc/nginx/sites-available/nginx-base-location.con
 COPY nginx-logstash-location.conf /etc/nginx/sites-available/nginx-logstash-location.conf
 
 COPY nginx-experimental-locations.conf /etc/nginx/sites-available/nginx-experimental-locations.conf
+COPY nginx-dev-experimental-locations.conf /etc/nginx/sites-available/nginx-dev-experimental-locations.conf
 
 COPY start-nginx.sh /start-nginx.sh
 
