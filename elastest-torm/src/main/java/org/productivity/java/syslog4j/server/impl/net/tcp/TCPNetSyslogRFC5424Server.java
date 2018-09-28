@@ -65,7 +65,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
             boolean timeout = false;
             try {
                 Scanner scanner = new Scanner(this.socket.getInputStream());
-                 scanner.useDelimiter(System.lineSeparator());
+                scanner.useDelimiter(System.lineSeparator());
 
                 // Syslog rfc 5424 pattern
                 // <30>1 2018-09-27T08:47:12.822535+02:00 HOSTNAME APP_NAME
@@ -79,8 +79,6 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 String currentCompleteLine = line;
 
                 while (line != null && line.length() != 0) {
-                    logger.debug("Readed line: {}", currentCompleteLine);
-
                     // Load next
                     String nextLine = null;
                     if (scanner.hasNextLine()) {
@@ -111,8 +109,6 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                                 event);
                     }
 
-                    logger.debug("Current complete line: {}",
-                            currentCompleteLine);
                     line = nextLine;
                     currentCompleteLine = line;
                 }
