@@ -3,12 +3,15 @@ package io.elastest.etm.config;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +45,9 @@ public class EtSampleDataLoader {
     private static final ProtocolEnum webAppSutProtocol = ProtocolEnum.HTTP;
     private static final String webAppSutPort = "8080";
 
+    @Value("${et.config.folder}")
+    private String configFolder;
+
     public EtSampleDataLoader(EtDataLoader etDataLoader,
             ExternalService externalService) {
         this.etDataLoader = etDataLoader;
@@ -50,13 +56,26 @@ public class EtSampleDataLoader {
 
     @PostConstruct
     public void createData() {
-        this.createHelloWorld();
-        this.createRestApi();
-        this.createWebapp();
-        this.createOpenVidu();
-        this.createFullteaching();
-        if (etDataLoader.isStartedTestLink()) {
-            this.createTestLink();
+        String sampleDataCreated = (configFolder.endsWith("/") ? configFolder
+                : configFolder + "/") + "sampleDataCreated";
+        File sampleDataCreatedFile = new File(sampleDataCreated);
+
+        if (!sampleDataCreatedFile.exists()) {
+            this.createHelloWorld();
+            this.createRestApi();
+            this.createWebapp();
+            this.createOpenVidu();
+            this.createFullteaching();
+            if (etDataLoader.isStartedTestLink()) {
+                this.createTestLink();
+            }
+
+            try {
+                logger.info("Sample Data has been created!");
+                sampleDataCreatedFile.createNewFile();
+            } catch (IOException e) {
+                logger.error("File {} has not been created", sampleDataCreated);
+            }
         }
     }
 
