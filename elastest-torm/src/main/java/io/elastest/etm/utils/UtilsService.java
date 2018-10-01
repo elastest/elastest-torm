@@ -158,8 +158,12 @@ public class UtilsService {
     // other
 
     public Date getLocaltimeDateFromLiveDate(Date date) {
+        long difference = this.getLocaltimeDifferenceFromLiveDate(date);
+        return getLocaltimeDateFromLiveDate(date, difference);
+    }
+
+    public Date getLocaltimeDateFromLiveDate(Date date, long difference) {
         try {
-            long difference = this.getLocaltimeDifferenceFromLiveDate(date);
             if (difference != 0) {
                 // Received date is NOT in the same timezone
                 int differenceInHours = (new Double(difference / (1000 * 3600)))
@@ -174,9 +178,9 @@ public class UtilsService {
         return date;
     }
 
-    public long getLocaltimeDifferenceFromLiveDate(Date date) {
+    public Long getLocaltimeDifferenceFromLiveDate(Date date) {
         Date currentDate = new Date();
-        long difference = 0;
+        Long difference = new Long(0);
         try {
             // 59 min = 3540000 ms
             int allowedDifference = 3540000;
@@ -184,10 +188,10 @@ public class UtilsService {
             difference = currentDate.getTime() - date.getTime();
             // If is in the same timezone
             if (Math.abs(difference) < allowedDifference) {
-                difference = 0;
+                difference = new Long(0);
             }
         } catch (NullPointerException e) {
-            difference = 0;
+            difference = new Long(0);
         }
 
         return difference;

@@ -31,7 +31,7 @@ public class TcpServerService {
     @Value("${et.etm.lstcp.port}")
     public String lsTcpPort;
 
-    private Map<String, Boolean> executionWithDifferentTimezone = new HashMap<>();
+    private Map<String, Long> cachedTimeDifference = new HashMap<>();
 
     private TCPNetSyslogRFC5424Server server;
     private int tcpPort;
@@ -65,9 +65,20 @@ public class TcpServerService {
 
                         try {
                             Date timestamp = event.getDate();
+
+                            // Cache time difference by hostname
+                            String key = event.getHostName();
+                            // If is empty or null, use containerName
+                            if (key == null || "".equals(key)) {
+                                String containerName = tracesService
+                                        .getContainerNameFromMessage(
+                                                finalLogMsg);
+                                key = containerName;
+                            }
+
                             logger.trace("Received Date {}", timestamp);
                             timestamp = processDateIfIsNecessary(timestamp,
-                                    finalLogMsg);
+                                    finalLogMsg, key);
                             logger.trace("Modified Date {}", timestamp);
 
                             // Process trace
@@ -127,34 +138,39 @@ public class TcpServerService {
         }
     }
 
-    private Date processDateIfIsNecessary(Date date, String message) {
+    private Date processDateIfIsNecessary(Date date, String message,
+            String key) {
         if (date != null) {
-            String containerName = tracesService
-                    .getContainerNameFromMessage(message);
-
             // Checks first trace only, if is different timezone, checks all
             // Checks always too if containerName does not exists
-            if (!executionWithDifferentTimezone.containsKey(containerName)
-                    || (executionWithDifferentTimezone
-                            .containsKey(containerName)
-                            && executionWithDifferentTimezone
-                                    .get(containerName))) {
+            if (!cachedTimeDifference.containsKey(key)
+                    || (cachedTimeDifference.containsKey(key)
+                            && cachedTimeDifference.get(key) != 0)) {
                 Date beforeDate = new Date(date.getTime());
-                date = utilsService.getLocaltimeDateFromLiveDate(date);
+
+                // Get difference and convert if its necessary
+
+                long difference;
+                // If cached, use it
+                if (cachedTimeDifference.containsKey(key)
+                        && cachedTimeDifference.get(key) != 0) {
+                    difference = cachedTimeDifference.get(key);
+                } else { // else calculate
+                    difference = utilsService
+                            .getLocaltimeDifferenceFromLiveDate(date);
+                }
+
+                date = utilsService.getLocaltimeDateFromLiveDate(date,
+                        difference);
+
                 Date afterDate = new Date(date.getTime());
 
-                Boolean differentTimezone = false;
-                if (beforeDate != null) {
-                    int comparission = afterDate.compareTo(beforeDate);
-                    differentTimezone = comparission != 0;
-                }
                 logger.debug("Before check date: {}", beforeDate);
                 logger.debug("After check and edit date: {}", afterDate);
-                logger.debug("Different timezone: {}", differentTimezone);
-                
-                if (containerName != null && beforeDate != null) {
-                    executionWithDifferentTimezone.put(containerName,
-                            differentTimezone);
+                logger.debug("Different timezone: {}", difference != 0);
+
+                if (key != null && beforeDate != null) {
+                    cachedTimeDifference.put(key, difference);
                 }
             }
             return date;
