@@ -5,15 +5,18 @@ import { IConfirmConfig } from '@covalent/core';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 import { TitlesService } from '../../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
 @Component({
-  selector: 'app-tjob-execs-manager',
+  selector: 'etm-tjob-execs-manager',
   templateUrl: './tjob-execs-manager.component.html',
   styleUrls: ['./tjob-execs-manager.component.scss'],
 })
 export class TJobExecsManagerComponent implements OnInit {
+  @Input()
+  isNested: boolean = false;
+
   tJobExecsFinished: TJobExecModel[] = [];
   tJobExecsRunning: TJobExecModel[] = [];
 
@@ -31,17 +34,12 @@ export class TJobExecsManagerComponent implements OnInit {
     { name: 'result', label: 'Result' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
-    // { name: 'duration', label: 'Duration' },
-    // { name: 'sutExecution', label: 'Sut Execution' },
-    // { name: 'error', label: 'Error' },
-    // { name: 'monitoringIndex', label: 'Log Index' },
     { name: 'options', label: 'Options' },
   ];
 
   constructor(
     private titlesService: TitlesService,
     private tJobExecService: TJobExecService,
-    private route: ActivatedRoute,
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
@@ -49,7 +47,10 @@ export class TJobExecsManagerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Dashboard');
+    if (!this.isNested) {
+      this.titlesService.setHeadTitle('All TJob Executions');
+    }
+
     this.loadTJobExecs();
   }
 

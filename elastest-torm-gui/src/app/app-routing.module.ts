@@ -52,6 +52,7 @@ import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-e
 import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.component';
 import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
+import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 
 const routes: Routes = [
   {
@@ -63,7 +64,7 @@ const routes: Routes = [
     component: EtmComponent,
     children: [
       {
-        component: TJobExecsManagerComponent,
+        component: DashboardComponent,
         path: '',
       },
       {
