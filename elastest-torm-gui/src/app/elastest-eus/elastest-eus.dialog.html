@@ -1,9 +1,18 @@
-<h2 md-dialog-title class="push-bottom-sm">{{ title }}</h2>
+<div layout="row">
+    <h2 md-dialog-title class="push-bottom-sm">{{ title }}
+    </h2>
+    <span flex></span>
+    <a color="accent" *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined" md-button
+        [attr.href]="iframeUrl" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
+        <md-icon>open_in_new</md-icon>
+    </a>
+</div>
 <md-dialog-content style="max-height: 84vh">
     <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
     <ng-template #showContent>
         <div *ngIf="sessionType && sessionType === 'live'; else showVideo" layout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
-            <vnc-client id="eusBrowser" *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false" [showConnectionBtns]="false" flex></vnc-client>
+            <vnc-client id="eusBrowser" *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false"
+                [showConnectionBtns]="false" flex></vnc-client>
         </div>
         <ng-template #showVideo>
             <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 80vh" controls></video>

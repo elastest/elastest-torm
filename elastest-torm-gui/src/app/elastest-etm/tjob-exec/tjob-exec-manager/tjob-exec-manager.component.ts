@@ -75,7 +75,7 @@ export class TjobExecManagerComponent implements OnInit {
       this.tJobExec = tJobExec;
 
       this.statusIcon = this.tJobExec.getResultIcon();
-      this.titlesService.setHeadTitle('Execution ' + this.tJobExec.id);
+      this.titlesService.setHeadTitle('Execution ' + this.tJobExec.id + ' result');
       this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
       this.tJobService.getTJob(this.tJobId.toString()).subscribe(

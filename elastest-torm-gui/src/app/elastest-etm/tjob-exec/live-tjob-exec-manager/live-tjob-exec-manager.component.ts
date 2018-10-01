@@ -67,7 +67,8 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('Live TJob Execution');
+    let title: string = 'Live TJob Execution' + (this.tJobExecId !== undefined ? ' ' + this.tJobExecId : '');
+    this.titlesService.setHeadTitle(title);
   }
 
   ngAfterViewInit(): void {
