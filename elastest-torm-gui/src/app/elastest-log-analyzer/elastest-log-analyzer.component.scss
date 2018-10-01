@@ -1,207 +1,216 @@
 /******************************/
 /********** AG GRID ***********/
 /******************************/
-:host /deep/ ag-grid-angular{
-    height: 99% !important; //96% with card title
+:host /deep/ ag-grid-angular {
+  height: 99% !important; //96% with card title
 }
 
-:host /deep/ .ag-header-cell{
-    line-height: 45px;
+:host /deep/ .ag-header-cell {
+  line-height: 45px;
 }
 
-:host /deep/ .ag-header-cell, :host /deep/ .ag-cell{
-    padding-right: 6px;
-    padding-left: 6px;
+:host /deep/ .ag-header-cell,
+:host /deep/ .ag-cell {
+  padding-right: 6px;
+  padding-left: 6px;
 }
 
-:host /deep/ .ag-cell{
-    font-family: monospace !important;
-    line-height: 20px;
-    user-select: text !important;
-    -webkit-touch-callout: text !important;
-    -webkit-user-select: text !important;
-    -khtml-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
+:host /deep/ .ag-cell {
+  font-family: monospace !important;
+  line-height: 20px;
+  user-select: text !important;
+  -webkit-touch-callout: text !important;
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
 
-     white-space: normal !important;
-     //word-break: break-word;
-     word-break: break-all;
-     text-overflow: initial !important;
+  white-space: pre-wrap; /* css-3 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+
+  word-break: break-all;
+  text-overflow: initial !important;
 }
 
-:host /deep/ .ag-theme-material .ag-header-cell-label{
-    width: calc(100%) !important;
+:host /deep/ .ag-theme-material .ag-header-cell-label {
+  width: calc(100%) !important;
 }
 
 :host /deep/ .ag-row-selected {
-    background-color: #ffac2f !important;
-    color: #000 !important;
+  background-color: #ffac2f !important;
+  color: #000 !important;
 }
 
-:host /deep/ .ag-cell:focus{
-    border: 1px solid #ffac2f !important;
+:host /deep/ .ag-cell:focus {
+  border: 1px solid #ffac2f !important;
 }
-
 
 /*******************************/
 /*********** OTHERS ************/
 /*******************************/
 
 md-sidenav-container {
-    min-height: 100%;
+  min-height: 100%;
 }
 
-:host /deep/ .mat-sidenav-content{
-    padding: 8px;
+:host /deep/ .mat-sidenav-content {
+  padding: 8px;
 }
 
-#logCard{
-    width: 100%;
-    height: 98%;
+#logCard {
+  width: 100%;
+  height: 98%;
 }
-#logCard md-card-title{
-    height: 3%;
+#logCard md-card-title {
+  height: 3%;
 }
 
-#logCard md-card-content{
-    height: 100%; //93% with card title
-    padding: 0px;
+#logCard md-card-content {
+  height: 100%; //93% with card title
+  padding: 0px;
 }
 
 :host /deep/ .mat-tab-label {
-    min-width: 33% !important;
+  min-width: 33% !important;
 }
 
-
 :host /deep/ .mat-tab-header {
-    min-width: 100%;
+  min-width: 100%;
 }
 
 :host /deep/ .mat-icon {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
-#logSidenav, #logSidenav md-tab-group, #logAnalyzerForm{
-    height: 99%;
-    width: 100%;
-    margin: 0 !important;
+#logSidenav,
+#logSidenav md-tab-group,
+#logAnalyzerForm {
+  height: 99%;
+  width: 100%;
+  margin: 0 !important;
 }
 
-#logAnalyzerForm{
-    position: absolute;
+#logAnalyzerForm {
+  position: absolute;
 }
 
-#logSidenav md-card-content{
-    height: 100%;
-    padding: 2px 6px 0px 8px;
-    //padding-right: 8px;
-    //padding-top: 4px;
-    //padding-bottom: 0;
+#logSidenav md-card-content {
+  height: 100%;
+  padding: 2px 6px 0px 8px;
+  //padding-right: 8px;
+  //padding-top: 4px;
+  //padding-bottom: 0;
 }
 
-:host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper{
-    height: 93% !important;
+:host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper {
+  height: 93% !important;
 }
 
-#filtersTop{
-    height: 84%;
-    max-height: 86%;
-    overflow-y: hidden;
-    padding: 0px !important;
+#filtersTop {
+  height: 84%;
+  max-height: 86%;
+  overflow-y: hidden;
+  padding: 0px !important;
 }
 
-#filtersBottom{
-    height: 16%;
+#filtersBottom {
+  height: 16%;
 }
 
-#executionsButton{
-    margin: auto;
+#executionsButton {
+  margin: auto;
 }
 
-#tail{
-    text-align: center;
+#tail {
+  text-align: center;
 }
 
-#filtersBottom{
-    padding-top: 6px;
+#filtersBottom {
+  padding-top: 6px;
 }
 
-#executionsButton > button, #loadLogButton > button {
-    min-width: fit-content;
+#executionsButton > button,
+#loadLogButton > button {
+  min-width: fit-content;
 }
 
-#loadLogButton{
-    margin-left: 10px;
+#loadLogButton {
+  margin-left: 10px;
 }
 
-:host /deep/ #logDate{
-    //max-height: 26% !important;
-    margin-top: -3px;
+:host /deep/ #logDate {
+  //max-height: 26% !important;
+  margin-top: -3px;
 }
 
-#indicesDate{
-    max-height: 51% !important;
-    overflow-y: hidden;
+#indicesDate {
+  max-height: 51% !important;
+  overflow-y: hidden;
 }
 
-#componentsLevels{
-    max-height: 48% !important;
-    overflow: auto;
+#componentsLevels {
+  max-height: 48% !important;
+  overflow: auto;
 }
 
-#componentsLevels md-card-subtitle{
-    margin-bottom: 3px;
+#componentsLevels md-card-subtitle {
+  margin-bottom: 3px;
 }
 
-#componentsLevels > div, #indicesDate > div {
-    max-height: initial;
+#componentsLevels > div,
+#indicesDate > div {
+  max-height: initial;
 }
 
-:host /deep/ #componentsLevels .angular-tree-component{
-    overflow: hidden;
+:host /deep/ #componentsLevels .angular-tree-component {
+  overflow: hidden;
 }
 
-#addFromLast, #addFromSelected, #pauseTail{
-    text-align: center;
+#addFromLast,
+#addFromSelected,
+#pauseTail {
+  text-align: center;
 }
-#pauseTail{
-    margin:auto;
+#pauseTail {
+  margin: auto;
 }
 
-#tail > p{
-    margin-top: 4px;
+#tail > p {
+  margin-top: 4px;
 }
 
 // Patterns
 
-.patternColor input[type="color"] {
-	-webkit-appearance: none;
-	border: none;
-	width: 32px;
+.patternColor input[type='color'] {
+  -webkit-appearance: none;
+  border: none;
+  width: 32px;
 }
-.patternColor input[type="color"]::-webkit-color-swatch-wrapper {
-	padding: 0;
+.patternColor input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
 }
-.patternColor input[type="color"]::-webkit-color-swatch {
-	border: none;
-}
-
-:host /deep/ .mat-tab-body-content{
-    overflow-y: hidden !important;
+.patternColor input[type='color']::-webkit-color-swatch {
+  border: none;
 }
 
-@media (min-width : 1400px) { //TODO not working
-    :host /deep/ .mat-tab-body-content:has(> #logAnalyzerForm){
-        overflow-x: hidden !important;
-    }
+:host /deep/ .mat-tab-body-content {
+  overflow-y: hidden !important;
 }
 
-.dontShow{
-    display: none;
+@media (min-width: 1400px) {
+  //TODO not working
+  :host /deep/ .mat-tab-body-content:has(> #logAnalyzerForm) {
+    overflow-x: hidden !important;
+  }
 }
 
-#toggleRowHeight{
-    margin: auto;
-    margin-top: 20px;
+.dontShow {
+  display: none;
+}
+
+#toggleRowHeight {
+  margin: auto;
+  margin-top: 20px;
 }

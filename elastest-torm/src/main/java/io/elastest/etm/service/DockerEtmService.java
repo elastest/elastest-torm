@@ -231,6 +231,7 @@ public class DockerEtmService {
         String suffix = "";
         String containerName = "";
         String sutHost = null;
+        String sutPort = null;
 
         String sutPath = null;
 
@@ -258,6 +259,7 @@ public class DockerEtmService {
             containerName = getTestName(dockerExec);
             if (dockerExec.isWithSut()) {
                 sutHost = dockerExec.getSutExec().getIp();
+                sutPort = sut.getPort();
             }
         }
 
@@ -284,8 +286,13 @@ public class DockerEtmService {
             envVar = parameter.getName() + "=" + parameter.getValue();
             envList.add(envVar);
         }
+
         if (sutHost != null) {
-            envList.add("ET_SUT_HOST=" + dockerExec.getSutExec().getIp());
+            envList.add("ET_SUT_HOST=" + sutHost);
+        }
+
+        if (sutPort != null) {
+            envList.add("ET_SUT_PORT=" + sutPort);
         }
 
         // Commands (optional)
@@ -821,7 +828,7 @@ public class DockerEtmService {
     }
 
     public void endContainer(String containerName) throws Exception {
-        dockerService.endContainer(containerName);
+        dockerService.endContainer(containerName, true);
         String containerId = dockerService.getContainerIdByName(containerName);
 
         createdContainers.remove(containerId);

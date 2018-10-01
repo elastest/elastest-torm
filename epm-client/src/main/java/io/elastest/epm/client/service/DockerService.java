@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableList;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerClient;
@@ -62,6 +63,7 @@ import com.spotify.docker.client.messages.AttachedNetwork;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerInfo;
+import com.spotify.docker.client.messages.ContainerMount;
 import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.HostConfig.Bind;
@@ -314,9 +316,27 @@ public class DockerService {
                 false);
     }
 
-    public void removeDockerContainer(String containerId) throws Exception {
+    public void removeDockerContainer(String containerId, boolean removeVolumes)
+            throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
+        List<ContainerMount> volumes = null;
+        try {
+            volumes = getContainerVolumes(containerId);
+        } catch (Exception e) {
+            logger.error(
+                    "Error on get container {} volumes. Volumes have not been removed",
+                    containerId);
+        }
+        // Remove container
         dockerClient.removeContainer(containerId);
+
+        if (removeVolumes) {
+            this.removeVolumes(volumes);
+        }
+    }
+
+    public void removeDockerContainer(String containerId) throws Exception {
+        removeDockerContainer(containerId, true);
     }
 
     public void stopDockerContainer(DockerClient dockerClient,
@@ -346,7 +366,8 @@ public class DockerService {
     /* **** End execution methods **** */
     /* ******************************* */
 
-    public void endContainer(String containerName) throws Exception {
+    public void endContainer(String containerName, boolean removeVolumes)
+            throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
         if (existsContainer(containerName)) {
             String containerId = getContainerIdByName(containerName);
@@ -357,28 +378,17 @@ public class DockerService {
             // Wait status code
             dockerClient.waitContainer(containerId);
 
-            // } catch (DockerException e) {
-            // } catch (NotModifiedException e) {
-            // logger.info(
-            // "Container " + containerName + " is already stopped");
-            // } catch (Exception e) {
-            // logger.info(
-            // "Error during stop " + containerName + " container {}",
-            // e);
-            // } finally {
-            // try {
             logger.info("Removing " + containerName + " container");
-            this.removeDockerContainer(containerId);
-            // } catch (DockerClientException e) {
-            // } catch (Exception e) {
-            // logger.info(
-            // "Error during remove " + containerName + " container");
-            // }
-            // }
+            this.removeDockerContainer(containerId, removeVolumes);
+
         } else {
             logger.info("Could not end " + containerName
                     + " container -> Not started.");
         }
+    }
+
+    public void endContainer(String containerName) throws Exception {
+        endContainer(containerName, false);
     }
 
     /* ****************** */
@@ -855,6 +865,61 @@ public class DockerService {
         }
         return imageContainers;
     }
+
+    public ImmutableList<ContainerMount> getContainerMounts(String containerId)
+            throws Exception {
+        DockerClient dockerClient = this.getDockerClient(true);
+        return dockerClient.inspectContainer(containerId).mounts();
+
+    }
+
+    /* ***************** */
+    /* ***** Binds ***** */
+    /* ***************** */
+    public List<ContainerMount> getContainerBinds(String containerId)
+            throws Exception {
+        List<ContainerMount> binds = new ArrayList<>();
+        ImmutableList<ContainerMount> mounts = getContainerMounts(containerId);
+        for (ContainerMount mount : mounts) {
+            if ("bind".equals(mount.type())) {
+                binds.add(mount);
+            }
+        }
+        return binds;
+    }
+
+    /* ******************* */
+    /* ***** Volumes ***** */
+    /* ******************* */
+
+    public List<ContainerMount> getContainerVolumes(String containerId)
+            throws Exception {
+        List<ContainerMount> volumes = new ArrayList<>();
+        ImmutableList<ContainerMount> mounts = getContainerMounts(containerId);
+        for (ContainerMount mount : mounts) {
+            if ("volume".equals(mount.type())) {
+                volumes.add(mount);
+            }
+        }
+        return volumes;
+    }
+
+    public void removeVolumes(List<ContainerMount> volumes) throws Exception {
+        DockerClient dockerClient = this.getDockerClient(true);
+        if (volumes != null) {
+            for (ContainerMount volume : volumes) {
+                try {
+                    dockerClient.removeVolume(volume.name());
+                } catch (DockerException | InterruptedException e) {
+                    logger.error("Error on remove volume {}", volume.name());
+                }
+            }
+        }
+    }
+
+    /* ****************** */
+    /* ***** Others ***** */
+    /* ****************** */
 
     public static String getDockerHostUrlOnWin() {
         BufferedReader reader = null;
