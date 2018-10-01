@@ -82,7 +82,7 @@ export class TjobExecManagerComponent implements OnInit {
         (tJob: TJobModel) => {
           this.tJob = tJob;
           if (!this.tJobExec.finished()) {
-            this.router.navigate(['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'dashboard'], {
+            this.router.navigate(['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'live'], {
               queryParams: { fromTJobManager: true },
             });
           } else {

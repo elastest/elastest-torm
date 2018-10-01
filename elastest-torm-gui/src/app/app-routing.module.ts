@@ -1,3 +1,4 @@
+import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 import { TLTestCaseComponent } from './etm-testlink/test-case/test-case.component';
 import { TestCaseFormComponent } from './etm-testlink/test-case/test-case-form/test-case-form.component';
 import { TLTestSuiteComponent } from './etm-testlink/test-suite/test-suite.component';
@@ -15,9 +16,7 @@ import { InstancesManagerComponent } from './elastest-esm/support-services/insta
 import { TestVncComponent } from './shared/vnc-client/test-vnc/test-vnc.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
 import { UsersComponent } from './users/users.component';
-import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { EtmComponent } from './elastest-etm/etm.component';
 import { ProjectFormComponent } from './elastest-etm/project/project-form/project-form.component';
 import { ProjectsManagerComponent } from './elastest-etm/project/projects-manager/projects-manager.component';
@@ -158,8 +157,8 @@ const routes: Routes = [
                                 ],
                               },
                               {
-                                path: 'dashboard',
-                                component: DashboardComponent,
+                                path: 'live',
+                                component: LiveTjobExecManagerComponent,
                               },
                             ],
                           },
@@ -628,7 +627,7 @@ export const routedComponents: any[] = [
   SutManagerComponent,
   SutsManagerComponent,
   EtmComponent,
-  DashboardComponent,
+  LiveTjobExecManagerComponent,
   ProjectFormComponent,
   TjobManagerComponent,
   TJobFormComponent,

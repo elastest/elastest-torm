@@ -107,7 +107,7 @@ export class TJobsManagerComponent implements OnInit {
     } else {
       this.tJobExecService.runTJob(tJob.id, tJob.parameters).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'dashboard']);
+          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
         },
         (error) => console.error('Error:' + error),
       );

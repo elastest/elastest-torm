@@ -1,25 +1,25 @@
-import { PopupService } from '../../shared/services/popup.service';
-import { ConfigurationService } from '../../config/configuration-service.service';
-import { TitlesService } from '../../shared/services/titles.service';
-import { EsmServiceInstanceModel } from '../../elastest-esm/esm-service-instance.model';
-import { EsmService } from '../../elastest-esm/esm-service.service';
-import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitoring-view.component';
-import { TJobModel } from '../tjob/tjob-model';
+import { PopupService } from '../../../shared/services/popup.service';
+import { ConfigurationService } from '../../../config/configuration-service.service';
+import { TitlesService } from '../../../shared/services/titles.service';
+import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
+import { EsmService } from '../../../elastest-esm/esm-service.service';
+import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
+import { TJobModel } from '../../tjob/tjob-model';
 import { AfterViewInit, Component, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription, Observable } from 'rxjs/Rx';
 
-import { ElastestRabbitmqService } from '../../shared/services/elastest-rabbitmq.service';
-import { TJobExecModel } from '../tjob-exec/tjobExec-model';
-import { TJobExecService } from '../tjob-exec/tjobExec.service';
-import { TJobService } from '../tjob/tjob.service';
+import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
+import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
+import { TJobExecService } from '../../tjob-exec/tjobExec.service';
+import { TJobService } from '../../tjob/tjob.service';
 
 @Component({
-  selector: 'etm-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
+  selector: 'etm-live-tjob-exec-manager',
+  templateUrl: './live-tjob-exec-manager.component.html',
+  styleUrls: ['./live-tjob-exec-manager.component.scss'],
 })
-export class DashboardComponent implements AfterViewInit, OnDestroy {
+export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
 
@@ -67,7 +67,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.titlesService.setHeadTitle('TJob Execution');
+    this.titlesService.setHeadTitle('Live TJob Execution');
   }
 
   ngAfterViewInit(): void {

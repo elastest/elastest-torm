@@ -42,7 +42,7 @@ export class RunTJobModalComponent implements OnInit {
             this.tJob.id,
             'tjob-exec',
             tjobExecution.id,
-            'dashboard',
+            'live',
           ]);
         },
         (error) => console.error('Error:' + error),

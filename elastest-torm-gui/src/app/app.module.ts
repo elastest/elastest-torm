@@ -126,6 +126,7 @@ import { TestPlanExecutionComponent } from './etm-testlink/test-plan/test-plan-e
 import { SelectBuildModalComponent } from './etm-testlink/test-plan/select-build-modal/select-build-modal.component';
 import { TimeAgoPipe } from 'time-ago-pipe';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
+import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -200,6 +201,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TestPlanExecutionComponent,
     TestSuitesViewComponent,
     TimeAgoPipe,
+    LiveTjobExecManagerComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
