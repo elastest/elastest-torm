@@ -26,7 +26,8 @@
 
       <!-- TJobs -->
       <md-select [(ngModel)]="selectedTJob" placeholder="Select a TJob" required name="tJobs" [disabled]="abstractTJobs.length === 0"
-        class="noMarginInput form-control input-sm" (ngModelChange)="loadTJobExecs($event)" flex-offset-gt-sm="10" flex-gt-sm="45">
+        class="noMarginInput form-control input-sm" (ngModelChange)="loadTJobExecs($event)" flex-offset-gt-sm="10"
+        flex-gt-sm="45">
         <md-option *ngFor="let tJob of abstractTJobs" [value]="tJob">
           {{tJob.name}}
         </md-option>
@@ -40,7 +41,8 @@
       <md-card-subtitle>
         <span>Executions </span>
         <span>
-          <md-checkbox [checked]="selectAll" (change)="selectAllExecs($event.checked)" title="Select/Unselect all" [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"></md-checkbox>
+          <md-checkbox [checked]="selectAll" (change)="selectAllExecs($event.checked)" title="Select/Unselect all"
+            [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"></md-checkbox>
         </span>
 
       </md-card-subtitle>
@@ -48,17 +50,23 @@
     </div>
     <ng-container *ngIf="selectedProject && selectedTJob && !loadingExecs">
       <div *ngIf="abstractTJobExecs.length > 0; else noExecs">
-        <td-data-table #execsTable class="scroll_table" [data]="abstractTJobExecs" [columns]="tJobExecColumns" [selectable]="false"
-          [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <td-data-table #execsTable class="scroll_table" [data]="abstractTJobExecs" [columns]="tJobExecColumns"
+          [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <!-- Other columns -->
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+            let-row="row">
             <div *ngIf="column.name !== 'select'" (click)="checkTJobExec(!row['selected'], row)" class="hover-pointer">
               <span>
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
                   <md-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
                 </ng-container>
-                {{value}}
+                <span *ngIf="column.name === 'startDate' || column.name === 'endDate'; else printOnlyValue">
+                  {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+                </span>
+                <ng-template #printOnlyValue>
+                  {{value}}
+                </ng-template>
               </span>
             </div>
           </ng-template>

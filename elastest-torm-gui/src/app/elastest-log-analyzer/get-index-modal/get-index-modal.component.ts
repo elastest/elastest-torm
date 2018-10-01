@@ -48,9 +48,9 @@ export class GetIndexModalComponent implements OnInit {
   tJobExecColumns: any[] = [
     { name: 'select', label: 'Select' },
     { name: 'id', label: 'Id' },
+    { name: 'result', label: 'Result' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
-    { name: 'result', label: 'Result' },
   ];
 
   constructor(
