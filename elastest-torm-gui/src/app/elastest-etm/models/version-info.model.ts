@@ -1,6 +1,6 @@
 export class VersionInfo {
   commitId: string;
-  date: Date;
+  commitDate: Date;
   tag: string;
   constructor() {}
 }

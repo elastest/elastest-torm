@@ -2,6 +2,7 @@ package io.elastest.etm.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,18 +163,19 @@ public class EtmContextService {
         });
     }
 
+    private VersionInfo getImageVersionInfoByImageInfo(ImageInfo imageInfo)
+            throws Exception {
+        return new VersionInfo(imageInfo);
+    }
+
     private VersionInfo getImageVersionInfo(String imageName) throws Exception {
         ImageInfo imageInfo = dockerEtmService.dockerService
                 .getImageInfoByName(imageName);
-        return new VersionInfo(imageInfo.config().labels().get("git_commit"),
-                imageInfo.config().labels().get("commit_date"),
-                imageInfo.config().labels().get("version"));
+        return getImageVersionInfoByImageInfo(imageInfo);
     }
 
     private VersionInfo getImageVersionInfoByContainer(Container container) {
-        return new VersionInfo(container.labels().get("git_commit"),
-                container.labels().get("commit_date"),
-                container.labels().get("version"));
+        return new VersionInfo(container);
     }
 
     /* ********************* */
@@ -201,8 +203,10 @@ public class EtmContextService {
                 String serviceName = imageName.split("/")[1].split(":")[0];
                 coreService.setName(serviceName);
 
-                VersionInfo versionInfo = getImageVersionInfoByContainer(
-                        container);
+                ImageInfo imageInfo = dockerEtmService.dockerService
+                        .getImageInfoByContainerId(container.id());
+                VersionInfo versionInfo = getImageVersionInfoByImageInfo(
+                        imageInfo);
                 versionInfo.setTag(version);
 
                 coreService.setVersionInfo(versionInfo);
@@ -210,6 +214,8 @@ public class EtmContextService {
                 coreService.setImageName(dockerEtmService.dockerService
                         .getImageNameByCompleteImageName(imageName));
                 coreService.setDataByContainer(container);
+
+                coreService.setImageDate(imageInfo.created());
 
                 coreServices.add(coreService);
             } catch (Exception e) {
@@ -222,6 +228,9 @@ public class EtmContextService {
                         .getTagByCompleteImageName(imageName);
                 VersionInfo versionInfo;
                 try {
+                    ImageInfo imageInfo = dockerEtmService.dockerService
+                            .getImageInfoByName(imageName);
+
                     versionInfo = getImageVersionInfo(imageName);
                     versionInfo.setTag(version);
 
@@ -233,6 +242,8 @@ public class EtmContextService {
                     coreService.setImageName(dockerEtmService.dockerService
                             .getImageNameByCompleteImageName(imageName));
                     coreService.setStatus("Not Started");
+
+                    coreService.setImageDate(imageInfo.created());
 
                     coreServices.add(coreService);
                 } catch (Exception e1) {

@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class CoreServiceInfo {
     String name;
     VersionInfo versionInfo;
     String imageName;
+    Date imageDate;
     List<String> containerNames;
     List<PortMapping> ports;
     String status;
@@ -47,6 +49,14 @@ public class CoreServiceInfo {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public Date getImageDate() {
+        return imageDate;
+    }
+
+    public void setImageDate(Date imageDate) {
+        this.imageDate = imageDate;
     }
 
     public List<String> getContainerNames() {
@@ -104,8 +114,9 @@ public class CoreServiceInfo {
 
     @Override
     public String toString() {
-        return "CoreServiceInfo [name=" + name + ", versionInfo=" + versionInfo
-                + ", imageName=" + imageName + ", containerNames="
+        return "CoreServiceInfo [name=" + name + ", versionInfo="
+                + versionInfo.toString() + ", imageName=" + imageName
+                + ", imageDate=" + imageDate + ", containerNames="
                 + containerNames + ", ports=" + ports + ", status=" + status
                 + ", networks=" + networks + "]";
     }

@@ -532,6 +532,13 @@ public class DockerService {
         }
         return response;
     }
+    
+    
+    public ImageInfo getImageInfoByContainerId(String containerId) throws Exception {
+        ContainerInfo container = getContainerInfoByName(containerId);
+        String imageName = container.config().image();       
+        return getImageInfoByName(imageName);
+    }
 
     /* ****************** */
     /* *** Containers *** */

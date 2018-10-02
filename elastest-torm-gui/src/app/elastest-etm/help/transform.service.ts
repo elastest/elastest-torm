@@ -22,6 +22,7 @@ export class TransformService {
       newCoreService.name = coreService.name;
       newCoreService.versionInfo = this.jsonToVersionInfo(coreService.versionInfo);
       newCoreService.imageName = coreService.imageName;
+      newCoreService.imageDate = coreService.imageDate;
       newCoreService.containerNames = coreService.containerNames;
       newCoreService.ports = this.jsonToPortsList(coreService.ports);
       newCoreService.status = coreService.status;
@@ -35,8 +36,8 @@ export class TransformService {
     newVersionInfo = new VersionInfo();
     if (versionInfo !== undefined && versionInfo !== null) {
       newVersionInfo.commitId = versionInfo.commitId;
-      if (versionInfo.date !== undefined && versionInfo.date !== 'unspecified') {
-        newVersionInfo.date = new Date(versionInfo.date);
+      if (versionInfo.commitDate !== undefined && versionInfo.commitDate !== null && versionInfo.commitDate !== 'unspecified') {
+        newVersionInfo.commitDate = new Date(versionInfo.commitDate);
       }
       newVersionInfo.tag = versionInfo.tag;
     }

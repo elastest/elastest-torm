@@ -30,11 +30,12 @@ export class HelpComponent implements OnInit {
     { name: 'status', label: 'Status' },
     { name: 'name', label: 'Service Name' },
     { name: 'imageName', label: 'Image Name' },
+    { name: 'imageDate', label: 'Image Date' },
     { name: 'versionInfo.tag', label: 'Version' },
-    { name: 'versionInfo.date', label: 'Date' },
-    { name: 'containerNames', label: 'Container Names' },
-    { name: 'networks', label: 'Networks' },
+    { name: 'versionInfo.commitDate', label: 'Commit Date' },
     { name: 'versionInfo.commitId', label: 'Commit Id' },
+    { name: 'networks', label: 'Networks' },
+    { name: 'containerNames', label: 'Container Names' },
     { name: 'options', label: 'Options' },
   ];
 

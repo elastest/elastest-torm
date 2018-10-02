@@ -5,6 +5,7 @@ export class CoreServiceModel {
   name: string;
   versionInfo: VersionInfo;
   imageName: string;
+  imageDate: Date;
   containerNames: string[];
   ports: ContainerPortModel[];
   status: string;
