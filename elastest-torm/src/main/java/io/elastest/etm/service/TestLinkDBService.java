@@ -2,6 +2,7 @@ package io.elastest.etm.service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,16 +11,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import br.eti.kinoshita.testlinkjavaapi.model.*;
+import br.eti.kinoshita.testlinkjavaapi.model.Build;
+import br.eti.kinoshita.testlinkjavaapi.model.Execution;
+import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
+import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import br.eti.kinoshita.testlinkjavaapi.util.Util;
 
 @Service
@@ -58,6 +59,7 @@ public class TestLinkDBService {
             conn = DriverManager.getConnection(url, testlinkDBUser,
                     testlinkDBPass);
             stmt = conn.createStatement();
+            
         } catch (SQLException e) {
             logger.error(e.getMessage());
         }
@@ -170,6 +172,20 @@ public class TestLinkDBService {
     /* ************************************************************/
     /* *************************** Api ****************************/
     /* ************************************************************/
+    
+    public int updateApiKey(String key, String user) throws Exception {
+        logger.debug("Updating API key {} for the user {}", key, user);
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "UPDATE users SET script_key = ? WHERE login = ?");
+            pstmt.setString(1, key);
+            pstmt.setString(2, user);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error updating the API key: {}", e.getMessage());
+            throw e;
+        }
+    }
 
     /* **************** */
     /* **** Suites **** */

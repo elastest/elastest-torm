@@ -64,6 +64,12 @@ public class TestLinkService {
 
     @Value("${et.etm.testlink.binded.port}")
     public String etEtmTestlinkBindedPort;
+    
+    @Value("${et.etm.testlink.api.key}")
+    public String etEtmTestLinkApiKey;
+    
+    @Value("${et.user}")
+    public String etUser;
 
     private boolean startedOnDemand = false;
     private boolean startingOnDemand = false;
@@ -111,23 +117,22 @@ public class TestLinkService {
             this.testLinkUrl = this.getTestLinkUrl();
             String apiUrl = this.testLinkUrl + "/lib/api/xmlrpc/v1/xmlrpc.php";
             logger.info("Testlink api url: {}", apiUrl);
-
+            
             try {
                 testlinkApiURL = new URL(apiUrl);
-            } catch (MalformedURLException mue) {
-                mue.printStackTrace();
-            }
-
-            try {
-                api = new TestLinkAPI(testlinkApiURL, devKey);
+             // Updated API key
+                logger.debug("TL user info updated: {}", testLinkDBService
+                        .updateApiKey(etEtmTestLinkApiKey, etUser));
+                api = new TestLinkAPI(testlinkApiURL, etEtmTestLinkApiKey);
                 if (api == null) {
                     logger.error("Api object hasn't been created");
                 }
                 isInitialized = true;
                 logger.info("TestLink is ready to use now! ({})",
                         this.testLinkUrl);
-            } catch (TestLinkAPIException te) {
-                logger.error("Error on init TestLink Api: {}", te);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Error on init TestLink Api: {}", e);
             }
         }
     }

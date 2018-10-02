@@ -48,6 +48,7 @@ services:
             - ET_ETM_TESTLINK_HOST=etm-testlink
             - ET_ETM_TESTLINK_PORT=80
             - ET_ETM_TESTLINK_BINDED_PORT=37071
+            - ET_ETM_TESTLINK_API_KEY=none
             - ET_ETM_JENKINS_HOST=etm-jenkins
             - ET_ETM_JENKINS_PORT=8080
             - ET_ETM_JENKINS_BINDED_PORT=37092
