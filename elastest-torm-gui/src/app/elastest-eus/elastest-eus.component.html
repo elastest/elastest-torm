@@ -39,7 +39,7 @@
         <md-card tdMediaToggle="gt-xs">
             <md-card-title>{{ !standalone ? "Web Browsers" : "WebDriver Web Browsers" }}</md-card-title>
             <md-card-subtitle *ngIf="standalone">Remote Web Driver URL:
-                <strong>{{configurationService.configModel.eusServiceUrl}}</strong>
+                <strong>{{eusUrl}}</strong>
             </md-card-subtitle>
             <md-divider></md-divider>
             <md-card-content class="push-bottom-none">

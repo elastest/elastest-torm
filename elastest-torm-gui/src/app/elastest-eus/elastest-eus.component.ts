@@ -121,7 +121,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   startWebSocket(): void {
     if (!this.websocket) {
-      if (this.configurationService.configModel.eusServiceUrl && this.standalone) {
+      if (!this.isNested && this.configurationService.configModel.eusServiceUrl && this.standalone) {
         this.websocket = new WebSocket(this.configurationService.configModel.eusWebSocketUrl);
       } else {
         this.websocket = new WebSocket(this.eusService.getEusWsByHostAndPort(this.eusHost, this.eusPort));
