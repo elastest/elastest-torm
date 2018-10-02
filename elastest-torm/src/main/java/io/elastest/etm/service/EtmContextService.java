@@ -2,7 +2,6 @@ package io.elastest.etm.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -331,16 +330,21 @@ public class EtmContextService {
                 monEnvs.put("ET_SUT_LOG_TAG",
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
+                String host = utilsService.getEtPublicHostValue();
+                if (utilsService.isDefaultEtPublicHost()) {
+                    try {
+                        host = dockerEtmService.getEtmHost();
+                    } catch (Exception e) {
+                    }
+                }
+
                 monEnvs.put("ET_MON_LSHTTP_API",
-                        "http://" + utilsService.getEtPublicHostValue() + ":"
-                                + etEtmLsHttpPort);
-                monEnvs.put("ET_MON_LSBEATS_HOST",
-                        utilsService.getEtPublicHostValue());
+                        "http://" + host + ":" + etEtmLsHttpPort);
+                monEnvs.put("ET_MON_LSBEATS_HOST", host);
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
                 monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
                         etEtmBindedInternalLsbeatsPort);
-                monEnvs.put("ET_MON_LSTCP_HOST",
-                        utilsService.getEtPublicHostValue());
+                monEnvs.put("ET_MON_LSTCP_HOST", host);
                 monEnvs.put("ET_MON_LSTCP_PORT", etEtmBindedLstcpPort);
             }
         }
