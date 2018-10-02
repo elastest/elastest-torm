@@ -9,6 +9,7 @@ export class AbstractTJobExecModel {
   resultMsg: string;
   startDate: Date;
   endDate: Date;
+  monitoringStorageType: '' | 'elasticsearch' | 'mysql';
 
   constructor() {
     this.id = 0;

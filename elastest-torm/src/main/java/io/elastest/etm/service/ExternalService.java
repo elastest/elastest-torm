@@ -33,6 +33,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -438,6 +439,14 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecution(
             ExternalTJobExecution exec) {
+        
+        if (utilsService.isElastestMini()) {
+            exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
+        } else {
+            exec.setMonitoringStorageType(
+                    MonitoringStorageType.ELASTICSEARCH);
+        }
+        
         exec = this.externalTJobExecutionRepository.save(exec);
         if (exec.getMonitoringIndex().isEmpty()
                 || "".equals(exec.getMonitoringIndex())) {
@@ -458,6 +467,14 @@ public class ExternalService {
         ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
                 .get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
+        
+        if (utilsService.isElastestMini()) {
+            exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
+        } else {
+            exec.setMonitoringStorageType(
+                    MonitoringStorageType.ELASTICSEARCH);
+        }
+        
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
 

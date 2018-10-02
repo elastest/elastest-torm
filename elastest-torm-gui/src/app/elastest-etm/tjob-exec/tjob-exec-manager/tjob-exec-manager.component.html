@@ -4,7 +4,8 @@
             <md-card-title>
                 <div layout="row">
                     <span>
-                        <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color" mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
+                        <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color"
+                            mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
                     </span>
                     <a (click)="viewTJob()" class="hover-pointer">
                         <span>TJob</span>
@@ -13,22 +14,24 @@
                     <span>: Execution {{tJobExecId}}</span>
                     <span flex></span>
                     <div>
-                        <button md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick mdTooltip="Open External URL"
-                            class="onlyIconBtn iconBtn-lg">
+                        <button md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
+                            mdTooltip="Open External URL" class="onlyIconBtn iconBtn-lg">
                             <md-icon>open_in_new</md-icon>
                         </button>
-                        <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg" mdTooltip="View in Log Analyzer">
+                        <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg"
+                            mdTooltip="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
-                        <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
+                        <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg"
+                            mdTooltip="Open Monitoring Config">
                             <md-icon>settings</md-icon>
                         </button>
-                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading" stopRowClick mdTooltip="Delete TJob Execution"
-                            class="onlyIconBtn iconBtn-lg">
+                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
+                            stopRowClick mdTooltip="Delete TJob Execution" class="onlyIconBtn iconBtn-lg">
                             <md-icon>delete</md-icon>
                         </button>
-                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading" stopRowClick mdTooltip="Download as Json"
-                            class="onlyIconBtn iconBtn-lg">
+                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading"
+                            stopRowClick mdTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
                             <md-icon>cloud_download</md-icon>
                         </button>
                     </div>
@@ -42,27 +45,34 @@
                         <md-card-subtitle>Result</md-card-subtitle>
                         <h4 [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
-                    <span flex="25">
+                    <span flex="20">
                         <md-card-subtitle>Start Date</md-card-subtitle>
                         <h4>{{ tJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
-                    <span flex="25">
+                    <span flex="20">
                         <md-card-subtitle>End Date</md-card-subtitle>
                         <h4>{{ tJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
                     <ng-container>
-                        <span flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec === 0">
+                        <span flex="15">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>
-                            <h4>None</h4>
-                        </span>
-                        <span flex="20" *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== 0">
-                            <md-card-subtitle>Sut Execution</md-card-subtitle>
-                            <h4>{{tJobExec.sutExec.id}}</h4>
+                            <h4 *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== null && tJobExec.sutExec.id !== 0; else NoneSutExec">{{tJobExec.sutExec.id}}</h4>
+                            <ng-template #NoneSutExec>
+                                <h4>None</h4>
+                            </ng-template>
                         </span>
                     </ng-container>
-                    <span flex="20">
+                    <span flex="15">
                         <md-card-subtitle>Log Index</md-card-subtitle>
                         <h4>{{tJobExec.monitoringIndex}}</h4>
+                    </span>
+
+                    <span flex="15">
+                        <md-card-subtitle>Monitoring Storage</md-card-subtitle>
+                        <h4 *ngIf="tJobExec.monitoringStorageType && tJobExec.monitoringStorageType !== ''; else NoneMonitoringStorage">{{tJobExec.monitoringStorageType}}</h4>
+                        <ng-template #NoneMonitoringStorage>
+                            <h4>Unknown</h4>
+                        </ng-template>
                     </span>
 
                 </div>

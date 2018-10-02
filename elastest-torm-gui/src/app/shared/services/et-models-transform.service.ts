@@ -152,6 +152,7 @@ export class ETModelsTransformServices {
     }
 
     newTJobExec.externalUrls = tjobExec.externalUrls;
+    newTJobExec.monitoringStorageType = tjobExec.monitoringStorageType;
 
     return newTJobExec;
   }

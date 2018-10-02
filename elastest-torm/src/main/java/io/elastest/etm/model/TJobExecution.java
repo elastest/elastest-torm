@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJob.BasicAttTJob;
@@ -129,14 +130,20 @@ public class TJobExecution {
             BasicAttProject.class })
     @Column(name = "endDate")
     private Date endDate = null;
-    
+
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-        BasicAttProject.class })
+            BasicAttProject.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXEC_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB_EXEC"))
     private Map<String, String> externalUrls;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "monitoringStorageType")
+    @JsonProperty("monitoringStorageType")
+    private MonitoringStorageType monitoringStorageType;
 
     // Constructors
     public TJobExecution() {
@@ -438,6 +445,19 @@ public class TJobExecution {
         this.externalUrls = externalUrls;
     }
 
+    /*
+     * monitoringStorageType get/set
+     */
+
+    public MonitoringStorageType getMonitoringStorageType() {
+        return monitoringStorageType;
+    }
+
+    public void setMonitoringStorageType(
+            MonitoringStorageType monitoringStorageType) {
+        this.monitoringStorageType = monitoringStorageType;
+    }
+
     // Others
     @Override
     public boolean equals(java.lang.Object o) {
@@ -459,13 +479,16 @@ public class TJobExecution {
                 && Objects.equals(this.parameters, tjobExecution.parameters)
                 && Objects.equals(this.resultMsg, tjobExecution.resultMsg)
                 && Objects.equals(this.startDate, tjobExecution.startDate)
-                && Objects.equals(this.endDate, tjobExecution.endDate);
+                && Objects.equals(this.endDate, tjobExecution.endDate)
+                && Objects.equals(this.monitoringStorageType,
+                        tjobExecution.monitoringStorageType);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
-                testSuites, parameters, resultMsg, startDate, endDate);
+                testSuites, parameters, resultMsg, startDate, endDate,
+                monitoringStorageType);
     }
 
     @Override
@@ -492,6 +515,8 @@ public class TJobExecution {
                 .append("\n");
         sb.append("    endDate: ").append(toIndentedString(endDate))
                 .append("\n");
+        sb.append("    monitoringStorageType: ")
+                .append(toIndentedString(monitoringStorageType)).append("\n");
         sb.append("}");
         return sb.toString();
     }

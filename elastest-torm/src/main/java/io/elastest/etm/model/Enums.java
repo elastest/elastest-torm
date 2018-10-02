@@ -118,4 +118,41 @@ public class Enums {
             return ProtocolEnum.HTTPS.equals(ProtocolEnum.fromValue(value));
         }
     }
+
+    public enum MonitoringStorageType {
+        ELASTICSEARCH("elasticsearch"),
+
+        MYSQL("mysql");
+
+        private String value;
+
+        MonitoringStorageType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static MonitoringStorageType fromValue(String text) {
+            for (MonitoringStorageType b : MonitoringStorageType.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+        public boolean isInElasticsearch() {
+            return MonitoringStorageType.ELASTICSEARCH
+                    .equals(MonitoringStorageType.fromValue(value));
+        }
+
+        public boolean isInMysql() {
+            return MonitoringStorageType.MYSQL.equals(MonitoringStorageType.fromValue(value));
+        }
+    }
 }

@@ -28,6 +28,7 @@ import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
@@ -35,6 +36,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.utils.TestResultParser;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class TJobService {
@@ -52,19 +54,22 @@ public class TJobService {
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
     private final EsmService esmService;
     private DatabaseSessionManager dbmanager;
+    private UtilsService utilsService;
 
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
-            EsmService esmService, DatabaseSessionManager dbmanager) {
+            EsmService esmService, DatabaseSessionManager dbmanager,
+            UtilsService utilsService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
         this.esmService = esmService;
         this.dbmanager = dbmanager;
+        this.utilsService = utilsService;
     }
 
     @PreDestroy
@@ -125,6 +130,14 @@ public class TJobService {
         }
 
         TJobExecution tJobExec = new TJobExecution();
+
+        if (utilsService.isElastestMini()) {
+            tJobExec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
+        } else {
+            tJobExec.setMonitoringStorageType(
+                    MonitoringStorageType.ELASTICSEARCH);
+        }
+
         tJobExec.setStartDate(new Date());
         if (tJob.getSut() != null && sutParameters != null
                 && !sutParameters.isEmpty()) {
@@ -168,6 +181,14 @@ public class TJobService {
         }
 
         TJobExecution tJobExec = new TJobExecution();
+       
+        if (utilsService.isElastestMini()) {
+            tJobExec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
+        } else {
+            tJobExec.setMonitoringStorageType(
+                    MonitoringStorageType.ELASTICSEARCH);
+        }
+        
         tJobExec.setStartDate(new Date());
         if (tJob.getSut() != null && sutParameters != null
                 && !sutParameters.isEmpty()) {

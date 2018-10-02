@@ -139,6 +139,8 @@ export class ETExternalModelsTransformService {
       newTJobExec.endDate = new Date(tjobexec.endDate);
     }
 
+    newTJobExec.monitoringStorageType = tjobexec.monitoringStorageType;
+
     return newTJobExec;
   }
 
