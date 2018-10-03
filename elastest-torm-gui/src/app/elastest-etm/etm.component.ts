@@ -89,7 +89,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
 
   refresh(): void {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
-      this.router.navigate(['/refresh'], { queryParams: { url: 'tjobexecs' } });
+      this.router.navigate(['/refresh'], { queryParams: { url: '/' } });
     }
   }
 
