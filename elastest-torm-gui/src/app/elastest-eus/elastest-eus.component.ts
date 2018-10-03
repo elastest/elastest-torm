@@ -30,6 +30,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   loading: boolean = true;
 
+  manuallyClosed: boolean = false;
+
   recordingColumns: any[] = [
     { name: 'id', label: 'Session id' },
     { name: 'browser', label: 'Browser' },
@@ -112,6 +114,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   end(): void {
     if (this.websocket) {
+      this.manuallyClosed = true;
       this.websocket.close();
     }
     if (this.sessionId !== null && this.sessionId !== undefined && this.sessionId !== '') {
@@ -129,6 +132,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
       this.websocket.onopen = () => this.websocket.send('getSessions');
       this.websocket.onopen = () => this.websocket.send('getRecordings');
+
+      this.websocket.onclose = () => this.reconnect();
 
       this.websocket.onmessage = (message) => {
         let json: any = JSON.parse(message.data);
@@ -174,6 +179,16 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           this.testData = Array.from(newTestData);
         }
       };
+    }
+  }
+
+  reconnect(): void {
+    if (!this.manuallyClosed) {
+      // try to reconnect websocket in 5 seconds
+      setTimeout(function() {
+        console.log('Trying to reconnect to EUS WS');
+        this.startWebSocket();
+      }, 5000);
     }
   }
 

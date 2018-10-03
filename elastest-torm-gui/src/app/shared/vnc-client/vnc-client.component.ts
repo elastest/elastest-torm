@@ -1,5 +1,5 @@
 import { VncUI } from './ui';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { getUrlObj } from '../utils';
 
@@ -8,7 +8,7 @@ import { getUrlObj } from '../utils';
   templateUrl: './vnc-client.component.html',
   styleUrls: ['./vnc-client.component.scss'],
 })
-export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
+export class VncClientComponent implements  OnInit, OnDestroy {
   @ViewChild('canvas') vncCanvas: ElementRef;
 
   @Input() public host: string;
@@ -41,9 +41,7 @@ export class VncClientComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit() {
     this.manageKeyboard();
-  }
-
-  ngAfterViewInit(): void {
+    
     if (this.host && this.port) {
       this.initVnc();
     } else {

@@ -16,17 +16,18 @@ export class StompWSManager {
   endExecution: boolean = false;
 
   constructor(private stompRService: StompRService, private http: Http, private configurationService: ConfigurationService) {
+    this.subscriptions = new Map<string, any>();
+
     this.wsConf = new StompConfig();
     this.wsConf.debug = false;
     this.wsConf.heartbeat_out = 10000;
     this.wsConf.heartbeat_in = 10000;
     this.wsConf.reconnect_delay = 5000;
 
-    this.subscriptions = new Map<string, any>();
     this.wsConf.url = this.configurationService.configModel.hostWsServer + this.wsPath;
   }
 
-  configWSConnection(host?: string): void {
+  public configWSConnection(host?: string): void {
     if (host !== undefined) {
       this.wsConf.url = this.configurationService.configModel.hostWsServer + host;
     }
