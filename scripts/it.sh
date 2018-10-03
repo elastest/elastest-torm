@@ -73,6 +73,7 @@ ET_ETM_INTERNAL_LSBEATS_PORT=37503
 export ET_SHARED_FOLDER='/data'
 export ET_DATA_IN_HOST='/tmp/.elastest'
 export ET_FILES_PATH_IN_HOST='/tmp/.elastest'
+export ET_ETM_TESTLINK_API_KEY='20b9a66e17597842404062c3b628b938'
 
 
 # Execute Integration tests
