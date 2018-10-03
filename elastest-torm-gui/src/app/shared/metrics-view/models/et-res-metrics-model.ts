@@ -101,28 +101,33 @@ export class ETRESMetricsModel extends MetricsModel {
 
   loadPrevious(): void {
     let compareTrace: any = this.getOldTrace();
-    this.monitoringService.getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, this.metricsField).subscribe((data) => {
-      if (data.length > 0) {
-        if (data[MetricsDataType.Test].series.length > 0) {
-          this.data[MetricsDataType.Test].series.unshift.apply(
-            this.data[MetricsDataType.Test].series,
-            data[MetricsDataType.Test].series,
-          );
-          this.prevLoaded = true;
+    this.monitoringService.getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, this.metricsField).subscribe(
+      (data) => {
+        if (data.length > 0) {
+          if (data[MetricsDataType.Test].series.length > 0) {
+            this.data[MetricsDataType.Test].series.unshift.apply(
+              this.data[MetricsDataType.Test].series,
+              data[MetricsDataType.Test].series,
+            );
+            this.prevLoaded = true;
+          }
+          if (data[MetricsDataType.Sut].series.length > 0) {
+            this.data[MetricsDataType.Sut].series.unshift.apply(
+              this.data[MetricsDataType.Sut].series,
+              data[MetricsDataType.Sut].series,
+            );
+            this.prevLoaded = true;
+          }
+          this.data = [...this.data];
+          this.monitoringService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
+        } else {
+          this.monitoringService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
         }
-        if (data[MetricsDataType.Sut].series.length > 0) {
-          this.data[MetricsDataType.Sut].series.unshift.apply(
-            this.data[MetricsDataType.Sut].series,
-            data[MetricsDataType.Sut].series,
-          );
-          this.prevLoaded = true;
-        }
-        this.data = [...this.data];
-        this.monitoringService.popupService.openSnackBar('Previous traces has been loaded', 'OK');
-      } else {
-        this.monitoringService.popupService.openSnackBar("There aren't previous traces to load", 'OK');
-      }
-    });
+      },
+      (error: Error) => {
+        // this.monitoringService.popupService.openSnackBar("Error on load previous traces", 'OK');
+      },
+    );
   }
 
   getOldTrace(): any {

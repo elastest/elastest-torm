@@ -93,8 +93,12 @@ export class ElastestRabbitmqService {
   adaptToStreamType(data: any): any {
     let trace: any;
     if (data['stream_type'] === 'log' && data.message !== undefined) {
+      let timestamp: string = data['@timestamp'];
+      if (timestamp === undefined || timestamp === null) {
+        timestamp = data['timestamp'];
+      }
       trace = {
-        timestamp: data['@timestamp'],
+        timestamp: timestamp,
         message: data.message,
       };
     } else if (data['stream_type'] === 'composed_metrics' || data['stream_type'] === 'atomic_metric') {

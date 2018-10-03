@@ -4,24 +4,6 @@ import { StompHeaders } from '@stomp/ng2-stompjs/src/stomp-headers';
 import { Message } from '@stomp/stompjs';
 import { Subscription, Observable } from 'rxjs';
 
-// interface Config {
-//   // websocket endpoint
-//   host: string;
-//   // optional headers
-//   headers?: Object;
-//   // heartbeats (ms)
-//   heartbeatIn?: number;
-//   heartbeatOut?: number;
-//   // debuging
-//   debug?: boolean;
-//   // reconnection time (ms)
-//   recTimeout?: number;
-//   // queue object
-//   queue: any;
-//   // queue cheking Time (ms)
-//   queueCheckTime?: number;
-// }
-
 @Injectable()
 export class StompService {
   constructor(private stompRService: StompRService) {}
