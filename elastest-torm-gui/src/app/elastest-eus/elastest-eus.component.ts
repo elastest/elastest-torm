@@ -1,6 +1,6 @@
 import { TitlesService } from '../shared/services/titles.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, HostListener } from '@angular/core';
-import { MdDialogRef, MdDialog, MdDialogConfig } from '@angular/material';
+import { MdDialogRef } from '@angular/material';
 import { ElastestEusDialog } from './elastest-eus.dialog';
 import { ElastestEusDialogService } from './elastest-eus.dialog.service';
 import { EusService } from './elastest-eus.service';

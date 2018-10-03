@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { StompService } from './stomp.service';
 import { Http } from '@angular/http';
-import { StompConfig } from '@stomp/ng2-stompjs';
-import { Subscription } from 'rxjs';
+import { StompConfig, StompRService, StompState } from '@stomp/ng2-stompjs';
+import { Subscription, Observable } from 'rxjs';
+import { StompHeaders } from '@stomp/ng2-stompjs/src/stomp-headers';
+import { Message } from '@stomp/stompjs';
 
 @Injectable()
 export class StompWSManager {
@@ -14,7 +15,7 @@ export class StompWSManager {
 
   endExecution: boolean = false;
 
-  constructor(private stomp: StompService, private http: Http, private configurationService: ConfigurationService) {
+  constructor(private stompRService: StompRService, private http: Http, private configurationService: ConfigurationService) {
     this.wsConf = new StompConfig();
     this.wsConf.debug = false;
     this.wsConf.heartbeat_out = 10000;
@@ -30,16 +31,63 @@ export class StompWSManager {
       this.wsConf.url = this.configurationService.configModel.hostWsServer + host;
     }
 
-    this.stomp.configure(this.wsConf);
+    this.stompRService.config = this.wsConf;
   }
 
-  startWsConnection(): void {
-    /**sub
-     * Start connection
-     */
-    this.stomp.startConnect();
+  public subscribeToStompStatus(): Observable<string> {
+    return this.stompRService.state.map((state: number) => StompState[state]);
+  }
 
-    this.stomp.subscribeToStompStatus().subscribe(
+  public startConnect(): void {
+    if (this.stompRService.config === null) {
+      throw Error('Configuration required!');
+    }
+
+    // Prepare Client
+    this.stompRService.initAndConnect();
+  }
+
+  /**
+   * Subscribe
+   */
+  public subscribe(destination: string, callback: any, headers?: StompHeaders): Subscription {
+    headers = headers || {};
+    return this.stompRService
+      .subscribe(destination, headers)
+
+      .subscribe((message: Message) => {
+        try {
+          callback(JSON.parse(message.body), message.headers);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+  }
+
+  /**
+   * Send
+   */
+  public send(destination: string, body: any, headers?: StompHeaders): void {
+    let message: string = JSON.stringify(body);
+    headers = headers || {};
+    this.stompRService.publish(destination, message, headers);
+  }
+
+  /**
+   * Unsubscribe
+   */
+  public unsubscribe(subscription: Subscription): any {
+    return subscription.unsubscribe();
+  }
+
+  /**
+   * Connect
+   */
+
+  startWsConnection(): void {
+    this.startConnect();
+
+    this.subscribeToStompStatus().subscribe(
       (status: string) => {
         console.log(`Stomp connection status: ${status}`);
       },
@@ -51,13 +99,13 @@ export class StompWSManager {
    * Disconnect
    */
   disconnectWSConnection(): void {
-    this.stomp.disconnect();
+    this.stompRService.disconnect();
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string): void {
     if (!this.subscriptions.has(destination)) {
       console.log('SUBSCRIBED TO', destination);
-      this.subscriptions.set(destination, this.stomp.subscribe('/topic/' + destination, callbackFunction));
+      this.subscriptions.set(destination, this.subscribe('/topic/' + destination, callbackFunction));
     }
   }
 
@@ -73,7 +121,7 @@ export class StompWSManager {
     let value: Subscription = this.subscriptions.get(key);
     if (value !== undefined) {
       console.log('UNSUBSCRIBED TO', key);
-      this.stomp.unsubscribe(value);
+      this.unsubscribe(value);
       this.subscriptions.delete(key);
     }
   }
@@ -85,6 +133,6 @@ export class StompWSManager {
      * @param {object} body: a object that sends.
      * @param {object} headers: optional headers.
      */
-    this.stomp.send(destination, { data: 'data' });
+    this.send(destination, { data: 'data' });
   }
 }
