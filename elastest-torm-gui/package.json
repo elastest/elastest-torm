@@ -59,7 +59,7 @@
     "rxjs": "5.5.2",
     "showdown": "1.6.4",
     "sockjs-client": "^1.1.4",
-    "stompjs": "^2.3.3",
+    "@stomp/ng2-stompjs": "4.0.1",
     "time-ago-pipe": "1.2.1",
     "zone.js": "^0.8.5"
   },

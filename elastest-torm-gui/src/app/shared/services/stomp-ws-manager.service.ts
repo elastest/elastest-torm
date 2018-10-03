@@ -2,29 +2,32 @@ import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { StompService } from './stomp.service';
 import { Http } from '@angular/http';
+import { StompConfig } from '@stomp/ng2-stompjs';
+import { Subscription } from 'rxjs';
 
 @Injectable()
 export class StompWSManager {
-  private wsConf: any = {
-    host: '/rabbitMq',
-    debug: false,
-    queue: { init: false },
-    heartbeatOut: 10000,
-    heartbeatIn: 10000,
-  };
+  private wsConf: StompConfig;
+  wsPath: string = '/rabbitMq';
 
-  subscriptions: Map<string, any>;
+  subscriptions: Map<string, Subscription>;
 
   endExecution: boolean = false;
 
   constructor(private stomp: StompService, private http: Http, private configurationService: ConfigurationService) {
+    this.wsConf = new StompConfig();
+    this.wsConf.debug = false;
+    this.wsConf.heartbeat_out = 10000;
+    this.wsConf.heartbeat_in = 10000;
+    this.wsConf.reconnect_delay = 5000;
+
     this.subscriptions = new Map<string, any>();
-    this.wsConf.host = this.configurationService.configModel.hostWsServer + this.wsConf.host;
+    this.wsConf.url = this.configurationService.configModel.hostWsServer + this.wsPath;
   }
 
   configWSConnection(host?: string): void {
     if (host !== undefined) {
-      this.wsConf.host = this.configurationService.configModel.hostWsServer + host;
+      this.wsConf.url = this.configurationService.configModel.hostWsServer + host;
     }
 
     this.stomp.configure(this.wsConf);
@@ -33,21 +36,22 @@ export class StompWSManager {
   startWsConnection(): void {
     /**sub
      * Start connection
-     * @return {Promise} if resolved
      */
-    this.stomp.startConnect().then(() => {
-      console.log('Connected');
-    });
+    this.stomp.startConnect();
+
+    this.stomp.subscribeToStompStatus().subscribe(
+      (status: string) => {
+        console.log(`Stomp connection status: ${status}`);
+      },
+      (error: Error) => console.log(error),
+    );
   }
 
   /**
    * Disconnect
-   * @return {Promise} if resolved
    */
   disconnectWSConnection(): void {
-    this.stomp.disconnect().then(() => {
-      console.log('Connection closed');
-    });
+    this.stomp.disconnect();
   }
 
   subscribeToTopicDestination(destination: string, callbackFunction: any, exchange?: string): void {
@@ -66,7 +70,7 @@ export class StompWSManager {
   }
 
   unsubscribeSpecificWSDestination(key: string): void {
-    let value = this.subscriptions.get(key);
+    let value: Subscription = this.subscriptions.get(key);
     if (value !== undefined) {
       console.log('UNSUBSCRIBED TO', key);
       this.stomp.unsubscribe(value);

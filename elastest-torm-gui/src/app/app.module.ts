@@ -30,7 +30,7 @@ import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.mod
 
 import { BreadcrumbService } from './shared/breadcrumb/breadcrumb.service';
 import { SharedModule } from './shared/shared.module';
-import { StompService } from './shared/services/stomp.service';
+import { StompRService } from '@stomp/ng2-stompjs';
 import { StompWSManager } from './shared/services/stomp-ws-manager.service';
 import { TJobService } from './elastest-etm/tjob/tjob.service';
 import { TJobExecService } from './elastest-etm/tjob-exec/tjobExec.service';
@@ -128,6 +128,7 @@ import { TimeAgoPipe } from 'time-ago-pipe';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
+import { StompService } from './shared/services/stomp.service';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -273,6 +274,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     EsmService,
     EtPluginsService,
     LogAnalyzerService,
+    StompRService,
   ],
   entryComponents: [
     ElastestEusDialog,
