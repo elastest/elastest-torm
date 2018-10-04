@@ -1,6 +1,6 @@
 {
   "name": "elastest-torm-gui",
-  "version": "0.9.1-SNAPSHOT",
+  "version": "1.0.0-beta2",
   "private": true,
   "description": "ElasTest TORM GUI",
   "keywords": [
