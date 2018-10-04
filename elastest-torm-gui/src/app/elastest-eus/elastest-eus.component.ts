@@ -82,6 +82,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.eusService.setEusHost(this.configurationService.configModel.eusHost);
       this.eusPort = +this.configurationService.configModel.eusPort;
       this.eusHost = this.configurationService.configModel.eusHost;
+      this.eusUrl = this.configurationService.configModel.eusServiceUrl;
     } else {
       console.log('Uses default or passed arguments.', this.eusHost, this.eusUrl);
       this.eusService.setEusUrl(this.eusUrl);
