@@ -16,7 +16,7 @@
                 echo &quot;${c.id}&quot;
                 def sutContainerName = env.ET_SUT_CONTAINER_NAME;
                 def sutNetwork = getFirstNetwork(sutContainerName)
-                def sutIp = containerIp(sutContainerName,network)
+                def sutIp = containerIp(sutContainerName,sutNetwork)
                 sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=8080 --network=&apos; + sutNetwork + &apos; elastest/etm-check-service-up&apos;
                 withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
                     echo &apos;Set up test environment&apos;
