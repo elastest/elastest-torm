@@ -88,12 +88,12 @@ export class StompWSManager {
   startWsConnection(): void {
     this.startConnect();
 
-    this.subscribeToStompStatus().subscribe(
-      (status: string) => {
-        console.log(`Stomp connection status: ${status}`);
-      },
-      (error: Error) => console.log(error),
-    );
+    // this.subscribeToStompStatus().subscribe(
+    //   (status: string) => {
+    //     console.log(`Stomp connection status: ${status}`);
+    //   },
+    //   (error: Error) => console.log(error),
+    // );
   }
 
   /**
