@@ -114,31 +114,6 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
         return connector;
     }
 
-    // @Bean
-    // public io.elastest.etm.service.DockerService2 dockerDocker2(){
-    // return new io.elastest.etm.service.DockerService2();
-    // }
-    ////
-    // @Bean
-    // public DockerComposeService createDockerComposeService() {
-    // return new DockerComposeService(dockerService(), jsonService());
-    // }
-    //
-    // @Bean
-    // public JsonService jsonService() {
-    // return new JsonService();
-    // }
-    //
-    // @Bean
-    // public DockerService dockerService() {
-    // return new DockerService(shellService());
-    // }
-    //
-    // @Bean
-    // public ShellService shellService() {
-    // return new ShellService();
-    // }
-
     public static void main(String[] args) throws Exception {
         new SpringApplication(ElasTestTormApp.class).run(args);
     }
