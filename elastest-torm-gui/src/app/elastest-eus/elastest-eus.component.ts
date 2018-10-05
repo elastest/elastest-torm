@@ -94,17 +94,21 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
     this.eusService.getStatus().subscribe(
       (ok: Response) => {
-        this.browserVersions = ok.json().browsers;
-        this.browserNamesList = Object.keys(this.browserVersions);
-        if (this.browserNamesList.length > 0) {
-          this.selectBrowser(this.browserNamesList[0]);
-        }
+        this.initBrowsersByGiven(ok.json().browsers);
         this.loading = false;
       },
       (error) => console.error('Error getting EUS status: ' + error),
     );
 
     this.startWebSocket();
+  }
+
+  initBrowsersByGiven(obj: object): void {
+    this.browserVersions = obj;
+    this.browserNamesList = Object.keys(this.browserVersions);
+    if (this.browserNamesList.length > 0) {
+      this.selectBrowser(this.browserNamesList[0]);
+    }
   }
 
   ngOnDestroy() {
@@ -389,5 +393,20 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
     return value;
+  }
+
+  refreshBrowsers(): void {
+    this.loading = true;
+
+    this.eusService.getBrowsers().subscribe(
+      (ok: Response) => {
+        this.initBrowsersByGiven(ok.json());
+        this.loading = false;
+      },
+      (error: Error) => {
+        console.log(error);
+        this.loading = false;
+      },
+    );
   }
 }

@@ -115,6 +115,16 @@ export class EusService {
     return this.http.get(url);
   }
 
+  public getBrowsers(): Observable<Response> {
+    let url: string = this.eusUrl + 'browsers';
+    return this.http.get(url);
+  }
+
+  public getCachedBrowsers(): Observable<Response> {
+    let url: string = this.eusUrl + 'browsers/cached';
+    return this.http.get(url);
+  }
+
   public navigateToUrl(sessionId: string, urlToOpen: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/url';
     return this.http.post(url, { url: urlToOpen }).map((response: Response) => {
