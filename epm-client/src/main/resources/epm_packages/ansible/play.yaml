@@ -3,11 +3,6 @@
   tasks:
     - name: Creating VM
       os_server:
-        auth:
-          auth_url: "http://cpu06.codeurjc.es:5000/v2.0"
-          password: Eil3rac8soojoam
-          project_name: tub
-          username: tub
         flavor: m1.tub
         auto_floating_ip: yes
         image: "Ubuntu Xenial"
