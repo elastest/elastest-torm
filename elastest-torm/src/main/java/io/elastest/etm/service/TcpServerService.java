@@ -165,10 +165,6 @@ public class TcpServerService {
 
                 Date afterDate = new Date(date.getTime());
 
-                logger.debug("Before check date: {}", beforeDate);
-                logger.debug("After check and edit date: {}", afterDate);
-                logger.debug("Different timezone: {}", difference != 0);
-
                 if (key != null && beforeDate != null) {
                     cachedTimeDifference.put(key, difference);
                 }
