@@ -26,6 +26,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   timer: Observable<number>;
   subscription: Subscription;
+  startedFirstTime: boolean = false;
 
   // Project data
   projectColumns: any[] = [
@@ -124,6 +125,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   startTestLink(): void {
     this.startingInProcess = true;
+    this.startedFirstTime = true;
     this.testlinkService.startTestLink().subscribe(
       (testLinkModel: EtPluginModel) => {
         this.testLinkModel = testLinkModel;
@@ -138,7 +140,11 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.loadTestLinkUrl();
-    this.loadProjects();
+    if (this.startedFirstTime) {
+      this.syncTestLink();
+    } else {
+      this.loadProjects();
+    }
   }
 
   loadTestLinkUrl(): void {
@@ -149,7 +155,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   loadProjects(): void {
     this.testlinkService.getAllTestProjects().subscribe((projects: TestProjectModel[]) => {
-      this.projectsList = projects;
+      this.projectsList = [...projects];
       this.showSpinner = false;
     });
   }
