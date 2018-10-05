@@ -1,5 +1,6 @@
 import { MdDialogRef } from '@angular/material';
 import { Component } from '@angular/core';
+import { EusTestModel } from './elastest-eus-test-model';
 
 @Component({
   selector: 'eus-dialog',
@@ -12,6 +13,7 @@ export class ElastestEusDialog {
   public loading: boolean = false;
   public sessionType: 'live' | 'video' = 'live';
   public closeButton: boolean = false;
+  public testModel: EusTestModel;
 
   constructor(public dialogRef: MdDialogRef<ElastestEusDialog>) {}
 }

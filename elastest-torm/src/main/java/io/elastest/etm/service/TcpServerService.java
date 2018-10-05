@@ -163,8 +163,6 @@ public class TcpServerService {
                 date = utilsService.getLocaltimeDateFromLiveDate(date,
                         difference);
 
-                Date afterDate = new Date(date.getTime());
-
                 if (key != null && beforeDate != null) {
                     cachedTimeDifference.put(key, difference);
                 }

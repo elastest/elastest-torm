@@ -7,6 +7,11 @@
         <md-icon>open_in_new</md-icon>
     </a>
 </div>
+<div *ngIf="testModel" class="push-bottom-xs" layout="row">
+    <span class="md-subhead">
+        {{testModel.statusMsg}}
+    </span>
+</div>
 <md-dialog-content style="max-height: 84vh">
     <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
     <ng-template #showContent>

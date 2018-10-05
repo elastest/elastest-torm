@@ -45,6 +45,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   testData: EusTestModel[] = [];
   testDataMap: Map<string, number> = new Map<string, number>();
   recordings: EusTestModel[] = [];
+  liveSession: EusTestModel;
+
+  liveDialog: MdDialogRef<ElastestEusDialog>;
 
   @Input()
   eusUrl: string = 'http://localhost:8040/eus/v1/';
@@ -138,28 +141,30 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
       this.websocket.onmessage = (message) => {
         let json: any = JSON.parse(message.data);
-        if (json.newSession) {
-          let testModel: EusTestModel = new EusTestModel();
-          testModel.id = json.newSession.id;
-          testModel.browser = json.newSession.browser;
-          testModel.version = json.newSession.version;
-          testModel.creationTime = json.newSession.creationTime;
-          testModel.url = json.newSession.url;
-          testModel.hubContainerName = json.newSession.hubContainerName;
-          testModel.status = json.newSession.status;
-          testModel.statusMsg = json.newSession.statusMsg;
-          let hubContainerName: string = testModel.hubContainerName;
 
+        if (json.newSession) {
+          let testModel: EusTestModel = this.getEusTestModelFromSessionJson(json.newSession);
           let position: number;
-          if (this.testDataMap.has(hubContainerName)) {
-            position = this.testDataMap.get(hubContainerName);
+          if (this.testDataMap.has(testModel.hubContainerName)) {
+            position = this.testDataMap.get(testModel.hubContainerName);
             this.testData[position] = testModel;
           } else {
             position = this.testData.push(testModel) - 1;
           }
           this.testData = Array.from(this.testData);
 
-          this.testDataMap.set(hubContainerName, position);
+          this.testDataMap.set(testModel.hubContainerName, position);
+        } else if (json.newLiveSession) {
+          // new live session
+          this.liveSession = this.getEusTestModelFromSessionJson(json.newLiveSession);
+          if (
+            this.liveDialog !== undefined &&
+            this.liveDialog !== null &&
+            this.liveDialog.componentInstance !== undefined &&
+            this.liveDialog.componentInstance !== null
+          ) {
+            this.liveDialog.componentInstance.testModel = this.liveSession;
+          }
         } else if (json.recordedSession) {
           let testModel: EusTestModel = new EusTestModel();
           testModel.id = json.recordedSession.id;
@@ -181,6 +186,21 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         }
       };
     }
+  }
+
+  getEusTestModelFromSessionJson(jsonSession: any): EusTestModel {
+    let testModel: EusTestModel = new EusTestModel();
+    if (jsonSession !== undefined && jsonSession !== null) {
+      testModel.id = jsonSession.id;
+      testModel.browser = jsonSession.browser;
+      testModel.version = jsonSession.version;
+      testModel.creationTime = jsonSession.creationTime;
+      testModel.url = jsonSession.url;
+      testModel.hubContainerName = jsonSession.hubContainerName;
+      testModel.status = jsonSession.status;
+      testModel.statusMsg = jsonSession.statusMsg;
+    }
+    return testModel;
   }
 
   reconnect(): void {
@@ -299,27 +319,36 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   startSession(): void {
     if (this.selectedBrowser) {
-      let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+      this.liveDialog = this.eusDialog.getDialog(true);
       let message: string = this.capitalize(this.selectedBrowser);
 
       if (this.selectedVersion[this.selectedBrowser]) {
         message += ' ' + this.selectedVersion[this.selectedBrowser];
       }
       message += ' - live session';
-      dialog.componentInstance.title = message;
-      dialog.componentInstance.message = '';
-      dialog.componentInstance.loading = true;
-      dialog.componentInstance.closeButton = true;
+      this.liveDialog.componentInstance.title = message;
+      this.liveDialog.componentInstance.message = '';
+      this.liveDialog.componentInstance.loading = true;
+      this.liveDialog.componentInstance.closeButton = true;
+      this.liveDialog.componentInstance.testModel = this.liveSession;
 
-      dialog.afterClosed().subscribe((ok: Response) => this.stopSession(), (error) => console.error(error));
+      this.liveDialog.afterClosed().subscribe(
+        (ok: Response) => {
+          this.stopSession();
+        },
+        (error) => {
+          console.error(error);
+          this.liveDialog = undefined;
+        },
+      );
 
       this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser]).subscribe(
         (eusTestModel: EusTestModel) => {
           this.sessionId = eusTestModel.id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
             (url) => {
-              dialog.componentInstance.loading = false;
-              dialog.componentInstance.iframeUrl = url;
+              this.liveDialog.componentInstance.loading = false;
+              this.liveDialog.componentInstance.iframeUrl = url;
             },
             (error) => console.error(error),
           );
@@ -332,9 +361,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   stopSession(): void {
-    this.eusService
-      .stopSession(this.sessionId)
-      .subscribe((ok: Response) => (this.vncUrl = null), (error) => console.error(error));
+    this.eusService.stopSession(this.sessionId).subscribe(
+      (ok: Response) => {
+        this.vncUrl = null;
+        this.liveSession = undefined;
+        this.liveDialog = undefined;
+      },
+      (error) => console.error(error),
+    );
   }
 
   selectBrowser(browser: string): void {
