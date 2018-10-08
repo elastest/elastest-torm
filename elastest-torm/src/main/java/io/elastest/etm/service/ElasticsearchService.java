@@ -73,6 +73,12 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         this.utilsService = utilsService;
     }
 
+    public ElasticsearchService(String esApiUrl, UtilsService utilsService) {
+        this.esApiUrl = esApiUrl;
+        this.utilsService = utilsService;
+        init();
+    }
+
     @PostConstruct
     private void init() {
         URL url;
@@ -806,6 +812,38 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 IndicesOptions.fromOptions(true, false, false, false));
 
         // return this.searchAllByRequest(searchRequest); TODO get all option
+        return this.searchRequestAndGetSourceMapList(searchRequest);
+    }
+
+    /* ****************************** */
+    /* *** External Elasticsearch *** */
+    /* ****************************** */
+    public List<Map<String, Object>> searchAllTraces(String[] indices,
+            Date fromTime, Object[] searchAfter) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.size(10000);
+        sourceBuilder
+                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
+
+        if (fromTime != null) {
+            RangeQueryBuilder timeRange = new RangeQueryBuilder("@timestamp");
+            timeRange.gte(fromTime);
+
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            boolQueryBuilder.must(timeRange);
+            sourceBuilder.query(boolQueryBuilder);
+        }
+
+        if (searchAfter != null) {
+            sourceBuilder.searchAfter(searchAfter);
+        }
+
+        SearchRequest searchRequest = new SearchRequest(indices);
+        searchRequest.source(sourceBuilder);
+        searchRequest.indicesOptions(
+                IndicesOptions.fromOptions(true, false, false, false));
+
         return this.searchRequestAndGetSourceMapList(searchRequest);
     }
 

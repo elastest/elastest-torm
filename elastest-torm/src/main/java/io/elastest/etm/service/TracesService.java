@@ -49,7 +49,7 @@ public class TracesService {
     String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>"
             + monitoringExecExpression
             + ")(_(?<componentService>[^_]*(?=_\\d*)?))?";
-    
+
     String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_"
             + monitoringExecExpression + "|sut_" + monitoringExecExpression
             + "|dynamic_" + monitoringExecExpression
@@ -160,7 +160,6 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        // TODO change debug to trace
         logger.trace("Processing trace {} with timestamp {}", message,
                 timestamp);
 

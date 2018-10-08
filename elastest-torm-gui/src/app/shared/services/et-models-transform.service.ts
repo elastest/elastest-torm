@@ -8,11 +8,12 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { Injectable } from '@angular/core';
 import { LogAnalyzerConfigModel } from '../../elastest-log-analyzer/log-analyzer-config-model';
-import { ETExternalModelsTransformService } from '../../elastest-etm/external/et-external-models-transform.service';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
 import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
+import { ExternalElasticsearch } from '../../elastest-etm/sut/external-elasticsearch.model';
+import { ParameterModel } from '../../elastest-etm/parameter/parameter-model';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -275,6 +276,8 @@ export class ETModelsTransformServices {
       newSut.exProject = sut.exProject;
     }
 
+    newSut.externalElasticsearch = new ExternalElasticsearch(sut.externalElasticsearch);
+
     newSut.commandsOption = sut.commandsOption;
 
     newSut.eimMonitoringConfig = this.jsonToEimMonitoringConfigModel(sut.eimMonitoringConfig);
@@ -342,5 +345,20 @@ export class ETModelsTransformServices {
     }
 
     return logAnalyzerConfigModel;
+  }
+
+  /* *** Parameters *** */
+
+  jsonToParametersList(parameters: any[], fromProject: boolean = false): ParameterModel[] {
+    let parametersList: ParameterModel[] = [];
+
+    for (let parameter of parameters) {
+      parametersList.push(this.jsonToParameterModel(parameter));
+    }
+    return parametersList;
+  }
+
+  jsonToParameterModel(param: any): ParameterModel {
+    return new ParameterModel(param);
   }
 }

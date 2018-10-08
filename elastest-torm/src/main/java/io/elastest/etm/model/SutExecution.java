@@ -256,4 +256,8 @@ public class SutExecution {
         return sb.toString();
     }
 
+    public String getSutExecMonitoringIndex() {
+        return "s" + this.getSutSpecification().getId() + "_e" + this.getId();
+    }
+
 }

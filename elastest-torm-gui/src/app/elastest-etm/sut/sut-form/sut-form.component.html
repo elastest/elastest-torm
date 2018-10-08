@@ -13,10 +13,12 @@
         <!-- Common fields -->
         <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
           <md-input-container flex-gt-md="45" flex-md="45">
-            <input mdInput trim="blur" #sutNameInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName" required>
+            <input mdInput trim="blur" #sutNameInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName"
+              required>
           </md-input-container>
           <md-input-container flex-gt-md="45" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
-            <input mdInput trim="blur" type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc" required>
+            <input mdInput trim="blur" type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc"
+              required>
           </md-input-container>
         </div>
 
@@ -34,17 +36,23 @@
 
           <!-- Deployed types -->
           <div layout="row" class="push-top" *ngIf="deployedChecked">
-            <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : 'elastestIns'))">
+            <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : (elastestIns.checked ? 'elastestIns' : 'extElasticsearchIns')))">
               <md-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
                 No Instrumentation
               </md-radio-button>
 
-              <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck" class="push-right">
+              <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck"
+                class="push-right">
                 Instrumented by ElasTest
               </md-radio-button>
 
-              <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck">
+              <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck" class="push-right">
                 Manual Instrumentation
+              </md-radio-button>
+
+              <md-radio-button #extElasticsearchIns name="extElasticsearchIns" value="extElasticsearchInsCheck"
+                [checked]="extElasticsearchInsCheck">
+                Use External Elasticsearch
               </md-radio-button>
             </md-radio-group>
           </div>
@@ -58,7 +66,8 @@
                   With Commands Container
                 </md-radio-button>
 
-                <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{dockerImage}}" [checked]="dockerImage" class="push-right">
+                <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{dockerImage}}" [checked]="dockerImage"
+                  class="push-right">
                   With Docker Image
                 </md-radio-button>
 
@@ -85,8 +94,8 @@
               <!-- Commands -->
               <div layout="column" *ngIf="!useImageCommand" class="push-top">
                 <md-input-container>
-                  <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands" [(ngModel)]="sut.commands"
-                    name="commands" required></textarea>
+                  <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands"
+                    [(ngModel)]="sut.commands" name="commands" required></textarea>
                 </md-input-container>
               </div>
 
@@ -95,23 +104,25 @@
               <!-- SuT DOCKER Type -->
               <div class="push-bottom">
                 <md-radio-group #radioGroupCommandsOption (change)="changeCommandsOption(defaultRadio.checked ? 'default' : (inNewContainerRadio.checked ? 'container' : 'compose'))">
-                  <md-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault" class="push-right">
+                  <md-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault"
+                    class="push-right">
                     SuT In Commands Container
                   </md-radio-button>
 
-                  <md-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}" [checked]="optionInNewContainer"
-                    class="push-right">
+                  <md-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}"
+                    [checked]="optionInNewContainer" class="push-right">
                     SuT In New Container
                   </md-radio-button>
 
-                  <md-radio-button #inDockerComposeRadio name="inDockerComposeRadio" value="{{optionInDockerCompose}}" [checked]="optionInDockerCompose">
+                  <md-radio-button #inDockerComposeRadio name="inDockerComposeRadio" value="{{optionInDockerCompose}}"
+                    [checked]="optionInDockerCompose">
                     SuT In Docker Compose
                   </md-radio-button>
                 </md-radio-group>
               </div>
               <div class="push-bottom">
-                <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}" color="primary"
-                  icon="info">
+                <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}"
+                  color="primary" icon="info">
                   <!-- <button td-message-actions md-button (click)="dockerTypeInfo.close()">X</button> -->
                 </td-message>
               </div>
@@ -119,7 +130,8 @@
               <ng-container *ngIf="optionInDockerCompose">
                 <!-- Main service name -->
                 <md-input-container flex="100">
-                  <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
+                  <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService"
+                    name="mainService" required>
                 </md-input-container>
               </ng-container>
 
@@ -132,8 +144,8 @@
             <ng-template #dockerComposeSpec>
               <!-- Specification as Docker Compose -->
               <md-input-container flex="100">
-                <textarea id="composeSpec" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification" name="composeSpec"
-                  required></textarea>
+                <textarea id="composeSpec" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification"
+                  name="composeSpec" required></textarea>
               </md-input-container>
             </ng-template>
 
@@ -141,13 +153,15 @@
             <ng-container *ngIf="managedSut.checked && dockerCompose">
               <!-- Main service name -->
               <md-input-container flex="100">
-                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService" name="mainService" required>
+                <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService"
+                  name="mainService" required>
               </md-input-container>
             </ng-container>
 
             <div layout="row">
               <!-- Protocol -->
-              <md-select flex="45" [(ngModel)]="sut.protocol" placeholder="Select a protocol" required name="protocol" class="push-right">
+              <md-select flex="45" [(ngModel)]="sut.protocol" placeholder="Select a protocol" required name="protocol"
+                class="push-right">
                 <md-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
                   {{protocol.toLowerCase()}}
                 </md-option>
@@ -155,8 +169,8 @@
 
               <!-- Port -->
               <md-input-container flex="45" flex-offset="5">
-                <input mdInput trim="blur" type="number" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}" [(ngModel)]="sut.port"
-                  name="port">
+                <input mdInput trim="blur" type="number" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}"
+                  [(ngModel)]="sut.port" name="port">
               </md-input-container>
             </div>
           </div>
@@ -166,16 +180,21 @@
             <div layout="row">
 
               <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
-                <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user" required>
+                <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user"
+                  required>
               </md-input-container>
 
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5" flex-offset-gt-md="5">
-                <input mdInput trim="blur" type="password" placeholder="Password" [(ngModel)]="this.sut.eimConfig.password" name="password">
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="password" placeholder="Password" [(ngModel)]="this.sut.eimConfig.password"
+                  name="password">
               </md-input-container>
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="45" flex-md="35" flex-offset-md="5" flex-offset-gt-md="5">
-                <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key" required></textarea>
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="45" flex-md="35" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key"
+                  required></textarea>
               </md-input-container>
 
               <!-- Instrumentalize? -->
@@ -215,15 +234,18 @@
             </td-expansion-panel>
 
             <!-- Eim Dockerized Paths -->
-            <td-expansion-panel *ngIf="this.sut.eimMonitoringConfig" expand="{{this.sut.eimMonitoringConfig.dockerized}}" class="push-bottom push-top">
+            <td-expansion-panel *ngIf="this.sut.eimMonitoringConfig" expand="{{this.sut.eimMonitoringConfig.dockerized}}"
+              class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
-                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="this.sut.eimMonitoringConfig.dockerized" (change)="switchDockerized($event)"></md-checkbox>
+                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="this.sut.eimMonitoringConfig.dockerized"
+                  (change)="switchDockerized($event)"></md-checkbox>
                 <span class="md-headline">Dockerized SuT</span>
               </ng-template>
               <div class="pad-sm pad-top-xs" layout="column">
                 <div class="pad-xs">
                   <div class="md-title push-bottom-sm">Docker containers logs path</div>
-                  <td-message #dockerizedSutFilebeatInfo label="{{eimDockerContainerLogsPathHelpDesc}}" color="primary" icon="info">
+                  <td-message #dockerizedSutFilebeatInfo label="{{eimDockerContainerLogsPathHelpDesc}}" color="primary"
+                    icon="info">
                   </td-message>
                   <string-list-view [model]="sut.eimMonitoringConfig.beats.filebeat.dockerized" [fieldName]="'Docker Containers Logs Path'">
                   </string-list-view>
@@ -239,11 +261,12 @@
               </div>
             </td-expansion-panel>
           </div>
+
           <!-- Deployed: Instrumented By SuT Admin Info -->
           <div layout="column" class="push-top" *ngIf="deployedChecked && adminInsCheck">
             <div *ngIf="showGetInfoBtn(); else showMonitoringInfo">
-              <button md-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck" (click)="preSave(false)"
-                title="Save and get monitoring details">SAVE AND GET MONITORING DETAILS</button>
+              <button md-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck"
+                (click)="preSave(false)" title="Save and get monitoring details">SAVE AND GET MONITORING DETAILS</button>
             </div>
             <ng-template #showMonitoringInfo>
               <div class="md-title">Monitoring Configuration</div>
@@ -262,13 +285,59 @@
             </ng-template>
           </div>
 
+
+          <!-- Deployed: Instrumented By External Elasticsearch -->
+          <div layout="column" class="push-top" *ngIf="deployedChecked && extElasticsearchInsCheck">
+            <div layout="row">
+              <!-- ES IP -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
+                <input mdInput trim="blur" type="text" placeholder="Elasticsearch IP" [(ngModel)]="this.sut.externalElasticsearch.ip"
+                  name="esIp" required>
+              </md-input-container>
+
+              <!-- ES Port -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="5" flex-md="5" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="number" placeholder="ES Port" [(ngModel)]="this.sut.externalElasticsearch.port"
+                  name="esPort" required>
+              </md-input-container>
+
+              <!-- ES User -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="text" placeholder="Elasticsearch User" [(ngModel)]="this.sut.externalElasticsearch.user"
+                  name="esUser">
+              </md-input-container>
+
+              <!-- ES Pass -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="password" placeholder="Elasticsearch Pass" [(ngModel)]="this.sut.externalElasticsearch.pass"
+                  name="esPass">
+              </md-input-container>
+
+
+              <!-- ES Indices -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+                flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="text" placeholder="ES Indices (comma separated)" [(ngModel)]="this.sut.externalElasticsearch.indices"
+                  name="esIndices" required>
+              </md-input-container>
+
+              <md-checkbox [checked]="useESIndicesByExecutionCheck" (change)="useESIndicesByExecution($event)"
+                flex-offset-md="5" flex-offset-gt-md="5">Use
+                indices by execution</md-checkbox>
+
+            </div>
+          </div>
+
           <!-- Parameters -->
           <td-expansion-panel expand="true" class="push-bottom push-top">
             <ng-template td-expansion-panel-label>
               <span>Parameters</span>
             </ng-template>
             <div class="pad">
-              <parameters-view [model]="sut.parameters"></parameters-view>
+              <parameters-view #parameters [model]="sut.parameters"></parameters-view>
             </div>
           </td-expansion-panel>
         </div>
@@ -279,8 +348,8 @@
 
   <!-- Buttons -->
   <md-card-actions>
-    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary" (click)="preSave()"
-      mdTooltip="Save and return to previous page">SAVE</button>
+    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary"
+      (click)="preSave()" mdTooltip="Save and return to previous page">SAVE</button>
     <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
   </md-card-actions>
 </md-card>

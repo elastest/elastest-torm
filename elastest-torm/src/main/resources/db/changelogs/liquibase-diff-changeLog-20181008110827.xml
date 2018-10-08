@@ -1,0 +1,23 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1538989714067-1">
+        <createTable tableName="ExternalElasticsearch">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="ExternalElasticsearchPK"/>
+            </column>
+            <column name="indices" type="VARCHAR(255)"/>
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="pass" type="VARCHAR(255)"/>
+            <column name="port" type="VARCHAR(255)"/>
+            <column name="user" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1538989714067-2">
+        <addColumn tableName="SutSpecification">
+            <column name="externalElasticsearch" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1538989714067-3">
+        <addForeignKeyConstraint baseColumnNames="externalElasticsearch" baseTableName="SutSpecification" constraintName="FKoeixg2j8i8jmx9gs803hb1bmx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalElasticsearch"/>
+    </changeSet>
+</databaseChangeLog>

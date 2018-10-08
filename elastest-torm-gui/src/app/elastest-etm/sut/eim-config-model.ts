@@ -22,6 +22,8 @@ export class EimConfigModel {
   constructor(eimConfigJson: any = undefined) {
     if (!eimConfigJson) {
       this.id = 0;
+      this.user = undefined;
+      this.password = undefined;
       this.privateKey = '';
       this.ip = '';
       this.agentId = undefined;

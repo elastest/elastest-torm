@@ -1,11 +1,17 @@
 package io.elastest.etm.service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.xml.ws.http.HTTPException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.SutExecutionRepository;
@@ -13,6 +19,8 @@ import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class SutService {
@@ -24,16 +32,20 @@ public class SutService {
     private final SutExecutionRepository sutExecutionRepository;
     private final EimService eimService;
     private MonitoringServiceInterface monitoringService;
+    private final UtilsService utilsService;
+    private final TracesService tracesService;
 
     public SutService(SutRepository sutRepository,
             SutExecutionRepository sutExecutionRepository,
-            EimService eimService,
-            MonitoringServiceInterface monitoringService) {
+            EimService eimService, MonitoringServiceInterface monitoringService,
+            UtilsService utilsService, TracesService tracesService) {
         super();
         this.sutRepository = sutRepository;
         this.sutExecutionRepository = sutExecutionRepository;
         this.eimService = eimService;
         this.monitoringService = monitoringService;
+        this.utilsService = utilsService;
+        this.tracesService = tracesService;
     }
 
     public SutSpecification createSutSpecification(
@@ -45,6 +57,7 @@ public class SutService {
     public SutSpecification prepareSutToSave(SutSpecification sut) {
         sut = this.prepareEimMonitoringConfig(sut);
         if (sut.getId() == 0) { // If is a new Sut, set
+            logger.debug("asd {}", sut);
             sut = sutRepository.save(sut); // Save first
             SutExecution sutExec = createSutExecutionBySut(sut);
             if (sut.isDeployedOutside()) {
@@ -194,6 +207,60 @@ public class SutService {
         } else {
             throw new HTTPException(405);
         }
+    }
+
+    @Async
+    public Future<Void> manageSutExecutionUsingExternalElasticsearch(
+            SutSpecification sut, String monitoringIndex) {
+        ExternalElasticsearch extES = sut.getExternalElasticsearch();
+        Date startDate = new Date();
+
+        // TODO user/pass
+        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
+
+        ElasticsearchService esService = new ElasticsearchService(esApiUrl,
+                utilsService);
+
+        List<Map<String, Object>> traces = new ArrayList<>();
+
+        Object[] searchAfter = null;
+        boolean finish = false;
+        while (!finish) {
+            try {
+                traces = esService.searchAllTraces(
+                        extES.getIndices().split(","), startDate, searchAfter);
+                if (traces.size() > 0) {
+                    Map<String, Object> lastTrace = traces
+                            .get(traces.size() - 1);
+
+                    String sortFieldKet = "sort";
+                    if (lastTrace.containsKey(sortFieldKet)) {
+                        searchAfter = (Object[]) lastTrace.get(sortFieldKet);
+                    }
+                }
+
+                for (Map<String, Object> trace : traces) {
+                    trace.put("exec", monitoringIndex);
+                    trace.put("component", "sut");
+                    tracesService.processBeatTrace(trace, false);
+                }
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    logger.info(
+                            "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
+                            monitoringIndex);
+                    break;
+                }
+
+            } catch (Exception e) {
+                logger.error(
+                        "Error on getting traces from external Elasticsearch",
+                        e);
+            }
+        }
+
+        return new AsyncResult<Void>(null);
     }
 
 }

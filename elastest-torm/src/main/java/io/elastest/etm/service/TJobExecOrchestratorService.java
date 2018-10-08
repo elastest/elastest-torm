@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.maven.plugins.surefire.report.ReportTestCase;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
@@ -88,6 +89,8 @@ public class TJobExecOrchestratorService {
 
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
+    Map<String, Future<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, Future<Void>>();
+
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
             TJobExecRepository tJobExecRepositoryImpl,
@@ -118,6 +121,14 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         manageZombieJobs();
         dbmanager.unbindSession();
+    }
+
+    @PreDestroy
+    private void destroy() {
+        for (HashMap.Entry<String, Future<Void>> asyncMap : asyncExternalElasticsearchSutExecs
+                .entrySet()) {
+            this.stopManageSutByExternalElasticsearch(asyncMap.getKey());
+        }
     }
 
     public void manageZombieJobs() {
@@ -347,6 +358,7 @@ public class TJobExecOrchestratorService {
             }
             if (dockerExec.isWithSut()) {
                 endSutExec(dockerExec);
+                stopManageSutByExternalElasticsearch(dockerExec.getTJobExec());
             }
             endDockbeatExec(dockerExec);
         } catch (Exception e) {
@@ -374,7 +386,8 @@ public class TJobExecOrchestratorService {
                     esmService.gettJobServicesInstances().get(tSSInstId));
         });
 
-        // TODO if is mini, not wait for TSS (already waiting for them individually in provideService)
+        // TODO if is mini, not wait for TSS (already waiting for them
+        // individually in provideService)
         resultMsg = "Waiting for the Test Support Services to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
@@ -656,6 +669,17 @@ public class TJobExecOrchestratorService {
         else {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
+            if (sut.isUsingExternalElasticsearch()) {
+
+                Future<Void> asyncExec = sutService
+                        .manageSutExecutionUsingExternalElasticsearch(sut,
+                                sutExec.getSutExecMonitoringIndex());
+
+                asyncExternalElasticsearchSutExecs.put(
+                        getMapNameByTJobExec(dockerExec.getTJobExec()),
+                        asyncExec);
+
+            }
             sutIP = sut.getSpecification();
             String sutUrl = sut.getSutUrlByGivenIp(sutIP);
             sutExec.setUrl(sutUrl);
@@ -1049,7 +1073,6 @@ public class TJobExecOrchestratorService {
                 "tcp://" + host + ":" + port);
         loggingOptionsContent.put("syslog-format", "rfc5424micro");
 
-
         loggingOptionsContent.put("tag",
                 composeProjectName + "_" + service.getKey() + "_exec");
 
@@ -1252,4 +1275,29 @@ public class TJobExecOrchestratorService {
         }
     }
 
+    public String getMapNameByTJobExec(TJobExecution tJobExec) {
+        return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
+    }
+
+    public void stopManageSutByExternalElasticsearch(TJobExecution tJobExec) {
+        this.stopManageSutByExternalElasticsearch(
+                getMapNameByTJobExec(tJobExec));
+    }
+
+    public void stopManageSutByExternalElasticsearch(String mapKey) {
+        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
+            return;
+        }
+        Future<Void> asyncExec = asyncExternalElasticsearchSutExecs.get(mapKey);
+
+        try {
+            asyncExec.cancel(true);
+            asyncExternalElasticsearchSutExecs.remove(mapKey);
+        } catch (Exception e) {
+            logger.info(
+                    "Error during stop Manage Sut by external Elasticsearch",
+                    e);
+        }
+
+    }
 }

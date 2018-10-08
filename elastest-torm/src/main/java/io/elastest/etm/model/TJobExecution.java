@@ -523,11 +523,15 @@ public class TJobExecution {
 
     public void generateMonitoringIndex() {
         SutSpecification sut = this.getTjob().getSut();
-        String monitoringIndex = this.getId().toString();
+        String monitoringIndex = getOnlyTJobExecMonitoringIndex();
         if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
             monitoringIndex += "," + sut.getSutMonitoringIndex();
         }
         this.setMonitoringIndex(monitoringIndex);
+    }
+
+    public String getOnlyTJobExecMonitoringIndex() {
+        return this.getId().toString();
     }
 
     public String[] getMonitoringIndicesList() {

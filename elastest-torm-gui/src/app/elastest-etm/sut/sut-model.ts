@@ -1,7 +1,9 @@
+import { ParameterModel } from '../parameter/parameter-model';
 import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 import { ExternalProjectModel } from '../external/external-project/external-project-model';
 import { EimMonitoringConfigModel } from './eim-monitoring-config.model';
+import { ExternalElasticsearch } from './external-elasticsearch.model';
 
 export class SutModel {
   id: number;
@@ -14,16 +16,18 @@ export class SutModel {
   eimMonitoringConfig: EimMonitoringConfigModel;
   instrumentalize: boolean;
   currentSutExec: string;
-  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | '';
+  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_ELASTICSEARCH' | '';
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   port: string;
   managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
-  parameters: any[];
+  parameters: ParameterModel[];
   commands: string;
   commandsOption: 'DEFAULT' | 'IN_NEW_CONTAINER' | 'IN_DOCKER_COMPOSE' | '';
 
   exProject: ExternalProjectModel;
+
+  externalElasticsearch: ExternalElasticsearch;
 
   constructor() {
     this.id = 0;
@@ -46,6 +50,7 @@ export class SutModel {
     this.commandsOption = '';
 
     this.exProject = undefined;
+    this.externalElasticsearch = new ExternalElasticsearch();
   }
 
   public getProtocolsList(): string[] {
