@@ -151,7 +151,7 @@ public class TJobExecOrchestratorService {
                 if (!currentExec.isFinished()) {
                     String resultMsg = "Stopped";
                     dockerEtmService.updateTJobExecResultStatus(currentExec,
-                            TJobExecution.ResultEnum.STOPPED, resultMsg);
+                            ResultEnum.STOPPED, resultMsg);
                 }
             }
         }
@@ -181,12 +181,12 @@ public class TJobExecOrchestratorService {
             // Start Test
             resultMsg = "Executing Test";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+                    ResultEnum.EXECUTING_TEST, resultMsg);
         } catch (Exception e) {
             logger.error("Error starting TSS", e);
             resultMsg = "Error starting TSS";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.ERROR, resultMsg);
+                    ResultEnum.ERROR, resultMsg);
         }
         dbmanager.unbindSession();
     }
@@ -209,14 +209,14 @@ public class TJobExecOrchestratorService {
             initTSS(tJobExec, tJobServices);
             setTJobExecEnvVars(tJobExec, false, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-
             dockerExec.updateFromTJobExec(tJobExec);
+
             // Create queues and load basic services
             dockerEtmService.loadBasicServices(dockerExec);
 
             resultMsg = "Starting Dockbeat to get metrics...";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.IN_PROGRESS, resultMsg);
+                    ResultEnum.IN_PROGRESS, resultMsg);
 
             // Start Dockbeat
             dockerEtmService.startDockbeat(dockerExec);
@@ -226,43 +226,42 @@ public class TJobExecOrchestratorService {
                 initSut(dockerExec);
             }
 
-            List<ReportTestSuite> testSuites;
-
             // Start Test
             resultMsg = "Preparing Test";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+                    ResultEnum.EXECUTING_TEST, resultMsg);
 
-            testSuites = dockerEtmService
+            List<ReportTestSuite> testSuites = dockerEtmService
                     .createAndStartTestContainer(dockerExec);
 
+            // Test Results
             resultMsg = "Waiting for Test Results";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.WAITING, resultMsg);
+                    ResultEnum.WAITING, resultMsg);
             saveTestResults(testSuites, tJobExec);
 
             tJobExec.setEndDate(new Date());
 
-            logger.info("Ending Execution...");
+            logger.info("Ending Execution {}...", tJobExec.getId());
             // End and purge services
             endAllExecs(dockerExec);
-
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
-            logger.warn("TJob Stopped");
+            logger.warn("TJob Exec {} stopped!", tJobExec.getId());
             // Stop exception
         } catch (Exception e) {
-            logger.error("Error during Test execution", e);
+            logger.error("Error during TJob Execution {}", tJobExec.getId(), e);
             if (!"end error".equals(e.getMessage())) {
                 resultMsg = "Error";
                 dockerEtmService.updateExecutionResultStatus(dockerExec,
-                        TJobExecution.ResultEnum.ERROR, resultMsg);
+                        ResultEnum.ERROR, resultMsg);
 
                 tJobExec.setEndDate(new Date());
                 try {
                     endAllExecs(dockerExec);
                 } catch (Exception e1) {
-                    e1.printStackTrace();
+                    logger.error("Error on end TJob Exec {}", tJobExec.getId(),
+                            e1);
                 }
             } else {
                 saveFinishStatus(tJobExec, dockerExec);
@@ -272,8 +271,9 @@ public class TJobExecOrchestratorService {
                 try {
                     deprovisionServices(tJobExec);
                 } catch (Exception e) {
-                    logger.error("Exception deprovision TSS: {}",
-                            e.getMessage());
+                    logger.error(
+                            "TJob Exec {} => Exception on deprovision TSS: {}",
+                            tJobExec.getId(), e.getMessage());
                     // TODO Customize Exception
                 }
             }
@@ -312,11 +312,11 @@ public class TJobExecOrchestratorService {
         if (tJobExec.getTjob().isExternal()) {
             String resultMsg = "Success";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.SUCCESS, resultMsg);
+                    ResultEnum.SUCCESS, resultMsg);
         } else {
             String resultMsg = "Stopped";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.STOPPED, resultMsg);
+                    ResultEnum.STOPPED, resultMsg);
         }
 
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
@@ -392,7 +392,7 @@ public class TJobExecOrchestratorService {
         resultMsg = "Waiting for the Test Support Services to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                TJobExecution.ResultEnum.WAITING_TSS, resultMsg);
+                ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
             try {
                 Thread.sleep(2000);
@@ -426,7 +426,7 @@ public class TJobExecOrchestratorService {
             for (TJobSupportService service : servicesWithoutEMS) {
                 if (service.isSelected()) {
                     dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                            TJobExecution.ResultEnum.STARTING_TSS,
+                            ResultEnum.STARTING_TSS,
                             resultMsg + service.getName());
 
                     this.provideService(service, tJobExec);
@@ -604,8 +604,7 @@ public class TJobExecOrchestratorService {
             dockerEtmService.loadBasicServices(dockerExec);
 
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.IN_PROGRESS,
-                    "Initializing execution...");
+                    ResultEnum.IN_PROGRESS, "Initializing execution...");
 
             if (dockerExec.isWithSut()) {
                 dockerEtmService.startDockbeat(dockerExec);
@@ -614,7 +613,7 @@ public class TJobExecOrchestratorService {
             }
             String resultMsg = "Executing Test";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+                    ResultEnum.EXECUTING_TEST, resultMsg);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -689,7 +688,7 @@ public class TJobExecOrchestratorService {
         try {
             String resultMsg = "Preparing External SuT";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+                    ResultEnum.WAITING_SUT, resultMsg);
 
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
@@ -720,7 +719,7 @@ public class TJobExecOrchestratorService {
 
         String resultMsg = "Preparing dockerized SuT";
         dockerEtmService.updateExecutionResultStatus(dockerExec,
-                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+                ResultEnum.EXECUTING_SUT, resultMsg);
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
@@ -759,7 +758,7 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Waiting for dockerized SuT";
                 logger.info(resultMsg);
                 dockerEtmService.updateExecutionResultStatus(dockerExec,
-                        TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+                        ResultEnum.WAITING_SUT, resultMsg);
 
                 // If is Sut In new Container
                 if (sut.isSutInNewContainer()) {
@@ -892,7 +891,7 @@ public class TJobExecOrchestratorService {
 
         String resultMsg = "Starting dockerized SuT";
         dockerEtmService.updateExecutionResultStatus(dockerExec,
-                TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+                ResultEnum.EXECUTING_SUT, resultMsg);
         logger.info(resultMsg + " " + dockerExec.getExecutionId());
 
         // Create Containers
@@ -1217,7 +1216,7 @@ public class TJobExecOrchestratorService {
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
             TJobExecution tJobExec) {
-        logger.info("Saving test results {} ", tJobExec.getId());
+        logger.info("Saving TJob Execution {} results", tJobExec.getId());
 
         TestSuite tSuite;
         TestCase tCase;
