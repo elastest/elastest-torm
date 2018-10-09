@@ -175,6 +175,14 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
     this.extElasticsearchInsCheck = this.sut.instrumentedBy === 'EXTERNAL_ELASTICSEARCH';
+
+    if (this.extElasticsearchInsCheck && this.sut.parameters) {
+      for (let param of this.sut.parameters) {
+        if (param.name === this.esIndicesParamName) {
+          this.useESIndicesByExecutionCheck = true;
+        }
+      }
+    }
   }
 
   initInstrumentalized(): void {
@@ -237,7 +245,7 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.adminInsCheck = true;
     } else {
       this.sut.instrumentedBy = 'EXTERNAL_ELASTICSEARCH';
-      console.log(this.sut.instrumentedBy)
+      console.log(this.sut.instrumentedBy);
       this.extElasticsearchInsCheck = true;
     }
   }
@@ -334,7 +342,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     } else {
       this.sut.eimConfig = undefined;
       this.sut.externalElasticsearch = undefined;
-      this.useESIndicesByExecution(false);
+      this.switchUseESIndicesByExecution(false);
       if (!this.sut.isInstrumentedByElastest()) {
         this.sut.eimMonitoringConfig = undefined;
       }
@@ -378,7 +386,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     }
   }
 
-  useESIndicesByExecution($event): void {
+  switchUseESIndicesByExecution($event): void {
     this.useESIndicesByExecutionCheck = $event.checked;
 
     if (
