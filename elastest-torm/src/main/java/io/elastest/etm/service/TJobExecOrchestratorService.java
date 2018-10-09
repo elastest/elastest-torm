@@ -247,8 +247,8 @@ public class TJobExecOrchestratorService {
             endAllExecs(dockerExec);
             saveFinishStatus(tJobExec, dockerExec);
         } catch (TJobStoppedException e) {
-            logger.warn("TJob Exec {} stopped!", tJobExec.getId());
             // Stop exception
+            logger.warn("TJob Exec {} stopped!", tJobExec.getId());
         } catch (Exception e) {
             logger.error("Error during TJob Execution {}", tJobExec.getId(), e);
             if (!"end error".equals(e.getMessage())) {

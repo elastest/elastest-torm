@@ -32,7 +32,6 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
 import com.spotify.docker.client.messages.LogConfig;
@@ -43,7 +42,6 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
@@ -395,13 +393,7 @@ public class DockerEtmService {
             dockerService.pullImageIfNotExistWithProgressHandler(image,
                     progressHandler);
         }
-        // } catch (DockerClientException e) {
-        //
-        // logger.info(
-        // "Error probably because the user has stopped the execution",
-        // e);
-        // throw new TJobStoppedException();
-        // }
+
         logger.debug("{} image pulled succesfully!", name);
 
     }
@@ -683,6 +675,41 @@ public class DockerEtmService {
         }
     }
 
+    public void updateExecutionResultStatus(DockerExecution dockerExec,
+            ResultEnum result, String msg) {
+        if (dockerExec.isExternal()) {
+            ExternalTJobExecution externalTJobExec = dockerExec
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+        } else {
+            TJobExecution tJobExec = dockerExec.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
+    }
+
+    public void updateExternalTJobExecResultStatus(
+            ExternalTJobExecution externalTJobExec, ResultEnum result,
+            String msg) {
+        externalTJobExec.setResult(result);
+        externalTJobExec.setResultMsg(msg);
+        externalTJobExecutionRepository.save(externalTJobExec);
+    }
+
+    public boolean isEMSSelected(DockerExecution dockerExec) {
+        return !dockerExec.isExternal()
+                && dockerExec.gettJob().isSelectedService("ems");
+    }
+
+    /* ******************************* */
+    /* ******* Logging methods ******* */
+    /* ******************************* */
     public LogConfig getLogConfig(String host, String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) {
         Map<String, String> configMap = new HashMap<String, String>();
@@ -766,37 +793,6 @@ public class DockerEtmService {
         }
     }
 
-    public void updateExecutionResultStatus(DockerExecution dockerExec,
-            ResultEnum result, String msg) {
-        if (dockerExec.isExternal()) {
-            ExternalTJobExecution externalTJobExec = dockerExec
-                    .getExternalTJobExec();
-            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
-        } else {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
-            updateTJobExecResultStatus(tJobExec, result, msg);
-        }
-    }
-
-    public void updateTJobExecResultStatus(TJobExecution tJobExec,
-            ResultEnum result, String msg) {
-        tJobExec.setResult(result);
-        tJobExec.setResultMsg(msg);
-        tJobExecRepositoryImpl.save(tJobExec);
-    }
-
-    public void updateExternalTJobExecResultStatus(
-            ExternalTJobExecution externalTJobExec, ResultEnum result,
-            String msg) {
-        externalTJobExec.setResult(result);
-        externalTJobExec.setResultMsg(msg);
-        externalTJobExecutionRepository.save(externalTJobExec);
-    }
-
-    /* ******************************* */
-    /* **** End execution methods **** */
-    /* ******************************* */
-
     /* *************** */
     /* **** Utils **** */
     /* *************** */
@@ -875,36 +871,6 @@ public class DockerEtmService {
         return bindedPortObj;
     }
 
-    public List<Container> getContainersByNamePrefixByGivenList(
-            List<Container> containersList, String prefix,
-            ContainersListActionEnum action, String network) throws Exception {
-        List<Container> filteredList = new ArrayList<>();
-        for (Container currentContainer : containersList) {
-            // Get name (name start with slash, we remove it)
-            String containerName = currentContainer.names().get(0)
-                    .replaceFirst("/", "");
-            if (containerName != null && containerName.startsWith(prefix)) {
-                filteredList.add(currentContainer);
-                if (action != ContainersListActionEnum.NONE) {
-                    if (action == ContainersListActionEnum.ADD) {
-                        this.insertCreatedContainer(currentContainer.id(),
-                                containerName);
-                        try {
-                            dockerService.insertIntoNetwork(network,
-                                    currentContainer.id());
-                        } catch (Exception e) {
-                            // Already added
-                        }
-                    } else {
-                        this.endContainer(containerName);
-                    }
-                }
-            }
-        }
-
-        return filteredList;
-    }
-
     /* ************************* */
     /* **** Get TestResults **** */
     /* ************************* */
@@ -974,8 +940,4 @@ public class DockerEtmService {
                 .parse(new InputStreamReader(byteArrayIs, "UTF-8")).get(0);
     }
 
-    public boolean isEMSSelected(DockerExecution dockerExec) {
-        return !dockerExec.isExternal()
-                && dockerExec.gettJob().isSelectedService("ems");
-    }
 }
