@@ -29,6 +29,7 @@ import io.elastest.epm.client.api.PackageApi;
 import io.elastest.epm.client.api.PoPApi;
 import io.elastest.epm.client.api.WorkerApi;
 import io.elastest.epm.client.model.Key;
+import io.elastest.epm.client.model.KeyValuePair;
 import io.elastest.epm.client.model.PoP;
 import io.elastest.epm.client.model.RemoteEnvironment;
 import io.elastest.epm.client.model.ResourceGroup;
@@ -149,8 +150,11 @@ public class EpmService {
         RemoteEnvironment re = new RemoteEnvironment();
         ResourceGroup resourceGroup = null;
         Worker worker = null;
+        PoP openstackPoP = null;
 
         try {
+            // Register a OpenStack PoP
+            openstackPoP = registerOpenstackPop();
             // Providing a new remote VM
             resourceGroup = sendPackage(packageFilePath, "m1tub.tar",
                     sharedFolder + "/tmp" + "/ansible");
@@ -278,6 +282,27 @@ public class EpmService {
                     "Exception when calling PackageApi#receivePackage");
             e.printStackTrace();
         }
+    }
+
+    public PoP registerOpenstackPop() {
+        PoP pop = new PoP();
+        pop.setName("tub-os");
+        pop.setInterfaceEndpoint("http://cpu06.codeurjc.es:5000/v2.0");
+        pop.addInterfaceInfoItem(new KeyValuePair().key("auth_url").value("http://cpu06.codeurjc.es:5000/v2.0"));
+        pop.addInterfaceInfoItem(new KeyValuePair().key("password").value("Eil3rac8soojoam"));
+        pop.addInterfaceInfoItem(new KeyValuePair().key("project_name").value("tub"));
+        pop.addInterfaceInfoItem(new KeyValuePair().key("username").value("tub"));
+
+        PoP result = null;
+        try {
+            result = popApi.registerPoP(pop);
+        } catch (ApiException e) {
+            System.err
+                    .println("Exception when calling PoPApi#registerPoP");
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     public Worker registerWorker(ResourceGroup rg) throws ServiceException {
