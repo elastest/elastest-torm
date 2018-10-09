@@ -227,8 +227,8 @@ public class SutService {
         boolean finish = false;
         while (!finish) {
             try {
-                traces = esService.searchAllTraces(
-                        extES.getIndices().split(","), startDate, searchAfter);
+                traces = esService.searchTraces(
+                        extES.getIndices().split(","), startDate, searchAfter,10000);
                 if (traces.size() > 0) {
                     Map<String, Object> lastTrace = traces
                             .get(traces.size() - 1);

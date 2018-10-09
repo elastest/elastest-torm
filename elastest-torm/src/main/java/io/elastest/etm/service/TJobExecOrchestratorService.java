@@ -657,16 +657,8 @@ public class TJobExecOrchestratorService {
 
         String sutIP = "";
 
-        // If it's MANAGED SuT
-        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-            try {
-                sutExec = startManagedSut(dockerExec);
-            } catch (TJobStoppedException e) {
-                throw e;
-            }
-        }
-        // If it's DEPLOYED SuT
-        else {
+        // If it's SuT DEPLOYED outside ElasTest 
+        if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             if (sut.isUsingExternalElasticsearch()) {
@@ -684,6 +676,14 @@ public class TJobExecOrchestratorService {
             String sutUrl = sut.getSutUrlByGivenIp(sutIP);
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIP);
+        }
+        // If it's MANAGED SuT
+        else {
+            try {
+                sutExec = startManagedSut(dockerExec);
+            } catch (TJobStoppedException e) {
+                throw e;
+            }
         }
 
         dockerExec.setSutExec(sutExec);

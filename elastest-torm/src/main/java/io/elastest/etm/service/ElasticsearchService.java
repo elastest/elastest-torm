@@ -818,10 +818,10 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     /* ****************************** */
     /* *** External Elasticsearch *** */
     /* ****************************** */
-    public List<Map<String, Object>> searchAllTraces(String[] indices,
-            Date fromTime, Object[] searchAfter) throws IOException {
+    public List<Map<String, Object>> searchTraces(String[] indices,
+            Date fromTime, Object[] searchAfter, int size) throws IOException {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.size(10000);
+        sourceBuilder.size(size);
         sourceBuilder
                 .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
