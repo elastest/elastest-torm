@@ -36,9 +36,10 @@
                         </button>
                     </div>
                 </div>
-
             </md-card-title>
+
             <md-divider></md-divider>
+
             <md-card-content>
                 <div layout="row">
                     <span flex="10">
@@ -75,6 +76,12 @@
                         </ng-template>
                     </span>
 
+                </div>
+                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()">
+                    <md-divider></md-divider>
+                    <div layout="row" [style.color]="statusIcon.color" class="push-top-sm">
+                        {{tJobExec.resultMsg}}
+                    </div>
                 </div>
                 <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
                     <td-data-table [data]="tJobExec.parameters"></td-data-table>

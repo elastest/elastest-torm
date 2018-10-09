@@ -252,7 +252,7 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             logger.error("Error during TJob Execution {}", tJobExec.getId(), e);
             if (!"end error".equals(e.getMessage())) {
-                resultMsg = "Error";
+                resultMsg = "Internal Error: " + e.getMessage();
                 dockerEtmService.updateExecutionResultStatus(dockerExec,
                         ResultEnum.ERROR, resultMsg);
 
@@ -374,40 +374,47 @@ public class TJobExecOrchestratorService {
 
     private void initTSS(TJobExecution tJobExec, String tJobServices)
             throws Exception {
-        String resultMsg = "";
+        try {
+            String resultMsg = "";
 
-        // TODO exit if there are no TSS
-        if (tJobServices != null && tJobServices != "") {
-            provideServices(tJobServices, tJobExec);
-        }
-
-        Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
-        tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-            tSSInstAssocToTJob.put(tSSInstId,
-                    esmService.gettJobServicesInstances().get(tSSInstId));
-        });
-
-        // TODO if is mini, not wait for TSS (already waiting for them
-        // individually in provideService)
-        resultMsg = "Waiting for the Test Support Services to be ready";
-        logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-        dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                ResultEnum.WAITING_TSS, resultMsg);
-        while (!tSSInstAssocToTJob.isEmpty()) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-                logger.error("Interrupted Exception {}: " + ie.getMessage());
+            // TODO exit if there are no TSS
+            if (tJobServices != null && tJobServices != "") {
+                provideServices(tJobServices, tJobExec);
             }
-            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                if (esmService.checkInstanceUrlIsUp(
-                        esmService.gettJobServicesInstances().get(tSSInstId))) {
-                    tSSInstAssocToTJob.remove(tSSInstId);
-                }
-            });
-        }
 
-        logger.info("TSS availabes");
+            Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
+            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                tSSInstAssocToTJob.put(tSSInstId,
+                        esmService.gettJobServicesInstances().get(tSSInstId));
+            });
+
+            // TODO if is mini, not wait for TSS (already waiting for them
+            // individually in provideService)
+            resultMsg = "Waiting for the Test Support Services to be ready";
+            logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
+            dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                    ResultEnum.WAITING_TSS, resultMsg);
+            while (!tSSInstAssocToTJob.isEmpty()) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    logger.error(
+                            "Interrupted Exception {}: " + ie.getMessage());
+                }
+                tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                    if (esmService.checkInstanceUrlIsUp(esmService
+                            .gettJobServicesInstances().get(tSSInstId))) {
+                        tSSInstAssocToTJob.remove(tSSInstId);
+                    }
+                });
+            }
+
+            logger.info("TSS availabes");
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new Exception("Exception on init Test Support Services", e);
+        }
     }
 
     private void provideServices(String tJobServices, TJobExecution tJobExec)
@@ -652,29 +659,35 @@ public class TJobExecOrchestratorService {
     /* ******************* */
 
     public void initSut(DockerExecution dockerExec) throws Exception {
-        SutSpecification sut = dockerExec.getSut();
-        SutExecution sutExec;
+        try {
+            SutSpecification sut = dockerExec.getSut();
+            SutExecution sutExec;
 
-        // If it's SuT DEPLOYED outside ElasTest
-        if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
-            sutExec = startSutDeployedOutside(tJobExec);
+            // If it's SuT DEPLOYED outside ElasTest
+            if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
+                TJobExecution tJobExec = dockerExec.getTJobExec();
+                sutExec = startSutDeployedOutside(tJobExec);
 
-        }
-        // If it's MANAGED SuT
-        else {
-            try {
-                sutExec = startManagedSut(dockerExec);
-            } catch (TJobStoppedException e) {
-                throw e;
             }
-        }
+            // If it's MANAGED SuT
+            else {
+                try {
+                    sutExec = startManagedSut(dockerExec);
+                } catch (TJobStoppedException e) {
+                    throw e;
+                }
+            }
 
-        dockerExec.setSutExec(sutExec);
+            dockerExec.setSutExec(sutExec);
 
-        if (dockerExec.isExternal()) {
-            dockerExec.getExternalTJobExec().getEnvVars().put("ET_SUT_URL",
-                    sutExec.getUrl());
+            if (dockerExec.isExternal()) {
+                dockerExec.getExternalTJobExec().getEnvVars().put("ET_SUT_URL",
+                        sutExec.getUrl());
+            }
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            new Exception("Exception on init/start Sut", e);
         }
     }
 

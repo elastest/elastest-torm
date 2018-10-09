@@ -172,8 +172,12 @@ public class DockerEtmService {
     }
 
     public void loadBasicServices(DockerExecution dockerExec) throws Exception {
-        this.configureDocker(dockerExec);
-        dockerExec.setNetwork(elastestNetwork);
+        try {
+            this.configureDocker(dockerExec);
+            dockerExec.setNetwork(elastestNetwork);
+        } catch (Exception e) {
+            throw new Exception("Exception on load basic docker services", e);
+        }
     }
 
     public void insertCreatedContainer(String containerId,
@@ -457,66 +461,72 @@ public class DockerEtmService {
     }
 
     public void startDockbeat(DockerExecution dockerExec) throws Exception {
-        Long execution = dockerExec.getExecutionId();
-
-        String containerName = getDockbeatContainerName(dockerExec);
-
-        // Environment variables
-        ArrayList<String> envList = new ArrayList<>();
-        String envVar;
-
-        // Get Parameters and insert into Env Vars¡
-        String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
-        String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                + lsInternalBeatsPort;
-
-        if (isEMSSelected(dockerExec)) {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
-
-            String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
-            String testRegex = "^test" + regexSuffix;
-            String sutRegex = "^sut" + regexSuffix;
-            envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
-            envList.add(envVar);
-
-            // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
-            // envList.add(envVar);
-
-            lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
-
-            lsHostEnvVar = "LOGSTASHHOST" + "="
-                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
-        }
-        envList.add(lsHostEnvVar);
-        envList.add(lsInternalBeatsPortEnvVar);
-
-        // dockerSock
-        Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
-                .build();
-
-        // Pull Image
-        this.pullETExecImage(dockbeatImage, "Dockbeat", false);
-
-        // Create Container
-        logger.debug("Creating Dockbeat Container...");
-
-        /* ******************************************************** */
-        DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
-        dockerBuilder.envs(envList);
-        dockerBuilder.containerName(containerName);
-        dockerBuilder.network(dockerExec.getNetwork());
-
-        dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
-
-        DockerContainer dockerContainer = dockerBuilder.build();
-        String containerId = dockerService.createAndStartContainer(
-                dockerContainer, EpmService.etMasterSlaveMode);
-        this.insertCreatedContainer(containerId, containerName);
-
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+            Long execution = dockerExec.getExecutionId();
+
+            String containerName = getDockbeatContainerName(dockerExec);
+
+            // Environment variables
+            ArrayList<String> envList = new ArrayList<>();
+            String envVar;
+
+            // Get Parameters and insert into Env Vars¡
+            String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
+            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                    + lsInternalBeatsPort;
+
+            if (isEMSSelected(dockerExec)) {
+                TJobExecution tJobExec = dockerExec.getTJobExec();
+
+                String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
+                String testRegex = "^test" + regexSuffix;
+                String sutRegex = "^sut" + regexSuffix;
+                envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
+                envList.add(envVar);
+
+                // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
+                // envList.add(envVar);
+
+                lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
+
+                lsHostEnvVar = "LOGSTASHHOST" + "="
+                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
+            }
+            envList.add(lsHostEnvVar);
+            envList.add(lsInternalBeatsPortEnvVar);
+
+            // dockerSock
+            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
+                    .build();
+
+            // Pull Image
+            this.pullETExecImage(dockbeatImage, "Dockbeat", false);
+
+            // Create Container
+            logger.debug("Creating Dockbeat Container...");
+
+            /* ******************************************************** */
+            DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
+            dockerBuilder.envs(envList);
+            dockerBuilder.containerName(containerName);
+            dockerBuilder.network(dockerExec.getNetwork());
+
+            dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
+
+            DockerContainer dockerContainer = dockerBuilder.build();
+            String containerId = dockerService.createAndStartContainer(
+                    dockerContainer, EpmService.etMasterSlaveMode);
+            this.insertCreatedContainer(containerId, containerName);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            new Exception("Exception on start Dockbeat", e);
         }
     }
 
@@ -638,7 +648,6 @@ public class DockerEtmService {
 
     public List<ReportTestSuite> createAndStartTestContainer(
             DockerExecution dockerExec) throws Exception {
-
         try {
             // Create Container Object
             dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));

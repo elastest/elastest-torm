@@ -60,6 +60,10 @@ export class AbstractTJobExecModel {
     );
   }
 
+  resultError(): boolean {
+    return this.result === 'ERROR';
+  }
+
   notExecuted(): boolean {
     return this.result === 'NOT_EXECUTED';
   }
