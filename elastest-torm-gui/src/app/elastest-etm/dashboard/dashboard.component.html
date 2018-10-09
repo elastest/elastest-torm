@@ -1,5 +1,5 @@
-<etm-projects-manager [isNested]="true">
+<etm-projects-manager #projectsManager [isNested]="true">
 </etm-projects-manager>
 
-<etm-tjob-execs-manager [isNested]="true">
+<etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress" [isNested]="true">
 </etm-tjob-execs-manager>
