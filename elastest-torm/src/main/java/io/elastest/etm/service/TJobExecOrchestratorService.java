@@ -173,7 +173,8 @@ public class TJobExecOrchestratorService {
             // Start SuT if it's necessary
             SutSpecification sut = tJobExec.getTjob().getSut();
             if (sut != null) {
-                initSut(tJobExec);
+                SutExecution sutExec = startSutDeployedOutside(tJobExec);
+                tJobExec.setSutExecution(sutExec);
             }
             initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
             setTJobExecEnvVars(tJobExec, true, false);
@@ -655,27 +656,11 @@ public class TJobExecOrchestratorService {
         SutSpecification sut = dockerExec.getSut();
         SutExecution sutExec;
 
-        String sutIP = "";
-
-        // If it's SuT DEPLOYED outside ElasTest 
+        // If it's SuT DEPLOYED outside ElasTest
         if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
-            Long currentSutExecId = sut.getCurrentSutExec();
-            sutExec = sutService.getSutExecutionById(currentSutExecId);
-            if (sut.isUsingExternalElasticsearch()) {
+            TJobExecution tJobExec = dockerExec.getTJobExec();
+            sutExec = startSutDeployedOutside(tJobExec);
 
-                Future<Void> asyncExec = sutService
-                        .manageSutExecutionUsingExternalElasticsearch(sut,
-                                sutExec.getSutExecMonitoringIndex());
-
-                asyncExternalElasticsearchSutExecs.put(
-                        getMapNameByTJobExec(dockerExec.getTJobExec()),
-                        asyncExec);
-
-            }
-            sutIP = sut.getSpecification();
-            String sutUrl = sut.getSutUrlByGivenIp(sutIP);
-            sutExec.setUrl(sutUrl);
-            sutExec.setIp(sutIP);
         }
         // If it's MANAGED SuT
         else {
@@ -694,7 +679,8 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public void initSut(TJobExecution tJobExec) throws Exception {
+    public SutExecution startSutDeployedOutside(TJobExecution tJobExec)
+            throws Exception {
         SutSpecification sut = tJobExec.getTjob().getSut();
         SutExecution sutExec;
         String sutIP = "";
@@ -704,13 +690,25 @@ public class TJobExecOrchestratorService {
             String resultMsg = "Preparing External SuT";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
                     TJobExecution.ResultEnum.WAITING_SUT, resultMsg);
+
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
             sutIP = sut.getSpecification();
             String sutUrl = sut.getSutUrlByGivenIp(sutIP);
             sutExec.setUrl(sutUrl);
             sutExec.setIp(sutIP);
-            tJobExec.setSutExecution(sutExec);
+
+            // Sut logs from External Elasticsearch
+            if (sut.isUsingExternalElasticsearch()) {
+                Future<Void> asyncExec = sutService
+                        .manageSutExecutionUsingExternalElasticsearch(sut,
+                                sutExec.getSutExecMonitoringIndex());
+
+                asyncExternalElasticsearchSutExecs
+                        .put(getMapNameByTJobExec(tJobExec), asyncExec);
+            }
+
+            return sutExec;
         } catch (Exception e) {
             throw new Exception("Error preparing the Sut to use in a test.");
         }
