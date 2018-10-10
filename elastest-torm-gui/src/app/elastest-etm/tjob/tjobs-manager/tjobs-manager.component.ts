@@ -35,6 +35,7 @@ export class TJobsManagerComponent implements OnInit {
     { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'result', label: 'Result' },
     { name: 'sut', label: 'Sut' },
+    { name: 'multi', label: 'Multi Axis' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -99,10 +100,12 @@ export class TJobsManagerComponent implements OnInit {
   }
 
   runTJob(tJob: TJobModel, project: ProjectModel): void {
-    if (tJob.hasParameters()) {
+    if (tJob.hasParameters() || tJob.hasMultiConfiguration()) {
       tJob.project = project;
       this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),
+        height: '85%',
+        width: '65%',
       });
     } else {
       this.tJobExecService.runTJob(tJob.id, tJob.parameters).subscribe(
@@ -113,7 +116,7 @@ export class TJobsManagerComponent implements OnInit {
       );
     }
   }
-  
+
   editTJob(tJob: TJobModel): void {
     if (tJob.external && tJob.getExternalEditPage()) {
       window.open(tJob.getExternalEditPage());

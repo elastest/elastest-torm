@@ -26,7 +26,9 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -152,15 +154,26 @@ public class TJobExecution {
     private TypeEnum type = TypeEnum.SIMPLE;
 
     /* *** Multi *** */
-    @JsonView({ BasicAttTJobExec.class })
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "execParent")
+    @JsonBackReference
     private TJobExecution execParent;
 
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
             BasicAttProject.class })
     @OneToMany(mappedBy = "execParent", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
     private List<TJobExecution> execChilds;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @ElementCollection
+    @CollectionTable(name = "TJobExecMultiConfiguration", joinColumns = @JoinColumn(name = "TJobExec"))
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "VALUES", length = 16777215)
+    private List<MultiConfig> multiConfigurations = new ArrayList<MultiConfig>();
 
     // Constructors
     public TJobExecution() {
@@ -173,6 +186,7 @@ public class TJobExecution {
         this.externalUrls = new HashMap<>();
         this.type = TypeEnum.SIMPLE;
         this.execChilds = new ArrayList<>();
+        this.multiConfigurations = new ArrayList<MultiConfig>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -185,6 +199,7 @@ public class TJobExecution {
         this.externalUrls = new HashMap<>();
         this.type = TypeEnum.SIMPLE;
         this.execChilds = new ArrayList<>();
+        this.multiConfigurations = new ArrayList<MultiConfig>();
     }
 
     /**
@@ -558,6 +573,18 @@ public class TJobExecution {
         this.execChilds = execChilds;
     }
 
+    /*
+     * multiConfigurations
+     */
+
+    public List<MultiConfig> getMultiConfigurations() {
+        return multiConfigurations;
+    }
+
+    public void setMultiConfigurations(List<MultiConfig> multiConfigurations) {
+        this.multiConfigurations = multiConfigurations;
+    }
+
     /* ************** */
     /* *** Others *** */
     /* ************** */
@@ -583,14 +610,19 @@ public class TJobExecution {
                 && Objects.equals(this.startDate, tjobExecution.startDate)
                 && Objects.equals(this.endDate, tjobExecution.endDate)
                 && Objects.equals(this.monitoringStorageType,
-                        tjobExecution.monitoringStorageType);
+                        tjobExecution.monitoringStorageType)
+                && Objects.equals(this.execParent, tjobExecution.execParent)
+                && Objects.equals(this.execChilds, tjobExecution.execChilds)
+                && Objects.equals(this.multiConfigurations,
+                        tjobExecution.multiConfigurations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
                 testSuites, parameters, resultMsg, startDate, endDate,
-                monitoringStorageType);
+                monitoringStorageType, execParent, execChilds,
+                multiConfigurations);
     }
 
     @Override
@@ -619,6 +651,12 @@ public class TJobExecution {
                 .append("\n");
         sb.append("    monitoringStorageType: ")
                 .append(toIndentedString(monitoringStorageType)).append("\n");
+        sb.append("    execParent: ").append(toIndentedString(execParent))
+                .append("\n");
+        sb.append("    execChilds: ").append(toIndentedString(execChilds))
+                .append("\n");
+        sb.append("    multiConfigurations: ")
+                .append(toIndentedString(multiConfigurations)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -650,5 +688,17 @@ public class TJobExecution {
 
     public boolean isWithSut() {
         return this.tJob != null && this.tJob.isWithSut();
+    }
+
+    public boolean isMultiExecutionParent() {
+        return this.getTjob().isMulti() && this.type == TypeEnum.PARENT;
+    }
+
+    public boolean isMultiExecutionChild() {
+        return this.getTjob().isMulti() && this.type == TypeEnum.CHILD;
+    }
+
+    public boolean isSimpleExecution() {
+        return !this.getTjob().isMulti() || this.type == TypeEnum.SIMPLE;
     }
 }

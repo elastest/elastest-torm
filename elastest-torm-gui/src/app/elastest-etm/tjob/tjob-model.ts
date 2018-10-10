@@ -78,6 +78,15 @@ export class TJobModel extends AbstractTJobModel {
     return this.parameters.length > 0 || this.sut.parameters.length > 0;
   }
 
+  public hasMultiConfiguration(): boolean {
+    return (
+      this.multi &&
+      this.multiConfigurations !== undefined &&
+      this.multiConfigurations !== null &&
+      this.multiConfigurations.length > 0
+    );
+  }
+
   public getAbstractTJobClass(): string {
     return 'TJobModel';
   }

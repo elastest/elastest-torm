@@ -55,14 +55,30 @@ export class TJobExecModel extends AbstractTJobExecModel {
   }
 
   isSimple(): boolean {
-    return this.type === 'SIMPLE';
+    let isSimple: boolean = this.type === 'SIMPLE';
+    if (this.tJob) {
+      isSimple = isSimple && this.tJob.multi;
+    }
+    return isSimple;
   }
 
   isChild(): boolean {
-    return this.type === 'CHILD';
+    let isChild: boolean = this.type === 'CHILD';
+
+    if (this.tJob) {
+      isChild = isChild && this.tJob.multi;
+    }
+
+    return isChild;
   }
   isParent(): boolean {
-    return this.type === 'PARENT';
+    let isParent: boolean = this.type === 'PARENT';
+
+    if (this.tJob) {
+      isParent = isParent && this.tJob.multi;
+    }
+
+    return isParent;
   }
 }
 

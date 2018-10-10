@@ -22,7 +22,7 @@
                             mdTooltip="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
-                        <button md-button (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg"
+                        <button md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg"
                             mdTooltip="Open Monitoring Config">
                             <md-icon>settings</md-icon>
                         </button>
@@ -77,7 +77,7 @@
                     </span>
 
                 </div>
-                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()">
+                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()" class="push-bottom-sm">
                     <md-divider></md-divider>
                     <div layout="row" [style.color]="statusIcon.color" class="push-top-sm">
                         {{tJobExec.resultMsg}}
@@ -91,12 +91,18 @@
     </div>
 </div>
 
-<div id="testSuitesView" layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
-    <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
-</div>
+<ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
+    <etm-child-tjob-execs-view [model]="tJobExec"></etm-child-tjob-execs-view>
+</ng-container>
 
-<!-- logs & Metrics -->
-<etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>
+<ng-template #showNormalExecutionView>
+    <div id="testSuitesView" layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
+        <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+    </div>
 
-<!-- Execution files -->
-<etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>
+    <!-- logs & Metrics -->
+    <etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>
+
+    <!-- Execution files -->
+    <etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>
+</ng-template>

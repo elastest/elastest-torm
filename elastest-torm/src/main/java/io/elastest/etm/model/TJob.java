@@ -140,7 +140,8 @@ public class TJob {
     @JsonInclude(Include.NON_NULL)
     private Boolean multi = false;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
+            BasicAttTJobExec.class })
     @ElementCollection
     @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
     @MapKeyColumn(name = "NAME")
@@ -431,8 +432,8 @@ public class TJob {
         sb.append("    selectedServices: ")
                 .append(toIndentedString(selectedServices)).append("\n");
         sb.append("    multi: ").append(toIndentedString(multi)).append("\n");
-        sb.append("    multiConfigurations: ").append(toIndentedString(multiConfigurations))
-                .append("\n");
+        sb.append("    multiConfigurations: ")
+                .append(toIndentedString(multiConfigurations)).append("\n");
         sb.append("}");
         return sb.toString();
     }

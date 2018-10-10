@@ -1,5 +1,9 @@
 <h2 md-dialog-title>Run TJob Parameters</h2>
-<md-dialog-content>
+<md-dialog-content *ngIf="!initializing && tJob">
+  <div *ngIf="tJob.hasMultiConfiguration()">
+    <md-card-subtitle>TJob Multi Configurations</md-card-subtitle>
+    <multi-config-view [model]="tJob.multiConfigurations"></multi-config-view>
+  </div>
   <div *ngIf="tJob.parameters.length > 0">
     <md-card-subtitle>TJob Parameters</md-card-subtitle>
     <parameters-view [model]="tJob.parameters"></parameters-view>
@@ -10,6 +14,7 @@
   </div>
 </md-dialog-content>
 <md-dialog-actions>
-  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run TJob</button>
+  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run
+    TJob</button>
   <button md-button md-dialog-close>Cancel</button>
 </md-dialog-actions>

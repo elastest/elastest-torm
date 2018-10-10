@@ -58,7 +58,7 @@ export class TJobExecsManagerComponent implements OnInit {
     this.loading = true;
     this.refreshText = refreshText;
 
-    this.tJobExecService.getAllRunningTJobExecutions().subscribe(
+    this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
       (runningTJobExecs: TJobExecModel[]) => {
         this.tJobExecsFinished = [];
         this.tJobExecsRunning = [];
@@ -94,7 +94,7 @@ export class TJobExecsManagerComponent implements OnInit {
       return this.tJobExecService.getAllFinishedOrNotExecutedTJobExecutions();
     } else {
       // Default
-      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutions(15);
+      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(15);
     }
   }
 

@@ -23,12 +23,15 @@ export class MultiConfigViewComponent implements OnInit {
     this.model.splice(position, 1);
   }
 
-  addValueToMultiConfig(multiConfigModelPosition: number, value: string): void {
+  addValueToMultiConfig(multiConfigModelPosition: number, value: string = ''): void {
     this.model[multiConfigModelPosition].configValues.push(value);
   }
 
   deleteValue(multiConfigModelPosition: number, valuePosition: number): void {
     this.model[multiConfigModelPosition].configValues.splice(valuePosition, 1);
+    if (this.model[multiConfigModelPosition].configValues.length == 0) {
+      this.addValueToMultiConfig(multiConfigModelPosition);
+    }
   }
 
   updateModel(newModel: MultiConfigModel[]): void {

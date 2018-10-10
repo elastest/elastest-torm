@@ -374,8 +374,10 @@ export class ETModelsTransformServices {
   jsonToMultiConfigsList(multiConfigs: any[]): MultiConfigModel[] {
     let multiConfigsList: MultiConfigModel[] = [];
 
-    for (let multiConfig of multiConfigs) {
-      multiConfigsList.push(this.jsonToMultiConfigModel(multiConfig));
+    if (multiConfigs !== undefined && multiConfigs !== null) {
+      for (let multiConfig of multiConfigs) {
+        multiConfigsList.push(this.jsonToMultiConfigModel(multiConfig));
+      }
     }
     return multiConfigsList;
   }

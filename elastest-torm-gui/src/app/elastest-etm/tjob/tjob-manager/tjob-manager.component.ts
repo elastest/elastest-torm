@@ -24,24 +24,14 @@ export class TjobManagerComponent implements OnInit {
   sutEmpty: SutModel = new SutModel();
   deletingInProgress: boolean = false;
 
-  tjobColumns: any[] = [
-    { name: 'id', label: 'Id' },
-    { name: 'name', label: 'Name' },
-    { name: 'imageName', label: 'Image Name' },
-    { name: 'sut.id', label: 'Sut' },
-  ];
-
   // TJob Exec Data
   tJobExecColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'result', label: 'Result' },
-    // { name: 'duration', label: 'Duration' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'sutExecution', label: 'Sut Execution' },
-    // { name: 'error', label: 'Error' },
-    // { name: 'monitoringIndex', label: 'Log Index' },
     { name: 'options', label: 'Options' },
   ];
   tJobExecData: TJobExecModel[] = [];
@@ -72,12 +62,17 @@ export class TjobManagerComponent implements OnInit {
         if (this.tJob.sut.id === 0) {
           this.tJob.sut = this.sutEmpty;
         }
-        this.tJobExecData = this.tJobService.getTJobExecsList(tJob);
-        this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
-          tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
-        });
-        this.showSpinner = false;
-        this.sortTJobsExec(); // Id desc
+        this.tJobExecService.getTJobsExecutionsWithoutChilds(tJob).subscribe(
+          (tJobExecs: TJobExecModel[]) => {
+            this.tJobExecData = tJobExecs;
+            this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
+              tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
+            });
+            this.showSpinner = false;
+            this.sortTJobsExec(); // Id desc
+          },
+          (error: Error) => console.log(error),
+        );
       });
     }
   }
@@ -123,22 +118,16 @@ export class TjobManagerComponent implements OnInit {
   }
 
   runTJob(): void {
-    if (this.tJob.hasParameters()) {
+    if (this.tJob.hasParameters() || this.tJob.hasMultiConfiguration()) {
       let dialogRef: MdDialogRef<RunTJobModalComponent> = this.dialog.open(RunTJobModalComponent, {
         data: this.tJob.cloneTJob(),
+        height: '85%',
+        width: '65%',
       });
     } else {
       this.tJobExecService.runTJob(this.tJob.id).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate([
-            '/projects',
-            this.tJob.project.id,
-            'tjob',
-            this.tJob.id,
-            'tjob-exec',
-            tjobExecution.id,
-            'live',
-          ]);
+          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
         },
         (error) => console.error('Error:' + error),
       );

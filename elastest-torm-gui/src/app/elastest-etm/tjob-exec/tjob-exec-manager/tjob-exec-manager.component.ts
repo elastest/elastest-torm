@@ -22,6 +22,7 @@ import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/serv
 export class TjobExecManagerComponent implements OnInit {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
+  showLogsAndMetrics: boolean = false;
 
   tJobId: number;
   tJobExecId: number;
@@ -84,8 +85,9 @@ export class TjobExecManagerComponent implements OnInit {
             this.router.navigate(['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'live'], {
               queryParams: { fromTJobManager: true },
             });
-          } else {
+          } else if (this.logsAndMetrics) {
             this.logsAndMetrics.initView(this.tJob, this.tJobExec);
+            this.showLogsAndMetrics = true;
           }
         },
         (error) => console.log(error),

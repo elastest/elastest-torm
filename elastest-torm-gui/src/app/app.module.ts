@@ -128,6 +128,7 @@ import { TimeAgoPipe } from 'time-ago-pipe';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
+import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob-execs-view/child-tjob-execs-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -204,6 +205,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TimeAgoPipe,
     LiveTjobExecManagerComponent,
     DashboardComponent,
+    ChildTjobExecsViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
