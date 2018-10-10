@@ -12,6 +12,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { SupportServiceConfigModel } from '../../../elastest-esm/support-service.model';
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
+import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config-view.component';
 
 @Component({
   selector: 'etm-tjob-form',
@@ -111,6 +112,10 @@ export class TJobFormComponent implements OnInit, DoCheck {
   save(): void {
     if (this.useImageCommand) {
       this.tJob.commands = '';
+    }
+
+    if (!this.tJob.multi) {
+      this.tJob.multiConfigurations = [];
     }
 
     if (this.tJob.execDashboardConfigModel.allLogsTypes) {

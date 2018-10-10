@@ -13,6 +13,9 @@ export class TJobExecModel extends AbstractTJobExecModel {
   testSuites: TestSuiteModel[];
   parameters: any[];
   externalUrls: any;
+  type: TJobExecTypeEnum;
+  execParent: TJobExecModel;
+  execChilds: TJobExecModel[];
 
   constructor() {
     super();
@@ -25,6 +28,9 @@ export class TJobExecModel extends AbstractTJobExecModel {
     this.testSuites = [];
     this.parameters = [];
     this.externalUrls = undefined;
+    this.type = 'SIMPLE';
+    this.execParent = undefined;
+    this.execChilds = [];
   }
 
   public hasSutExec(): boolean {
@@ -47,4 +53,17 @@ export class TJobExecModel extends AbstractTJobExecModel {
       return undefined;
     }
   }
+
+  isSimple(): boolean {
+    return this.type === 'SIMPLE';
+  }
+
+  isChild(): boolean {
+    return this.type === 'CHILD';
+  }
+  isParent(): boolean {
+    return this.type === 'PARENT';
+  }
 }
+
+export type TJobExecTypeEnum = 'SIMPLE' | 'PARENT' | 'CHILD' | '';

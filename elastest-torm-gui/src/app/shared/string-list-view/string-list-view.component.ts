@@ -6,8 +6,10 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./string-list-view.component.scss'],
 })
 export class StringListViewComponent implements OnInit {
-  @Input() model: string[];
-  @Input() fieldName: string;
+  @Input()
+  model: string[];
+  @Input()
+  fieldName: string;
   fieldNameAsPrefix: string = 'fieldName';
 
   constructor() {}
@@ -27,5 +29,9 @@ export class StringListViewComponent implements OnInit {
 
   deleteField(position: number): void {
     this.model.splice(position, 1);
+  }
+
+  trackByFn(index: any, item: any): any {
+    return index;
   }
 }

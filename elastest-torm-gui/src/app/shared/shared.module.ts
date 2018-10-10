@@ -49,6 +49,7 @@ import { RefreshComponent } from './refresh/refresh.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component';
 import { StringListViewComponent } from './string-list-view/string-list-view.component';
+import { MultiConfigViewComponent } from './multi-config-view/multi-config-view.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -114,6 +115,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     StringListViewComponent,
     BreadcrumbComponent,
     LogsViewTextComponent,
+    MultiConfigViewComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -126,6 +128,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     MetricsChartCardComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
+    MultiConfigViewComponent,
     StringListViewComponent,
     ComboChartComponent,
     EtmChartGroupComponent,

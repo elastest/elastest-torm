@@ -145,6 +145,23 @@ public class TJobExecution {
     @JsonProperty("monitoringStorageType")
     private MonitoringStorageType monitoringStorageType;
 
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "type")
+    @JsonProperty("type")
+    private TypeEnum type = TypeEnum.SIMPLE;
+
+    /* *** Multi *** */
+    @JsonView({ BasicAttTJobExec.class })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "execParent")
+    private TJobExecution execParent;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @OneToMany(mappedBy = "execParent", cascade = CascadeType.REMOVE)
+    private List<TJobExecution> execChilds;
+
     // Constructors
     public TJobExecution() {
         this.id = (long) 0;
@@ -154,6 +171,8 @@ public class TJobExecution {
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
         this.externalUrls = new HashMap<>();
+        this.type = TypeEnum.SIMPLE;
+        this.execChilds = new ArrayList<>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -164,6 +183,8 @@ public class TJobExecution {
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
         this.externalUrls = new HashMap<>();
+        this.type = TypeEnum.SIMPLE;
+        this.execChilds = new ArrayList<>();
     }
 
     /**
@@ -458,7 +479,88 @@ public class TJobExecution {
         this.monitoringStorageType = monitoringStorageType;
     }
 
-    // Others
+    /*
+     * type get/set
+     */
+
+    public enum TypeEnum {
+
+        SIMPLE("SIMPLE"),
+
+        PARENT("PARENT"),
+
+        CHILD("CHILD");
+
+        private String value;
+
+        TypeEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static TypeEnum fromValue(String text) {
+            for (TypeEnum b : TypeEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+        public static boolean isSimple(TypeEnum result) {
+            return result.equals(SIMPLE);
+        }
+
+        public static boolean isParent(TypeEnum result) {
+            return result.equals(PARENT);
+        }
+
+        public static boolean isChild(TypeEnum result) {
+            return result.equals(CHILD);
+        }
+    }
+
+    public TypeEnum getType() {
+        return type;
+    }
+
+    public void setType(TypeEnum type) {
+        this.type = type;
+    }
+
+    /*
+     * execParent
+     */
+
+    public TJobExecution getExecParent() {
+        return execParent;
+    }
+
+    public void setExecParent(TJobExecution execParent) {
+        this.execParent = execParent;
+    }
+
+    /*
+     * execChilds
+     */
+
+    public List<TJobExecution> getExecChilds() {
+        return execChilds;
+    }
+
+    public void setExecChilds(List<TJobExecution> execChilds) {
+        this.execChilds = execChilds;
+    }
+
+    /* ************** */
+    /* *** Others *** */
+    /* ************** */
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {

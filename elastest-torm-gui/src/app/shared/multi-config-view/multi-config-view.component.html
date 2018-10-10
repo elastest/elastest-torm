@@ -1,0 +1,48 @@
+<ng-container *ngIf="!updateInProgress">
+  <button md-raised-button color="accent" (click)="addMultiConfig()" mdTooltip="Add multi config" class="iconBtn push-top-sm">
+    <md-icon>add</md-icon>Add MultiConfig
+  </button>
+
+  <div *ngFor="let multiConfig of model; let i = index" layout="column" class="pad-bottom push-top">
+    <md-divider *ngIf="i > 0"></md-divider>
+    <md-list-item flex-gt-xs="100" layout="row" layout-align="center center">
+      <div layout="row" layout-align="center center">
+        <!-- Delete MultiConfig -->
+        <button md-mini-fab color="primary" (click)="deleteMultiConfig(i)" mdTooltip="Delete multi config" class="iconBtn push-top-sm">
+          <md-icon style="color: #ffffff">delete</md-icon>
+        </button>
+
+        <!-- Name -->
+        <md-input-container flex-offset="5">
+          <input mdInput id="multiConfigName{{i}}" value="" [(ngModel)]="multiConfig.name" placeholder="Name" required>
+        </md-input-container>
+
+        <!-- configValues -->
+        <div layout="column" flex-offset="5">
+          <md-list-item flex-gt-xs="100">
+
+            <div *ngFor="let value of multiConfig.configValues; let j = index; trackBy:trackByFn" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
+              <md-input-container>
+                <input mdInput id="multiConfig{{i}}Value{{j}}" value="" [(ngModel)]="multiConfig.configValues[j]" placeholder="Value"
+                  required>
+              </md-input-container>
+
+              <button md-button (click)="deleteValue(i,j)" mdTooltip="Delete multi config value" class="iconBtn push-top-sm">
+                <md-icon>delete</md-icon>
+              </button>
+            </div>
+
+            <!-- Add value -->
+            <div layout="row" layout-align="center center">
+              <button md-mini-fab color="accent" (click)="addValueToMultiConfig(i)" mdTooltip="Add value to multi config"
+                class="iconBtn push-top-sm">
+                <md-icon style="color: #ffffff !important">add</md-icon>
+              </button>
+            </div>
+          </md-list-item>
+        </div>
+
+      </div>
+    </md-list-item>
+  </div>
+</ng-container>

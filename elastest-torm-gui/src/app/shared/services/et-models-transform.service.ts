@@ -14,6 +14,7 @@ import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
 import { ExternalElasticsearch } from '../../elastest-etm/sut/external-elasticsearch.model';
 import { ParameterModel } from '../../elastest-etm/parameter/parameter-model';
+import { MultiConfigModel } from '../multi-config-view/multi-config-view.component';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -107,7 +108,9 @@ export class ETModelsTransformServices {
     }
     newTJob.external = tjob.external;
     newTJob.externalUrls = tjob.externalUrls;
+    newTJob.multi = tjob.multi ? tjob.multi : false;
 
+    newTJob.multiConfigurations = this.jsonToMultiConfigsList(tjob.multiConfigurations);
     return newTJob;
   }
 
@@ -154,6 +157,10 @@ export class ETModelsTransformServices {
 
     newTJobExec.externalUrls = tjobExec.externalUrls;
     newTJobExec.monitoringStorageType = tjobExec.monitoringStorageType;
+
+    newTJobExec.type = tjobExec.type ? tjobExec.type : 'SIMPLE';
+    newTJobExec.execParent = tjobExec.execParent;
+    newTJobExec.execChilds = tjobExec.execChilds ? tjobExec.execChilds : [];
 
     return newTJobExec;
   }
@@ -349,7 +356,7 @@ export class ETModelsTransformServices {
 
   /* *** Parameters *** */
 
-  jsonToParametersList(parameters: any[], fromProject: boolean = false): ParameterModel[] {
+  jsonToParametersList(parameters: any[]): ParameterModel[] {
     let parametersList: ParameterModel[] = [];
 
     for (let parameter of parameters) {
@@ -360,5 +367,20 @@ export class ETModelsTransformServices {
 
   jsonToParameterModel(param: any): ParameterModel {
     return new ParameterModel(param);
+  }
+
+  /* *** MultiConfig *** */
+
+  jsonToMultiConfigsList(multiConfigs: any[]): MultiConfigModel[] {
+    let multiConfigsList: MultiConfigModel[] = [];
+
+    for (let multiConfig of multiConfigs) {
+      multiConfigsList.push(this.jsonToMultiConfigModel(multiConfig));
+    }
+    return multiConfigsList;
+  }
+
+  jsonToMultiConfigModel(multiConfig: any): MultiConfigModel {
+    return new MultiConfigModel(multiConfig);
   }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1539155104119-1">
+        <createTable tableName="TJobMultiConfiguration">
+            <column name="TJob" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="configValues" type="MEDIUMBLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1539155104119-2">
+        <addForeignKeyConstraint baseColumnNames="TJob" baseTableName="TJobMultiConfiguration" constraintName="FK9311civ71cl4hayf073awr9o5" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="TJob"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,3 +1,4 @@
+import { MultiConfigModel } from '../../shared/multi-config-view/multi-config-view.component';
 import { EsmServiceModel } from '../../elastest-esm/esm-service.model';
 import { DashboardConfigModel } from './dashboard-config-model';
 import { ProjectModel } from '../project/project-model';
@@ -22,6 +23,8 @@ export class TJobModel extends AbstractTJobModel {
   esmServicesChecked: number;
   external: boolean;
   externalUrls: any;
+  multi: boolean;
+  multiConfigurations: MultiConfigModel[];
 
   constructor() {
     super();
@@ -41,6 +44,8 @@ export class TJobModel extends AbstractTJobModel {
     this.esmServicesChecked = 0;
     this.external = false;
     this.externalUrls = undefined;
+    this.multi = false;
+    this.multiConfigurations = [];
   }
 
   public cloneTJob(): TJobModel {
@@ -90,5 +95,9 @@ export class TJobModel extends AbstractTJobModel {
     } else {
       return undefined;
     }
+  }
+
+  public switchMulti($event): void {
+    this.multi = $event.checked;
   }
 }

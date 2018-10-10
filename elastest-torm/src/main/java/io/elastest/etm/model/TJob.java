@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -122,14 +124,32 @@ public class TJob {
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
-    
+
     @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-        BasicAttProject.class })
+            BasicAttProject.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB"))
     private Map<String, String> externalUrls;
+
+    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
+            BasicAttTJobExec.class })
+    @Column(name = "multi")
+    @JsonProperty("multi")
+    @JsonInclude(Include.NON_NULL)
+    private Boolean multi = false;
+
+    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @ElementCollection
+    @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "VALUES", length = 16777215)
+    private List<MultiConfig> multiConfigurations = new ArrayList<MultiConfig>();
+
+    /* ******************** */
+    /* *** Constructors *** */
+    /* ******************** */
 
     public TJob() {
     }
@@ -146,7 +166,12 @@ public class TJob {
         this.execDashboardConfig = execDashboardConfig;
         this.selectedServices = selectedServices;
         this.externalUrls = new HashMap<>();
+        this.multiConfigurations = new ArrayList<MultiConfig>();
     }
+
+    /* *********************** */
+    /* *** Getters/Setters *** */
+    /* *********************** */
 
     /**
      * Get id
@@ -326,7 +351,25 @@ public class TJob {
         this.externalUrls = externalUrls;
     }
 
-    /* Others */
+    public Boolean isMulti() {
+        return multi;
+    }
+
+    public void setMulti(Boolean multi) {
+        this.multi = multi != null ? multi : false;
+    }
+
+    public List<MultiConfig> getMultiConfigurations() {
+        return multiConfigurations;
+    }
+
+    public void setMultiConfigurations(List<MultiConfig> multiConfigurations) {
+        this.multiConfigurations = multiConfigurations;
+    }
+
+    /* ******************** */
+    /* ****** Others ****** */
+    /* ******************** */
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -348,14 +391,17 @@ public class TJob {
                 && Objects.equals(this.external, tjob.external)
                 && Objects.equals(this.execDashboardConfig,
                         tjob.execDashboardConfig)
-                && Objects.equals(this.selectedServices, tjob.selectedServices);
+                && Objects.equals(this.selectedServices, tjob.selectedServices)
+                && Objects.equals(this.multi, tjob.multi) && Objects.equals(
+                        this.multiConfigurations, tjob.multiConfigurations);
 
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, imageName, sut, project, tjobExecs,
-                parameters, execDashboardConfig, selectedServices);
+                parameters, execDashboardConfig, selectedServices, multi,
+                multiConfigurations);
     }
 
     @Override
@@ -384,6 +430,9 @@ public class TJob {
                 .append(toIndentedString(execDashboardConfig)).append("\n");
         sb.append("    selectedServices: ")
                 .append(toIndentedString(selectedServices)).append("\n");
+        sb.append("    multi: ").append(toIndentedString(multi)).append("\n");
+        sb.append("    multiConfigurations: ").append(toIndentedString(multiConfigurations))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

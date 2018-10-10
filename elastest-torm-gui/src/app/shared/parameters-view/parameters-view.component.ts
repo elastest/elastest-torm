@@ -10,7 +10,7 @@ export class ParametersViewComponent implements OnInit {
   @Input()
   public model: ParameterModel[];
 
-  public updateInProgress = false;
+  public updateInProgress: boolean = false;
 
   constructor() {}
 
