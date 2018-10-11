@@ -610,7 +610,6 @@ public class EtmBaseTest {
             String expectedResult, boolean waitForMetrics) {
 
         log.info("Wait for the execution page to show");
-        this.getElementsByTagName(driver, "etm-dashboard");
 
         WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
 
@@ -628,7 +627,7 @@ public class EtmBaseTest {
         log.info("Check finish Execution status. Expected result {}",
                 expectedResult);
         waitResult.until(textToBePresentInElementLocated(By.id("resultMsgText"),
-                "Finished: " + expectedResult));
+                expectedResult));
     }
 
     protected void deleteJob(WebDriver drive, String jobName) {
