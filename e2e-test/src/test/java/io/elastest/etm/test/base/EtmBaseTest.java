@@ -30,6 +30,8 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -53,23 +56,18 @@ import io.elastest.etm.test.utils.RestClient;
 import io.github.bonigarcia.DriverCapabilities;
 
 public class EtmBaseTest {
-
     final Logger log = getLogger(lookup().lookupClass());
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
-
     protected String apiPath = "api";
     protected String tormApiUrl;
-
     protected String eUser = null;
     protected String ePassword = null;
-
     protected boolean secureElastest = false;
-
-    protected WebDriver driver;
-
+    public WebDriver driver;
     protected RestClient restClient;
+    protected String eusURL;
 
     @DriverCapabilities
     DesiredCapabilities capabilities = chrome();
@@ -119,6 +117,8 @@ public class EtmBaseTest {
 
         this.restClient = new RestClient(this.tormApiUrl, eUser, ePassword,
                 secureElastest);
+
+        eusURL = System.getenv("ET_EUS_API");
     }
 
     @AfterEach
@@ -655,6 +655,14 @@ public class EtmBaseTest {
         } else {
             return null;
         }
+    }
+    
+    public void setupTest(String testName) throws MalformedURLException {
+        DesiredCapabilities caps;
+        caps = eusURL != null ? DesiredCapabilities.firefox()
+                : DesiredCapabilities.chrome();
+        caps.setCapability("browserId", testName);
+        driver = new RemoteWebDriver(new URL(eusURL), caps);
     }
 
 }

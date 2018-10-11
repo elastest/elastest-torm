@@ -20,6 +20,7 @@ import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,9 +71,15 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create WebApp project Chrome Test")
     void testCreateChromeTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = CHROME) RemoteWebDriver rDriver)
+            throws InterruptedException, MalformedURLException {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        if (eusURL != null) {
+            this.setupTest(testName);
+        } else {
+            driver = rDriver;
+        }
 
         this.createProjectAndSut(driver);
 
@@ -98,9 +105,15 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver rDriver)
+            throws InterruptedException, MalformedURLException {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        if (eusURL != null) {
+            this.setupTest(testName);
+        } else {
+            driver = rDriver;
+        }
 
         this.createProjectAndSut(driver);
 
