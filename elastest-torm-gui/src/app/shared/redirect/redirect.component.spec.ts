@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RefeshComponent } from './refesh.component';
+import { RedirectComponent } from './redirect.component';
 
-describe('RefeshComponent', () => {
-  let component: RefeshComponent;
-  let fixture: ComponentFixture<RefeshComponent>;
+describe('RedirectComponent', () => {
+  let component: RedirectComponent;
+  let fixture: ComponentFixture<RedirectComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RefeshComponent ]
+      declarations: [ RedirectComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RefeshComponent);
+    fixture = TestBed.createComponent(RedirectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

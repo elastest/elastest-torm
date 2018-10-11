@@ -159,7 +159,7 @@ export class ETModelsTransformServices {
     newTJobExec.monitoringStorageType = tjobExec.monitoringStorageType;
 
     newTJobExec.type = tjobExec.type ? tjobExec.type : 'SIMPLE';
-    newTJobExec.execParent = tjobExec.execParent;
+    newTJobExec.execParent = tjobExec.execParent ? this.jsonToTJobExecModel(tjobExec.execParent) : undefined;
     newTJobExec.execChilds = tjobExec.execChilds ? tjobExec.execChilds : [];
 
     return newTJobExec;

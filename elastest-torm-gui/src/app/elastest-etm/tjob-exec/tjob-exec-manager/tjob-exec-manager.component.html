@@ -7,11 +7,14 @@
                         <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color"
                             mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
                     </span>
-                    <a (click)="viewTJob()" class="hover-pointer">
+                    <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
                         <span>TJob</span>
-                        <span *ngIf="tJob"> "{{tJob.name}}"</span>
+                        <span> "{{tJob.name}}": </span>
                     </a>
-                    <span>: Execution {{tJobExecId}}</span>
+                    <span *ngIf="tJobExec.isParent()">&nbsp;Multi Axis Parent</span>
+                    <span *ngIf="tJobExec.isChild()">&nbsp;Multi Axis Children</span>
+
+                    <span>&nbsp;Execution {{tJobExecId}}</span>
                     <span flex></span>
                     <div>
                         <button md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
@@ -22,8 +25,8 @@
                             mdTooltip="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
-                        <button md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()" class="onlyIconBtn iconBtn-lg"
-                            mdTooltip="Open Monitoring Config">
+                        <button md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()"
+                            class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
                             <md-icon>settings</md-icon>
                         </button>
                         <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
@@ -42,10 +45,20 @@
 
             <md-card-content>
                 <div layout="row">
-                    <span flex="10">
+                    <span flex="10" flex-gt-lg="5" >
                         <md-card-subtitle>Result</md-card-subtitle>
                         <h4 id="resultMsgText" [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
+
+                    <span flex="10" flex-gt-lg="5" *ngIf="tJobExec.isChild() && tJobExec.execParent">
+                        <md-card-subtitle>Parent</md-card-subtitle>
+                        <h4>
+                            <a (click)="viewParent()" class="hover-pointer">
+                                {{ tJobExec.execParent.id }}
+                            </a>
+                        </h4>
+                    </span>
+
                     <span flex="20">
                         <md-card-subtitle>Start Date</md-card-subtitle>
                         <h4>{{ tJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
@@ -54,6 +67,7 @@
                         <md-card-subtitle>End Date</md-card-subtitle>
                         <h4>{{ tJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
+
                     <ng-container>
                         <span flex="15">
                             <md-card-subtitle>Sut Execution</md-card-subtitle>

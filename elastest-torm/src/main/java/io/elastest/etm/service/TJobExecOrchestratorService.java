@@ -224,6 +224,8 @@ public class TJobExecOrchestratorService {
                 this.executeTJob(childExec, tJobServices);
             }
 
+            tJobExec.setEndDate(new Date());
+
             saveMultiParentFinishStatus(tJobExec, dockerExec);
 
         } else { // Simple/child execution

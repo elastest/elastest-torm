@@ -31,7 +31,6 @@ export class ChildTjobExecsViewComponent implements OnInit {
       this.childrens = this.eTModelsTransformServices.jsonToTJobExecsList(this.model.execChilds);
     }
   }
-
   viewTJobExec(tJobExec: TJobExecModel): void {
     this.router.navigate(['/projects', tJobExec.tJob.project.id, 'tjob', tJobExec.tJob.id, 'tjob-exec', tJobExec.id]);
   }

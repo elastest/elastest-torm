@@ -269,4 +269,14 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<Map<String, Object>> getTJobExecResultStatus(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
+
+    @ApiOperation(value = "Returns the current result and result message of a TJob Execution", notes = "Returns the current result and result message of a TJob Execution.", response = TJobExecution.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+            @ApiResponse(code = 404, message = "Result status not found") })
+    @RequestMapping(value = "/tjob/exec/{tJobExecId}/parent", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<TJobExecution> getChildTJobExecParent(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 }

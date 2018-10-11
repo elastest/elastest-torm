@@ -57,18 +57,17 @@ export class TjobExecManagerComponent implements OnInit {
     private _viewContainerRef: ViewContainerRef,
     private filesService: FilesService,
     public dialog: MdDialog,
-  ) {
+  ) {}
+
+  ngOnInit() {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.tJobId = params.tJobId;
         this.tJobExecId = params.tJobExecId;
+        this.tJobExec = new TJobExecModel();
+        this.loadTJobExec();
       });
     }
-  }
-
-  ngOnInit() {
-    this.tJobExec = new TJobExecModel();
-    this.loadTJobExec();
   }
 
   loadTJobExec(): void {
@@ -88,6 +87,15 @@ export class TjobExecManagerComponent implements OnInit {
           } else if (this.logsAndMetrics) {
             this.logsAndMetrics.initView(this.tJob, this.tJobExec);
             this.showLogsAndMetrics = true;
+
+            if (this.tJobExec.isChild()) {
+              this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
+                (parent: TJobExecModel) => {
+                  this.tJobExec.execParent = parent;
+                },
+                (error: Error) => console.log(error),
+              );
+            }
           }
         },
         (error) => console.log(error),
@@ -191,6 +199,12 @@ export class TjobExecManagerComponent implements OnInit {
     let url: string = this.tJobExec.getExternalUrl();
     if (url !== undefined) {
       window.open(url);
+    }
+  }
+
+  viewParent(): void {
+    if (this.tJobExec && this.tJobExec.isChild() && this.tJobExec.execParent) {
+      this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.execParent.id]);
     }
   }
 }

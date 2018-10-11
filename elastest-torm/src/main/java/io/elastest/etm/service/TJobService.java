@@ -427,4 +427,16 @@ public class TJobService {
 
     }
 
+    public TJobExecution getChildTJobExecParent(Long tJobExecId) {
+        TJobExecution tJobExec = this.tJobExecRepositoryImpl
+                .findById(tJobExecId).get();
+        TJobExecution parent = null;
+        if (tJobExec.isMultiExecutionChild()
+                && tJobExec.getExecParent() != null) {
+            parent = this.tJobExecRepositoryImpl
+                    .findById(tJobExec.getExecParent().getId()).get();
+        }
+        return parent;
+    }
+
 }

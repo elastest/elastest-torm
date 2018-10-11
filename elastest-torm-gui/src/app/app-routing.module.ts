@@ -30,7 +30,7 @@ import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-man
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
 import { UsersFormComponent } from './users/form/form.component';
-import { RefreshComponent } from './shared/refresh/refresh.component';
+import { RedirectComponent } from './shared/redirect/redirect.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
@@ -276,8 +276,8 @@ const routes: Routes = [
         component: ElastestEusComponent,
       },
       {
-        path: 'refresh',
-        component: RefreshComponent,
+        path: 'redirect',
+        component: RedirectComponent,
       },
       {
         path: 'help',
