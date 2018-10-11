@@ -22,6 +22,7 @@ import { TJobService } from '../../tjob/tjob.service';
 export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
+  showLogsAndMetrics: boolean = false;
 
   elastestMode: string;
 
@@ -96,11 +97,23 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
           this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
           if (tJobExec) {
             this.getSupportServicesInstances();
+
+            if (this.tJobExec.isChild()) {
+              this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
+                (parent: TJobExecModel) => {
+                  this.tJobExec.execParent = parent;
+                },
+                (error: Error) => console.log(error),
+              );
+            }
           }
-          this.logsAndMetrics.initView(tJob, this.tJobExec);
-          if (!this.tJobExec.starting()) {
-            // If it's already started, get last trace(s)
-            this.logsAndMetrics.loadLastTraces();
+          if (this.logsAndMetrics) {
+            this.logsAndMetrics.initView(tJob, this.tJobExec);
+            this.showLogsAndMetrics = true;
+            if (!this.tJobExec.starting()) {
+              // If it's already started, get last trace(s)
+              this.logsAndMetrics.loadLastTraces();
+            }
           }
         }
       });

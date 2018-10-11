@@ -2,7 +2,7 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        Children Executions
+        Configuration Executions
       </md-card-title>
       <md-divider></md-divider>
       <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
@@ -16,8 +16,8 @@
           [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
             let-row="row">
-            
-            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'"
+
+            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate' && column.name !== 'parameters'"
               (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
@@ -44,19 +44,23 @@
                 Not Executed Yet
               </ng-template>
             </div>
+
+            <div *ngIf="column.name === 'parameters'" (click)="viewTJobExec(row)">
+              <ul *ngIf="row.parameters" class="pad-left-none">
+                <li *ngFor="let param of row.parameters">
+                  {{param.name}}: {{param.value}}
+                </li>
+              </ul>
+            </div>
           </ng-template>
 
-          <!-- <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
-                class="iconBtn-lg">
-                <md-icon>delete</md-icon>
-              </button>
               <button md-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
                 <md-icon>library_books</md-icon>
               </button>
             </div>
-          </ng-template> -->
+          </ng-template>
         </td-data-table>
       </md-card-content>
     </md-card>

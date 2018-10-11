@@ -1,48 +1,60 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
-    <div flex-gt-sm="100">
-      <md-card>
-        <md-card-title>
-          <a (click)="viewTJob()" class="hover-pointer">
-            <span>TJob</span>
-            <span *ngIf="tJob"> "{{tJob.name}}"</span>
-          </a>
-          <span>: Execution {{tJobExecId}}</span>
-        </md-card-title>
-        <md-divider></md-divider>
-        <md-card-content>
-          <div *ngIf="tJobExec" layout="row" layout-align="space-between end">
-            <span>
-              <img id="runningSpinner" *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;"
-                title="Executing TJob">
-              <button md-button *ngIf="tJobExec.finished()" (click)="navigateToResultPage()" class="onlyIconBtn" title="Navigate to result page">
-                <md-icon style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
-              </button>
-              <span id="resultMsgText" style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
-              <span flex></span>
-              <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution" [disabled]="disableStopBtn">
-                <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
-                <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
-              </button>
-            </span>
-            <span>
-              <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
-                <md-icon>settings</md-icon>
-              </button>
-            </span>
-          </div>
-        </md-card-content>
-      </md-card>
-    </div>
+  <div flex-gt-sm="100">
+    <md-card>
+      <md-card-title>
+        <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
+          <span>TJob</span>
+          <span> "{{tJob.name}}": </span>
+        </a>
+
+        <span *ngIf="tJobExec && tJobExec.isParent()">&nbsp;Multi Axis Parent</span>
+        <span *ngIf="tJobExec && tJobExec.isChild()">&nbsp;Multi Axis Children</span>
+
+        <span>&nbsp;Execution {{tJobExecId}}</span>
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+        <div *ngIf="tJobExec" layout="row" layout-align="space-between end">
+          <span>
+            <img id="runningSpinner" *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif"
+              style="width:23px;height: 23px; vertical-align: middle;" title="Executing TJob">
+            <button md-button *ngIf="tJobExec.finished()" (click)="navigateToResultPage()" class="onlyIconBtn" title="Navigate to result page">
+              <md-icon style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+            </button>
+            <span id="resultMsgText" style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
+            <span flex></span>
+            <button md-button *ngIf="!tJobExec.finished()" (click)="stopExec()" class="iconBtn" title="Stop Execution"
+              [disabled]="disableStopBtn">
+              <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
+              <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
+            </button>
+          </span>
+          <span *ngIf="showLogsAndMetrics">
+            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+              <md-icon>settings</md-icon>
+            </button>
+          </span>
+        </div>
+      </md-card-content>
+    </md-card>
   </div>
-  
+</div>
+
+<ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
+  <etm-child-tjob-execs-view [model]="tJobExec" [withReloadSubscription]="true"></etm-child-tjob-execs-view>
+</ng-container>
+
+
+
+<ng-template #showNormalExecutionView>
+  <!-- Test results -->
   <div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec && tJobExec.finished() && tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
     <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
   </div>
-  
-  
+
   <!-- logs & Metrics -->
   <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
-  
+
   <!-- TSS Services Instances -->
   <div *ngIf="this.elastestMode && this.elastestMode === 'normal' && serviceInstances.length > 0; else tSServices">
     <app-elastest-eus [eusUrl]="serviceInstances[0].urls.api" [eusHost]="serviceInstances[0].ip" [eusPort]="serviceInstances[0].port"
@@ -53,6 +65,7 @@
       <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
     </div>
   </ng-template>
-  
+
   <!-- Execution files -->
   <etm-files-manager *ngIf="tJobExec && tJobExec.finished()" [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>
+</ng-template>

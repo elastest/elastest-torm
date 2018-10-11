@@ -439,4 +439,14 @@ public class TJobService {
         return parent;
     }
 
+    public List<TJobExecution> getParentTJobExecChilds(Long tJobExecId) {
+        TJobExecution tJobExec = this.tJobExecRepositoryImpl
+                .findById(tJobExecId).get();
+        List<TJobExecution> childs = new ArrayList<>();
+        if (tJobExec.isMultiExecutionParent()
+                && tJobExec.getExecChilds() != null) {
+            childs = tJobExec.getExecChilds();
+        }
+        return childs;
+    }
 }

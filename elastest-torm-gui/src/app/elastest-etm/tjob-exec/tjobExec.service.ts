@@ -258,6 +258,18 @@ export class TJobExecService {
     });
   }
 
+  public getParentTJobExecChilds(tJobExecutionId: string | number): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/' + tJobExecutionId + '/childs';
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. TJob Execution not exist or you don't have permissions to access it");
+      }
+    });
+  }
+
   /* ************* */
   /* *** Utils *** */
   /* ************* */

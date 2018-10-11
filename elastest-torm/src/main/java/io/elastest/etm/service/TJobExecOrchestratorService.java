@@ -197,20 +197,22 @@ public class TJobExecOrchestratorService {
     public Future<Void> executeTJob(TJobExecution tJobExec,
             String tJobServices) {
         dbmanager.bindSession();
+        String resultMsg = "Initializing";
         Date startDate = new Date();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
 
         monitoringService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
-
-        String resultMsg = "Initializing";
-        tJobExec.setResultMsg(resultMsg);
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         if (tJobExec.isMultiExecutionParent()) {
             tJobExec = initMultiTJobExecution(tJobExec);
         } else if (tJobExec.isMultiExecutionChild()) {
             tJobExec.setStartDate(startDate);
+        } else {
+            tJobExec.setResultMsg(resultMsg);
+            tJobExec.setResult(ResultEnum.IN_PROGRESS);
+            tJobExec = tJobExecRepositoryImpl.save(tJobExec);
         }
 
         DockerExecution dockerExec = new DockerExecution(tJobExec);
@@ -373,11 +375,14 @@ public class TJobExecOrchestratorService {
         }
 
         for (String currentValue : currentValueList) {
+            List<Parameter> receivedParametersList = new ArrayList<>(
+                    parametersList);
+            
             Parameter currentParam = new Parameter(currentName, currentValue);
-            parametersList.add(currentParam);
+            receivedParametersList.add(currentParam);
             if (namesList.size() > 0 && currentValueList.size() > 0) {
                 parentTJobExec = createChildTJobExecs(parentTJobExec,
-                        parametersList, namesList, valuesList);
+                        receivedParametersList, namesList, valuesList);
             }
             // Last
             else {
@@ -388,16 +393,21 @@ public class TJobExecOrchestratorService {
 
                 childTJobExec.setTjob(parentTJobExec.getTjob());
                 childTJobExec.setExecParent(parentTJobExec);
-                childTJobExec.setParameters(parametersList);
+                childTJobExec.setParameters(receivedParametersList);
+
+                childTJobExec.setResult(ResultEnum.WAITING);
+                childTJobExec.setResultMsg("Waiting to start");
 
                 childTJobExec = tJobExecRepositoryImpl.save(childTJobExec);
                 childTJobExec.generateMonitoringIndex();
+
                 childTJobExec = tJobExecRepositoryImpl.save(childTJobExec);
 
                 if (parentTJobExec.getExecChilds() == null) {
                     parentTJobExec.setExecChilds(new ArrayList<>());
                 }
                 parentTJobExec.getExecChilds().add(childTJobExec);
+
                 parentTJobExec = tJobExecRepositoryImpl.save(parentTJobExec);
             }
         }

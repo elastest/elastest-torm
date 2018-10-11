@@ -291,4 +291,13 @@ public class TjobApiController implements TjobApi {
         TJobExecution tJobExec = tJobService.getChildTJobExecParent(tJobExecId);
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
+
+    @Override
+    @JsonView(BasicAttTJobExec.class)
+    public ResponseEntity<List<TJobExecution>> getParentTJobExecChilds(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+        List<TJobExecution> tJobExec = tJobService.getParentTJobExecChilds(tJobExecId);
+        return new ResponseEntity<List<TJobExecution>>(tJobExec, HttpStatus.OK);
+    }
+
 }
