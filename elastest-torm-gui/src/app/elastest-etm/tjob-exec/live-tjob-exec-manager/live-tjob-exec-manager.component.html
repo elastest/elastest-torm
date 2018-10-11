@@ -13,8 +13,8 @@
         <span>&nbsp;Execution {{tJobExecId}}</span>
       </md-card-title>
       <md-divider></md-divider>
-      <md-card-content>
-        <div *ngIf="tJobExec" layout="row" layout-align="space-between end">
+      <md-card-content *ngIf="tJobExec">
+        <div layout="row" layout-align="space-between end">
           <span>
             <img id="runningSpinner" *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif"
               style="width:23px;height: 23px; vertical-align: middle;" title="Executing TJob">
@@ -35,6 +35,9 @@
             </button>
           </span>
         </div>
+        <td-expansion-panel class="push-top-md" label="Parameters" expand="false" *ngIf="tJobExec.parameters && tJobExec.parameters.length > 0">
+          <td-data-table [data]="tJobExec.parameters"></td-data-table>
+        </td-expansion-panel>
       </md-card-content>
     </md-card>
   </div>

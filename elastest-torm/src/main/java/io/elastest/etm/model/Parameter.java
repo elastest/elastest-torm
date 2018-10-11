@@ -96,6 +96,7 @@ public class Parameter {
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + ((multiConfig == null) ? 0 : multiConfig.hashCode());
         return result;
     }
 
