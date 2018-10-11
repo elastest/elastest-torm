@@ -47,9 +47,11 @@
 
             <div *ngIf="column.name === 'parameters'" (click)="viewTJobExec(row)">
               <ul *ngIf="row.parameters" class="pad-left-none">
-                <li *ngFor="let param of row.parameters">
-                  {{param.name}}: {{param.value}}
-                </li>
+                <ng-container *ngFor="let param of row.parameters">
+                  <li *ngIf="param.multiConfig">
+                    {{param.name}}: {{param.value}}
+                  </li>
+                </ng-container>
               </ul>
             </div>
           </ng-template>

@@ -378,7 +378,7 @@ public class TJobExecOrchestratorService {
             List<Parameter> receivedParametersList = new ArrayList<>(
                     parametersList);
             
-            Parameter currentParam = new Parameter(currentName, currentValue);
+            Parameter currentParam = new Parameter(currentName, currentValue, true);
             receivedParametersList.add(currentParam);
             if (namesList.size() > 0 && currentValueList.size() > 0) {
                 parentTJobExec = createChildTJobExecs(parentTJobExec,

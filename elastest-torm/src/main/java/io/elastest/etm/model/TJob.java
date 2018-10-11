@@ -137,7 +137,6 @@ public class TJob {
             BasicAttTJobExec.class })
     @Column(name = "multi")
     @JsonProperty("multi")
-    @JsonInclude(Include.NON_NULL)
     private Boolean multi = false;
 
     @JsonView({ BasicAttTJob.class, BasicAttProject.class,
@@ -353,7 +352,7 @@ public class TJob {
     }
 
     public Boolean isMulti() {
-        return multi;
+        return multi != null ? multi : false;
     }
 
     public void setMulti(Boolean multi) {

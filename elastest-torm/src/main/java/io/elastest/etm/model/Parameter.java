@@ -37,18 +37,30 @@ public class Parameter {
     @JsonProperty("value")
     private String value = null;
 
+    @JsonView({ BasicAttParameter.class, BasicAttTJob.class,
+            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+            SutExecView.class })
+    @Column(name = "multiConfig")
+    @JsonProperty("multiConfig")
+    private Boolean multiConfig = false;
+
     // Constructors
     public Parameter() {
     }
 
-    // Getters and setters
+    public Parameter(String name, String value, Boolean multiConfig) {
+        this.name = name;
+        this.value = value;
+        this.multiConfig = multiConfig != null ? multiConfig : false;
+    }
 
     public Parameter(String name, String value) {
         this.name = name;
         this.value = value;
-
+        this.multiConfig = false;
     }
 
+    // Getters and setters
     @ApiModelProperty(example = "ELASTEST_HOME", value = "Name of the Environment Variable.")
     public String getName() {
         return name;
@@ -67,8 +79,17 @@ public class Parameter {
         this.value = value;
     }
 
-    // Others
+    @ApiModelProperty(example = "/bin/elastest", value = "Value of the Environment Variable.")
 
+    public Boolean getMultiConfig() {
+        return multiConfig;
+    }
+
+    public void setMultiConfig(Boolean multiConfig) {
+        this.multiConfig = multiConfig != null ? multiConfig : false;
+    }
+
+    // Others
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -98,6 +119,11 @@ public class Parameter {
                 return false;
         } else if (!value.equals(other.value))
             return false;
+        if (multiConfig == null) {
+            if (other.multiConfig != null)
+                return false;
+        } else if (!multiConfig.equals(other.multiConfig))
+            return false;
         return true;
     }
 
@@ -108,6 +134,8 @@ public class Parameter {
 
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    value: ").append(toIndentedString(value)).append("\n");
+        sb.append("    multiConfig: ").append(toIndentedString(multiConfig))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

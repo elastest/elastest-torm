@@ -24,7 +24,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
   tJobExecColumns: any[] = [
     { name: 'id', label: 'Id' },
     { name: 'result', label: 'Result' },
-    { name: 'parameters', label: 'Parameters' },
+    { name: 'parameters', label: 'Configurations' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'sutExecution', label: 'Sut Execution' },
