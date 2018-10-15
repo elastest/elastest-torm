@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -55,6 +57,7 @@ import io.github.bonigarcia.SeleniumExtension;
 @Tag("e2e")
 @DisplayName("ETM E2E test of TestLink")
 @ExtendWith(SeleniumExtension.class)
+@TestInstance(Lifecycle.PER_CLASS)
 public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
 
     static String fullteachingUrl = null;
