@@ -3,39 +3,18 @@
 
     <ng-container *ngIf="model.isMultiConfig()">
 
-      <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0">
+      <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0 || twoConfigColumns.length > 0 || config1Config2Rows.length > 0 || config2Config1Rows.length > 0">
         <md-card-title>
           Summary
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content>
-          <td-data-table class="scroll_table" [columns]="uniqueConfigColumns" [data]="uniqueConfigRows">
-            <ng-template *ngFor="let column of uniqueConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-              let-row="row">
-              <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName">
-                {{value}}
-              </div>
-              <ng-template #printName>
-                <div>
-                  {{value}}
-                </div>
-              </ng-template>
-            </ng-template>
-          </td-data-table>
-        </md-card-content>
-      </md-card>
-
-
-      <md-card tdMediaToggle="gt-xs" *ngIf="twoConfigColumns.length > 0">
-          <md-card-title>
-            Summary
-          </md-card-title>
-          <md-divider></md-divider>
-          <md-card-content>
-            <td-data-table class="scroll_table" [columns]="twoConfigColumns" [data]="twoConfigRows">
-              <ng-template *ngFor="let column of twoConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+          <div class="push-bottom" *ngIf="uniqueConfigRows.length > 0">
+            <td-data-table class="scroll_table" [columns]="uniqueConfigColumns" [data]="uniqueConfigRows">
+              <ng-template *ngFor="let column of uniqueConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
                 let-row="row">
-                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName">
+                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName"
+                  class="fontBold">
                   {{value}}
                 </div>
                 <ng-template #printName>
@@ -45,9 +24,63 @@
                 </ng-template>
               </ng-template>
             </td-data-table>
-          </md-card-content>
-        </md-card>
-  
+          </div>
+
+          <div class="push-bottom" *ngIf="twoConfigRows.length > 0">
+            <td-data-table class="scroll_table" [columns]="twoConfigColumns" [data]="twoConfigRows">
+              <ng-template *ngFor="let column of twoConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'col1'; else printName"
+                  class="fontBold">
+                  {{value}}
+                </div>
+                <ng-template #printName>
+                  <div>
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+
+          <div class="push-bottom" *ngIf="config1Config2Rows.length > 0">
+            <td-data-table class="scroll_table" [columns]="config1Config2Columns" [data]="config1Config2Rows">
+              <ng-template *ngFor="let column of config1Config2Columns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName"
+                  class="fontBold">
+                  {{value}}
+                </div>
+                <ng-template #printName>
+                  <div>
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+
+          <div class="push-bottom" *ngIf="config2Config1Rows.length > 0">
+            <td-data-table class="scroll_table" [columns]="config2Config1Columns" [data]="config2Config1Rows">
+              <ng-template *ngFor="let column of config2Config1Columns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName"
+                  class="fontBold">
+                  {{value}}
+                </div>
+                <ng-template #printName>
+                  <div>
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+
+        </md-card-content>
+
+      </md-card>
+
     </ng-container>
 
   </div>
