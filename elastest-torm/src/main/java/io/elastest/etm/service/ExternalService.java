@@ -149,7 +149,7 @@ public class ExternalService {
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/projects/" + tJob.getProject().getId()
                             + "/tjob/" + tJob.getId() + "/tjob-exec/"
-                            + tJobExec.getId() + "/live");
+                            + tJobExec.getId());
             externalJob.setLogAnalyzerUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
