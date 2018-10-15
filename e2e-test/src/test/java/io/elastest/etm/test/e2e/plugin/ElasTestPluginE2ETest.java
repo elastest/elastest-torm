@@ -105,7 +105,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         log.info("Wait for build sucess traces");
         try {
             waitLogs.until(presenceOfElementLocated(
-                    By.xpath("//span[text()='Finished: SUCCESS']")));
+                    By.xpath("//span[text()='SUCCESS']")));
             driver.navigate().refresh();
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
