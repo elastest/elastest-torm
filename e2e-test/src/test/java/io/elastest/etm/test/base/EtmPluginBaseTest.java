@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -16,6 +17,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class EtmPluginBaseTest extends EtmBaseTest {
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
+    protected String jenkinsRestartRelPath = "/restart";
     protected String jenkinsCIUrl = "http://172.17.0.1:8080";
     protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
@@ -38,6 +40,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
+        jenkinsRestartRelPath = this.jenkinsCIUrl + jenkinsRestartRelPath;
 
         // Setup Jenkins credentials
         String jenkinsUser = getProperty("ciUser");
@@ -65,9 +68,28 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         // Check the plugin installation is ok
         log.info("Checking installation status");
+        boolean pluginAlreadyInstalled = false;
         By installationStatus = By
                 .xpath("//table/tbody/tr/td[contains(string(), 'Success')]");
-        waitService.until(visibilityOfElementLocated(installationStatus));
+        try {
+            waitService.until(visibilityOfElementLocated(installationStatus));
+        } catch (TimeoutException te) {
+            By alreadyInstalledMessage = By
+                    .xpath("//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]");
+            waitService.until(visibilityOfElementLocated(alreadyInstalledMessage));
+            pluginAlreadyInstalled = true;
+        }
+        
+        if (pluginAlreadyInstalled) {
+            navigateTo(webDriver, jenkinsRestartRelPath);
+            By yesButton = By.xpath("//button[contains(string(), 'Yes')]");
+            webDriver.findElement(yesButton).click();
+            WebDriverWait waitForLogin = new WebDriverWait(driver, 180);
+            //wait for login form
+            By userField = By.id("j_username");
+            waitForLogin.until(visibilityOfElementLocated(userField));
+            loginOnJenkins(webDriver);
+        }
         log.info("Plugin installation finished");
 
         log.info("Navigate to main page");
