@@ -118,6 +118,7 @@
 
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
     <etm-child-tjob-execs-view [model]="tJobExec"></etm-child-tjob-execs-view>
+    <etm-parent-tjob-exec-report-view [model]="tJobExec"></etm-parent-tjob-exec-report-view>
 </ng-container>
 
 <ng-template #showNormalExecutionView>

@@ -42,7 +42,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = function() {
       return false;
     };
-    
+
     if (this.model && this.model.execChilds) {
       this.childrens = this.eTModelsTransformServices.jsonToTJobExecsList(this.model.execChilds);
       if (this.withReloadSubscription) {

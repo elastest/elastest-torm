@@ -1,0 +1,54 @@
+<div layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="model">
+  <div flex-gt-sm="100">
+
+    <ng-container *ngIf="model.isMultiConfig()">
+
+      <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0">
+        <md-card-title>
+          Summary
+        </md-card-title>
+        <md-divider></md-divider>
+        <md-card-content>
+          <td-data-table class="scroll_table" [columns]="uniqueConfigColumns" [data]="uniqueConfigRows">
+            <ng-template *ngFor="let column of uniqueConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+              let-row="row">
+              <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName">
+                {{value}}
+              </div>
+              <ng-template #printName>
+                <div>
+                  {{value}}
+                </div>
+              </ng-template>
+            </ng-template>
+          </td-data-table>
+        </md-card-content>
+      </md-card>
+
+
+      <md-card tdMediaToggle="gt-xs" *ngIf="twoConfigColumns.length > 0">
+          <md-card-title>
+            Summary
+          </md-card-title>
+          <md-divider></md-divider>
+          <md-card-content>
+            <td-data-table class="scroll_table" [columns]="twoConfigColumns" [data]="twoConfigRows">
+              <ng-template *ngFor="let column of twoConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div [style.color]="getResultIconByString(value).color" *ngIf="column.name !== 'caseName'; else printName">
+                  {{value}}
+                </div>
+                <ng-template #printName>
+                  <div>
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </md-card-content>
+        </md-card>
+  
+    </ng-container>
+
+  </div>
+</div>

@@ -28,15 +28,21 @@ export class TestCaseModel {
       name: '',
       color: '',
     };
+    let result: defaultResult = this.getResult();
+    icon = getResultIconByString(result);
+
+    return icon;
+  }
+
+  public getResult(): defaultResult {
     let result: defaultResult = 'FAIL';
     if (this.isSuccess()) {
       result = 'SUCCESS';
     } else if (this.isSkipped()) {
       result = 'SKIPPED';
     }
-    icon = getResultIconByString(result);
 
-    return icon;
+    return result;
   }
 
   public isSuccess(): boolean {

@@ -130,6 +130,7 @@ import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob-execs-view/child-tjob-execs-view.component';
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
+import { ParentTjobExecReportViewComponent } from './elastest-etm/tjob-exec/parent-tjob-exec-report-view/parent-tjob-exec-report-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -208,6 +209,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     DashboardComponent,
     ChildTjobExecsViewComponent,
     TjobExecViewComponent,
+    ParentTjobExecReportViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
