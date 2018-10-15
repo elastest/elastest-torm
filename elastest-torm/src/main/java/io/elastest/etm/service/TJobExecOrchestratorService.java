@@ -441,6 +441,9 @@ public class TJobExecOrchestratorService {
         if (tJobExec.isMultiExecutionParent()) {
             for (TJobExecution childExec : tJobExec.getExecChilds()) {
                 forceEndExecution(childExec);
+                String resultMsg = "Stopped";
+                dockerEtmService.updateTJobExecResultStatus(childExec,
+                        ResultEnum.STOPPED, resultMsg);
             }
         }
 
@@ -514,6 +517,12 @@ public class TJobExecOrchestratorService {
                 finishStatus = childExec.getResult();
                 break;
             }
+        }
+        String tJobExecMapName = getMapNameByTJobExec(tJobExec);
+
+        if (execsAreStopped.containsKey(tJobExecMapName)
+                && execsAreStopped.get(tJobExecMapName)) {
+            finishStatus = ResultEnum.STOPPED;
         }
 
         String resultMsg = "Finished: " + finishStatus;
