@@ -366,12 +366,11 @@ public class DockerService {
     /* **** End execution methods **** */
     /* ******************************* */
 
-    public void endContainer(String containerName, boolean removeVolumes)
-            throws Exception {
+    public void endContainer(String containerName, boolean removeVolumes,
+            int timeout) throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
         if (existsContainer(containerName)) {
             String containerId = getContainerIdByName(containerName);
-            int timeout = 60;
             // try {
             logger.info("Stopping " + containerName + " container");
             dockerClient.stopContainer(containerId, timeout);
@@ -385,6 +384,11 @@ public class DockerService {
             logger.info("Could not end " + containerName
                     + " container -> Not started.");
         }
+    }
+
+    public void endContainer(String containerName, boolean removeVolumes)
+            throws Exception {
+        endContainer(containerName,removeVolumes, 60);
     }
 
     public void endContainer(String containerName) throws Exception {
@@ -532,11 +536,11 @@ public class DockerService {
         }
         return response;
     }
-    
-    
-    public ImageInfo getImageInfoByContainerId(String containerId) throws Exception {
+
+    public ImageInfo getImageInfoByContainerId(String containerId)
+            throws Exception {
         ContainerInfo container = getContainerInfoByName(containerId);
-        String imageName = container.config().image();       
+        String imageName = container.config().image();
         return getImageInfoByName(imageName);
     }
 

@@ -839,6 +839,14 @@ public class DockerEtmService {
         createdContainers.remove(containerId);
     }
 
+    public void endContainer(String containerName, int timeout)
+            throws Exception {
+        dockerService.endContainer(containerName, true, timeout);
+        String containerId = dockerService.getContainerIdByName(containerName);
+
+        createdContainers.remove(containerId);
+    }
+
     public SocatBindedPort bindingPort(String containerIp, String port,
             String networkName, boolean remotely) throws Exception {
         int listenPort = 37000;

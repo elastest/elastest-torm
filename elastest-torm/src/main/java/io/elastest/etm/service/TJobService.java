@@ -235,7 +235,7 @@ public class TJobService {
         String mapKey = getMapNameByTJobExec(tJobExec);
 
         if (tJobExec.isMultiExecutionChild()) {
-            mapKey = getMapNameByTJobExec(tJobExec.getExecParent());
+            return stopTJobExec(tJobExec.getExecParent().getId());
         }
 
         Future<Void> asyncExec = asyncExecs.get(mapKey);

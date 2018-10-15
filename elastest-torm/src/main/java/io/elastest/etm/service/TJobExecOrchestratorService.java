@@ -91,6 +91,8 @@ public class TJobExecOrchestratorService {
 
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
+    Map<String, Boolean> execsAreStopped = new HashMap<String, Boolean>();
+
     Map<String, Future<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, Future<Void>>();
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
@@ -201,6 +203,9 @@ public class TJobExecOrchestratorService {
         Date startDate = new Date();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
 
+        String tJobExecMapName = getMapNameByTJobExec(tJobExec);
+        execsAreStopped.put(tJobExecMapName, false);
+
         monitoringService
                 .createMonitoringIndex(tJobExec.getMonitoringIndicesList());
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -223,7 +228,11 @@ public class TJobExecOrchestratorService {
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
             for (TJobExecution childExec : tJobExec.getExecChilds()) {
-                this.executeTJob(childExec, tJobServices);
+                // If parent not stopped, execute
+                if (execsAreStopped.containsKey(tJobExecMapName)
+                        && !execsAreStopped.get(tJobExecMapName)) {
+                    this.executeTJob(childExec, tJobServices);
+                }
             }
 
             tJobExec.setEndDate(new Date());
@@ -311,6 +320,11 @@ public class TJobExecOrchestratorService {
         }
         // Saving execution data
         tJobExecRepositoryImpl.save(tJobExec);
+
+        if (!tJobExec.isMultiExecutionChild()) {
+            execsAreStopped.remove(tJobExecMapName);
+        }
+
         dbmanager.unbindSession();
         return new AsyncResult<Void>(null);
     }
@@ -377,8 +391,9 @@ public class TJobExecOrchestratorService {
         for (String currentValue : currentValueList) {
             List<Parameter> receivedParametersList = new ArrayList<>(
                     parametersList);
-            
-            Parameter currentParam = new Parameter(currentName, currentValue, true);
+
+            Parameter currentParam = new Parameter(currentName, currentValue,
+                    true);
             receivedParametersList.add(currentParam);
             if (namesList.size() > 0 && currentValueList.size() > 0) {
                 parentTJobExec = createChildTJobExecs(parentTJobExec,
@@ -419,6 +434,10 @@ public class TJobExecOrchestratorService {
             throws Exception {
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
 
+        if (!tJobExec.isMultiExecutionChild()) {
+            execsAreStopped.put(getMapNameByTJobExec(tJobExec), true);
+        }
+
         if (tJobExec.isMultiExecutionParent()) {
             for (TJobExecution childExec : tJobExec.getExecChilds()) {
                 forceEndExecution(childExec);
@@ -428,7 +447,7 @@ public class TJobExecOrchestratorService {
         DockerExecution dockerExec = new DockerExecution(tJobExec);
         dockerEtmService.configureDocker(dockerExec);
         try {
-            endAllExecs(dockerExec);
+            endAllExecs(dockerExec, true);
         } catch (TJobStoppedException e) {
             // Stop exception
         } catch (Exception e) {
@@ -502,24 +521,28 @@ public class TJobExecOrchestratorService {
                 resultMsg);
     }
 
-    public void endAllExecs(DockerExecution dockerExec) throws Exception {
+    public void endAllExecs(DockerExecution dockerExec, boolean force)
+            throws Exception {
         try {
             if (dockerExec.isExternal()) {
 
             } else {
-                endTestExec(dockerExec);
+                endTestExec(dockerExec, force);
             }
             if (dockerExec.isWithSut()) {
-                endSutExec(dockerExec);
+                endSutExec(dockerExec, force);
                 stopManageSutByExternalElasticsearch(dockerExec.getTJobExec());
             }
-            endDockbeatExec(dockerExec);
+            endDockbeatExec(dockerExec, force);
         } catch (Exception e) {
             logger.error("Error on end all execs");
             throw new Exception("end error", e); // TODO Customize Exception
         }
     }
 
+    public void endAllExecs(DockerExecution dockerExec) throws Exception {
+        endAllExecs(dockerExec, false);
+    }
     /* ******************* */
     /* *** TSS methods *** */
     /* ******************* */
@@ -795,8 +818,8 @@ public class TJobExecOrchestratorService {
             try {
                 dockerEtmService.loadBasicServices(dockerExec);
 
-                endDockbeatExec(dockerExec);
-                endSutExec(dockerExec);
+                endDockbeatExec(dockerExec, false);
+                endSutExec(dockerExec, false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1283,7 +1306,8 @@ public class TJobExecOrchestratorService {
         return service;
     }
 
-    public void endSutExec(DockerExecution dockerExec) throws Exception {
+    public void endSutExec(DockerExecution dockerExec, boolean force)
+            throws Exception {
         SutSpecification sut = dockerExec.getSut();
         dockerEtmService.removeSutVolumeFolder(dockerExec);
         // If it's Managed Sut, and container is created
@@ -1294,8 +1318,13 @@ public class TJobExecOrchestratorService {
                 if (sut.isSutInNewContainer()) {
                     endSutInContainer(dockerExec);
                 }
-                dockerEtmService
-                        .endContainer(dockerEtmService.getSutName(dockerExec));
+                String sutContainerName = dockerEtmService
+                        .getSutName(dockerExec);
+                if (force) {
+                    dockerEtmService.endContainer(sutContainerName, 1);
+                } else {
+                    dockerEtmService.endContainer(sutContainerName);
+                }
             } else {
                 endComposedSutExec(dockerExec);
             }
@@ -1366,17 +1395,29 @@ public class TJobExecOrchestratorService {
     /* *** Dockbeat *** */
     /* **************** */
 
-    public void endDockbeatExec(DockerExecution dockerExec) throws Exception {
-        dockerEtmService.endContainer(
-                dockerEtmService.getDockbeatContainerName(dockerExec));
+    public void endDockbeatExec(DockerExecution dockerExec, boolean force)
+            throws Exception {
+        String containerName = dockerEtmService
+                .getDockbeatContainerName(dockerExec);
+        if (force) {
+            dockerEtmService.endContainer(containerName, 1);
+        } else {
+            dockerEtmService.endContainer(containerName);
+        }
     }
 
     /* ************************* */
     /* *** TJob Exec Methods *** */
     /* ************************* */
 
-    public void endTestExec(DockerExecution dockerExec) throws Exception {
-        dockerEtmService.endContainer(dockerEtmService.getTestName(dockerExec));
+    public void endTestExec(DockerExecution dockerExec, boolean force)
+            throws Exception {
+        String testContainerName = dockerEtmService.getTestName(dockerExec);
+        if (force) {
+            dockerEtmService.endContainer(testContainerName, 1);
+        } else {
+            dockerEtmService.endContainer(testContainerName);
+        }
     }
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
