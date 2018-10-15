@@ -13,6 +13,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MdDialog } from '@angular/material';
 import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
+import { ParameterModel } from '../../parameter/parameter-model';
 
 @Component({
   selector: 'etm-tjob-exec-manager',
@@ -29,6 +30,9 @@ export class TjobExecManagerComponent implements OnInit {
   tJobExec: TJobExecModel;
   tJob: TJobModel;
   downloading: boolean = false;
+
+  tJobExecMultiConfigs: ParameterModel[] = [];
+  tJobExecParameters: ParameterModel[] = [];
 
   statusIcon: any = {
     name: '',
@@ -64,29 +68,53 @@ export class TjobExecManagerComponent implements OnInit {
       this.route.params.subscribe((params: Params) => {
         this.tJobId = params.tJobId;
         this.tJobExecId = params.tJobExecId;
+        this.setTitle();
         this.tJobExec = new TJobExecModel();
         this.loadTJobExec();
       });
     }
   }
 
+  setTitle(): void {
+    let title: string = 'Execution';
+
+    if (this.tJobExec) {
+      if (this.tJobExec.isChild()) {
+        title = 'Configuration Execution';
+      } else if (this.tJobExec.isParent()) {
+        title = 'Multi-Config Execution';
+      }
+    }
+    title += this.tJobExecId !== undefined ? ' ' + this.tJobExecId : '';
+    this.titlesService.setHeadTitle(title);
+  }
+
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
       this.statusIcon = this.tJobExec.getResultIcon();
-      this.titlesService.setHeadTitle('Execution ' + this.tJobExec.id + ' result');
+      this.setTitle();
       this.titlesService.setPathName(this.router.routerState.snapshot.url);
+
+      if (this.tJobExec.parameters) {
+        for (let param of this.tJobExec.parameters) {
+          let parameter: ParameterModel = new ParameterModel(param);
+          if (param.multiConfig) {
+            this.tJobExecMultiConfigs.push(parameter);
+          } else {
+            this.tJobExecParameters.push(parameter);
+          }
+        }
+      }
 
       this.tJobService.getTJob(this.tJobId.toString()).subscribe(
         (tJob: TJobModel) => {
           this.tJob = tJob;
-          if (!this.tJobExec.finished()) {
-            this.router.navigate(['/projects', tJob.project.id, 'tjob', this.tJobId, 'tjob-exec', this.tJobExecId, 'live'], {
-              queryParams: { fromTJobManager: true },
-            });
-          } else if (this.logsAndMetrics) {
-            this.logsAndMetrics.initView(this.tJob, this.tJobExec);
-            this.showLogsAndMetrics = true;
+          if (this.tJobExec.finished()) {
+            if (this.logsAndMetrics) {
+              this.logsAndMetrics.initView(this.tJob, this.tJobExec);
+              this.showLogsAndMetrics = true;
+            }
 
             if (this.tJobExec.isChild()) {
               this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(

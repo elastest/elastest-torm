@@ -118,16 +118,16 @@ export class TjobManagerComponent implements OnInit {
   }
 
   runTJob(): void {
-    if (this.tJob.hasParameters() || this.tJob.hasMultiConfiguration()) {
+    if (this.tJob.hasParameters()) {
       let dialogRef: MdDialogRef<RunTJobModalComponent> = this.dialog.open(RunTJobModalComponent, {
         data: this.tJob.cloneTJob(),
         height: '85%',
         width: '65%',
       });
     } else {
-      this.tJobExecService.runTJob(this.tJob.id).subscribe(
+      this.tJobExecService.runTJob(this.tJob.id, undefined, undefined, this.tJob.multiConfigurations).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
+          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
         },
         (error) => console.error('Error:' + error),
       );

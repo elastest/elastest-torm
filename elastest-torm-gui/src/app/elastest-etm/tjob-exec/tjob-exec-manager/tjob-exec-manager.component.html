@@ -8,11 +8,11 @@
                             mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
                     </span>
                     <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
+                        <span *ngIf="tJobExec.isParent() || tJobExec.isChild()">Multi-Configuration</span>
                         <span>TJob</span>
                         <span> "{{tJob.name}}": </span>
                     </a>
-                    <span *ngIf="tJobExec.isParent()">&nbsp;Multi Axis Parent</span>
-                    <span *ngIf="tJobExec.isChild()">&nbsp;Multi Axis Children</span>
+                    <span *ngIf="tJobExec.isChild()">&nbsp;Configuration</span>
 
                     <span>&nbsp;Execution {{tJobExecId}}</span>
                     <span flex></span>
@@ -45,14 +45,14 @@
 
             <md-card-content>
                 <div layout="row">
-                    <span flex="10" flex-gt-lg="5" >
+                    <span flex="10" flex-gt-lg="5">
                         <md-card-subtitle>Result</md-card-subtitle>
                         <h4 id="resultMsgText" [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
 
                     <span flex="10" flex-gt-lg="5" *ngIf="tJobExec.isChild() && tJobExec.execParent">
-                        <md-card-subtitle>Parent</md-card-subtitle>
-                        <h4>
+                        <md-card-subtitle>Multi-Configuration</md-card-subtitle>
+                        <h4 mdTooltip="Navigate to Multi Axis Configurations">
                             <a (click)="viewParent()" class="hover-pointer">
                                 {{ tJobExec.execParent.id }}
                             </a>
@@ -91,15 +91,26 @@
                     </span>
 
                 </div>
-                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()" class="push-bottom-sm">
+                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()">
                     <md-divider></md-divider>
                     <div layout="row" [style.color]="statusIcon.color" class="push-top-sm">
                         {{tJobExec.resultMsg}}
                     </div>
                 </div>
-                <td-expansion-panel label="Parameters" expand="false" *ngIf="tJobExec.parameters.length > 0">
-                    <td-data-table [data]="tJobExec.parameters"></td-data-table>
-                </td-expansion-panel>
+
+                <ng-container *ngIf="tJobExec.parameters && tJobExec.parameters.length > 0">
+                    <!-- Multi Config -->
+                    <td-expansion-panel label="Configuration" expand="false" class="push-top-sm" *ngIf="tJobExecMultiConfigs && tJobExecMultiConfigs.length > 0">
+                        <td-data-table [data]="tJobExecMultiConfigs">
+                        </td-data-table>
+                    </td-expansion-panel>
+
+                    <!-- Params -->
+                    <td-expansion-panel label="Parameters" expand="false" class="push-top-sm" *ngIf="tJobExecParameters && tJobExecParameters.length > 0">
+                        <td-data-table [data]="tJobExecParameters">
+                        </td-data-table>
+                    </td-expansion-panel>
+                </ng-container>
             </md-card-content>
         </md-card>
     </div>

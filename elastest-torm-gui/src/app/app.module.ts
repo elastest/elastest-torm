@@ -129,6 +129,7 @@ import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob-execs-view/child-tjob-execs-view.component';
+import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -206,6 +207,7 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     LiveTjobExecManagerComponent,
     DashboardComponent,
     ChildTjobExecsViewComponent,
+    TjobExecViewComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

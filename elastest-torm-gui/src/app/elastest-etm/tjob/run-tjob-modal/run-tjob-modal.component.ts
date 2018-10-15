@@ -40,7 +40,7 @@ export class RunTJobModalComponent implements OnInit {
       )
       .subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
+          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
         },
         (error) => console.error('Error:' + error),
       );

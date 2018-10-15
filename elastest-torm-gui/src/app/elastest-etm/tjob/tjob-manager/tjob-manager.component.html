@@ -2,7 +2,9 @@
   <div flex-gt-sm="100">
     <md-card tdMediaToggle="gt-xs">
       <md-card-title>
-        TJob {{tJob.name}}
+        <span *ngIf="tJob && tJob.multi">Multi-Configuration</span>
+        <span>TJob</span>
+        <span *ngIf="tJob && tJob.name">"{{tJob.name}}"</span>
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content>
@@ -30,9 +32,9 @@
           </span>
 
           <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
-              <md-card-subtitle>Is Multi Axis</md-card-subtitle>
-              <h4>{{tJob.multi}}</h4>
-            </span>
+            <md-card-subtitle>Is Multi Axis</md-card-subtitle>
+            <h4>{{tJob.multi}}</h4>
+          </span>
 
           <span flex-gt-xs="25">
             <md-card-subtitle>Options</md-card-subtitle>
@@ -40,8 +42,8 @@
               <button md-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
                 <md-icon>play_circle_outline</md-icon>
               </button>
-              <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()" class="iconBtn-lg"
-                title="Edit TJob">
+              <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()"
+                class="iconBtn-lg" title="Edit TJob">
                 <md-icon>mode_edit</md-icon>
               </button>
               <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
@@ -81,9 +83,11 @@
         <p>No Executions generated</p>
       </div>
       <md-card-content>
-        <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="scroll_table" [data]="tJobExecData" [columns]="tJobExecColumns"
-          [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+        <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="scroll_table" [data]="tJobExecData"
+          [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
+          [sortOrder]="sortOrder">
+          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+            let-row="row">
             <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'"
               (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">

@@ -3,12 +3,12 @@
     <md-card>
       <md-card-title>
         <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
+          <span *ngIf="tJobExec && tJobExec.isMultiConfig()">Multi-Configuration&nbsp;</span>
           <span>TJob</span>
           <span> "{{tJob.name}}": </span>
         </a>
 
-        <span *ngIf="tJobExec && tJobExec.isParent()">&nbsp;Multi Axis Parent</span>
-        <span *ngIf="tJobExec && tJobExec.isChild()">&nbsp;Multi Axis Children</span>
+        <span *ngIf="tJobExec && tJobExec.isChild()">&nbsp;Configuration</span>
 
         <span>&nbsp;Execution {{tJobExecId}}</span>
       </md-card-title>
@@ -35,9 +35,22 @@
             </button>
           </span>
         </div>
-        <td-expansion-panel class="push-top-md" label="Parameters" expand="false" *ngIf="tJobExec.parameters && tJobExec.parameters.length > 0">
-          <td-data-table [data]="tJobExec.parameters"></td-data-table>
-        </td-expansion-panel>
+
+
+        <ng-container *ngIf="tJobExec.parameters && tJobExec.parameters.length > 0">
+          <!-- Multi Config -->
+          <td-expansion-panel label="Configuration" expand="false" class="push-top-sm" *ngIf="tJobExecMultiConfigs && tJobExecMultiConfigs.length > 0">
+            <td-data-table [data]="tJobExecMultiConfigs">
+            </td-data-table>
+          </td-expansion-panel>
+
+          <!-- Params -->
+          <td-expansion-panel label="Parameters" expand="false" class="push-top-sm" *ngIf="tJobExecParameters && tJobExecParameters.length > 0">
+            <td-data-table [data]="tJobExecParameters">
+            </td-data-table>
+          </td-expansion-panel>
+        </ng-container>
+
       </md-card-content>
     </md-card>
   </div>

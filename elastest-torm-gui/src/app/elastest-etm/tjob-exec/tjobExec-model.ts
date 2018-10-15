@@ -71,6 +71,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
 
     return isChild;
   }
+
   isParent(): boolean {
     let isParent: boolean = this.type === 'PARENT';
 
@@ -79,6 +80,10 @@ export class TJobExecModel extends AbstractTJobExecModel {
     }
 
     return isParent;
+  }
+
+  isMultiConfig(): boolean {
+    return this.isChild() || this.isParent();
   }
 }
 

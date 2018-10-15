@@ -2,14 +2,10 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { SutService } from '../../sut/sut.service';
-import { TJobExecService } from '../../tjob-exec/tjobExec.service';
-import { TJobService } from '../../tjob/tjob.service';
 import { IConfirmConfig } from '@covalent/core';
-import { TJobModel } from '../../tjob/tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { MdDialog } from '@angular/material';
-import { RunTJobModalComponent } from '../../tjob/run-tjob-modal/run-tjob-modal.component';
 import { ProjectService } from '../../project/project.service';
 import { ProjectModel } from '../../project/project-model';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
@@ -21,8 +17,10 @@ import { ExternalService } from '../../external/external.service';
   styleUrls: ['./suts-manager.component.scss'],
 })
 export class SutsManagerComponent implements OnInit {
-  @Input() projectId: string;
-  @Input() exProjectId: string;
+  @Input()
+  projectId: string;
+  @Input()
+  exProjectId: string;
 
   project: ProjectModel;
   exProject: ExternalProjectModel;

@@ -240,10 +240,13 @@ export class TJobExecService {
     return this.http.delete(url).map((response) => response.json());
   }
 
-  public getResultStatus(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
-    let url: string =
-      this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/result';
+  public getResultStatus(tJobId: string | number, tJobExecution: TJobExecModel): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecution.id + '/result';
     return this.http.get(url).map((response) => response.json());
+  }
+  
+  public getResultStatusByTJob(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
+    return this.getResultStatus(tJob.id, tJobExecution);
   }
 
   public getChildTJobExecParent(tJobExecutionId: string | number): Observable<TJobExecModel> {

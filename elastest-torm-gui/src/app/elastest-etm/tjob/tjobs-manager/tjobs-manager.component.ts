@@ -100,7 +100,7 @@ export class TJobsManagerComponent implements OnInit {
   }
 
   runTJob(tJob: TJobModel, project: ProjectModel): void {
-    if (tJob.hasParameters() || tJob.hasMultiConfiguration()) {
+    if (tJob.hasParameters()) {
       tJob.project = project;
       this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),
@@ -108,9 +108,9 @@ export class TJobsManagerComponent implements OnInit {
         width: '65%',
       });
     } else {
-      this.tJobExecService.runTJob(tJob.id, tJob.parameters).subscribe(
+      this.tJobExecService.runTJob(tJob.id, undefined, undefined, tJob.multiConfigurations).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
+          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id]);
         },
         (error) => console.error('Error:' + error),
       );

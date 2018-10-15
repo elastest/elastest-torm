@@ -53,6 +53,7 @@ import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.compone
 import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
+import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 
 const routes: Routes = [
   {
@@ -119,7 +120,7 @@ const routes: Routes = [
                             children: [
                               {
                                 path: '',
-                                component: TjobExecManagerComponent,
+                                component: TjobExecViewComponent,
                               },
                               {
                                 path: 'loganalyzer',
@@ -156,10 +157,6 @@ const routes: Routes = [
                                     ],
                                   },
                                 ],
-                              },
-                              {
-                                path: 'live',
-                                component: LiveTjobExecManagerComponent,
                               },
                             ],
                           },
@@ -633,6 +630,7 @@ export const routedComponents: any[] = [
   TjobManagerComponent,
   TJobFormComponent,
   TjobExecManagerComponent,
+  TjobExecViewComponent,
   SutFormComponent,
   ElastestEusComponent,
   InstancesManagerComponent,
