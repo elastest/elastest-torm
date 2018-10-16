@@ -15,15 +15,18 @@ export class ParentTjobExecReportViewComponent implements OnInit {
 
   // test * config
   uniqueConfigRows: any[] = [];
+  uniqueConfigExecTableRows: any[] = [];
+
   // config1 * config2
-  twoConfigRows: any[] = [];
+  twoConfigExecTableRows: any[] = [];
   // test * config1|config2
   config1Config2Rows: any[] = [];
   // test * config2|config1
   config2Config1Rows: any[] = [];
 
   uniqueConfigColumns: any[] = [{ name: 'caseName', label: 'Test Name' }];
-  twoConfigColumns: any[] = [];
+  uniqueConfigExecTableColumns: any[] = [];
+  twoConfigExecTableColumns: any[] = [];
 
   config1Config2Columns: any[] = [{ name: 'caseName', label: 'Test Name' }];
   config2Config1Columns: any[] = [{ name: 'caseName', label: 'Test Name' }];
@@ -52,8 +55,9 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     ) {
       if (this.model.multiConfigurations.length === 1) {
         this.loadUniqueConfigRows();
+        this.loadUniqueConfigExecTableRows();
       } else if (this.model.multiConfigurations.length === 2) {
-        this.loadTwoConfigRows();
+        this.loadtwoConfigExecTableRows();
         this.loadConfig1Config2Rows();
         this.loadConfig2Config1Rows();
       }
@@ -88,7 +92,32 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     }
   }
 
-  loadTwoConfigRows(): void {
+  loadUniqueConfigExecTableRows(): void {
+    let configName: string = this.model.multiConfigurations[0].name;
+    let columnAdded: boolean = false;
+    for (let child of this.model.execChilds) {
+      let param: ParameterModel = this.getParameterByName(configName, child.parameters);
+
+      if (this.uniqueConfigExecTableColumns.length === 0) {
+        this.uniqueConfigExecTableColumns.push({ name: 'col1', label: param.name });
+      }
+      let row: any = {
+        col1: param.value,
+      };
+
+      let colName: string = 'Result';
+      let colValue: string = child.result;
+      row[colName] = colValue;
+      if (!columnAdded) {
+        // Add column only first
+        this.uniqueConfigExecTableColumns.push({ name: colName, label: colName });
+        columnAdded = true;
+      }
+      this.uniqueConfigExecTableRows.push(row);
+    }
+  }
+
+  loadtwoConfigExecTableRows(): void {
     let config1Name: string = this.model.multiConfigurations[0].name;
     let config2Name: string = this.model.multiConfigurations[1].name;
 
@@ -99,37 +128,37 @@ export class ParentTjobExecReportViewComponent implements OnInit {
       let param1: ParameterModel = this.getParameterByName(config1Name, child.parameters);
       let param2: ParameterModel = this.getParameterByName(config2Name, child.parameters);
 
-      if (this.twoConfigColumns.length === 0) {
-        this.twoConfigColumns.push({ name: 'col1', label: param1.name + ' / ' + param2.name });
+      if (this.twoConfigExecTableColumns.length === 0) {
+        this.twoConfigExecTableColumns.push({ name: 'col1', label: '' });
       }
 
       let row: any;
-      let rowName: string = param1.value;
+      let rowName: string = param1.name + '= ' + param1.value;
 
-      let colName: string = param2.value;
+      let colName: string = param2.name + '= ' + param2.value;
       let colValue: string = child.result;
       let position: number = 0;
 
       if (auxMap.get(rowName) !== undefined) {
         position = auxMap.get(rowName);
-        row = this.twoConfigRows[position];
+        row = this.twoConfigExecTableRows[position];
       } else {
         row = {
           col1: rowName,
         };
-        position = this.twoConfigRows.length;
+        position = this.twoConfigExecTableRows.length;
         auxMap.set(rowName, position);
       }
 
       row[colName] = colValue;
 
       if (addedColumns.indexOf(colName) === -1) {
-        this.twoConfigColumns.push({ name: colName, label: colName });
+        this.twoConfigExecTableColumns.push({ name: colName, label: colName });
         addedColumns.push(colName);
       }
 
-      this.twoConfigRows[position] = row;
-      this.twoConfigRows = [...this.twoConfigRows];
+      this.twoConfigExecTableRows[position] = row;
+      this.twoConfigExecTableRows = [...this.twoConfigExecTableRows];
     }
   }
 
