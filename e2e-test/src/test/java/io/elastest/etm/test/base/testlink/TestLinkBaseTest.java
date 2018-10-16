@@ -171,7 +171,8 @@ public class TestLinkBaseTest extends EtmBaseTest {
                         + "/project/suite/" + testCase.getTestSuiteId() + "/case",
                         jsonCase);
                 return this.getTestCaseFromJson(response.getBody());
-            } catch (IOException ioe) {
+            } catch (Exception ioe) {
+                log.info("Error creating Test Case");
                 ioe.printStackTrace();
                 throw ioe;
             }
