@@ -162,9 +162,12 @@ public class TestLinkBaseTest extends EtmBaseTest {
 
     protected TestCase createTlTestCase(WebDriver driver, TestCase testCase)
             throws IOException {
+        log.info("Creating TL test case");
         if (this.tlTestCaseExists(driver, testCase)) {
+            log.info("TL test case exists");
             return this.getTLTestCase(driver, testCase);
         } else {
+            log.info("Creating TL test case");
             String jsonCase = this.objectToJson(testCase);
             try {
                 ResponseEntity<String> response = this.restClient.post(tlApiPath
