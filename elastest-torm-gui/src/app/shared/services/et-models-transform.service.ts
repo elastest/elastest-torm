@@ -161,6 +161,7 @@ export class ETModelsTransformServices {
     newTJobExec.type = tjobExec.type ? tjobExec.type : 'SIMPLE';
     newTJobExec.execParent = tjobExec.execParent ? this.jsonToTJobExecModel(tjobExec.execParent) : undefined;
     newTJobExec.execChilds = tjobExec.execChilds ? this.jsonToTJobExecsList(tjobExec.execChilds) : [];
+    newTJobExec.multiConfigurations = this.jsonToMultiConfigsList(tjobExec.multiConfigurations);
 
     return newTJobExec;
   }

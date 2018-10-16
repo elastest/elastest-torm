@@ -1,3 +1,4 @@
+import { MultiConfigModel } from '../../shared/multi-config-view/multi-config-view.component';
 import { SutExecModel } from '../sut-exec/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
@@ -16,6 +17,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
   type: TJobExecTypeEnum;
   execParent: TJobExecModel;
   execChilds: TJobExecModel[];
+  multiConfigurations: MultiConfigModel[];
 
   constructor() {
     super();
@@ -31,6 +33,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
     this.type = 'SIMPLE';
     this.execParent = undefined;
     this.execChilds = [];
+    this.multiConfigurations = [];
   }
 
   public hasSutExec(): boolean {
