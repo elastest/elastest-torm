@@ -49,7 +49,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmWebappE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    final String projectName = "Webapp";
+    final String projectName = "E2E test Webapp";
     final String sutName = "Webapp";
     final int timeout = 600;
 
