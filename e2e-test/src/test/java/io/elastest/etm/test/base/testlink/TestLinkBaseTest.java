@@ -160,10 +160,15 @@ public class TestLinkBaseTest extends EtmBaseTest {
             return this.getTLTestCase(driver, testCase);
         } else {
             String jsonCase = this.objectToJson(testCase);
-            ResponseEntity<String> response = this.restClient.post(tlApiPath
-                    + "/project/suite/" + testCase.getTestSuiteId() + "/case",
-                    jsonCase);
-            return this.getTestCaseFromJson(response.getBody());
+            try {
+                ResponseEntity<String> response = this.restClient.post(tlApiPath
+                        + "/project/suite/" + testCase.getTestSuiteId() + "/case",
+                        jsonCase);
+                return this.getTestCaseFromJson(response.getBody());
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                throw ioe;
+            }
         }
     }
 
