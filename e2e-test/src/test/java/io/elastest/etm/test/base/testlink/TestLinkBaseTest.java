@@ -131,10 +131,16 @@ public class TestLinkBaseTest extends EtmBaseTest {
     protected TestCase getTLTestCase(WebDriver driver, String caseName,
             Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
-        ResponseEntity<String> response = this.restClient.get(tlApiPath
-                + "/project/suite/" + suiteId + "/case/name/" + caseName);
-
-        return this.getTestCaseFromJson(response.getBody());
+        try {
+            ResponseEntity<String> response = this.restClient.get(tlApiPath
+                    + "/project/suite/" + suiteId + "/case/name/" + caseName);
+    
+                return this.getTestCaseFromJson(response.getBody());
+        } catch (Exception e) {
+            log.error("Error requesting to ElasTest for a test case");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     protected TestCase getTLTestCase(WebDriver driver, TestCase testCase)
