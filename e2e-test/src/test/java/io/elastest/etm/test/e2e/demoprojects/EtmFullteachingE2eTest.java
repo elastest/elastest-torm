@@ -173,6 +173,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Create and Executes Fullteaching Unit + Integration Tests")
     void testUnitIntegrationTests(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
