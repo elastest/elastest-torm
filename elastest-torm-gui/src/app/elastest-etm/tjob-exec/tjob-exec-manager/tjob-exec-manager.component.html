@@ -126,9 +126,9 @@
         <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     </div>
 
-    <!-- logs & Metrics -->
-    <etm-monitoring-view #logsAndMetrics [live]="false " [showConfigBtn]="false "></etm-monitoring-view>
-
+    
     <!-- Execution files -->
-    <etm-files-manager [tJobId]="tJobId " [tJobExecId]="tJobExecId "></etm-files-manager>
+    <etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId "></etm-files-manager>
 </ng-template>
+<!-- logs & Metrics -->
+<etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>

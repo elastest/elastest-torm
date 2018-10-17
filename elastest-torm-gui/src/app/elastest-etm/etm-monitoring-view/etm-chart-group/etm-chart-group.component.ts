@@ -12,6 +12,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
+import { TJobModel } from '../../tjob/tjob-model';
 
 @Component({
   selector: 'etm-chart-group',
@@ -19,11 +20,15 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./etm-chart-group.component.scss'],
 })
 export class EtmChartGroupComponent implements OnInit {
-  @ViewChildren(MetricsChartCardComponent) MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
+  @ViewChildren(MetricsChartCardComponent)
+  MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
-  @Input() public live: boolean;
-  @Input() tJob: AbstractTJobModel;
-  @Input() tJobExec: AbstractTJobExecModel;
+  @Input()
+  public live: boolean;
+  @Input()
+  tJob: AbstractTJobModel;
+  @Input()
+  tJobExec: AbstractTJobExecModel;
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
@@ -33,11 +38,14 @@ export class EtmChartGroupComponent implements OnInit {
   loaded: boolean = false;
 
   // TimeLine Observable
-  @Output() timelineObs = new EventEmitter<any>();
+  @Output()
+  timelineObs = new EventEmitter<any>();
 
-  @Output() hoverObs = new EventEmitter<any>();
+  @Output()
+  hoverObs = new EventEmitter<any>();
 
-  @Output() leaveObs = new EventEmitter<any>();
+  @Output()
+  leaveObs = new EventEmitter<any>();
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
 
@@ -84,14 +92,46 @@ export class EtmChartGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    if (this.tJob.execDashboardConfigModel.showAllInOne) {
-      this.initAIO();
-    }
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      this.initMultiParentMetricsView(tJobExec);
+    } else {
+      if (this.tJob.execDashboardConfigModel.showAllInOne) {
+        this.initAIO();
+      }
 
+      for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
+        if (metric.activated) {
+          let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+          individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
+          if (metric.component === '') {
+            // If no component, is a default metric
+            individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+            if (!this.live) {
+              individualMetrics.getAllMetrics();
+            }
+            this.metricsList.push(individualMetrics);
+          } else {
+            // Else, is a custom metric
+            let pos: number = this.initCustomMetric(metric, individualMetrics);
+            if (!this.live && pos >= 0) {
+              let metricName: string =
+                metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
+              this.monitoringService
+                .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
+                .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
+            }
+          }
+        }
+      }
+      this.createGroupedMetricList();
+    }
+  }
+
+  initMultiParentMetricsView(tJobExec: TJobExecModel): void {
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-        individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
+        individualMetrics.monitoringIndex = tJobExec.getChildsMonitoringIndices();
         if (metric.component === '') {
           // If no component, is a default metric
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
@@ -165,21 +205,26 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   addMoreMetrics(obj: any): boolean {
-    let metric: MetricsFieldModel = obj.metricFieldModel;
-    let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+    let added: boolean = false;
 
-    if (!this.alreadyExist(individualMetrics.name)) {
-      individualMetrics.addSimpleMetricTraces(obj.data);
-      individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
-      this.initCustomMetric(metric, individualMetrics);
+    for (let metric of obj.metricFieldModels) {
+      let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
-      return true;
-    } else {
-      return false;
+      if (!this.alreadyExist(individualMetrics.name)) {
+        individualMetrics.addSimpleMetricTraces(obj.data);
+        individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
+        this.initCustomMetric(metric, individualMetrics);
+
+        added = added || true;
+      } else {
+        added = added || false;
+      }
     }
+
+    return added;
   }
 
-  initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
+  initializeBasicAttrByMetric(metric: MetricsFieldModel): ESRabComplexMetricsModel {
     let ignoreComponent: string = this.getIgnoreComponent();
     let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
     individualMetrics.name = this.createName(metric.component, metric.stream, metric.etType, metric.subtype);

@@ -12,6 +12,7 @@ import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { ExternalTJobModel } from '../external/external-tjob/external-tjob-model';
 import { MonitoringService } from '../../shared/services/monitoring.service';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -19,12 +20,16 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
   styleUrls: ['./etm-monitoring-view.component.scss'],
 })
 export class EtmMonitoringViewComponent implements OnInit {
-  @ViewChild('metricsGroup') metricsGroup: EtmChartGroupComponent;
-  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
+  @ViewChild('metricsGroup')
+  metricsGroup: EtmChartGroupComponent;
+  @ViewChild('logsGroup')
+  logsGroup: EtmLogsGroupComponent;
 
-  @Input() public live: boolean;
+  @Input()
+  public live: boolean;
 
-  @Input() public showConfigBtn: boolean;
+  @Input()
+  public showConfigBtn: boolean;
 
   tJob: AbstractTJobModel;
   tJobExec: AbstractTJobExecModel;
@@ -108,14 +113,18 @@ export class EtmMonitoringViewComponent implements OnInit {
     let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
 
     if (this.isInit()) {
-      this.monitoringService
-        .searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
-        .subscribe(
-          (obj: any) => {
-            _addMoreSubject.next(obj);
-          },
-          (error: Error) => _addMoreSubject.error('Could not load more: ' + error),
-        );
+      let monitoringIndex: string = this.tJobExec.monitoringIndex;
+      // If Multi Parent
+      if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+        monitoringIndex = this.tJobExec.getChildsMonitoringIndices();
+      }
+
+      this.monitoringService.searchAllDynamic(monitoringIndex, this.stream, this.component, this.metricName).subscribe(
+        (obj: any) => {
+          _addMoreSubject.next(obj);
+        },
+        (error: Error) => _addMoreSubject.error('Could not load more: ' + error),
+      );
     } else {
       _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
     }

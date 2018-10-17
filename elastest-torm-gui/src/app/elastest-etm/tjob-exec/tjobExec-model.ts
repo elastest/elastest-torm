@@ -104,6 +104,24 @@ export class TJobExecModel extends AbstractTJobExecModel {
   isMultiConfig(): boolean {
     return this.isChild() || this.isParent();
   }
+
+  getChildsMonitoringIndices(): string {
+    let monitoringIndices: string = '';
+    if (this.isParent() && this.execChilds !== undefined) {
+      let counter: number = 0;
+      for (let child of this.execChilds) {
+        if (counter === 0 && child.monitoringIndex !== undefined && child.monitoringIndex !== '') {
+          monitoringIndices = child.monitoringIndex;
+          counter++;
+        } else {
+          monitoringIndices +=
+            child.monitoringIndex !== undefined && child.monitoringIndex !== '' ? ',' + child.monitoringIndex : '';
+          counter++;
+        }
+      }
+    }
+    return monitoringIndices;
+  }
 }
 
 export type TJobExecTypeEnum = 'SIMPLE' | 'PARENT' | 'CHILD' | '';

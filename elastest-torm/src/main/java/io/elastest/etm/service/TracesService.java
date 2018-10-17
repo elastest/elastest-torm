@@ -396,6 +396,19 @@ public class TracesService {
                                         StreamType.COMPOSED_METRICS);
                             }
 
+                        } else {
+                            // HTTP custom metrics
+                            try {
+                                trace.setContentFromLinkedHashMap(
+                                        (LinkedHashMap<Object, Object>) dataMap
+                                                .get(trace.getEtType()));
+                            } catch (ClassCastException cce) {
+                                try {
+                                    trace.setContent((String) dataMap
+                                            .get(trace.getEtType()));
+                                } catch (Exception e) {
+                                }
+                            }
                         }
                     }
                 } else { // log

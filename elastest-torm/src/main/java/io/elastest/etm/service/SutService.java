@@ -121,7 +121,7 @@ public class SutService {
         sut.setEimMonitoringConfig(eimMonitoringConfig);
 
         logger.debug(
-                "Startint 'Instrumentalizing SuT \"" + sut.getName() + "\"'");
+                "Starting 'Instrumentalizing SuT \"" + sut.getName() + "\"'");
         try {
             this.eimService.instrumentalizeAndDeployBeats(sut.getEimConfig(),
                     sut.getEimMonitoringConfig());

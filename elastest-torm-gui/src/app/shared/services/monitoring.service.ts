@@ -63,7 +63,6 @@ export class MonitoringService {
     return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
 
-
   public searchLogsLevelsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree/levels';
     return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
@@ -195,7 +194,13 @@ export class MonitoringService {
 
   getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = tJobExec.monitoringIndex.split(',');
+    let enableParentBehaviour: boolean = false;
+    if (tJobExec.isParent() && enableParentBehaviour) {
+      query.indices = tJobExec.getChildsMonitoringIndices().split(',');
+    } else {
+      query.indices = tJobExec.monitoringIndex.split(',');
+    }
+
     query.selectedTerms.push('component', 'stream');
 
     return this.searchLogsTree(query);
@@ -274,7 +279,11 @@ export class MonitoringService {
 
   getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = tJobExec.monitoringIndex.split(',');
+    if (tJobExec.isParent()) {
+      query.indices = tJobExec.getChildsMonitoringIndices().split(',');
+    } else {
+      query.indices = tJobExec.monitoringIndex.split(',');
+    }
     query.selectedTerms.push('component', 'stream', 'et_type');
 
     return this.searchMetricsTree(query);
@@ -286,34 +295,30 @@ export class MonitoringService {
 
   convertToMetricTraces(data: any[], metricsField: MetricsFieldModel): LineChartMetricModel[] {
     let tracesList: LineChartMetricModel[];
-    if (metricsField.component === undefined || metricsField.component === '') {
+    let position: number = undefined;
+    let parsedMetric: any;
+
+    if (metricsField.componentIsEmpty()) {
       tracesList = this.getInitMetricsData();
-
-      let position: number = undefined;
-      let parsedMetric: any;
-      for (let metricTrace of data) {
-        let source: any = metricTrace._source;
-        if (source === undefined || source === null) {
-          source = metricTrace;
-        }
-
-        parsedMetric = this.convertToMetricTrace(source, metricsField);
-        position = this.getMetricPosition(source.component);
-        if (position !== undefined && parsedMetric !== undefined) {
-          tracesList[position].series.push(parsedMetric);
-        }
-      }
     } else {
       tracesList = this.getInitMetricsDataComplex(metricsField);
-      let parsedMetric: any;
-      let position: number = undefined;
-      for (let metricTrace of data) {
-        let source: any = metricTrace._source;
-        if (source === undefined || source === null) {
-          source = metricTrace;
-        }
+    }
+    for (let metricTrace of data) {
+      let source: any = metricTrace._source;
+      if (source === undefined || source === null) {
+        source = metricTrace;
+      }
+
+      if (metricsField.exec && source.exec && metricsField.exec !== source.exec) {
+        //ignore
+      } else {
         parsedMetric = this.convertToMetricTrace(source, metricsField);
-        position = 0;
+
+        if (metricsField.componentIsEmpty()) {
+          position = this.getMetricPosition(source.component);
+        } else {
+          position = 0;
+        }
         if (position !== undefined && parsedMetric !== undefined) {
           tracesList[position].series.push(parsedMetric);
         }
@@ -677,20 +682,25 @@ export class MonitoringService {
       unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(obj.etType, metricName);
     }
 
-    let metricsField: MetricsFieldModel = new MetricsFieldModel(
-      firstSource['et_type'],
-      metricName,
-      unit,
-      obj.component,
-      obj.stream,
-      streamType,
-      true,
-    );
-    let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
+    let metricsTraces: LineChartMetricModel[] = [];
+    obj['metricFieldModels'] = [];
+    for (let index of obj.monitoringIndex.split(',')) {
+      let metricsField: MetricsFieldModel = new MetricsFieldModel(
+        firstSource['et_type'],
+        metricName,
+        unit,
+        obj.component,
+        obj.stream,
+        streamType,
+        true,
+        index,
+      );
+      metricsTraces = metricsTraces.concat(this.convertToMetricTraces(data, metricsField));
+      obj['metricFieldModels'].push(metricsField);
+    }
 
     obj.data = metricsTraces;
     obj.streamType = streamType;
-    obj['metricFieldModel'] = metricsField;
 
     obj.unit = unit;
     if (metricsTraces[0].series.length > 0) {

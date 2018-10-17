@@ -13,8 +13,9 @@ export class DefaultESFieldModel {
   streamType: string;
   name: string;
   activated: boolean;
+  exec: string;
 
-  constructor(component: string, streamType: string, stream?: string) {
+  constructor(component: string, streamType: string, stream?: string, exec?: string) {
     this.component = component;
     this.stream = stream;
     this.streamType = streamType;
@@ -31,7 +32,13 @@ export class DefaultESFieldModel {
     }
     streamPrefix = stream + '_';
 
-    this.name = componentPrefix + streamPrefix + streamType;
+    let execPrefix: string = '';
+    if (exec !== undefined && exec !== '') {
+      execPrefix = exec + '_';
+      this.exec = exec;
+    }
+
+    this.name = componentPrefix + execPrefix + streamPrefix + streamType;
     this.activated = false;
   }
 
