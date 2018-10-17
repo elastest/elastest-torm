@@ -170,7 +170,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
             testCase.setName(caseName);
             testCase.setTestSuiteId(suite.getId());
             testCase.setTestProjectId(project.getId());
-            testCase.setAuthorLogin("admin");
+            testCase.setAuthorLogin("elastest");
             testCase.setSummary("This is a Summary");
             testCase.setPreconditions("This is a precondition");
 
