@@ -5,6 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.Enums.ProtocolEnum;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalProject;
@@ -66,6 +68,7 @@ public class EtSampleDataLoader {
             this.createWebapp();
             this.createOpenVidu();
             this.createFullteaching();
+            this.createMulti();
             if (etDataLoader.isStartedTestLink()) {
                 this.createTestLink();
             }
@@ -97,7 +100,8 @@ public class EtSampleDataLoader {
 
             // Create Hello World TJob associated with the Hello project
             etDataLoader.createTJob(project, tJobName, resultsPath, image,
-                    false, commands, EXEC_DASHBOARD_CONFIG, null, null, null);
+                    false, commands, EXEC_DASHBOARD_CONFIG, null, null, null,
+                    null);
         }
     }
 
@@ -128,7 +132,7 @@ public class EtSampleDataLoader {
             // Create TJob
             etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
                     false, commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null,
-                    sut);
+                    sut, null);
         }
     }
 
@@ -158,11 +162,11 @@ public class EtSampleDataLoader {
             // Create TJob1
             etDataLoader.createTJob(project, tJob1Name, resultsPath, tJobImage,
                     false, commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
-                    sut);
+                    sut, null);
             // Create TJob2
             etDataLoader.createTJob(project, tJob2Name, resultsPath, tJobImage,
                     false, commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
-                    sut);
+                    sut, null);
         }
     }
 
@@ -194,7 +198,7 @@ public class EtSampleDataLoader {
             // Create TJob
             etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
                     false, commands, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
-                    sut);
+                    sut, null);
         }
     }
 
@@ -258,7 +262,33 @@ public class EtSampleDataLoader {
             // Create TJob
             etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
                     false, commands, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null,
-                    tss, sut);
+                    tss, sut, null);
+        }
+    }
+
+    public void createMulti() {
+        String pjName = "Multi Test";
+        if (!etDataLoader.projectExists(pjName)) {
+            String tJobName = "Multi Java Test";
+            String resultsPath = "/demo-projects/multi-java-test/target/surefire-reports/";
+            String image = "elastest/test-etm-alpinegitjava";
+            String commands = "git clone https://github.com/elastest/demo-projects\ncd demo-projects/multi-java-test\nmvn -B test\n";
+
+            this.printLog(pjName);
+            // Create Hello World Project
+            Project project = etDataLoader.createProject(pjName);
+
+            // Multi config
+            List<MultiConfig> multiConfigs = new ArrayList<>();
+            multiConfigs.add(new MultiConfig("LEFT_OPERAND",
+                    new ArrayList<String>(Arrays.asList("40", "3", "11"))));
+            multiConfigs.add(new MultiConfig("RIGHT_OPERAND",
+                    new ArrayList<String>(Arrays.asList("10", "2"))));
+
+            // Create Hello World TJob associated with the Hello project
+            etDataLoader.createTJob(project, tJobName, resultsPath, image,
+                    false, commands, EXEC_DASHBOARD_CONFIG, null, null, null,
+                    multiConfigs);
         }
     }
 

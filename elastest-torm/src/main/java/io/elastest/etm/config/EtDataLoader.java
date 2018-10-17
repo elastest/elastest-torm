@@ -22,6 +22,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.Enums.ProtocolEnum;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
@@ -41,7 +42,7 @@ import io.elastest.etm.service.TestLinkService;
 @Service
 public class EtDataLoader {
     final Logger logger = getLogger(lookup().lookupClass());
-    
+
     @Value("${et.user}")
     private String etUser;
 
@@ -84,12 +85,15 @@ public class EtDataLoader {
         return projectService.createProject(project);
     }
 
+    /* ************ */
     /* *** TJob *** */
+    /* ************ */
 
     public TJob createTJob(Project project, String name, String resultsPath,
             String image, boolean useImageCommands, String commands,
             String execDashboardConfig, List<Parameter> parameters,
-            List<String> activatedTSSList, SutSpecification sut) {
+            List<String> activatedTSSList, SutSpecification sut,
+            List<MultiConfig> multiConfigurations) {
         TJob tJob = new TJob();
 
         tJob.setProject(project);
@@ -105,6 +109,11 @@ public class EtDataLoader {
 
         if (parameters != null) {
             tJob.setParameters(parameters);
+        }
+
+        if (multiConfigurations != null) {
+            tJob.setMultiConfigurations(multiConfigurations);
+            tJob.setMulti(true);
         }
 
         if (sut != null && sut.getId() > 0) {

@@ -85,3 +85,7 @@ export function sleep(milliseconds: number) {
 export function getDateIso8601Pattern(): string {
   return 'yyyy-MM-ddTHH:mm:sssZ';
 }
+
+export function isString(s): boolean {
+  return typeof s === 'string' || s instanceof String;
+}

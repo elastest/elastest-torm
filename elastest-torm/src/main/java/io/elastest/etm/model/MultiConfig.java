@@ -40,14 +40,12 @@ public class MultiConfig {
     public MultiConfig() {
     }
 
-    // Getters and setters
-    public MultiConfig(Long id, String name, ArrayList<String> configValues,
-            TJob tJob, TJobExecution tJobExec) {
+    public MultiConfig(String name, ArrayList<String> configValues) {
         this.name = name;
         this.configValues = configValues;
-
     }
 
+    // Getters and setters
     public String getName() {
         return name;
     }

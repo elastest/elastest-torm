@@ -674,14 +674,13 @@ public class DockerEtmService {
 
             dockerExec.setTestContainerExitCode(code);
             logger.info("Test container ends with code " + code);
-
-            return getTestResults(dockerExec);
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
         }
+        return getTestResults(dockerExec);
     }
 
     public void updateExecutionResultStatus(DockerExecution dockerExec,
@@ -894,21 +893,29 @@ public class DockerEtmService {
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec)
             throws Exception {
-        List<ReportTestSuite> testSuites = null;
-        String resultsPath = dockerExec.gettJob().getResultsPath();
+        try {
+            List<ReportTestSuite> testSuites = null;
+            String resultsPath = dockerExec.gettJob().getResultsPath();
 
-        if (resultsPath != null && !resultsPath.isEmpty()) {
-            try {
-                InputStream inputStream = dockerService.getFileFromContainer(
-                        dockerExec.getTestContainerId(), resultsPath);
+            if (resultsPath != null && !resultsPath.isEmpty()) {
+                try {
+                    InputStream inputStream = dockerService
+                            .getFileFromContainer(
+                                    dockerExec.getTestContainerId(),
+                                    resultsPath);
 
-                String result = IOUtils.toString(inputStream,
-                        StandardCharsets.UTF_8);
-                testSuites = getTestSuitesByString(result);
-            } catch (IOException e) {
+                    String result = IOUtils.toString(inputStream,
+                            StandardCharsets.UTF_8);
+                    testSuites = getTestSuitesByString(result);
+                } catch (IOException e) {
+                }
             }
+            return testSuites;
+        } catch (Exception e) {
+            throw new Exception(
+                    "Error on get test results. Probably the specified path is incorrect.",
+                    e);
         }
-        return testSuites;
     }
 
     private List<ReportTestSuite> getTestSuitesByString(String result) {

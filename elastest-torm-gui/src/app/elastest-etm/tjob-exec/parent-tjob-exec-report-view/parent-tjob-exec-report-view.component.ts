@@ -1,8 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { TJobExecModel } from '../tjobExec-model';
+import { Component, Input, OnInit } from '@angular/core';
+import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config-view.component';
+import { getResultIconByString, isString } from '../../../shared/utils';
 import { ParameterModel } from '../../parameter/parameter-model';
-import { TestCaseModel } from '../../test-case/test-case-model';
-import { getResultIconByString } from '../../../shared/utils';
+import { TJobExecModel } from '../tjobExec-model';
 
 @Component({
   selector: 'etm-parent-tjob-exec-report-view',
@@ -16,20 +16,28 @@ export class ParentTjobExecReportViewComponent implements OnInit {
   // test * config
   uniqueConfigRows: any[] = [];
   uniqueConfigExecTableRows: any[] = [];
+  uniqueConfigColumns: any[] = [{ name: 'caseName', label: 'Test Name' }];
+  uniqueConfigExecTableColumns: any[] = [];
+
+  /* ***************** */
+  /* *** 2 configs *** */
+  /* ***************** */
 
   // config1 * config2
   twoConfigExecTableRows: any[] = [];
+  twoConfigExecTableColumns: any[] = [];
   // test * config1|config2
   config1Config2Rows: any[] = [];
+  config1Config2Columns: any[] = [{ name: 'caseName', label: 'Test Name' }];
   // test * config2|config1
   config2Config1Rows: any[] = [];
-
-  uniqueConfigColumns: any[] = [{ name: 'caseName', label: 'Test Name' }];
-  uniqueConfigExecTableColumns: any[] = [];
-  twoConfigExecTableColumns: any[] = [];
-
-  config1Config2Columns: any[] = [{ name: 'caseName', label: 'Test Name' }];
   config2Config1Columns: any[] = [{ name: 'caseName', label: 'Test Name' }];
+
+  /* *************************** */
+  /* *** more than 2 configs *** */
+  /* *************************** */
+  configNRows: any[] = [];
+  configNColumns: any[] = [{ name: 'caseName', label: 'Test Name' }];
 
   invertAxis: boolean = false;
 
@@ -60,6 +68,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
         this.loadtwoConfigExecTableRows();
         this.loadConfig1Config2Rows();
         this.loadConfig2Config1Rows();
+      } else if (this.model.multiConfigurations.length > 2) {
+        this.loadNConfigRows();
       }
     }
   }
@@ -246,6 +256,110 @@ export class ParentTjobExecReportViewComponent implements OnInit {
         });
 
         this.config2Config1Rows.push(row);
+        casePos++;
+      }
+      suitePos++;
+    }
+  }
+
+  initConfigMap(configArray: MultiConfigModel[]): Map<string, any> {
+    if (configArray.length === 0) {
+      return undefined;
+    }
+
+    let configMap: Map<string, any> = new Map();
+    let currentConfig: MultiConfigModel = configArray.shift();
+
+    if (configArray.length > 0) {
+      for (let configValue of currentConfig.configValues) {
+        let childConfigMap: Map<string, string> = this.initConfigMap([...configArray]);
+        configMap.set(configValue, childConfigMap);
+      }
+    } else {
+      // last
+      for (let configValue of currentConfig.configValues) {
+        configMap.set(configValue, undefined);
+      }
+    }
+    return configMap;
+  }
+
+  updateConfigMap(configMap: Map<string, any>, paramsArray: ParameterModel[], value: string): Map<string, any> {
+    if (paramsArray.length === 0) {
+      return configMap;
+    }
+    let currentParam: ParameterModel = paramsArray.shift();
+
+    while (paramsArray.length > 0 && !currentParam.multiConfig) {
+      currentParam = paramsArray.shift();
+    }
+
+    if (paramsArray.length > 0) {
+      let childConfigMap: Map<string, string> = this.updateConfigMap(configMap.get(currentParam.value), [...paramsArray], value);
+      configMap.set(currentParam.value, childConfigMap);
+    } else if (currentParam !== undefined) {
+      // last
+      configMap.set(currentParam.value, value);
+    }
+    return configMap;
+  }
+
+  getRowByMap(
+    configMap: Map<string, any>,
+    addColumn: boolean,
+    row: any,
+    columnName: string = '',
+    configPosition: number = 0,
+  ): any {
+    if (configMap === undefined || configMap.size === 0) {
+      return row;
+    }
+
+    configMap.forEach((value: any, key: string) => {
+      let currentColumnName: string = columnName;
+      if (currentColumnName === '') {
+        currentColumnName = '';
+      } else {
+        currentColumnName += ' \n ';
+      }
+
+      currentColumnName += this.model.multiConfigurations[configPosition].name + '= ' + key;
+
+      if (value instanceof Map) {
+        return this.getRowByMap(value, addColumn, row, currentColumnName, configPosition + 1);
+      } else if (isString(value)) {
+        row[currentColumnName] = value;
+        if (addColumn) {
+          // Add column only first time
+          this.configNColumns.push({ name: currentColumnName, label: currentColumnName });
+        }
+      } else {
+        return row;
+      }
+    });
+    return row;
+  }
+
+  loadNConfigRows(): void {
+    let suitePos: number = 0;
+    let casePos: number = 0;
+    for (let testSuite of this.model.execChilds[0].testSuites) {
+      for (let testCase of testSuite.testCases) {
+        let configArray: MultiConfigModel[] = [...this.model.multiConfigurations];
+        let configMap: Map<string, any> = this.initConfigMap(configArray);
+
+        for (let child of this.model.execChilds) {
+          let result: string = child.testSuites[suitePos].testCases[casePos].getResult();
+          this.updateConfigMap(configMap, [...child.parameters], result);
+        }
+
+        let caseName: string = testSuite.name + ' - ' + testCase.name;
+        let row: any = {
+          caseName: caseName,
+        };
+
+        row = this.getRowByMap(configMap, casePos === 0, row);
+        this.configNRows.push(row);
         casePos++;
       }
       suitePos++;
