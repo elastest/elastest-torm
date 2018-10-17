@@ -220,7 +220,7 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
         testCase.setName(caseName);
         testCase.setTestSuiteId(suite.getId());
         testCase.setTestProjectId(project.getId());
-        testCase.setAuthorLogin("admin");
+        testCase.setAuthorLogin("elastest");
         testCase.setSummary("Open FullTeaching and LogIn");
         testCase.setPreconditions("FullTeaching app should be started");
 
