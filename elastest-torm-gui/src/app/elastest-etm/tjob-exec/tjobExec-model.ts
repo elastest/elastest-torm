@@ -19,21 +19,37 @@ export class TJobExecModel extends AbstractTJobExecModel {
   execChilds: TJobExecModel[];
   multiConfigurations: MultiConfigModel[];
 
-  constructor() {
+  constructor(tJobExec: TJobExecModel = undefined) {
     super();
-    this.id = 0;
-    this.duration = 0;
-    this.error = undefined;
-    this.sutExec = undefined;
-    this.monitoringIndex = '';
-    this.tJob = undefined;
-    this.testSuites = [];
-    this.parameters = [];
-    this.externalUrls = undefined;
-    this.type = 'SIMPLE';
-    this.execParent = undefined;
-    this.execChilds = [];
-    this.multiConfigurations = [];
+    if (tJobExec !== undefined) {
+      this.id = tJobExec.id;
+      this.duration = tJobExec.duration;
+      this.error = tJobExec.error;
+      this.sutExec = tJobExec.sutExec;
+      this.monitoringIndex = tJobExec.monitoringIndex;
+      this.tJob = tJobExec.tJob;
+      this.testSuites = tJobExec.testSuites;
+      this.parameters = tJobExec.parameters;
+      this.externalUrls = tJobExec.externalUrls;
+      this.type = tJobExec.type;
+      this.execParent = tJobExec.execParent;
+      this.execChilds = tJobExec.execChilds;
+      this.multiConfigurations = tJobExec.multiConfigurations;
+    } else {
+      this.id = 0;
+      this.duration = 0;
+      this.error = undefined;
+      this.sutExec = undefined;
+      this.monitoringIndex = '';
+      this.tJob = undefined;
+      this.testSuites = [];
+      this.parameters = [];
+      this.externalUrls = undefined;
+      this.type = 'SIMPLE';
+      this.execParent = undefined;
+      this.execChilds = [];
+      this.multiConfigurations = [];
+    }
   }
 
   public hasSutExec(): boolean {

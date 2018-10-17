@@ -14,10 +14,23 @@ export class TestSuiteModel {
   testCases: TestCaseModel[];
   tJobExec: TJobExecModel;
 
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.tJobExec = undefined;
+  constructor(testSuite: TestSuiteModel = undefined) {
+    if (testSuite !== undefined) {
+      this.id = testSuite.id;
+      this.name = testSuite.name;
+      this.timeElapsed = testSuite.timeElapsed;
+      this.errors = testSuite.errors;
+      this.failures = testSuite.failures;
+      this.skipped = testSuite.skipped;
+      this.flakes = testSuite.flakes;
+      this.numTests = testSuite.numTests;
+      this.testCases = testSuite.testCases;
+      this.tJobExec = testSuite.tJobExec;
+    } else {
+      this.id = 0;
+      this.name = '';
+      this.tJobExec = undefined;
+    }
   }
 
   public getResultIcon(): any {

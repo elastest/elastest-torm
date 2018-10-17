@@ -3,6 +3,9 @@ import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config
 import { getResultIconByString, isString } from '../../../shared/utils';
 import { ParameterModel } from '../../parameter/parameter-model';
 import { TJobExecModel } from '../tjobExec-model';
+import { Router } from '@angular/router';
+import { TestCaseModel } from '../../test-case/test-case-model';
+import { TestSuiteModel } from '../../test-suite/test-suite-model';
 
 @Component({
   selector: 'etm-parent-tjob-exec-report-view',
@@ -41,7 +44,7 @@ export class ParentTjobExecReportViewComponent implements OnInit {
 
   invertAxis: boolean = false;
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
     try {
@@ -74,6 +77,10 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     }
   }
 
+  /* ******************************************************************************** */
+  /* *********************************** 1 config *********************************** */
+  /* ******************************************************************************** */
+
   loadUniqueConfigRows(): void {
     let configName: string = this.model.multiConfigurations[0].name;
 
@@ -87,7 +94,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
         for (let child of this.model.execChilds) {
           let param: ParameterModel = this.getParameterByName(configName, child.parameters);
           let colName: string = param.value;
-          let colValue: string = child.testSuites[suitePos].testCases[casePos].getResult();
+          let currentTestSuite: TestSuiteModel = child.testSuites[suitePos];
+          let colValue: TestCaseModel = this.completeTestCaseInfo(currentTestSuite.testCases[casePos], testSuite, child);
           row[colName] = colValue;
           if (casePos === 0) {
             this.uniqueConfigColumns[0].label = 'Test Name / ' + param.name;
@@ -116,7 +124,7 @@ export class ParentTjobExecReportViewComponent implements OnInit {
       };
 
       let colName: string = 'Result';
-      let colValue: string = child.result;
+      let colValue: TJobExecModel = child;
       row[colName] = colValue;
       if (!columnAdded) {
         // Add column only first
@@ -126,6 +134,10 @@ export class ParentTjobExecReportViewComponent implements OnInit {
       this.uniqueConfigExecTableRows.push(row);
     }
   }
+
+  /* ********************************************************************************* */
+  /* *********************************** 2 configs *********************************** */
+  /* ********************************************************************************* */
 
   loadtwoConfigExecTableRows(): void {
     let config1Name: string = this.model.multiConfigurations[0].name;
@@ -146,7 +158,7 @@ export class ParentTjobExecReportViewComponent implements OnInit {
       let rowName: string = param1.name + '= ' + param1.value;
 
       let colName: string = param2.name + '= ' + param2.value;
-      let colValue: string = child.result;
+      let colValue: TJobExecModel = child;
       let position: number = 0;
 
       if (auxMap.get(rowName) !== undefined) {
@@ -180,9 +192,9 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     let casePos: number = 0;
     for (let testSuite of this.model.execChilds[0].testSuites) {
       for (let testCase of testSuite.testCases) {
-        let config1Map: Map<string, Map<string, string>> = new Map();
+        let config1Map: Map<string, Map<string, TestCaseModel>> = new Map();
         for (let config1Value of this.model.multiConfigurations[0].configValues) {
-          let config2Map: Map<string, string> = new Map();
+          let config2Map: Map<string, TestCaseModel> = new Map();
           config1Map.set(config1Value, config2Map);
         }
 
@@ -190,7 +202,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
           let param1: ParameterModel = this.getParameterByName(config1Name, child.parameters);
           let param2: ParameterModel = this.getParameterByName(config2Name, child.parameters);
 
-          let result: string = child.testSuites[suitePos].testCases[casePos].getResult();
+          let currentTestSuite: TestSuiteModel = child.testSuites[suitePos];
+          let result: TestCaseModel = this.completeTestCaseInfo(currentTestSuite.testCases[casePos], testSuite, child);
           config1Map.get(param1.value).set(param2.value, result);
         }
 
@@ -199,8 +212,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
           caseName: caseName,
         };
 
-        config1Map.forEach((config2Map: Map<string, string>, key1: string) => {
-          config2Map.forEach((value: string, key2: string) => {
+        config1Map.forEach((config2Map: Map<string, TestCaseModel>, key1: string) => {
+          config2Map.forEach((value: TestCaseModel, key2: string) => {
             let colName: string = config1Name + '= ' + key1 + ' \n ' + config2Name + '= ' + key2;
             row[colName] = value;
             if (casePos === 0) {
@@ -225,9 +238,9 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     let casePos: number = 0;
     for (let testSuite of this.model.execChilds[0].testSuites) {
       for (let testCase of testSuite.testCases) {
-        let config2Map: Map<string, Map<string, string>> = new Map();
+        let config2Map: Map<string, Map<string, TestCaseModel>> = new Map();
         for (let config2Value of this.model.multiConfigurations[1].configValues) {
-          let config1Map: Map<string, string> = new Map();
+          let config1Map: Map<string, TestCaseModel> = new Map();
           config2Map.set(config2Value, config1Map);
         }
 
@@ -235,7 +248,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
           let param1: ParameterModel = this.getParameterByName(config1Name, child.parameters);
           let param2: ParameterModel = this.getParameterByName(config2Name, child.parameters);
 
-          let result: string = child.testSuites[suitePos].testCases[casePos].getResult();
+          let currentTestSuite: TestSuiteModel = child.testSuites[suitePos];
+          let result: TestCaseModel = this.completeTestCaseInfo(currentTestSuite.testCases[casePos], testSuite, child);
           config2Map.get(param2.value).set(param1.value, result);
         }
 
@@ -244,8 +258,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
           caseName: caseName,
         };
 
-        config2Map.forEach((config1Map: Map<string, string>, key2: string) => {
-          config1Map.forEach((value: string, key1: string) => {
+        config2Map.forEach((config1Map: Map<string, TestCaseModel>, key2: string) => {
+          config1Map.forEach((value: TestCaseModel, key1: string) => {
             let colName: string = config2Name + '= ' + key2 + ' \n ' + config1Name + '= ' + key1;
             row[colName] = value;
             if (casePos === 0) {
@@ -261,6 +275,10 @@ export class ParentTjobExecReportViewComponent implements OnInit {
       suitePos++;
     }
   }
+
+  /* ********************************************************************************* */
+  /* ****************************** more than 2 configs ****************************** */
+  /* ********************************************************************************* */
 
   initConfigMap(configArray: MultiConfigModel[]): Map<string, any> {
     if (configArray.length === 0) {
@@ -284,7 +302,7 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     return configMap;
   }
 
-  updateConfigMap(configMap: Map<string, any>, paramsArray: ParameterModel[], value: string): Map<string, any> {
+  updateConfigMap(configMap: Map<string, any>, paramsArray: ParameterModel[], value: TestCaseModel): Map<string, any> {
     if (paramsArray.length === 0) {
       return configMap;
     }
@@ -327,7 +345,7 @@ export class ParentTjobExecReportViewComponent implements OnInit {
 
       if (value instanceof Map) {
         return this.getRowByMap(value, addColumn, row, currentColumnName, configPosition + 1);
-      } else if (isString(value)) {
+      } else if (value instanceof TestCaseModel) {
         row[currentColumnName] = value;
         if (addColumn) {
           // Add column only first time
@@ -349,7 +367,8 @@ export class ParentTjobExecReportViewComponent implements OnInit {
         let configMap: Map<string, any> = this.initConfigMap(configArray);
 
         for (let child of this.model.execChilds) {
-          let result: string = child.testSuites[suitePos].testCases[casePos].getResult();
+          let currentTestSuite: TestSuiteModel = child.testSuites[suitePos];
+          let result: TestCaseModel = this.completeTestCaseInfo(currentTestSuite.testCases[casePos], testSuite, child);
           this.updateConfigMap(configMap, [...child.parameters], result);
         }
 
@@ -366,6 +385,10 @@ export class ParentTjobExecReportViewComponent implements OnInit {
     }
   }
 
+  /* ***************************************************************************** */
+  /* ******************************* other methods ******************************* */
+  /* ***************************************************************************** */
+
   getParameterByName(name: string, params: ParameterModel[]): ParameterModel {
     for (let param of params) {
       if (param.name === name) {
@@ -381,5 +404,32 @@ export class ParentTjobExecReportViewComponent implements OnInit {
 
   switchInvertAxis(): void {
     this.invertAxis = !this.invertAxis;
+  }
+
+  completeTestCaseInfo(testCase: TestCaseModel, testSuite: TestSuiteModel, tJobExec: TJobExecModel): TestCaseModel {
+    if (testCase !== undefined && testSuite !== undefined) {
+      testCase.testSuite = new TestSuiteModel(testSuite);
+      testCase.testSuite.tJobExec = new TJobExecModel(tJobExec);
+    }
+    return testCase;
+  }
+
+  navigateToChild(tjobExec: TJobExecModel): void {
+    this.router.navigate(['/projects', tjobExec.tJob.project.id, 'tjob', tjobExec.tJob.id, 'tjob-exec', tjobExec.id]);
+  }
+
+  navigateToTestCase(tCase: TestCaseModel): void {
+    this.router.navigate([
+      '/projects',
+      tCase.testSuite.tJobExec.tJob.project.id,
+      'tjob',
+      tCase.testSuite.tJobExec.tJob.id,
+      'tjob-exec',
+      tCase.testSuite.tJobExec.id,
+      'testSuite',
+      tCase.testSuite.id,
+      'testCase',
+      tCase.id,
+    ]);
   }
 }
