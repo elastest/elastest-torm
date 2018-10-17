@@ -48,7 +48,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmFullteachingE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    final String projectName = "FullTeaching";
+    final String projectName = "E2E_test_FullTeaching";
     String tJobImage = "elastest/test-etm-alpinegitjava";
     final int timeout = 600;
 
