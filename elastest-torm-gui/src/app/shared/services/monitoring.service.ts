@@ -309,7 +309,12 @@ export class MonitoringService {
         source = metricTrace;
       }
 
-      if (metricsField.exec && source.exec && metricsField.exec !== source.exec) {
+      if (
+        metricsField.tJobExec &&
+        metricsField.tJobExec.isChild() &&
+        source.exec &&
+        metricsField.tJobExec.monitoringIndex.split(',').indexOf(source.exec) === -1
+      ) {
         //ignore
       } else {
         parsedMetric = this.convertToMetricTrace(source, metricsField);
@@ -530,9 +535,13 @@ export class MonitoringService {
   /***** Common metric functions *****/
   /***********************************/
 
-  getBasicSingleMetric(trace: any): SingleMetricModel {
+  getBasicSingleMetric(trace: any, useRealDate: boolean = true): SingleMetricModel {
     let parsedData: SingleMetricModel = new SingleMetricModel();
-    parsedData.name = new Date('' + trace['@timestamp']);
+    //TODO convert Time for multi
+    if (useRealDate) {
+      parsedData.name = new Date('' + trace['@timestamp']);
+    } else {
+    }
     parsedData.timestamp = trace['@timestamp'];
     return parsedData;
   }
@@ -592,7 +601,13 @@ export class MonitoringService {
     return terms;
   }
 
-  searchAllDynamic(index: string, stream: string, component: string, metricName?: string): Observable<any> {
+  searchAllDynamic(
+    index: string,
+    stream: string,
+    component: string,
+    metricName?: string,
+    tJobExec?: TJobExecModel,
+  ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
@@ -623,7 +638,9 @@ export class MonitoringService {
           component: component,
           stream: stream,
           monitoringIndex: index,
+          tJobExec: tJobExec,
         };
+
         if (this.isLogTrace(firstSource)) {
           this.addDynamicLog(_obs, obj, data);
         } else if (this.isMetricsTrace(firstSource)) {
@@ -684,7 +701,25 @@ export class MonitoringService {
 
     let metricsTraces: LineChartMetricModel[] = [];
     obj['metricFieldModels'] = [];
-    for (let index of obj.monitoringIndex.split(',')) {
+
+    // If is Multi TJobExec Parent
+    if (obj.tJobExec !== undefined && obj.tJobExec.isParent() && obj.tJobExec.hasChilds()) {
+      for (let child of obj.tJobExec.execChilds) {
+        let metricsField: MetricsFieldModel = new MetricsFieldModel(
+          firstSource['et_type'],
+          metricName,
+          unit,
+          obj.component,
+          obj.stream,
+          streamType,
+          true,
+          child,
+        );
+        metricsTraces = metricsTraces.concat(this.convertToMetricTraces(data, metricsField));
+        obj['metricFieldModels'].push(metricsField);
+      }
+    } else {
+      // Normal
       let metricsField: MetricsFieldModel = new MetricsFieldModel(
         firstSource['et_type'],
         metricName,
@@ -693,9 +728,8 @@ export class MonitoringService {
         obj.stream,
         streamType,
         true,
-        index,
       );
-      metricsTraces = metricsTraces.concat(this.convertToMetricTraces(data, metricsField));
+      metricsTraces = this.convertToMetricTraces(data, metricsField);
       obj['metricFieldModels'].push(metricsField);
     }
 

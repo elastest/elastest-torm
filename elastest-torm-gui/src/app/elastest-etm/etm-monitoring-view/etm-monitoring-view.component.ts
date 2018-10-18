@@ -114,12 +114,23 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     if (this.isInit()) {
       let monitoringIndex: string = this.tJobExec.monitoringIndex;
+
+      let searchAllObs: Observable<any>;
       // If Multi Parent
       if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
         monitoringIndex = this.tJobExec.getChildsMonitoringIndices();
+        searchAllObs = this.monitoringService.searchAllDynamic(
+          monitoringIndex,
+          this.stream,
+          this.component,
+          this.metricName,
+          this.tJobExec,
+        );
+      } else {
+        searchAllObs = this.monitoringService.searchAllDynamic(monitoringIndex, this.stream, this.component, this.metricName);
       }
 
-      this.monitoringService.searchAllDynamic(monitoringIndex, this.stream, this.component, this.metricName).subscribe(
+      searchAllObs.subscribe(
         (obj: any) => {
           _addMoreSubject.next(obj);
         },

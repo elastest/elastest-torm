@@ -105,6 +105,10 @@ export class TJobExecModel extends AbstractTJobExecModel {
     return this.isChild() || this.isParent();
   }
 
+  hasChilds(): boolean {
+    return this.execChilds !== undefined && this.execChilds !== null && this.execChilds.length > 0;
+  }
+
   getChildsMonitoringIndices(): string {
     let monitoringIndices: string = '';
     if (this.isParent() && this.execChilds !== undefined) {

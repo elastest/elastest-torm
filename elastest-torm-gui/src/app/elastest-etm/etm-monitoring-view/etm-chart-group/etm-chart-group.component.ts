@@ -89,6 +89,7 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
+    // When metric card is saved
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -104,7 +105,7 @@ export class EtmChartGroupComponent implements OnInit {
           let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
           individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
           if (metric.component === '') {
-            // If no component, is a default metric
+            // If no component, is a default metric (dockbeat whit more than 1 component)
             individualMetrics.activateAllMatchesByNameSuffix(metric.name);
             if (!this.live) {
               individualMetrics.getAllMetrics();
@@ -145,7 +146,7 @@ export class EtmChartGroupComponent implements OnInit {
           if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
             this.monitoringService
-              .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
+              .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName, tJobExec)
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
         }
@@ -204,9 +205,10 @@ export class EtmChartGroupComponent implements OnInit {
     return pos;
   }
 
+  // Added manually
   addMoreMetrics(obj: any): boolean {
     let added: boolean = false;
-
+    //TODO
     for (let metric of obj.metricFieldModels) {
       let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
