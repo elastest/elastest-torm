@@ -93,48 +93,27 @@ export class EtmChartGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
+    let monitoringIndex: string = this.tJobExec.monitoringIndex;
+    let showAIO: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
+    let passTJobExec: boolean = false;
+
+    // Multi parent TJobExec
     if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
-      this.initMultiParentMetricsView(tJobExec);
-    } else {
-      if (this.tJob.execDashboardConfigModel.showAllInOne) {
-        this.initAIO();
-      }
-
-      for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
-        if (metric.activated) {
-          let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-          individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
-          if (metric.component === '') {
-            // If no component, is a default metric (dockbeat whit more than 1 component)
-            individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-            if (!this.live) {
-              individualMetrics.getAllMetrics();
-            }
-            this.metricsList.push(individualMetrics);
-          } else {
-            // Else, is a custom metric
-            let pos: number = this.initCustomMetric(metric, individualMetrics);
-            if (!this.live && pos >= 0) {
-              let metricName: string =
-                metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
-              this.monitoringService
-                .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
-                .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
-            }
-          }
-        }
-      }
-      this.createGroupedMetricList();
+      monitoringIndex = tJobExec.getChildsMonitoringIndices();
+      showAIO = false;
+      passTJobExec = true;
     }
-  }
 
-  initMultiParentMetricsView(tJobExec: TJobExecModel): void {
+    if (showAIO) {
+      this.initAIO();
+    }
+
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-        individualMetrics.monitoringIndex = tJobExec.getChildsMonitoringIndices();
+        individualMetrics.monitoringIndex = monitoringIndex;
         if (metric.component === '') {
-          // If no component, is a default metric
+          // If no component, is a default metric (dockbeat whit more than 1 component)
           individualMetrics.activateAllMatchesByNameSuffix(metric.name);
           if (!this.live) {
             individualMetrics.getAllMetrics();
@@ -146,7 +125,13 @@ export class EtmChartGroupComponent implements OnInit {
           if (!this.live && pos >= 0) {
             let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
             this.monitoringService
-              .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName, tJobExec)
+              .searchAllDynamic(
+                individualMetrics.monitoringIndex,
+                metric.stream,
+                metric.component,
+                metricName,
+                passTJobExec ? tJobExec : undefined,
+              )
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
         }

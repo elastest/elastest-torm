@@ -21,6 +21,7 @@ import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
+import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -610,7 +611,7 @@ export class MonitoringService {
     stream: string,
     component: string,
     metricName?: string,
-    tJobExec?: TJobExecModel,
+    tJobExec?: AbstractTJobExecModel,
   ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
@@ -642,7 +643,7 @@ export class MonitoringService {
           component: component,
           stream: stream,
           monitoringIndex: index,
-          tJobExec: tJobExec,
+          tJobExec: tJobExec as TJobExecModel,
         };
 
         if (this.isLogTrace(firstSource)) {
