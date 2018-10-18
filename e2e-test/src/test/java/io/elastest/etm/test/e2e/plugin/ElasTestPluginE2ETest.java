@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -42,6 +44,7 @@ import io.github.bonigarcia.SeleniumExtension;
  */
 @Tag("e2e")
 @DisplayName("E2E test for the ElasTest Jenkins plugin")
+@TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(SeleniumExtension.class)
 public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
@@ -103,16 +106,10 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
         WebDriverWait waitLogs = new WebDriverWait(driver, 240);
         log.info("Wait for build sucess traces");
-        try {
-            waitLogs.until(presenceOfElementLocated(
-                    By.xpath("//span[text()='SUCCESS']")));
-            driver.navigate().refresh();
-            waitLogs.until(textToBePresentInElementLocated(
-                    By.tagName("logs-view"), "BUILD SUCCESS"));
-        } catch (Exception te) {
-            driver.navigate().refresh();
-            waitLogs.until(textToBePresentInElementLocated(
-                    By.tagName("logs-view"), "BUILD SUCCESS"));
-        }
+        checkFinishTJobExec(driver, 180, "SUCCESS", false);
+        //driver.navigate().refresh();
+        waitLogs.until(textToBePresentInElementLocated(
+                By.tagName("logs-view"), "BUILD SUCCESS"));
+        
     }
 }
