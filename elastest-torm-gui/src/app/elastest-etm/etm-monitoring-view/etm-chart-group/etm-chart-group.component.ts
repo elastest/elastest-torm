@@ -208,7 +208,6 @@ export class EtmChartGroupComponent implements OnInit {
   // Added manually
   addMoreMetrics(obj: any): boolean {
     let added: boolean = false;
-    //TODO
     for (let metric of obj.metricFieldModels) {
       let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 

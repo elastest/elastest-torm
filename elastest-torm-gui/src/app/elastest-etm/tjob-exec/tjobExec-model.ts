@@ -20,7 +20,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
   multiConfigurations: MultiConfigModel[];
 
   constructor(tJobExec: TJobExecModel = undefined) {
-    super();
+    super(tJobExec);
     if (tJobExec !== undefined) {
       this.id = tJobExec.id;
       this.duration = tJobExec.duration;

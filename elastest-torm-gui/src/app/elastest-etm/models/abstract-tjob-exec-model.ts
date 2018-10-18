@@ -11,13 +11,22 @@ export class AbstractTJobExecModel {
   endDate: Date;
   monitoringStorageType: '' | 'elasticsearch' | 'mysql';
 
-  constructor() {
-    this.id = 0;
-    this.monitoringIndex = '';
-    this.result = '';
-    this.resultMsg = '';
-    this.startDate = undefined;
-    this.endDate = undefined;
+  constructor(exec: AbstractTJobExecModel = undefined) {
+    if (exec) {
+      this.id = exec.id;
+      this.monitoringIndex = exec.monitoringIndex;
+      this.result = exec.result;
+      this.resultMsg = exec.resultMsg;
+      this.startDate = exec.startDate;
+      this.endDate = exec.endDate;
+    } else {
+      this.id = 0;
+      this.monitoringIndex = '';
+      this.result = '';
+      this.resultMsg = '';
+      this.startDate = undefined;
+      this.endDate = undefined;
+    }
   }
 
   getTJobIndex(): string {

@@ -365,7 +365,7 @@ export class MonitoringService {
   convertToGenericMetricsData(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
     let parsedData: SingleMetricModel = undefined;
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace['et_type']]) {
-      parsedData = this.getBasicSingleMetric(trace);
+      parsedData = this.getBasicSingleMetric(trace, metricsField);
       if (metricsField.streamType === 'atomic_metric') {
         parsedData.value = trace[trace['et_type']];
       } else {
@@ -380,7 +380,7 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'totalUsage':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.cpu.totalUsage * 100;
           break;
         default:
@@ -398,16 +398,16 @@ export class MonitoringService {
         case 'usage':
           let perMemoryUsage: number = (trace.memory.usage * 100) / trace.memory.limit;
           if (perMemoryUsage >= 0) {
-            parsedData = this.getBasicSingleMetric(trace);
+            parsedData = this.getBasicSingleMetric(trace, metricsField);
             parsedData.value = perMemoryUsage;
           }
           break;
         case 'limit':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.memory.limit;
           break;
         case 'maxUsage':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.memory.maxUsage;
           break;
         default:
@@ -425,15 +425,15 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'read_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.read_ps;
           break;
         case 'write_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.write_ps;
           break;
         case 'total_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.total_ps;
           break;
         default:
@@ -447,27 +447,27 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'rxBytes_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxBytes_ps;
           break;
         case 'rxErrors_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxErrors_ps;
           break;
         case 'rxPackets_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxPackets_ps;
           break;
         case 'txBytes_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txBytes_ps;
           break;
         case 'txErrors_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txErrors_ps;
           break;
         case 'txPackets_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txPackets_ps;
           break;
         default:
@@ -489,14 +489,14 @@ export class MonitoringService {
         switch (typeArr[1]) {
           case 'cpu':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace);
+              parsedData = this.getBasicSingleMetric(trace, metricsField);
               parsedData.value = subtypeValueObj.pct;
             }
             break;
           case 'memory':
             // case 'network':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace);
+              parsedData = this.getBasicSingleMetric(trace, metricsField);
               parsedData.value = subtypeValueObj.pct;
             } else {
               let nestedSubtype: string[] = metricsField.subtype.split('_');
@@ -504,7 +504,7 @@ export class MonitoringService {
                 let nestedSubtypeObj: any = trace[trace['et_type']][nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
                 let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
                 if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
-                  parsedData = this.getBasicSingleMetric(trace);
+                  parsedData = this.getBasicSingleMetric(trace, metricsField);
                   parsedData.value = nestedSubtypeValueObj;
                 }
               }
@@ -522,7 +522,7 @@ export class MonitoringService {
   //     let parsedData: SingleMetricModel = undefined;
   //     switch (metricsField.subtype) {
   //         case 'cpu':
-  //             parsedData = this.getBasicSingleMetric(trace);
+  //             parsedData = this.getBasicSingleMetric(trace,metricsField);
   //             parsedData.value = trace.cpu.totalUsage * 100;
   //             break;
   //         default:
@@ -535,13 +535,17 @@ export class MonitoringService {
   /***** Common metric functions *****/
   /***********************************/
 
-  getBasicSingleMetric(trace: any, useRealDate: boolean = true): SingleMetricModel {
+  getBasicSingleMetric(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
     let parsedData: SingleMetricModel = new SingleMetricModel();
-    //TODO convert Time for multi
-    if (useRealDate) {
-      parsedData.name = new Date('' + trace['@timestamp']);
-    } else {
+    let timestampDate: Date = new Date('' + trace['@timestamp']);
+    parsedData.name = timestampDate;
+
+    // Multi tJobExec child
+    if (metricsField && metricsField.tJobExec && metricsField.tJobExec.isChild()) {
+      let newDateInMillis: number = timestampDate.getTime() - metricsField.tJobExec.startDate.getTime();
+      parsedData.name = new Date(newDateInMillis);
     }
+
     parsedData.timestamp = trace['@timestamp'];
     return parsedData;
   }
