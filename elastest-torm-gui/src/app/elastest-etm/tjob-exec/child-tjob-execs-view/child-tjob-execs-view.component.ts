@@ -25,6 +25,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
     { name: 'id', label: 'Id' },
     { name: 'result', label: 'Result' },
     { name: 'parameters', label: 'Configurations' },
+    { name: 'duration', label: 'Duration(sec)' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'sutExecution', label: 'Sut Execution' },

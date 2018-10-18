@@ -155,6 +155,12 @@ export class ETModelsTransformServices {
       newTJobExec.endDate = new Date(tjobExec.endDate);
     }
 
+    if (newTJobExec.startDate && newTJobExec.endDate) {
+      try {
+        newTJobExec.duration = (newTJobExec.endDate.getTime() - newTJobExec.startDate.getTime()) / 1000; // secs
+      } catch (e) {}
+    }
+
     newTJobExec.externalUrls = tjobExec.externalUrls;
     newTJobExec.monitoringStorageType = tjobExec.monitoringStorageType;
 
