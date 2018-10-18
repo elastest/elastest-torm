@@ -88,20 +88,22 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
+  // When metric card is already activated
   initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
-    // When metric card is saved
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
     let monitoringIndex: string = this.tJobExec.monitoringIndex;
     let showAIO: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
     let passTJobExec: boolean = false;
+    let ignoreDefaultDockbeatMetrics: boolean = false;
 
     // Multi parent TJobExec
     if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       monitoringIndex = tJobExec.getChildsMonitoringIndices();
       showAIO = false;
       passTJobExec = true;
+      ignoreDefaultDockbeatMetrics = true;
     }
 
     if (showAIO) {
@@ -114,11 +116,15 @@ export class EtmChartGroupComponent implements OnInit {
         individualMetrics.monitoringIndex = monitoringIndex;
         if (metric.component === '') {
           // If no component, is a default metric (dockbeat whit more than 1 component)
-          individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-          if (!this.live) {
-            individualMetrics.getAllMetrics();
+          if (ignoreDefaultDockbeatMetrics) {
+            metric.activated = false;
+          } else {
+            individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+            if (!this.live) {
+              individualMetrics.getAllMetrics();
+            }
+            this.metricsList.push(individualMetrics);
           }
-          this.metricsList.push(individualMetrics);
         } else {
           // Else, is a custom metric
           let pos: number = this.initCustomMetric(metric, individualMetrics);
