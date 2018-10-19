@@ -8,10 +8,12 @@ node {
         elastest_lib.setOptionals('-sa='+env.SA)
     }
     def shared_elastest = false
-    if (env.SHARED_ELASTEST == false) {
-        shared_elastest = env.SHARED_ELASTEST
+    if (env.SHARED_ELASTEST != null && env.SHARED_ELASTEST == true) {
+        shared_elastest = env.SHARED_ELASTEST 
+    } else {
+        elastest_lib.setShared(shared_elastest)
     }
-    elastest_lib.setShared(false)
+    
     //elastest_lib.setTestLink(true)
     elastest_lib.setAuthenticatedElastest(true)
     //initialization of the runnable object to access elastest methods inside the pipeline
@@ -27,7 +29,7 @@ node {
             mycontainer.pull()
             mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
                 sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/dev_1/elastest-plugin/target/elastest.hpi'
+                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests-dev/etm-e2e-test-jenkins/elastest-plugin/target/elastest.hpi'
                 def pluginDirectory = 'elastest-plugin'
                 def testRepositoryDirectory = 'elastest'
 
