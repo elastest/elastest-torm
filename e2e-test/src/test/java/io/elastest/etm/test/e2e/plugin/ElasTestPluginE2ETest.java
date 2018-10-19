@@ -29,6 +29,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -104,13 +106,18 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
             driver.findElement(By.linkText("Open in ElasTest")).click();
         }
 
-        WebDriverWait waitLogs = new WebDriverWait(driver, 240);
+        WebDriverWait waitLogs = new WebDriverWait(driver, 60);
         log.info("Wait for build sucess traces");
         checkFinishTJobExec(driver, 180, "SUCCESS", false);
+        WebElement logsView = driver.findElement(By.xpath(
+                "//logs-view[contains(string(), 'BUILD SUCCESS')]"));
+        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
         try {
+            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
+            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         }
