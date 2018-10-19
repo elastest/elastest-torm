@@ -7,13 +7,16 @@ node {
     if (env.WITH_SA == 'true') {
         elastest_lib.setOptionals('-sa='+env.SA)
     }
-    elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
+    def shared_elastest = false
+    if (env.SHARED_ELASTEST == false) {
+        shared_elastest = env.SHARED_ELASTEST
+    }
+    elastest_lib.setShared(false)
     //elastest_lib.setTestLink(true)
     elastest_lib.setAuthenticatedElastest(true)
     //initialization of the runnable object to access elastest methods inside the pipeline
     def elastest= elastest_lib.getElastestMethods()
     def elastest_network = env.NETWORK
-    def shared_elastest = env.SHARED_ELASTEST
 
     //definition of nodes is managed by the library. Just declare the steps of your pipeline
     //inside the elastest_lib.pipeline({...})
@@ -24,7 +27,7 @@ node {
             mycontainer.pull()
             mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
                 sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
-                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/etm-e2e-test-jenkins/elastest-plugin/target/elastest.hpi'
+                def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/dev_1/elastest-plugin/target/elastest.hpi'
                 def pluginDirectory = 'elastest-plugin'
                 def testRepositoryDirectory = 'elastest'
 
@@ -67,6 +70,7 @@ node {
                     echo 'Prepare network'
                     elastest.connect2ElastestNetwork()
                     def elastestURL = elastest.getEtmUrl()
+                    echo 'ElasTest URL: ' + elastestURL
                     
                     echo 'Prepare Jenkins'
                     def etCustmizedJenkinsImage = elastest.ctx.docker.image('elastest/etm-jenkins:latest')
@@ -79,8 +83,9 @@ node {
                     }
 
                     def test_network =  shared_elastest ? "bridge" : elastest_network
+                    echo 'Test network: ' + test_network
                     
-                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
+                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0  -v /var/run/docker.sock:/var/run/docker.sock --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
                         stage ("E2E tests")
                                                             
                                 echo "${c1.id}"                        
