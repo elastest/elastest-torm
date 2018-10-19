@@ -110,7 +110,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         log.info("Wait for build sucess traces");
         checkFinishTJobExec(driver, 180, "SUCCESS", false);
         WebElement logsView = driver.findElement(By.xpath(
-                "//logs-view[contains(string(), 'BUILD SUCCESS')]"));
+                "//logs-view"));
         JavascriptExecutor jse2 = (JavascriptExecutor) driver;
         try {
             jse2.executeScript("arguments[0].scrollIntoView()", logsView);
