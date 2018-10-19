@@ -107,9 +107,13 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
         WebDriverWait waitLogs = new WebDriverWait(driver, 240);
         log.info("Wait for build sucess traces");
         checkFinishTJobExec(driver, 180, "SUCCESS", false);
-        //driver.navigate().refresh();
-        waitLogs.until(textToBePresentInElementLocated(
-                By.tagName("logs-view"), "BUILD SUCCESS"));
-        
+        try {
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
+        } catch (Exception te) {
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.xpath("//logs-view-text/div/ul/li/pre"),
+                    "BUILD SUCCESS"));
+        }
     }
 }
