@@ -112,8 +112,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
             waitLogs.until(textToBePresentInElementLocated(
-                    By.xpath("//logs-view-text/div/ul/li/pre"),
-                    "BUILD SUCCESS"));
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
         }
     }
 }
