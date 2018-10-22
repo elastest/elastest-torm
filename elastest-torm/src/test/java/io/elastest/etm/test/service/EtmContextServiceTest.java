@@ -2,24 +2,34 @@ package io.elastest.etm.test.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.spotify.docker.client.messages.ImageInfo;
+
 import io.elastest.epm.client.service.DockerService;
+import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextAuxService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 
-@RunWith(JUnitPlatform.class)
+@Tag("Unit test")
+@DisplayName("EtmContextService Unit tests")
 @ExtendWith({ MockitoExtension.class })
 public class EtmContextServiceTest {
 
@@ -28,8 +38,10 @@ public class EtmContextServiceTest {
 
     @Mock
     public EtmContextAuxService etmContextAuxService;
+//    @Mock
+//    public DockerService dockerService;
     @Mock
-    public DockerService dockerService;
+    public DockerEtmService dockerEtmService;
     @Mock
     public EsmService esmService;
 
@@ -41,14 +53,18 @@ public class EtmContextServiceTest {
     }
 
     @Test
-    @Disabled
     public void getContextInfoTest() {
+        ContextInfo contextInfo = new ContextInfo();
+        when(etmContextAuxService.getContextInfo()).thenReturn(contextInfo);
         assertThat(etmContextService).isNotNull();
         assertNotNull(etmContextService.getContextInfo());
     }
 
     @Test
-    public void getHelpInfoTest() {
+    public void getHelpInfoTest() throws Exception {
+        ImageInfo imageInfo = mock(ImageInfo.class);
+        DockerService ds = spy(DockerService.class);
+        doReturn(imageInfo).when(ds).getImageInfoByName(any(String.class));
         assertThat(etmContextService).isNotNull();
         assertNotNull(etmContextService.getHelpInfo());
     }
