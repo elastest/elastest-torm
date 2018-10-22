@@ -305,6 +305,8 @@ export class MonitoringService {
     } else {
       tracesList = this.getInitMetricsDataComplex(metricsField);
     }
+
+    let marks: MonitorMarkModel[];
     for (let metricTrace of data) {
       let source: any = metricTrace._source;
       if (source === undefined || source === null) {
@@ -325,9 +327,13 @@ export class MonitoringService {
         if (source['@timestamp'] && metricsField.tJobExec && metricsField.activeView) {
           if (metricsField.tJobExec.hasMonitoringMarks()) {
             let sourceDate: Date = new Date(source['@timestamp']);
-            let marks: MonitorMarkModel[] = metricsField.tJobExec.getMonitoringMarksById(metricsField.activeView);
+            if (!marks) {
+              marks = metricsField.tJobExec.getMonitoringMarksById(metricsField.activeView);
+            }
             let timeDifference: number;
             let currentValid: boolean = false;
+            let markPos: number = 0;
+            let selectedMarkPos: number = 0;
             for (let mark of marks) {
               if (!mark) {
                 currentValid = false;
@@ -335,17 +341,24 @@ export class MonitoringService {
 
               let currentTimeDifference: number = Math.abs(mark.timestamp.getTime() - sourceDate.getTime());
               let sameTime: boolean = currentTimeDifference < 1000;
+
               if (sameTime) {
                 currentValid = true;
-                if (!timeDifference || (timeDifference && currentTimeDifference < timeDifference)) {
+                if (!timeDifference || (timeDifference && currentTimeDifference <= timeDifference)) {
                   source.monitorMarkValue = mark.value;
                   timeDifference = currentTimeDifference;
+                  selectedMarkPos = markPos;
                 }
               } else {
                 currentValid = false || currentValid;
               }
+              markPos++;
             }
             validTrace = currentValid;
+            if (validTrace) {
+              // Remove mark to avoid duplicates
+              marks.splice(selectedMarkPos, 1);
+            }
           } else {
             validTrace = false;
           }

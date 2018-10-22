@@ -4,9 +4,7 @@ import {
   BaseChartComponent,
   calculateViewDimensions,
   ColorHelper,
-  LineComponent,
   LineSeriesComponent,
-  NgxChartsModule,
   ViewDimensions,
 } from '@swimlane/ngx-charts/release';
 
@@ -16,28 +14,18 @@ import {
   ViewEncapsulation,
   Output,
   EventEmitter,
-  ChangeDetectionStrategy,
   ViewChild,
   HostListener,
-  OnInit,
-  OnChanges,
   ContentChild,
   TemplateRef,
 } from '@angular/core';
 import { PathLocationStrategy } from '@angular/common';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition,
-} from '@angular/animations';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
-import { area, line, curveLinear } from 'd3-shape';
-import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
+import { curveLinear } from 'd3-shape';
+import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { id } from '@swimlane/ngx-charts/release/utils/id';
 import { TimelineComponent } from './components/timeline.component';
-
 
 @Component({
   selector: 'combo-chart-component',
@@ -50,61 +38,102 @@ import { TimelineComponent } from './components/timeline.component';
         style({
           opacity: 1,
         }),
-        animate(500, style({
-          opacity: 0
-        }))
-      ])
-    ])
-  ]
+        animate(
+          500,
+          style({
+            opacity: 0,
+          }),
+        ),
+      ]),
+    ]),
+  ],
 })
 export class ComboChartComponent extends BaseChartComponent {
+  @ViewChild(LineSeriesComponent)
+  lineSeriesComponent: LineSeriesComponent;
+  @ViewChild('timeline')
+  timelineObj: TimelineComponent;
+  @ViewChild('tooltip')
+  tooltipObj: TooltipAreaComponent;
 
-  @ViewChild(LineSeriesComponent) lineSeriesComponent: LineSeriesComponent;
-  @ViewChild('timeline') timelineObj: TimelineComponent;
-  @ViewChild('tooltip') tooltipObj: TooltipAreaComponent;
+  @Input()
+  curve: any = curveLinear;
+  @Input()
+  legend = false;
+  @Input()
+  legendTitle: string = 'Legend';
+  @Input()
+  xAxis;
+  @Input()
+  yAxis;
+  @Input()
+  timeline;
+  @Input()
+  showXAxisLabel;
+  @Input()
+  showYAxisLabel;
+  @Input()
+  showRightOneYAxisLabel;
+  @Input()
+  showRightTwoYAxisLabel;
+  @Input()
+  xAxisLabel;
+  @Input()
+  yAxisLabel;
+  @Input()
+  yAxisLabelRightOne;
+  @Input()
+  yAxisLabelRightTwo;
+  @Input()
+  tooltipDisabled: boolean = false;
+  @Input()
+  gradient: boolean;
+  @Input()
+  showGridLines: boolean = true;
+  @Input()
+  activeEntries: any[] = [];
+  @Input()
+  schemeType: string;
+  @Input()
+  xAxisTickFormatting: any;
+  @Input()
+  yLeftAxisTickFormatting: any;
+  @Input()
+  yRightOneAxisTickFormatting: any;
+  @Input()
+  yRightTwoAxisTickFormatting: any;
+  @Input()
+  roundDomains: boolean = false;
+  @Input()
+  colorSchemeLine: any[];
+  @Input()
+  scheme: any[];
+  @Input()
+  autoScale: boolean;
 
+  @Input()
+  leftChart: any;
+  @Input()
+  rightChartOne: any;
+  @Input()
+  rightChartTwo: any;
 
-  @Input() curve: any = curveLinear;
-  @Input() legend = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() timeline;
-  @Input() showXAxisLabel;
-  @Input() showYAxisLabel;
-  @Input() showRightOneYAxisLabel;
-  @Input() showRightTwoYAxisLabel;
-  @Input() xAxisLabel;
-  @Input() yAxisLabel;
-  @Input() yAxisLabelRightOne;
-  @Input() yAxisLabelRightTwo;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: any[] = [];
-  @Input() schemeType: string;
-  @Input() xAxisTickFormatting: any;
-  @Input() yLeftAxisTickFormatting: any;
-  @Input() yRightOneAxisTickFormatting: any;
-  @Input() yRightTwoAxisTickFormatting: any;
-  @Input() roundDomains: boolean = false;
-  @Input() colorSchemeLine: any[];
-  @Input() scheme: any[];
-  @Input() autoScale: boolean;
+  @Input()
+  yLeftAxisScaleFactor: any;
+  @Input()
+  yRightAxisScaleFactor: any;
+  @Input()
+  rangeFillOpacity: number;
 
-  @Input() leftChart: any;
-  @Input() rightChartOne: any;
-  @Input() rightChartTwo: any;
+  @Output()
+  activate: EventEmitter<any> = new EventEmitter();
+  @Output()
+  deactivate: EventEmitter<any> = new EventEmitter();
 
-  @Input() yLeftAxisScaleFactor: any;
-  @Input() yRightAxisScaleFactor: any;
-  @Input() rangeFillOpacity: number;
-
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
-
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
-  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate')
+  tooltipTemplate: TemplateRef<any>;
+  @ContentChild('seriesTooltipTemplate')
+  seriesTooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   dimsRightTwo: ViewDimensions;
@@ -120,7 +149,7 @@ export class ComboChartComponent extends BaseChartComponent {
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: any;
-  scaleType = 'time';
+  scaleType: ScaleType = 'time';
   xScale;
   yScaleRightOne;
   yScaleRightTwo;
@@ -168,7 +197,7 @@ export class ComboChartComponent extends BaseChartComponent {
   // Functions
 
   initDimensions() {
-    this.dims = this.initSingleDimensions(0)
+    this.dims = this.initSingleDimensions(0);
     this.dimsRightTwo = this.initSingleDimensions(this.rightTwoSpacing);
   }
 
@@ -184,7 +213,7 @@ export class ComboChartComponent extends BaseChartComponent {
       showXLabel: this.showXAxisLabel,
       showYLabel: this.showYAxisLabel,
       showLegend: this.legend,
-      legendType: this.schemeType
+      legendType: this.schemeType,
     });
   }
 
@@ -200,12 +229,10 @@ export class ComboChartComponent extends BaseChartComponent {
         } else {
           if (this.rightChartOne.length > 0) {
             this.legendSpacing = 70;
-
           } else {
             this.legendSpacing = 40;
           }
         }
-
       } else {
         if (this.rightChartTwo.length > 0) {
           this.legendSpacing = 200;
@@ -226,7 +253,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.initDimensions();
 
     if (this.timeline) {
-      this.dims.height -= (this.timelineHeight + this.margin[2] + this.timelinePadding);
+      this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
     }
 
     this.seriesDomain = this.getSeriesDomain();
@@ -255,9 +282,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
     this.transformRightTwo = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
 
-    const pageUrl = this.location instanceof PathLocationStrategy
-      ? this.location.path()
-      : '';
+    const pageUrl = this.location instanceof PathLocationStrategy ? this.location.path() : '';
 
     this.clipPathId = 'clip' + id().toString();
     this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
@@ -330,7 +355,10 @@ export class ComboChartComponent extends BaseChartComponent {
 
   // Legend
   getSeriesDomain(): any[] {
-    this.combinedSeries = this.rightChartOne.concat(this.leftChart).concat(this.rightChartTwo).slice(0);
+    this.combinedSeries = this.rightChartOne
+      .concat(this.leftChart)
+      .concat(this.rightChartTwo)
+      .slice(0);
     let seriesNamesList: any[] = [];
     for (let singleMetricModel of this.combinedSeries) {
       if (singleMetricModel !== undefined && singleMetricModel !== null) {
@@ -348,9 +376,10 @@ export class ComboChartComponent extends BaseChartComponent {
     return false;
   }
 
-  getScaleType(values): string {
+  getScaleType(values: any[]): ScaleType {
     let date: boolean = true;
     let num: boolean = true;
+    let isString: boolean = true;
 
     for (const value of values) {
       if (!this.isDate(value)) {
@@ -360,10 +389,21 @@ export class ComboChartComponent extends BaseChartComponent {
       if (typeof value !== 'number') {
         num = false;
       }
+
+      if (typeof value !== 'string') {
+        isString = false;
+      }
     }
 
-    if (date) { return 'time'; }
-    if (num) { return 'linear'; }
+    if (date) {
+      return 'time';
+    }
+    if (num) {
+      return 'linear';
+    }
+    if (isString) {
+      return 'string';
+    }
     return 'ordinal';
   }
 
@@ -392,12 +432,16 @@ export class ComboChartComponent extends BaseChartComponent {
       this.xSet = [...values].sort((a, b) => {
         const aDate: any = a.getTime();
         const bDate: any = b.getTime();
-        if (aDate > bDate) { return 1; }
-        if (bDate > aDate) { return -1; }
+        if (aDate > bDate) {
+          return 1;
+        }
+        if (bDate > aDate) {
+          return -1;
+        }
         return 0;
       });
     } else if (this.scaleType === 'linear') {
-      values = values.map(v => Number(v));
+      values = values.map((v) => Number(v));
       const min: number = Math.min(...values);
       const max: number = Math.max(...values);
       domain = [min, max];
@@ -454,7 +498,7 @@ export class ComboChartComponent extends BaseChartComponent {
   getXScale(domain, width): any {
     let scale;
     if (this.bandwidth === undefined) {
-      this.bandwidth = (this.dims.width - this.barPadding);
+      this.bandwidth = this.dims.width - this.barPadding;
     }
 
     if (this.scaleType === 'time') {
@@ -473,8 +517,11 @@ export class ComboChartComponent extends BaseChartComponent {
       scale = scalePoint()
         .range([this.bandwidth / 2, width - this.bandwidth / 2])
         .domain(domain);
+    } else if (this.scaleType === 'string') {
+      scale = scalePoint()
+        .range([0, this.bandwidth ])
+        .domain(domain);
     }
-
     return scale;
   }
 
@@ -547,7 +594,7 @@ export class ComboChartComponent extends BaseChartComponent {
       scaleType: this.schemeType,
       colors: undefined,
       domain: [],
-      title: undefined
+      title: undefined,
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.seriesDomain;
@@ -575,7 +622,7 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   onActivate(item) {
-    const idx: number = this.activeEntries.findIndex(d => {
+    const idx: number = this.activeEntries.findIndex((d) => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -587,7 +634,7 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = this.activeEntries.findIndex((d) => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 
@@ -614,3 +661,5 @@ export class ComboChartComponent extends BaseChartComponent {
     return item.name;
   }
 }
+
+export type ScaleType = 'time' | 'linear' | 'string' | 'ordinal' | '';
