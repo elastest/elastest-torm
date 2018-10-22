@@ -84,6 +84,7 @@ export class EtmChartGroupComponent implements OnInit {
     this.tJobExec = tJobExec;
 
     if (this.tJobExec.hasMonitoringMarks()) {
+      // One button for each mark id
       for (let markId of this.tJobExec.getMonitoringMarkIds()) {
         let markButtonModel: ButtonModel = new ButtonModel();
         markButtonModel.name = '"' + markId + '" Mark View';
@@ -92,19 +93,38 @@ export class EtmChartGroupComponent implements OnInit {
         markButtonModel.buttonType = 'raised-button';
         markButtonModel.clickMethodTooltip = 'Switch to "' + markId + '" Mark View';
         markButtonModel.clickMethod = () => {
+          for (let button of this.customButtons) {
+            button.disabled = false;
+          }
           // Show Mark View and disable button (disables for all cards)
           markButtonModel.disabled = this.showMarkView(markId);
         };
         this.customButtons.push(markButtonModel);
+      }
+
+      // Time view btn
+      if (this.customButtons.length > 0) {
+        let timeButtonModel: ButtonModel = new ButtonModel();
+        timeButtonModel.name = 'Time View';
+        timeButtonModel.color = 'accent';
+        timeButtonModel.hideIcon = true;
+        timeButtonModel.buttonType = 'raised-button';
+        timeButtonModel.disabled = true;
+        timeButtonModel.clickMethodTooltip = 'Return to Time View';
+        timeButtonModel.clickMethod = () => {
+          for (let button of this.customButtons) {
+            button.disabled = false;
+          }
+          timeButtonModel.disabled = this.showMarkView();
+        };
+        this.customButtons.push(timeButtonModel);
       }
     }
   }
 
   // When metric card is already activated
   initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, activeView?: string): void {
-    if (activeView) {
-      tJobExec.activeView = activeView;
-    }
+    tJobExec.activeView = activeView;
 
     this.allInOneMetrics = undefined;
     this.metricsList = [];
@@ -443,7 +463,8 @@ export class EtmChartGroupComponent implements OnInit {
     return index;
   }
 
-  showMarkView(markId: string): boolean {
+  showMarkView(markId: string = undefined): boolean {
+    // if markId = undefined, normal view (time)
     this.initMetricsView(this.tJob, this.tJobExec, markId);
     return true;
   }
