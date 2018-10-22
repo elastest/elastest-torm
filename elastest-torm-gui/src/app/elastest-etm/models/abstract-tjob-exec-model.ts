@@ -1,5 +1,6 @@
 import { AbstractTJobModel } from './abstract-tjob-model';
 import { getResultIconByString } from '../../shared/utils';
+import { MonitorMarkModel } from '../etm-monitoring-view/monitor-mark.model';
 
 export class AbstractTJobExecModel {
   id: number;
@@ -10,6 +11,9 @@ export class AbstractTJobExecModel {
   startDate: Date;
   endDate: Date;
   monitoringStorageType: '' | 'elasticsearch' | 'mysql';
+  monitoringMarks: MonitorMarkModel[];
+  monitoringMarksIds: string[] = [];
+  activeView: string;
 
   constructor(exec: AbstractTJobExecModel = undefined) {
     if (exec) {
@@ -19,6 +23,8 @@ export class AbstractTJobExecModel {
       this.resultMsg = exec.resultMsg;
       this.startDate = exec.startDate;
       this.endDate = exec.endDate;
+      this.monitoringMarks = exec.monitoringMarks ? exec.monitoringMarks : [];
+      this.activeView = exec.activeView;
     } else {
       this.id = 0;
       this.monitoringIndex = '';
@@ -26,11 +32,21 @@ export class AbstractTJobExecModel {
       this.resultMsg = '';
       this.startDate = undefined;
       this.endDate = undefined;
+      this.monitoringMarks = [];
+      this.activeView = undefined;
     }
   }
 
+  getMonitoringIndexAsList(): string[] {
+    let monitoringIndexList: string[] = [];
+    if (this.monitoringIndex) {
+      monitoringIndexList = this.monitoringIndex.split(',');
+    }
+    return monitoringIndexList;
+  }
+
   getTJobIndex(): string {
-    let testIndex: string = this.monitoringIndex.split(',')[0];
+    let testIndex: string = this.getMonitoringIndexAsList()[0];
     return testIndex;
   }
 
@@ -107,5 +123,30 @@ export class AbstractTJobExecModel {
 
   public getSplittedComposedMonitoringIndex(): string[] {
     return this.monitoringIndex.split(',');
+  }
+
+  hasMonitoringMarks(): boolean {
+    return this.monitoringMarks && this.monitoringMarks.length > 0;
+  }
+
+  getMonitoringMarkIds(): string[] {
+    return this.monitoringMarksIds;
+  }
+
+  addMonitoringMark(mark: MonitorMarkModel): void {
+    this.monitoringMarks.push(mark);
+    if (this.monitoringMarksIds.indexOf(mark.id) === -1) {
+      this.monitoringMarksIds.push(mark.id);
+    }
+  }
+
+  getMonitoringMarksById(id: string): MonitorMarkModel[] {
+    let marks: MonitorMarkModel[] = [];
+    for (let mark of this.monitoringMarks) {
+      if (mark.id === id) {
+        marks.push(mark);
+      }
+    }
+    return marks;
   }
 }

@@ -78,8 +78,12 @@ export function getResultIconByString(result: defaultResult | string): any {
 // sleep(500).then(() => {
 // Do something after the sleep!
 // })
-export function sleep(milliseconds: number) {
+export function sleep(milliseconds: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function asyncSleep(milliseconds: number): Promise<any> {
+  return await sleep(milliseconds);
 }
 
 export function getDateIso8601Pattern(): string {
@@ -88,4 +92,14 @@ export function getDateIso8601Pattern(): string {
 
 export function isString(s): boolean {
   return typeof s === 'string' || s instanceof String;
+}
+
+export function removeDuplicates(arr: any[]): any[] {
+  let uniqueArray: any[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (uniqueArray.indexOf(arr[i]) === -1) {
+      uniqueArray.push(arr[i]);
+    }
+  }
+  return uniqueArray;
 }

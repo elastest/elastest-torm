@@ -17,6 +17,7 @@ export class DefaultESFieldModel {
   name: string;
   activated: boolean;
   tJobExec: TJobExecModel;
+  activeView: string;
 
   constructor(component: string, streamType: string, stream?: string, tJobExec?: TJobExecModel) {
     this.component = component;
@@ -25,6 +26,9 @@ export class DefaultESFieldModel {
     this.activated = false;
     if (tJobExec) {
       this.tJobExec = new TJobExecModel(tJobExec);
+      if (tJobExec.activeView) {
+        this.activeView = tJobExec.activeView;
+      }
     }
 
     /* *** Line Name In Legend *** */

@@ -913,7 +913,7 @@ public class DockerEtmService {
             return testSuites;
         } catch (Exception e) {
             throw new Exception(
-                    "Error on get test results. Probably the specified path is incorrect.",
+                    "Error on get test results. Maybe the specified path is incorrect.",
                     e);
         }
     }

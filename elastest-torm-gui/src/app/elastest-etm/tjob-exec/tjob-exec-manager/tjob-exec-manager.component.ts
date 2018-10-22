@@ -94,6 +94,7 @@ export class TjobExecManagerComponent implements OnInit {
       this.tJobExec = tJobExec;
       this.statusIcon = this.tJobExec.getResultIcon();
       this.setTitle();
+      this.initElasTestMonitoringMarks();
       this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
       if (this.tJobExec.parameters) {
@@ -129,6 +130,12 @@ export class TjobExecManagerComponent implements OnInit {
         (error) => console.log(error),
       );
     });
+  }
+
+  initElasTestMonitoringMarks(): void {
+    if (this.tJobExec.isParent()) {
+      // TODO
+    }
   }
 
   viewTJob(): void {

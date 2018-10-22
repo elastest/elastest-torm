@@ -124,16 +124,18 @@
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
     <etm-child-tjob-execs-view [model]="tJobExec"></etm-child-tjob-execs-view>
     <etm-parent-tjob-exec-report-view [model]="tJobExec"></etm-parent-tjob-exec-report-view>
+    <!-- logs & Metrics -->
+    <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>
 </ng-container>
 
+
 <ng-template #showNormalExecutionView>
+    <!-- Test Suite / Cases -->
     <div id="testSuitesView" layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
         <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     </div>
-
-
+    <!-- logs & Metrics -->
+    <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>
     <!-- Execution files -->
     <etm-files-manager [tJobId]="tJobId" [tJobExecId]="tJobExecId "></etm-files-manager>
 </ng-template>
-<!-- logs & Metrics -->
-<etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>

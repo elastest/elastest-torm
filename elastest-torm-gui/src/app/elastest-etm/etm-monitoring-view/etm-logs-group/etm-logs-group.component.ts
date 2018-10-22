@@ -4,7 +4,7 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { Subject, Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
@@ -43,6 +43,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {}
 
+  // When a log card is already activated
   initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
@@ -78,6 +79,7 @@ export class EtmLogsGroupComponent implements OnInit {
     this.createGroupedLogsList();
   }
 
+  // Added manually
   addMoreLogs(obj: any): boolean {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';

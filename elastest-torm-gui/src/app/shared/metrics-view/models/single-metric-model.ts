@@ -1,6 +1,6 @@
 import { MetricsDataModel } from './metrics-data-model';
 export class SingleMetricModel implements MetricsDataModel {
-  name: Date | number;
+  name: Date | number | string;
   value: any;
   timestamp: any;
 

@@ -12,7 +12,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
-import { TJobModel } from '../../tjob/tjob-model';
+import { ButtonModel } from '../../../shared/button-component/button.model';
 
 @Component({
   selector: 'etm-chart-group',
@@ -30,10 +30,14 @@ export class EtmChartGroupComponent implements OnInit {
   @Input()
   tJobExec: AbstractTJobExecModel;
 
+  initialized: boolean = false;
+
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
   metricsList: ESRabComplexMetricsModel[] = [];
   groupedMetricsList: ESRabComplexMetricsModel[][] = [];
+
+  customButtons: ButtonModel[] = [];
 
   loaded: boolean = false;
 
@@ -75,23 +79,40 @@ export class EtmChartGroupComponent implements OnInit {
     return this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
   }
 
-  initAIO(): void {
-    let ignoreComponent: string = this.getIgnoreComponent();
-    this.allInOneMetrics = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
-    this.allInOneMetrics.name = 'All Metrics';
-    this.allInOneMetrics.hidePrevBtn = !this.live;
-    this.allInOneMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
-    let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
-    this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
-    if (!this.live) {
-      this.allInOneMetrics.getAllMetrics();
+  initModels(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
+    this.tJob = tJob;
+    this.tJobExec = tJobExec;
+
+    if (this.tJobExec.hasMonitoringMarks()) {
+      for (let markId of this.tJobExec.getMonitoringMarkIds()) {
+        let markButtonModel: ButtonModel = new ButtonModel();
+        markButtonModel.name = '"' + markId + '" Mark View';
+        markButtonModel.color = 'accent';
+        markButtonModel.hideIcon = true;
+        markButtonModel.buttonType = 'raised-button';
+        markButtonModel.clickMethodTooltip = 'Switch to "' + markId + '" Mark View';
+        markButtonModel.clickMethod = () => {
+          // Show Mark View and disable button (disables for all cards)
+          markButtonModel.disabled = this.showMarkView(markId);
+        };
+        this.customButtons.push(markButtonModel);
+      }
     }
   }
 
   // When metric card is already activated
-  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
-    this.tJob = tJob;
-    this.tJobExec = tJobExec;
+  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, activeView?: string): void {
+    if (activeView) {
+      tJobExec.activeView = activeView;
+    }
+
+    this.allInOneMetrics = undefined;
+    this.metricsList = [];
+    this.groupedMetricsList = [];
+
+    if (!this.initialized) {
+      this.initModels(tJob, tJobExec);
+    }
 
     let monitoringIndex: string = this.tJobExec.monitoringIndex;
     let showAIO: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
@@ -144,13 +165,26 @@ export class EtmChartGroupComponent implements OnInit {
       }
     }
     this.createGroupedMetricList();
+    this.initialized = true;
+  }
+
+  initAIO(): void {
+    let ignoreComponent: string = this.getIgnoreComponent();
+    this.allInOneMetrics = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+    this.allInOneMetrics.name = 'All Metrics';
+    this.allInOneMetrics.hidePrevBtn = !this.live;
+    this.allInOneMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
+    let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
+    this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
+    if (!this.live) {
+      this.allInOneMetrics.getAllMetrics();
+    }
   }
 
   initCustomMetric(metric: MetricsFieldModel, individualMetrics: ESRabComplexMetricsModel): number {
     if (metric.unit) {
       individualMetrics.yAxisLabelLeft = metric.unit;
     }
-
     this.metricsList.push(individualMetrics);
     this.createGroupedMetricList();
 
@@ -407,5 +441,10 @@ export class EtmChartGroupComponent implements OnInit {
         break;
     }
     return index;
+  }
+
+  showMarkView(markId: string): boolean {
+    this.initMetricsView(this.tJob, this.tJobExec, markId);
+    return true;
   }
 }

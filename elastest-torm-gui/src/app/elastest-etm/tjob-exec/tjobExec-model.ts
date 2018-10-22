@@ -3,6 +3,7 @@ import { SutExecModel } from '../sut-exec/sutExec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { TestSuiteModel } from '../test-suite/test-suite-model';
+import { removeDuplicates } from '../../shared/utils';
 
 export class TJobExecModel extends AbstractTJobExecModel {
   id: number;
@@ -125,6 +126,32 @@ export class TJobExecModel extends AbstractTJobExecModel {
       }
     }
     return monitoringIndices;
+  }
+
+  hasMonitoringMarks(): boolean {
+    let hasMarks: boolean = super.hasMonitoringMarks();
+
+    if (this.isParent() && this.execChilds) {
+      for (let child of this.execChilds) {
+        hasMarks = hasMarks || child.hasMonitoringMarks();
+      }
+    }
+    return hasMarks;
+  }
+
+  getMonitoringMarkIds(): string[] {
+    if (!this.hasMonitoringMarks()) {
+      return [];
+    }
+
+    let monitoringMarkIds: string[] = super.getMonitoringMarkIds();
+    if (this.isParent() && this.execChilds) {
+      for (let child of this.execChilds) {
+        monitoringMarkIds = monitoringMarkIds.concat(child.getMonitoringMarkIds());
+      }
+    }
+    monitoringMarkIds = removeDuplicates(monitoringMarkIds);
+    return monitoringMarkIds;
   }
 }
 

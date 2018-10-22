@@ -50,6 +50,7 @@ import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component
 import { StringListViewComponent } from './string-list-view/string-list-view.component';
 import { MultiConfigViewComponent } from './multi-config-view/multi-config-view.component';
 import { RedirectComponent } from './redirect/redirect.component';
+import { ButtonComponentComponent } from './button-component/button-component.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -116,6 +117,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     LogsViewTextComponent,
     MultiConfigViewComponent,
     RedirectComponent,
+    ButtonComponentComponent,
   ],
   exports: [
     ANGULAR_MODULES,

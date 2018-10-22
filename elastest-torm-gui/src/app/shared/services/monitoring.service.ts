@@ -22,6 +22,7 @@ import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
+import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -199,7 +200,7 @@ export class MonitoringService {
     if (tJobExec.isParent() && enableParentBehaviour) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
-      query.indices = tJobExec.monitoringIndex.split(',');
+      query.indices = tJobExec.getMonitoringIndexAsList();
     }
 
     query.selectedTerms.push('component', 'stream');
@@ -283,7 +284,7 @@ export class MonitoringService {
     if (tJobExec.isParent()) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
-      query.indices = tJobExec.monitoringIndex.split(',');
+      query.indices = tJobExec.getMonitoringIndexAsList();
     }
     query.selectedTerms.push('component', 'stream', 'et_type');
 
@@ -314,19 +315,53 @@ export class MonitoringService {
         metricsField.tJobExec &&
         metricsField.tJobExec.isChild() &&
         source.exec &&
-        metricsField.tJobExec.monitoringIndex.split(',').indexOf(source.exec) === -1
+        metricsField.tJobExec.getMonitoringIndexAsList().indexOf(source.exec) === -1
       ) {
-        //ignore
+        // ignore
       } else {
-        parsedMetric = this.convertToMetricTrace(source, metricsField);
+        let validTrace: boolean = true;
 
-        if (metricsField.componentIsEmpty()) {
-          position = this.getMetricPosition(source.component);
-        } else {
-          position = 0;
+        // if active View
+        if (source['@timestamp'] && metricsField.tJobExec && metricsField.activeView) {
+          if (metricsField.tJobExec.hasMonitoringMarks()) {
+            let sourceDate: Date = new Date(source['@timestamp']);
+            let marks: MonitorMarkModel[] = metricsField.tJobExec.getMonitoringMarksById(metricsField.activeView);
+            let timeDifference: number;
+            let currentValid: boolean = false;
+            for (let mark of marks) {
+              if (!mark) {
+                currentValid = false;
+              }
+
+              let currentTimeDifference: number = Math.abs(mark.timestamp.getTime() - sourceDate.getTime());
+              let sameTime: boolean = currentTimeDifference < 1000;
+              if (sameTime) {
+                currentValid = true;
+                if (!timeDifference || (timeDifference && currentTimeDifference < timeDifference)) {
+                  source.monitorMarkValue = mark.value;
+                  timeDifference = currentTimeDifference;
+                }
+              } else {
+                currentValid = false || currentValid;
+              }
+            }
+            validTrace = currentValid;
+          } else {
+            validTrace = false;
+          }
         }
-        if (position !== undefined && parsedMetric !== undefined) {
-          tracesList[position].series.push(parsedMetric);
+
+        if (validTrace) {
+          parsedMetric = this.convertToMetricTrace(source, metricsField);
+
+          if (metricsField.componentIsEmpty()) {
+            position = this.getMetricPosition(source.component);
+          } else {
+            position = 0;
+          }
+          if (position !== undefined && parsedMetric !== undefined) {
+            tracesList[position].series.push(parsedMetric);
+          }
         }
       }
     }
@@ -547,6 +582,12 @@ export class MonitoringService {
       parsedData.name = new Date(newDateInMillis);
     }
 
+    // If active View
+    // Note: monitorMarkValue set to trace in convertToMetricTrace()
+    if (trace.monitorMarkValue) {
+      parsedData.name = trace.monitorMarkValue;
+    }
+
     parsedData.timestamp = trace['@timestamp'];
     return parsedData;
   }
@@ -710,6 +751,7 @@ export class MonitoringService {
     // If is Multi TJobExec Parent
     if (obj.tJobExec !== undefined && obj.tJobExec.isParent() && obj.tJobExec.hasChilds()) {
       for (let child of obj.tJobExec.execChilds) {
+        child.activeView = obj.tJobExec.activeView;
         let metricsField: MetricsFieldModel = new MetricsFieldModel(
           firstSource['et_type'],
           metricName,
@@ -742,7 +784,12 @@ export class MonitoringService {
     obj.streamType = streamType;
 
     obj.unit = unit;
-    if (metricsTraces[0].series.length > 0) {
+
+    let nonEmpty: boolean = false;
+    for (let metricsTrace of metricsTraces) {
+      nonEmpty = nonEmpty || metricsTrace.series.length > 0;
+    }
+    if (nonEmpty) {
       // If chart is not empty, add it
       _obs.next(obj);
     } else {
