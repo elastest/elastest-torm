@@ -519,7 +519,7 @@ export class ComboChartComponent extends BaseChartComponent {
         .domain(domain);
     } else if (this.scaleType === 'string') {
       scale = scalePoint()
-        .range([0, this.bandwidth ])
+        .range([0, width])
         .domain(domain);
     }
     return scale;
