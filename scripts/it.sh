@@ -70,7 +70,7 @@ ET_ETM_LSBEATS_PORT=37502
 ET_ETM_INTERNAL_LSBEATS_PORT=37503
 
 # Env variables to set the data folder of ElasTest
-export ET_SHARED_FOLDER='/data'
+export ET_SHARED_FOLDER='/tmp/data'
 export ET_DATA_IN_HOST='/tmp/.elastest'
 export ET_FILES_PATH_IN_HOST='/tmp/.elastest'
 export ET_ETM_TESTLINK_API_KEY='20b9a66e17597842404062c3b628b938'
