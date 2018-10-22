@@ -3,6 +3,7 @@ package io.elastest.etm.test.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -34,6 +35,7 @@ public class EsmServiceItTest {
 	}
 	
 	@Test
+	@Disabled
 	public void provisionServiceTest(){
 		
 		assertThat(esmService.getRegisteredServices()).isNotEmpty();
