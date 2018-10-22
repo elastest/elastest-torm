@@ -5,7 +5,7 @@
       [remove]="removeAndUnsubscribeAIO.bind(this)"></metrics-chart-card>
   </div>
 </div>
-<ng-container *ngIf="metricsList.length > 0">
+<ng-container *ngIf="metricsList.length > 0 && groupedMetricsList.length > 0">
   <div *ngFor="let group of groupedMetricsList" layout-xs="column" layout-gt-xs="column" layout-gt-md="row"
     tdMediaToggle="gt-xs">
     <div *ngFor="let metric of group; let i = index; let f=first; let l=last;" [attr.flex-gt-md]="f && l ? 100 : 50">

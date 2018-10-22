@@ -21,7 +21,7 @@ import { ButtonModel } from '../../../shared/button-component/button.model';
 })
 export class EtmChartGroupComponent implements OnInit {
   @ViewChildren(MetricsChartCardComponent)
-  MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
+  metricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
   @Input()
   public live: boolean;
@@ -30,7 +30,7 @@ export class EtmChartGroupComponent implements OnInit {
   @Input()
   tJobExec: AbstractTJobExecModel;
 
-  initialized: boolean = false;
+  firstTimeInitialized: boolean = false;
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
@@ -58,9 +58,15 @@ export class EtmChartGroupComponent implements OnInit {
   ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.MetricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
+    this.metricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
     if (this.live) {
       this.initObservables();
+    }
+  }
+
+  ngAfterViewChecked() {
+    if (!this.loaded) {
+      this.subscribeAllToEvents();
     }
   }
 
@@ -130,7 +136,7 @@ export class EtmChartGroupComponent implements OnInit {
     this.metricsList = [];
     this.groupedMetricsList = [];
 
-    if (!this.initialized) {
+    if (!this.firstTimeInitialized) {
       this.initModels(tJob, tJobExec);
     }
 
@@ -185,7 +191,7 @@ export class EtmChartGroupComponent implements OnInit {
       }
     }
     this.createGroupedMetricList();
-    this.initialized = true;
+    this.firstTimeInitialized = true;
   }
 
   initAIO(): void {
@@ -326,19 +332,14 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
-  ngAfterViewChecked() {
-    if (!this.loaded) {
-      this.subscribeAllToEvents();
-    }
-  }
-
   subscribeAllToEvents(): void {
     if (!this.live) {
       // If not is live, subscribe to events
       this.unsubscribeAllEvents();
-      this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
+      this.loaded =
+        this.metricsChartCardComponents.toArray() && this.metricsChartCardComponents.toArray().length === this.metricsList.length;
       if (this.loaded) {
-        this.MetricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
+        this.metricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
           this.subscribeToEvents(element);
         });
       }
@@ -377,19 +378,19 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   updateTimeline(domain) {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.updateDomain(domain);
     });
   }
 
   hoverCharts(item) {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.hoverCharts(item);
     });
   }
 
   leaveCharts() {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.leaveCharts();
     });
   }
