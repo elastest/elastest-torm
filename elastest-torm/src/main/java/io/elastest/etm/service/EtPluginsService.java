@@ -18,6 +18,7 @@ import javax.annotation.PreDestroy;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.index.engine.Engine;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -320,7 +321,6 @@ public class EtPluginsService {
             logger.debug("Starting {} plugin...", projectName);
             dockerComposeService.startProject(projectName, false);
             insertIntoETNetwork(projectName);
-            this.checkIfEtPluginUrlIsUp(projectName);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -340,11 +340,9 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             this.startEtPlugin(projectName);
         }
-
-        this.waitForReady(projectName, 2500);
         url = getEtPluginUrl(projectName);
+        this.waitForReady(projectName, 2500);
         this.getEtPlugin(projectName).setUrl(url);
-
         return this.getEtPlugin(projectName);
     }
 
