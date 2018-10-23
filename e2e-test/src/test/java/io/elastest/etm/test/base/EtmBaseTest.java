@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -535,22 +536,30 @@ public class EtmBaseTest {
 
         // MultiConfigurations
         if (multiConfigurations != null && multiConfigurations.size() > 0) {
-            driver.findElement(By.id("input-multiConfigCheckbox")).click();
+            getElementById(driver, "input-multiConfigCheckbox").get(0)
+                    .sendKeys(Keys.SPACE);
 
             int currentMultiConfig = 0;
             for (HashMap.Entry<String, List<String>> multiConfig : multiConfigurations
                     .entrySet()) {
                 if (multiConfig.getValue().size() > 0) {
                     // Add new multi config
-                    driver.findElement(By.id("addNewMultiConfiguration"))
+                    getElementById(driver, "addNewMultiConfiguration").get(0)
                             .click();
+
                     // Set name
-                    driver.findElement(
-                            By.id("multiConfigName" + currentMultiConfig))
-                            .sendKeys(multiConfig.getKey());
+                    getElementById(driver,
+                            "multiConfigName" + currentMultiConfig).get(0)
+                                    .sendKeys(multiConfig.getKey());
 
                     int currentValue = 0;
                     for (String value : multiConfig.getValue()) {
+                        if (currentValue > 0) {
+                            getElementById(driver,
+                                    "addValueToMultiConfig"
+                                            + currentMultiConfig).get(0)
+                                                    .click();
+                        }
                         // Set value
                         driver.findElement(By.id("multiConfig"
                                 + currentMultiConfig + "Value" + currentValue))

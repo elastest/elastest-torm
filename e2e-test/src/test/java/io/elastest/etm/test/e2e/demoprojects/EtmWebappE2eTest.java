@@ -152,7 +152,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         navigateToETProject(driver, projectName);
 
-        String tJobName = "Chrome Test";
+        String tJobName = "WebApp Multi Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
             String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=$BROWSER test;";
 

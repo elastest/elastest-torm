@@ -57,7 +57,7 @@
 </div>
 
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
-  <etm-child-tjob-execs-view [model]="tJobExec" [withReloadSubscription]="true"></etm-child-tjob-execs-view>
+  <etm-child-tjob-execs-view id="childView" [model]="tJobExec" [withReloadSubscription]="true"></etm-child-tjob-execs-view>
 </ng-container>
 
 
