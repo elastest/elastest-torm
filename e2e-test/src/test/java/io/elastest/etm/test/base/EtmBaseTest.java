@@ -534,7 +534,9 @@ public class EtmBaseTest {
         }
 
         // MultiConfigurations
-        if (multiConfigurations != null) {
+        if (multiConfigurations != null && multiConfigurations.size() > 0) {
+            driver.findElement(By.id("input-multiConfigCheckbox")).click();
+
             int currentMultiConfig = 0;
             for (HashMap.Entry<String, List<String>> multiConfig : multiConfigurations
                     .entrySet()) {

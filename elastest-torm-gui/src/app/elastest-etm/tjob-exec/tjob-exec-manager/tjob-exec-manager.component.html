@@ -122,8 +122,8 @@
 </div>
 
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
-    <etm-child-tjob-execs-view [model]="tJobExec"></etm-child-tjob-execs-view>
-    <etm-parent-tjob-exec-report-view [model]="tJobExec"></etm-parent-tjob-exec-report-view>
+    <etm-child-tjob-execs-view id="childView" [model]="tJobExec"></etm-child-tjob-execs-view>
+    <etm-parent-tjob-exec-report-view id="parentReportView" [model]="tJobExec"></etm-parent-tjob-exec-report-view>
     <!-- logs & Metrics -->
     <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>
 </ng-container>
