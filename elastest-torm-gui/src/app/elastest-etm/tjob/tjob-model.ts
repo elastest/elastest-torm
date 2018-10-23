@@ -26,32 +26,47 @@ export class TJobModel extends AbstractTJobModel {
   multi: boolean;
   multiConfigurations: MultiConfigModel[];
 
-  constructor() {
-    super();
-    this.id = 0;
-    this.name = '';
-    this.imageName = '';
-    this.sut = undefined;
-    this.project = undefined;
-    this.tjobExecs = [];
-    this.parameters = [];
-    this.commands = '';
-    this.resultsPath = '';
-    this.execDashboardConfig = '';
-    this.execDashboardConfigModel = new DashboardConfigModel();
-    this.esmServicesString = '';
-    this.esmServices = [];
-    this.esmServicesChecked = 0;
-    this.external = false;
-    this.externalUrls = undefined;
-    this.multi = false;
-    this.multiConfigurations = [];
+  constructor(tJob?: TJobModel) {
+    super(tJob);
+    if (tJob === undefined) {
+      this.imageName = '';
+      this.sut = undefined;
+      this.project = undefined;
+      this.tjobExecs = [];
+      this.parameters = [];
+      this.commands = '';
+      this.resultsPath = '';
+      this.esmServicesString = '';
+      this.esmServices = [];
+      this.esmServicesChecked = 0;
+      this.external = false;
+      this.externalUrls = undefined;
+      this.multi = false;
+      this.multiConfigurations = [];
+    } else {
+      this.imageName = tJob.imageName;
+      this.sut = tJob.sut;
+      this.project = tJob.project;
+      this.tjobExecs = tJob.tjobExecs;
+      this.parameters = tJob.parameters;
+      this.commands = tJob.commands;
+      this.resultsPath = tJob.resultsPath;
+      this.esmServicesString = tJob.esmServicesString;
+      this.esmServices = tJob.esmServices;
+      this.esmServicesChecked = tJob.esmServicesChecked;
+      this.external = tJob.external;
+      this.externalUrls = tJob.externalUrls;
+      this.multi = tJob.multi;
+      this.multiConfigurations = tJob.multiConfigurations;
+    }
   }
 
   public cloneTJob(): TJobModel {
-    let tJob: TJobModel = Object.assign({}, this, {
+    let tJob: TJobModel = Object.assign(new TJobModel(), this, {
       parameters: [...this.parameters],
       tjobExecs: [...this.tjobExecs],
+      esmServices: [...this.esmServices],
+      multiConfigurations: [...this.multiConfigurations],
     });
     return tJob;
   }

@@ -26,6 +26,7 @@ export class TJobsManagerComponent implements OnInit {
   showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
+  duplicateInProgress: boolean = false;
 
   // TJob Data
   tjobColumns: any[] = [
@@ -82,6 +83,7 @@ export class TJobsManagerComponent implements OnInit {
         this.tJobs = this.project.tjobs;
         this.showSpinner = false;
         this.addLastTJob();
+        this.duplicateInProgress = false;
       }
     });
   }
@@ -90,8 +92,12 @@ export class TJobsManagerComponent implements OnInit {
     this.tJobService.getTJobs().subscribe(
       (tJobs: TJobModel[]) => {
         this.tJobs = tJobs;
+        this.duplicateInProgress = false;
       },
-      (error) => console.log(error),
+      (error) => {
+        this.duplicateInProgress = false;
+        console.log(error);
+      },
     );
   }
 
@@ -172,5 +178,23 @@ export class TJobsManagerComponent implements OnInit {
         tjob['result'] = lastExecution.getResultIcon();
       }
     }
+  }
+
+  duplicateTJob(tJob: TJobModel): void {
+    this.duplicateInProgress = true;
+    if (!tJob.project) {
+      let project: ProjectModel = new ProjectModel();
+      project.id = this.project.id;
+      tJob.project = project;
+    }
+    this.tJobService.duplicateTJob(tJob).subscribe(
+      (tJob: any) => {
+        this.init();
+      },
+      (error: Error) => {
+        console.log(error);
+        this.duplicateInProgress = false;
+      },
+    );
   }
 }
