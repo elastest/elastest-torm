@@ -69,7 +69,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
 
   startTestEngine(testEngine: EtPluginModel): void {
     this.starting[testEngine.name] = true;
-    this.tetPluginsService.startEtPlugin(testEngine).subscribe(
+    this.tetPluginsService.startEtPluginAsync(testEngine).subscribe(
       (engine: EtPluginModel) => {
         this.updateTestEngine(testEngine, engine);
         this.waitForReady(engine);
