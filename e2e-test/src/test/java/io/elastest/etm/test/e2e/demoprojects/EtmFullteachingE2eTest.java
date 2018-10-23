@@ -198,7 +198,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
             tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssList, null);
         } else {
             navigateToETProject(driver, projectName);
         }

@@ -85,7 +85,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
             tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssList, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);

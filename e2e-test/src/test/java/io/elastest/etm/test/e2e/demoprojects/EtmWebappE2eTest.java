@@ -22,7 +22,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -51,6 +54,10 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "E2E_test_Webapp";
     final String sutName = "Webapp";
+    String tJobImage = "elastest/test-etm-alpinegitjava";
+    String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+    List<String> tssList = new ArrayList<>(Arrays.asList("EUS"));
+
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
@@ -87,14 +94,10 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Chrome Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
             String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssList, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
@@ -121,19 +124,51 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Firefox Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
             String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssList, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
         this.checkFinishTJobExec(driver, timeout, "FAIL", false);
+    }
+
+    @Test
+    @DisplayName("Create WebApp project Multi Test")
+    void testCreateMultiTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver rDriver)
+            throws InterruptedException, MalformedURLException {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        if (eusURL != null) {
+            this.setupTest(testName);
+        } else {
+            driver = rDriver;
+        }
+
+        this.createProjectAndSut(driver);
+
+        navigateToETProject(driver, projectName);
+
+        String tJobName = "Chrome Test";
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=$BROWSER test;";
+
+            List<String> multiConfig1List = new ArrayList<>(
+                    Arrays.asList("chrome", "firefox"));
+            Map<String, List<String>> multiConfigurations = new HashMap<>();
+            multiConfigurations.put("BROWSER", multiConfig1List);
+
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssList,
+                    multiConfigurations);
+        }
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
+
+        this.checkFinishTJobExec(driver, timeout, "FAIL", true);
     }
 
 }

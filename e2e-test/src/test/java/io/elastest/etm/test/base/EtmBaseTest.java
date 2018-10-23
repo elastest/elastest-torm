@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -472,7 +473,8 @@ public class EtmBaseTest {
     protected void createNewTJob(WebDriver driver, String tJobName,
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
-            Map<String, String> parameters, List<String> tssList) {
+            Map<String, String> parameters, List<String> tssList,
+            Map<String, List<String>> multiConfigurations) {
         log.info("Wait for the \"New TJob\" button ");
 
         WebDriverWait waitService = new WebDriverWait(driver, 10); // seconds
@@ -512,7 +514,53 @@ public class EtmBaseTest {
             driver.findElement(By.name("commands")).sendKeys(commands);
         }
 
-        // Parameters TODO
+        // Parameters TODO id=addParameter
+
+        if (parameters != null) {
+            int currentParam = 0;
+
+            for (HashMap.Entry<String, String> param : parameters.entrySet()) {
+                // Add new param
+                driver.findElement(By.id("addNewParameter")).click();
+
+                // Set name
+                driver.findElement(By.id("parameterName" + currentParam))
+                        .sendKeys(param.getKey());
+
+                // Set value
+                driver.findElement(By.id("parameterValue" + currentParam))
+                        .sendKeys(param.getValue());
+            }
+        }
+
+        // MultiConfigurations
+        if (multiConfigurations != null) {
+            int currentMultiConfig = 0;
+            for (HashMap.Entry<String, List<String>> multiConfig : multiConfigurations
+                    .entrySet()) {
+                if (multiConfig.getValue().size() > 0) {
+                    // Add new multi config
+                    driver.findElement(By.id("addNewMultiConfiguration"))
+                            .click();
+                    // Set name
+                    driver.findElement(
+                            By.id("multiConfigName" + currentMultiConfig))
+                            .sendKeys(multiConfig.getKey());
+
+                    int currentValue = 0;
+                    for (String value : multiConfig.getValue()) {
+                        // Set value
+                        driver.findElement(By.id("multiConfig"
+                                + currentMultiConfig + "Value" + currentValue))
+                                .sendKeys(value);
+                        currentValue++;
+
+                    }
+
+                    currentMultiConfig++;
+                }
+            }
+        }
 
         // TSS
         if (tssList != null) {
@@ -656,7 +704,7 @@ public class EtmBaseTest {
             return null;
         }
     }
-    
+
     public void setupTest(String testName) throws MalformedURLException {
         DesiredCapabilities caps;
         caps = eusURL != null ? DesiredCapabilities.firefox()

@@ -83,7 +83,7 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
             String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, null);
+                    tJobImage, false, commands, null, null, null);
         }
 
         // Run TJob
