@@ -32,6 +32,10 @@
           <button md-button (click)="editSut(row)" class="iconBtn" title="Edit SuT">
             <md-icon>mode_edit</md-icon>
           </button>
+          <button md-button [disabled]="deletingInProgress || duplicateInProgress" (click)="duplicateSut(row)" class="iconBtn"
+            title="Duplicate Sut">
+            <md-icon>content_copy</md-icon>
+          </button>
           <button md-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
             <md-icon>delete</md-icon>
           </button>

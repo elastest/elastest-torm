@@ -30,6 +30,7 @@ export class SutsManagerComponent implements OnInit {
   showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
+  duplicateInProgress: boolean = false;
 
   // SuT Data
   sutColumns: any[] = [
@@ -90,6 +91,7 @@ export class SutsManagerComponent implements OnInit {
         this.suts = this.project.suts;
         this.showSpinner = false;
       }
+      this.duplicateInProgress = false;
     });
   }
 
@@ -101,6 +103,7 @@ export class SutsManagerComponent implements OnInit {
         this.suts = this.exProject.suts;
         this.showSpinner = false;
       }
+      this.duplicateInProgress = false;
     });
   }
 
@@ -108,8 +111,12 @@ export class SutsManagerComponent implements OnInit {
     this.sutService.getSuts().subscribe(
       (suts: SutModel[]) => {
         this.suts = suts;
+        this.duplicateInProgress = false;
       },
-      (error) => console.log(error),
+      (error) => {
+        this.duplicateInProgress = false;
+        console.log(error);
+      },
     );
   }
 
@@ -167,5 +174,28 @@ export class SutsManagerComponent implements OnInit {
           );
         }
       });
+  }
+
+  duplicateSut(sut: SutModel): void {
+    this.duplicateInProgress = true;
+    if (this.project && !sut.project) {
+      let project: ProjectModel = new ProjectModel();
+      project.id = this.project.id;
+      sut.project = project;
+    } else if (this.exProject && !sut.exProject) {
+      let exProject: ExternalProjectModel = new ExternalProjectModel();
+      exProject.id = this.exProject.id;
+      sut.exProject = exProject;
+    }
+    
+    this.sutService.duplicateSut(sut).subscribe(
+      (tJob: any) => {
+        this.init();
+      },
+      (error: Error) => {
+        console.log(error);
+        this.duplicateInProgress = false;
+      },
+    );
   }
 }

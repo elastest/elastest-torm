@@ -83,8 +83,8 @@ export class TJobsManagerComponent implements OnInit {
         this.tJobs = this.project.tjobs;
         this.showSpinner = false;
         this.addLastTJob();
-        this.duplicateInProgress = false;
       }
+      this.duplicateInProgress = false;
     });
   }
 

@@ -29,28 +29,52 @@ export class SutModel {
 
   externalElasticsearch: ExternalElasticsearch;
 
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.specification = '';
-    this.sutType = '';
-    this.description = '';
-    this.project = undefined;
-    this.eimConfig = new EimConfigModel();
-    this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', false);
-    this.instrumentalize = false;
-    this.currentSutExec = undefined;
-    this.instrumentedBy = '';
-    this.protocol = 'http';
-    this.port = undefined;
-    this.managedDockerType = '';
-    this.mainService = '';
-    this.parameters = [];
-    this.commands = '';
-    this.commandsOption = '';
+  constructor(sut?: SutModel) {
+    if (sut === undefined) {
+      this.id = 0;
+      this.name = '';
+      this.specification = '';
+      this.sutType = '';
+      this.description = '';
+      this.project = undefined;
+      this.eimConfig = new EimConfigModel();
+      this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', false);
+      this.instrumentalize = false;
+      this.currentSutExec = undefined;
+      this.instrumentedBy = '';
+      this.protocol = 'http';
+      this.port = undefined;
+      this.managedDockerType = '';
+      this.mainService = '';
+      this.parameters = [];
+      this.commands = '';
+      this.commandsOption = '';
 
-    this.exProject = undefined;
-    this.externalElasticsearch = new ExternalElasticsearch();
+      this.exProject = undefined;
+      this.externalElasticsearch = new ExternalElasticsearch();
+    } else {
+      this.id = sut.id;
+      this.name = sut.name;
+      this.specification = sut.specification;
+      this.sutType = sut.sutType;
+      this.description = sut.description;
+      this.project = sut.project;
+      this.eimConfig = sut.eimConfig;
+      this.eimMonitoringConfig = sut.eimMonitoringConfig;
+      this.instrumentalize = sut.instrumentalize;
+      this.currentSutExec = sut.currentSutExec;
+      this.instrumentedBy = sut.instrumentedBy;
+      this.protocol = sut.protocol;
+      this.port = sut.port;
+      this.managedDockerType = sut.managedDockerType;
+      this.mainService = sut.mainService;
+      this.parameters = sut.parameters;
+      this.commands = sut.commands;
+      this.commandsOption = sut.commandsOption;
+
+      this.exProject = sut.exProject;
+      this.externalElasticsearch = sut.externalElasticsearch;
+    }
   }
 
   public getProtocolsList(): string[] {
