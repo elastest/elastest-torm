@@ -12,13 +12,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.io.IOUtils;
-import org.elasticsearch.index.engine.Engine;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -596,14 +602,28 @@ public class EtPluginsService {
     }
 
     public boolean waitForReady(String projectName, int interval) {
-        while (!this.getEtPlugin(projectName).getStatus()
-                .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
-                && !this.checkIfEtPluginUrlIsUp(projectName)) {
-            // Wait
-            try { // TODO timeout
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<String> future = executor.submit(new Callable<String>() {
+
+            @Override
+            public String call() throws Exception {
+                while (!getEtPlugin(projectName).getStatus()
+                        .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
+                        && !checkIfEtPluginUrlIsUp(projectName)) {
+                    // Wait
+                    Thread.sleep(interval);
+                }
+                return "OK";
             }
+        });
+        try {
+            System.out.println(future.get(2, TimeUnit.MINUTES)); // timeout is
+                                                                 // in 2 seconds
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            System.err.println("Timeout waiting for a service to be ready");
+            return false;
+        } finally {
+            executor.shutdownNow();
         }
         return true;
     }
