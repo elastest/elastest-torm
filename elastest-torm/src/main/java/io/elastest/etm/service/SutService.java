@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.EimMonitoringConfig;
+import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalElasticsearch;
@@ -151,6 +152,15 @@ public class SutService {
         return sutRepository.findById(id).get();
     }
 
+    public List<SutSpecification> getSutsByName(String name) {
+        return sutRepository.findByName(name);
+    }
+
+    public List<SutSpecification> getSutsByNameAndProject(String name,
+            Project project) {
+        return sutRepository.findByNameAndProject(name, project);
+    }
+
     public SutSpecification modifySut(SutSpecification sut) {
         if (sutRepository.findById(sut.getId()) != null) {
             return sutRepository.save(sut);
@@ -227,8 +237,8 @@ public class SutService {
         boolean finish = false;
         while (!finish) {
             try {
-                traces = esService.searchTraces(
-                        extES.getIndices().split(","), startDate, searchAfter,10000);
+                traces = esService.searchTraces(extES.getIndices().split(","),
+                        startDate, searchAfter, 10000);
                 if (traces.size() > 0) {
                     Map<String, Object> lastTrace = traces
                             .get(traces.size() - 1);

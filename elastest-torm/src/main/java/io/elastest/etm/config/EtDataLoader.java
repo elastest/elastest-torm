@@ -72,7 +72,11 @@ public class EtDataLoader {
 
     /* *** Project *** */
     public boolean projectExists(String name) {
-        return projectService.getProjectByName(name) != null;
+        return getProject(name) != null;
+    }
+
+    public Project getProject(String name) {
+        return projectService.getProjectByName(name);
     }
 
     public Project createProject(String projectName) {
@@ -162,7 +166,23 @@ public class EtDataLoader {
         return tJobService.createTJob(tJob);
     }
 
-    /* *** Sut *** */
+    /* ********************* */
+    /* ******** Sut ******** */
+    /* ********************* */
+
+    public boolean sutExistsInProject(String name, Project project) {
+        return sutService.getSutsByNameAndProject(name, project).size() > 0;
+    }
+
+    public SutSpecification getSut(String name, Project project) {
+        List<SutSpecification> suts = sutService.getSutsByNameAndProject(name,
+                project);
+        if (suts.size() > 0) {
+            return suts.get(0);
+        } else {
+            return null;
+        }
+    }
 
     private SutSpecification initCommonSutFields(SutSpecification sut,
             Project project, ExternalProject exProject, String name,

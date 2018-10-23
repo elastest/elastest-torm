@@ -68,7 +68,7 @@ public class EtSampleDataLoader {
             this.createWebapp();
             this.createOpenVidu();
             this.createFullteaching();
-            this.createMulti();
+            // this.createMulti(); DISABLED
             if (etDataLoader.isStartedTestLink()) {
                 this.createTestLink();
             }
@@ -139,15 +139,18 @@ public class EtSampleDataLoader {
     public void createWebapp() {
         String pjName = "Webapp";
         if (!etDataLoader.projectExists(pjName)) {
+            String tJobImage = "elastest/test-etm-alpinegitjava";
+            String resultsPath = "/demo-projects/web-java-test/target/surefire-reports/";
+            List<String> tss = Arrays.asList("EUS");
 
             String tJob1Name = "Chrome Test";
-            String resultsPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
             String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test;\nmvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-            List<String> tss = Arrays.asList("EUS");
 
             String tJob2Name = "Firefox Test";
             String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test;\nmvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
+
+            String tJob3Name = "Multi WebApp";
+            String commands3 = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=$BROWSER test;";
 
             this.printLog(pjName);
             // Create Project
@@ -167,6 +170,15 @@ public class EtSampleDataLoader {
             etDataLoader.createTJob(project, tJob2Name, resultsPath, tJobImage,
                     false, commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
                     sut, null);
+
+            // Create Multi WebApp
+            List<MultiConfig> multiConfigs = new ArrayList<>();
+            multiConfigs.add(new MultiConfig("BROWSER",
+                    new ArrayList<String>(Arrays.asList("chrome", "firefox"))));
+
+            etDataLoader.createTJob(project, tJob3Name, resultsPath, tJobImage,
+                    false, commands3, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss,
+                    sut, multiConfigs);
         }
     }
 
