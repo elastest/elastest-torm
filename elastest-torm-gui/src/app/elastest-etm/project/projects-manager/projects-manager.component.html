@@ -6,7 +6,8 @@
                     <div layout="row">
                         <span>Projects</span>
                         <span flex></span>
-                        <button md-raised-button color="accent" [routerLink]="['/projects/add']">New Project</button>
+                        <button md-raised-button color="accent" [routerLink]="['/projects/add']" mdTooltip="Create New Project">New
+                            Project</button>
                     </div>
                 </md-card-title>
                 <!-- <md-divider></md-divider> -->
@@ -17,10 +18,11 @@
                         <md-icon>assignment</md-icon>
                         <p>No Projects created</p>
                     </div>
-                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData" [columns]="projectColumns"
-                        [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder"
-                        [style.height.px]="200" id="projects">
-                        <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle"
+                        [data]="projectData" [columns]="projectColumns" [selectable]="false" [clickable]="true"
+                        [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" [style.height.px]="200" id="projects">
+                        <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}"
+                            let-value="value" let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>
                         </ng-template>
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
@@ -28,7 +30,8 @@
                                 <button md-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
                                     <md-icon>mode_edit</md-icon>
                                 </button>
-                                <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
+                                <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress"
+                                    stopRowClick class="iconBtn-lg" title="Delete Project">
                                     <md-icon>delete</md-icon>
                                 </button>
                             </div>

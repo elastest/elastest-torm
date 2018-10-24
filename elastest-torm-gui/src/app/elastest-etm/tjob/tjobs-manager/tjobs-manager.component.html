@@ -3,7 +3,7 @@
         <div layout="row">
             <span>TJobs</span>
             <span flex></span>
-            <button md-raised-button color="accent" (click)="newTJob()">New TJob</button>
+            <button md-raised-button color="accent" (click)="newTJob()" mdTooltip="Create New TJob">New TJob</button>
         </div>
     </md-card-title>
     <md-divider></md-divider>
@@ -43,11 +43,12 @@
 
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="optionsColumn">
-                    <button md-button *ngIf="!row.external" (click)="runTJob(row, row.project)" class="iconBtn" title="Run TJob">
+                    <button md-button *ngIf="!row.external" (click)="runTJob(row, row.project)" [disabled]="deletingInProgress"
+                        class="iconBtn" title="Run TJob">
                         <md-icon>play_circle_outline</md-icon>
                     </button>
                     <button md-button *ngIf="!row.external || row.getExternalEditPage() !== undefined" (click)="editTJob(row)"
-                        class="iconBtn" title="Edit TJob">
+                        [disabled]="deletingInProgress" class="iconBtn" title="Edit TJob">
                         <md-icon>mode_edit</md-icon>
                     </button>
                     <button md-button [disabled]="deletingInProgress || duplicateInProgress" *ngIf="!row.external || row.getExternalEditPage() !== undefined"

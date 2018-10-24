@@ -3,7 +3,7 @@
     <div layout="row">
       <span>SuTs</span>
       <span flex></span>
-      <button md-raised-button color="accent" (click)="newSut()">New SuT</button>
+      <button md-raised-button color="accent" (click)="newSut()" mdTooltip="Create New Sut">New SuT</button>
     </div>
   </md-card-title>
   <md-divider></md-divider>
@@ -29,7 +29,7 @@
       <!-- OPTIONS -->
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div layout="row" class="sutOptions optionsColumn">
-          <button md-button (click)="editSut(row)" class="iconBtn" title="Edit SuT">
+          <button md-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
             <md-icon>mode_edit</md-icon>
           </button>
           <button md-button [disabled]="deletingInProgress || duplicateInProgress" (click)="duplicateSut(row)" class="iconBtn"
