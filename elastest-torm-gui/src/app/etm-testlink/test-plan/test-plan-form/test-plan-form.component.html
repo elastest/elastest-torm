@@ -15,13 +15,16 @@
                 name="testPlan.name" maxlength="50" required>
             </md-input-container>
 
-            <md-slide-toggle [(ngModel)]="testPlan.active" name="active" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Active</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testPlan.public" name="public" flex-gt-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">Public</md-slide-toggle>
+            <md-checkbox [(ngModel)]="testPlan.active" name="active" flex-gt-md="5" flex-md="5" flex-offset-md="5"
+              flex-offset-gt-md="5">Active</md-checkbox>
+            <md-checkbox [(ngModel)]="testPlan.public" name="public" flex-gt-md="5" flex-md="5" flex-offset-md="5"
+              flex-offset-gt-md="5">Public</md-checkbox>
           </div>
 
           <div layout="column" class="push-top-sm">
             <md-input-container>
-              <textarea id="notes" autosize mdInput #nameControl="ngModel" placeholder="Notes" [(ngModel)]="testPlan.notes" name="notes"></textarea>
+              <textarea id="notes" autosize mdInput #nameControl="ngModel" placeholder="Notes" [(ngModel)]="testPlan.notes"
+                name="notes"></textarea>
             </md-input-container>
           </div>
 

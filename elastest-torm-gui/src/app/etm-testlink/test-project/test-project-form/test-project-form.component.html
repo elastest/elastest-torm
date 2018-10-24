@@ -22,12 +22,12 @@
           </div>
 
           <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-            <md-slide-toggle [(ngModel)]="testProject.enableRequirements" name="enableRequirements">Enable Requirements</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testProject.enableTestPriority" name="enableTestPriority" flex-offset-gt-xs="5">Enable Test Priority</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testProject.enableAutomation" name="enableAutomation" flex-offset-gt-xs="5">Enable Automation</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testProject.enableInventory" name="enableInventory" flex-offset-gt-xs="5">Enable Inventory</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testProject.active" name="active" flex-offset-gt-xs="5">Active</md-slide-toggle>
-            <md-slide-toggle [(ngModel)]="testProject.public" name="public" flex-offset-gt-xs="5">Public</md-slide-toggle>
+            <md-checkbox [(ngModel)]="testProject.enableRequirements" name="enableRequirements">Enable Requirements</md-checkbox>
+            <md-checkbox [(ngModel)]="testProject.enableTestPriority" name="enableTestPriority" flex-offset-gt-xs="5">Enable Test Priority</md-checkbox>
+            <md-checkbox [(ngModel)]="testProject.enableAutomation" name="enableAutomation" flex-offset-gt-xs="5">Enable Automation</md-checkbox>
+            <md-checkbox [(ngModel)]="testProject.enableInventory" name="enableInventory" flex-offset-gt-xs="5">Enable Inventory</md-checkbox>
+            <md-checkbox [(ngModel)]="testProject.active" name="active" flex-offset-gt-xs="5">Active</md-checkbox>
+            <md-checkbox [(ngModel)]="testProject.public" name="public" flex-offset-gt-xs="5">Public</md-checkbox>
           </div>
 
           <div layout="column" class="push-top">

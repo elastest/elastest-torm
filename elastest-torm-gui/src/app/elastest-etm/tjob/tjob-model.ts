@@ -80,11 +80,6 @@ export class TJobModel extends AbstractTJobModel {
     return commandsArray;
   }
 
-  public changeServiceSelection($event, i: number): void {
-    console.log('Service id:' + i);
-    this.esmServices[i].selected = $event.checked;
-  }
-
   public getRouteString(): string {
     return this.name;
   }
@@ -119,9 +114,5 @@ export class TJobModel extends AbstractTJobModel {
     } else {
       return undefined;
     }
-  }
-
-  public switchMulti($event): void {
-    this.multi = $event.checked;
   }
 }

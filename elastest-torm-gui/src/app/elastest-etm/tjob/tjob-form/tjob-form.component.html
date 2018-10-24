@@ -43,7 +43,7 @@
 
         <!-- Commands -->
         <div layout="column" class="push-top push-bottom pad-top">
-          <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
+          <md-checkbox [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-checkbox>
           <div layout="column" *ngIf="!useImageCommand" class="push-top">
             <md-input-container>
               <textarea id="commands" rows="10" mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands"
@@ -60,9 +60,8 @@
 
         <!-- Multi Config -->
         <div layout="column" class="push-bottom">
-          <md-checkbox class="push-bottom" mdTooltip="Activate Multi Configuration" id="multiConfigCheckbox" [checked]="tJob.multi"
-            (change)="tJob.switchMulti($event)"> Activate Multi Configuration TJob
-          </md-checkbox>
+          <md-checkbox class="push-bottom" mdTooltip="Activate Multi Configuration" id="multiConfigCheckbox"
+            [(ngModel)]="tJob.multi" name="multiConfigCheckbox">Activate Multi Configuration TJob</md-checkbox>
 
           <td-expansion-panel *ngIf="tJob.multi" expand="true">
             <ng-template td-expansion-panel-label>
@@ -93,8 +92,8 @@
           <div class="pad" layout="column">
             <div *ngFor="let service of esmServicesCatalog; let i = index" layout="row">
               <div layout="row" layout-align="center center" class="push-bottom">
-                <md-checkbox #service{{i}} title="Select {{service.name}}" id="service{{service.name}}" [checked]="service.selected"
-                  (change)="service.changeServiceSelection($event)"></md-checkbox>
+                <md-checkbox #service{{i}} [(ngModel)]="service.selected" mdTooltip="Select {{service.name}}" id="service{{service.name}}"
+                  name="service{{service.name}}"></md-checkbox>
               </div>
               <td-expansion-panel expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
                 <ng-template td-expansion-panel-label>
@@ -124,13 +123,13 @@
             <md-card-subtitle>Metrics</md-card-subtitle>
             <ng-container *ngIf="tJob.execDashboardConfigModel.showAllInOne !== undefined && tJob.execDashboardConfigModel.showAllInOne !== null">
               <span class="push-right">
-                <md-checkbox #metric{{i}} [checked]="tJob.execDashboardConfigModel.showAllInOne" (change)="tJob.execDashboardConfigModel.changeShowAllInOneActive($event)">All-in-one
+                <md-checkbox #showAllInOne [(ngModel)]="tJob.execDashboardConfigModel.showAllInOne" name="showAllInOneCheckbox">All-in-one
                   chart</md-checkbox>
               </span>
             </ng-container>
             <ng-container *ngIf="tJob.execDashboardConfigModel.allMetricsFields !== undefined && tJob.execDashboardConfigModel.allMetricsFields !== null">
               <span class="push-right" *ngFor="let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList; let i = index">
-                <md-checkbox #metric{{i}} [checked]="metric.activated" (change)="metric.changeActive($event)">{{metric.name}}</md-checkbox>
+                <md-checkbox #metric{{i}} [(ngModel)]="metric.activated" name="metric{{i}}Checkbox">{{metric.name}}</md-checkbox>
               </span>
             </ng-container>
           </div>
@@ -139,7 +138,7 @@
             <md-card-subtitle>Logs</md-card-subtitle>
             <ng-container *ngIf="tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null">
               <span class="push-right" *ngFor="let log of tJob.execDashboardConfigModel.allLogsTypes.logsList; let i = index">
-                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [checked]="log.activated" (change)="log.changeActive($event)">{{log.name}}</md-checkbox>
+                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [(ngModel)]="log.activated" name="log{{i}}Checkbox">{{log.name}}</md-checkbox>
               </span>
             </ng-container>
           </div>

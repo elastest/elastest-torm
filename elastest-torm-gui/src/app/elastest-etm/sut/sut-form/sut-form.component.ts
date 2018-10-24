@@ -219,14 +219,6 @@ export class SutFormComponent implements OnInit, DoCheck {
     }
   }
 
-  instrumentalize($event): void {
-    this.sut.instrumentalize = $event.checked;
-  }
-
-  deinstrumentalize($event): void {
-    this.sut.instrumentalize = !$event.checked;
-  }
-
   deployedType(selected: string): void {
     // Reset
     this.withoutInsCheck = false;
@@ -378,12 +370,6 @@ export class SutFormComponent implements OnInit, DoCheck {
 
   cancel(): void {
     window.history.back();
-  }
-
-  switchDockerized($event): void {
-    if (this.sut.eimMonitoringConfig !== undefined) {
-      this.sut.eimMonitoringConfig.dockerized = $event.checked;
-    }
   }
 
   switchUseESIndicesByExecution($event): void {

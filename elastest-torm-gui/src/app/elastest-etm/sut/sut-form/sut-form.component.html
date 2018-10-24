@@ -202,7 +202,7 @@
                   <div>
                     <h3>Not Instrumentalized</h3>
                     <p>
-                      <md-checkbox [checked]="this.sut.instrumentalize" (change)="instrumentalize($event)">Instrumentalize</md-checkbox>
+                      <md-checkbox [(ngModel)]="this.sut.instrumentalize" name="instrumentalizeCheckbox">Instrumentalize</md-checkbox>
                     </p>
                   </div>
                 </md-list-item>
@@ -210,7 +210,7 @@
                   <div>
                     <h3>Instrumentalized </h3>
                     <p>
-                      <md-checkbox [checked]="!this.sut.instrumentalize" (change)="deinstrumentalize($event)">De-Instrumentalize</md-checkbox>
+                      <md-checkbox [(ngModel)]="!this.sut.instrumentalize" name="deInstrumentalizeCheckbox">De-Instrumentalize</md-checkbox>
                     </p>
                   </div>
                 </md-list-item>
@@ -236,8 +236,8 @@
             <td-expansion-panel *ngIf="this.sut.eimMonitoringConfig" expand="{{this.sut.eimMonitoringConfig.dockerized}}"
               class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
-                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [checked]="this.sut.eimMonitoringConfig.dockerized"
-                  (change)="switchDockerized($event)"></md-checkbox>
+                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [(ngModel)]="this.sut.eimMonitoringConfig.dockerized"
+                  name="isDockerizedSutCheckbox"></md-checkbox>
                 <span class="md-headline">Dockerized SuT</span>
               </ng-template>
               <div class="pad-sm pad-top-xs" layout="column">
