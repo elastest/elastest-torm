@@ -560,40 +560,39 @@ public class TJobExecOrchestratorService {
             throws Exception {
         try {
             String resultMsg = "";
-
-            // TODO exit if there are no TSS
             if (tJobServices != null && tJobServices != "") {
                 provideServices(tJobServices, tJobExec);
-            }
 
-            Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
-            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                tSSInstAssocToTJob.put(tSSInstId,
-                        esmService.gettJobServicesInstances().get(tSSInstId));
-            });
-
-            // TODO if is mini, not wait for TSS (already waiting for them
-            // individually in provideService)
-            resultMsg = "Waiting for the Test Support Services to be ready";
-            logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-            dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                    ResultEnum.WAITING_TSS, resultMsg);
-            while (!tSSInstAssocToTJob.isEmpty()) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ie) {
-                    logger.error(
-                            "Interrupted Exception {}: " + ie.getMessage());
-                }
+                Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
                 tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                    if (esmService.checkInstanceUrlIsUp(esmService
-                            .gettJobServicesInstances().get(tSSInstId))) {
-                        tSSInstAssocToTJob.remove(tSSInstId);
-                    }
+                    tSSInstAssocToTJob.put(tSSInstId, esmService
+                            .gettJobServicesInstances().get(tSSInstId));
                 });
-            }
 
-            logger.info("TSS availabes");
+                // TODO if is mini, not wait for TSS (already waiting for them
+                // individually in provideService)
+                resultMsg = "Waiting for the Test Support Services to be ready";
+                logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
+                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                        ResultEnum.WAITING_TSS, resultMsg);
+                while (!tSSInstAssocToTJob.isEmpty()) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ie) {
+                        logger.error(
+                                "Interrupted Exception {}: " + ie.getMessage());
+                    }
+                    tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                        if (esmService.checkInstanceUrlIsUp(esmService
+                                .gettJobServicesInstances().get(tSSInstId))) {
+                            tSSInstAssocToTJob.remove(tSSInstId);
+                        }
+                    });
+                }
+                logger.info("TSSs availabes");
+            } else {
+                logger.info("There aren't TSSs to be provided");
+            }
         } catch (TJobStoppedException e) {
             throw e;
         } catch (Exception e) {
