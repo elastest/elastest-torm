@@ -168,14 +168,14 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
-        this.checkFinishTJobExec(driver, timeout * 2, "FAIL", true);
+        this.checkFinishTJobExec(driver, timeout * 2, "FAIL", false);
 
         // Wait for parent report and child view
         log.info("Waiting for Child View to be present");
-        getElementById(driver, "childView", 10);
+        getElementById(driver, "childView", 20);
 
         log.info("Waiting for Parent Report View to be present");
-        getElementById(driver, "parentReportView", 10);
+        getElementById(driver, "parentReportView", 20);
     }
 
 }
