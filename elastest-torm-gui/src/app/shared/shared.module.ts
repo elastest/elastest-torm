@@ -49,8 +49,13 @@ import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component';
 import { StringListViewComponent } from './string-list-view/string-list-view.component';
 import { MultiConfigViewComponent } from './multi-config-view/multi-config-view.component';
+import { SelfAdjustableCardComponent } from './ng-self-adjustable-components/self-adjustable-card/self-adjustable-card.component';
+
 import { RedirectComponent } from './redirect/redirect.component';
 import { ButtonComponentComponent } from './button-component/button-component.component';
+import { AutoHeightGridComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-grid.component';
+import { NormalHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/normal-height-row/normal-height-row.component';
+import { AutoHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-row/auto-height-row.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -116,8 +121,12 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     BreadcrumbComponent,
     LogsViewTextComponent,
     MultiConfigViewComponent,
+    SelfAdjustableCardComponent,
     RedirectComponent,
     ButtonComponentComponent,
+    AutoHeightGridComponent,
+    NormalHeightRowComponent,
+    AutoHeightRowComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -131,6 +140,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     LoadPreviousViewComponent,
     ParametersViewComponent,
     MultiConfigViewComponent,
+    SelfAdjustableCardComponent,
     StringListViewComponent,
     ComboChartComponent,
     EtmChartGroupComponent,
@@ -142,6 +152,9 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     RedirectComponent,
     BreadcrumbComponent,
     LogsViewTextComponent,
+    AutoHeightGridComponent,
+    NormalHeightRowComponent,
+    AutoHeightRowComponent,
   ],
 })
 export class SharedModule {}

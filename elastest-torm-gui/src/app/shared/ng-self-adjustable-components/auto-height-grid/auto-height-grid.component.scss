@@ -1,0 +1,12 @@
+:host /deep/ auto-height-row {
+  flex: 1 !important;
+  box-sizing: border-box !important;
+}
+
+:host {
+  margin: 0 !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  height: 100% !important;
+}

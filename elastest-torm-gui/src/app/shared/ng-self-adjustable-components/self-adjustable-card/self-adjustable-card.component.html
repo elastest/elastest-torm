@@ -1,0 +1,17 @@
+<div layout="column" layout-fill>
+  <md-card flex class="sa-card">
+    <div layout="column" layout-fill>
+      <!-- <md-card-title layout-align="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
+      <md-card-title class="sa-card-title">
+        <ng-content select="sa-card-title"></ng-content>
+      </md-card-title>
+      <md-divider class="sa-card-divider"></md-divider>
+      <md-card-content flex class="sa-card-content">
+        <!-- <div layout="column" layout-align="{{contentAlignHorizontal}} {{contentAlignVertical}}" layout-fill> -->
+        <div layout="column" layout-fill>
+          <ng-content select="sa-card-content"></ng-content>
+        </div>
+      </md-card-content>
+    </div>
+  </md-card>
+</div>

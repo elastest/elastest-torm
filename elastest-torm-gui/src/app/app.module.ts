@@ -14,7 +14,7 @@ import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
-import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
+import { APP_INITIALIZER, NgModule, Type, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -295,5 +295,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     CredentialsDialogComponent,
   ],
   bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
