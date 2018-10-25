@@ -639,9 +639,9 @@ public class EsmService {
             this.setTSSFilesConfig(newServiceInstance);
             this.fillEnvVariablesToTSS(newServiceInstance);
 
+            servicesInstances.put(instanceId, newServiceInstance);
             newServiceInstance = this.provisionServiceInstanceByObject(
                     newServiceInstance, instanceId);
-            servicesInstances.put(instanceId, newServiceInstance);
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
@@ -1060,6 +1060,7 @@ public class EsmService {
 
     private SupportServiceInstance buildTssInstanceUrls(
             SupportServiceInstance serviceInstance) throws Exception {
+        logger.info("Building TSSs URLs for {}", serviceInstance.getName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         JsonNode manifestEndpoints = manifest.getEndpoints();
@@ -1079,14 +1080,14 @@ public class EsmService {
         } else {
 
             String networkName = etDockerNetwork;
-            logger.info("Network name: " + networkName);
+            logger.debug("Network name: " + networkName);
 
             SupportServiceInstance auxServiceInstance = null;
 
             // Main instance
             if (manifestEndpointService.get("main") != null
                     && manifestEndpointService.get("main").booleanValue()) {
-                logger.info("Principal instance {}:" + serviceName);
+                logger.info("Main sub-service {}:", serviceName);
                 auxServiceInstance = serviceInstance;
             } else { // Subservice
                 auxServiceInstance = new SupportServiceInstance();
