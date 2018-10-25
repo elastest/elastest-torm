@@ -134,7 +134,7 @@ public class EsmServiceClient implements SupportServiceClientInterface {
         try {
             httpClient.exchange(builder.buildAndExpand(params).toUri(),
                     HttpMethod.PUT, entity, String.class);
-            logger.info("Registered service.");
+            logger.info("Requested service.");
         } catch (Exception e) {
             throw new RuntimeException("Exception provisioning service \""
                     + serviceInstance.getService_id() + "\" with instanceId \""

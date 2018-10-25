@@ -1064,102 +1064,106 @@ public class EsmService {
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         JsonNode manifestEndpoints = manifest.getEndpoints();
-
         Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
-        String serviceName = subServicesNames.next();
+        String serviceName = null;
+        while (subServicesNames.hasNext()) {
+            serviceName = subServicesNames.next();
+            logger.debug("Sub-services names: {}", serviceName);
 
-        JsonNode manifestEndpointService = manifestEndpoints.get(serviceName);
-        JsonNode manifestEndpointServiceApi = manifestEndpointService
-                .get("api");
-        JsonNode manifestEndpointServiceGui = manifestEndpointService
-                .get("gui");
+            JsonNode manifestEndpointService = manifestEndpoints
+                    .get(serviceName);
+            JsonNode manifestEndpointServiceApi = manifestEndpointService
+                    .get("api");
+            JsonNode manifestEndpointServiceGui = manifestEndpointService
+                    .get("gui");
 
-        if (serviceInstance.getContainerIp() == null) {
-            throw new Exception(
-                    "Field ip not found for " + serviceName + " instance.");
-        } else {
+            if (serviceInstance.getContainerIp() == null) {
+                throw new Exception(
+                        "Field ip not found for " + serviceName + " instance.");
+            } else {
 
-            String networkName = etDockerNetwork;
-            logger.debug("Network name: " + networkName);
+                String networkName = etDockerNetwork;
+                logger.debug("Network name: " + networkName);
 
-            SupportServiceInstance auxServiceInstance = null;
+                SupportServiceInstance auxServiceInstance = null;
 
-            // Main instance
-            if (manifestEndpointService.get("main") != null
-                    && manifestEndpointService.get("main").booleanValue()) {
-                logger.info("Main sub-service {}:", serviceName);
-                auxServiceInstance = serviceInstance;
-            } else { // Subservice
-                auxServiceInstance = new SupportServiceInstance();
+                // Main instance
+                if (manifestEndpointService.get("main") != null
+                        && manifestEndpointService.get("main").booleanValue()) {
+                    logger.info("Main sub-service {}:", serviceName);
+                    auxServiceInstance = serviceInstance;
+                } else { // Subservice
+                    logger.info("Building urls for a non main sub-service");
+                    auxServiceInstance = new SupportServiceInstance();
+                    auxServiceInstance.setEndpointName(serviceName);
+
+                    // SetIp ports
+                    auxServiceInstance
+                            .setContainerIp(serviceInstance.getContainerIp());
+                    auxServiceInstance
+                            .setServiceIp(serviceInstance.getServiceIp());
+                    auxServiceInstance
+                            .setServicePort(serviceInstance.getServicePort());
+                    auxServiceInstance.setInternalServiceIp(
+                            serviceInstance.getInternalServiceIp());
+                    auxServiceInstance.setInternalServicePort(
+                            serviceInstance.getInternalServicePort());
+                    auxServiceInstance.setBindedServiceIp(
+                            serviceInstance.getBindedServiceIp());
+                    auxServiceInstance.setBindedServicePort(
+                            serviceInstance.getBindedServicePort());
+                    auxServiceInstance
+                            .setParameters(serviceInstance.getParameters());
+                    serviceInstance.getSubServices().add(auxServiceInstance);
+                }
+
                 auxServiceInstance.setEndpointName(serviceName);
 
-                // SetIp ports
-                auxServiceInstance
-                        .setContainerIp(serviceInstance.getContainerIp());
-                auxServiceInstance.setServiceIp(serviceInstance.getServiceIp());
-                auxServiceInstance
-                        .setServicePort(serviceInstance.getServicePort());
+                try {
+                    String tssContainerName = serviceInstance
+                            .getContainerName();
 
-                auxServiceInstance.setInternalServiceIp(
-                        serviceInstance.getInternalServiceIp());
-                auxServiceInstance.setInternalServicePort(
-                        serviceInstance.getInternalServicePort());
-
-                auxServiceInstance.setBindedServiceIp(
-                        serviceInstance.getBindedServiceIp());
-                auxServiceInstance.setBindedServicePort(
-                        serviceInstance.getBindedServicePort());
-
-                auxServiceInstance
-                        .setParameters(serviceInstance.getParameters());
-                serviceInstance.getSubServices().add(auxServiceInstance);
-            }
-
-            auxServiceInstance.setEndpointName(serviceName);
-
-            try {
-                String tssContainerName = serviceInstance.getContainerName();
-
-                if (manifestEndpointServiceApi != null) {
-                    if (!manifestEndpointServiceApi.isArray()) {
-                        getEndpointsInfo(auxServiceInstance,
-                                manifestEndpointServiceApi, tssContainerName,
-                                networkName, "api");
-                    } else {
-                        for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                            getEndpointsInfo(auxServiceInstance, apiNode,
-                                    tssContainerName, networkName,
-                                    apiNode.get("name") != null
-                                            ? apiNode.get("name").toString()
-                                                    .replaceAll("\"", "")
-                                                    + "api"
-                                            : "api");
+                    if (manifestEndpointServiceApi != null) {
+                        if (!manifestEndpointServiceApi.isArray()) {
+                            getEndpointsInfo(auxServiceInstance,
+                                    manifestEndpointServiceApi,
+                                    tssContainerName, networkName, "api");
+                        } else {
+                            for (final JsonNode apiNode : manifestEndpointServiceApi) {
+                                getEndpointsInfo(auxServiceInstance, apiNode,
+                                        tssContainerName, networkName,
+                                        apiNode.get("name") != null
+                                                ? apiNode.get("name").toString()
+                                                        .replaceAll("\"", "")
+                                                        + "api"
+                                                : "api");
+                            }
                         }
                     }
-                }
 
-                if (manifestEndpointServiceGui != null) {
-                    if (!manifestEndpointServiceGui.isArray()) {
-                        getEndpointsInfo(auxServiceInstance,
-                                manifestEndpointServiceGui, tssContainerName,
-                                networkName, "gui");
-                    } else {
-                        for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                            getEndpointsInfo(auxServiceInstance, guiNode,
-                                    tssContainerName, networkName,
-                                    guiNode.get("name") != null
-                                            ? guiNode.get("name").toString()
-                                                    .replaceAll("\"", "")
-                                                    + "gui"
-                                            : "gui");
+                    if (manifestEndpointServiceGui != null) {
+                        if (!manifestEndpointServiceGui.isArray()) {
+                            getEndpointsInfo(auxServiceInstance,
+                                    manifestEndpointServiceGui,
+                                    tssContainerName, networkName, "gui");
+                        } else {
+                            for (final JsonNode guiNode : manifestEndpointServiceGui) {
+                                getEndpointsInfo(auxServiceInstance, guiNode,
+                                        tssContainerName, networkName,
+                                        guiNode.get("name") != null
+                                                ? guiNode.get("name").toString()
+                                                        .replaceAll("\"", "")
+                                                        + "gui"
+                                                : "gui");
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    logger.error("Error building endpoints info: {}",
+                            e.getMessage());
+                    throw new Exception(
+                            "Error building endpoints info: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                logger.error("Error building endpoints info: {}",
-                        e.getMessage());
-                throw new Exception(
-                        "Error building endpoints info: " + e.getMessage());
             }
         }
 
