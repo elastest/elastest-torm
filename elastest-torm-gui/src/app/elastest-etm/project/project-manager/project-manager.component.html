@@ -1,30 +1,36 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Project {{project.name}}</span>
-          <span flex></span>
-          <div>
-            <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
-              <md-icon>mode_edit</md-icon>
-            </button>
-            <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Project">
-              <md-icon>delete</md-icon>
-            </button>
+<auto-height-grid>
+  <normal-height-row>
+    <div flex-gt-sm="100">
+      <md-card tdMediaToggle="gt-xs">
+        <md-card-title>
+          <div layout="row">
+            <span>Project {{project.name}}</span>
+            <span flex></span>
+            <div>
+              <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
+                <md-icon>mode_edit</md-icon>
+              </button>
+              <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Project">
+                <md-icon>delete</md-icon>
+              </button>
+            </div>
           </div>
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-    </md-card>
-  </div>
-</div>
+        </md-card-title>
+        <md-divider></md-divider>
+      </md-card>
+    </div>
+  </normal-height-row>
 
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="project">
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId"></etm-tjobs-manager>
-  </div>
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <etm-suts-manager *ngIf="projectId" [projectId]="projectId"></etm-suts-manager>
-  </div>
-</div>
+  <auto-height-row layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="project">
+    <auto-height-grid flex-gt-lg="50" layout-gt-sm="column">
+      <auto-height-row>
+        <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId"></etm-tjobs-manager>
+      </auto-height-row>
+    </auto-height-grid>
+    <auto-height-grid flex-gt-lg="50" layout-gt-sm="column">
+      <auto-height-row>
+        <etm-suts-manager *ngIf="projectId" [projectId]="projectId"></etm-suts-manager>
+      </auto-height-row>
+    </auto-height-grid>
+  </auto-height-row>
+</auto-height-grid>

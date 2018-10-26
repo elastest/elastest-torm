@@ -51,14 +51,19 @@ public class EtPluginsService {
     final Logger logger = getLogger(lookup().lookupClass());
 
     private static final String TESTLINK_NAME = "testlink";
+    private static final String TESTLINK_DISPLAY_NAME = "TestLink";
 
     private static final String ERE_NAME = "ere";
+    private static final String ERE_DISPLAY_NAME = "Recommendation Engine";
 
     private static final String ECE_NAME = "ece";
+    private static final String ECE_DISPLAY_NAME = "Cost Engine";
 
     private static final String EIM_NAME = "eim";
+    private static final String EIM_DISPLAY_NAME = "Instrumentation Manager";
 
     private static final String JENKINS_NAME = "jenkins";
+    private static final String JENKINS_DISPLAY_NAME = "Jenkins";
 
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
@@ -131,14 +136,17 @@ public class EtPluginsService {
     }
 
     public void registerEngines() {
-        this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME));
+        this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME, ECE_DISPLAY_NAME));
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
-        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME));
+        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
 
-        this.uniqueEtPluginsMap.put(EIM_NAME, new EtPlugin(EIM_NAME));
-        this.uniqueEtPluginsMap.put(TESTLINK_NAME, new EtPlugin(TESTLINK_NAME));
-        this.uniqueEtPluginsMap.put(JENKINS_NAME, new EtPlugin(JENKINS_NAME));
+        this.uniqueEtPluginsMap.put(EIM_NAME,
+                new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(TESTLINK_NAME,
+                new EtPlugin(TESTLINK_NAME, TESTLINK_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(JENKINS_NAME,
+                new EtPlugin(JENKINS_NAME, JENKINS_DISPLAY_NAME));
     }
 
     @PostConstruct
@@ -619,7 +627,8 @@ public class EtPluginsService {
         try {
             System.out.println(future.get(2, TimeUnit.MINUTES)); // timeout is
                                                                  // in 2 seconds
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+        } catch (TimeoutException | InterruptedException
+                | ExecutionException e) {
             System.err.println("Timeout waiting for a service to be ready");
             return false;
         } finally {

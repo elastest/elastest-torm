@@ -1,5 +1,10 @@
-<etm-projects-manager #projectsManager [isNested]="true">
-</etm-projects-manager>
-
-<etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress" [isNested]="true">
-</etm-tjob-execs-manager>
+<auto-height-grid layout="column">
+    <normal-height-row>
+        <etm-projects-manager #projectsManager [isNested]="true">
+        </etm-projects-manager>
+    </normal-height-row>
+    <auto-height-row>
+        <etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress" [isNested]="true">
+        </etm-tjob-execs-manager>
+    </auto-height-row>
+</auto-height-grid>

@@ -1,18 +1,17 @@
-<md-card tdMediaToggle="gt-xs">
-  <md-card-title>
+<self-adjustable-card>
+  <sa-card-title>
     <div layout="row">
       <span>SuTs</span>
       <span flex></span>
       <button md-raised-button color="accent" (click)="newSut()" mdTooltip="Create New Sut">New SuT</button>
     </div>
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content #scrollMeSut>
+  </sa-card-title>
+  <sa-card-content #scrollMeSut>
     <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-    <div *ngIf="!showSpinner && suts.length === 0" class="push-top-important messageEmptyCard">
+    <centered-element *ngIf="!showSpinner && suts.length === 0" class="push-top-important messageEmptyCard">
       <md-icon>assignment</md-icon>
       <p>No SuTs created</p>
-    </div>
+    </centered-element>
     <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="scroll_table" [data]="suts" [columns]="sutColumns"
       [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
@@ -43,5 +42,5 @@
       </ng-template>
 
     </td-data-table>
-  </md-card-content>
-</md-card>
+  </sa-card-content>
+</self-adjustable-card>

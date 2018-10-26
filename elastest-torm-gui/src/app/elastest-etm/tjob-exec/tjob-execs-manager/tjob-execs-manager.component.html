@@ -1,16 +1,14 @@
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" class="push-top-none">
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        TJob Executions Running
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+<div layout-gt-xl="row" layout="column" class="push-top-none" layout-fill>
+
+  <auto-height-grid flex-gt-lg="50">
+    <self-adjustable-card>
+      <sa-card-title>TJob Executions Running</sa-card-title>
+      <sa-card-content>
         <ng-template #runningEmpty>
           <md-spinner strokeWidth="6" *ngIf="loading; else emptyRunningMsg" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
           <ng-template #emptyRunningMsg>There aren't TJob Executions Running</ng-template>
         </ng-template>
-        <td-data-table *ngIf="!loading && tJobExecsRunning.length > 0; else runningEmpty" #running class="scroll_table"
+        <td-data-table *ngIf="!loading && tJobExecsRunning.length > 0; else runningEmpty" #running class="useMaxHeight"
           [data]="tJobExecsRunning" [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false"
           [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
@@ -38,28 +36,27 @@
             </div>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
-  </div>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-grid>
 
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+  <auto-height-grid flex-gt-lg="50">
+    <self-adjustable-card>
+      <sa-card-title>
         <div layout="row">
           <span>TJob Executions Finished</span>
           <span flex></span>
           <button md-raised-button color="accent" (click)="showAllFinished()" [disabled]="loadAllFinished" mdTooltip="Show All Finished Executions">Show
             All</button>
         </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </sa-card-title>
+      <sa-card-content>
         <ng-template #finishedEmpty>
           <md-spinner strokeWidth="6" *ngIf="loading; else emptyMsg" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
           <ng-template #emptyMsg>There aren't TJob Executions Finished</ng-template>
         </ng-template>
 
-        <td-data-table *ngIf="!loading && tJobExecsFinished.length > 0; else finishedEmpty" #finished class="scroll_table"
+        <td-data-table *ngIf="!loading && tJobExecsFinished.length > 0; else finishedEmpty" #finished class="useMaxHeight"
           [data]="tJobExecsFinished" [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false"
           [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
@@ -98,7 +95,7 @@
             </div>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
-  </div>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-grid>
 </div>
