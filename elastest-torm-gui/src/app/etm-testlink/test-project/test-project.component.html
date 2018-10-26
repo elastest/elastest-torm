@@ -81,16 +81,15 @@
   <normal-height-row *ngIf="testProject">
     <div layout="column" layout-gt-xl="row">
       <div flex-gt-lg="50" layout-gt-sm="column">
-        <md-card>
-          <md-card-title>
+        <self-adjustable-card>
+          <sa-card-title>
             <div layout="row">
               <span>Test Suites</span>
               <span flex></span>
               <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
             </div>
-          </md-card-title>
-          <md-divider></md-divider>
-          <md-card-content #scrollMeTest>
+          </sa-card-title>
+          <sa-card-content #scrollMeTest>
             <md-spinner strokeWidth="6" *ngIf="showSpinnerSuites" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
             <centered-element *ngIf="!showSpinnerSuites && testSuites.length === 0" class="push-top-important messageEmptyCard">
               <md-icon>assignment</md-icon>
@@ -105,21 +104,20 @@
                   class="hover-pointer">{{value}}</div>
               </ng-template>
             </td-data-table>
-          </md-card-content>
-        </md-card>
+          </sa-card-content>
+        </self-adjustable-card>
       </div>
 
       <div flex-gt-lg="50" layout-gt-sm="column">
-        <md-card>
-          <md-card-title>
+        <self-adjustable-card>
+          <sa-card-title>
             <div layout="row">
               <span>Test Plans</span>
               <span flex></span>
               <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
             </div>
-          </md-card-title>
-          <md-divider></md-divider>
-          <md-card-content #scrollMeTest>
+          </sa-card-title>
+          <sa-card-content #scrollMeTest>
             <md-spinner strokeWidth="6" *ngIf="showSpinnerPlans" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
             <centered-element *ngIf="!showSpinnerPlans && testPlans.length === 0" class="push-top-important messageEmptyCard">
               <md-icon>assignment</md-icon>
@@ -147,8 +145,8 @@
                 </div>
               </ng-template>
             </td-data-table>
-          </md-card-content>
-        </md-card>
+          </sa-card-content>
+        </self-adjustable-card>
       </div>
     </div>
 
