@@ -3,8 +3,7 @@
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
-:host,
-:host /deep/ sa-card-content {
+:host {
   margin: 0 !important;
   width: 100% !important;
   min-height: auto !important;

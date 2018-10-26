@@ -56,6 +56,7 @@ import { ButtonComponentComponent } from './button-component/button-component.co
 import { AutoHeightGridComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-grid.component';
 import { NormalHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/normal-height-row/normal-height-row.component';
 import { AutoHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-row/auto-height-row.component';
+import { CenteredElementComponent } from './centered-element/centered-element.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -127,6 +128,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     AutoHeightGridComponent,
     NormalHeightRowComponent,
     AutoHeightRowComponent,
+    CenteredElementComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -155,6 +157,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     AutoHeightGridComponent,
     NormalHeightRowComponent,
     AutoHeightRowComponent,
+    CenteredElementComponent,
   ],
 })
 export class SharedModule {}

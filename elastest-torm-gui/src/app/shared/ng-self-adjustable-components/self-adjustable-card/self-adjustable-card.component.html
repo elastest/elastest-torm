@@ -1,17 +1,26 @@
-<div layout="column" layout-fill>
+<auto-height-grid layout="column">
+
+  <!-- Md card with flex like auto-height-row -->
   <md-card flex class="sa-card">
-    <div layout="column" layout-fill>
-      <!-- <md-card-title layout-align="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
-      <md-card-title class="sa-card-title">
-        <ng-content select="sa-card-title"></ng-content>
-      </md-card-title>
-      <md-divider class="sa-card-divider"></md-divider>
-      <md-card-content flex class="sa-card-content">
-        <!-- <div layout="column" layout-align="{{contentAlignHorizontal}} {{contentAlignVertical}}" layout-fill> -->
-        <div layout="column" layout-fill>
-          <ng-content select="sa-card-content"></ng-content>
-        </div>
-      </md-card-content>
-    </div>
+    <auto-height-grid layout="column">
+      <normal-height-row>
+        <!-- <md-card-title layout-align="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
+        <md-card-title class="sa-card-title">
+          <ng-content select="sa-card-title"></ng-content>
+        </md-card-title>
+        <md-divider class="sa-card-divider"></md-divider>
+      </normal-height-row>
+
+      <auto-height-row>
+        <auto-height-grid layout="column">
+
+          <md-card-content class="sa-card-content" flex>
+            <!-- <div layout="column" layout-align="{{contentAlignHorizontal}} {{contentAlignVertical}}" layout-fill> -->
+            <ng-content select="sa-card-content"></ng-content>
+          </md-card-content>
+        </auto-height-grid>
+      </auto-height-row>
+    </auto-height-grid>
   </md-card>
-</div>
+
+</auto-height-grid>
