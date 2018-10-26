@@ -6,7 +6,13 @@
       <sa-card-content>
         <ng-template #runningEmpty>
           <md-spinner strokeWidth="6" *ngIf="loading; else emptyRunningMsg" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-          <ng-template #emptyRunningMsg>There aren't TJob Executions Running</ng-template>
+          <ng-template #emptyRunningMsg>
+            <centered-element class="messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>There aren't TJob Executions Running</p>
+            </centered-element>
+          </ng-template>
+
         </ng-template>
         <td-data-table *ngIf="!loading && tJobExecsRunning.length > 0; else runningEmpty" #running class="useMaxHeight"
           [data]="tJobExecsRunning" [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false"
@@ -53,7 +59,12 @@
       <sa-card-content>
         <ng-template #finishedEmpty>
           <md-spinner strokeWidth="6" *ngIf="loading; else emptyMsg" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-          <ng-template #emptyMsg>There aren't TJob Executions Finished</ng-template>
+          <ng-template #emptyMsg>
+            <centered-element class="messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>There aren't TJob Executions Finished</p>
+            </centered-element>
+          </ng-template>
         </ng-template>
 
         <td-data-table *ngIf="!loading && tJobExecsFinished.length > 0; else finishedEmpty" #finished class="useMaxHeight"
