@@ -15,15 +15,16 @@
         <md-card-content>
           <md-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
           <ng-template #showContent>
-            <div *ngIf="showNoFilesMessage(); else showFilesTable" class="push-top-important messageEmptyCard">
+            <centered-element *ngIf="showNoFilesMessage(); else showFilesTable" class="push-top-important messageEmptyCard">
               <md-icon>assignment</md-icon>
               <p>No files generated during execution</p>
-            </div>
+            </centered-element>
 
             <ng-template #showFilesTable>
-              <td-data-table #filesTable class="scroll_table" [data]="filteredExecutionFiles" [columns]="filesColumns" [selectable]="false"
-                [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-                <ng-template *ngFor="let column of filesColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+              <td-data-table #filesTable class="scroll_table" [data]="filteredExecutionFiles" [columns]="filesColumns"
+                [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+                <ng-template *ngFor="let column of filesColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                  let-row="row">
                   <div *ngIf="column.name !== 'options'; else optionsColumn">
                     {{value}}
                   </div>
@@ -33,7 +34,8 @@
                       <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
                         <md-icon>open_in_new</md-icon>
                       </a>
-                      <a *ngIf="row.name.includes('.mp4')" md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)" class="iconBtn" target="_blank" mdTooltip="Open as dialog">
+                      <a *ngIf="row.name.includes('.mp4')" md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)"
+                        class="iconBtn" target="_blank" mdTooltip="Open as dialog">
                         <md-icon>open_in_browser</md-icon>
                       </a>
                     </div>

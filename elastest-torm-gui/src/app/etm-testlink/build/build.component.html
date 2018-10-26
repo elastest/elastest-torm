@@ -59,10 +59,10 @@
       <md-divider></md-divider>
       <md-card-content>
         <md-spinner strokeWidth="6" *ngIf="loadingCases" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-        <div *ngIf="!loadingCases && testCases.length === 0" class="push-top-important messageEmptyCard">
+        <centered-element *ngIf="!loadingCases && testCases.length === 0" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No Test Cases created</p>
-        </div>
+        </centered-element>
         <td-data-table *ngIf="!loadingCases && testCases.length > 0" id="tlCases" #buildTable class="scroll_table" [data]="testCases"
           [columns]="testCasesColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of testCasesColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">

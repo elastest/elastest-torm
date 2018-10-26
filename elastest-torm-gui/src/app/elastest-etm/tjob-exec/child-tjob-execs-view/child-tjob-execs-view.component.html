@@ -6,10 +6,10 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-      <div *ngIf="!showSpinner && childrens.length === 0" class="push-top-sm messageEmptyCard">
+      <centered-element *ngIf="!showSpinner && childrens.length === 0" class="push-top-sm messageEmptyCard">
         <md-icon>assignment</md-icon>
         <p>No Executions generated</p>
-      </div>
+      </centered-element>
       <md-card-content>
         <td-data-table #tjobsTable *ngIf="childrens && childrens.length > 0" class="scroll_table" [data]="childrens"
           [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
