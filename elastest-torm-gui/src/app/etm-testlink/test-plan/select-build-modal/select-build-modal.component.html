@@ -2,8 +2,8 @@
 <md-dialog-content>
   <div layout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
-      <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild" #nameControl="ngModel"
-        required>
+      <md-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild"
+        #nameControl="ngModel" required>
         <md-option *ngFor="let build of builds; let i = index" id="build{{i}}" [value]="build">
           {{build.name}}
         </md-option>
@@ -14,10 +14,12 @@
     </ng-template>
   </div>
   <ng-template #notReadyMsg>
-    <div class="md-title" *ngIf="!builds || builds.length > 0; else noBuilds">There are not builds. Cannot run Test Plan</div>
+    <div class="md-title" *ngIf="!builds || builds.length > 0; else noBuilds">There are not builds. Cannot run Test
+      Plan</div>
   </ng-template>
 </md-dialog-content>
 <md-dialog-actions>
-  <button md-raised-button color="accent" [md-dialog-close]="true" id="runPlanModalBtn" (click)="runTestPlan()" [disabled]="selectedBuild === undefined">Run Test Plan</button>
+  <button md-raised-button color="accent" [md-dialog-close]="true" #runPlanModalBtn id="runPlanModalBtn" (click)="runTestPlan()"
+    [disabled]="selectedBuild === undefined">Run Test Plan</button>
   <button md-button md-dialog-close>Cancel</button>
 </md-dialog-actions>
