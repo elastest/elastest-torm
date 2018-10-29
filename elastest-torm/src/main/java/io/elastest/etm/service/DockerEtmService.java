@@ -935,18 +935,19 @@ public class DockerEtmService {
                         Arrays.asList(piece.split(foot)));
                 String newResult = head + splitedFootResult.get(0) + foot;
 
-                ReportTestSuite testSuite = null;
+                List<ReportTestSuite> testSuites = null;
 
                 try {
-                    testSuite = this
+                    // normally, a single test suite
+                    testSuites = this
                             .testSuiteStringToReportTestSuite(newResult);
                 } catch (ParserConfigurationException | SAXException
                         | IOException e) {
                     logger.error("Error on parse testSuite {}", e);
                 }
 
-                if (testSuite != null) {
-                    results.add(testSuite);
+                if (testSuites != null) {
+                    results.addAll(testSuites);
                 }
             }
         }
@@ -954,14 +955,16 @@ public class DockerEtmService {
         return results;
     }
 
-    private ReportTestSuite testSuiteStringToReportTestSuite(
+    private List<ReportTestSuite> testSuiteStringToReportTestSuite(
             String testSuiteStr) throws UnsupportedEncodingException,
             ParserConfigurationException, SAXException, IOException {
         TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
         InputStream byteArrayIs = new ByteArrayInputStream(
                 testSuiteStr.getBytes());
+
+        // normally, a single test suite, but in some cases returns more than 1
         return testSuiteXmlParser
-                .parse(new InputStreamReader(byteArrayIs, "UTF-8")).get(0);
+                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
 }

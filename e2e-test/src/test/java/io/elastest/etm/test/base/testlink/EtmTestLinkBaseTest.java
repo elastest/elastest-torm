@@ -158,17 +158,21 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
                 .click();
 
-        String selectBuildId = "selectBuild";
-        String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
-        this.getElementByIdXpath(driver, selectBuildId, selectBuildXpath).get(0)
-                .click();
+        // Not necessary. When there are only one build, Plan runs automatically
 
-        this.getElementsByTagName(driver, "md-option").get(0).click();
+        // String selectBuildId = "selectBuild";
+        // String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
+        // this.getElementByIdXpath(driver, selectBuildId,
+        // selectBuildXpath).get(0)
+        // .click();
 
-        String runPlanModalBtnId = "runPlanModalBtn";
-        String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";
-        this.getElementByIdXpath(driver, runPlanModalBtnId, runPlanModalXpath)
-                .get(0).click();
+        // this.getElementsByTagName(driver, "md-option").get(0).click();
+
+        // String runPlanModalBtnId = "runPlanModalBtn";
+        // String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";
+        // this.getElementByIdXpath(driver, runPlanModalBtnId,
+        // runPlanModalXpath)
+        // .get(0).click();
     }
 
     protected void startTLEtmPlanExecutionWithNavigate(WebDriver driver,
