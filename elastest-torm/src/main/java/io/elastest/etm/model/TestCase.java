@@ -4,6 +4,8 @@ import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -140,6 +142,19 @@ public class TestCase {
 
     public void cleanNameAndSet(String name) {
         name = name.split("\\(")[0];
+
+        String cucumberAndKarateScenarioStr = "Scenario: ";
+        if (name.startsWith(cucumberAndKarateScenarioStr)) {
+            name = name.split(cucumberAndKarateScenarioStr)[1];
+        }
+
+        String karate090RC4ScenarioStr = "^\\[#\\d+ line \\d+\\] ";
+        Pattern p = Pattern.compile(karate090RC4ScenarioStr);
+        Matcher m = p.matcher(name);
+        if (m.find()) {
+            name = name.replaceFirst(karate090RC4ScenarioStr, "");
+        }
+
         this.setName(name);
     }
 
