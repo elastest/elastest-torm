@@ -1812,7 +1812,7 @@ public class EsmService {
                         envNamePrefixSubSSI, entry, publicEnvVars));
             }
         }
-
+        logger.debug("TJob and Sut env vars: {}", envVars.keySet().toString());
         return envVars;
     }
 
