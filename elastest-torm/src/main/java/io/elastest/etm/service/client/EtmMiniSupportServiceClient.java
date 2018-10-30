@@ -208,6 +208,8 @@ public class EtmMiniSupportServiceClient
                         logger.debug("Building data for a sub-service {}", serviceName ); 
                         SupportServiceInstance auxServiceInstance = null;
                         auxServiceInstance = new SupportServiceInstance();
+                        auxServiceInstance.setInternalServiceIp(internalServiceIp);
+                        auxServiceInstance.setBindedServiceIp(bindedServiceIp);
                         auxServiceInstance.setContainerName(containerName);
                         auxServiceInstance.setEndpointName(serviceName);
                         auxServiceInstance.setContainerIp(containerIp);

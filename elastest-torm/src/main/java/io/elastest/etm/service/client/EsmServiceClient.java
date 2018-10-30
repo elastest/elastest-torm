@@ -335,6 +335,8 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                     SupportServiceInstance auxServiceInstance = null;
                     auxServiceInstance = new SupportServiceInstance();
                     auxServiceInstance.setContainerName(containerName);
+                    auxServiceInstance.setInternalServiceIp(internalServiceIp);
+                    auxServiceInstance.setBindedServiceIp(bindedServiceIp);
                     auxServiceInstance.setEndpointName(serviceName);
                     auxServiceInstance.setContainerIp(containerIp);
                     auxServiceInstance.setServiceIp(serviceIp);
