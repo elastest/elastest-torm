@@ -295,6 +295,8 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                 serviceInstance.getManifestId());
         JsonNode manifestEndpoints = manifest.get("endpoints");
         Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
+//        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
+//                .get("context").fieldNames();
 
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
@@ -304,9 +306,11 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                     .get(serviceName);
             String containerName = serviceInstance.getInstanceId() + "_"
                     + serviceName + "_1";
+            String containerIpField = serviceInstance.getInstanceId() + "_"
+                    + serviceName + "_Ip";
             try {
                 String containerIp = serviceInstanceDetail.get("context")
-                        .get(serviceName).toString().replaceAll("\"", "");
+                        .get(containerIpField).toString().replaceAll("\"", "");
                 logger.debug("Container ip {} for the service {}", containerIp,
                         containerName);
                 logger.info("ET_PUBLIC_HOST value: "
