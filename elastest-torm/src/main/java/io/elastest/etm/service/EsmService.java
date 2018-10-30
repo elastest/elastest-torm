@@ -271,6 +271,7 @@ public class EsmService {
                 }
             }
             eusInstance.setServiceIp(serviceIp);
+            eusInstance.setEndpointName("elastest-eus");
             eusInstance = buildTssInstanceUrls(eusInstance);
 
             // Set ports after buildTssInstanceUrls to update
@@ -1063,111 +1064,80 @@ public class EsmService {
         logger.info("Building TSSs URLs for {}", serviceInstance.getName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
-        JsonNode manifestEndpoints = manifest.getEndpoints();
-        Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
-        String serviceName = null;
-        while (subServicesNames.hasNext()) {
-            serviceName = subServicesNames.next();
-            logger.debug("Sub-services names: {}", serviceName);
-
-            JsonNode manifestEndpointService = manifestEndpoints
-                    .get(serviceName);
-            JsonNode manifestEndpointServiceApi = manifestEndpointService
-                    .get("api");
-            JsonNode manifestEndpointServiceGui = manifestEndpointService
-                    .get("gui");
-
-            if (serviceInstance.getContainerIp() == null) {
+        createSubserviceUrls(serviceInstance, manifest);
+        for (SupportServiceInstance subService: serviceInstance.getSubServices()) {
+            logger.debug("Sub-services names: {}", subService.getName());
+            if (subService.getContainerIp() == null) {
                 throw new Exception(
-                        "Field ip not found for " + serviceName + " instance.");
+                        "Field ip not found for " + subService.getName() + " instance.");
             } else {
-
-                String networkName = etDockerNetwork;
-                logger.debug("Network name: " + networkName);
-
-                SupportServiceInstance auxServiceInstance = null;
-
-                // Main instance
-                if (manifestEndpointService.get("main") != null
-                        && manifestEndpointService.get("main").booleanValue()) {
-                    logger.info("Main sub-service {}:", serviceName);
-                    auxServiceInstance = serviceInstance;
-                } else { // Subservice
-                    logger.info("Building urls for a non main sub-service");
-                    auxServiceInstance = new SupportServiceInstance();
-                    auxServiceInstance.setEndpointName(serviceName);
-
-                    // SetIp ports
-                    auxServiceInstance
-                            .setContainerIp(serviceInstance.getContainerIp());
-                    auxServiceInstance
-                            .setServiceIp(serviceInstance.getServiceIp());
-                    auxServiceInstance
-                            .setServicePort(serviceInstance.getServicePort());
-                    auxServiceInstance.setInternalServiceIp(
-                            serviceInstance.getInternalServiceIp());
-                    auxServiceInstance.setInternalServicePort(
-                            serviceInstance.getInternalServicePort());
-                    auxServiceInstance.setBindedServiceIp(
-                            serviceInstance.getBindedServiceIp());
-                    auxServiceInstance.setBindedServicePort(
-                            serviceInstance.getBindedServicePort());
-                    auxServiceInstance
-                            .setParameters(serviceInstance.getParameters());
-                    serviceInstance.getSubServices().add(auxServiceInstance);
-                }
-
-                auxServiceInstance.setEndpointName(serviceName);
-
-                try {
-                    String tssContainerName = serviceInstance
-                            .getContainerName();
-
-                    if (manifestEndpointServiceApi != null) {
-                        if (!manifestEndpointServiceApi.isArray()) {
-                            getEndpointsInfo(auxServiceInstance,
-                                    manifestEndpointServiceApi,
-                                    tssContainerName, networkName, "api");
-                        } else {
-                            for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                                getEndpointsInfo(auxServiceInstance, apiNode,
-                                        tssContainerName, networkName,
-                                        apiNode.get("name") != null
-                                                ? apiNode.get("name").toString()
-                                                        .replaceAll("\"", "")
-                                                        + "api"
-                                                : "api");
-                            }
-                        }
-                    }
-
-                    if (manifestEndpointServiceGui != null) {
-                        if (!manifestEndpointServiceGui.isArray()) {
-                            getEndpointsInfo(auxServiceInstance,
-                                    manifestEndpointServiceGui,
-                                    tssContainerName, networkName, "gui");
-                        } else {
-                            for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                                getEndpointsInfo(auxServiceInstance, guiNode,
-                                        tssContainerName, networkName,
-                                        guiNode.get("name") != null
-                                                ? guiNode.get("name").toString()
-                                                        .replaceAll("\"", "")
-                                                        + "gui"
-                                                : "gui");
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Error building endpoints info: {}",
-                            e.getMessage());
-                    throw new Exception(
-                            "Error building endpoints info: " + e.getMessage());
-                }
+                createSubserviceUrls(subService, manifest);
             }
         }
 
         return serviceInstance;
+    }
+    
+    private void createSubserviceUrls(SupportServiceInstance serviceInstance, TssManifest manifest) throws Exception {
+        JsonNode manifestEndpoints = manifest.getEndpoints();
+        logger.debug("Endpoints for the service: {}", manifestEndpoints.toString());
+        logger.debug("Endpoints name: {}", serviceInstance.getEndpointName());
+        JsonNode manifestEndpointService = manifestEndpoints
+                .get(serviceInstance.getEndpointName());
+        logger.debug("Endpoints defined insite the manifest: {}", manifestEndpointService.toString());
+        JsonNode manifestEndpointServiceApi = manifestEndpointService
+                .get("api");
+        JsonNode manifestEndpointServiceGui = manifestEndpointService
+                .get("gui");
+        
+        String networkName = etDockerNetwork;
+        logger.debug("Network name: " + networkName);
+        
+        try {
+            String tssContainerName = serviceInstance
+                    .getContainerName();
+
+            if (manifestEndpointServiceApi != null) {
+                if (!manifestEndpointServiceApi.isArray()) {
+                    getEndpointsInfo(serviceInstance,
+                            manifestEndpointServiceApi,
+                            tssContainerName, networkName, "api");
+                } else {
+                    for (final JsonNode apiNode : manifestEndpointServiceApi) {
+                        getEndpointsInfo(serviceInstance, apiNode,
+                                tssContainerName, networkName,
+                                apiNode.get("name") != null
+                                        ? apiNode.get("name").toString()
+                                                .replaceAll("\"", "")
+                                                + "api"
+                                        : "api");
+                    }
+                }
+            }
+
+            if (manifestEndpointServiceGui != null) {
+                if (!manifestEndpointServiceGui.isArray()) {
+                    getEndpointsInfo(serviceInstance,
+                            manifestEndpointServiceGui,
+                            tssContainerName, networkName, "gui");
+                } else {
+                    for (final JsonNode guiNode : manifestEndpointServiceGui) {
+                        getEndpointsInfo(serviceInstance, guiNode,
+                                tssContainerName, networkName,
+                                guiNode.get("name") != null
+                                        ? guiNode.get("name").toString()
+                                                .replaceAll("\"", "")
+                                                + "gui"
+                                        : "gui");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error building endpoints info: {}",
+                    e.getMessage());
+            throw new Exception(
+                    "Error building endpoints info: " + e.getMessage());
+        }
     }
 
     private SupportServiceInstance getEndpointsInfo(

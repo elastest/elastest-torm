@@ -5,6 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -166,30 +167,64 @@ public class EtmMiniSupportServiceClient
         TssManifest manifest = supportServicesMap
                 .get(serviceInstance.getService_id()).getManifest();
         serviceInstance.setManifestId(manifest.getId());
-        initTssInstanceContainerName(serviceInstance);
+        
+        if (serviceInstance.getContainerName() == null) {
+            JsonNode manifestEndpoints = manifest.getEndpoints();
+            Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
 
-        try {
-            String containerIp = dockerComposeService.dockerService
-                    .getContainerIp(serviceInstance.getContainerName(),
-                            etDockerNetwork);
-            serviceInstance.setContainerIp(containerIp);
-            logger.info("ET_PUBLIC_HOST value: "
-                    + utilsService.getEtPublicHostValue());
+            while (subServicesNames.hasNext()) {
+                String serviceName = subServicesNames.next();
+                logger.debug("Building service instance data for a {} TSS.", serviceName  );
+                JsonNode manifestEndpointService = manifestEndpoints
+                        .get(serviceName);
+                String containerName = serviceInstance.getInstanceId() + "_"
+                        + serviceName + "_1";
+                try {
+                    String containerIp = dockerComposeService.dockerService
+                            .getContainerIp(containerName,
+                                    etDockerNetwork);
+                    logger.debug("Container ip {} for the service {}", containerIp, containerName );
+                    logger.info("ET_PUBLIC_HOST value: "
+                            + utilsService.getEtPublicHostValue());
 
-            String internalServiceIp = containerIp;
-            serviceInstance.setInternalServiceIp(internalServiceIp);
-            String bindedServiceIp = utilsService.getEtPublicHostValue();
-            serviceInstance.setBindedServiceIp(bindedServiceIp);
+                    String internalServiceIp = containerIp;
+                    String bindedServiceIp = utilsService
+                            .getEtPublicHostValue();
 
-            String serviceIp = !utilsService.isDefaultEtPublicHost()
-                    ? bindedServiceIp
-                    : internalServiceIp;
+                    String serviceIp = !utilsService.isDefaultEtPublicHost()
+                            ? bindedServiceIp
+                            : internalServiceIp;
+                    
+                    if (manifestEndpointService.get("main") != null
+                            && manifestEndpointService.get("main").booleanValue()) {
+                        logger.debug("Building data for the main sub-service {}", serviceName );
+                        serviceInstance.setContainerName(containerName);
+                        serviceInstance.setInternalServiceIp(internalServiceIp);
+                        serviceInstance.setBindedServiceIp(bindedServiceIp);
+                        serviceInstance.setServiceIp(serviceIp);
+                        serviceInstance.setEndpointName(serviceName);
+                        serviceInstance.setContainerIp(containerIp);
+                    } else {
+                        logger.debug("Building data for a sub-service {}", serviceName ); 
+                        SupportServiceInstance auxServiceInstance = null;
+                        auxServiceInstance = new SupportServiceInstance();
+                        auxServiceInstance.setContainerName(containerName);
+                        auxServiceInstance.setEndpointName(serviceName);
+                        auxServiceInstance.setContainerIp(containerIp);
+                        auxServiceInstance.setServiceIp(serviceIp);
+                        auxServiceInstance
+                                .setParameters(serviceInstance.getParameters());
+                        serviceInstance.getSubServices()
+                                .add(auxServiceInstance);
+                    }
 
-            serviceInstance.setServiceIp(serviceIp);
-        } catch (Exception e) {
-            logger.warn("Error on getting TSS instance container ip", e);
+                } catch (Exception e) {
+                    logger.error("Error on getting TSS instance container ip",
+                            e);
+                }
+            }
         }
-
+        logger.debug("Service instance to return {}", serviceInstance.getEndpointName());
         return serviceInstance;
     }
 
@@ -198,19 +233,33 @@ public class EtmMiniSupportServiceClient
         if (serviceInstance.getContainerName() == null) {
             TssManifest manifest = supportServicesMap
                     .get(serviceInstance.getService_id()).getManifest();
+            JsonNode manifestEndpoints = manifest.getEndpoints();
+            Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
 
-            if (manifest != null && manifest.getEndpoints() != null) {
-
-                if (manifest.getEndpoints().fieldNames().hasNext()) {
-                    String containerName = serviceInstance.getInstanceId() + "_"
-                            + manifest.getEndpoints().fieldNames().next()
-                            + "_1";
+            while (subServicesNames.hasNext()) {
+                String serviceName = subServicesNames.next();
+                JsonNode manifestEndpointService = manifestEndpoints
+                        .get(serviceName);
+                
+                SupportServiceInstance auxServiceInstance = null;
+                String containerName = serviceInstance.getInstanceId() + "_"
+                        + manifest.getEndpoints().fieldNames().next() + "_1";
+                
+                if (manifestEndpointService.get("main") != null
+                        && manifestEndpointService.get("main").booleanValue()) {
                     serviceInstance.setContainerName(containerName);
-
+                    auxServiceInstance = serviceInstance;
+                } else {
+                    auxServiceInstance = new SupportServiceInstance();
+                    auxServiceInstance.setContainerName(containerName);
+                    auxServiceInstance
+                            .setParameters(serviceInstance.getParameters());
+                    serviceInstance.getSubServices()
+                            .add(auxServiceInstance);
                 }
+                auxServiceInstance.setEndpointName(serviceName);
             }
         }
-
     }
 
     @Override
