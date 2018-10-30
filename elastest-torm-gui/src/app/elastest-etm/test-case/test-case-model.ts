@@ -92,7 +92,8 @@ export class TestCaseModel {
   setTestCaseFiles(tJobExecFiles: FileModel[]): FileModel[] {
     let newExecFiles: FileModel[] = [];
     for (let file of tJobExecFiles) {
-      if (file.name.startsWith(this.name + '_')) {
+      // If testCase.name has spaces, replace with -
+      if (file.name.startsWith(this.name.replace(/\s+/g, '-') + '_')) {
         this.files.push(file);
       } else {
         newExecFiles.push(file);

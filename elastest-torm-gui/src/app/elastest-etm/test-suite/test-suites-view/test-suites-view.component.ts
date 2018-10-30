@@ -6,6 +6,9 @@ import { TestCaseModel } from '../../test-case/test-case-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { FileModel } from '../../files-manager/file-model';
 import { ConfigurationService } from '../../../config/configuration-service.service';
+import { MdDialogRef } from '@angular/material';
+import { ElastestEusDialog } from '../../../elastest-eus/elastest-eus.dialog';
+import { ElastestEusDialogService } from '../../../elastest-eus/elastest-eus.dialog.service';
 
 @Component({
   selector: 'etm-test-suites-view',
@@ -13,8 +16,10 @@ import { ConfigurationService } from '../../../config/configuration-service.serv
   styleUrls: ['./test-suites-view.component.scss'],
 })
 export class TestSuitesViewComponent implements OnInit {
-  @Input() testSuites: TestSuiteModel[];
-  @Input() tJobExec: TJobExecModel;
+  @Input()
+  testSuites: TestSuiteModel[];
+  @Input()
+  tJobExec: TJobExecModel;
 
   filesUrlPrefix: string;
 
@@ -34,8 +39,9 @@ export class TestSuitesViewComponent implements OnInit {
     private router: Router,
     private tJobExecService: TJobExecService,
     private configurationService: ConfigurationService,
+    private eusDialog: ElastestEusDialogService,
   ) {
-    this.filesUrlPrefix = configurationService.configModel.host;
+    this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
 
   ngOnInit() {
@@ -49,16 +55,16 @@ export class TestSuitesViewComponent implements OnInit {
       this.router.navigate(
         [
           '/projects',
-            this.tJobExec.tJob.project.id,
-            'tjob',
-            this.tJobExec.tJob.id,
-            'tjob-exec',
-            this.tJobExec.id ,
-            'testSuite',
-            suite.id,
-            'testCase',
-            testCase.id,
-            'loganalyzer',
+          this.tJobExec.tJob.project.id,
+          'tjob',
+          this.tJobExec.tJob.id,
+          'tjob-exec',
+          this.tJobExec.id,
+          'testSuite',
+          suite.id,
+          'testCase',
+          testCase.id,
+          'loganalyzer',
         ],
         {
           queryParams: { tjob: this.tJobExec.tJob.id, exec: this.tJobExec.id, testCase: testCase.name },
@@ -94,5 +100,13 @@ export class TestSuitesViewComponent implements OnInit {
       },
       (error) => console.log(error),
     );
+  }
+
+  viewSession(url: string, title: string = 'Recorded Video'): void {
+    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    dialog.componentInstance.title = title;
+    dialog.componentInstance.iframeUrl = url;
+    dialog.componentInstance.sessionType = 'video';
+    dialog.componentInstance.closeButton = true;
   }
 }
