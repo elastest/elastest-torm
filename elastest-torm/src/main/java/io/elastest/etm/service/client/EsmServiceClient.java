@@ -295,8 +295,12 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                 serviceInstance.getManifestId());
         JsonNode manifestEndpoints = manifest.get("endpoints");
         Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
-//        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
-//                .get("context").fieldNames();
+        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
+                .get("context").fieldNames();
+        while (itEsmRespContextFields.hasNext()) {
+            String fieldName = itEsmRespContextFields.next();
+            logger.info("Instance data fields {}:" + fieldName);
+        }
 
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
