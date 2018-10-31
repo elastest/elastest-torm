@@ -297,10 +297,6 @@ public class EsmServiceClient implements SupportServiceClientInterface {
         Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
         Iterator<String> itEsmRespContextFields = serviceInstanceDetail
                 .get("context").fieldNames();
-        while (itEsmRespContextFields.hasNext()) {
-            String fieldName = itEsmRespContextFields.next();
-            logger.info("Instance data fields {}:" + fieldName);
-        }
 
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
@@ -311,32 +307,38 @@ public class EsmServiceClient implements SupportServiceClientInterface {
             String serviceIpFieldSufix = "_Ip";
             String serviceIp = null;
             boolean ipFound = false;
-            
+
             while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
                 logger.debug("Instance data fields {}:" + fieldName);
-                
-                if (fieldName.contains(serviceIpFieldSufix) && fieldName.contains(serviceName)) {
+
+                if (fieldName.contains(serviceIpFieldSufix)
+                        && fieldName.contains(serviceName)) {
                     try {
-                        String containerIp = serviceInstanceDetail.get("context")
-                                .get(fieldName).toString().replaceAll("\"", "");
+                        String containerIp = serviceInstanceDetail
+                                .get("context").get(fieldName).toString()
+                                .replaceAll("\"", "");
                         String containerName = fieldName.substring(0,
                                 fieldName.indexOf("_Ip"));
-                        logger.debug("Container ip {} for the service {}", containerIp,
-                                containerName);
+                        logger.debug("Container ip {} for the service {}",
+                                containerIp, containerName);
                         logger.debug("ET_PUBLIC_HOST value: "
                                 + utilsService.getEtPublicHostValue());
                         String internalServiceIp = containerIp;
-                        String bindedServiceIp = utilsService.getEtPublicHostValue();
+                        String bindedServiceIp = utilsService
+                                .getEtPublicHostValue();
                         serviceIp = !utilsService.isDefaultEtPublicHost()
                                 ? bindedServiceIp
                                 : internalServiceIp;
                         if (manifestEndpointService.get("main") != null
-                                && manifestEndpointService.get("main").booleanValue()) {
-                            logger.debug("Building data for the main sub-service {}",
+                                && manifestEndpointService.get("main")
+                                        .booleanValue()) {
+                            logger.debug(
+                                    "Building data for the main sub-service {}",
                                     serviceName);
                             serviceInstance.setContainerName(containerName);
-                            serviceInstance.setInternalServiceIp(internalServiceIp);
+                            serviceInstance
+                                    .setInternalServiceIp(internalServiceIp);
                             serviceInstance.setBindedServiceIp(bindedServiceIp);
                             serviceInstance.setServiceIp(serviceIp);
                             serviceInstance.setEndpointName(serviceName);
@@ -347,18 +349,23 @@ public class EsmServiceClient implements SupportServiceClientInterface {
                             SupportServiceInstance auxServiceInstance = null;
                             auxServiceInstance = new SupportServiceInstance();
                             auxServiceInstance.setContainerName(containerName);
-                            auxServiceInstance.setInternalServiceIp(internalServiceIp);
-                            auxServiceInstance.setBindedServiceIp(bindedServiceIp);
+                            auxServiceInstance
+                                    .setInternalServiceIp(internalServiceIp);
+                            auxServiceInstance
+                                    .setBindedServiceIp(bindedServiceIp);
                             auxServiceInstance.setEndpointName(serviceName);
                             auxServiceInstance.setContainerIp(containerIp);
                             auxServiceInstance.setServiceIp(serviceIp);
-                            auxServiceInstance
-                                    .setParameters(serviceInstance.getParameters());
-                            serviceInstance.getSubServices().add(auxServiceInstance);
+                            auxServiceInstance.setParameters(
+                                    serviceInstance.getParameters());
+                            serviceInstance.getSubServices()
+                                    .add(auxServiceInstance);
                         }
                         ipFound = true;
                     } catch (Exception e) {
-                        logger.error("Error on getting TSS instance container ip", e);
+                        logger.error(
+                                "Error on getting TSS instance container ip",
+                                e);
                     }
                 }
             }
