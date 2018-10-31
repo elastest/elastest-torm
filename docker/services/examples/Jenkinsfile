@@ -36,12 +36,31 @@ node('docker'){
                 stage "Publish Test-etm-alpinegitjavagauge docker image"
         
                     echo ("Publish elastest/test-etm-alpinegitjavagauge image")
-                    def testetmalpinegitjavaimage = docker.image('elastest/test-etm-alpinegitjavagauge:latest')
+                    def testetmalpinegitjavagaugeimage = docker.image('elastest/test-etm-alpinegitjavagauge:latest')
                     //this is work arround as withDockerRegistry is not working properly 
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                         sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                        testetmalpinegitjavaimage.push()
+                        testetmalpinegitjavagaugeimage.push()
+                    }
+                    
+
+                stage "Test-etm-alpinegitnode image build"
+        
+                "Create test-etm-alpinegitnode docker image"
+                
+                    echo ("Creating elastest/test-etm-alpinegitnode image..")                
+                    sh 'cd ./docker/services/examples/test-etm-alpinegitnode; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitnode:latest .'
+        
+                stage "Publish Test-etm-alpinegitnode docker image"
+        
+                    echo ("Publish elastest/test-etm-alpinegitnode image")
+                    def testetmalpinegitnodeimage = docker.image('elastest/test-etm-alpinegitnode:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testetmalpinegitnodeimage.push()
                     }
                     
                 stage "Test-etm-alpinedockerjava image build"
