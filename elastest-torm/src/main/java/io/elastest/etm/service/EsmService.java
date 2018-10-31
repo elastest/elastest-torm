@@ -1061,15 +1061,15 @@ public class EsmService {
 
     private SupportServiceInstance buildTssInstanceUrls(
             SupportServiceInstance serviceInstance) throws Exception {
-        logger.info("Building TSSs URLs for {}", serviceInstance.getName());
+        logger.info("Building TSSs URLs for {}", serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         createSubserviceUrls(serviceInstance, manifest);
         for (SupportServiceInstance subService: serviceInstance.getSubServices()) {
-            logger.debug("Sub-services names: {}", subService.getName());
+            logger.debug("Sub-services names: {}", subService.getEndpointName());
             if (subService.getContainerIp() == null) {
                 throw new Exception(
-                        "Field ip not found for " + subService.getName() + " instance.");
+                        "Field ip not found for " + subService.getEndpointName() + " instance.");
             } else {
                 createSubserviceUrls(subService, manifest);
             }
@@ -1155,6 +1155,7 @@ public class EsmService {
             // If server address, binded
             if (!utilsService.isDefaultEtPublicHost()) {
                 int bindedPort;
+                logger.debug("");
                 if (serviceInstance.getEndpointsBindingsPorts()
                         .containsKey(nodePort)) {
                     bindedPort = Integer.parseInt(serviceInstance
@@ -1473,14 +1474,17 @@ public class EsmService {
                     && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
                 String urlValue = tSSInstance.getInternalApiUrlIfExist();
+                logger.debug("Internal url {} ", urlValue);
                 if (urlValue == null) {
 
                     // else if api status url exist (for integrated EUS)
                     urlValue = tSSInstance.getApiStatusUrlIfExist();
+                    logger.debug("Api status url {} ", urlValue);
 
                     // else normal url
                     if (urlValue == null) {
                         urlValue = tSSInstance.getApiUrlIfExist();
+                        logger.debug("Normal url {} ", urlValue);
                     }
                 }
 
@@ -1788,6 +1792,7 @@ public class EsmService {
 
     public Map<String, String> getTSSInstanceEnvVars(SupportServiceInstance ssi,
             boolean publicEnvVars, boolean withPublicPrefix) {
+        logger.debug("Creatin env vars from TSSs");
         Map<String, String> envVars = new HashMap<String, String>();
         String servicePrefix = ssi.getServiceName().toUpperCase()
                 .replaceAll("-", "_");
@@ -1819,6 +1824,7 @@ public class EsmService {
     private Map<String, String> setTssEnvVarByEndpoint(
             SupportServiceInstance ssi, String prefix,
             Map.Entry<String, JsonNode> entry, boolean publicEnvVars) {
+        logger.debug("Creatin env vars from a TSS endpoint");
         Map<String, String> envVars = new HashMap<>();
         if (!entry.getKey().toLowerCase().contains("gui")) {
             try {

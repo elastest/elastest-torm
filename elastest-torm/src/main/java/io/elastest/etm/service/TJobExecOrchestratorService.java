@@ -576,17 +576,11 @@ public class TJobExecOrchestratorService {
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         ResultEnum.WAITING_TSS, resultMsg);
                 while (!tSSInstAssocToTJob.isEmpty()) {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ie) {
-                        logger.error(
-                                "Interrupted Exception {}: " + ie.getMessage());
-                    }
                     tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                        if (esmService.checkInstanceUrlIsUp(esmService
-                                .gettJobServicesInstances().get(tSSInstId))) {
-                            tSSInstAssocToTJob.remove(tSSInstId);
-                        }
+                        SupportServiceInstance mainSubService = esmService.gettJobServicesInstances().get(tSSInstId);
+                        logger.debug("Wait for service {}", mainSubService.getEndpointName());
+                        waitForServiceIsReady(mainSubService);
+                        tSSInstAssocToTJob.remove(tSSInstId);
                     });
                 }
                 logger.info("TSSs availabes");
@@ -600,6 +594,20 @@ public class TJobExecOrchestratorService {
         }
     }
 
+    private void waitForServiceIsReady(SupportServiceInstance service) {
+        while (!esmService.checkInstanceUrlIsUp(service)) {
+            logger.debug("Wait for service {}", service.getEndpointName());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ie) {
+                logger.error("Interrupted Exception {}: " + ie.getMessage());
+            }
+        }
+        service.getSubServices().forEach((subService) -> {
+            waitForServiceIsReady(subService);
+        });
+    }
+   
     private void provideServices(String tJobServices, TJobExecution tJobExec)
             throws Exception {
         logger.info("Start the service provision.");
