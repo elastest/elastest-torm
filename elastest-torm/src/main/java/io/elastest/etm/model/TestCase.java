@@ -143,11 +143,18 @@ public class TestCase {
     public void cleanNameAndSet(String name) {
         name = name.split("\\(")[0];
 
+        // Test with parameters
+        if (name.contains("{")) {
+            name = name.split("\\{")[0];
+        }
+
+        // Cucumber/Karate
         String cucumberAndKarateScenarioStr = "Scenario: ";
         if (name.startsWith(cucumberAndKarateScenarioStr)) {
             name = name.split(cucumberAndKarateScenarioStr)[1];
         }
 
+        // Karate since 0.9.0 RC
         String karate090RC4ScenarioStr = "^\\[#\\d+ line \\d+\\] ";
         Pattern p = Pattern.compile(karate090RC4ScenarioStr);
         Matcher m = p.matcher(name);
