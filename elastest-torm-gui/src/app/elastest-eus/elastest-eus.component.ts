@@ -142,8 +142,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         this.websocket = new WebSocket(this.eusService.getEusWsByHostAndPort(this.eusHost, this.eusPort));
       }
 
-      this.websocket.onopen = () => this.websocket.send('getSessions');
-      this.websocket.onopen = () => this.websocket.send('getRecordings');
+      this.websocket.onopen = () => {
+        if (this.standalone) {
+          this.websocket.send('getLiveSessions');
+        } else {
+          this.websocket.send('getSessions');
+        }
+        this.websocket.send('getRecordings');
+      };
 
       this.websocket.onclose = () => this.reconnect();
 
