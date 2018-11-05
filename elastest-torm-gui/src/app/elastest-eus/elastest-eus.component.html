@@ -64,12 +64,12 @@
                         </div>
                     </sa-card-title>
                     <sa-card-content class="push-bottom-none">
-                        <centered-element *ngIf="testData.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
+                        <centered-element *ngIf="activeBrowsers.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
                             <md-icon>assignment</md-icon>
                             <p>No Browsers created yet</p>
                         </centered-element>
                         <ng-template #showBrowsersTable>
-                            <td-data-table class="scroll_table" [data]="testData" [columns]="testColumns">
+                            <td-data-table class="scroll_table" [data]="activeBrowsers" [columns]="activeBrowsersColumns">
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                                     <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
                                         mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
