@@ -176,7 +176,7 @@
                 class="iconBtn push-top-sm">
                 <md-icon>restore</md-icon> Load Default
               </button>
-              <md-checkbox [(ngModel)]="autoRowHeight" id="toggleRowHeight" name="toggleRowHeightCheckbox" (click)="toggleRowHeight()">Auto
+              <md-checkbox #autoRowHeight id="toggleRowHeight" name="toggleRowHeightCheckbox" [checked]="autoRowHeight" (change)="toggleRowHeight(autoRowHeight.checked)">Auto
                 row height</md-checkbox>
             </div>
           </md-tab>
