@@ -22,7 +22,7 @@
                     echo &apos;Cloning repository&apos;
                     git &apos;https://github.com/elastest/demo-projects&apos;
                     echo &apos;Run test&apos;
-                    sh &quot;cd ./openvidu-test/;&apos;${mvnHome}/bin/mvn&apos; test&quot;
+                    sh &quot;cd ./openvidu-test/;&apos;${mvnHome}/bin/mvn&apos; -DforkCount=0 test&quot;
                     step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
                 }
             }

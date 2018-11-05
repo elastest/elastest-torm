@@ -26,7 +26,7 @@
         	stage(&quot;Run Tests&quot;) {
                 echo &apos;Running test&apos;
                 mvnHome = tool &apos;M3.3.9&apos;
-                sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B test&quot;
+                sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B -DforkCount=0 test&quot;
                 step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
         	}
         } finally {
