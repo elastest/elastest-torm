@@ -720,7 +720,7 @@ public class EtmBaseTest {
         DesiredCapabilities caps;
         caps = eusURL != null ? DesiredCapabilities.firefox()
                 : DesiredCapabilities.chrome();
-        caps.setCapability("browserId", testName);
+        caps.setCapability("testName", testName);
         driver = new RemoteWebDriver(new URL(eusURL), caps);
     }
 
