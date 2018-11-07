@@ -253,9 +253,7 @@ public class EtmBaseTest {
     /* *************** */
     protected void createNewETProject(WebDriver driver, String projectName) {
         log.info("Create project");
-        driver.findElement(
-                By.xpath("//button[contains(string(), 'New Project')]"))
-                .click();
+        getElementById(driver, "newProjectBtn").get(0).click();
         driver.findElement(By.name("project.name")).sendKeys(projectName);
         driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
                 .click();
@@ -310,8 +308,7 @@ public class EtmBaseTest {
     protected void createSutAndInsertCommonFields(WebDriver driver,
             String sutName, String desc) {
         log.info("Creating new SuT");
-        this.getElementByXpath(driver,
-                "//button[contains(string(), 'New SuT')]").get(0).click();
+        this.getElementById(driver, "newSutBtn").get(0).click();
         this.getElementsByName(driver, "sutName").get(0).sendKeys(sutName);
         this.getElementsByName(driver, "sutDesc").get(0).sendKeys(desc);
     }
@@ -477,12 +474,7 @@ public class EtmBaseTest {
             Map<String, String> parameters, List<String> tssList,
             Map<String, List<String>> multiConfigurations) {
         log.info("Wait for the \"New TJob\" button ");
-
-        WebDriverWait waitService = new WebDriverWait(driver, 10); // seconds
-        By serviceDetailButton = By
-                .xpath("//button[contains(string(), 'New TJob')]");
-        waitService.until(visibilityOfElementLocated(serviceDetailButton));
-        driver.findElement(serviceDetailButton).click();
+        getElementById(driver, "newTJobBtn").get(0).click();
 
         WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
         By serviceFieldTJobName = By.name("tJobName");
