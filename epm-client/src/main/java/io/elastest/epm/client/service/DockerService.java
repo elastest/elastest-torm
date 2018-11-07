@@ -388,7 +388,7 @@ public class DockerService {
 
     public void endContainer(String containerName, boolean removeVolumes)
             throws Exception {
-        endContainer(containerName,removeVolumes, 60);
+        endContainer(containerName, removeVolumes, 60);
     }
 
     public void endContainer(String containerName) throws Exception {
@@ -1135,13 +1135,15 @@ public class DockerService {
                     ExecCreateParam.tty(), ExecCreateParam.attachStdin(true),
                     ExecCreateParam.attachStdout(true),
                     ExecCreateParam.attachStderr(true),
-                    ExecCreateParam.detach(false));
+                    ExecCreateParam.detach(awaitCompletion));
             logger.debug("Command executed. Exec id: {}", exec.id());
 
             LogStream startResultCallback = dockerClient.execStart(exec.id(),
                     ExecStartParameter.TTY);
 
-            // output = startResultCallback.readFully(); //TODO not working...
+            if (awaitCompletion) {
+                output = startResultCallback.readFully();
+            }
 
             logger.trace("Callback terminated. Result: {}", output);
 

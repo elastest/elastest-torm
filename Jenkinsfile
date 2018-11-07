@@ -11,6 +11,8 @@
                     def epmClientJavaDirectory = 'epm-client-java'
                     def eusJavaDirectory = 'eus-java'
 
+                    git 'https://github.com/elastest/elastest-torm.git'
+
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
                         if (epmClientDirectoryExists) {
@@ -28,7 +30,6 @@
                         echo 'Installing epm-client-java'
                         sh "ls -lrt; cd $epmClientJavaDirectory; mvn clean install -Dmaven.test.skip=true"
                         
-                    git 'https://github.com/elastest/elastest-torm.git'
                         
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
