@@ -2,7 +2,9 @@ FROM node:10-alpine
 
 RUN npm install -g protractor
 RUN webdriver-manager update
-RUN npm install -g jasmine-reporters
+RUN npm install -g jasmine
+RUN npm install --save-dev jasmine-reporters@^2.0.0
+
 
 RUN apk update
 
