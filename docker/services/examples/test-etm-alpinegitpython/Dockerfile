@@ -9,7 +9,7 @@ RUN apk add \
   && pip install --upgrade pip \
   && pip install xmlrunner \
   && pip install selenium
-
+  && pip install requests
 # Set Image Labels
 ARG GIT_COMMIT=unspecified
 LABEL git_commit=$GIT_COMMIT
