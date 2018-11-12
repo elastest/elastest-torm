@@ -50,7 +50,7 @@ public class EtSampleDataLoader {
     private static String javaMvnImage = "elastest/test-etm-alpinegitjava";
     private static String pythonImage = "elastest/test-etm-alpinegitpython";
     private static String nodeImage = "elastest/test-etm-alpinegitnode";
-    private static String gaugeImage = "elastest/elastest/test-etm-alpinegitjavagauge";
+    private static String gaugeImage = "elastest/test-etm-alpinegitjavagauge";
 
     @Value("${et.config.folder}")
     private String configFolder;
@@ -73,7 +73,6 @@ public class EtSampleDataLoader {
             this.createWebapp();
             this.createOpenVidu();
             this.createFullteaching();
-            // this.createMulti(); DISABLED
             if (etDataLoader.isStartedTestLink()) {
                 this.createTestLink();
             }
@@ -341,7 +340,7 @@ public class EtSampleDataLoader {
 
             /* *** TJob 13 *** */
             String tJob13Name = "Python Test with a browser for all tests";
-            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-webapp;\npython WebappTestBroserForAll.py;";
+            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-webapp;\npython WebappTestBrowserForAll.py;";
             etDataLoader.createTJob(project, tJob13Name, pythonResultsPath,
                     pythonImage, false, commands13,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
@@ -439,31 +438,6 @@ public class EtSampleDataLoader {
             etDataLoader.createTJob(project, tJobName, resultsPath,
                     javaMvnImage, false, commands,
                     EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
-        }
-    }
-
-    public void createMulti() {
-        String pjName = "Multi Test";
-        if (!etDataLoader.projectExists(pjName)) {
-            String tJobName = "Multi Java Test";
-            String resultsPath = "/demo-projects/multi-java-test/target/surefire-reports/";
-            String commands = "git clone https://github.com/elastest/demo-projects\ncd demo-projects/multi-java-test\nmvn -B test\n";
-
-            this.printLog(pjName);
-            // Create Hello World Project
-            Project project = etDataLoader.createProject(pjName);
-
-            // Multi config
-            List<MultiConfig> multiConfigs = new ArrayList<>();
-            multiConfigs.add(new MultiConfig("LEFT_OPERAND",
-                    new ArrayList<String>(Arrays.asList("40", "3", "11"))));
-            multiConfigs.add(new MultiConfig("RIGHT_OPERAND",
-                    new ArrayList<String>(Arrays.asList("10", "2"))));
-
-            // Create Hello World TJob associated with the Hello project
-            etDataLoader.createTJob(project, tJobName, resultsPath,
-                    javaMvnImage, false, commands, EXEC_DASHBOARD_CONFIG, null,
-                    null, null, multiConfigs);
         }
     }
 
