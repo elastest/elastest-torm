@@ -46,7 +46,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    String projectName = "Hello World";
+    String projectName = "Unit Tests";
     String tJobName = "My first TJob";
 
     @Test
