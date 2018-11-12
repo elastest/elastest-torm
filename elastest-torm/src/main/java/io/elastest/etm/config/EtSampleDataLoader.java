@@ -416,7 +416,7 @@ public class EtSampleDataLoader {
                     + "     - openvidu.url=https://full-teaching-openvidu-server-kms:8443\r\n"
                     + "     - openvidu.secret=MY_SECRET\r\n";
 
-            ProtocolEnum sut1Protocol = ProtocolEnum.HTTP;
+            ProtocolEnum sut1Protocol = ProtocolEnum.HTTPS;
             String sut1Port = "5000";
 
             String tJobName = "E2E Teacher + Student VIDEO-SESSION";

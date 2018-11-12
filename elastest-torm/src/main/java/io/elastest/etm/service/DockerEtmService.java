@@ -234,6 +234,7 @@ public class DockerEtmService {
         String containerName = "";
         String sutHost = null;
         String sutPort = null;
+        String sutProtocol = null;
 
         String sutPath = null;
 
@@ -262,6 +263,7 @@ public class DockerEtmService {
             if (dockerExec.isWithSut()) {
                 sutHost = dockerExec.getSutExec().getIp();
                 sutPort = sut.getPort();
+                sutProtocol = sut.getProtocol().toString();
             }
         }
 
@@ -295,6 +297,10 @@ public class DockerEtmService {
 
         if (sutPort != null) {
             envList.add("ET_SUT_PORT=" + sutPort);
+        }
+
+        if (sutProtocol != null) {
+            envList.add("ET_SUT_PROTOCOL=" + sutProtocol);
         }
 
         // Commands (optional)
