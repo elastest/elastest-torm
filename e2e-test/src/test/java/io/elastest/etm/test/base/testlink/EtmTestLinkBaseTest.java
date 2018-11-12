@@ -120,7 +120,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String xpath = this.getTLEtmProjectXpath(projectName);
         return this.elementExistsByIdXpath(driver, this.projectsTableId, xpath);
     }
-
+    
     /* ***************** */
     /* *** Test Plan *** */
     /* ***************** */
@@ -208,6 +208,23 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
         this.getElementByIdXpath(driver, tJobExecResultIconId,
                 tJobExecResultIconXpath, 60).get(0).click();
+    }
+    
+    protected void selectInternalSut(WebDriver driver, String sutName) {
+        String sutSelectXpath = "//md-select/div/span[contains(string(), 'Select a SuT')]";
+        this.getElementByXpath(driver, sutSelectXpath).get(0).click();
+
+        if (sutName != null) {
+            this.getElementByXpath(driver,
+                    "//md-option[contains(string(), '" + sutName + "')]").get(0)
+                    .click();
+        } else {
+            this.getElementByXpath(driver,
+                    "//md-option[contains(string(), 'None')]").get(0).click();
+        }
+        
+        getElementByXpath(driver, "//button[contains(string(), 'SAVE')]").get(0).click();
+
     }
 
     /* ****************** */

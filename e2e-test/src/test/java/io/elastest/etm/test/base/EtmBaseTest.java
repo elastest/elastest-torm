@@ -339,7 +339,7 @@ public class EtmBaseTest {
 
     protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
             String sutName, String desc, String compose, String mainServiceName,
-            String port, Map<String, String> params)
+            String port, Map<String, String> params, boolean https)
             throws InterruptedException {
         this.createSutAndInsertCommonFields(driver, sutName, desc);
 
@@ -349,6 +349,9 @@ public class EtmBaseTest {
         this.getElementsByName(driver, "mainService").get(0)
                 .sendKeys(mainServiceName);
 
+        if (https) {
+            selectItem(driver, "https", "Select a protocol");
+        }
         if (port != null && !"".equals(port)) {
             this.getElementsByName(driver, "port").get(0).sendKeys(port);
         }
@@ -421,6 +424,44 @@ public class EtmBaseTest {
             log.warn("Sut table does not exist");
             return false;
         }
+    }
+    
+    protected boolean etSutExistsIntoTLProject(WebDriver driver,
+            String projectName, String sutName) {
+        log.info("Checking if Sut {} exists into Project TL {}", sutName,
+                projectName);
+        try {
+            // Sleep for wait to load tables
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
+
+        String sutsTableXpath = getSutsTableXpathFromProjectPage();
+
+        // If sut table exist
+        if (this.driver.findElements(By.xpath(sutsTableXpath)).size() > 0) {
+            String sutXpath = getSutXpathFromProjectPage(sutName);
+            boolean sutExist = this.elementExistsByXpath(driver, sutXpath);
+            String existStr = sutExist ? "already exist" : "does not exist";
+            log.info("Sut {} {} into TL Project {}", sutName, existStr,
+                    projectName);
+            return sutExist;
+        } else {
+            log.warn("Sut table does not exist");
+            return false;
+        }
+    }
+    
+    
+    protected void selectItem(WebDriver driver, String item, String selectDesc) {
+        String sutSelectXpath = "//md-select/div/span[contains(string(), '" + selectDesc + "')]";
+        this.getElementByXpath(driver, sutSelectXpath).get(0).click();
+
+        if (item != null) {
+            this.getElementByXpath(driver,
+                    "//md-option[contains(string(), '" + item + "')]").get(0)
+                    .click();
+        } 
     }
 
     /* ************** */

@@ -110,12 +110,12 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         if (sutNum == 1) {
             if (!etSutExistsIntoProject(driver, projectName, sut1Name)) {
                 createNewSutDeployedByElastestWithCompose(driver, sut1Name,
-                        sut1Desc, sut1Compose, sut1MainService, sut1Port, null);
+                        sut1Desc, sut1Compose, sut1MainService, sut1Port, null, false);
             }
         } else {
             if (!etSutExistsIntoProject(driver, projectName, sut2Name)) {
                 createNewSutDeployedByElastestWithCompose(driver, sut2Name,
-                        sut2Desc, sut2Compose, sut2MainService, sut2Port, null);
+                        sut2Desc, sut2Compose, sut2MainService, sut2Port, null, false);
             }
         }
     }
