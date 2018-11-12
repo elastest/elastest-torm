@@ -92,7 +92,7 @@
           <div class="pad" layout="column">
             <div *ngFor="let service of esmServicesCatalog; let i = index" layout="row">
               <div layout="row" layout-align="center center" class="push-bottom">
-                <md-checkbox #service{{i}} [(ngModel)]="service.selected" mdTooltip="Select {{service.name}}" id="service{{service.name}}"
+                <md-checkbox #service{{i}} [(ngModel)]="service.selected" title="Select {{service.name}}" id="service{{service.name}}"
                   name="service{{service.name}}"></md-checkbox>
               </div>
               <td-expansion-panel expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">

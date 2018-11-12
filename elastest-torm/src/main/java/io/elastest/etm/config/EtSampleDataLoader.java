@@ -187,9 +187,9 @@ public class EtSampleDataLoader {
             String resultsPath4 = "/demo-projects/jasmine-rest-test/testresults";
             String commands4 = "npm install --save request;\ngit clone https://github.com/elastest/demo-projects;\ncd demo-projects/jasmine-rest-test;\njasmine;";
 
-            etDataLoader.createTJob(project, tJob4Name, resultsPath4,
-                    javaMvnImage, false, commands4,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
+            etDataLoader.createTJob(project, tJob4Name, resultsPath4, nodeImage,
+                    false, commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null,
+                    null, sut, null);
 
             /* *** TJob 5 *** */
             String tJob5Name = "Python Rest Test";
