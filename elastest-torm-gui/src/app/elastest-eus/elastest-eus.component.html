@@ -69,7 +69,7 @@
                             <p>No Browsers created yet</p>
                         </centered-element>
                         <ng-template #showBrowsersTable>
-                            <td-data-table class="scroll_table" [data]="activeBrowsers" [columns]="activeBrowsersColumns">
+                            <td-data-table class="scroll_table" id="activBrowsersTable" [data]="activeBrowsers" [columns]="activeBrowsersColumns">
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                                     <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
                                         mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
@@ -83,7 +83,7 @@
             </auto-height-row>
 
             <auto-height-row *ngIf="standalone">
-                <self-adjustable-card tdMediaToggle="gt-xs">
+                <self-adjustable-card id="recordings" tdMediaToggle="gt-xs">
                     <sa-card-title>Recordings</sa-card-title>
                     <sa-card-content class="push-bottom-none">
                         <centered-element *ngIf="recordings.length === 0; else showRecordingsTable" class="push-top-important messageEmptyCard">
@@ -91,7 +91,7 @@
                             <p>No Recordings created yet</p>
                         </centered-element>
                         <ng-template #showRecordingsTable>
-                            <td-data-table class="scroll_table" [data]="recordings" [columns]="recordingColumns">
+                            <td-data-table class="scroll_table" id="recordingsTable" [data]="recordings" [columns]="recordingColumns">
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                                     <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording_{{row.id}}"
                                         mdTooltip="Delete recording">delete</i>
