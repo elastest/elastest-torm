@@ -24,7 +24,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ];
 
   projectData: ProjectModel[] = [];
-  showSpinner: boolean = true;
+  loading: boolean = true;
 
   sortBy: string = 'name';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
@@ -55,9 +55,10 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   loadProjects(): void {
-    this.projectService.getProjects().subscribe((projects) => {
+    this.loading = true;
+    this.projectService.getProjects().subscribe((projects: ProjectModel[]) => {
       this.projectData = projects;
-      this.showSpinner = false;
+      this.loading = false;
     });
   }
 
@@ -98,5 +99,16 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   viewProject(project: ProjectModel): void {
     this.router.navigate(['/projects', project.id]);
+  }
+
+  restoreDemoProjects(): void {
+    this.projectService.restoreDemoProjects().subscribe(
+      (restored: boolean) => {
+        if (restored) {
+          this.loadProjects();
+        }
+      },
+      (error: Error) => console.log(error),
+    );
   }
 }

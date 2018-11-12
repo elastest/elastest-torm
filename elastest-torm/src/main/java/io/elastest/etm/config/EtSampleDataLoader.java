@@ -63,11 +63,15 @@ public class EtSampleDataLoader {
 
     @PostConstruct
     public void createData() {
+        this.createData(false);
+    }
+
+    public boolean createData(boolean withForce) {
         String sampleDataCreated = (configFolder.endsWith("/") ? configFolder
                 : configFolder + "/") + "sampleDataCreated";
         File sampleDataCreatedFile = new File(sampleDataCreated);
-
-        if (!sampleDataCreatedFile.exists()) {
+        boolean alreadyExists = sampleDataCreatedFile.exists();
+        if (withForce || (!withForce && !alreadyExists)) {
             this.createUnitTests();
             this.createRestApi();
             this.createWebapp();
@@ -77,13 +81,18 @@ public class EtSampleDataLoader {
                 this.createTestLink();
             }
 
-            try {
-                logger.info("Sample Data has been created!");
-                sampleDataCreatedFile.createNewFile();
-            } catch (IOException e) {
-                logger.error("File {} has not been created", sampleDataCreated);
+            if (!alreadyExists) {
+                try {
+                    logger.info("Sample Data has been created!");
+                    sampleDataCreatedFile.createNewFile();
+                } catch (IOException e) {
+                    logger.error("File {} has not been created",
+                            sampleDataCreated);
+                }
             }
+            return true;
         }
+        return false;
     }
 
     public void printLog(String pjName) {
