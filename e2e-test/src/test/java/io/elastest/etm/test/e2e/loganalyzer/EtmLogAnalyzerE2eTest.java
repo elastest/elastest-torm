@@ -47,7 +47,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
     String projectName = "Unit Tests";
-    String tJobName = "My first TJob";
+    String tJobName = "Unit Test";
 
     @Test
     @DisplayName("Check TJob Execution logs in Log Analyzer")
