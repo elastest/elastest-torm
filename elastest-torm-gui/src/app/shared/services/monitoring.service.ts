@@ -194,10 +194,10 @@ export class MonitoringService {
     return logs;
   }
 
-  getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
+  getLogsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     let enableParentBehaviour: boolean = false;
-    if (tJobExec.isParent() && enableParentBehaviour) {
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent() && enableParentBehaviour) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
       query.indices = tJobExec.getMonitoringIndexAsList();
@@ -279,9 +279,9 @@ export class MonitoringService {
     return metrics;
   }
 
-  getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
+  getMetricsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    if (tJobExec.isParent()) {
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
       query.indices = tJobExec.getMonitoringIndexAsList();
