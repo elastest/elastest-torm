@@ -304,14 +304,14 @@ public class EtSampleDataLoader {
 
             /* *** TJob 9 *** */
             String tJob9Name = "Gauge Test";
-            String commands9 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn -B gauge:execute -DspecsDir=specs/multiple-webapp-tests.spec;";
+            String commands9 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn clean package -DskipTests;\nmvn -B gauge:execute -DspecsDir=specs/multiple-webapp-tests.spec;";
             etDataLoader.createTJob(project, tJob9Name, gaugeResultsPath,
                     gaugeImage, false, commands9,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
 
             /* *** TJob 10 *** */
             String tJob10Name = "Gauge Test  with a browser for all tests";
-            String commands10 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn -B gauge:execute -DspecsDir=specs/webapp-test.spec;";
+            String commands10 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn clean package -DskipTests;\nmvn -B gauge:execute -DspecsDir=specs/webapp-test.spec;";
             etDataLoader.createTJob(project, tJob10Name, gaugeResultsPath,
                     gaugeImage, false, commands10,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
