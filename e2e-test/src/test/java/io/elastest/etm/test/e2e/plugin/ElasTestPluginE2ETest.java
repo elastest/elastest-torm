@@ -18,7 +18,6 @@ package io.elastest.etm.test.e2e.plugin;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.Disabled;
@@ -94,6 +93,45 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
         executeJob(driver);
 
+        String linkElasTest = driver
+                .findElement(By.linkText("Open in ElasTest"))
+                .getAttribute("href");
+        if (secureElastest) {
+            String split_url[] = linkElasTest.split("//");
+            linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
+                    + split_url[1];
+            navigateTo(driver, linkElasTest);
+        } else {
+            driver.findElement(By.linkText("Open in ElasTest")).click();
+        }
+
+        WebDriverWait waitLogs = new WebDriverWait(driver, 60);
+        log.info("Wait for build sucess traces");
+        checkFinishTJobExec(driver, 180, "SUCCESS", false);
+        WebElement logsView = driver.findElement(By.xpath(
+                "//logs-view"));
+        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+        try {
+            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
+        } catch (Exception te) {
+            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
+            waitLogs.until(textToBePresentInElementLocated(
+                    By.tagName("logs-view"), "BUILD SUCCESS"));
+        }
+    }
+    
+    @Test
+    @DisplayName("ETInET-Test: use plugin in a pipeline")
+    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
+        this.driver = driver;
+        navigateTo(driver, jenkinsCIUrl);
+        loginOnJenkins(driver);
+        // Creation of a new Pipeline Job
+        driver.findElement(By.linkText("New Item")).click();
+        createPipelineJob(driver, "PJob_1", unitTestScript);
+        executeJob(driver);
         String linkElasTest = driver
                 .findElement(By.linkText("Open in ElasTest"))
                 .getAttribute("href");
