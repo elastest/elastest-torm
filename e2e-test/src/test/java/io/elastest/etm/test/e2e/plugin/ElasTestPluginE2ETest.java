@@ -90,6 +90,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
                     driver);
         } else {
             driver = cDriver;
+            this.driver = cDriver;
         }
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);

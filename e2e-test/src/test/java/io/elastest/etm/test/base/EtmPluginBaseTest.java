@@ -11,6 +11,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.LocalFileDetector;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -52,7 +54,6 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         if (jenkinsPass != null) {
             this.jenkinsPass = jenkinsPass;
         }
-
     }
 
     protected void installElasTestPlugin(WebDriver webDriver)
@@ -62,7 +63,9 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         // Install plugin
         log.info("Installing plugin");
         By inputFileName = By.name("name");
-        webDriver.findElement(inputFileName).sendKeys(pluginPath);
+        WebElement uploadFile = webDriver.findElement(inputFileName);
+        ((RemoteWebElement) uploadFile).setFileDetector(new LocalFileDetector()); 
+        uploadFile.sendKeys(pluginPath);
         By uploadButton = By.xpath("//button[contains(string(), 'Upload')]");
         webDriver.findElement(uploadButton).click();
 
