@@ -17,10 +17,9 @@
 package io.elastest.etm.test.e2e.testlink;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static org.openqa.selenium.Keys.RETURN;
-import static java.lang.System.getProperty;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.openqa.selenium.Keys.RETURN;
 
 import java.io.IOException;
 
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -46,6 +44,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -98,21 +97,23 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
 
     @BeforeAll
     public void init() {
-        // TODO create SuT managed by ElasTest instead of start FT from
-        // Jenkinsfile
-        // Get FullTeaching URL
-        String fullteachingIp = getProperty("fullteachingIp");
-        String fullteachingPort = getProperty("fullteachingPort");
 
-        fullteachingUrl = "https://" + fullteachingIp + ":" + fullteachingPort;
     }
 
     @Test
     @DisplayName("Create TestLink Fullteaching Data and Test In ElasTest")
     void tlFullteachingDataTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver defaultDriver)
             throws InterruptedException, IOException {
-        this.driver = driver;
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        
+        if (eusURL != null) {
+            this.setupTest(testName, BrowserType.FIREFOX);
+        } else {
+            driver = defaultDriver;
+        }
+        
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
         log.info("Creating Fullteaching Data in TestLink...");
@@ -160,10 +161,8 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
         this.executeFullteachingTestPlan(driver, fullteachingTLData, null);
     }
 
-    void createFullTeachingSutOnEtTlGui(RemoteWebDriver driver,
+    void createFullTeachingSutOnEtTlGui(WebDriver driver,
             SampleTLData fullteachingTLData) throws InterruptedException {
-        // newSutBtn
-        // btnEditPlan
         log.info("Creating the internal SUT: {}", sut1Name);
         String projectName = fullteachingTLData.getProject().getName();
         navigateToTLEtmProject(driver, projectName);
@@ -175,7 +174,6 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
         } else {
             log.info("Created the new internal SUT");
         }
-
     }
 
     void setTestPlanSut(WebDriver driver, String sutName, String planName) {
@@ -185,13 +183,11 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
         selectInternalSut(driver, sutName);
     }
 
-    void executeFullteachingTestPlan(RemoteWebDriver driver,
+    void executeFullteachingTestPlan(WebDriver driver,
             SampleTLData fullteachingTLData, String sutName)
             throws InterruptedException {
         String projectName = fullteachingTLData.getProject().getName();
         String planName = fullteachingTLData.getPlan().getName();
-
-        // TODO set
 
         log.info("Starting Fullteaching Plan '{}' execution", planName);
         this.startTLEtmPlanExecutionWithNavigate(driver, projectName, planName);
@@ -241,7 +237,7 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
         this.saveTLEtmPlanCurrentCaseExecution(driver);
     }
 
-    protected SampleTLData createFullteachingTLDataTest(RemoteWebDriver driver)
+    protected SampleTLData createFullteachingTLDataTest(WebDriver driver)
             throws IOException {
         this.driver = driver;
 
