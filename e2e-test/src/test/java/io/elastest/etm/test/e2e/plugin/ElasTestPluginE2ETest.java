@@ -35,6 +35,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmPluginBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
@@ -78,8 +79,15 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver driver) throws Exception {
-        this.driver = driver;
+    void testPipelineJob(ChromeDriver defaultDriver) throws Exception {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        
+        if (eusURL != null) {
+            this.setupTest(testName, BrowserType.CHROME);
+        } else {
+            driver = defaultDriver;
+        }
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
         installElasTestPlugin(driver);
@@ -124,8 +132,15 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
     
     @Test
     @DisplayName("ETInET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
-        this.driver = driver;
+    void testETInETPluginInPipelineJob(ChromeDriver defaultDriver) throws Exception {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        
+        if (eusURL != null) {
+            this.setupTest(testName, BrowserType.CHROME);
+        } else {
+            driver = defaultDriver;
+        }
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
         // Creation of a new Pipeline Job
