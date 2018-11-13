@@ -90,7 +90,7 @@
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="logAnalyzerColumn">
                   <button md-button (click)="viewInLogAnalyzer(suite, row)" [disabled]="!tJobExec || row.getResultIcon().result === 'SKIPPED'"
-                    class="onlyIconBtn" title="Log">
+                    class="onlyIconBtn" mdTooltip="View Case in Log Analyzer">
                     <md-icon>library_books</md-icon>
                   </button>
                 </div>
