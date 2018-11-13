@@ -46,7 +46,7 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
     void testETInETPluginInPipelineJob(ChromeDriver cDriver) throws Exception {
         RemoteWebDriver driver = null;
         if (this.eusURL != null) {
-            driver = (ChromeDriver) setupTestBrowser(new Object() {
+            driver = setupTestBrowser(new Object() {
             }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                     driver);
         } else {
