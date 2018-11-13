@@ -32,6 +32,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -72,7 +73,9 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     void testCreateOpenViduWebRTC(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws Exception {
-        this.driver = driver;
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         this.createProjectAndSut(driver);
         navigateToETProject(driver, projectName);
 

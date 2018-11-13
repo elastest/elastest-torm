@@ -54,16 +54,11 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Check TJob Execution logs in Log Analyzer")
     void testExecuteAndCheckLogsInLogAnalyzer(
-            @DockerBrowser(type = CHROME) RemoteWebDriver defaultDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, MalformedURLException {
-        String testName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        
-        if (eusURL != null) {
-            this.setupTest(testName, BrowserType.CHROME);
-        } else {
-            driver = defaultDriver;
-        }
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
 
         navigateToTorm(driver);
         // Navigate to project

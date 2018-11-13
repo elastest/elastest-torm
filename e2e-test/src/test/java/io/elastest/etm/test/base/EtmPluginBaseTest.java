@@ -170,6 +170,15 @@ public class EtmPluginBaseTest extends EtmBaseTest {
                 .click();
 
     }
+    
+    protected boolean isJobCreated(String jobName) {
+        try {
+            driver.findElement(By.linkText(jobName));
+            return true;
+        }catch (Exception e) {
+            return false;
+        }
+    }
 
     protected void createPipelineJob(WebDriver driver, String jobName,
             String script) {
@@ -193,6 +202,35 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
         driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
         driver.findElement(By.xpath("//span/button")).click();
+    }
+    
+    protected void executeJob(WebDriver driver) throws InterruptedException {
+        log.info("Run Job");
+        long historySize = driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size();
+        driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
+                .click();
+        while (driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size() == historySize) {
+            log.info("history table size {}", driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size());
+        }
+        
+        log.info("Waiting for the start of Job execution");
+        By newBuildHistory = By
+                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
+        WebDriverWait waitService = new WebDriverWait(driver, 10);
+        waitService.until(visibilityOfElementLocated(newBuildHistory));
+        Thread.sleep(2000);
+        driver.findElement(By.xpath(
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+                .click();
     }
 
 }

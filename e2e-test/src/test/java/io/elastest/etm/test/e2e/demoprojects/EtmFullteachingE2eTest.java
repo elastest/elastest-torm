@@ -20,6 +20,8 @@ import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -126,7 +129,10 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     @DisplayName("Create and Executes Fullteaching Teacher and Student Testing")
     void testTeacherandStudentTesting(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws InterruptedException, MalformedURLException {
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         String tJobName = "Teacher and Student Testing";
         String tJobTestResultPath = "/full-teaching/spring/backend/target/surefire-reports/";
         String commands = "git clone https://github.com/pabloFuente/full-teaching; cd full-teaching/spring/backend; mvn -Dtest=FullTeachingTestE2ESleep -B test;";
@@ -138,7 +144,11 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     @DisplayName("Create and Executes Fullteaching E2E REST operations")
     void testE2eRestOperations(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws InterruptedException, IOException {
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
+        
         String tJobName = "E2E REST operations";
         String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EREST -B test;";
@@ -150,7 +160,10 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     @DisplayName("Create and Executes Fullteaching E2E Teacher + Student VIDEO-SESSION")
     void testE2eTeacherStudentVideoSession(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws InterruptedException, IOException {
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         String tJobName = "E2E Teacher + Student VIDEO-SESSION";
         String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EVideoSession -B test;";
@@ -163,7 +176,10 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     @DisplayName("Create and Executes Fullteaching E2E Teacher + Student CHAT")
     void testE2eTeacherStudentChat(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws InterruptedException, IOException {
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         String tJobName = "E2E Teacher + Student CHAT";
         String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dtest=FullTeachingTestE2EChat -B test;";
@@ -177,7 +193,10 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     @DisplayName("Create and Executes Fullteaching Unit + Integration Tests")
     void testUnitIntegrationTests(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
+            throws InterruptedException, IOException {
+        driver = setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         String tJobName = "Unit + Integration Tests";
         String tJobTestResultPath = "/full-teaching-experiment/target/surefire-reports/";
         String commands = "git clone https://github.com/elastest/full-teaching-experiment; cd full-teaching-experiment; mvn -Dspring.datasource.url=jdbc:mysql://$ET_SUT_HOST:3306/full_teaching test;";
@@ -186,7 +205,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
                 tJobImage, commands, 2, sut2Name, "SUCCESS");
     }
 
-    public void fullTeachingBaseTest(RemoteWebDriver driver, String tJobName,
+    public void fullTeachingBaseTest(WebDriver driver, String tJobName,
             String tJobTestResultPath, String tJobImage, String commands,
             int sutNum, String sutName, String result)
             throws InterruptedException {

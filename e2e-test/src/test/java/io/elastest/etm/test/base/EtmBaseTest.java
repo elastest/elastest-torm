@@ -57,7 +57,8 @@ import org.slf4j.Logger;
 import io.elastest.etm.test.utils.RestClient;
 import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DriverCapabilities;
-import static io.github.bonigarcia.BrowserType.CHROME;
+import io.github.bonigarcia.wdm.ChromeDriverManager;
+import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
 public class EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
@@ -123,6 +124,12 @@ public class EtmBaseTest {
                 secureElastest);
 
         eusURL = System.getenv("ET_EUS_API");
+        
+        if (eusURL == null) {
+            // Outside ElasTest
+            ChromeDriverManager.getInstance().setup();
+            FirefoxDriverManager.getInstance().setup();
+        }
     }
 
     @AfterEach
@@ -685,22 +692,6 @@ public class EtmBaseTest {
         driver.findElement(serviceDetailButton).click();
     }
 
-    protected void executeJob(WebDriver driver) throws InterruptedException {
-        log.info("Run Job");
-        driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
-                .click();
-
-        log.info("Waiting for the start of Job execution");
-        By newBuildHistory = By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
-        WebDriverWait waitService = new WebDriverWait(driver, 10);
-        waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By.xpath(
-                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
-                .click();
-
-    }
-
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
             String expectedResult, boolean waitForMetrics) {
 
@@ -752,6 +743,20 @@ public class EtmBaseTest {
         }
     }
 
+    public RemoteWebDriver setupTestBrowser(String testName, BrowserType browser, WebDriver driver)
+            throws MalformedURLException {
+        if (eusURL != null) {
+            DesiredCapabilities caps;
+            caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
+                    : DesiredCapabilities.firefox();
+            caps.setCapability("testName", testName);
+            this.driver = new RemoteWebDriver(new URL(eusURL), caps);
+        } else {
+            this.driver = driver;
+        }
+        return (RemoteWebDriver)this.driver;
+    }
+    
     public void setupTest(String testName, BrowserType browser)
             throws MalformedURLException {
         DesiredCapabilities caps;
