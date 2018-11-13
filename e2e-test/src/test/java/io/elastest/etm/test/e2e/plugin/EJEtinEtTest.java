@@ -15,6 +15,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -42,10 +43,15 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
    
     @Test
     @DisplayName("ETInET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
-        driver = (ChromeDriver) setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+    void testETInETPluginInPipelineJob(ChromeDriver cDriver) throws Exception {
+        RemoteWebDriver driver = null;
+        if (this.eusURL != null) {
+            driver = (ChromeDriver) setupTestBrowser(new Object() {
+            }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                    driver);
+        } else {
+            driver = cDriver;
+        }
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
         // Creation of a new Pipeline Job
@@ -66,7 +72,10 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
                     + split_url[1];
             navigateTo(driver, linkElasTest);
         } else {
-            driver.findElement(By.linkText("Open in ElasTest")).click();
+            JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+            WebElement etLink = driver.findElement(By.linkText("Open in ElasTest"));
+            jse2.executeScript("arguments[0].scrollIntoView()", etLink);
+            etLink.click();
         }
 
         WebDriverWait waitLogs = new WebDriverWait(driver, 60);
