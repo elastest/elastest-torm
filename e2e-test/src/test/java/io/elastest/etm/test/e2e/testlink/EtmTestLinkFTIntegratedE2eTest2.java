@@ -109,7 +109,7 @@ public class EtmTestLinkFTIntegratedE2eTest2 extends EtmTestLinkBaseTest {
         }.getClass().getEnclosingMethod().getName();
         
         if (eusURL != null) {
-            this.setupTest(testName, BrowserType.FIREFOX);
+            this.setupTest(testName, BrowserType.CHROME);
         } else {
             driver = defaultDriver;
         }
