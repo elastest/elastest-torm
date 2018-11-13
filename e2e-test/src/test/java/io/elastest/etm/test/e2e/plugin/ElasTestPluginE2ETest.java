@@ -31,6 +31,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -81,10 +82,15 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver driver) throws Exception {
-        driver = (ChromeDriver) setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+    void testPipelineJob(ChromeDriver cDriver) throws Exception {
+        RemoteWebDriver driver = null;
+        if (this.eusURL != null) {
+            driver = setupTestBrowser(new Object() {
+            }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                    driver);
+        } else {
+            driver = cDriver;
+        }
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
         installElasTestPlugin(driver);
@@ -98,52 +104,6 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
         executeJob(driver);
 
-        String linkElasTest = driver
-                .findElement(By.linkText("Open in ElasTest"))
-                .getAttribute("href");
-        if (secureElastest) {
-            String split_url[] = linkElasTest.split("//");
-            linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
-                    + split_url[1];
-            navigateTo(driver, linkElasTest);
-        } else {
-            driver.findElement(By.linkText("Open in ElasTest")).click();
-        }
-
-        WebDriverWait waitLogs = new WebDriverWait(driver, 60);
-        log.info("Wait for build sucess traces");
-        checkFinishTJobExec(driver, 180, "SUCCESS", false);
-        WebElement logsView = driver.findElement(By.xpath(
-                "//logs-view"));
-        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
-        try {
-            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
-            waitLogs.until(textToBePresentInElementLocated(
-                    By.tagName("logs-view"), "BUILD SUCCESS"));
-        } catch (Exception te) {
-            jse2.executeScript("arguments[0].scrollIntoView()", logsView);
-            waitLogs.until(textToBePresentInElementLocated(
-                    By.tagName("logs-view"), "BUILD SUCCESS"));
-        }
-    }
-    
-    @Test
-    @DisplayName("ETInET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
-        driver = (ChromeDriver) setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
-        navigateTo(driver, jenkinsCIUrl);
-        loginOnJenkins(driver);
-        // Creation of a new Pipeline Job
-        if (!isJobCreated(jobName)){
-            driver.findElement(By.linkText("New Item")).click();
-            createPipelineJob(driver, jobName, unitTestScript);
-        } else {
-            driver.findElement(By.linkText(jobName)).click();
-        }
-        
-        executeJob(driver);
         String linkElasTest = driver
                 .findElement(By.linkText("Open in ElasTest"))
                 .getAttribute("href");
