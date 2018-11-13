@@ -20,6 +20,7 @@ import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -52,9 +54,16 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Check TJob Execution logs in Log Analyzer")
     void testExecuteAndCheckLogsInLogAnalyzer(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = CHROME) RemoteWebDriver defaultDriver)
+            throws InterruptedException, MalformedURLException {
+        String testName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        
+        if (eusURL != null) {
+            this.setupTest(testName, BrowserType.CHROME);
+        } else {
+            driver = defaultDriver;
+        }
 
         navigateToTorm(driver);
         // Navigate to project
