@@ -55,7 +55,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.utils.RestClient;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DriverCapabilities;
+import static io.github.bonigarcia.BrowserType.CHROME;
 
 public class EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
@@ -425,7 +427,7 @@ public class EtmBaseTest {
             return false;
         }
     }
-    
+
     protected boolean etSutExistsIntoTLProject(WebDriver driver,
             String projectName, String sutName) {
         log.info("Checking if Sut {} exists into Project TL {}", sutName,
@@ -451,17 +453,18 @@ public class EtmBaseTest {
             return false;
         }
     }
-    
-    
-    protected void selectItem(WebDriver driver, String item, String selectDesc) {
-        String sutSelectXpath = "//md-select/div/span[contains(string(), '" + selectDesc + "')]";
+
+    protected void selectItem(WebDriver driver, String item,
+            String selectDesc) {
+        String sutSelectXpath = "//md-select/div/span[contains(string(), '"
+                + selectDesc + "')]";
         this.getElementByXpath(driver, sutSelectXpath).get(0).click();
 
         if (item != null) {
             this.getElementByXpath(driver,
                     "//md-option[contains(string(), '" + item + "')]").get(0)
                     .click();
-        } 
+        }
     }
 
     /* ************** */
@@ -749,10 +752,13 @@ public class EtmBaseTest {
         }
     }
 
-    public void setupTest(String testName) throws MalformedURLException {
+    public void setupTest(String testName, BrowserType browser)
+            throws MalformedURLException {
         DesiredCapabilities caps;
-        caps = eusURL != null ? DesiredCapabilities.firefox()
-                : DesiredCapabilities.chrome();
+        caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
+                : DesiredCapabilities.firefox();
+//        caps = eusURL != null ? DesiredCapabilities.firefox()
+//                : DesiredCapabilities.chrome();
         caps.setCapability("testName", testName);
         driver = new RemoteWebDriver(new URL(eusURL), caps);
     }

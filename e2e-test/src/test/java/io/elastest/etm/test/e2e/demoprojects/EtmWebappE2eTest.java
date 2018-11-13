@@ -83,7 +83,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         String testName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         if (eusURL != null) {
-            this.setupTest(testName);
+            this.setupTest(testName, CHROME);
         } else {
             driver = rDriver;
         }
@@ -113,7 +113,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         String testName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         if (eusURL != null) {
-            this.setupTest(testName);
+            this.setupTest(testName, BrowserType.FIREFOX);
         } else {
             driver = rDriver;
         }
@@ -143,7 +143,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         String testName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         if (eusURL != null) {
-            this.setupTest(testName);
+            this.setupTest(testName, CHROME);
         } else {
             driver = rDriver;
         }
