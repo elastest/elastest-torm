@@ -96,7 +96,7 @@ node {
                                 
                                 try {
                                     echo "Run tests"
-                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
+                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=ElasTestPluginE2ETest -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
                                 } catch(e) {                                    
                                     sh '''\
                                     docker ps --all
