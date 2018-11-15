@@ -66,7 +66,7 @@ import io.github.bonigarcia.wdm.ChromeDriverManager;
 @DisplayName("ETM E2E test of TestLink")
 @ExtendWith(SeleniumExtension.class)
 @TestInstance(Lifecycle.PER_CLASS)
-public class EtmTestLinkFTIntegratedE2eTest extends EtmTestLinkBaseTest {
+public class EtInEtDemoTest extends EtmTestLinkBaseTest {
 
     static String fullteachingUrl = null;
 
