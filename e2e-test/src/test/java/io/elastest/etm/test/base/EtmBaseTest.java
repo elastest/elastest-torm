@@ -47,6 +47,8 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -745,10 +747,20 @@ public class EtmBaseTest {
 
     public void setupTestBrowser(String testName, BrowserType browser, WebDriver driver)
             throws MalformedURLException {
+        ChromeOptions cOptions;
+        FirefoxOptions fOptions;
+        log.info("EUS hub URL: {}", eusURL);
         if (eusURL != null) {
-            DesiredCapabilities caps;
-            caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
-                    : DesiredCapabilities.firefox();
+            DesiredCapabilities caps = new DesiredCapabilities();
+            if (browser.equals(BrowserType.CHROME)) {
+                cOptions = new ChromeOptions();
+                caps.setBrowserName("chrome");
+                caps.setCapability(ChromeOptions.CAPABILITY, cOptions);
+            } else {
+                fOptions = new FirefoxOptions();
+                caps.setBrowserName("firefox");
+                caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, fOptions);
+            }
             caps.setCapability("testName", testName);
             this.driver = new RemoteWebDriver(new URL(eusURL), caps);
             driver = this.driver;
