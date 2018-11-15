@@ -172,16 +172,29 @@ public class TJobExecOrchestratorService {
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
+        DockerExecution dockerExec = new DockerExecution(tJobExec);
 
         try {
-            // Start SuT if it's necessary
-            SutSpecification sut = tJobExec.getTjob().getSut();
-            if (sut != null) {
-                SutExecution sutExec = startSutDeployedOutside(tJobExec);
-                tJobExec.setSutExecution(sutExec);
-            }
             initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-            setTJobExecEnvVars(tJobExec, true, false);
+            setTJobExecEnvVars(tJobExec, false, false);
+            tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+            dockerExec.updateFromTJobExec(tJobExec);
+
+            // Create queues and load basic services
+            dockerEtmService.loadBasicServices(dockerExec);
+            resultMsg = "Starting Dockbeat to get metrics...";
+            dockerEtmService.updateExecutionResultStatus(dockerExec,
+                    ResultEnum.IN_PROGRESS, resultMsg);
+
+            // Start Dockbeat
+            dockerEtmService.startDockbeat(dockerExec);
+
+            // Start SuT if it's necessary
+            if (dockerExec.isWithSut()) {
+                initSut(dockerExec);
+                tJobExec.setSutExecution(dockerExec.getSutExec());
+            }
+
             // Start Test
             resultMsg = "Executing Test";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
