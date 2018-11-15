@@ -63,7 +63,7 @@ import io.github.bonigarcia.wdm.FirefoxDriverManager;
 public class EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
 
-    protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
+    protected String tormUrl = "http://localhost:4200";//"http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
     protected String apiPath = "api";
     protected String tormApiUrl;
@@ -762,8 +762,6 @@ public class EtmBaseTest {
         DesiredCapabilities caps;
         caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
                 : DesiredCapabilities.firefox();
-//        caps = eusURL != null ? DesiredCapabilities.firefox()
-//                : DesiredCapabilities.chrome();
         caps.setCapability("testName", testName);
         driver = new RemoteWebDriver(new URL(eusURL), caps);
     }

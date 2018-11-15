@@ -187,12 +187,10 @@ public class ExternalService {
         TJobExecution tJobExecution = tJobService
                 .getTJobExecById(externalJob.gettJobExecId());
         if (tJobExecution.getResult() != (ResultEnum.ERROR)) {
-            if (tJobExecution.getEnvVars() != null
-                    && !tJobExecution.getEnvVars().isEmpty()) {
+            if (tJobExecution.getResult() == ResultEnum.EXECUTING_TEST) {
                 externalJob.setEnvVars(tJobExecution.getEnvVars());
                 externalJob.setReady(true);
                 externalJob.setStatus(ExternalJobStatusEnum.READY);
-
             } else {
                 externalJob.setReady(false);
             }
@@ -263,7 +261,7 @@ public class ExternalService {
                 project = projectService.createProject(project);
             }
 
-            // If a SUT is required, retrieved to associate it with both the
+            // If a SUT is required, it is retrieved to associate it with both the
             // Project and the TJob
             SutSpecification sutAux = null;
             if (externalJob.getSut() != null

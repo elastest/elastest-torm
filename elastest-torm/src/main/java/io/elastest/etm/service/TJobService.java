@@ -278,7 +278,6 @@ public class TJobService {
         TestResultParser testResultParser = new TestResultParser();
         if (testResultsReportsAsString != null) {
             for (String testSuite : testResultsReportsAsString) {
-
                 try {
                     testResultsReports.add(testResultParser
                             .testSuiteStringToReportTestSuite(testSuite));
@@ -297,6 +296,16 @@ public class TJobService {
         } catch (Exception e) {
             logger.error(
                     "Exception during desprovisioning of the TSS associated with an External TJob.");
+        }
+        if (tJobExec.isWithSut()) {
+            try {
+                DockerExecution dockerExec = new DockerExecution(tJobExec);
+                tJobExecOrchestratorService.endDockbeatExec(dockerExec, false);
+                tJobExecOrchestratorService.endSutExec(dockerExec, false);
+            } catch (Exception e) {
+                logger.error(
+                        "Exception during desprovisioning of the TSS associated with an External TJob.");
+            }
         }
     }
 
