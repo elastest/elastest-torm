@@ -16,7 +16,6 @@
  */
 package io.elastest.etm.test.e2e.example;
 
-import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.openqa.selenium.Keys.RETURN;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -51,8 +49,6 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
-import io.github.bonigarcia.BrowserType;
-import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 
@@ -62,8 +58,8 @@ import io.github.bonigarcia.wdm.ChromeDriverManager;
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
  */
-@Tag("e2e")
-@DisplayName("ETM E2E test of TestLink")
+@Tag("ETinET")
+@DisplayName("ETM ETinET E2E Demo test")
 @ExtendWith(SeleniumExtension.class)
 @TestInstance(Lifecycle.PER_CLASS)
 public class EtInEtDemoTest extends EtmTestLinkBaseTest {
@@ -126,7 +122,7 @@ public class EtInEtDemoTest extends EtmTestLinkBaseTest {
     }
     
     @Test
-    @DisplayName("Create TestLink Fullteaching Data and Test In ElasTest")
+    @DisplayName("EtInEtDemoTest-Creates Test Data on TestLink and run manual test from ElasTest")
     void tlFullteachingDataTest(TestInfo info)
             throws InterruptedException, IOException {
         
@@ -223,8 +219,6 @@ public class EtInEtDemoTest extends EtmTestLinkBaseTest {
         sleep(SECONDS.toMillis(2));
 
         log.info("Click browser navigation bar and navigate");
-//        new Actions(driver).moveToElement(canvas, 80, 16).click()
-//                .sendKeys(fullteachingUrl + RETURN).build().perform();
         int navigationTimeSec = 9;
         log.info("Waiting {} seconds (simulation of manual navigation)",
                 navigationTimeSec);
