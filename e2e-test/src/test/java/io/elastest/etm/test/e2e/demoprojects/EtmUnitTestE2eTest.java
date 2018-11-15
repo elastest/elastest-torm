@@ -63,7 +63,7 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
     void testCreateUnitTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException, SecurityException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
 

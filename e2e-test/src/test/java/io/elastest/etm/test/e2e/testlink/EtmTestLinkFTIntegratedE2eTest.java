@@ -105,7 +105,7 @@ public class EtmTestLinkFTIntegratedE2eTest extends EtmTestLinkBaseTest {
     void tlFullteachingDataTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         

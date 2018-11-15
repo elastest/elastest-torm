@@ -85,7 +85,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
     void testPipelineJob(ChromeDriver cDriver) throws Exception {
         RemoteWebDriver driver = null;
         if (this.eusURL != null) {
-            driver = setupTestBrowser(new Object() {
+            setupTestBrowser(new Object() {
             }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                     driver);
         } else {

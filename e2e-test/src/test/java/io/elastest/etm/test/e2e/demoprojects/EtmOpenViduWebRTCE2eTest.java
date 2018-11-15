@@ -73,7 +73,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     void testCreateOpenViduWebRTC(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws Exception {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         this.createProjectAndSut(driver);

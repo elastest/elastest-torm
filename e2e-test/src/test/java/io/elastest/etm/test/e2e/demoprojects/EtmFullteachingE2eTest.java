@@ -130,7 +130,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testTeacherandStudentTesting(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, MalformedURLException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         String tJobName = "Teacher and Student Testing";
@@ -145,7 +145,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testE2eRestOperations(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         
@@ -161,7 +161,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testE2eTeacherStudentVideoSession(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         String tJobName = "E2E Teacher + Student VIDEO-SESSION";
@@ -177,7 +177,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testE2eTeacherStudentChat(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         String tJobName = "E2E Teacher + Student CHAT";
@@ -194,7 +194,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     void testUnitIntegrationTests(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
         String tJobName = "Unit + Integration Tests";

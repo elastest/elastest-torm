@@ -72,7 +72,7 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
     void testCreateRestTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, IOException, SecurityException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
 

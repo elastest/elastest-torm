@@ -38,30 +38,25 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
             + "            git 'https://github.com/elastest/demo-projects'\n"
             + "            echo 'Run test'\n"
             + "            sh \"cd ./unit-java-test/;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";// +
-    
+
     final String jobName = "PJob_1";
-   
+
     @Test
-    @DisplayName("ETInET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver cDriver) throws Exception {
-        RemoteWebDriver driver = null;
-        if (this.eusURL != null) {
-            driver = setupTestBrowser(new Object() {
-            }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                    driver);
-        } else {
-            driver = cDriver;
-        }
+    @DisplayName("ETinET-Test: use plugin in a pipeline")
+    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
+        setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                driver);
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
         // Creation of a new Pipeline Job
-        if (!isJobCreated(jobName)){
+        if (!isJobCreated(jobName)) {
             driver.findElement(By.linkText("New Item")).click();
             createPipelineJob(driver, jobName, unitTestScript);
         } else {
             driver.findElement(By.linkText(jobName)).click();
         }
-        
+
         executeJob(driver);
         String linkElasTest = driver
                 .findElement(By.linkText("Open in ElasTest"))
@@ -73,7 +68,8 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
             navigateTo(driver, linkElasTest);
         } else {
             JavascriptExecutor jse2 = (JavascriptExecutor) driver;
-            WebElement etLink = driver.findElement(By.linkText("Open in ElasTest"));
+            WebElement etLink = driver
+                    .findElement(By.linkText("Open in ElasTest"));
             jse2.executeScript("arguments[0].scrollIntoView()", etLink);
             etLink.click();
         }
@@ -81,8 +77,7 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
         WebDriverWait waitLogs = new WebDriverWait(driver, 60);
         log.info("Wait for build sucess traces");
         checkFinishTJobExec(driver, 180, "SUCCESS", false);
-        WebElement logsView = driver.findElement(By.xpath(
-                "//logs-view"));
+        WebElement logsView = driver.findElement(By.xpath("//logs-view"));
         JavascriptExecutor jse2 = (JavascriptExecutor) driver;
         try {
             jse2.executeScript("arguments[0].scrollIntoView()", logsView);

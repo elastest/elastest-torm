@@ -78,9 +78,9 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create WebApp project Chrome Test")
     void testCreateChromeTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver rDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException, MalformedURLException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
 
@@ -104,9 +104,9 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver rDriver)
+            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver driver)
             throws InterruptedException, MalformedURLException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
 
@@ -132,7 +132,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     void testCreateMultiTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver rDriver)
             throws InterruptedException, MalformedURLException {
-        driver = setupTestBrowser(new Object() {
+        setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
                 driver);
 
