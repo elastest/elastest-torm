@@ -63,7 +63,7 @@ import io.github.bonigarcia.wdm.FirefoxDriverManager;
 public class EtmBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
 
-    protected String tormUrl = "http://localhost:4200";//"http://172.17.0.1:37000/"; // local by default
+    protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
     protected String apiPath = "api";
     protected String tormApiUrl;
@@ -743,7 +743,7 @@ public class EtmBaseTest {
         }
     }
 
-    public RemoteWebDriver setupTestBrowser(String testName, BrowserType browser, WebDriver driver)
+    public void setupTestBrowser(String testName, BrowserType browser, WebDriver driver)
             throws MalformedURLException {
         if (eusURL != null) {
             DesiredCapabilities caps;
@@ -751,13 +751,13 @@ public class EtmBaseTest {
                     : DesiredCapabilities.firefox();
             caps.setCapability("testName", testName);
             this.driver = new RemoteWebDriver(new URL(eusURL), caps);
+            driver = this.driver;
         } else {
             this.driver = driver;
         }
-        return (RemoteWebDriver)this.driver;
     }
     
-    public void setupTest(String testName, BrowserType browser)
+    public void setupTestBrowser(String testName, BrowserType browser)
             throws MalformedURLException {
         DesiredCapabilities caps;
         caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
