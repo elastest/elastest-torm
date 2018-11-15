@@ -5,7 +5,11 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentI
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -16,7 +20,18 @@ import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.BrowserType;
+import io.github.bonigarcia.SeleniumExtension;
 
+/**
+* E2E ElasTest Jenkins Plugin test.
+*
+* @author franciscoRdiaz(https://github.com/franciscoRdiaz)
+* @since 0.1.1
+*/
+@Tag("ETinET")
+@DisplayName("EJ_E2E_Test_With-plugin-installation")
+@TestInstance(Lifecycle.PER_CLASS)
+@ExtendWith(SeleniumExtension.class)
 public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
 
