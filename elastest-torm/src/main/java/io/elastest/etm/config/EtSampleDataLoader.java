@@ -386,7 +386,7 @@ public class EtSampleDataLoader {
             String tJob7Name = "Cucumber Multi Browser Test";
             String commands7 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + cucumberMultipleBrowsersProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
+                    + ";\nmvn -B -Dtest=WebAppTestRunner -Dbrowser=chrome test;";
             etDataLoader.createTJob(project, tJob7Name,
                     cucumberMultipleBrowsersResultsPath, javaMvnImage, false,
                     commands7, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
@@ -396,7 +396,7 @@ public class EtSampleDataLoader {
             String tJob8Name = "Cucumber Single Browser Test";
             String commands8 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + cucumberSingleBrowserProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
+                    + ";\nmvn -B -Dtest=WebAppTestRunner -Dbrowser=chrome test;";
             etDataLoader.createTJob(project, tJob8Name,
                     cucumberSingleBrowserResultsPath, javaMvnImage, false,
                     commands8, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
