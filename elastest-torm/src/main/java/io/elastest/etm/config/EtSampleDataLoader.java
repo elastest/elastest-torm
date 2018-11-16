@@ -372,11 +372,13 @@ public class EtSampleDataLoader {
             /* ************** Cucumber ************** */
             /* ************************************** */
 
-            String cucumberMultipleBrowsersProjectPath = "/demo-projects/cucumber-web-multiple-browsers-test";
+            String cucumberMultipleBrowsersProjectPath = webAppFolder
+                    + "/cucumber-web-multiple-browsers-test";
             String cucumberMultipleBrowsersResultsPath = cucumberMultipleBrowsersProjectPath
                     + javaRelativeResultsPath;
 
-            String cucumberSingleBrowserProjectPath = "/demo-projects/cucumber-web-single-browser-test";
+            String cucumberSingleBrowserProjectPath = webAppFolder
+                    + "/cucumber-web-single-browser-test";
             String cucumberSingleBrowserResultsPath = cucumberSingleBrowserProjectPath
                     + javaRelativeResultsPath;
 
@@ -403,11 +405,13 @@ public class EtSampleDataLoader {
             /* *************************************** */
             /* **************** Gauge **************** */
             /* *************************************** */
-            String gaugeMultipleBrowsersProjectPath = "/demo-projects/gauge-web-multiple-browsers-test";
+            String gaugeMultipleBrowsersProjectPath = webAppFolder
+                    + "/gauge-web-multiple-browsers-test";
             String gaugeMultipleBrowsersResultsPath = gaugeMultipleBrowsersProjectPath
                     + javaRelativeResultsPath;
 
-            String gaugeSingleBrowserProjectPath = "/demo-projects/gauge-web-single-browser-test";
+            String gaugeSingleBrowserProjectPath = webAppFolder
+                    + "/gauge-web-single-browser-test";
             String gaugeSingleBrowserResultsPath = gaugeSingleBrowserProjectPath
                     + javaRelativeResultsPath;
 
@@ -433,7 +437,8 @@ public class EtSampleDataLoader {
             /* ************** Protractor ************** */
             /* **************************************** */
 
-            String protractorSingleBrowserProjectPath = "/demo-projects/protractor-web-single-browser-test";
+            String protractorSingleBrowserProjectPath = webAppFolder
+                    + "/protractor-web-single-browser-test";
             String protractorSingleBrowserResultsPath = protractorSingleBrowserProjectPath
                     + jasmineAndProtractorRelativeResultsPath;
 
@@ -451,11 +456,13 @@ public class EtSampleDataLoader {
             /* **************** Python **************** */
             /* **************************************** */
 
-            String pythonMultipleBrowsersProjectPath = "/demo-projects/python-web-multiple-browsers-test";
+            String pythonMultipleBrowsersProjectPath = webAppFolder
+                    + "/python-web-multiple-browsers-test";
             String pythonMultipleBrowsersResultsPath = pythonMultipleBrowsersProjectPath
                     + pythonRelativeResultsPath;
 
-            String pythonSingleBrowserProjectPath = "/demo-projects/python-web-single-browser-test";
+            String pythonSingleBrowserProjectPath = webAppFolder
+                    + "/python-web-single-browser-test";
             String pythonSingleBrowserResultsPath = pythonSingleBrowserProjectPath
                     + pythonRelativeResultsPath;
 
