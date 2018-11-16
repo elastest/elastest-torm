@@ -54,12 +54,11 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Check TJob Execution logs in Log Analyzer")
     void testExecuteAndCheckLogsInLogAnalyzer(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver lDriver)
             throws InterruptedException, MalformedURLException {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME, driver);
         
-
         navigateToTorm(driver);
         // Navigate to project
         navigateToETProject(driver, projectName);
@@ -70,7 +69,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
         this.checkFinishTJobExec(driver, 180, "SUCCESS", false);
 
         // Refresh to redirect to results page (TODO remove, now ElasTest has autoredirect)
-        this.driver.navigate().refresh();
+        driver.navigate().refresh();
         Thread.sleep(1000);
         
         log.info("View execution in LogAnalyzer");
