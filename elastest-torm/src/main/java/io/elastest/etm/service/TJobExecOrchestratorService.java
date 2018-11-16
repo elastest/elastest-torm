@@ -176,7 +176,7 @@ public class TJobExecOrchestratorService {
 
         try {
             initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-            //setTJobExecEnvVars(tJobExec, false, false);
+            setTJobExecEnvVars(tJobExec, true, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
             dockerExec.updateFromTJobExec(tJobExec);
 
