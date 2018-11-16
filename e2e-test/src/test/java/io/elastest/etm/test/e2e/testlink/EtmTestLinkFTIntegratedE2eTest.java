@@ -103,11 +103,11 @@ public class EtmTestLinkFTIntegratedE2eTest extends EtmTestLinkBaseTest {
     @Test
     @DisplayName("Create TestLink Fullteaching Data and Test In ElasTest")
     void tlFullteachingDataTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
             throws InterruptedException, IOException {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+                localDriver);
         
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
