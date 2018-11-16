@@ -160,7 +160,7 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.trace("Processing trace {} with timestamp {}", message,
+        logger.trace("Processing TCP trace {} with timestamp {}", message,
                 timestamp);
 
         if (message != null && !message.isEmpty()) {
@@ -244,7 +244,7 @@ public class TracesService {
     @SuppressWarnings("unchecked")
     public void processBeatTrace(Map<String, Object> dataMap,
             boolean fromDockbeat) {
-        logger.trace("Processing trace {}", dataMap.toString());
+        logger.trace("Processing BEATS trace {}", dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
 
             try {

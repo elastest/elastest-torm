@@ -52,6 +52,10 @@ public class EtSampleDataLoader {
     private static String nodeImage = "elastest/test-etm-alpinegitnode";
     private static String gaugeImage = "elastest/test-etm-alpinegitjavagauge";
 
+    private static String javaRelativeResultsPath = "/target/surefire-reports";
+    private static String pythonRelativeResultsPath = "/testresults";
+    private static String jasmineAndProtractorRelativeResultsPath = "/testresults";
+
     @Value("${et.config.folder}")
     private String configFolder;
 
@@ -100,59 +104,81 @@ public class EtSampleDataLoader {
     }
 
     public void createUnitTests() {
+        String unitTestFolder = "/demo-projects/unit";
+
         String pjName = "Unit Tests";
         if (!etDataLoader.projectExists(pjName)) {
             // Create Unit Tests Project
             this.printLog(pjName);
             Project project = etDataLoader.createProject(pjName);
 
+            String junit5UnitProjectPath = unitTestFolder + "/junit5-unit-test";
+            String junit5UnitResultsPath = junit5UnitProjectPath
+                    + javaRelativeResultsPath;
+
+            String junit4UnitProjectPath = unitTestFolder + "/junit4-unit-test";
+            String junit4UnitResultsPath = junit4UnitProjectPath
+                    + javaRelativeResultsPath;
+
             /* *** TJob 1 *** */
             String tJob1Name = "JUnit5 Unit Test";
-            String resultsPath1 = "/demo-projects/unit-java-test/target/surefire-reports/";
-            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/unit-java-test;\nmvn -B test\n";
+            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit5UnitProjectPath + ";\nmvn -B test\n";
 
-            etDataLoader.createTJob(project, tJob1Name, resultsPath1,
+            etDataLoader.createTJob(project, tJob1Name, junit5UnitResultsPath,
                     javaMvnImage, false, commands1, EXEC_DASHBOARD_CONFIG, null,
                     null, null, null);
 
             /* *** TJob 2 *** */
             String tJob2Name = "JUnit4 Unit Test";
-            String resultsPath2 = "/demo-projects/unit-java-test-junit4/target/surefire-reports/";
-            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/unit-java-test-junit4;\nmvn -B test\n";
+            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit4UnitProjectPath + ";\nmvn -B test\n";
 
-            etDataLoader.createTJob(project, tJob2Name, resultsPath2,
+            etDataLoader.createTJob(project, tJob2Name, junit4UnitResultsPath,
                     javaMvnImage, false, commands2, EXEC_DASHBOARD_CONFIG, null,
                     null, null, null);
 
             /* *** TJob 3 *** */
-            String tJob3Name = "Python Unit Test";
-            String resultsPath3 = "/demo-projects/python-unit-test/testresults";
-            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-unit-test;\npython UnitTest.py;";
+            String pythonUnitProjectPath = unitTestFolder + "/python-unit-test";
+            String pythonUnitResultsPath = pythonUnitProjectPath
+                    + pythonRelativeResultsPath;
 
-            etDataLoader.createTJob(project, tJob3Name, resultsPath3,
+            String tJob3Name = "Python Unit Test";
+            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + pythonUnitProjectPath + ";\npython UnitTest.py;";
+
+            etDataLoader.createTJob(project, tJob3Name, pythonUnitResultsPath,
                     pythonImage, false, commands3, EXEC_DASHBOARD_CONFIG, null,
                     null, null, null);
 
             /* *** TJob 4 *** */
-            String tJob4Name = "Jasmine Unit Test";
-            String resultsPath4 = "/demo-projects/jasmine-unit-test/testresults";
-            String commands4 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/jasmine-unit-test;\njasmine;";
+            String jasmineUnitProjectPath = unitTestFolder
+                    + "/jasmine-unit-test";
+            String jasmineUnitResultsPath = jasmineUnitProjectPath
+                    + jasmineAndProtractorRelativeResultsPath;
 
-            etDataLoader.createTJob(project, tJob4Name, resultsPath4, nodeImage,
-                    false, commands4, EXEC_DASHBOARD_CONFIG, null, null, null,
-                    null);
+            String tJob4Name = "Jasmine Unit Test";
+
+            String commands4 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + jasmineUnitProjectPath + ";\njasmine;";
+
+            etDataLoader.createTJob(project, tJob4Name, jasmineUnitResultsPath,
+                    nodeImage, false, commands4, EXEC_DASHBOARD_CONFIG, null,
+                    null, null, null);
         }
     }
 
     public void createRestApi() {
-        String pjName = "REST API";
+        String restTestFolder = "/demo-projects/rest";
+
+        String pjName = "Rest Api";
         if (!etDataLoader.projectExists(pjName)) {
             // Create Project
             this.printLog(pjName);
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            String sutName = "REST App";
+            String sutName = "Rest App";
             String sutDesc = "Simple SpringBoot app";
             String sutImage = "elastest/demo-rest-java-test-sut";
             ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
@@ -163,54 +189,77 @@ public class EtSampleDataLoader {
                             sutName, sutDesc, sutImage, sutProtocol, sutPort,
                             null);
 
+            String junit5RestProjectPath = restTestFolder + "/junit5-rest-test";
+            String junit5RestResultsPath = junit5RestProjectPath
+                    + javaRelativeResultsPath;
+
+            String junit4RestProjectPath = restTestFolder + "/junit4-rest-test";
+            String junit4RestResultsPath = junit4RestProjectPath
+                    + javaRelativeResultsPath;
+
             /* *** TJob 1 *** */
             String tJob1Name = "JUnit5 Rest Test";
-            String resultsPath1 = "/demo-projects/rest-java-test/target/surefire-reports/";
-            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/rest-java-test;\nmvn -B test;";
+            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit5RestProjectPath + ";\nmvn -B test;";
 
-            etDataLoader.createTJob(project, tJob1Name, resultsPath1,
+            etDataLoader.createTJob(project, tJob1Name, junit5RestResultsPath,
                     javaMvnImage, false, commands1,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 2 *** */
             String tJob2Name = "JUnit4 Rest Test";
-            String resultsPath2 = "/demo-projects/rest-java-test-junit4/target/surefire-reports/";
-            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/rest-java-test-junit4;\nmvn -B test;";
+            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit4RestProjectPath + ";\nmvn -B test;";
 
-            etDataLoader.createTJob(project, tJob2Name, resultsPath2,
+            etDataLoader.createTJob(project, tJob2Name, junit4RestResultsPath,
                     javaMvnImage, false, commands2,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 3 *** */
-            String tJob3Name = "Karate Rest Test";
-            String resultsPath3 = "/demo-projects/rest-karate-test/target/surefire-reports/";
-            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/rest-karate-test;\nmvn -B test;";
+            String karateRestProjectPath = restTestFolder + "/karate-rest-test";
+            String karateRestResultsPath = karateRestProjectPath
+                    + javaRelativeResultsPath;
 
-            etDataLoader.createTJob(project, tJob3Name, resultsPath3,
+            String tJob3Name = "Karate Rest Test";
+            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + karateRestProjectPath + ";\nmvn -B test;";
+
+            etDataLoader.createTJob(project, tJob3Name, karateRestResultsPath,
                     javaMvnImage, false, commands3,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 4 *** */
-            String tJob4Name = "Jasmine Rest Test";
-            String resultsPath4 = "/demo-projects/jasmine-rest-test/testresults";
-            String commands4 = "npm install --save request;\ngit clone https://github.com/elastest/demo-projects;\ncd demo-projects/jasmine-rest-test;\njasmine;";
+            String jasmineRestProjectPath = restTestFolder
+                    + "/jasmine-rest-test";
+            String jasmineRestResultsPath = jasmineRestProjectPath
+                    + jasmineAndProtractorRelativeResultsPath;
 
-            etDataLoader.createTJob(project, tJob4Name, resultsPath4, nodeImage,
-                    false, commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null,
-                    null, sut, null);
+            String tJob4Name = "Jasmine Rest Test";
+            String commands4 = "npm install --save request;\ngit clone https://github.com/elastest/demo-projects;\ncd "
+                    + jasmineRestProjectPath + ";\njasmine;";
+
+            etDataLoader.createTJob(project, tJob4Name, jasmineRestResultsPath,
+                    nodeImage, false, commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT,
+                    null, null, sut, null);
 
             /* *** TJob 5 *** */
-            String tJob5Name = "Python Rest Test";
-            String resultsPath5 = "/demo-projects/python-rest-test/testresults";
-            String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-rest-test;\npython RestTest.py;";
+            String pythonRestProjectPath = restTestFolder + "/python-rest-test";
+            String pythonRestResultsPath = pythonRestProjectPath
+                    + pythonRelativeResultsPath;
 
-            etDataLoader.createTJob(project, tJob5Name, resultsPath5,
+            String tJob5Name = "Python Rest Test";
+            String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + pythonRestProjectPath + ";\npython RestTest.py;";
+
+            etDataLoader.createTJob(project, tJob5Name, pythonRestResultsPath,
                     pythonImage, false, commands5,
                     EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
         }
     }
 
     public void createWebapp() {
+        String webAppFolder = "/demo-projects/webapp";
+
         String pjName = "Webapp";
         if (!etDataLoader.projectExists(pjName)) {
             // Create Project
@@ -225,134 +274,210 @@ public class EtSampleDataLoader {
 
             List<String> tss = Arrays.asList("EUS");
 
-            String junit5ResultsPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String junit4ResultsPath = "/demo-projects/web-java-test-junit4/target/surefire-reports/";
-            String cucumberResultsPath = "/demo-projects/cucumber-webapp/target/surefire-reports/";
-            String gaugeResultsPath = "/demo-projects/gauge-webapp/target/surefire-reports/";
-            String protractorResultsPath = "/demo-projects/protractor-webapp/testresults";
-            String pythonResultsPath = "/demo-projects/python-webapp/testresults";
-
             /* ************************************** */
             /* *************** Junit5 *************** */
             /* ************************************** */
 
+            String junit5MultipleBrowsersProjectPath = webAppFolder
+                    + "/junit5-web-multiple-browsers-test";
+            String junit5MultipleBrowsersResultsPath = junit5MultipleBrowsersProjectPath
+                    + javaRelativeResultsPath;
+
+            String junit5SingleBrowserProjectPath = webAppFolder
+                    + "/junit5-web-single-browser-test";
+            String junit5SingleBrowserResultsPath = junit5SingleBrowserProjectPath
+                    + javaRelativeResultsPath;
+
             /* *** TJob 1 *** */
-            String tJob1Name = "Chrome Test";
-            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test;\nmvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob1Name, junit5ResultsPath,
-                    javaMvnImage, false, commands1,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob1Name = "JUnit5 Multi Browser Test";
+            String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit5MultipleBrowsersProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob1Name,
+                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
+                    commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 2 *** */
 
-            String tJob2Name = "Firefox Test";
-            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test;\nmvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
-            etDataLoader.createTJob(project, tJob2Name, junit5ResultsPath,
-                    javaMvnImage, false, commands2,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob2Name = "JUnit5 Multi Browser Test (Firefox)";
+            String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit5MultipleBrowsersProjectPath
+                    + ";\nmvn -B -Dbrowser=firefox test;";
+            etDataLoader.createTJob(project, tJob2Name,
+                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
+                    commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 3 *** */
-            String tJob3Name = "Chrome Test with a browser for all tests";
-            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test;\nmvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob3Name, junit5ResultsPath,
-                    javaMvnImage, false, commands3,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob3Name = "JUnit5 Single Browser Test";
+            String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit5SingleBrowserProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob3Name,
+                    junit5SingleBrowserResultsPath, javaMvnImage, false,
+                    commands3, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 4 *** */
 
-            String tJob4Name = "Multi WebApp";
-            String commands4 = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=$BROWSER test;";
+            String tJob4Name = "Multi JUnit5 Multi Browser Test";
+            String commands4 = "git clone https://github.com/elastest/demo-projects; cd "
+                    + junit5MultipleBrowsersProjectPath
+                    + "; mvn -B -Dbrowser=$BROWSER test;";
             List<MultiConfig> multiConfigs = new ArrayList<>();
             multiConfigs.add(new MultiConfig("BROWSER",
                     new ArrayList<String>(Arrays.asList("chrome", "firefox"))));
 
-            etDataLoader.createTJob(project, tJob4Name, junit5ResultsPath,
-                    javaMvnImage, false, commands4,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+            etDataLoader.createTJob(project, tJob4Name,
+                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
+                    commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     multiConfigs);
 
             /* ************************************** */
             /* *************** Junit4 *************** */
             /* ************************************** */
 
+            String junit4MultipleBrowsersProjectPath = webAppFolder
+                    + "/junit4-web-multiple-browsers-test";
+            String junit4MultipleBrowsersResultsPath = junit4MultipleBrowsersProjectPath
+                    + javaRelativeResultsPath;
+
+            String junit4SingleBrowserProjectPath = webAppFolder
+                    + "/junit4-web-single-browser-test";
+            String junit4SingleBrowserResultsPath = junit4SingleBrowserProjectPath
+                    + javaRelativeResultsPath;
+
             /* *** TJob 5 *** */
-            String tJob5Name = "Junit4 Chrome Test";
-            String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test-junit4;\nmvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob5Name, junit4ResultsPath,
-                    javaMvnImage, false, commands5,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob5Name = "Junit4 Multi Browser Test";
+            String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit4MultipleBrowsersProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob5Name,
+                    junit4MultipleBrowsersResultsPath, javaMvnImage, false,
+                    commands5, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 6 *** */
-            String tJob6Name = "Junit4 Chrome Test with a browser for all tests";
-            String commands6 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/web-java-test-junit4;\nmvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob6Name, junit4ResultsPath,
-                    javaMvnImage, false, commands6,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob6Name = "Junit4 Single Browser Test";
+            String commands6 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + junit4SingleBrowserProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob6Name,
+                    junit4SingleBrowserResultsPath, javaMvnImage, false,
+                    commands6, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* ************************************** */
             /* ************** Cucumber ************** */
             /* ************************************** */
 
+            String cucumberMultipleBrowsersProjectPath = "/demo-projects/cucumber-web-multiple-browsers-test";
+            String cucumberMultipleBrowsersResultsPath = cucumberMultipleBrowsersProjectPath
+                    + javaRelativeResultsPath;
+
+            String cucumberSingleBrowserProjectPath = "/demo-projects/cucumber-web-single-browser-test";
+            String cucumberSingleBrowserResultsPath = cucumberSingleBrowserProjectPath
+                    + javaRelativeResultsPath;
+
             /* *** TJob 7 *** */
-            String tJob7Name = "Cucumber Test";
-            String commands7 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/cucumber-webapp;\nmvn -B -Dbrowser=chrome -Dtest=MultipleWebAppTestsRunner test;";
-            etDataLoader.createTJob(project, tJob7Name, cucumberResultsPath,
-                    javaMvnImage, false, commands7,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob7Name = "Cucumber Multi Browser Test";
+            String commands7 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + cucumberMultipleBrowsersProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob7Name,
+                    cucumberMultipleBrowsersResultsPath, javaMvnImage, false,
+                    commands7, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 8 *** */
-            String tJob8Name = "Cucumber Test with a browser for all tests";
-            String commands8 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/cucumber-webapp;\nmvn -B -Dbrowser=chrome -Dtest=WebAppTestRunner test;";
-            etDataLoader.createTJob(project, tJob8Name, cucumberResultsPath,
-                    javaMvnImage, false, commands8,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob8Name = "Cucumber Single Browser Test";
+            String commands8 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + cucumberSingleBrowserProjectPath
+                    + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob8Name,
+                    cucumberSingleBrowserResultsPath, javaMvnImage, false,
+                    commands8, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *************************************** */
             /* **************** Gauge **************** */
             /* *************************************** */
+            String gaugeMultipleBrowsersProjectPath = "/demo-projects/gauge-web-multiple-browsers-test";
+            String gaugeMultipleBrowsersResultsPath = gaugeMultipleBrowsersProjectPath
+                    + javaRelativeResultsPath;
+
+            String gaugeSingleBrowserProjectPath = "/demo-projects/gauge-web-single-browser-test";
+            String gaugeSingleBrowserResultsPath = gaugeSingleBrowserProjectPath
+                    + javaRelativeResultsPath;
 
             /* *** TJob 9 *** */
-            String tJob9Name = "Gauge Test";
-            String commands9 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn clean package -DskipTests;\nmvn -B gauge:execute -DspecsDir=specs/multiple-webapp-tests.spec;";
-            etDataLoader.createTJob(project, tJob9Name, gaugeResultsPath,
-                    gaugeImage, false, commands9,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob9Name = "Gauge Multi Browser Test";
+            String commands9 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + gaugeMultipleBrowsersProjectPath + ";\nmvn clean test ;";
+            etDataLoader.createTJob(project, tJob9Name,
+                    gaugeMultipleBrowsersResultsPath, gaugeImage, false,
+                    commands9, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 10 *** */
-            String tJob10Name = "Gauge Test  with a browser for all tests";
-            String commands10 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/gauge-webapp;\nmvn clean package -DskipTests;\nmvn -B gauge:execute -DspecsDir=specs/webapp-test.spec;";
-            etDataLoader.createTJob(project, tJob10Name, gaugeResultsPath,
-                    gaugeImage, false, commands10,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob10Name = "Gauge Single Browser Test";
+            String commands10 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + gaugeSingleBrowserProjectPath + ";\nmvn clean test ;";
+            etDataLoader.createTJob(project, tJob10Name,
+                    gaugeSingleBrowserResultsPath, gaugeImage, false,
+                    commands10, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* **************************************** */
             /* ************** Protractor ************** */
             /* **************************************** */
 
+            String protractorSingleBrowserProjectPath = "/demo-projects/protractor-web-single-browser-test";
+            String protractorSingleBrowserResultsPath = protractorSingleBrowserProjectPath
+                    + jasmineAndProtractorRelativeResultsPath;
+
             /* *** TJob 11 *** */
-            String tJob11Name = "Protractor Test";
-            String commands11 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/protractor-webapp;\nprotractor conf.js;";
-            etDataLoader.createTJob(project, tJob11Name, protractorResultsPath,
-                    nodeImage, false, commands11,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob11Name = "Protractor Single Browser Test";
+            String commands11 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + protractorSingleBrowserProjectPath
+                    + ";\nprotractor conf.js;";
+            etDataLoader.createTJob(project, tJob11Name,
+                    protractorSingleBrowserResultsPath, nodeImage, false,
+                    commands11, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* **************************************** */
             /* **************** Python **************** */
             /* **************************************** */
 
+            String pythonMultipleBrowsersProjectPath = "/demo-projects/python-web-multiple-browsers-test";
+            String pythonMultipleBrowsersResultsPath = pythonMultipleBrowsersProjectPath
+                    + pythonRelativeResultsPath;
+
+            String pythonSingleBrowserProjectPath = "/demo-projects/python-web-single-browser-test";
+            String pythonSingleBrowserResultsPath = pythonSingleBrowserProjectPath
+                    + pythonRelativeResultsPath;
+
             /* *** TJob 12 *** */
-            String tJob12Name = "Python Test";
-            String commands12 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-webapp;\npython WebappTest.py;";
-            etDataLoader.createTJob(project, tJob12Name, pythonResultsPath,
-                    pythonImage, false, commands12,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob12Name = "Python Multi Browser Test";
+            String commands12 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + pythonMultipleBrowsersProjectPath
+                    + ";\npython WebappTest.py;";
+            etDataLoader.createTJob(project, tJob12Name,
+                    pythonMultipleBrowsersResultsPath, pythonImage, false,
+                    commands12, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
 
             /* *** TJob 13 *** */
-            String tJob13Name = "Python Test with a browser for all tests";
-            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd demo-projects/python-webapp;\npython WebappTestBrowserForAll.py;";
-            etDataLoader.createTJob(project, tJob13Name, pythonResultsPath,
-                    pythonImage, false, commands13,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
+            String tJob13Name = "Python Single Browser Test";
+            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + pythonSingleBrowserProjectPath
+                    + ";\npython WebappTestBrowserForAll.py;";
+            etDataLoader.createTJob(project, tJob13Name,
+                    pythonSingleBrowserResultsPath, pythonImage, false,
+                    commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
         }
     }
 
