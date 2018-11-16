@@ -43,7 +43,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class StableMonitorTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    final String projectName = "E2E_test_Webapp";
+    final String projectName = "Monitoring";
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";
     String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
