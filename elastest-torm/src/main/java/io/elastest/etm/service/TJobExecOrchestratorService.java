@@ -195,7 +195,7 @@ public class TJobExecOrchestratorService {
                 tJobExec.setSutExecution(dockerExec.getSutExec());
             }
             
-            setTJobExecEnvVars(tJobExec, false, false);
+            setTJobExecEnvVars(tJobExec, true, false);
 
             // Start Test
             resultMsg = "Executing Test";
