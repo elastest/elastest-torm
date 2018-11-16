@@ -480,7 +480,7 @@ public class EtSampleDataLoader {
             String tJob13Name = "Python Single Browser Test";
             String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + pythonSingleBrowserProjectPath
-                    + ";\npython WebappTestBrowserForAll.py;";
+                    + ";\npython WebappTest.py;";
             etDataLoader.createTJob(project, tJob13Name,
                     pythonSingleBrowserResultsPath, pythonImage, false,
                     commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
