@@ -18,11 +18,9 @@ package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -61,11 +59,11 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create Unit Test project Test")
     void testCreateUnitTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+                localDriver);
 
         this.createProject(driver);
 

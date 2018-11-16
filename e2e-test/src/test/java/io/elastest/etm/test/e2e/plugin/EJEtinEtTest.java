@@ -4,7 +4,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -43,10 +41,10 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("ETinET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver driver) throws Exception {
+    void testETInETPluginInPipelineJob(ChromeDriver localDriver) throws Exception {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+                localDriver);
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
         // Creation of a new Pipeline Job

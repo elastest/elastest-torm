@@ -14,7 +14,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -23,11 +22,11 @@ import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
-* E2E ElasTest Jenkins Plugin test.
-*
-* @author franciscoRdiaz(https://github.com/franciscoRdiaz)
-* @since 0.1.1
-*/
+ * E2E ElasTest Jenkins Plugin test.
+ *
+ * @author franciscoRdiaz(https://github.com/franciscoRdiaz)
+ * @since 0.1.1
+ */
 @Tag("ETinET")
 @DisplayName("EJ_E2E_Test_With-plugin-installation")
 @TestInstance(Lifecycle.PER_CLASS)
@@ -43,21 +42,15 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
             + "            git 'https://github.com/elastest/demo-projects'\n"
             + "            echo 'Run test'\n"
             + "            sh \"cd ./unit-java-test/;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";// +
-    
+
     final String jobName = "PJob_1";
-    
+
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver cDriver) throws Exception {
-        RemoteWebDriver driver = null;
-        if (this.eusURL != null) {
-            setupTestBrowser(new Object() {
-            }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                    driver);
-        } else {
-            driver = cDriver;
-            this.driver = cDriver;
-        }
+    void testPipelineJob(ChromeDriver localDriver) throws Exception {
+        setupTestBrowser(new Object() {
+        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+                localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
         installElasTestPlugin(driver);
@@ -86,8 +79,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
         WebDriverWait waitLogs = new WebDriverWait(driver, 60);
         log.info("Wait for build sucess traces");
         checkFinishTJobExec(driver, 180, "SUCCESS", false);
-        WebElement logsView = driver.findElement(By.xpath(
-                "//logs-view"));
+        WebElement logsView = driver.findElement(By.xpath("//logs-view"));
         JavascriptExecutor jse2 = (JavascriptExecutor) driver;
         try {
             jse2.executeScript("arguments[0].scrollIntoView()", logsView);

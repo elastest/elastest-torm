@@ -21,7 +21,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -70,11 +69,11 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create REST API project Test")
     void testCreateRestTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+                localDriver);
 
         this.createProjectAndSut(driver);
 

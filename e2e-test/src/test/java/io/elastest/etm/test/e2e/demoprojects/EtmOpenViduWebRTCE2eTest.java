@@ -71,11 +71,11 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create OpenVidu WebRTC project Chrome Test")
     void testCreateOpenViduWebRTC(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
             throws Exception {
         setupTestBrowser(new Object() {
         }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                driver);
+                localDriver);
         this.createProjectAndSut(driver);
         navigateToETProject(driver, projectName);
 
