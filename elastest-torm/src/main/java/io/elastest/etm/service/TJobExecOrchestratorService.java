@@ -176,7 +176,7 @@ public class TJobExecOrchestratorService {
 
         try {
             initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
-            setTJobExecEnvVars(tJobExec, false, false);
+            //setTJobExecEnvVars(tJobExec, false, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
             dockerExec.updateFromTJobExec(tJobExec);
 
@@ -194,6 +194,8 @@ public class TJobExecOrchestratorService {
                 initSut(dockerExec);
                 tJobExec.setSutExecution(dockerExec.getSutExec());
             }
+            
+            setTJobExecEnvVars(tJobExec, false, false);
 
             // Start Test
             resultMsg = "Executing Test";
@@ -869,12 +871,14 @@ public class TJobExecOrchestratorService {
 
             // If it's SuT DEPLOYED outside ElasTest
             if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
+                logger.info("Using SUT deployed outside ElasTest");
                 TJobExecution tJobExec = dockerExec.getTJobExec();
                 sutExec = startSutDeployedOutside(tJobExec);
 
             }
             // If it's MANAGED SuT
             else {
+                logger.info("Using SUT deployed by ElasTest");
                 try {
                     sutExec = startManagedSut(dockerExec);
                 } catch (TJobStoppedException e) {
