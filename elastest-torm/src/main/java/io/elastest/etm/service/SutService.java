@@ -252,6 +252,7 @@ public class SutService {
                 for (Map<String, Object> trace : traces) {
                     trace.put("exec", monitoringIndex);
                     trace.put("component", "sut");
+                    trace = tracesService.convertExternalElasticsearchTrace(trace);
                     tracesService.processBeatTrace(trace, false);
                 }
                 try {
