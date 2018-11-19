@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -97,6 +98,7 @@ public class StableMonitorTest extends EtmBaseTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
             @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver,
@@ -123,6 +125,7 @@ public class StableMonitorTest extends EtmBaseTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Create WebApp project Multi Test")
     void testCreateMultiTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
