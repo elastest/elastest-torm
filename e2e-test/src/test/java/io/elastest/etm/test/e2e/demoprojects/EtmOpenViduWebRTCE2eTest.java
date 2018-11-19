@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -71,10 +72,9 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create OpenVidu WebRTC project Chrome Test")
     void testCreateOpenViduWebRTC(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver, TestInfo testInfo)
             throws Exception {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+        setupTestBrowser(testInfo.getTestMethod().get().getName(), BrowserType.CHROME,
                 localDriver);
         this.createProjectAndSut(driver);
         navigateToETProject(driver, projectName);
