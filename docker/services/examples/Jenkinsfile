@@ -210,6 +210,11 @@ node('docker'){
                     }
             }
         } catch (err) {
+        	if (currentBuild.result != "UNSTABLE") {
+                def errString = err.toString()
+		        echo 'Error: ' + errString
+		       	currentBuild.result = getJobStatus(errString)
+            }
             echo 'Error!!! Send email to the people responsible for the builds.'
             emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
             replyTo: '${BUILD_USER_EMAIL}', 
@@ -218,4 +223,14 @@ node('docker'){
 
             throw err
         }
+}
+
+def getJobStatus(exceptionString) {
+	def status = 'SUCCESS'
+	if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+	    status = 'ABORTED'
+	} else {
+	    status = 'FAILURE'
+	}
+    return status;
 }
