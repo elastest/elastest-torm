@@ -436,20 +436,35 @@ public class EtSampleDataLoader {
             /* **************************************** */
             /* ************** Protractor ************** */
             /* **************************************** */
+            String protractorMultiBrowsersProjectPath = webAppFolder
+                    + "/protractor-web-multiple-browsers-test";
+            String protractorMultiBrowsersResultsPath = protractorMultiBrowsersProjectPath
+                    + jasmineAndProtractorRelativeResultsPath;
 
             String protractorSingleBrowserProjectPath = webAppFolder
                     + "/protractor-web-single-browser-test";
             String protractorSingleBrowserResultsPath = protractorSingleBrowserProjectPath
                     + jasmineAndProtractorRelativeResultsPath;
 
+
             /* *** TJob 11 *** */
-            String tJob11Name = "Protractor Single Browser Test";
+            String tJob11Name = "Protractor Multi Browser Test";
             String commands11 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + protractorSingleBrowserProjectPath
+                    + protractorMultiBrowsersProjectPath
                     + ";\nprotractor conf.js;";
             etDataLoader.createTJob(project, tJob11Name,
-                    protractorSingleBrowserResultsPath, nodeImage, false,
+                    protractorMultiBrowsersResultsPath, nodeImage, false,
                     commands11, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    null);
+            
+            /* *** TJob 12 *** */
+            String tJob12Name = "Protractor Single Browser Test";
+            String commands12 = "git clone https://github.com/elastest/demo-projects;\ncd "
+                    + protractorSingleBrowserProjectPath
+                    + ";\nprotractor conf.js;";
+            etDataLoader.createTJob(project, tJob12Name,
+                    protractorSingleBrowserResultsPath, nodeImage, false,
+                    commands12, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* **************************************** */
@@ -466,24 +481,24 @@ public class EtSampleDataLoader {
             String pythonSingleBrowserResultsPath = pythonSingleBrowserProjectPath
                     + pythonRelativeResultsPath;
 
-            /* *** TJob 12 *** */
-            String tJob12Name = "Python Multi Browser Test";
-            String commands12 = "git clone https://github.com/elastest/demo-projects;\ncd "
+            /* *** TJob 13 *** */
+            String tJob13Name = "Python Multi Browser Test";
+            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + pythonMultipleBrowsersProjectPath
                     + ";\npython WebappTest.py;";
-            etDataLoader.createTJob(project, tJob12Name,
+            etDataLoader.createTJob(project, tJob13Name,
                     pythonMultipleBrowsersResultsPath, pythonImage, false,
-                    commands12, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
-            /* *** TJob 13 *** */
-            String tJob13Name = "Python Single Browser Test";
-            String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd "
+            /* *** TJob 14 *** */
+            String tJob14Name = "Python Single Browser Test";
+            String commands14 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + pythonSingleBrowserProjectPath
                     + ";\npython WebappTest.py;";
-            etDataLoader.createTJob(project, tJob13Name,
+            etDataLoader.createTJob(project, tJob14Name,
                     pythonSingleBrowserResultsPath, pythonImage, false,
-                    commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    commands14, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
         }
     }
