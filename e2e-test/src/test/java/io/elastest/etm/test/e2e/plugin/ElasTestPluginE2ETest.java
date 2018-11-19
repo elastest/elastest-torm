@@ -59,7 +59,7 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
             + "            echo 'Cloning repository'\n"
             + "            git 'https://github.com/elastest/demo-projects'\n"
             + "            echo 'Run test'\n"
-            + "            sh \"cd ./unit-java-test/;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";// +
+            + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";// +
 
     final String jobName = "PJob_1";
 
