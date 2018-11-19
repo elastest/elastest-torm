@@ -73,12 +73,10 @@ public class StableMonitorTest extends EtmBaseTest {
 
     @Test
     @DisplayName("Create WebApp project Chrome Test")
-    void testCreateChromeTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
-            TestInfo testInfo)
+    void testCreateChromeTest(TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
         setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
+                BrowserType.CHROME, null);
 
         this.createProjectAndSut(driver);
 
