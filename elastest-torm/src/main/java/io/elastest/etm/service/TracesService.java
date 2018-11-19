@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
@@ -251,6 +253,8 @@ public class TracesService {
 
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
+                trace.setRawData(dataMap.get("raw_data").toString());
+
                 // Ignore Packetbeat from EIM temporally
                 if (trace.getStream() != null
                         && "et_packetbeat".equals(trace.getStream())) {
@@ -481,6 +485,16 @@ public class TracesService {
         logger.trace("Converting external Elasticsearch trace {}",
                 dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
+            
+            // Add raw data
+            try {
+                Gson gson = new Gson();
+                String json = gson.toJson(dataMap);
+                dataMap.put("raw_data", json);
+            } catch (Exception e) {
+            }
+            
+
             // Stream
             if (dataMap.containsKey("log_type")) {
                 dataMap.put("stream", dataMap.get("log_type"));

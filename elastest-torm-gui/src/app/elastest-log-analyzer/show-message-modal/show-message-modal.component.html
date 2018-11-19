@@ -4,33 +4,31 @@
     <div flex="100" id="">
       <md-list class="">
         <h4>Message</h4>
-        <p class="monospaced" id="message">{{row.message}}</p>
+        <p class="monospaced" id="message">{{ row.message }}</p>
         <md-divider></md-divider>
       </md-list>
-
     </div>
   </div>
   <div flex="70" *ngFor="let column of columns">
     <md-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
       <md-list-item>
-        <h5>{{column.field}}</h5>
+        <h5>{{ column.field }}</h5>
         <p class="monospaced">
-          <ng-container *ngIf="column.field !== '@timestamp'; else timestamp">
-            {{row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty'}}
+          <ng-container *ngIf="column.field !== '@timestamp'; else: timestamp">
+            {{ row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty' }}
           </ng-container>
           <ng-template #timestamp>
-            {{row[column.field] ? (row[column.field] | date:'dd/MM/yyyy HH:mm:ss') : 'Field ' + column.field + ' is empty'}}
+            {{ row[column.field] ? (row[column.field] | date: 'dd/MM/yyyy HH:mm:ss') : 'Field ' + column.field + ' is empty' }}
           </ng-template>
         </p>
       </md-list-item>
       <md-divider></md-divider>
     </md-list>
-
+  </div>
+  <div flex="70" *ngIf="rawData">
+    <h5>Raw Data</h5>
+    <pre>{{ rawData | json }}</pre>
   </div>
 </div>
 
-
-
-<md-dialog-actions>
-  <button md-raised-button color="accent" md-dialog-close>Close</button>
-</md-dialog-actions>
+<md-dialog-actions> <button md-raised-button color="accent" md-dialog-close>Close</button> </md-dialog-actions>
