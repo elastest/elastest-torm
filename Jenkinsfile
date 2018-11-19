@@ -106,7 +106,13 @@
                     
             } catch (err) {
                 if (currentBuild.result != "UNSTABLE") {
-                  currentBuild.result = "FAILURE"
+                    def errString = err.toString()
+			        echo 'Error: ' + errString
+			        if (errString.contains('FlowInterruptedException') || errString.contains('AbortException')) {
+			            currentBuild.result = 'ABORTED'
+			        } else {
+			            currentBuild.result = 'FAILURE'
+			        }
                 }
                 echo 'Error!!! Send email to the people responsible for the builds.'
                 emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
@@ -116,14 +122,4 @@
 
                 throw err
             }
-    }
-
-    def containerIp(service) {
-        containerIp = sh (
-            script: "docker inspect --format=\"{{.NetworkSettings.Networks."+env.COMPOSE_PROJECT_NAME+"_elastest.IPAddress}}\" "+env.COMPOSE_PROJECT_NAME+"_"+service+"_1",
-            returnStdout: true
-        ).trim()
-        
-        echo service+" IP = " + containerIp;
-        return containerIp;
     }
