@@ -300,7 +300,7 @@ public class TJobService {
         if (tJobExec.isWithSut()) {
             try {
                 DockerExecution dockerExec = new DockerExecution(tJobExec);
-                tJobExecOrchestratorService.endDockbeatExec(dockerExec, false);
+                tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
                 tJobExecOrchestratorService.endSutExec(dockerExec, false);
             } catch (Exception e) {
                 logger.error(
