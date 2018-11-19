@@ -1,4 +1,4 @@
-FROM nginx:1.15.3-alpine
+FROM nginx:1.15.6-alpine
 
 RUN apk add --no-cache \
 	apache2-ssl \
