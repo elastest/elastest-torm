@@ -16,7 +16,7 @@ node('container'){
                             sh "cd e2e-test; mvn -B clean test -Dtest=StableMonitorTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=ElasCode1217 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports"
                         } catch(e) {
                             echo 'Err: ' + e.toString()
-                            throw err
+                            throw e
                         } finally {
                             step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
                         }
@@ -28,7 +28,7 @@ node('container'){
         if (errString.contains('FlowInterruptedException') || errString.contains('AbortException')) {
             currentBuild.result = 'ABORTED'
         } else {
-            currentBuild.result = 'FAILURE'            
+            currentBuild.result = 'FAILURE'
         }
         echo 'Error!!! Send email to people responsible for the builds.'
         emailext body: 'Please go to ${BUILD_URL} and verify the build status',
