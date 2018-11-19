@@ -77,7 +77,8 @@
                             sh 'cd ./scripts; ./it.sh'
                             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
                         } catch (err) {
-                            currentBuild.result = "UNSTABLE"
+                        	def errString = err.toString()
+                         	currentBuild.result = getJobStatus(errString)
                             throw err
                         }
 
@@ -101,18 +102,11 @@
                             myimage.push()
                         }
                 }
-
-
-                    
             } catch (err) {
                 if (currentBuild.result != "UNSTABLE") {
                     def errString = err.toString()
 			        echo 'Error: ' + errString
-			        if (errString.contains('FlowInterruptedException') || errString.contains('AbortException')) {
-			            currentBuild.result = 'ABORTED'
-			        } else {
-			            currentBuild.result = 'FAILURE'
-			        }
+			       	currentBuild.result = getJobStatus(errString)
                 }
                 echo 'Error!!! Send email to the people responsible for the builds.'
                 emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
@@ -123,3 +117,13 @@
                 throw err
             }
     }
+def getJobStatus(exceptionString) {
+	def status = 'SUCCESS'
+	if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+	    status = 'ABORTED'
+	} else {
+	    status = 'FAILURE'
+	}
+    return status;
+}
+    
