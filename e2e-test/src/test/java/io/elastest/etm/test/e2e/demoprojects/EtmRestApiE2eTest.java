@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -47,7 +48,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmRestApiE2eTest extends EtmBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
-    final String projectName = "REST API";
+    final String projectName = "Rest Api";
     final String sutName = "REST App";
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
@@ -56,44 +57,39 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
             createNewETProject(driver, projectName);
         }
         if (!etSutExistsIntoProject(driver, projectName, sutName)) {
-            // Create SuT
             String sutDesc = "REST App Description";
             String sutImage = "elastest/demo-rest-java-test-sut";
             String sutPort = "8080";
             createNewSutDeployedByElastestWithImage(driver, sutName, sutDesc,
                     sutImage, sutPort, null);
         }
-
     }
 
     @Test
     @DisplayName("Create REST API project Test")
     void testCreateRestTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME, localDriver);
 
+        // Setting up the TJob used in the test 
         this.createProjectAndSut(driver);
-
         navigateToETProject(driver, projectName);
-
-        // Create TJob
-        String tJobName = "Rest Test";
+        String tJobName = "JUnit5 Rest Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
             String sutName = "REST App";
-            String tJobTestResultPath = "/demo-projects/rest-java-test/target/surefire-reports/";
+            String tJobTestResultPath = "/demo-projects/rest/junit5-rest-test/target/surefire-reports";
             String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/rest-java-test; mvn -B test";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/rest/junit5-rest-test; mvn -B test";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
                     tJobImage, false, commands, null, null, null);
         }
 
-        // Run TJob
+        // Run the TJob and check its result
         runTJobFromProjectPage(driver, tJobName);
-
         this.checkFinishTJobExec(driver, 240, "SUCCESS", false);
     }
 

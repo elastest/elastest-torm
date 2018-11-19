@@ -30,6 +30,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -78,11 +79,11 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create WebApp project Chrome Test")
     void testCreateChromeTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -90,7 +91,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Chrome Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
                     tJobImage, false, commands, null, tssList, null);
@@ -104,11 +105,11 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver)
+            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver,
+            TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -116,7 +117,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Firefox Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=firefox test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
                     tJobImage, false, commands, null, tssList, null);
@@ -130,11 +131,11 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create WebApp project Multi Test")
     void testCreateMultiTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -142,7 +143,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "WebApp Multi Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=$BROWSER test;";
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=$BROWSER test;";
 
             List<String> multiConfig1List = new ArrayList<>(
                     Arrays.asList("chrome", "firefox"));
