@@ -51,7 +51,7 @@ public class StableMonitorTest extends EtmBaseTest {
     final String projectName = "Monitoring";
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";
-    String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
+    String tJobTestResultPath = "/demo-projects/webapp/junit5-web-multiple-browsers-test/target/surefire-reports/";
     List<String> tssList = new ArrayList<>(Arrays.asList("EUS"));
 
     final int timeout = 600;
