@@ -162,7 +162,8 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 # Install necessary plugins
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+ARG plugins_list=plugins.txt
+COPY $plugins_list /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 COPY tini-shim.sh /bin/tini
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]
