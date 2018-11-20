@@ -854,41 +854,51 @@ public class DockerEtmService {
 
     public SocatBindedPort bindingPort(String containerIp, String port,
             String networkName, boolean remotely) throws Exception {
-        int listenPort = 37000;
-        String bindedPort = null;
+        return bindingPort(containerIp, null, port, networkName,remotely);
+    }
+    
+    public SocatBindedPort bindingPort(String containerIp,
+            String containerPrefix, String port, String networkName,
+            boolean remotely) throws Exception {
+        String bindedPort = "37000";
+        String socatContainerId = null;
         try {
-            listenPort = UtilTools.findRandomOpenPort();
+            bindedPort = String.valueOf(UtilTools.findRandomOpenPort());
             List<String> envVariables = new ArrayList<>();
-            envVariables.add("LISTEN_PORT=" + listenPort);
+            envVariables.add("LISTEN_PORT=" + bindedPort);
             envVariables.add("FORWARD_PORT=" + port);
             envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            String listenPortAsString = String.valueOf(listenPort);
+            //String listenPortAsString = String.valueOf(bindedPort);
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName("container" + listenPortAsString);
+            dockerBuilder.containerName(
+                    (containerPrefix != null && !containerPrefix.isEmpty()
+                            ? containerPrefix
+                            : "container_") + bindedPort);
             dockerBuilder.network(networkName);
             dockerBuilder
-                    .exposedPorts(Arrays.asList(String.valueOf(listenPort)));
+                    .exposedPorts(Arrays.asList(bindedPort));
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(listenPortAsString, Arrays
-                    .asList(PortBinding.of("0.0.0.0", listenPortAsString)));
+            portBindings.put(bindedPort, Arrays
+                    .asList(PortBinding.of("0.0.0.0", bindedPort)));
             dockerBuilder.portBindings(portBindings);
 
             dockerService.pullImage(etSocatImage);
 
-            bindedPort = dockerService
+            socatContainerId = dockerService
                     .createAndStartContainer(dockerBuilder.build(), remotely);
+            logger.info("Socat container id: {} ", socatContainerId);
 
         } catch (Exception e) {
             throw new Exception("Error on bindingPort (start socat container)",
                     e);
         }
 
-        SocatBindedPort bindedPortObj = new SocatBindedPort(
-                Integer.toString(listenPort), bindedPort);
+        SocatBindedPort bindedPortObj = new SocatBindedPort(port, bindedPort,
+                socatContainerId);
 
         return bindedPortObj;
     }

@@ -3,13 +3,16 @@ package io.elastest.etm.model;
 public class SocatBindedPort {
     String listenPort;
     String bindedPort;
+    String containerId;
 
     public SocatBindedPort() {
     }
 
-    public SocatBindedPort(String listenPort, String bindedPort) {
+    public SocatBindedPort(String listenPort, String bindedPort,
+            String containerId) {
         this.listenPort = listenPort;
         this.bindedPort = bindedPort;
+        this.containerId = containerId;
     }
 
     public String getListenPort() {
@@ -26,6 +29,14 @@ public class SocatBindedPort {
 
     public void setBindedPort(String bindedPort) {
         this.bindedPort = bindedPort;
+    }
+
+    public String getContainerId() {
+        return containerId;
+    }
+
+    public void setContainerId(String containerId) {
+        this.containerId = containerId;
     }
 
 }

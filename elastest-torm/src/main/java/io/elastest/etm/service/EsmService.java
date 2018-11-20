@@ -1168,9 +1168,9 @@ public class EsmService {
                                         networkName,
                                         epmService.etMasterSlaveMode);
                         serviceInstance.getPortBindingContainers()
-                                .add(socatBindedPortObj.getBindedPort());
+                                .add(socatBindedPortObj.getContainerId());
                         bindedPort = Integer
-                                .parseInt(socatBindedPortObj.getListenPort());
+                                .parseInt(socatBindedPortObj.getBindedPort());
                         serviceInstance.getEndpointsBindingsPorts()
                                 .put(nodePort, String.valueOf(bindedPort));
                     } catch (Exception e) {
@@ -1333,6 +1333,7 @@ public class EsmService {
 
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
+                logger.debug("Socat container to remove: {}", containerId);
                 try {
                     dockerEtmService.dockerService
                             .stopDockerContainer(containerId);
