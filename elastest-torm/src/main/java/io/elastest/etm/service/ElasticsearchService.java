@@ -21,6 +21,11 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.Alias;
@@ -30,6 +35,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -67,15 +73,21 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     private String host;
     private int port;
 
+    private String user;
+    private String pass;
+
     RestHighLevelClient esClient;
 
     public ElasticsearchService(UtilsService utilsService) {
         this.utilsService = utilsService;
     }
 
-    public ElasticsearchService(String esApiUrl, UtilsService utilsService) {
+    public ElasticsearchService(String esApiUrl, String user, String pass,
+            UtilsService utilsService) {
         this.esApiUrl = esApiUrl;
         this.utilsService = utilsService;
+        this.user = !"".equals(user) ? user : null;
+        this.pass = pass;
         init();
     }
 
@@ -87,8 +99,28 @@ public class ElasticsearchService implements MonitoringServiceInterface {
             this.host = url.getHost();
             this.port = url.getPort();
 
-            this.esClient = new RestHighLevelClient(RestClient
-                    .builder(new HttpHost(this.host, this.port, "http")));
+            RestClientBuilder builder = RestClient
+                    .builder(new HttpHost(this.host, this.port, "http"));
+
+            if (this.user != null) {
+                // TODO complex authentication if it's necessary
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY,
+                        new UsernamePasswordCredentials(this.user, this.pass));
+
+                builder.setHttpClientConfigCallback(
+                        new RestClientBuilder.HttpClientConfigCallback() {
+                            @Override
+                            public HttpAsyncClientBuilder customizeHttpClient(
+                                    HttpAsyncClientBuilder httpClientBuilder) {
+                                return httpClientBuilder
+                                        .setDefaultCredentialsProvider(
+                                                credentialsProvider);
+                            }
+                        });
+            }
+
+            this.esClient = new RestHighLevelClient(builder);
 
         } catch (MalformedURLException e) {
             logger.error("Cannot get Elasticsearch url by given: {}",

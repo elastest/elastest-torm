@@ -225,11 +225,10 @@ public class SutService {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
         Date startDate = new Date();
 
-        // TODO user/pass
         String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
 
         ElasticsearchService esService = new ElasticsearchService(esApiUrl,
-                utilsService);
+                extES.getUser(), extES.getPass(), utilsService);
 
         List<Map<String, Object>> traces = new ArrayList<>();
 
@@ -250,7 +249,8 @@ public class SutService {
                 }
 
                 for (Map<String, Object> trace : traces) {
-                    trace = tracesService.convertExternalElasticsearchTrace(trace);
+                    trace = tracesService
+                            .convertExternalElasticsearchTrace(trace);
                     trace.put("exec", monitoringIndex);
                     trace.put("component", "sut");
                     tracesService.processBeatTrace(trace, false);

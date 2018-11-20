@@ -253,8 +253,12 @@ public class TracesService {
 
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
-                trace.setRawData(dataMap.get("raw_data").toString());
-
+                
+                try {
+                    trace.setRawData(dataMap.get("raw_data").toString());
+                }catch (Exception e) {
+                }
+                
                 // Ignore Packetbeat from EIM temporally
                 if (trace.getStream() != null
                         && "et_packetbeat".equals(trace.getStream())) {
