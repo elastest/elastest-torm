@@ -1,20 +1,12 @@
-FROM java:openjdk-8-jre-alpine
+FROM docker.elastic.co/logstash/logstash:6.5.0
 
-RUN apk update && apk add bash
+RUN rm -f /usr/share/logstash/pipeline/logstash.conf
+RUN rm -f /usr/share/logstash/config/logstash.yml
 
-RUN apk add git
+COPY logstash.conf /usr/share/logstash/pipeline/logstash.conf
+COPY logstash.yml /usr/share/logstash/config/logstash.yml
 
-RUN cd /
-
-RUN git clone https://github.com/EduJGURJC/etm-logstash
-
-RUN cd etm-logstash
-
-RUN rm -f grok-patterns logstash.conf
-
-COPY logstash.conf /etm-logstash/logstash.conf
-
-COPY grok-patterns /etm-logstash/grok-patterns
+COPY grok-patterns /usr/share/logstash/pipeline/grok-patterns
 
 # Set Image Labels
 ARG GIT_COMMIT=unspecified
@@ -26,4 +18,4 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION
 
-CMD cd /etm-logstash; sed -i 's/ELASTICHOST/'"$ELASTICHOST"'/g' logstash.conf; sed -i 's/RABBITHOST/'"$RABBITHOST"'/g' logstash.conf; sed -i 's/RABBITUSER/'"$RABBITUSER"'/g' logstash.conf; sed -i 's/RABBITPASS/'"$RABBITPASS"'/g' logstash.conf; exec bin/logstash -f logstash.conf;
+CMD cd /usr/share/logstash/pipeline/; sed -i 's/ELASTICHOST/'"$ELASTICHOST"'/g' logstash.conf; sed -i 's/RABBITHOST/'"$RABBITHOST"'/g' logstash.conf; sed -i 's/RABBITUSER/'"$RABBITUSER"'/g' logstash.conf; sed -i 's/RABBITPASS/'"$RABBITPASS"'/g' logstash.conf; exec logstash -f logstash.conf;
