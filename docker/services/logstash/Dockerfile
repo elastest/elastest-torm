@@ -18,4 +18,4 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION
 
-CMD cd /usr/share/logstash/pipeline/; sed -i 's/ELASTICHOST/'"$ELASTICHOST"'/g' logstash.conf; sed -i 's/RABBITHOST/'"$RABBITHOST"'/g' logstash.conf; sed -i 's/RABBITUSER/'"$RABBITUSER"'/g' logstash.conf; sed -i 's/RABBITPASS/'"$RABBITPASS"'/g' logstash.conf; exec logstash -f logstash.conf --log.level=error;
+CMD cd /usr/share/logstash/pipeline/; sed -i 's/ELASTICHOST/'"$ELASTICHOST"'/g' logstash.conf; sed -i 's/RABBITHOST/'"$RABBITHOST"'/g' logstash.conf; sed -i 's/RABBITUSER/'"$RABBITUSER"'/g' logstash.conf; sed -i 's/RABBITPASS/'"$RABBITPASS"'/g' logstash.conf; exec logstash -f logstash.conf --log.level=debug;
