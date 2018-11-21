@@ -70,6 +70,9 @@ public class SutExecution {
     @JsonView({ SutExecView.class })
     @OneToMany(mappedBy = "sutExecution", cascade = CascadeType.REMOVE)
     private List<TJobExecution> tjobExecs;
+    
+    @JsonView(SutExecView.class)
+    private Long publicPort = null;
 
     public enum DeployStatusEnum {
         DEPLOYING("deploying"),
@@ -216,6 +219,14 @@ public class SutExecution {
 
     public void setTjobExecs(List<TJobExecution> tjobExecs) {
         this.tjobExecs = tjobExecs;
+    }
+
+    public Long getPublicPort() {
+        return publicPort;
+    }
+
+    public void setPublicPort(Long publicPort) {
+        this.publicPort = publicPort;
     }
 
     @Override

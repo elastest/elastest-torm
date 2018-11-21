@@ -42,6 +42,7 @@ import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
@@ -163,7 +164,8 @@ public class TJobExecOrchestratorService {
     }
 
     @Async
-    public void executeExternalJob(TJobExecution tJobExec) {
+    public void executeExternalJob(TJobExecution tJobExec,
+            boolean integratedJenkins) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
         monitoringService
@@ -191,10 +193,10 @@ public class TJobExecOrchestratorService {
 
             // Start SuT if it's necessary
             if (dockerExec.isWithSut()) {
-                initSut(dockerExec);
+                initSut(dockerExec, !integratedJenkins);
                 tJobExec.setSutExecution(dockerExec.getSutExec());
             }
-            
+
             setTJobExecEnvVars(tJobExec, true, false);
 
             // Start Test
@@ -592,8 +594,10 @@ public class TJobExecOrchestratorService {
                         ResultEnum.WAITING_TSS, resultMsg);
                 while (!tSSInstAssocToTJob.isEmpty()) {
                     tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                        SupportServiceInstance mainSubService = esmService.gettJobServicesInstances().get(tSSInstId);
-                        logger.debug("Wait for service {}", mainSubService.getEndpointName());
+                        SupportServiceInstance mainSubService = esmService
+                                .gettJobServicesInstances().get(tSSInstId);
+                        logger.debug("Wait for service {}",
+                                mainSubService.getEndpointName());
                         waitForServiceIsReady(mainSubService);
                         tSSInstAssocToTJob.remove(tSSInstId);
                     });
@@ -622,7 +626,7 @@ public class TJobExecOrchestratorService {
             waitForServiceIsReady(subService);
         });
     }
-   
+
     private void provideServices(String tJobServices, TJobExecution tJobExec)
             throws Exception {
         logger.info("Start the service provision.");
@@ -760,13 +764,21 @@ public class TJobExecOrchestratorService {
         logger.debug(
                 "Below the SUT host ip will displayed if there is SUT execution");
         if (tJobExec.getSutExecution() != null) {
-            envVars.put("ET_SUT_HOST", tJobExec.getSutExecution().getIp());
-            logger.debug("ET_SUT_HOST: {}", tJobExec.getSutExecution().getIp());
+            String sutPublicPort = tJobExec.getSutExecution()
+                    .getPublicPort() != null
+                            ? tJobExec.getSutExecution().getPublicPort()
+                                    .toString()
+                            : null;
+            envVars.put("ET_SUT_HOST",
+                    sutPublicPort != null ? utilsService.getEtPublicHostValue()
+                            : tJobExec.getSutExecution().getIp());
+            logger.debug("ET_SUT_HOST: {}", envVars.get("ET_SUT_HOST"));
             String sutPort = tJobExec.getSutExecution().getSutSpecification()
                     .getPort();
             if (sutPort != null && !sutPort.isEmpty()) {
-                envVars.put("ET_SUT_PORT", sutPort);
-                logger.debug("ET_SUT_PORT: {}", sutPort);
+                envVars.put("ET_SUT_PORT", sutPublicPort != null ? sutPublicPort
+                        : tJobExec.getSutExecution().getIp());
+                logger.debug("ET_SUT_PORT: {}", envVars.get("ET_SUT_PORT"));
             }
 
             String sutProtocol = tJobExec.getSutExecution()
@@ -865,6 +877,11 @@ public class TJobExecOrchestratorService {
     /* ******************* */
 
     public void initSut(DockerExecution dockerExec) throws Exception {
+        initSut(dockerExec, false);
+    }
+
+    public void initSut(DockerExecution dockerExec, boolean publicSut)
+            throws Exception {
         try {
             SutSpecification sut = dockerExec.getSut();
             SutExecution sutExec;
@@ -881,6 +898,17 @@ public class TJobExecOrchestratorService {
                 logger.info("Using SUT deployed by ElasTest");
                 try {
                     sutExec = startManagedSut(dockerExec);
+                    if (publicSut) {
+                        SocatBindedPort socatBindedPortObj = dockerEtmService
+                                .bindingPort(sutExec.getIp(),
+                                        "sut_" + sutExec.getId(),
+                                        dockerExec.getSut().getPort(),
+                                        elastestDockerNetwork,
+                                        epmService.etMasterSlaveMode);
+                        sutExec.setPublicPort(Long
+                                .parseLong(socatBindedPortObj.getBindedPort()));
+                        sutService.modifySutExec(sutExec);
+                    }
                 } catch (TJobStoppedException e) {
                     throw e;
                 }
@@ -1346,22 +1374,31 @@ public class TJobExecOrchestratorService {
         // If it's Managed Sut, and container is created
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
             updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
-
-            if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
-                if (sut.isSutInNewContainer()) {
-                    endSutInContainer(dockerExec);
-                }
-                String sutContainerName = dockerEtmService
-                        .getSutName(dockerExec);
-                if (force) {
-                    dockerEtmService.endContainer(sutContainerName, 1);
+            try {
+                if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
+                    if (sut.isSutInNewContainer()) {
+                        endSutInContainer(dockerExec);
+                    }
+                    String sutContainerName = dockerEtmService
+                            .getSutName(dockerExec);
+                    if (force) {
+                        dockerEtmService.endContainer(sutContainerName, 1);
+                    } else {
+                        dockerEtmService.endContainer(sutContainerName);
+                    }
                 } else {
-                    dockerEtmService.endContainer(sutContainerName);
+                    endComposedSutExec(dockerExec);
                 }
-            } else {
-                endComposedSutExec(dockerExec);
+                updateSutExecDeployStatus(dockerExec,
+                        DeployStatusEnum.UNDEPLOYED);
+            } finally {
+                if (dockerExec.getSutExec().getPublicPort() != null) {
+                    logger.debug("Removing sut socat container: {}",
+                            "socat_sut_" + dockerExec.getSutExec().getId());
+                    dockerEtmService.endContainer(
+                            "socat_sut_" + dockerExec.getSutExec().getId());
+                }
             }
-            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYED);
         } else {
             logger.info("SuT not ended by ElasTest -> Deployed SuT");
         }

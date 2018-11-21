@@ -858,7 +858,7 @@ public class DockerEtmService {
     }
     
     public SocatBindedPort bindingPort(String containerIp,
-            String containerPrefix, String port, String networkName,
+            String containerSufix, String port, String networkName,
             boolean remotely) throws Exception {
         String bindedPort = "37000";
         String socatContainerId = null;
@@ -872,10 +872,10 @@ public class DockerEtmService {
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName(
-                    (containerPrefix != null && !containerPrefix.isEmpty()
-                            ? containerPrefix
-                            : "container_") + bindedPort);
+            dockerBuilder.containerName("socat_" +
+                    (containerSufix != null && !containerSufix.isEmpty()
+                            ? containerSufix
+                            : bindedPort));
             dockerBuilder.network(networkName);
             dockerBuilder
                     .exposedPorts(Arrays.asList(bindedPort));

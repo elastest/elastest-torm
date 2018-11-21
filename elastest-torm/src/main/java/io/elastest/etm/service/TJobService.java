@@ -171,7 +171,7 @@ public class TJobService {
                     tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            tJobExecOrchestratorService.executeExternalJob(tJobExec);
+            tJobExecOrchestratorService.executeExternalJob(tJobExec, false);
         }
 
         return tJobExec;
@@ -225,7 +225,8 @@ public class TJobService {
         tJobExec.generateMonitoringIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
-        tJobExecOrchestratorService.executeExternalJob(tJobExec);
+        tJobExecOrchestratorService.executeExternalJob(tJobExec,
+                externalJob.isFromIntegratedJenkins());
         return tJobExec;
     }
 
@@ -300,11 +301,12 @@ public class TJobService {
         if (tJobExec.isWithSut()) {
             try {
                 DockerExecution dockerExec = new DockerExecution(tJobExec);
+                dockerExec.setSutExec(tJobExec.getSutExecution());
                 tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
                 tJobExecOrchestratorService.endSutExec(dockerExec, false);
             } catch (Exception e) {
                 logger.error(
-                        "Exception during desprovisioning of the TSS associated with an External TJob.");
+                        "Error desprovisioning a SUT used in a TJob run from Jenkins.");
             }
         }
     }
