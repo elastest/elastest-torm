@@ -1,11 +1,11 @@
 node('dev-docker-64-slave-1'){
     try {
-        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'Monitoring') {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'Monitoring', monitoring: true) {
             def elastest_url = ''
             stage ('docker container')
                 def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
                 mycontainer.pull()
-                mycontainer.inside()  {
+                mycontainer.inside("-u ubuntu -v /var/run/docker.sock:/var/run/docker.sock:rw")  {
                     sh 'env'
                     stage ('prepare test')
                         git 'https://github.com/elastest/elastest-torm.git'
