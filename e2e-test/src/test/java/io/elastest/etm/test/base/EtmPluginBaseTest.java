@@ -61,7 +61,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         WebDriverWait waitService = new WebDriverWait(driver, 60);
 
         // Install plugin
-        log.info("Installing plugin");
+        log.info("Installing plugin from: {}", pluginPath);
         By inputFileName = By.name("name");
         WebElement uploadFile = webDriver.findElement(inputFileName);
         ((RemoteWebElement) uploadFile).setFileDetector(new LocalFileDetector()); 
