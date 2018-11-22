@@ -5,7 +5,7 @@ node('dev-docker-64-slave-1'){
             stage ('docker container')
                 def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
                 mycontainer.pull()
-                mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw")  {
+                mycontainer.inside("-u root -v /var/run/docker.sock:/var/run/docker.sock:rw")  {
                     sh 'env'
                     stage ('prepare test')
                         git 'https://github.com/elastest/elastest-torm.git'
