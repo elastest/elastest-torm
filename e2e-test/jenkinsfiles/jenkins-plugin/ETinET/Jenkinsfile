@@ -1,6 +1,6 @@
 node(){
     try{
-        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11) {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11, monitoring: true) {
             def elastest_url = ''
             def jenkins_url = ''
             stage ('docker container')
