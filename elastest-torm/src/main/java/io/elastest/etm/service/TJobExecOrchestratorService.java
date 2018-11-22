@@ -778,8 +778,9 @@ public class TJobExecOrchestratorService {
             String sutPort = tJobExec.getSutExecution().getSutSpecification()
                     .getPort();
             if (sutPort != null && !sutPort.isEmpty()) {
-                envVars.put("ET_SUT_PORT", sutPublicPort != null ? sutPublicPort
-                        : tJobExec.getSutExecution().getIp());
+                envVars.put("ET_SUT_PORT", sutPublicPort != null
+                        && !utilsService.isDefaultEtPublicHost() ? sutPublicPort
+                        : tJobExec.getSutExecution().getSutSpecification().getPort());
                 logger.debug("ET_SUT_PORT: {}", envVars.get("ET_SUT_PORT"));
             }
 
