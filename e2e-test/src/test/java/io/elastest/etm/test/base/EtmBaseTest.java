@@ -142,7 +142,6 @@ public class EtmBaseTest {
         if (driver != null) {
             if(eusURL != null) {
                 log.info("Clearing Messages...");
-                driver.findElement(By.id("clearSubmit")).click();
                 driver.quit();
             } else {
                 log.info("Browser console at the end of the test");
