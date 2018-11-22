@@ -225,7 +225,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   reconnect(): void {
     if (!this.manuallyClosed) {
       // try to reconnect websocket in 5 seconds
-      setTimeout(function() {
+      setTimeout(() => {
         console.log('Trying to reconnect to EUS WS');
         this.startWebSocket();
       }, 5000);
