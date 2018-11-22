@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -135,13 +136,21 @@ public class EtmBaseTest {
     }
 
     @AfterEach
-    void teardown() throws IOException {
+    void teardown(TestInfo testInfo) throws IOException {
+        String testName = testInfo.getTestMethod().get().getName();
+        log.info("##### Finish test: {}", testName);
         if (driver != null) {
-            log.info("Browser console at the end of the test");
-            LogEntries logEntries = driver.manage().logs().get(BROWSER);
-            logEntries.forEach((entry) -> log.info("[{}] {} {}",
-                    new Date(entry.getTimestamp()), entry.getLevel(),
-                    entry.getMessage()));
+            if(eusURL != null) {
+                log.info("Clearing Messages...");
+                driver.findElement(By.id("clearSubmit")).click();
+                driver.quit();
+            } else {
+                log.info("Browser console at the end of the test");
+                LogEntries logEntries = driver.manage().logs().get(BROWSER);
+                logEntries.forEach((entry) -> log.info("[{}] {} {}",
+                        new Date(entry.getTimestamp()), entry.getLevel(),
+                        entry.getMessage()));
+            }
         }
     }
 

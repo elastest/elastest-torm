@@ -7,6 +7,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,9 +48,9 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver localDriver) throws Exception {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
+    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo) throws Exception {
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME,
                 localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
