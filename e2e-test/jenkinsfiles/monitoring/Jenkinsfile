@@ -1,4 +1,4 @@
-node('container'){
+node('dev-docker-64-slave-1'){
     try {
         elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'Monitoring') {
             def elastest_url = ''
