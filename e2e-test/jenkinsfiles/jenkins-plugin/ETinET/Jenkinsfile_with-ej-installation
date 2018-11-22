@@ -3,19 +3,52 @@ node(){
         elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 12) {
             def elastest_url = ''
             def jenkins_url = ''
+            def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/et_in_et/e2e-test-plugin-with-installation/elastest-plugin/target/elastest.hpi'
+            def pluginDirectory = 'elastest-plugin'
+            def testRepositoryDirectory = 'elastest'
+            
             stage ('docker container')
                 def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
                 mycontainer.pull()
-                mycontainer.inside()  {
+                mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                    sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
                     sh 'env'
+                    
+                    stage('build ElasTest plugin')
+                    def pluginDirectoryExists = fileExists 'elastest-plugin'
+                    if (pluginDirectoryExists) {
+                        echo 'The elastset-plugin exists'
+                    } else {
+                        echo 'There is no elastset-plugin directory'
+                        sh 'mkdir elastest-plugin'
+                    }
+                    dir(pluginDirectory) {
+                        git 'https://github.com/elastest/elastest-jenkins.git'
+                        echo 'Build ElasTest plugin'
+                        sh 'pwd; ls -lrt; mvn clean package -B'
+                    }
+                    
                     stage ('prepare test')
-                        git 'https://github.com/elastest/elastest-torm.git'
+                        def testDirectoryExists = fileExists 'elastest'
+                        if (testDirectoryExists) {
+                            echo 'The elastest directory exists'
+                        } else {
+                            echo 'There is no elastset directory'
+                            sh 'mkdir elastest'
+                        }
+                        
+                        dir(testRepositoryDirectory) {
+                            echo 'Existing files before cloning the git repository'
+                            git 'https://github.com/elastest/elastest-torm.git'
+                        }
+                        //git 'https://github.com/elastest/elastest-torm.git'
                         elastest_url = 'http://nightly.elastest.io:37000'
                         jenkins_url =  env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':' + env.ET_SUT_PORT
+                    
                     stage ("Run tests")
                         try {                        
-                            sh "cd e2e-test; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciPass=3xp3r1m3nt47 -DciUrl=" + jenkins_url +" -B test"
-                        } catch(e) {
+                            sh "cd elastest/e2e-test; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciUrl=" + jenkins_url + " -DePluginPath=" + pluginPath + " -B test"
+                        } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
                             throw err

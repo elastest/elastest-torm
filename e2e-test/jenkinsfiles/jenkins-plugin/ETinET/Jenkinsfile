@@ -7,6 +7,7 @@ node(){
                 def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
                 mycontainer.pull()
                 mycontainer.inside("-u root -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                    sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
                     sh 'env'
                     stage ('prepare test')
                         git 'https://github.com/elastest/elastest-torm.git'
@@ -14,8 +15,8 @@ node(){
                         jenkins_url =  env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':37092'
                     stage ("Run tests")
                         try {                        
-                            sh "cd e2e-test; mvn -B clean test -Dtest=EJEtinEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciUrl=" + jenkins_url + " "
-                        } catch(e) {
+                            sh "cd e2e-test; mvn -B clean test -Dtest=EJEtinEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciUrl=" + jenkins_url + " -DciUser=elastest -DciPass=3xp3r1m3nt47 "
+                        } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
                             throw err

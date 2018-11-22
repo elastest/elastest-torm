@@ -14,7 +14,7 @@ node(){
                     stage ("Run tests")
                         try {
                             sh "cd e2e-test; mvn -B clean test -Dtest=EtmLogAnalyzerE2eTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47"
-                        } catch(e) {
+                        } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
                             throw err
