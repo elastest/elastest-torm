@@ -188,11 +188,10 @@ public class TJobExecOrchestratorService {
             dockerEtmService.updateExecutionResultStatus(dockerExec,
                     ResultEnum.IN_PROGRESS, resultMsg);
 
-            // Start Dockbeat
-            dockerEtmService.startDockbeat(dockerExec);
-
             // Start SuT if it's necessary
             if (dockerExec.isWithSut()) {
+                // Start Dockbeat
+                dockerEtmService.startDockbeat(dockerExec);
                 initSut(dockerExec, !integratedJenkins);
                 tJobExec.setSutExecution(dockerExec.getSutExec());
             }
@@ -204,8 +203,8 @@ public class TJobExecOrchestratorService {
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
                     ResultEnum.EXECUTING_TEST, resultMsg);
         } catch (Exception e) {
-            logger.error("Error starting TSS", e);
-            resultMsg = "Error starting TSS";
+            logger.error("Error starting a TSS or a SUT", e);
+            resultMsg = "Error starting services on ElasTest";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
                     ResultEnum.ERROR, resultMsg);
         }
