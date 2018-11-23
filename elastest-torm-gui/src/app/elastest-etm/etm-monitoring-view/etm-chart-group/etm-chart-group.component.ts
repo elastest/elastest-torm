@@ -32,6 +32,8 @@ export class EtmChartGroupComponent implements OnInit {
 
   firstTimeInitialized: boolean = false;
 
+  subscriptions: Map<string, Subscription> = new Map();
+
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
   metricsList: ESRabComplexMetricsModel[] = [];
@@ -76,7 +78,7 @@ export class EtmChartGroupComponent implements OnInit {
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
       if (subjectData.streamType === 'composed_metrics' || subjectData.streamType === 'atomic_metric') {
-        obs.subscribe((data) => this.updateMetricsData(data));
+        obs.subscribe((data) => this.updateDefaultChartsData(data));
       }
     });
   }
@@ -169,7 +171,10 @@ export class EtmChartGroupComponent implements OnInit {
             individualMetrics.activateAllMatchesByNameSuffix(metric.name);
             if (!this.live) {
               individualMetrics.getAllMetrics();
+            } else {
+              this.createSubjectAndSubscribe(individualMetrics.component, metric.stream, metric.streamType);
             }
+
             this.metricsList.push(individualMetrics);
           }
         } else {
@@ -286,6 +291,27 @@ export class EtmChartGroupComponent implements OnInit {
     return individualMetrics;
   }
 
+  createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
+    let index: string = this.getAbstractTJobExecIndex(component);
+    if (index) {
+      // Default chart
+      if (!component || component === '') {
+        // Subscribe to all component topics
+        for (component of components) {
+          let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+          this.elastestRabbitmqService.createSubject(streamType, component, stream);
+          let subscription: Subscription = this.elastestRabbitmqService
+            .createAndSubscribeToTopic(index, streamType, component, stream)
+            .subscribe((data) => this.updateDefaultChartsData(data));
+
+          this.subscriptions.set(key, subscription);
+        }
+      } else {
+        // TODO but no necessary because only is used by default charts
+      }
+    }
+  }
+
   createName(component: string, stream: string, etType: string, subtype: string): string {
     return this.createNameWithoutSubtype(component, stream, etType) + ' ' + subtype;
   }
@@ -317,7 +343,7 @@ export class EtmChartGroupComponent implements OnInit {
     return groups;
   }
 
-  updateMetricsData(data: any): void {
+  updateDefaultChartsData(data: any): void {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
         if (metric.isDefault()) {
@@ -430,9 +456,16 @@ export class EtmChartGroupComponent implements OnInit {
     }
 
     if (!component || component === '') {
+      // If default chart, unsubscribe to all component topics
       for (component of components) {
         let index: string = this.getAbstractTJobExecIndex(component);
         this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
+
+        let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+        if (this.subscriptions.has(key)) {
+          this.subscriptions.get(key).unsubscribe();
+          this.subscriptions.delete(key);
+        }
       }
     } else {
       let index: string = this.getAbstractTJobExecIndex(component);
