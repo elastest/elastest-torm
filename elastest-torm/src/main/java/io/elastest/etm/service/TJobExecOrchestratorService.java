@@ -727,7 +727,7 @@ public class TJobExecOrchestratorService {
     }
 
     private void setTJobExecEnvVars(TJobExecution tJobExec,
-            boolean externalTJob, boolean withPublicPrefix) {
+            boolean externalTJob, boolean withPublicPrefix) throws Exception {
         Map<String, String> envVars = new HashMap<>();
         envVars.putAll(tJobExec.getEnvVars());
         // Get TSS Env Vars
@@ -766,6 +766,8 @@ public class TJobExecOrchestratorService {
         SutSpecification sut = sutExec.getSutSpecification();
 
         if (sutExec != null) {
+         	envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
+                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
             Long sutPublicPortLong = sutExec.getPublicPort();
             String sutPublicPort = sutPublicPortLong != null
                     ? sutPublicPortLong.toString()

@@ -309,26 +309,18 @@ public class EtmContextService {
     }
 
     public Map<String, String> getTJobExecMonitoringEnvVars(
-            TJobExecution tJobExec) {
+            TJobExecution tJobExec) throws Exception {
         Map<String, String> monEnvs = new HashMap<String, String>();
         monEnvs.putAll(this.etmContextAuxService.getMonitoringEnvVars());
 
         if (tJobExec != null) {
             monEnvs.put("ET_MON_LOG_TAG", "sut_" + tJobExec.getId() + "_exec");
-            monEnvs.put("ET_SUT_CONTAINER_NAME", dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
             monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
             if (tJobExec.getTjob().isExternal()) {
                 monEnvs.put("ET_SUT_LOG_TAG",
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
-                String host = utilsService.getEtPublicHostValue();
-                if (utilsService.isDefaultEtPublicHost()) {
-                    try {
-                        host = dockerEtmService.getEtmHost();
-                    } catch (Exception e) {
-                    }
-                }
+                String host = etmContextAuxService.getLogstashHostForExtJob();
 
                 monEnvs.put("ET_MON_LSHTTP_API",
                         "http://" + host + ":" + etEtmLsHttpPort);

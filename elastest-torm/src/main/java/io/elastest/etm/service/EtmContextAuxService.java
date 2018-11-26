@@ -220,23 +220,21 @@ public class EtmContextAuxService {
 
     public Map<String, String> getMonitoringEnvVars(boolean isTss) {
         Map<String, String> monEnvs = new HashMap<String, String>();
-
-        ContextInfo context = this.getContextInfo();
-        monEnvs.put("ET_MON_LSHTTP_API", context.getLogstashHttpUrl());
-        monEnvs.put("ET_MON_LSHTTPS_API", context.getLogstashSSLHttpUrl());
-        monEnvs.put("ET_MON_LSBEATS_PORT", context.getLogstashBeatsPort());
+        monEnvs.put("ET_MON_LSHTTP_API", contextInfo.getLogstashHttpUrl());
+        monEnvs.put("ET_MON_LSHTTPS_API", contextInfo.getLogstashSSLHttpUrl());
+        monEnvs.put("ET_MON_LSBEATS_PORT", contextInfo.getLogstashBeatsPort());
         monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
-                context.getInternalLogstashBeatsPort());
-        monEnvs.put("ET_MON_LSTCP_PORT", context.getLogstashTcpPort());
+                contextInfo.getInternalLogstashBeatsPort());
+        monEnvs.put("ET_MON_LSTCP_PORT", contextInfo.getLogstashTcpPort());
         monEnvs.put("ET_MON_INTERNAL_LSTCP_PORT",
-                context.getLogstashInternalTcpPort());
+                contextInfo.getLogstashInternalTcpPort());
 
         if (!isTss) {
-            monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashBeatsHost());
-            monEnvs.put("ET_MON_LSTCP_HOST", context.getLogstashTcpHost());
+            monEnvs.put("ET_MON_LSBEATS_HOST", contextInfo.getLogstashBeatsHost());
+            monEnvs.put("ET_MON_LSTCP_HOST", contextInfo.getLogstashTcpHost());
         } else {
-            monEnvs.put("ET_MON_LSBEATS_HOST", context.getLogstashIp());
-            monEnvs.put("ET_MON_LSTCP_HOST", context.getLogstashIp());
+            monEnvs.put("ET_MON_LSBEATS_HOST", contextInfo.getLogstashIp());
+            monEnvs.put("ET_MON_LSTCP_HOST", contextInfo.getLogstashIp());
         }
 
         return monEnvs;
@@ -254,54 +252,42 @@ public class EtmContextAuxService {
 
             String emsHttpsInEventsApi = emsEnvVars
                     .get("ET_EMS_HTTPSINEVENTS_API");
-            // String emsTcpTestLogsHost = emsEnvVars
-            // .get("ET_EMS_TCP_TESTLOGS_HOST");
-            // String emsTcpTestLogsPort = emsEnvVars
-            // .get("ET_EMS_TCP_TESTLOGS_PORT");
-            // String emsTcpSutLogsHost = emsEnvVars
-            // .get("ET_EMS_TCP_SUTLOGS_HOST");
-            // String emsTcpSutLogsPort = emsEnvVars
-            // .get("ET_EMS_TCP_SUTLOGS_PORT");
-            // String emsWebsocketOutApi = emsEnvVars
-            // .get("ET_EMS_WEBSOCKET_OUT_API");
-            // String emsEmsApi = emsEnvVars.get("ET_EMS_API");
-
             if (emsLsBeatsHost != null) {
                 monEnvs.put("ET_MON_LSBEATS_HOST", emsLsBeatsHost);
             }
-
             if (emsLsBeatsPort != null) {
                 monEnvs.put("ET_MON_LSBEATS_PORT", emsLsBeatsPort);
             }
-
             if (emsHttpInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTP_API", emsHttpInEventsApi);
             }
-
             if (emsHttpsInEventsApi != null) {
                 monEnvs.put("ET_MON_LSHTTPS_API", emsHttpsInEventsApi);
             }
-
-            // We have a single TCP host/port
-
-            // if (emsTcpTestLogsHost != null) {
-            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpTestLogsHost);
-            // }
-            //
-            // if (emsTcpTestLogsPort != null) {
-            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpTestLogsPort);
-            // }
-            //
-            // if (emsTcpSutLogsHost != null) {
-            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpSutLogsHost);
-            // }
-            //
-            // if (emsTcpSutLogsPort != null) {
-            // monEnvs.put("ET_MON_LSBEATS_HOST", emsTcpSutLogsPort);
-            // }
-
         }
 
         return monEnvs;
+    }
+    
+    public String getLogstashHostForExtJob() throws Exception {
+        String logstashHost = null;
+        
+        try {
+            if (etInProd && utilsService.isDefaultEtPublicHost()) {
+                logger.debug("Logstash host by etProxyHost");
+                logstashHost = UtilTools.doPing(etProxyHost);
+            } else if (!etInProd) {
+                logger.debug("Logstash host by getLogstashHost");
+                logstashHost = dockerEtmService.getLogstashHost();
+            } else {
+                logger.debug("Logstash host by getHostIpByNetwork");
+                logstashHost = dockerEtmService.dockerService
+                        .getHostIpByNetwork(elastestNetwork);
+            }
+            return logstashHost;
+        } catch (Exception e) {
+            logger.error("Error getting the Logstash host");
+            throw new Exception("Error getting the Logstash host");
+        }
     }
 }
