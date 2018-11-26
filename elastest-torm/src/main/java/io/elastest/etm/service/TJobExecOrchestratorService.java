@@ -762,29 +762,36 @@ public class TJobExecOrchestratorService {
         // Add env var for the SUT host if a SUT is required
         logger.debug(
                 "Below the SUT host ip will displayed if there is SUT execution");
-        if (tJobExec.getSutExecution() != null) {
-            String sutPublicPort = tJobExec.getSutExecution()
-                    .getPublicPort() != null
-                            ? tJobExec.getSutExecution().getPublicPort()
-                                    .toString()
-                            : null;
+        SutExecution sutExec = tJobExec.getSutExecution();
+        SutSpecification sut = sutExec.getSutSpecification();
+
+        if (sutExec != null) {
+            Long sutPublicPortLong = sutExec.getPublicPort();
+            String sutPublicPort = sutPublicPortLong != null
+                    ? sutPublicPortLong.toString()
+                    : null;
+
+            // Sut HOST
             envVars.put("ET_SUT_HOST",
                     (sutPublicPort != null
                             && !utilsService.isDefaultEtPublicHost())
                                     ? utilsService.getEtPublicHostValue()
-                            : tJobExec.getSutExecution().getIp());
+                                    : sutExec.getIp());
             logger.debug("ET_SUT_HOST: {}", envVars.get("ET_SUT_HOST"));
-            String sutPort = tJobExec.getSutExecution().getSutSpecification()
-                    .getPort();
+
+            // Sut PORT
+            String sutPort = sut.getPort();
             if (sutPort != null && !sutPort.isEmpty()) {
-                envVars.put("ET_SUT_PORT", sutPublicPort != null
-                        && !utilsService.isDefaultEtPublicHost() ? sutPublicPort
-                        : tJobExec.getSutExecution().getSutSpecification().getPort());
+                envVars.put("ET_SUT_PORT",
+                        sutPublicPort != null
+                                && !utilsService.isDefaultEtPublicHost()
+                                        ? sutPublicPort
+                                        : sut.getPort());
                 logger.debug("ET_SUT_PORT: {}", envVars.get("ET_SUT_PORT"));
             }
 
-            String sutProtocol = tJobExec.getSutExecution()
-                    .getSutSpecification().getProtocol().toString();
+            // Sut PROTOCOL
+            String sutProtocol = sut.getProtocol().toString();
             if (sutProtocol != null && !sutProtocol.isEmpty()) {
                 envVars.put("ET_SUT_PROTOCOL", sutProtocol);
                 logger.debug("ET_SUT_PROTOCOL: {}", sutProtocol);
