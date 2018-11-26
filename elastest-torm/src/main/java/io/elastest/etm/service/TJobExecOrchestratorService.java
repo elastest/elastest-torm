@@ -764,9 +764,8 @@ public class TJobExecOrchestratorService {
                 "Below the SUT host ip will displayed if there is SUT execution");
         SutExecution sutExec = tJobExec.getSutExecution();
         if (sutExec != null) {
-            SutSpecification sut = tJobExec.getSutExecution().getSutSpecification();
-         	envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
+            SutSpecification sut = tJobExec.getSutExecution()
+                    .getSutSpecification();
             Long sutPublicPortLong = sutExec.getPublicPort();
             String sutPublicPort = sutPublicPortLong != null
                     ? sutPublicPortLong.toString()
@@ -800,6 +799,12 @@ public class TJobExecOrchestratorService {
                 envVars.put(sutProtocolKey, sutProtocol);
                 logger.debug("{}: {}", sutProtocolKey, sutProtocol);
             }
+        }
+
+        // Setting SUT name for external Job
+        if (externalTJob) {
+            envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
+                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
         }
 
         tJobExec.setEnvVars(envVars);
