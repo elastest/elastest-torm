@@ -315,7 +315,7 @@ public class EsmService {
                     .getContextInfo().getLogstashSSLHttpUrl());
 
             servicesInstances.put(tssInstanceId, eusInstance);
-
+            etmContextAuxService.getContextInfo().setEusSSInstance(eusInstance);
         } catch (Exception e) {
             logger.error("Error on start integrated EUS:", e);
         }

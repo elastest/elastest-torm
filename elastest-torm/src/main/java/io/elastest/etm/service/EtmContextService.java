@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,21 +21,17 @@ import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
-import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtmContextService {
-    @Value("${eus.tss.id}")
-    public String EUS_TSS_ID;
 
     private static final Logger logger = LoggerFactory
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
 
-    EsmService esmService;
     EtmContextAuxService etmContextAuxService;
     DockerEtmService dockerEtmService;
     UtilsService utilsService;
@@ -109,36 +107,30 @@ public class EtmContextService {
     public String etEtmLsTcpPort;
 
     HelpInfo helpInfo;
+    ContextInfo contextInfo;
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
             DockerEtmService dockerEtmService, UtilsService utilsService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
-        this.esmService = esmService;
         this.etmContextAuxService = etmContextAuxService;
         this.dockerEtmService = dockerEtmService;
         this.utilsService = utilsService;
     }
 
-    public ContextInfo getContextInfo() {
-        ContextInfo contextInfo = this.etmContextAuxService.getContextInfo();
-        contextInfo.setEusSSInstance(getEusApiUrl());
-
-        return contextInfo;
+    @PostConstruct
+    public void createContextInfo() {
+        contextInfo = this.etmContextAuxService.getContextInfo();
     }
-
-    private SupportServiceInstance getEusApiUrl() {
-        SupportServiceInstance eusInstance = null;
-        if (esmService.getServicesInstances() != null) {
-            for (Map.Entry<String, SupportServiceInstance> entry : esmService
-                    .getServicesInstances().entrySet()) {
-                if (entry.getValue().getService_id().equals(EUS_TSS_ID)) {
-                    eusInstance = entry.getValue();
-                    break;
-                }
+    
+    public ContextInfo getContextInfo() {
+        logger.debug("Loading ElaTest Context");
+        if (utilsService.isElastestMini()) {
+            while (contextInfo.getEusSSInstance() == null) {
+                logger.debug("Waiting for the ElasTest Context to be ready");
             }
         }
-        return eusInstance;
+        return contextInfo;
     }
 
     public HelpInfo getHelpInfo() {

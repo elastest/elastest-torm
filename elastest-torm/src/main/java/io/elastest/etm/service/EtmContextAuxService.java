@@ -6,6 +6,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -110,16 +112,22 @@ public class EtmContextAuxService {
 
     private DockerEtmService dockerEtmService;
     private UtilsService utilsService;
+    
+    private ContextInfo contextInfo;
 
     public EtmContextAuxService(DockerEtmService dockerEtmService,
             UtilsService utilsService) {
         this.dockerEtmService = dockerEtmService;
         this.utilsService = utilsService;
+        this.contextInfo = new ContextInfo();
     }
 
+    @PostConstruct
     public ContextInfo getContextInfo() {
-        ContextInfo contextInfo = new ContextInfo();
-
+        return contextInfo = createContextInfo();
+    }
+    
+    private ContextInfo createContextInfo() {
         // Logstash
         contextInfo.setLogstashPath(logstashPathWithProxy);
 
