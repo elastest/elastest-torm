@@ -22,11 +22,13 @@ import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextAuxService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.test.extensions.MockitoExtension;
+import io.elastest.etm.utils.UtilsService;
 
 @Tag("Unit test")
 @DisplayName("EtmContextService Unit tests")
@@ -38,12 +40,12 @@ public class EtmContextServiceTest {
 
     @Mock
     public EtmContextAuxService etmContextAuxService;
-//    @Mock
-//    public DockerService dockerService;
     @Mock
     public DockerEtmService dockerEtmService;
     @Mock
     public EsmService esmService;
+    @Mock
+    public UtilsService utilService;
 
     @BeforeEach
     public void setUp() {
@@ -55,7 +57,10 @@ public class EtmContextServiceTest {
     @Test
     public void getContextInfoTest() {
         ContextInfo contextInfo = new ContextInfo();
+        contextInfo.setEusSSInstance(new SupportServiceInstance());
         when(etmContextAuxService.getContextInfo()).thenReturn(contextInfo);
+        when(utilService.isElastestMini()).thenReturn(true);
+        etmContextService.createContextInfo();
         assertThat(etmContextService).isNotNull();
         assertNotNull(etmContextService.getContextInfo());
     }
