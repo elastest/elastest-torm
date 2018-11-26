@@ -763,7 +763,7 @@ public class TJobExecOrchestratorService {
         logger.debug(
                 "Below the SUT host ip will displayed if there is SUT execution");
         SutExecution sutExec = tJobExec.getSutExecution();
-        SutSpecification sut = sutExec.getSutSpecification();
+        SutSpecification sut = tJobExec.getSutExecution().getSutSpecification();
 
         if (sutExec != null) {
          	envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
