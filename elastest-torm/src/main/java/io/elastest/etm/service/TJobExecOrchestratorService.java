@@ -772,29 +772,32 @@ public class TJobExecOrchestratorService {
                     : null;
 
             // Sut HOST
-            envVars.put("ET_SUT_HOST",
+            String sutHostKey = "ET_SUT_HOST";
+            envVars.put(sutHostKey,
                     (sutPublicPort != null
                             && !utilsService.isDefaultEtPublicHost())
                                     ? utilsService.getEtPublicHostValue()
                                     : sutExec.getIp());
-            logger.debug("ET_SUT_HOST: {}", envVars.get("ET_SUT_HOST"));
+            logger.debug("{}: {}", sutHostKey, envVars.get(sutHostKey));
 
             // Sut PORT
             String sutPort = sut.getPort();
             if (sutPort != null && !sutPort.isEmpty()) {
-                envVars.put("ET_SUT_PORT",
+                String sutPortKey = "ET_SUT_PORT";
+                envVars.put(sutPortKey,
                         sutPublicPort != null
                                 && !utilsService.isDefaultEtPublicHost()
                                         ? sutPublicPort
                                         : sut.getPort());
-                logger.debug("ET_SUT_PORT: {}", envVars.get("ET_SUT_PORT"));
+                logger.debug("{}: {}", sutPortKey, envVars.get(sutPortKey));
             }
 
             // Sut PROTOCOL
             String sutProtocol = sut.getProtocol().toString();
             if (sutProtocol != null && !sutProtocol.isEmpty()) {
-                envVars.put("ET_SUT_PROTOCOL", sutProtocol);
-                logger.debug("ET_SUT_PROTOCOL: {}", sutProtocol);
+                String sutProtocolKey = "ET_SUT_PROTOCOL";
+                envVars.put(sutProtocolKey, sutProtocol);
+                logger.debug("{}: {}", sutProtocolKey, sutProtocol);
             }
         }
 
