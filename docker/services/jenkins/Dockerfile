@@ -30,7 +30,7 @@ VOLUME $JENKINS_HOME
 
 # Set the jobs names
 ARG job_name_1="jenkins-junit5-unit-test"
-ARG job_name_2="jenkins-web-example"
+ARG job_name_2="jenkins-junit5-multi-browser-test"
 ARG job_name_3="jenkins-junit5-rest-test"
 ARG job_name_4="jenkins-openvidu-example"
 ARG job_name_5="jenkins-fullteaching-example"

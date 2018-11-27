@@ -24,7 +24,7 @@
                     echo &apos;Cloning repository&apos;
                     git &apos;https://github.com/elastest/demo-projects&apos;
                     echo &apos;Run test&apos;
-                    sh &quot;cd ./web-java-test/;&apos;${mvnHome}/bin/mvn&apos; -Dtest=WebAppTest -DforkCount=0 test&quot;
+                    sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;&apos;${mvnHome}/bin/mvn&apos; -Dbrowser=chrome -DforkCount=0 test&quot;
                 }
             }
             
