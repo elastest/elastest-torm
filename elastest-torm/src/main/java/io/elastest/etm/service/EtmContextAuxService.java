@@ -277,14 +277,14 @@ public class EtmContextAuxService {
             if ((etInProd && utilsService.isDefaultEtPublicHost())
                     || !etInProd) {
                 logger.debug("Logstash host by getLogstashHost");
-                logstashHost = dockerEtmService.getLogstashHost();
-            } else if (etInProd && !utilsService.isDefaultEtPublicHost()) {
-                logger.debug("Logstash host by etProxyHost");
-                logstashHost = UtilTools.doPing(etProxyHost);
-            } else {
-                logger.debug("Logstash host by getHostIpByNetwork");
                 logstashHost = dockerEtmService.dockerService
                         .getHostIpByNetwork(elastestNetwork);
+            } else if (etInProd && !utilsService.isDefaultEtPublicHost()) {
+                logger.debug("Logstash host is the server address");
+                logstashHost = utilsService.getEtPublicHostValue();
+            } else {
+                logger.debug("Logstash host by getLogstashHost");
+                logstashHost = dockerEtmService.getLogstashHost();
             }
 
             return logstashHost;
