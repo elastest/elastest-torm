@@ -6,7 +6,7 @@
   <properties/>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
     <script>node{
-    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
         stage (&apos;Executing Test&apos;) {
             echo &apos;Print env variables&apos;
             sh &apos;env&apos;

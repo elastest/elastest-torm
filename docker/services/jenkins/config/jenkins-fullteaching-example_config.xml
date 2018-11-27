@@ -7,7 +7,7 @@
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
     <script>node{
     def sutIp
-    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
         stage(&quot;Setting environment&quot;) {
             echo &apos;Environment variables&apos;
             sh &quot;env&quot;
