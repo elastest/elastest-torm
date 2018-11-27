@@ -27,6 +27,31 @@ node('docker'){
                         logstashimage.push()
                     }
 
+                  
+            	stage "Jenkins image build"
+
+                    "Create Jenkins docker image"
+                    try {
+                    	echo ("Show content of the enable_jenkins_security file")
+                    	sh ' cat ./docker/services/jenkins/config/init.groovy.d/enable_jenkins_security.groovy'
+                    } catch (noImage) {
+                    	echo ("There are no Jenkins images")
+                    }
+                
+                    echo ("Creating elastest/etm-jenkins image..")
+                    sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest . --no-cache=true'
+        
+                stage "Publish Jenkins docker image"
+        
+                    echo ("Publish elastest/etm-jenkins image")
+                    def etmjenkinsimage = docker.image('elastest/etm-jenkins:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                    	usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    	sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                    	etmjenkinsimage.push()
+        	    }
+
                 stage "RabbitMQ image build"
         
                 "Create rabbitmq docker image"
@@ -213,30 +238,6 @@ node('docker'){
                         dockpcapimage.push()
                     }
 
-                    
-            stage "Jenkins image build"
-
-                    "Create Jenkins docker image"
-                    try {
-                    	echo ("Show content of the enable_jenkins_security file")
-                    	sh ' cat ./docker/services/jenkins/config/init.groovy.d/enable_jenkins_security.groovy'
-                    } catch (noImage) {
-                    	echo ("There are no Jenkins images")
-                    }
-                
-                    echo ("Creating elastest/etm-jenkins image..")
-                    sh 'cd ./docker/services/jenkins/; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/etm-jenkins:latest . --no-cache=true'
-        
-                stage "Publish Jenkins docker image"
-        
-                    echo ("Publish elastest/etm-jenkins image")
-                    def etmjenkinsimage = docker.image('elastest/etm-jenkins:latest')
-                    //this is work arround as withDockerRegistry is not working properly 
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                    etmjenkinsimage.push()
-                }
             }
         } catch (err) {
          	if (currentBuild.result != "UNSTABLE") {
