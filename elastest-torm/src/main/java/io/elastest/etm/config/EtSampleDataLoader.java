@@ -509,7 +509,7 @@ public class EtSampleDataLoader {
             String sutName = "OpenVidu Test App";
             String sutDesc = "OpenVidu Test App";
             String sutImage = "openvidu/testapp:elastest";
-            ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
+            ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
             String sutPort = "4443";
 
             String tJobName = "Videocall Test";
