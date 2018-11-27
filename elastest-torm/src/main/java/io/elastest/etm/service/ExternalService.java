@@ -239,12 +239,6 @@ public class ExternalService {
                     project = projectService
                             .getProjectByName(externalJob.getProject());
                 }
-
-                if (project == null) {
-                    throw new Exception(
-                            "No projects with this name or id have been found.");
-                }
-
             } else {
                 logger.debug(
                         "Retrieve the Project from the ElasTest DB if it exists : {}",
@@ -257,7 +251,10 @@ public class ExternalService {
                 logger.debug("Creating Project.");
                 project = new Project();
                 project.setId(0L);
-                project.setName(externalJob.getJobName());
+                project.setName(externalJob.getProject() != null
+                        && !externalJob.getProject().isEmpty()
+                                ? externalJob.getProject()
+                                : externalJob.getJobName());
                 project = projectService.createProject(project);
             }
 
