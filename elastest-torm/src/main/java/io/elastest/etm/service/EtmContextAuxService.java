@@ -112,7 +112,7 @@ public class EtmContextAuxService {
 
     private DockerEtmService dockerEtmService;
     private UtilsService utilsService;
-    
+
     private ContextInfo contextInfo;
 
     public EtmContextAuxService(DockerEtmService dockerEtmService,
@@ -126,7 +126,7 @@ public class EtmContextAuxService {
     public ContextInfo getContextInfo() {
         return contextInfo = createContextInfo();
     }
-    
+
     private ContextInfo createContextInfo() {
         // Logstash
         contextInfo.setLogstashPath(logstashPathWithProxy);
@@ -230,7 +230,8 @@ public class EtmContextAuxService {
                 contextInfo.getLogstashInternalTcpPort());
 
         if (!isTss) {
-            monEnvs.put("ET_MON_LSBEATS_HOST", contextInfo.getLogstashBeatsHost());
+            monEnvs.put("ET_MON_LSBEATS_HOST",
+                    contextInfo.getLogstashBeatsHost());
             monEnvs.put("ET_MON_LSTCP_HOST", contextInfo.getLogstashTcpHost());
         } else {
             monEnvs.put("ET_MON_LSBEATS_HOST", contextInfo.getLogstashIp());
@@ -268,22 +269,24 @@ public class EtmContextAuxService {
 
         return monEnvs;
     }
-    
+
     public String getLogstashHostForExtJob() throws Exception {
         String logstashHost = null;
-        
+
         try {
-            if (etInProd && utilsService.isDefaultEtPublicHost()) {
-                logger.debug("Logstash host by etProxyHost");
-                logstashHost = UtilTools.doPing(etProxyHost);
-            } else if (!etInProd) {
+            if ((etInProd && utilsService.isDefaultEtPublicHost())
+                    || !etInProd) {
                 logger.debug("Logstash host by getLogstashHost");
                 logstashHost = dockerEtmService.getLogstashHost();
+            } else if (etInProd && !utilsService.isDefaultEtPublicHost()) {
+                logger.debug("Logstash host by etProxyHost");
+                logstashHost = UtilTools.doPing(etProxyHost);
             } else {
                 logger.debug("Logstash host by getHostIpByNetwork");
                 logstashHost = dockerEtmService.dockerService
                         .getHostIpByNetwork(elastestNetwork);
             }
+
             return logstashHost;
         } catch (Exception e) {
             logger.error("Error getting the Logstash host");
