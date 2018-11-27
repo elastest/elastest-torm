@@ -267,12 +267,8 @@ public class TJobService {
 
     public void endExternalTJobExecution(long tJobExecId, int result,
             List<String> testResultsReportsAsString) {
-        logger.info("Finishing the external Job.");
+        logger.info("Finishing the external TJob.");
         TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
-        tJobExec.setResult(ResultEnum.values()[result]);
-        tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
-        tJobExec.setEndDate(new Date());
-        tJobExecRepositoryImpl.save(tJobExec);
 
         // Parsing test results
         List<ReportTestSuite> testResultsReports = new ArrayList<>();
@@ -309,6 +305,11 @@ public class TJobService {
                         "Error desprovisioning a SUT used in a TJob run from Jenkins.");
             }
         }
+        
+        tJobExec.setResult(ResultEnum.values()[result]);
+        tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
+        tJobExec.setEndDate(new Date());
+        tJobExecRepositoryImpl.save(tJobExec);
     }
 
     public void deleteTJobExec(Long tJobExecId) {
