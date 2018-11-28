@@ -13,7 +13,7 @@
             def sutImage = docker.image(&apos;elastest/demo-rest-java-test-sut&apos;)
             echo &apos;Start SUT&apos;
             def sutContainerName = env.ET_SUT_CONTAINER_NAME;
-            sutImage.withRun(&quot;--name ${sutContainerName} --network=elastest_elastest&quot;) { c -&gt;
+            sutImage.withRun(&quot;--name ${sutContainerName}&quot;) { c -&gt;
                 echo &quot;${c.id}&quot;
                 def sutNetwork = getFirstNetwork(sutContainerName)
                 def sutIp = containerIp(sutContainerName,sutNetwork)

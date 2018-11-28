@@ -855,6 +855,14 @@ public class EtPluginsService {
                 try {
                     dockerEtmService.dockerService.insertIntoNetwork(network,
                             container.getName());
+                    try {
+                        // Insert into bridge too
+                        dockerEtmService.dockerService.insertIntoNetwork(
+                                "bridge", container.getName());
+                    } catch (Exception e) {
+                        logger.error("Error on insert container "
+                                + container.getName() + " into bridge network");
+                    }
                 } catch (DockerException | InterruptedException
                         | DockerCertificateException e) {
                     throw new Exception(
