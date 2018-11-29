@@ -36,8 +36,12 @@ public class UtilTools {
     @Value("${os.name}")
     private static String windowsSO;
 
+    private static boolean etmInContainer;
+
     @Value("${et.etm.incontainer}")
-    private static String inContainer;
+    public void setEtEtmInContainer(boolean etmInContainer) {
+        this.etmInContainer = etmInContainer;
+    }
 
     /*
      * public boolean pingHost(String host, int port, int timeout) { try (Socket
@@ -110,7 +114,7 @@ public class UtilTools {
 
     public static String getHostIp() throws Exception {
         if (hostIp == null) {
-            if (inContainer != null && inContainer.equals("true")) {
+            if (etmInContainer) {
                 try {
                     String ipRoute = Shell.runAndWait("sh", "-c",
                             "/sbin/ip route");

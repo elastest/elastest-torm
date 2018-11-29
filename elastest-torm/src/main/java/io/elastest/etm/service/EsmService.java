@@ -139,7 +139,7 @@ public class EsmService {
     public String etProxyPort;
 
     @Value("${et.etm.incontainer}")
-    private String inContainer;
+    private boolean etmInContainer;
 
     @Value("${api.context.path:#{null}}")
     private String eusApiPath;
@@ -266,7 +266,7 @@ public class EsmService {
             if (!utilsService.isDefaultEtPublicHost()) {
                 serviceIp = utilsService.getEtPublicHostValue();
                 eusInstance.setBindedServiceIp(serviceIp);
-                if ("true".equals(inContainer)) {
+                if (etmInContainer) {
                     servicePort = bindedServicePort;
                 }
             }

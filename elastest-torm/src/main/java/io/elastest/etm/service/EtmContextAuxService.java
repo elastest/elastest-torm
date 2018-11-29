@@ -23,7 +23,7 @@ public class EtmContextAuxService {
     @Value("${et.in.prod}")
     public boolean etInProd;
     @Value("${et.etm.incontainer}")
-    private static boolean etmInContainer;
+    private boolean etmInContainer;
 
     @Value("${et.proxy.port}")
     public String etProxyPort;
