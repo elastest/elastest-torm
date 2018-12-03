@@ -10,6 +10,8 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION 
 
+LABEL io.elastest.type=tool
+
 # Install vi
 RUN apt-get update -y
 RUN apt-get install apt-file -y

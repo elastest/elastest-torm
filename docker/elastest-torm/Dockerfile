@@ -20,5 +20,7 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION
 
+LABEL io.elastest.type=core
+
 RUN chmod 755 /run.sh
 ENTRYPOINT ["/run.sh"]

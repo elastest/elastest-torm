@@ -1,5 +1,7 @@
 FROM docker.elastic.co/logstash/logstash:6.5.0
 
+LABEL io.elastest.type=monitoring
+
 RUN rm -f /usr/share/logstash/pipeline/logstash.conf
 RUN rm -f /usr/share/logstash/config/logstash.yml
 
