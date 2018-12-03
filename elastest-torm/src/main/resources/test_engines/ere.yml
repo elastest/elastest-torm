@@ -10,6 +10,10 @@ services:
       - elastest
     volumes:
       - ~/ere-data:/ere-data:rw
+    labels:
+      - io.elastest.type=tss
+      - io.elastest.tjob.tss.id=ere
+      - io.elastest.tjob.tss.type=main
 networks:
     elastest:
       driver: bridge

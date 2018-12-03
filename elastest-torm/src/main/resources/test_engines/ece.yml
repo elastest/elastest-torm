@@ -4,11 +4,6 @@ services:
   ece:
     image: elastest/ece:latest
     ports:
-      - 8888:8888
-    environment:
-  ece:
-    image: elastest/ece:latest
-    ports:
       - 37008:8888
     environment:
       - ET_ETM_API=http://etm:8091/
@@ -18,3 +13,7 @@ services:
       - ET_EMP_USER=elastest
       - ET_EMP_TOPIC=user-1-elastest_core
       - ET_EMP_SERIES=docker-stats
+    labels:
+      - io.elastest.type=tss
+      - io.elastest.tjob.tss.id=ece
+      - io.elastest.tjob.tss.type=main
