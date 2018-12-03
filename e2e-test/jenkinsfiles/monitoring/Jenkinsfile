@@ -9,7 +9,7 @@ node('dev-docker-64-slave-3'){
                     sh 'env'
                     stage ('prepare test')
                         git 'https://github.com/elastest/elastest-torm.git'
-                        elastest_url = 'http://stable.elastest.io:37000'
+                        elastest_url = ${ELASTEST_URL}//'http://stable.elastest.io:37000'
                         
                     stage ("Run tests")
                         try {                        
