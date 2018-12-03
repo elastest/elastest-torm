@@ -1139,7 +1139,7 @@ public class TJobExecOrchestratorService {
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
 
-        // Set logging, network and do pull of images
+        // Set logging, network, labels and do pull of images
         dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
                 dockerComposeYml, composeProjectName, dockerExec, mainService);
 
@@ -1230,6 +1230,10 @@ public class TJobExecOrchestratorService {
 
                 // Set Elastest Network
                 service = this.setNetworkToDockerComposeYmlService(service,
+                        composeProjectName, dockerExec);
+
+                // Set Elastest Labels
+                service = this.setETLabelsToDockerComposeYmlService(service,
                         composeProjectName, dockerExec);
 
                 // Binding port of the main service if ElasTest is running in
@@ -1362,6 +1366,27 @@ public class TJobExecOrchestratorService {
         List<String> networksList = new ArrayList<>();
         networksList.add(elastestDockerNetwork);
         serviceContent.put(networksKey, networksList);
+
+        return service;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public HashMap.Entry<String, HashMap> setETLabelsToDockerComposeYmlService(
+            HashMap.Entry<String, HashMap> service, String composeProjectName,
+            DockerExecution dockerExec) {
+
+        HashMap serviceContent = service.getValue();
+        String labelsKey = "labels";
+        // If service has networks, remove it
+        if (serviceContent.containsKey(labelsKey)) {
+            serviceContent.remove(labelsKey);
+        }
+
+        Map<String, String> labelsMap = dockerEtmService.getEtLabels(dockerExec,
+                "sut", service.getKey());
+
+        serviceContent.put(labelsKey,
+                dockerComposeService.mapAsList(labelsMap));
 
         return service;
     }

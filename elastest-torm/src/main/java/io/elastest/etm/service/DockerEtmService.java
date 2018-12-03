@@ -146,6 +146,9 @@ public class DockerEtmService {
 
     @Value("${et.type.monitoring.label.value}")
     public String etTypeMonitoringLabelValue;
+
+    @Value("${et.type.tool.label.value}")
+    public String etTypeToolLabelValue;
     /* *** END of ET container labels *** */
 
     public DockerService dockerService;
@@ -256,6 +259,34 @@ public class DockerEtmService {
         return dockerService.getContainerIpByNetwork(etEdmMysqlContainerName,
                 elastestNetwork);
     }
+
+    public Map<String, String> getEtLabels(DockerExecution dockerExec,
+            String type, String sutServiceName) {
+        String etTypeLabelValue = "";
+        if ("sut".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeSutLabelValue;
+        } else if ("tjob".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeTestLabelValue;
+        }
+
+        Map<String, String> labels = new HashMap<>();
+        labels.put(etTypeLabel, etTypeLabelValue);
+        labels.put(etTJobExecIdLabel,
+                dockerExec.getTJobExec().getId().toString());
+        labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+
+        if (sutServiceName != null) {
+            labels.put(etTJobSutServiceNameLabel, sutServiceName);
+        }
+
+        return labels;
+    }
+
+    public Map<String, String> getEtLabels(DockerExecution dockerExec,
+            String type) {
+        return this.getEtLabels(dockerExec, type, null);
+    }
+
     /* *************************** */
     /* **** Container Methods **** */
     /* *************************** */
@@ -276,8 +307,6 @@ public class DockerEtmService {
 
         String sutPath = null;
 
-        TJobExecution tJobExec = dockerExec.getTJobExec();
-        String etTypeLabelValue = "";
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -291,9 +320,9 @@ public class DockerEtmService {
             sutPath = getSutPath(dockerExec);
 
             filesService.createExecFilesFolder(sutPath);
-            etTypeLabelValue = etTypeSutLabelValue;
         } else if ("tjob".equals(type.toLowerCase())) {
             TJob tJob = dockerExec.gettJob();
+            TJobExecution tJobExec = dockerExec.getTJobExec();
 
             parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
@@ -306,7 +335,6 @@ public class DockerEtmService {
                 sutProtocol = sut.getProtocol().toString();
             }
 
-            etTypeLabelValue = etTypeTestLabelValue;
         }
 
         // Environment variables (optional)
@@ -381,10 +409,7 @@ public class DockerEtmService {
         }
 
         // ElasTest labels
-        Map<String, String> labels = new HashMap<>();
-        labels.put(etTypeLabel, etTypeLabelValue);
-        labels.put(etTJobExecIdLabel, tJobExec.getId().toString());
-        labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+        Map<String, String> labels = this.getEtLabels(dockerExec, type);
 
         // Pull Image
         this.pullETExecutionImage(dockerExec, image, type, false);

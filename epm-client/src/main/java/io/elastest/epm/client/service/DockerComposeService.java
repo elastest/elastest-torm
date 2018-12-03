@@ -211,7 +211,7 @@ public class DockerComposeService {
         if (!projects.containsKey(projectName)) {
             return false;
         }
-        
+
         try {
             if (withPull) {
                 this.pullImages(projects.get(projectName));
@@ -394,5 +394,18 @@ public class DockerComposeService {
         }
 
         return projects.get(projectName).getImagesList();
+    }
+
+    public List<String> mapAsList(Map<String, String> map) {
+        List<String> list = new ArrayList<>();
+        if (map != null && !map.isEmpty()) {
+            for (HashMap.Entry<String, String> currentValue : map.entrySet()) {
+                String valueString = currentValue.getKey() + "="
+                        + currentValue.getValue();
+                list.add(valueString);
+            }
+        }
+
+        return list;
     }
 }
