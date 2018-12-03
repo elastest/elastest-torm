@@ -110,6 +110,44 @@ public class DockerEtmService {
     @Value("${et.etm.binded.lstcp.port}")
     public String bindedLsTcpPort;
 
+    /* *** ET container labels *** */
+    @Value("${et.type.label}")
+    public String etTypeLabel;
+
+    @Value("${et.tjob.id.label}")
+    public String etTJobIdLabel;
+
+    @Value("${et.tjob.exec.id.label}")
+    public String etTJobExecIdLabel;
+
+    @Value("${et.tjob.sut.service.name.label}")
+    public String etTJobSutServiceNameLabel;
+
+    @Value("${et.tjob.tss.id.label}")
+    public String etTJobTSSIdLabel;
+
+    @Value("${et.tjob.tss.type.label}")
+    public String etTJobTssTypeLabel;
+
+    @Value("${et.type.test.label.value}")
+    public String etTypeTestLabelValue;
+
+    @Value("${et.type.sut.label.value}")
+    public String etTypeSutLabelValue;
+
+    @Value("${et.type.tss.label.value}")
+    public String etTypeTSSLabelValue;
+
+    @Value("${et.type.core.label.value}")
+    public String etTypeCoreLabelValue;
+
+    @Value("${et.type.te.label.value}")
+    public String etTypeTELabelValue;
+
+    @Value("${et.type.monitoring.label.value}")
+    public String etTypeMonitoringLabelValue;
+    /* *** END of ET container labels *** */
+
     public DockerService dockerService;
     public EtmFilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
@@ -238,6 +276,8 @@ public class DockerEtmService {
 
         String sutPath = null;
 
+        TJobExecution tJobExec = dockerExec.getTJobExec();
+        String etTypeLabelValue = "";
         if ("sut".equals(type.toLowerCase())) {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
@@ -251,9 +291,9 @@ public class DockerEtmService {
             sutPath = getSutPath(dockerExec);
 
             filesService.createExecFilesFolder(sutPath);
+            etTypeLabelValue = etTypeSutLabelValue;
         } else if ("tjob".equals(type.toLowerCase())) {
             TJob tJob = dockerExec.gettJob();
-            TJobExecution tJobExec = dockerExec.getTJobExec();
 
             parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
@@ -265,6 +305,8 @@ public class DockerEtmService {
                 sutPort = sut.getPort();
                 sutProtocol = sut.getProtocol().toString();
             }
+
+            etTypeLabelValue = etTypeTestLabelValue;
         }
 
         // Environment variables (optional)
@@ -337,6 +379,13 @@ public class DockerEtmService {
                             : logstashTcpPort),
                     prefix, suffix, dockerExec);
         }
+
+        // ElasTest labels
+        Map<String, String> labels = new HashMap<>();
+        labels.put(etTypeLabel, etTypeLabelValue);
+        labels.put(etTJobExecIdLabel, tJobExec.getId().toString());
+        labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+
         // Pull Image
         this.pullETExecutionImage(dockerExec, image, type, false);
 
@@ -348,6 +397,7 @@ public class DockerEtmService {
         dockerBuilder.cmd(cmdList);
         dockerBuilder.entryPoint(entrypointList);
         dockerBuilder.network(dockerExec.getNetwork());
+        dockerBuilder.labels(labels);
 
         boolean sharedDataVolume = false;
         if (sut != null && sut.isSutInNewContainer()) {
@@ -481,8 +531,8 @@ public class DockerEtmService {
             String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
                     + lsInternalBeatsPort;
 
+            TJobExecution tJobExec = dockerExec.getTJobExec();
             if (isEMSSelected(dockerExec)) {
-                TJobExecution tJobExec = dockerExec.getTJobExec();
 
                 String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
                 String testRegex = "^test" + regexSuffix;
@@ -502,9 +552,15 @@ public class DockerEtmService {
             envList.add(lsHostEnvVar);
             envList.add(lsInternalBeatsPortEnvVar);
 
-            // dockerSock
+            // dockerSock volume bind
             Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
                     .build();
+
+            // ElasTest labels
+            Map<String, String> labels = new HashMap<>();
+            labels.put(etTypeLabel, etTypeMonitoringLabelValue);
+            labels.put(etTJobExecIdLabel, tJobExec.getId().toString());
+            labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
 
             // Pull Image
             this.pullETExecImage(dockbeatImage, "Dockbeat", false);
@@ -519,6 +575,8 @@ public class DockerEtmService {
             dockerBuilder.network(dockerExec.getNetwork());
 
             dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
+
+            dockerBuilder.labels(labels);
 
             DockerContainer dockerContainer = dockerBuilder.build();
             String containerId = dockerService.createAndStartContainer(
@@ -854,9 +912,9 @@ public class DockerEtmService {
 
     public SocatBindedPort bindingPort(String containerIp, String port,
             String networkName, boolean remotely) throws Exception {
-        return bindingPort(containerIp, null, port, networkName,remotely);
+        return bindingPort(containerIp, null, port, networkName, remotely);
     }
-    
+
     public SocatBindedPort bindingPort(String containerIp,
             String containerSufix, String port, String networkName,
             boolean remotely) throws Exception {
@@ -868,22 +926,21 @@ public class DockerEtmService {
             envVariables.add("LISTEN_PORT=" + bindedPort);
             envVariables.add("FORWARD_PORT=" + port);
             envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            //String listenPortAsString = String.valueOf(bindedPort);
+            // String listenPortAsString = String.valueOf(bindedPort);
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName("socat_" +
-                    (containerSufix != null && !containerSufix.isEmpty()
+            dockerBuilder.containerName("socat_"
+                    + (containerSufix != null && !containerSufix.isEmpty()
                             ? containerSufix
                             : bindedPort));
             dockerBuilder.network(networkName);
-            dockerBuilder
-                    .exposedPorts(Arrays.asList(bindedPort));
+            dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(bindedPort, Arrays
-                    .asList(PortBinding.of("0.0.0.0", bindedPort)));
+            portBindings.put(bindedPort,
+                    Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
             dockerBuilder.portBindings(portBindings);
 
             dockerService.pullImage(etSocatImage);

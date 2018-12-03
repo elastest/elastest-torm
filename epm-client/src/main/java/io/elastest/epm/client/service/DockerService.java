@@ -260,6 +260,12 @@ public class DockerService {
             hostConfigBuilder.capAdd(capAdd.get());
         }
 
+        Optional<Map<String, String>> labels = dockerContainer.getLabels();
+        if (labels.isPresent()) {
+            logger.trace("Using labels: {}", labels.get());
+            containerConfigBuilder.labels(labels.get());
+        }
+
         Optional<List<String>> exposedPorts = dockerContainer.getExposedPorts();
         if (exposedPorts.isPresent()) {
             logger.trace("Using exposed Ports: {}", exposedPorts.get());

@@ -32,6 +32,7 @@ public class DockerContainer {
     private Optional<List<Bind>> volumeBindList;
     private final Optional<Long> shmSize;
     private Optional<List<String>> capAdd;
+    private Optional<Map<String, String>> labels;
 
     private String containerId;
     private String containerUrl;
@@ -64,6 +65,7 @@ public class DockerContainer {
         this.shmSize = builder.shmSize != null ? of(builder.shmSize) : empty();
 
         this.capAdd = builder.capAdd != null ? of(builder.capAdd) : empty();
+        this.labels = builder.labels != null ? of(builder.labels) : empty();
     }
 
     public static DockerBuilder dockerBuilder(String imageId) {
@@ -150,6 +152,10 @@ public class DockerContainer {
         return capAdd;
     }
 
+    public Optional<Map<String, String>> getLabels() {
+        return labels;
+    }
+
     public static class DockerBuilder {
         private String imageId;
         private String containerName;
@@ -165,7 +171,7 @@ public class DockerContainer {
         private List<Bind> volumeBindList;
         private Long shmSize;
         private List<String> capAdd;
-
+        private Map<String, String> labels;
 
         public DockerBuilder(String imageId) {
             this.imageId = imageId;
@@ -231,9 +237,14 @@ public class DockerContainer {
             this.shmSize = shmSize;
             return this;
         }
-        
+
         public DockerBuilder capAdd(List<String> capAdd) {
             this.capAdd = capAdd;
+            return this;
+        }
+
+        public DockerBuilder labels(Map<String, String> labels) {
+            this.labels = labels;
             return this;
         }
 
