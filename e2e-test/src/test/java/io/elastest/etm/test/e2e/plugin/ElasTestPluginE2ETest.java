@@ -39,9 +39,10 @@ import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ElasTest Jenkins Plugin test.
+ * Checks the Jenkins plugin works correctly.
+ * Requirements tested: EJ1, EJ2, EJ5, EJ11, EJ12
  *
- * @author franciscoRdiaz(https://github.com/franciscoRdiaz)
+ * @author franciscoRdiaz
  * @since 0.1.1
  */
 @Tag("e2e")

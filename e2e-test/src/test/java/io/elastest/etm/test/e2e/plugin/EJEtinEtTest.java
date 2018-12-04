@@ -21,6 +21,13 @@ import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
+/**
+ * Checks the Jenkins plugin works correctly.
+ * Requirements tested: EJ1, EJ2, EJ5, EJ11, EJ12
+ *
+ * @author franciscoRdiaz
+ * @since 0.1.1
+ */
 @Tag("Et-in-Et_e2e")
 @DisplayName("E2E test for the ElasTest Jenkins plugin")
 @TestInstance(Lifecycle.PER_CLASS)
