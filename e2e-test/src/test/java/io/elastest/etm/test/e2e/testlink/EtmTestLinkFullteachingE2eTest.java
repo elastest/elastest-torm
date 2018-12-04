@@ -49,8 +49,9 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM TestLink test.
- *
+ * Test that creates sample data in TestLink, syncs them with ElasTest and
+ * executes Test Plan. Requirements tested: ETM9, ETM12, ETM13
+ * 
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
  */
@@ -64,7 +65,8 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
 
     @BeforeAll
     public void init() {
-        // TODO create SuT managed by ElasTest instead of start FT from Jenkinsfile
+        // TODO create SuT managed by ElasTest instead of start FT from
+        // Jenkinsfile
         // Get FullTeaching URL
         String fullteachingIp = getProperty("fullteachingIp");
         String fullteachingPort = getProperty("fullteachingPort");
@@ -79,7 +81,7 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
             throws InterruptedException, IOException {
         this.driver = driver;
         this.startTestLinkIfNecessaryWithNavigate(driver);
-        
+
         log.info("Creating Fullteaching Data in TestLink...");
         SampleTLData fullteachingTLData = this
                 .createFullteachingTLDataTest(driver);

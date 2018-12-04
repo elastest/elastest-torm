@@ -42,7 +42,10 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM test.
+ * Test that creates a Project, a Sut and a TJob with EUS and
+ * executes it.
+ * Requirements tested: ETM1, ETM2, ETM3, ETM4, ETM5, ETM6, ETM7,
+ * ETM8, ETM9, ETM18
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
