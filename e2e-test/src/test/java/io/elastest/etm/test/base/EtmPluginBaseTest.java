@@ -204,7 +204,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Login on Jenkins.");
         driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
         driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
-        driver.findElement(By.xpath("//span/button")).click();
+        driver.findElement(By.name("Submit")).click();
     }
     
     protected void executeJob(WebDriver driver) throws InterruptedException {
