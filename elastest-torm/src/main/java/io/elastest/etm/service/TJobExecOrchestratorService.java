@@ -595,6 +595,7 @@ public class TJobExecOrchestratorService {
                     tJobExec.getServicesInstances().forEach((tSSInstId) -> {
                         SupportServiceInstance mainSubService = esmService
                                 .gettJobServicesInstances().get(tSSInstId);
+                        logger.debug("mainSubService: {}", mainSubService);
                         logger.debug("Wait for service {}",
                                 mainSubService.getEndpointName());
                         waitForServiceIsReady(mainSubService);
