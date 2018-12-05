@@ -86,7 +86,7 @@ public class EtDataLoader {
     }
 
     public Project createProject(Project project) {
-        return projectService.createProject(project);
+        return projectService.saveProject(project);
     }
 
     /* ************ */

@@ -25,6 +25,7 @@ import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.HelpInfo;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SutSpecification;
@@ -255,7 +256,7 @@ public class ExternalService {
                         && !externalJob.getProject().isEmpty()
                                 ? externalJob.getProject()
                                 : externalJob.getJobName());
-                project = projectService.createProject(project);
+                project = projectService.saveProject(project);
             }
 
             // If a SUT is required, it is retrieved to associate it with both the
@@ -277,14 +278,26 @@ public class ExternalService {
                         sutAux = sutService
                                 .getSutSpecById(externalJob.getSut().getId());
                         project.getSuts().add(sutAux);
-                        projectService.createProject(project);
                     } catch (Exception e) {
                         throw new Exception(
                                 "There isn't Sut with the provided id: "
                                         + externalJob.getSut().getId());
                     }
                 }
+                
+                // Set parameters received from Jenkins
+                if (externalJob.getSut().getParameters().size() > 0) {
+                    logger.debug("Setting parameters received from Jenkins");
+                    List<Parameter> parameters = new ArrayList<>();
+                    externalJob.getSut().getParameters().forEach((parameter, value) -> {
+                        logger.debug("External Sut parameter: {}:{}", parameter, value );
+                        parameters.add(new Parameter(parameter, value));
+                    });
+                    sutAux.setParameters(parameters);
+                }
             }
+            
+            projectService.saveProject(project);
 
             logger.debug("Creating TJob or retrieving a TJob.");
             TJob tJob = null;

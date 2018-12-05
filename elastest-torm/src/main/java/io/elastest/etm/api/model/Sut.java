@@ -1,6 +1,7 @@
 package io.elastest.etm.api.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,23 +10,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Francisco R Díaz
  * @since 0.0.1
  */
-public class Sut implements Serializable{
+public class Sut implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @JsonProperty("id")
     private Long id;
     @JsonProperty("ip")
     private String ip;
-    
+    @JsonProperty("parameters")
+    private Map<String, String> parameters;
+
     public Sut() {
     }
-    
+
     public Sut(Long id) {
         super();
         this.id = id;
     }
-    
+
+    public Sut(Long id, Map<String, String> parameters) {
+        super();
+        this.id = id;
+        this.parameters = parameters;
+    }
+
     public Sut(Long id, String ip) {
         super();
         this.id = id;
@@ -46,6 +55,14 @@ public class Sut implements Serializable{
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
     }
 
     @Override
@@ -83,5 +100,5 @@ public class Sut implements Serializable{
             return false;
         return true;
     }
-    
+
 }

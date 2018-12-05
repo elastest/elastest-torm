@@ -35,7 +35,7 @@ public class ProjectApiController implements ProjectApi {
     public ResponseEntity<Project> createProject(
             @ApiParam(value = "Object with the data of the project to be created.", required = true) @Valid @RequestBody Project body) {
 
-        return new ResponseEntity<Project>(projectService.createProject(body),
+        return new ResponseEntity<Project>(projectService.saveProject(body),
                 HttpStatus.OK);
     }
 
