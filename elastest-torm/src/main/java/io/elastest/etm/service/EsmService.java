@@ -793,13 +793,14 @@ public class EsmService {
     public String getTJobExecFolderPath(TJobExecution tJobExec) {
         return getTJobExecFolderPath(tJobExec, false);
     }
-    
-    public String getTJobExecFolderPath(TJobExecution tJobExec, boolean relativePath) {
+
+    public String getTJobExecFolderPath(TJobExecution tJobExec,
+            boolean relativePath) {
         String fileSeparator = "/";
-        String path = (relativePath ? "": etSharedFolder) + fileSeparator + tJobsFolder
-                + fileSeparator + tJobFolderPrefix + tJobExec.getTjob().getId()
-                + fileSeparator + tJobExecFolderPefix + tJobExec.getId()
-                + fileSeparator;
+        String path = (relativePath ? "" : etSharedFolder) + fileSeparator
+                + tJobsFolder + fileSeparator + tJobFolderPrefix
+                + tJobExec.getTjob().getId() + fileSeparator
+                + tJobExecFolderPefix + tJobExec.getId() + fileSeparator;
         logger.info("TJob Workspace: {}", path);
         return path;
     }
@@ -911,8 +912,8 @@ public class EsmService {
     public void registerExternalTJobExecutionInEus(String tssInstanceId,
             String serviceName, ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec, true)
-                    + serviceName.toLowerCase() + "/";
+            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec,
+                    true) + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
             String response = "";
@@ -1061,15 +1062,18 @@ public class EsmService {
 
     private SupportServiceInstance buildTssInstanceUrls(
             SupportServiceInstance serviceInstance) throws Exception {
-        logger.info("Building TSSs URLs for {}", serviceInstance.getEndpointName());
+        logger.info("Building TSSs URLs for {}",
+                serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         createSubserviceUrls(serviceInstance, manifest);
-        for (SupportServiceInstance subService: serviceInstance.getSubServices()) {
-            logger.debug("Sub-services names: {}", subService.getEndpointName());
+        for (SupportServiceInstance subService : serviceInstance
+                .getSubServices()) {
+            logger.debug("Sub-services names: {}",
+                    subService.getEndpointName());
             if (subService.getContainerIp() == null) {
-                throw new Exception(
-                        "Field ip not found for " + subService.getEndpointName() + " instance.");
+                throw new Exception("Field ip not found for "
+                        + subService.getEndpointName() + " instance.");
             } else {
                 createSubserviceUrls(subService, manifest);
             }
@@ -1077,39 +1081,40 @@ public class EsmService {
 
         return serviceInstance;
     }
-    
-    private void createSubserviceUrls(SupportServiceInstance serviceInstance, TssManifest manifest) throws Exception {
+
+    private void createSubserviceUrls(SupportServiceInstance serviceInstance,
+            TssManifest manifest) throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();
-        logger.debug("Endpoints for the service: {}", manifestEndpoints.toString());
+        logger.debug("Endpoints for the service: {}",
+                manifestEndpoints.toString());
         logger.debug("Endpoints name: {}", serviceInstance.getEndpointName());
         JsonNode manifestEndpointService = manifestEndpoints
                 .get(serviceInstance.getEndpointName());
-        logger.debug("Endpoints defined insite the manifest: {}", manifestEndpointService.toString());
+        logger.debug("Endpoints defined insite the manifest: {}",
+                manifestEndpointService.toString());
         JsonNode manifestEndpointServiceApi = manifestEndpointService
                 .get("api");
         JsonNode manifestEndpointServiceGui = manifestEndpointService
                 .get("gui");
-        
+
         String networkName = etDockerNetwork;
         logger.debug("Network name: " + networkName);
-        
+
         try {
-            String tssContainerName = serviceInstance
-                    .getContainerName();
+            String tssContainerName = serviceInstance.getContainerName();
 
             if (manifestEndpointServiceApi != null) {
                 if (!manifestEndpointServiceApi.isArray()) {
                     getEndpointsInfo(serviceInstance,
-                            manifestEndpointServiceApi,
-                            tssContainerName, networkName, "api");
+                            manifestEndpointServiceApi, tssContainerName,
+                            networkName, "api");
                 } else {
                     for (final JsonNode apiNode : manifestEndpointServiceApi) {
                         getEndpointsInfo(serviceInstance, apiNode,
                                 tssContainerName, networkName,
                                 apiNode.get("name") != null
                                         ? apiNode.get("name").toString()
-                                                .replaceAll("\"", "")
-                                                + "api"
+                                                .replaceAll("\"", "") + "api"
                                         : "api");
                     }
                 }
@@ -1118,23 +1123,21 @@ public class EsmService {
             if (manifestEndpointServiceGui != null) {
                 if (!manifestEndpointServiceGui.isArray()) {
                     getEndpointsInfo(serviceInstance,
-                            manifestEndpointServiceGui,
-                            tssContainerName, networkName, "gui");
+                            manifestEndpointServiceGui, tssContainerName,
+                            networkName, "gui");
                 } else {
                     for (final JsonNode guiNode : manifestEndpointServiceGui) {
                         getEndpointsInfo(serviceInstance, guiNode,
                                 tssContainerName, networkName,
                                 guiNode.get("name") != null
                                         ? guiNode.get("name").toString()
-                                                .replaceAll("\"", "")
-                                                + "gui"
+                                                .replaceAll("\"", "") + "gui"
                                         : "gui");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error building endpoints info: {}",
-                    e.getMessage());
+            logger.error("Error building endpoints info: {}", e.getMessage());
             throw new Exception(
                     "Error building endpoints info: " + e.getMessage());
         }
@@ -1448,11 +1451,6 @@ public class EsmService {
         return tJobServicesInstances;
     }
 
-    public void settJobServicesInstances(
-            Map<String, SupportServiceInstance> tJobsServicesInstances) {
-        this.tJobServicesInstances = tJobsServicesInstances;
-    }
-
     public List<SupportServiceInstance> getTSSInstByTJobExecId(
             Long tJobExecId) {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
@@ -1606,7 +1604,8 @@ public class EsmService {
         if (etSharedFolder.endsWith("/") && relativePath.startsWith("/")) {
             absolutePath = etSharedFolder + relativePath.replaceFirst("/", "");
         } else {
-            if (!etSharedFolder.endsWith("/") && !relativePath.startsWith("/")) {
+            if (!etSharedFolder.endsWith("/")
+                    && !relativePath.startsWith("/")) {
                 absolutePath = etSharedFolder + "/" + relativePath;
             }
         }
@@ -1676,7 +1675,7 @@ public class EsmService {
                 etSharedFolder);
         supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
                 etDataInHost);
-        
+
     }
 
     private void fillEnvVariablesToTSS(
