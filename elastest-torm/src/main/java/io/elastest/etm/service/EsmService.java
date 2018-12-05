@@ -43,6 +43,7 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.SSIStatusEnum;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -720,14 +721,63 @@ public class EsmService {
         }
     }
 
+    public void waitForTJobExecServicesAreReady(TJobExecution tJobExec) {
+        Map<String, SupportServiceInstance> tSSInstAssocToTJob = getTJobExecServicesInstancesMap(
+                tJobExec);
+
+        String resultMsg = "Waiting for the Test Support Services to be ready";
+        logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
+        dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                ResultEnum.WAITING_TSS, resultMsg);
+        while (!tSSInstAssocToTJob.isEmpty()) {
+            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                SupportServiceInstance mainSubService = getTJobServiceInstancesById(
+                        tSSInstId);
+                logger.debug("Wait for TSS {} in TJob Execution {}",
+                        mainSubService.getEndpointName(), tJobExec.getId());
+                waitForServiceIsReady(mainSubService);
+                tSSInstAssocToTJob.remove(tSSInstId);
+            });
+        }
+        logger.info("TSSs availables!");
+    }
+
+    public void waitForServiceIsReady(SupportServiceInstance service) {
+        while (!checkInstanceUrlIsUp(service)) {
+            logger.debug("Wait for service {}", service.getEndpointName());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ie) {
+                logger.error("Interrupted Exception {}: " + ie.getMessage());
+            }
+        }
+        service.getSubServices().forEach((subService) -> {
+            waitForServiceIsReady(subService);
+        });
+    }
+
     public void waitForTssStartedInMini(TJobExecution tJobExec,
             String instanceId, String serviceName) {
+        String resultMsg = "Waiting for the Test Support Services to be ready";
+        dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                ResultEnum.WAITING_TSS, resultMsg);
+
+        logger.debug("Wait for TSS {} in TJob Execution {}", serviceName,
+                tJobExec.getId());
 
         if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             logger.debug(
                     "Service {} is loaded on init. It's not necessary to wait for the service",
                     serviceName);
+
+            if (servicesInstances.containsKey(instanceId)) {
+                // Put is carried out in the method provision, but we put it
+                // here also in case async is executed
+                tJobServicesInstances.put(instanceId,
+                        servicesInstances.get(instanceId));
+            }
+
             // TSS Loaded on init
             return;
         }
@@ -1447,11 +1497,27 @@ public class EsmService {
         this.servicesInstances = servicesInstances;
     }
 
-    public Map<String, SupportServiceInstance> gettJobServicesInstances() {
+    public Map<String, SupportServiceInstance> getTJobServicesInstances() {
         return tJobServicesInstances;
     }
 
-    public List<SupportServiceInstance> getTSSInstByTJobExecId(
+    public SupportServiceInstance getTJobServiceInstancesById(
+            String tSSInstId) {
+        return tJobServicesInstances.get(tSSInstId);
+    }
+
+    public Map<String, SupportServiceInstance> getTJobExecServicesInstancesMap(
+            TJobExecution tJobExec) {
+        Map<String, SupportServiceInstance> tSSInstAssocToTJobExec = new HashMap<>();
+        tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+            tSSInstAssocToTJobExec.put(tSSInstId,
+                    getTJobServiceInstancesById(tSSInstId));
+        });
+
+        return tSSInstAssocToTJobExec;
+    }
+
+    public List<SupportServiceInstance> getTJobExecServicesInstancesList(
             Long tJobExecId) {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();

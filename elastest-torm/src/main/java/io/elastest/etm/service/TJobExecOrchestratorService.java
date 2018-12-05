@@ -575,33 +575,14 @@ public class TJobExecOrchestratorService {
     private void initTSS(TJobExecution tJobExec, String tJobServices)
             throws Exception {
         try {
-            String resultMsg = "";
             if (tJobServices != null && tJobServices != "") {
                 provideServices(tJobServices, tJobExec);
 
-                Map<String, SupportServiceInstance> tSSInstAssocToTJob = new HashMap<>();
-                tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                    tSSInstAssocToTJob.put(tSSInstId, esmService
-                            .gettJobServicesInstances().get(tSSInstId));
-                });
-
-                // TODO if is mini, not wait for TSS (already waiting for them
-                // individually in provideService)
-                resultMsg = "Waiting for the Test Support Services to be ready";
-                logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                        ResultEnum.WAITING_TSS, resultMsg);
-                while (!tSSInstAssocToTJob.isEmpty()) {
-                    tJobExec.getServicesInstances().forEach((tSSInstId) -> {
-                        SupportServiceInstance mainSubService = esmService
-                                .gettJobServicesInstances().get(tSSInstId);
-                        logger.debug("Wait for service {}",
-                                mainSubService.getEndpointName());
-                        waitForServiceIsReady(mainSubService);
-                        tSSInstAssocToTJob.remove(tSSInstId);
-                    });
+                // Wait only if not is mini. (In mini is already waiting for
+                // them individually in provideService)
+                if (!utilsService.isElastestMini()) {
+                    esmService.waitForTJobExecServicesAreReady(tJobExec);
                 }
-                logger.info("TSSs availabes");
             } else {
                 logger.info("There aren't TSSs to be provided");
             }
@@ -610,20 +591,6 @@ public class TJobExecOrchestratorService {
         } catch (Exception e) {
             throw new Exception("Exception on init Test Support Services", e);
         }
-    }
-
-    private void waitForServiceIsReady(SupportServiceInstance service) {
-        while (!esmService.checkInstanceUrlIsUp(service)) {
-            logger.debug("Wait for service {}", service.getEndpointName());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-                logger.error("Interrupted Exception {}: " + ie.getMessage());
-            }
-        }
-        service.getSubServices().forEach((subService) -> {
-            waitForServiceIsReady(subService);
-        });
     }
 
     private void provideServices(String tJobServices, TJobExecution tJobExec)
@@ -635,6 +602,7 @@ public class TJobExecOrchestratorService {
                     tJobServices, TJobSupportService[].class,
                     Include.NON_EMPTY);
             List<TJobSupportService> services = Arrays.asList(tssArray);
+            
             // Start EMS first if is selected
             List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
                     services, tJobExec);
@@ -651,9 +619,6 @@ public class TJobExecOrchestratorService {
         } catch (IOException e) {
             throw new Exception("Error on provide TSS", e);
         }
-        // catch (RuntimeException re) {
-        // logger.error("Error provisioning TSS", re);
-        // }
     }
 
     private String provideService(TJobSupportService service,
@@ -705,8 +670,8 @@ public class TJobExecOrchestratorService {
      */
     private Map<String, String> getTJobExecTssEnvVars(boolean externalTJob,
             boolean withPublicPrefix, String tSSInstanceId) {
-        SupportServiceInstance ssi = esmService.gettJobServicesInstances()
-                .get(tSSInstanceId);
+        SupportServiceInstance ssi = esmService
+                .getTJobServiceInstancesById(tSSInstanceId);
         Map<String, String> tssInstanceEnvVars = esmService
                 .getTSSInstanceEnvVars(ssi, externalTJob, withPublicPrefix);
 
