@@ -42,10 +42,9 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * Test that creates a Project, a Sut and a TJob with EUS and
- * executes it.
- * Requirements tested: ETM1, ETM2, ETM3, ETM4, ETM5, ETM6, ETM7,
- * ETM8, ETM9, ETM18
+ * Test that creates a Project, a Sut and a TJob with EUS and executes it.
+ * Requirements tested: ETM1, ETM2, ETM3, ETM4, ETM5, ETM6, ETM7, ETM8, ETM9,
+ * ETM18
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
@@ -103,6 +102,12 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         runTJobFromProjectPage(driver, tJobName);
 
         this.checkFinishTJobExec(driver, timeout, "FAIL", true);
+
+        // Navigate To First Test Case execution page
+        navigateToExecTestCase(driver, 0, 0, true);
+
+        // Check the presence of testCaseInfo
+        getElementById(driver, "testCaseInfo", 20);
     }
 
     @Test

@@ -1858,7 +1858,7 @@ public class EsmService {
 
     public Map<String, String> getTSSInstanceEnvVars(SupportServiceInstance ssi,
             boolean publicEnvVars, boolean withPublicPrefix) {
-        logger.debug("Creatin env vars from TSSs");
+        logger.debug("Creating env vars from TSSs");
         Map<String, String> envVars = new HashMap<String, String>();
         String servicePrefix = ssi.getServiceName().toUpperCase()
                 .replaceAll("-", "_");
@@ -1890,7 +1890,7 @@ public class EsmService {
     private Map<String, String> setTssEnvVarByEndpoint(
             SupportServiceInstance ssi, String prefix,
             Map.Entry<String, JsonNode> entry, boolean publicEnvVars) {
-        logger.debug("Creatin env vars from a TSS endpoint");
+        logger.debug("Creating env vars from a TSS endpoint");
         Map<String, String> envVars = new HashMap<>();
         if (!entry.getKey().toLowerCase().contains("gui")) {
             try {

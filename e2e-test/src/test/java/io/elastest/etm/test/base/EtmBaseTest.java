@@ -127,7 +127,7 @@ public class EtmBaseTest {
                 secureElastest);
 
         eusURL = System.getenv("ET_EUS_API");
-        
+
         if (eusURL == null) {
             // Outside ElasTest
             ChromeDriverManager.getInstance().setup();
@@ -140,7 +140,7 @@ public class EtmBaseTest {
         String testName = testInfo.getTestMethod().get().getName();
         log.info("##### Finish test: {}", testName);
         if (driver != null) {
-            if(eusURL != null) {
+            if (eusURL != null) {
                 log.info("Clearing Messages...");
                 driver.quit();
             } else {
@@ -730,6 +730,41 @@ public class EtmBaseTest {
         // http://172.17.0.2:8080/job/FJob1/doDelete
     }
 
+//    Test Cases
+    protected WebElement expandExecTestSuite(WebDriver driver, int position) {
+        // Real position starts from 1 instead of 0
+        int realPosition = position++;
+        String suiteExpansionXpath = "*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
+                + realPosition + "]";
+        log.debug("Expanding Test Suite in position {}", realPosition);
+
+        WebElement suiteExpansionElement = getElementByXpath(driver,
+                suiteExpansionXpath).get(0);
+        suiteExpansionElement.click();
+        return suiteExpansionElement;
+    }
+
+    protected void navigateToExecTestCase(WebDriver driver, int suitePosition,
+            int casePosition, boolean withSuiteExpand) {
+        if (withSuiteExpand) {
+            expandExecTestSuite(driver, suitePosition);
+        }
+
+        // Real position starts from 1 instead of 0
+        int realSuitePosition = suitePosition++;
+        int realCasePosition = casePosition++;
+
+        String xpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
+                + realSuitePosition + "]//td-data-table//tr[" + realCasePosition
+                + "]/td[3]/div";
+
+        log.debug(
+                "Navigating to Test Case in position {} of Test Suite in position {}",
+                realCasePosition, realSuitePosition);
+
+        getElementByXpath(driver, xpath).get(0).click();
+    }
+
     public By byDom(String domExpression) {
         final Object o = ((JavascriptExecutor) driver)
                 .executeScript("return " + domExpression + ";");
@@ -753,8 +788,8 @@ public class EtmBaseTest {
         }
     }
 
-    public void setupTestBrowser(String testName, BrowserType browser, WebDriver driver)
-            throws MalformedURLException {
+    public void setupTestBrowser(String testName, BrowserType browser,
+            WebDriver driver) throws MalformedURLException {
         ChromeOptions cOptions;
         FirefoxOptions fOptions;
         log.info("EUS hub URL: {}", eusURL);
@@ -776,7 +811,7 @@ public class EtmBaseTest {
             this.driver = driver;
         }
     }
-    
+
     public void setupTestBrowser(String testName, BrowserType browser)
             throws MalformedURLException {
         DesiredCapabilities caps;
