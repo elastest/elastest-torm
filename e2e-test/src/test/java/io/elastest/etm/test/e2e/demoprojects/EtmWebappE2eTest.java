@@ -17,8 +17,6 @@
 package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -34,7 +32,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -53,8 +50,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of Webapp project")
 @ExtendWith(SeleniumExtension.class)
 public class EtmWebappE2eTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "E2E_test_Webapp";
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";
@@ -104,7 +99,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         this.checkFinishTJobExec(driver, timeout, "FAIL", true);
 
         // Navigate To First Test Case execution page
-        navigateToExecTestCase(driver, 0, 0, true);
+        navigateToExecTestCase(driver, 1, 1, true);
 
         // Check the presence of testCaseInfo
         getElementById(driver, "testCaseInfo", 20);

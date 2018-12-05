@@ -17,8 +17,6 @@
 package io.elastest.etm.test.e2e.monitoring;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -35,7 +33,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -46,8 +43,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of Webapp project")
 @ExtendWith(SeleniumExtension.class)
 public class StableMonitorTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "Monitoring";
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";

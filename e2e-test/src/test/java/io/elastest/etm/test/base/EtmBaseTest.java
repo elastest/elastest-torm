@@ -64,7 +64,7 @@ import io.github.bonigarcia.wdm.ChromeDriverManager;
 import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
 public class EtmBaseTest {
-    final Logger log = getLogger(lookup().lookupClass());
+    protected final Logger log = getLogger(lookup().lookupClass());
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
@@ -733,10 +733,9 @@ public class EtmBaseTest {
 //    Test Cases
     protected WebElement expandExecTestSuite(WebDriver driver, int position) {
         // Real position starts from 1 instead of 0
-        int realPosition = position++;
         String suiteExpansionXpath = "*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
-                + realPosition + "]";
-        log.debug("Expanding Test Suite in position {}", realPosition);
+                + position + "]";
+        log.debug("Expanding Test Suite in position {}", position);
 
         WebElement suiteExpansionElement = getElementByXpath(driver,
                 suiteExpansionXpath).get(0);
@@ -751,16 +750,13 @@ public class EtmBaseTest {
         }
 
         // Real position starts from 1 instead of 0
-        int realSuitePosition = suitePosition++;
-        int realCasePosition = casePosition++;
-
         String xpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
-                + realSuitePosition + "]//td-data-table//tr[" + realCasePosition
+                + suitePosition + "]//td-data-table//tr[" + casePosition
                 + "]/td[3]/div";
 
         log.debug(
                 "Navigating to Test Case in position {} of Test Suite in position {}",
-                realCasePosition, realSuitePosition);
+                casePosition, suitePosition);
 
         getElementByXpath(driver, xpath).get(0).click();
     }

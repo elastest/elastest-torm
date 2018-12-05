@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package io.elastest.etm.test.e2e.demoprojects;
+package io.elastest.etm.test.e2e.general;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 
@@ -42,40 +42,22 @@ import io.github.bonigarcia.SeleniumExtension;
 @Tag("e2e")
 @DisplayName("ETM E2E test of Unit Test project")
 @ExtendWith(SeleniumExtension.class)
-public class EtmUnitTestE2eTest extends EtmBaseTest {
-    String projectName = "Unit Tests";
+public class EtmHelpPage extends EtmBaseTest {
 
-    void createProject(WebDriver driver) throws InterruptedException {
-        navigateToTorm(driver);
-        if (!etProjectExists(driver, projectName)) {
-            createNewETProject(driver, projectName);
-        }
+    void navigateToHelpPage(WebDriver driver) {
+        getElementById(driver, "help").get(0).click();
     }
 
     @Test
-    @DisplayName("Create Unit Test project Test")
-    void testCreateUnitTest(
+    @DisplayName("Navigate to Help page and check ElasTest version")
+    void testCheckElasTestVersion(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(testInfo.getTestMethod().get().getName(),
                 BrowserType.CHROME, localDriver);
 
-       // Setting up the TJob used in the test
-        this.createProject(driver);
-        navigateToETProject(driver, projectName);
-        String tJobName = "JUnit5 Unit Test";
-        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/unit/junit5-unit-test/target/surefire-reports";
-            String sutName = null;
-            String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/unit/junit5-unit-test; mvn -B test;";
-            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, null, null);
-        }
-        // Run the TJob and check its result
-        runTJobFromProjectPage(driver, tJobName);
-        this.checkFinishTJobExec(driver, 240, "SUCCESS", false);
+        navigateToHelpPage(driver);
     }
 
 }

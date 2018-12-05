@@ -17,8 +17,6 @@
 package io.elastest.etm.test.e2e.loganalyzer;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -30,7 +28,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -49,8 +46,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("LogAnalyzer E2E tests")
 @ExtendWith(SeleniumExtension.class)
 public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
     String projectName = "Unit Tests";
     String tJobName = "JUnit5 Unit Test";
 

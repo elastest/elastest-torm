@@ -17,8 +17,6 @@
 package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +28,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -47,8 +44,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of OpenVidu WebRTC project")
 @ExtendWith(SeleniumExtension.class)
 public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
     final String projectName = "OpenVidu WebRTC";
     final String sutName = "OpenVidu Test App";
     final int timeout = 350;
