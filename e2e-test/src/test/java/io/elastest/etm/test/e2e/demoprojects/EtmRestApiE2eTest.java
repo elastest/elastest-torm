@@ -66,10 +66,9 @@ public class EtmRestApiE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
-        // Setting up the TJob used in the test 
+        // Setting up the TJob used in the test
         this.createProjectAndSut(driver);
         navigateToETProject(driver, projectName);
         String tJobName = "JUnit5 Rest Test";

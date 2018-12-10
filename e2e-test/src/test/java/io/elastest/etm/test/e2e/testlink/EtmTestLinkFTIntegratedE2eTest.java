@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,12 +105,10 @@ public class EtmTestLinkFTIntegratedE2eTest extends EtmTestLinkBaseTest {
     @Test
     @DisplayName("Create TestLink Fullteaching Data and Test In ElasTest")
     void tlFullteachingDataTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
-            throws InterruptedException, IOException {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
-        
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo) throws InterruptedException, IOException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
         log.info("Creating Fullteaching Data in TestLink...");

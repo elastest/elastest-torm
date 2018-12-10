@@ -36,7 +36,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -98,34 +97,34 @@ public class EtInEtDemoTest extends EtmTestLinkBaseTest {
 
     String sut1MainService = "full-teaching";
     String sut1Port = "5000";
-    
+
     @BeforeEach
     public void setupTest(TestInfo testInfo) throws MalformedURLException {
         log.info("Executing ");
-        ChromeOptions options = new ChromeOptions();
-        //options.addArguments("start-maximized");
-        //other Selenium options you need 
+        DesiredCapabilities.chrome();
+        // options.addArguments("start-maximized");
+        // other Selenium options you need
 
         String eusURL = System.getenv("ET_EUS_API");
         if (eusURL == null) {
-            //ElasTest EUS is not present
+            // ElasTest EUS is not present
             ChromeDriverManager.getInstance().setup();
-            driver = new ChromeDriver(options);
+            driver = new ChromeDriver();
         } else {
-            //ElasTest EUS is present
+            // ElasTest EUS is present
             DesiredCapabilities caps = new DesiredCapabilities();
             caps.setBrowserName("chrome");
-            caps.setCapability("testName", testInfo.getTestMethod().get().getName());
-            caps.setCapability(ChromeOptions.CAPABILITY, options);
+            caps.setCapability("testName",
+                    testInfo.getTestMethod().get().getName());
             driver = new RemoteWebDriver(new URL(eusURL), caps);
         }
     }
-    
+
     @Test
     @DisplayName("EtInEtDemoTest-Creates Test Data on TestLink and run manual test from ElasTest")
     void tlFullteachingDataTest(TestInfo info)
             throws InterruptedException, IOException {
-        
+
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
         log.info("Creating Fullteaching Data in TestLink...");

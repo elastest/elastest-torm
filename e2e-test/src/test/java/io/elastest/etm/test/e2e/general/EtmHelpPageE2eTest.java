@@ -17,6 +17,7 @@
 package io.elastest.etm.test.e2e.general;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
@@ -34,15 +35,15 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM test.
+ * Test that interacts with Help page. Requirements tested: ETM15, ETM16
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
  */
 @Tag("e2e")
-@DisplayName("ETM E2E test of Unit Test project")
+@DisplayName("ETM E2E test of GUI Help Page")
 @ExtendWith(SeleniumExtension.class)
-public class EtmHelpPage extends EtmBaseTest {
+public class EtmHelpPageE2eTest extends EtmBaseTest {
 
     void navigateToHelpPage(WebDriver driver) {
         log.debug("Navigating to Help page");
@@ -51,32 +52,33 @@ public class EtmHelpPage extends EtmBaseTest {
 
     @Test
     @DisplayName("Navigate to Help page and check ElasTest version")
-    void testCheckElasTestVersion(
+    void checkElasTestVersion(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
-
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+        
+        navigateToTorm(driver);
         navigateToHelpPage(driver);
         log.debug("Checking ElasTest version");
         String version = getElementById(driver, "etVersion").get(0).getText();
         log.debug("ElasTest version: {}", version);
     }
-    
-    
+
     @Test
     @DisplayName("Navigate to Help page and check ElasTest main services")
-    void testCheckElasTestMainServices(
+    void checkElasTestMainServices(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
-
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+        
+        navigateToTorm(driver);
         navigateToHelpPage(driver);
         log.debug("Checking ElasTest Main Services");
-//        getElementById(driver, "etVersion").get(0).getText(); TODO
+        int servicesTableSize = getElementByXpath(driver,
+                "//*[@id=\"coreServicesInfo\"]//tr").size();
+        assertTrue(servicesTableSize > 0);
     }
 
 }

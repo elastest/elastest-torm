@@ -36,8 +36,8 @@ import io.github.bonigarcia.SeleniumExtension;
 
 /**
  * Test that executes an existent TJob and checks the logs in LogAnalyzer when
- * the execution has finished.
- * Requirements tested: ETM6, ETM7, ETM8, ETM10, ETM18
+ * the execution has finished. Requirements tested: ETM6, ETM7, ETM8, ETM10,
+ * ETM18
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
@@ -55,8 +55,7 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         // Prepare test
         navigateToTorm(driver);

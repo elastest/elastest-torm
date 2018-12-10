@@ -23,8 +23,8 @@ import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * Checks the Jenkins plugin works correctly.
- * Requirements tested: EJ1, EJ2, EJ5, EJ11, EJ12
+ * Checks the Jenkins plugin works correctly. Requirements tested: EJ1, EJ2,
+ * EJ5, EJ11, EJ12
  *
  * @author franciscoRdiaz
  * @since 0.1.1
@@ -49,10 +49,9 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo) throws Exception {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME,
-                localDriver);
+    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo)
+            throws Exception {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
         installElasTestPlugin(driver);

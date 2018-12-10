@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +40,8 @@ import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * Checks the Jenkins plugin works correctly.
- * Requirements tested: EJ1, EJ2, EJ5, EJ11, EJ12
+ * Checks the Jenkins plugin works correctly. Requirements tested: EJ1, EJ2,
+ * EJ5, EJ11, EJ12
  *
  * @author franciscoRdiaz
  * @since 0.1.1
@@ -82,10 +83,9 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver localDriver) throws Exception {
-        setupTestBrowser(new Object() {
-        }.getClass().getEnclosingMethod().getName(), BrowserType.CHROME,
-                localDriver);
+    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo)
+            throws Exception {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
         installElasTestPlugin(driver);

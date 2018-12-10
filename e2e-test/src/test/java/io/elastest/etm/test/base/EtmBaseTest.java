@@ -48,8 +48,6 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -154,14 +152,14 @@ public class EtmBaseTest {
     }
 
     protected void navigateTo(WebDriver driver, String url) {
-        log.info("Navigate to: {}", url);
+        log.info("Navigating to: {}", url);
         driver.manage().window().setSize(new Dimension(1024, 1024));
         driver.manage().timeouts().implicitlyWait(5, SECONDS);
         driver.get(url);
     }
 
     protected void navigateToTorm(WebDriver driver) {
-        log.info("Navigate to TORM");
+        log.info("Navigating to TORM");
         driver.manage().window().setSize(new Dimension(1024, 1024));
         driver.manage().timeouts().implicitlyWait(5, SECONDS);
         if (secureElastest) {
@@ -172,14 +170,14 @@ public class EtmBaseTest {
     }
 
     protected void navigateToRoot(WebDriver driver) {
-        log.info("Navigate to Root Path (/)");
+        log.info("Navigating to Root Path (/)");
         driver.findElement(By.xpath(
                 "//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
                 .click();
     }
 
     protected void navigateToProjects(WebDriver driver) {
-        log.info("Navigate to Projects Path (/project)");
+        log.info("Navigating to Projects Path (/project)");
         this.getElementByXpath(driver, "//*[@id=\"nav_projects\"]").get(0)
                 .click();
     }
@@ -298,7 +296,7 @@ public class EtmBaseTest {
 
     protected void navigateToETProject(WebDriver driver, String projectName) {
         this.navigateToProjects(driver);
-        log.info("Navigate to {} project", projectName);
+        log.info("Navigating to {} project", projectName);
 
         String xpath = getProjectXpathFromProjectPage(projectName);
         this.navigateToElementByXpath(driver, xpath);
@@ -784,21 +782,19 @@ public class EtmBaseTest {
         }
     }
 
-    public void setupTestBrowser(String testName, BrowserType browser,
+    public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
             WebDriver driver) throws MalformedURLException {
-        ChromeOptions cOptions;
-        FirefoxOptions fOptions;
+        String testName = testInfo.getTestMethod().get().getName();
+
         log.info("EUS hub URL: {}", eusURL);
         if (eusURL != null) {
             DesiredCapabilities caps = new DesiredCapabilities();
             if (browser.equals(BrowserType.CHROME)) {
-                cOptions = new ChromeOptions();
+                DesiredCapabilities.chrome();
                 caps.setBrowserName("chrome");
-                caps.setCapability(ChromeOptions.CAPABILITY, cOptions);
             } else {
-                fOptions = new FirefoxOptions();
+                DesiredCapabilities.firefox();
                 caps.setBrowserName("firefox");
-                caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, fOptions);
             }
             caps.setCapability("testName", testName);
             this.driver = new RemoteWebDriver(new URL(eusURL), caps);
@@ -808,8 +804,10 @@ public class EtmBaseTest {
         }
     }
 
-    public void setupTestBrowser(String testName, BrowserType browser)
+    public void setupTestBrowser(TestInfo testInfo, BrowserType browser)
             throws MalformedURLException {
+        String testName = testInfo.getTestMethod().get().getName();
+
         DesiredCapabilities caps;
         caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
                 : DesiredCapabilities.firefox();

@@ -70,8 +70,7 @@ public class StableMonitorTest extends EtmBaseTest {
     @DisplayName("Create WebApp project Chrome Test")
     void testCreateChromeTest(TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, null);
+        setupTestBrowser(testInfo, BrowserType.CHROME, null);
 
         this.createProjectAndSut(driver);
 
@@ -97,8 +96,7 @@ public class StableMonitorTest extends EtmBaseTest {
             @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -124,8 +122,7 @@ public class StableMonitorTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo.getTestMethod().get().getName(),
-                BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
