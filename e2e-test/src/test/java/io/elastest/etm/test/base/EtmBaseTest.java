@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -544,7 +545,7 @@ public class EtmBaseTest {
     protected void createNewTJob(WebDriver driver, String tJobName,
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
-            Map<String, String> parameters, List<String> tssList,
+            Map<String, String> parameters, Map<String, List<String>> tssMap,
             Map<String, List<String>> multiConfigurations) {
         log.info("Wait for the \"New TJob\" button ");
         getElementById(driver, "newTJobBtn").get(0).click();
@@ -639,9 +640,26 @@ public class EtmBaseTest {
         }
 
         // TSS
-        if (tssList != null) {
-            for (String tss : tssList) {
-                this.getElementById(driver, "input-service" + tss).get(0).click();
+        if (tssMap != null) {
+            // Tss Map has a TSS name in the key and subconfigs into value list
+            // (only EUS at moment has a subconfig: webRtcStats)
+
+            for (Entry<String, List<String>> tss : tssMap.entrySet()) {
+                this.getElementById(driver, "input-service" + tss.getKey())
+                        .get(0).click();
+
+                if (tss.getValue() != null && tss.getValue().size() > 0) {
+                    // Expand TSS panel first
+                    this.getElementById(driver,
+                            "service" + tss.getKey() + "Expansion").get(0)
+                            .click();
+
+                    for (String subConfig : tss.getValue()) {
+                        this.getElementById(driver,
+                                "input-config" + subConfig + "Checkbox").get(0)
+                                .click();
+                    }
+                }
             }
         }
 

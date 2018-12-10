@@ -18,8 +18,10 @@ package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -47,6 +49,12 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final String projectName = "OpenVidu WebRTC";
     final String sutName = "OpenVidu Test App";
     final int timeout = 350;
+
+    private static final Map<String, List<String>> tssMap;
+    static {
+        tssMap = new HashMap<String, List<String>>();
+        tssMap.put("EUS", Arrays.asList("webRtcStats"));
+    }
 
     void createProjectAndSut(WebDriver driver) throws Exception {
         navigateToTorm(driver);
@@ -78,11 +86,9 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
             String tJobTestResultPath = "/demo-projects/openvidu-test/target/surefire-reports/";
             String tJobImage = "elastest/test-etm-alpinegitjava";
             String commands = "echo \"Cloning project\"; git clone https://github.com/elastest/demo-projects; cd demo-projects/openvidu-test; echo \"Compiling project\"; mvn -DskipTests=true -B package; echo \"Executing test\"; mvn -B test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList, null);
+                    tJobImage, false, commands, null, tssMap, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
