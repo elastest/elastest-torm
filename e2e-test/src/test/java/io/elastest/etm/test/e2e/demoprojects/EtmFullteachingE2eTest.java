@@ -20,10 +20,8 @@ import static io.github.bonigarcia.BrowserType.CHROME;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -52,12 +50,6 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
     final String projectName = "E2E_test_FullTeaching";
     String tJobImage = "elastest/test-etm-alpinegitjava";
     final int timeout = 600;
-
-    private static final Map<String, List<String>> tssMap;
-    static {
-        tssMap = new HashMap<String, List<String>>();
-        tssMap.put("EUS", Arrays.asList("webRtcStats"));
-    }
 
     /* *** SuT 1 *** */
     final String sut1Name = "FullTeaching";
@@ -210,9 +202,11 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         this.createProjectAndSut(driver, sutNum);
 
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            List<String> tssList = new ArrayList<>();
+            tssList.add("EUS");
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssList, null);
         } else {
             navigateToETProject(driver, projectName);
         }

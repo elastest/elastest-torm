@@ -54,11 +54,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";
     String tJobTestResultPath = "/demo-projects/webapp/junit5-web-multiple-browsers-test/target/surefire-reports/";
-    private static final Map<String, List<String>> tssMap;
-    static {
-        tssMap = new HashMap<String, List<String>>();
-        tssMap.put("EUS", null);
-    }
+    List<String> tssList = new ArrayList<>(Arrays.asList("EUS"));
 
     final int timeout = 600;
 
@@ -94,7 +90,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssList, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
@@ -125,7 +121,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=firefox test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssList, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
@@ -155,7 +151,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             multiConfigurations.put("BROWSER", multiConfig1List);
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap,
+                    tJobImage, false, commands, null, tssList,
                     multiConfigurations);
         }
         // Run TJob
