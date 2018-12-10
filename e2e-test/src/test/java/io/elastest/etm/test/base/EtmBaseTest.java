@@ -178,8 +178,17 @@ public class EtmBaseTest {
 
     protected void navigateToProjects(WebDriver driver) {
         log.info("Navigating to Projects Path (/project)");
-        this.getElementByXpath(driver, "//*[@id=\"nav_projects\"]").get(0)
-                .click();
+        this.getElementById(driver, "nav_projects").get(0).click();
+    }
+
+    protected void navigateToHelpPage(WebDriver driver) {
+        log.debug("Navigating to Help page");
+        getElementById(driver, "help").get(0).click();
+    }
+
+    protected void navigateToTestEnginesPage(WebDriver driver) {
+        log.debug("Navigating to Test Engines page");
+        getElementById(driver, "nav_test_engines").get(0).click();
     }
 
     protected void navigateToElementByIdXpath(WebDriver driver, String id,

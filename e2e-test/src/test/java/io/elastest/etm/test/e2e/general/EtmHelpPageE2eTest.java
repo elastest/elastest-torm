@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import io.elastest.etm.test.base.EtmBaseTest;
@@ -44,11 +43,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of GUI Help Page")
 @ExtendWith(SeleniumExtension.class)
 public class EtmHelpPageE2eTest extends EtmBaseTest {
-
-    void navigateToHelpPage(WebDriver driver) {
-        log.debug("Navigating to Help page");
-        getElementById(driver, "help").get(0).click();
-    }
 
     @Test
     @DisplayName("Navigate to Help page and check ElasTest version")
