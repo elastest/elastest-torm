@@ -49,6 +49,12 @@ public class ExternalElasticsearch {
 
     @JsonView({ BasicAttExternalElasticsearch.class, SutView.class,
             ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "path")
+    @JsonProperty("path")
+    private String path;
+
+    @JsonView({ BasicAttExternalElasticsearch.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
     @Column(name = "user")
     @JsonProperty("user")
     private String user;
@@ -78,11 +84,14 @@ public class ExternalElasticsearch {
     public ExternalElasticsearch() {
     }
 
-    public ExternalElasticsearch(Long id, String ip, String port, String user,
-            String pass, String indices, SutSpecification sutSpecification) {
-        this.id = id == null ? 0 : id;
+    public ExternalElasticsearch(Long id, String ip, String port, String path,
+            String user, String pass, String indices,
+            SutSpecification sutSpecification) {
+        super();
+        this.id = id;
         this.ip = ip;
         this.port = port;
+        this.path = path;
         this.user = user;
         this.pass = pass;
         this.indices = indices;
@@ -114,6 +123,14 @@ public class ExternalElasticsearch {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getUser() {

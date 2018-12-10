@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.http.HTTPException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.EimMonitoringConfig;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
@@ -225,7 +227,8 @@ public class SutService {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
         Date startDate = new Date();
 
-        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
+        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort()
+                + (extES.getPath() != null ? extES.getPath() : "");
 
         ElasticsearchService esService = new ElasticsearchService(esApiUrl,
                 extES.getUser(), extES.getPass(), utilsService);
@@ -235,8 +238,18 @@ public class SutService {
         Object[] searchAfter = null;
         boolean finish = false;
         while (!finish) {
+            Optional<Parameter> esIndicesByExec = sut.getParameters().stream()
+                    .filter(param -> param.getName()
+                            .equals("EXT_ELASTICSEARCH_INDICES"))
+                    .findAny();
+
             try {
-                traces = esService.searchTraces(extES.getIndices().split(","),
+                traces = esService
+                        .searchTraces(
+                                esIndicesByExec.isPresent()
+                                        ? esIndicesByExec.get().getValue()
+                                                .split(",")
+                                        : extES.getIndices().split(","),
                         startDate, searchAfter, 10000);
                 if (traces.size() > 0) {
                     Map<String, Object> lastTrace = traces

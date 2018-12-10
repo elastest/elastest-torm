@@ -19,6 +19,7 @@ export class SutModel {
   instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_ELASTICSEARCH' | '';
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   port: string;
+  path: string;
   managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
   parameters: ParameterModel[];
@@ -44,6 +45,7 @@ export class SutModel {
       this.instrumentedBy = '';
       this.protocol = 'http';
       this.port = undefined;
+      this.path = undefined;
       this.managedDockerType = '';
       this.mainService = '';
       this.parameters = [];
@@ -66,6 +68,7 @@ export class SutModel {
       this.instrumentedBy = sut.instrumentedBy;
       this.protocol = sut.protocol;
       this.port = sut.port;
+      this.path = sut.path;
       this.managedDockerType = sut.managedDockerType;
       this.mainService = sut.mainService;
       this.parameters = sut.parameters;

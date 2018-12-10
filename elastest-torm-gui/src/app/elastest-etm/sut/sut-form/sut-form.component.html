@@ -300,6 +300,14 @@
                 <input mdInput trim="blur" type="number" placeholder="ES Port" [(ngModel)]="this.sut.externalElasticsearch.port"
                   name="esPort" required>
               </md-input-container>
+              
+              <!-- ES PATH -->
+              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              flex-offset-gt-md="5">
+                <input mdInput trim="blur" type="text" placeholder="Elasticsearch PATH" [(ngModel)]="this.sut.externalElasticsearch.path"
+                  name="esPath">
+              </md-input-container>
+              
 
               <!-- ES User -->
               <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
