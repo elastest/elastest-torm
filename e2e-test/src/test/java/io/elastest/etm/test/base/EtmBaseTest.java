@@ -641,9 +641,7 @@ public class EtmBaseTest {
         // TSS
         if (tssList != null) {
             for (String tss : tssList) {
-                String tssCheckbox = "//md-checkbox[@title='Select " + tss
-                        + "']";
-                this.getElementByXpath(driver, tssCheckbox).get(0).click();
+                this.getElementById(driver, "input-service" + tss).get(0).click();
             }
         }
 

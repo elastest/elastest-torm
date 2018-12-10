@@ -95,7 +95,7 @@
                 <md-checkbox #service{{i}} [(ngModel)]="service.selected" title="Select {{service.name}}" id="service{{service.name}}"
                   name="service{{service.name}}"></md-checkbox>
               </div>
-              <td-expansion-panel expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
+              <td-expansion-panel id="service{{service.name}}Expansion" expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
                 <ng-template td-expansion-panel-label>
                   {{service.name}}
                 </ng-template>
