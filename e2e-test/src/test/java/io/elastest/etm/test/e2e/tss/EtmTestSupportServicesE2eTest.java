@@ -1,4 +1,4 @@
-package io.elastest.etm.test.e2e.engines;
+package io.elastest.etm.test.e2e.tss;
 /*
  * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
@@ -17,6 +17,7 @@ package io.elastest.etm.test.e2e.engines;
  */
 
 import static io.github.bonigarcia.BrowserType.CHROME;
+import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 
 import java.io.IOException;
 
@@ -25,7 +26,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -33,59 +36,62 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * Test that interacts with Test Engines page. Requirements tested: ETM14
+ * Test that interacts with Test Support Services page. Requirements tested:
+ * ETM14
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
  */
 @Tag("e2e")
-@DisplayName("ETM E2E test of GUI Test Engines page")
+@DisplayName("ETM E2E test of GUI Test Support Services page")
 @ExtendWith(SeleniumExtension.class)
-public class EtmTestEnginesE2eTest extends EtmBaseTest {
+public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
 
     @Test
-    @DisplayName("Navigate to Test Engines page and start/view/stop Ece")
-    void startAndStopTestEngine(
+    @DisplayName("Navigate to Test Support Services page and start/view/stop Ece")
+    void startAndStopTss(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         navigateToTorm(driver);
-        navigateToTestEnginesPage(driver);
+        navigateToTssPage(driver);
 
-        String firstEngineButtonsXpath = "//elastest-test-engines//tr[1]//button";
+        log.debug("Select a Test Support Service (EUS)");
+        selectItem(driver, "EUS", "Select a Service");
 
-        log.debug("Start first Test Engine (ECE)");
-        getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Start Engine']").get(0)
-                        .click();
+        log.debug("Start Test Support Service (EUS)");
+        getElementById(driver, "create_instance").get(0).click();
 
-        String statusXpath = "//elastest-test-engines//tr[1]/td[2]/span";
+        String instanceRowXpath = "//esm-instance-manager//td-data-table//tr[1]";
 
-        log.debug("Waiting for the Test Engine (ECE) to be ready");
+        String statusXpath = instanceRowXpath + "/td[3]/span";
+
+        log.debug("Waiting for the Test Support Service to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
                 120).get(0).getText();
 
-//        log.debug("Navigate to view of Test Engine (ECE)");
+        String firstTSSButtonsXpath = instanceRowXpath + "//button";
+
+//        log.debug("Navigate to view of Test Support Service");
         getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='View Engine']").get(0);
+                firstTSSButtonsXpath + "[@title='View Service Detail']").get(0);
 //                        .click();
 
-//        log.debug("Check if Test Engine (ECE) iframe exists");
+//        log.debug("Check if Test Support Service iframe exists");
 //        getElementByXpath(driver, "//iframe[@name='engine']").get(0);
 
-//        log.debug("Return to Test Engines page");
+//        log.debug("Return to Test Support Services page");
 //        navigateToTestEnginesPage(driver);
 
-        log.debug("Stop Test Engine (ECE)");
+        log.debug("Stop Test Support Service");
         getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Stop Engine']").get(0)
+                firstTSSButtonsXpath + "[@title='Deprovision Service']").get(0)
                         .click();
-        log.debug("Wait for Test Engine (ECE) to be stopped");
-        getElementByXpath(driver,
-                statusXpath + "[contains(string(),'Not initialized')]", 120)
-                        .get(0).getText();
+        log.debug("Wait for Test Support Service to be stopped");
+        WebDriverWait waitEnd = new WebDriverWait(driver, 120);
+        waitEnd.until(invisibilityOfElementLocated(By.xpath(instanceRowXpath)));
     }
 
 }

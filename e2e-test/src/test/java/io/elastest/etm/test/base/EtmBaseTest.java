@@ -191,6 +191,11 @@ public class EtmBaseTest {
         getElementById(driver, "nav_test_engines").get(0).click();
     }
 
+    protected void navigateToTssPage(WebDriver driver) {
+        log.debug("Navigating to Test Support Services page");
+        getElementById(driver, "nav_support_services").get(0).click();
+    }
+
     protected void navigateToElementByIdXpath(WebDriver driver, String id,
             String xpath) {
         this.getElementByIdXpath(driver, id, xpath).get(0).click();
