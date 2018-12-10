@@ -733,7 +733,7 @@ public class EtmBaseTest {
 //    Test Cases
     protected WebElement expandExecTestSuite(WebDriver driver, int position) {
         // Real position starts from 1 instead of 0
-        String suiteExpansionXpath = "*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
+        String suiteExpansionXpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
                 + position + "]";
         log.debug("Expanding Test Suite in position {}", position);
 

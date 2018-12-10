@@ -45,6 +45,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmHelpPage extends EtmBaseTest {
 
     void navigateToHelpPage(WebDriver driver) {
+        log.debug("Navigating to Help page");
         getElementById(driver, "help").get(0).click();
     }
 
@@ -58,6 +59,24 @@ public class EtmHelpPage extends EtmBaseTest {
                 BrowserType.CHROME, localDriver);
 
         navigateToHelpPage(driver);
+        log.debug("Checking ElasTest version");
+        String version = getElementById(driver, "etVersion").get(0).getText();
+        log.debug("ElasTest version: {}", version);
+    }
+    
+    
+    @Test
+    @DisplayName("Navigate to Help page and check ElasTest main services")
+    void testCheckElasTestMainServices(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, IOException, SecurityException {
+        setupTestBrowser(testInfo.getTestMethod().get().getName(),
+                BrowserType.CHROME, localDriver);
+
+        navigateToHelpPage(driver);
+        log.debug("Checking ElasTest Main Services");
+//        getElementById(driver, "etVersion").get(0).getText(); TODO
     }
 
 }
