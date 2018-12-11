@@ -69,13 +69,13 @@ public class EtmLogAnalyzerE2eTest extends EtmBaseTest {
         Thread.sleep(1000);
 
         log.info("View execution in LogAnalyzer");
-        getElementById(driver, "viewExecutionInLogAnalyzer").get(0).click();
+        getElementById(driver, "viewExecutionInLogAnalyzer").click();
 
         log.info("Wait for the Log Analyzer page to show");
         this.getElementsByTagName(driver, "elastest-log-analyzer", 40);
 
         log.info("Check for logs in LogAnalyzer");
-        List<WebElement> elements = getElementById(driver, "logsGrid", 15);
+        List<WebElement> elements = getElementsById(driver, "logsGrid", 15);
         if (elements.size() > 0) {
             log.info("There are logs in LogAnalyzer!");
         }

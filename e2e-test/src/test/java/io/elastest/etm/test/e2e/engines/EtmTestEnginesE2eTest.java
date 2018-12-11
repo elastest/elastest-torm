@@ -58,34 +58,32 @@ public class EtmTestEnginesE2eTest extends EtmBaseTest {
 
         log.debug("Start first Test Engine (ECE)");
         getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Start Engine']").get(0)
-                        .click();
+                firstEngineButtonsXpath + "[@title='Start Engine']").click();
 
         String statusXpath = "//elastest-test-engines//tr[1]/td[2]/span";
 
         log.debug("Waiting for the Test Engine (ECE) to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
-                120).get(0).getText();
+                120).getText();
 
 //        log.debug("Navigate to view of Test Engine (ECE)");
         getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='View Engine']").get(0);
+                firstEngineButtonsXpath + "[@title='View Engine']");
 //                        .click();
 
 //        log.debug("Check if Test Engine (ECE) iframe exists");
-//        getElementByXpath(driver, "//iframe[@name='engine']").get(0);
+//        getElementByXpath(driver, "//iframe[@name='engine']");
 
 //        log.debug("Return to Test Engines page");
 //        navigateToTestEnginesPage(driver);
 
         log.debug("Stop Test Engine (ECE)");
         getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Stop Engine']").get(0)
-                        .click();
+                firstEngineButtonsXpath + "[@title='Stop Engine']").click();
         log.debug("Wait for Test Engine (ECE) to be stopped");
         getElementByXpath(driver,
                 statusXpath + "[contains(string(),'Not initialized')]", 120)
-                        .get(0).getText();
+                        .getText();
     }
 
 }

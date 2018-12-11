@@ -41,8 +41,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTestlinkSection(WebDriver driver) {
         log.info("Navigate to TestLink Section");
-        this.getElementByXpath(driver, "//a[@id='nav_testlink']").get(0)
-                .click();
+        this.getElementByXpath(driver, "//a[@id='nav_testlink']").click();
         this.getElementById(driver, "testlinkPage", 5);
     }
 
@@ -50,14 +49,14 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTestlinkSection(driver);
         log.info("Open TestLink Page");
 
-        this.getElementById(driver, "openTestLink", 10).get(0).click();
+        this.getElementById(driver, "openTestLink", 10).click();
     }
 
     protected String getTestlinkPageUrl(WebDriver driver) {
         this.navigateToTestlinkSection(driver);
         log.info("Getting TestLink Page");
 
-        return this.getElementById(driver, "openTestLink", 10).get(0)
+        return this.getElementById(driver, "openTestLink", 10)
                 .getAttribute("href");
     }
 
@@ -67,12 +66,12 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String xpath = "//button[@id='" + id + "']";
 
         log.info("Synchronizing TestLink With ElasTest");
-        this.getElementByIdXpath(driver, id, xpath).get(0).click();
+        this.getElementByIdXpath(driver, id, xpath).click();
 
         // Wait to sync ends
         WebDriverWait waitService = new WebDriverWait(driver, 45);
         waitService.until(elementToBeClickable(
-                this.getElementByIdXpath(driver, id, xpath).get(0)));
+                this.getElementByIdXpath(driver, id, xpath)));
 
     }
 
@@ -120,7 +119,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String xpath = this.getTLEtmProjectXpath(projectName);
         return this.elementExistsByIdXpath(driver, this.projectsTableId, xpath);
     }
-    
+
     /* ***************** */
     /* *** Test Plan *** */
     /* ***************** */
@@ -155,7 +154,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     protected void startTLEtmPlanExecution(WebDriver driver) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
-        this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath).get(0)
+        this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath)
                 .click();
 
         // Not necessary. When there are only one build, Plan runs automatically
@@ -192,7 +191,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
         this.getElementByIdXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
-                320).get(0).click();
+                320).click();
         try {
             // Wait for save TestCase
             log.debug("Sleep to wait for save TestCase");
@@ -207,23 +206,24 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
                 + "']";
 
         this.getElementByIdXpath(driver, tJobExecResultIconId,
-                tJobExecResultIconXpath, 60).get(0).click();
+                tJobExecResultIconXpath, 60).click();
     }
-    
+
     protected void selectInternalSut(WebDriver driver, String sutName) {
         String sutSelectXpath = "//md-select/div/span[contains(string(), 'Select a SuT')]";
-        this.getElementByXpath(driver, sutSelectXpath).get(0).click();
+        this.getElementByXpath(driver, sutSelectXpath).click();
 
         if (sutName != null) {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), '" + sutName + "')]").get(0)
+                    "//md-option[contains(string(), '" + sutName + "')]")
                     .click();
         } else {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), 'None')]").get(0).click();
+                    "//md-option[contains(string(), 'None')]").click();
         }
-        
-        getElementByXpath(driver, "//button[contains(string(), 'SAVE')]").get(0).click();
+
+        getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
+                .click();
 
     }
 

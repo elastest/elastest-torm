@@ -189,7 +189,7 @@ public class EtInEtDemoTest extends EtmTestLinkBaseTest {
 
     void setTestPlanSut(WebDriver driver, String sutName, String planName) {
         navigateToTLEtmPlan(driver, planName);
-        WebElement btnNewSut = getElementById(driver, "btnEditPlan").get(0);
+        WebElement btnNewSut = getElementById(driver, "btnEditPlan");
         btnNewSut.click();
         selectInternalSut(driver, sutName);
     }

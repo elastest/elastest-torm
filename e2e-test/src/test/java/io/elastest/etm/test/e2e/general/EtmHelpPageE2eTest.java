@@ -17,7 +17,7 @@
 package io.elastest.etm.test.e2e.general;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import io.elastest.etm.test.base.EtmBaseTest;
@@ -51,11 +52,11 @@ public class EtmHelpPageE2eTest extends EtmBaseTest {
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
-        
+
         navigateToTorm(driver);
         navigateToHelpPage(driver);
         log.debug("Checking ElasTest version");
-        String version = getElementById(driver, "etVersion").get(0).getText();
+        String version = getElementById(driver, "etVersion").getText();
         log.debug("ElasTest version: {}", version);
     }
 
@@ -66,13 +67,13 @@ public class EtmHelpPageE2eTest extends EtmBaseTest {
             TestInfo testInfo)
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
-        
+
         navigateToTorm(driver);
         navigateToHelpPage(driver);
         log.debug("Checking ElasTest Main Services");
-        int servicesTableSize = getElementByXpath(driver,
-                "//*[@id=\"coreServicesInfo\"]//tr").size();
-        assertTrue(servicesTableSize > 0);
+        WebElement servicesTable = getElementByXpath(driver,
+                "//*[@id=\"coreServicesInfo\"]//tr");
+        assertNotNull(servicesTable);
     }
 
 }

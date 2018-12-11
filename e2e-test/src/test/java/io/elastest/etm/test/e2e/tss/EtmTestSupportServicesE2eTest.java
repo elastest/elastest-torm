@@ -17,6 +17,7 @@ package io.elastest.etm.test.e2e.tss;
  */
 
 import static io.github.bonigarcia.BrowserType.CHROME;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
         selectItem(driver, "EUS", "Select a Service");
 
         log.debug("Start Test Support Service (EUS)");
-        getElementById(driver, "create_instance").get(0).click();
+        getElementById(driver, "create_instance").click();
 
         String instanceRowXpath = "//esm-instance-manager//td-data-table//tr[1]";
 
@@ -70,13 +71,13 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
 
         log.debug("Waiting for the Test Support Service to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
-                120).get(0).getText();
+                120).getText();
 
         String firstTSSButtonsXpath = instanceRowXpath + "//button";
 
 //        log.debug("Navigate to view of Test Support Service");
-        getElementByXpath(driver,
-                firstTSSButtonsXpath + "[@title='View Service Detail']").get(0);
+        assertNotNull(getElementByXpath(driver,
+                firstTSSButtonsXpath + "[@title='View Service Detail']"));
 //                        .click();
 
 //        log.debug("Check if Test Support Service iframe exists");
@@ -87,7 +88,7 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
 
         log.debug("Stop Test Support Service");
         getElementByXpath(driver,
-                firstTSSButtonsXpath + "[@title='Deprovision Service']").get(0)
+                firstTSSButtonsXpath + "[@title='Deprovision Service']")
                         .click();
         log.debug("Wait for Test Support Service to be stopped");
         WebDriverWait waitEnd = new WebDriverWait(driver, 120);
