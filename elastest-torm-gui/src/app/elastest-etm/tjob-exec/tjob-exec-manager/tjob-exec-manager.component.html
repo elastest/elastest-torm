@@ -17,7 +17,7 @@
                     <span>&nbsp;Execution {{tJobExecId}}</span>
                     <span flex></span>
                     <div>
-                        <button md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
+                        <button id="openExternalUrlBtn" md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
                             mdTooltip="Open External URL" class="onlyIconBtn iconBtn-lg">
                             <md-icon>open_in_new</md-icon>
                         </button>
@@ -25,15 +25,15 @@
                             mdTooltip="View in Log Analyzer">
                             <md-icon>library_books</md-icon>
                         </button>
-                        <button md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()"
+                        <button id="openMonitoringConfigBtn" md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()"
                             class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
                             <md-icon>settings</md-icon>
                         </button>
-                        <button md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
+                        <button id="deleteTJobExecBtn" md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
                             stopRowClick mdTooltip="Delete TJob Execution" class="onlyIconBtn iconBtn-lg">
                             <md-icon>delete</md-icon>
                         </button>
-                        <button md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading"
+                        <button id="downloadAsJsonBtn" md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading"
                             stopRowClick mdTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
                             <md-icon>cloud_download</md-icon>
                         </button>
