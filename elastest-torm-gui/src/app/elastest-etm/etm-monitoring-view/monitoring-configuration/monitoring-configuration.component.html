@@ -11,7 +11,7 @@
 
       <div layout="column" layout-gt-sm="row" class="push-bottom">
         <!-- Logs Tree -->
-        <div flex-gt-sm="30">
+        <div id="logsTree" flex-gt-sm="30">
           <md-card-subtitle>Logs</md-card-subtitle>
           <md-spinner strokeWidth="6" *ngIf="loadingLogs" color="accent" class="push-top-sm"></md-spinner>
           <span *ngIf="noLogs">There aren't logs to configure</span>
@@ -27,7 +27,7 @@
         </div>
 
         <!-- Metrics Tree -->
-        <div flex-gt-sm="50" flex-offset-gt-sm="5">
+        <div id="metricsTree" flex-gt-sm="50" flex-offset-gt-sm="5">
           <md-card-subtitle>Metrics</md-card-subtitle>
           <md-spinner strokeWidth="6" *ngIf="loadingMetrics" color="accent" class="push-top-sm"></md-spinner>
           <span *ngIf="noMetrics">There aren't metrics to configure</span>
