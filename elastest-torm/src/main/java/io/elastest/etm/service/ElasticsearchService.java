@@ -75,6 +75,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
     private String user;
     private String pass;
+    private String path;
 
     RestHighLevelClient esClient;
 
@@ -83,11 +84,12 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     public ElasticsearchService(String esApiUrl, String user, String pass,
-            UtilsService utilsService) {
+            String path, UtilsService utilsService) {
         this.esApiUrl = esApiUrl;
         this.utilsService = utilsService;
         this.user = !"".equals(user) ? user : null;
         this.pass = pass;
+        this.path = path;
         init();
     }
 
@@ -101,6 +103,9 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
             RestClientBuilder builder = RestClient
                     .builder(new HttpHost(this.host, this.port, "http"));
+            if (this.path != null) {
+                builder.setPathPrefix(this.path);
+            }
 
             if (this.user != null) {
                 // TODO complex authentication if it's necessary

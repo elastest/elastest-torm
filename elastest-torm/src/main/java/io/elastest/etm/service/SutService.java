@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -227,30 +228,28 @@ public class SutService {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
         Date startDate = new Date();
 
-        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort()
-                + (extES.getPath() != null ? extES.getPath() : "");
+        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
 
         ElasticsearchService esService = new ElasticsearchService(esApiUrl,
-                extES.getUser(), extES.getPass(), utilsService);
+                extES.getUser(), extES.getPass(), extES.getPath(), utilsService);
 
         List<Map<String, Object>> traces = new ArrayList<>();
 
         Object[] searchAfter = null;
         boolean finish = false;
         while (!finish) {
-            Optional<Parameter> esIndicesByExec = sut.getParameters().stream()
-                    .filter(param -> param.getName()
-                            .equals("EXT_ELASTICSEARCH_INDICES"))
-                    .findAny();
+            String indexes = extES.getIndices();
+            for (Parameter param: sut.getParameters()) {
+                if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
+                    indexes =  param.getValue();
+                    logger.debug("Indexes as String: {}", indexes);
+                    break;
+                }
+            }
 
             try {
-                traces = esService
-                        .searchTraces(
-                                esIndicesByExec.isPresent()
-                                        ? esIndicesByExec.get().getValue()
-                                                .split(",")
-                                        : extES.getIndices().split(","),
-                        startDate, searchAfter, 10000);
+                traces = esService.searchTraces(indexes.split(","), startDate,
+                        searchAfter, 10000);
                 if (traces.size() > 0) {
                     Map<String, Object> lastTrace = traces
                             .get(traces.size() - 1);

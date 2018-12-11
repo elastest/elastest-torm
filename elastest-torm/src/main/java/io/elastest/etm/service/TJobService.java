@@ -300,6 +300,9 @@ public class TJobService {
                 dockerExec.setSutExec(tJobExec.getSutExecution());
                 tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
                 tJobExecOrchestratorService.endSutExec(dockerExec, false);
+                tJobExecOrchestratorService
+                        .stopManageSutByExternalElasticsearch(
+                                dockerExec.getTJobExec());
             } catch (Exception e) {
                 logger.error(
                         "Error desprovisioning a SUT used in a TJob run from Jenkins.");
