@@ -834,8 +834,12 @@ public class EtmBaseTest {
                 expectedResult));
     }
 
-    protected void deleteJob(WebDriver drive, String jobName) {
+    protected void deleteJob(WebDriver driver, String jobName) {
         // http://172.17.0.2:8080/job/FJob1/doDelete
+    }
+
+    protected void openTJobExecMonitoringConfigModal(WebDriver driver) {
+        getElementById(driver, "openMonitoringConfigBtn").click();
     }
 
 //    Test Cases

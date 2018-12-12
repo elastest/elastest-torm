@@ -602,7 +602,7 @@ public class TJobExecOrchestratorService {
                     tJobServices, TJobSupportService[].class,
                     Include.NON_EMPTY);
             List<TJobSupportService> services = Arrays.asList(tssArray);
-            
+
             // Start EMS first if is selected
             List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
                     services, tJobExec);
@@ -767,10 +767,8 @@ public class TJobExecOrchestratorService {
         }
 
         // Setting SUT name for external Job
-        if (externalTJob) {
-            envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
-        }
+        envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
+                .getSutPrefixBySuffix(tJobExec.getId().toString()));
 
         tJobExec.setEnvVars(envVars);
     }
