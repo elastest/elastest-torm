@@ -79,9 +79,6 @@ public class ExternalService {
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
 
-    @Value("${enable.et.mini}")
-    private boolean enableEtMini;
-
     private Map<Long, ExternalJob> runningExternalJobs;
 
     private ProjectService projectService;
@@ -155,13 +152,11 @@ public class ExternalService {
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName=" + tJobExec.getId());
-            externalJob.setServicesIp(
-                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
-                            ? etEtmInternalHost
+            externalJob.setServicesIp((externalJob.isFromIntegratedJenkins()
+                    && utilsService.isElastestMini()) ? etEtmInternalHost
                             : etPublicHost);
-            externalJob.setLogstashPort(
-                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
-                            ? etEtmLsHttpPort
+            externalJob.setLogstashPort((externalJob.isFromIntegratedJenkins()
+                    && utilsService.isElastestMini()) ? etEtmLsHttpPort
                             : etProxyPort);
             externalJob.settJobExecId(tJobExec.getId());
 
@@ -259,7 +254,8 @@ public class ExternalService {
                 project = projectService.saveProject(project);
             }
 
-            // If a SUT is required, it is retrieved to associate it with both the
+            // If a SUT is required, it is retrieved to associate it with both
+            // the
             // Project and the TJob
             SutSpecification sutAux = null;
             if (externalJob.getSut() != null
@@ -284,19 +280,21 @@ public class ExternalService {
                                         + externalJob.getSut().getId());
                     }
                 }
-                
+
                 // Set parameters received from Jenkins
                 if (externalJob.getSut().getParameters().size() > 0) {
                     logger.debug("Setting parameters received from Jenkins");
                     List<Parameter> parameters = new ArrayList<>();
-                    externalJob.getSut().getParameters().forEach((parameter, value) -> {
-                        logger.debug("External Sut parameter: {}:{}", parameter, value );
-                        parameters.add(new Parameter(parameter, value));
-                    });
+                    externalJob.getSut().getParameters()
+                            .forEach((parameter, value) -> {
+                                logger.debug("External Sut parameter: {}:{}",
+                                        parameter, value);
+                                parameters.add(new Parameter(parameter, value));
+                            });
                     sutAux.setParameters(parameters);
                 }
             }
-            
+
             projectService.saveProject(project);
 
             logger.debug("Creating TJob or retrieving a TJob.");
@@ -447,14 +445,13 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecution(
             ExternalTJobExecution exec) {
-        
+
         if (utilsService.isElastestMini()) {
             exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
         } else {
-            exec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
+            exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
         }
-        
+
         exec = this.externalTJobExecutionRepository.save(exec);
         if (exec.getMonitoringIndex().isEmpty()
                 || "".equals(exec.getMonitoringIndex())) {
@@ -475,14 +472,13 @@ public class ExternalService {
         ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
                 .get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
-        
+
         if (utilsService.isElastestMini()) {
             exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
         } else {
-            exec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
+            exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
         }
-        
+
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
 
