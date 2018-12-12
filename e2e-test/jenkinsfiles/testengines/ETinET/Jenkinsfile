@@ -1,0 +1,52 @@
+node('et_in_et'){      
+    try {
+        def elastest_url = ''
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11) { 
+            stage ('docker container')
+                def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
+                mycontainer.pull()
+                mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                                                            
+                    stage ('prepare test')
+                        git 'https://github.com/elastest/elastest-torm.git'
+                        elastest_url = env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':' + env.ET_SUT_PORT                
+                        
+                    stage ("Run tests")
+                        try {                        
+                            sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.engines.** -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47"
+                        } catch(e) {
+                            def errString = err.toString()
+                            currentBuild.result = getJobStatus(errString)
+                            throw err
+                        } finally {
+                            step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                        }
+                }
+            }
+
+    } catch (err) {
+        if (currentBuild.result != "UNSTABLE") {
+            def errString = err.toString()
+            echo 'Error: ' + errString
+            currentBuild.result = getJobStatus(errString)
+        }
+        echo 'Error!!! Send email to the people responsible for the builds.'
+        emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
+        replyTo: '${BUILD_USER_EMAIL}', 
+        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+        to: '${MAIL_LIST}'
+
+        throw err
+    }
+}
+
+def getJobStatus(exceptionString) {
+    def status = 'SUCCESS'
+    if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+        status = 'ABORTED'
+    } else {
+        status = 'FAILURE'
+    }
+    return status;
+}
+            
