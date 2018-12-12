@@ -122,9 +122,9 @@ public class EtmContextService {
     public void createContextInfo() {
         contextInfo = this.etmContextAuxService.getContextInfo();
     }
-    
+
     public ContextInfo getContextInfo() {
-        logger.debug("Loading ElaTest Context");
+        logger.debug("Loading ElasTest Context");
         if (utilsService.isElastestMini()) {
             while (contextInfo.getEusSSInstance() == null) {
                 logger.debug("Waiting for the ElasTest Context to be ready");
@@ -322,8 +322,7 @@ public class EtmContextService {
                 // Override
                 String host = etmContextAuxService.getLogstashHostForExtJob();
 
-                monEnvs.put("ET_MON_LSHTTP_API",
-                        "http://" + host + ":" + etEtmLsHttpPort);
+                monEnvs.put("ET_MON_LSHTTP_API", contextInfo.getLogstashHttpUrl());
                 monEnvs.put("ET_MON_LSBEATS_HOST", host);
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
                 monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
