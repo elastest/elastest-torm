@@ -78,6 +78,9 @@ public class ExternalService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
+    
+    @Value("${et.etm.logstash.service}")
+    private String etLogstashService;
 
     private Map<Long, ExternalJob> runningExternalJobs;
 
@@ -153,10 +156,11 @@ public class ExternalService {
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName=" + tJobExec.getId());
             externalJob.setServicesIp((externalJob.isFromIntegratedJenkins()
-                    && utilsService.isElastestMini()) ? etEtmInternalHost
-                            : etPublicHost);
-            externalJob.setLogstashPort((externalJob.isFromIntegratedJenkins()
-                    && utilsService.isElastestMini()) ? etEtmLsHttpPort
+                    ? (utilsService.isElastestMini() ? etEtmInternalHost
+                            : etLogstashService)
+                    : etPublicHost));
+            externalJob.setLogstashPort(
+                    externalJob.isFromIntegratedJenkins() ? etEtmLsHttpPort
                             : etProxyPort);
             externalJob.settJobExecId(tJobExec.getId());
 
