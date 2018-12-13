@@ -222,7 +222,8 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec).subscribe(
       (tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
-        let msg: string = 'The execution has been stopped';
+        let id: string = this.tJobExec !== undefined && this.tJobExec !== null ? this.tJobExec.id + ' ' : '';
+        let msg: string = 'The execution ' + id + 'has been stopped';
         if (!this.tJobExec.stopped()) {
           msg = 'The execution has finished before stopping it';
         }

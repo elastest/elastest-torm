@@ -85,7 +85,10 @@ public class EtmBaseTest {
     }
 
     @BeforeEach
-    void setup() {
+    void setup(TestInfo testInfo) {
+        String testName = testInfo.getTestMethod().get().getName();
+        log.info("##### Start test: {}", testName);
+
         String etmApi = getProperty("etEtmApi");
         if (etmApi != null) {
             tormUrl = etmApi;
