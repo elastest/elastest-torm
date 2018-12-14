@@ -766,6 +766,8 @@ public class TJobExecOrchestratorService {
             }
         }
 
+        envVars.put("ET_NETWORK", elastestDockerNetwork);
+
         // Setting SUT name for external Job
         envVars.put("ET_SUT_CONTAINER_NAME", dockerEtmService
                 .getSutPrefixBySuffix(tJobExec.getId().toString()));

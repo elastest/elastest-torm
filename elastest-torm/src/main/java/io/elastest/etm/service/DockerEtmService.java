@@ -372,6 +372,8 @@ public class DockerEtmService {
         if (sutProtocol != null) {
             envList.add("ET_SUT_PROTOCOL=" + sutProtocol);
         }
+        
+        envList.add("ET_NETWORK=" + elastestNetwork);
 
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
