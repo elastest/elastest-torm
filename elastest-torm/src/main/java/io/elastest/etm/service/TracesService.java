@@ -461,7 +461,7 @@ public class TracesService {
 
     @SuppressWarnings("unchecked")
     public void processHttpTrace(Map<String, Object> dataMap) {
-        logger.trace("Processing HTTP trace {}", dataMap.toString());
+        logger.debug("Processing HTTP trace {}", dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
             List<String> messages = (List<String>) dataMap.get("messages");
             // Multiple messages
