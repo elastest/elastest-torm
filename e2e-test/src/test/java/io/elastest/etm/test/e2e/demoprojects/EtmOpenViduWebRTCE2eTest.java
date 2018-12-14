@@ -102,7 +102,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
                     + "echo “### BUILD AND RUN ###”\n"
                     + "docker build -t openvidu/elastest .\n" + "echo \"\"\n"
                     + "echo \"Running image\"\n"
-                    + "docker run --name $ET_SUT_CONTAINER_NAME --network elastest_elastest -e \"OPENVIDU_PUBLICURL=docker\" openvidu/elastest\n";
+                    + "docker run --name $ET_SUT_CONTAINER_NAME --network $ET_NETWORK -e \"OPENVIDU_PUBLICURL=docker\" openvidu/elastest\n";
 
             createNewSutDeployedByElastestWithCommands(driver, sutCommands,
                     SutCommandsOptionEnum.IN_NEW_CONTAINER, sutName, sutDesc,
