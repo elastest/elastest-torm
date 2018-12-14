@@ -56,6 +56,9 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import io.elastest.etm.test.utils.RestClient;
 import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DriverCapabilities;
@@ -368,9 +371,10 @@ public class EtmBaseTest {
         return this.getElementsById(driver, id, 30);
     }
 
-    /* *************** */
-    /* *** Project *** */
-    /* *************** */
+    /* ***************************************************************** */
+    /* **************************** Project **************************** */
+    /* ***************************************************************** */
+
     protected void createNewETProject(WebDriver driver, String projectName) {
         log.info("Create project");
         getElementById(driver, "newProjectBtn").click();
@@ -422,9 +426,10 @@ public class EtmBaseTest {
         }
     }
 
-    /* *************** */
-    /* ***** Sut ***** */
-    /* *************** */
+    /* ***************************************************************** */
+    /* ****************************** Sut ****************************** */
+    /* ***************************************************************** */
+
     protected void createSutAndInsertCommonFields(WebDriver driver,
             String sutName, String desc) {
         log.info("Creating new SuT");
@@ -433,41 +438,29 @@ public class EtmBaseTest {
         this.getElementsByName(driver, "sutDesc").get(0).sendKeys(desc);
     }
 
-    protected void createNewSutDeployedByElastestWithCommands(
-            WebDriver driver) {
+    /* ******************************** */
+    /* *********** ElasTest *********** */
+    /* ******************************** */
 
-    }
-
-    protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
-            String sutName, String desc, String image, String port,
-            Map<String, String> params) throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
-
+    protected void insertDeployedByElastestCommonFields(
+            SutDeployedByElastestType type, String specification, String port,
+            boolean https) {
         this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerImageRadio").get(0).click();
-        this.getElementsByName(driver, "specification").get(0).sendKeys(image);
 
-        if (port != null && !"".equals(port)) {
-            this.getElementsByName(driver, "port").get(0).sendKeys(port);
+        switch (type) {
+        case IMAGE:
+            this.getElementsByName(driver, "dockerImageRadio").get(0).click();
+            break;
+        case COMPOSE:
+            this.getElementsByName(driver, "dockerComposeRadio").get(0).click();
+            break;
+        case COMMANDS:
+        default:
+            this.getElementsByName(driver, "commandsRadio").get(0).click();
         }
 
-        // Parameters TODO
-
-        // Save
-        this.clickSaveSut(driver);
-    }
-
-    protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
-            String sutName, String desc, String compose, String mainServiceName,
-            String port, Map<String, String> params, boolean https)
-            throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
-
-        this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerComposeRadio").get(0).click();
-        this.getElementById(driver, "composeSpec").sendKeys(compose);
-        this.getElementsByName(driver, "mainService").get(0)
-                .sendKeys(mainServiceName);
+        this.getElementsByName(driver, "specification").get(0)
+                .sendKeys(specification);
 
         if (https) {
             selectItem(driver, "https", "Select a protocol");
@@ -475,6 +468,40 @@ public class EtmBaseTest {
         if (port != null && !"".equals(port)) {
             this.getElementsByName(driver, "port").get(0).sendKeys(port);
         }
+    }
+
+    protected void createNewSutDeployedByElastestWithCommands(WebDriver driver,
+            String commands, SutCommandsOptionEnum option, String sutName,
+            String desc, String image, String port, Map<String, String> params,
+            boolean https) {
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMMANDS,
+                image, port, https);
+
+        switch (option) {
+        case IN_DOCKER_COMPOSE:
+            this.getElementsByName(driver, "defaultRadio").get(0).click();
+            break;
+        case IN_NEW_CONTAINER:
+            this.getElementsByName(driver, "inNewContainerRadio").get(0)
+                    .click();
+            break;
+        case DEFAULT:
+        default:
+            this.getElementsByName(driver, "inDockerComposeRadio").get(0)
+                    .click();
+        }
+
+    }
+
+    protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
+            String sutName, String desc, String image, String port,
+            Map<String, String> params, boolean https)
+            throws InterruptedException {
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
+
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.IMAGE,
+                image, port, https);
 
         // Parameters TODO
 
@@ -482,13 +509,41 @@ public class EtmBaseTest {
         this.clickSaveSut(driver);
     }
 
+    protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
+            String sutName, String desc, String image, String port,
+            Map<String, String> params) throws InterruptedException {
+        createNewSutDeployedByElastestWithImage(driver, sutName, desc, image,
+                port, params, false);
+    }
+
+    protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
+            String sutName, String desc, String compose, String mainServiceName,
+            String port, Map<String, String> params, boolean https)
+            throws InterruptedException {
+        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMPOSE,
+                compose, port, https);
+
+        this.getElementsByName(driver, "mainService").get(0)
+                .sendKeys(mainServiceName);
+
+        // Parameters TODO
+
+        // Save
+        this.clickSaveSut(driver);
+    }
+
+    /* ******************************* */
+    /* *********** Outside *********** */
+    /* ******************************* */
+
     protected void createNewSutDeployedOutsideWithManualInstrumentation(
             WebDriver driver, String sutName, String desc, String ip,
             Map<String, String> params) throws InterruptedException {
         this.createSutAndInsertCommonFields(driver, sutName, desc);
 
-        this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerImageRadio").get(0).click();
+        this.getElementsByName(driver, "deployedSut").get(0).click();
+        this.getElementsByName(driver, "adminIns").get(0).click();
         this.getElementsByName(driver, "specification").get(0).sendKeys(ip);
 
         // Parameters TODO
@@ -584,9 +639,70 @@ public class EtmBaseTest {
         }
     }
 
-    /* ************** */
-    /* **** TJob **** */
-    /* ************** */
+    public enum SutDeployedByElastestType {
+        IMAGE("IMAGE"),
+
+        COMPOSE("COMPOSE"),
+
+        COMMANDS("COMMANDS");
+
+        private String value;
+
+        SutDeployedByElastestType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static SutDeployedByElastestType fromValue(String text) {
+            for (SutDeployedByElastestType b : SutDeployedByElastestType
+                    .values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    public enum SutCommandsOptionEnum {
+        DEFAULT("DEFAULT"),
+
+        IN_NEW_CONTAINER("IN_NEW_CONTAINER"),
+
+        IN_DOCKER_COMPOSE("IN_DOCKER_COMPOSE");
+
+        private String value;
+
+        SutCommandsOptionEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static SutCommandsOptionEnum fromValue(String text) {
+            for (SutCommandsOptionEnum b : SutCommandsOptionEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    /* **************************************************************** */
+    /* ***************************** TJob ***************************** */
+    /* **************************************************************** */
 
     protected String getTJobsTableXpathFromProjectPage() {
         String id = "tJobs";
