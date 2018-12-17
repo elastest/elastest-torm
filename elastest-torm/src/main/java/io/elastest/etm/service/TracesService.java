@@ -16,6 +16,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -238,7 +239,16 @@ public class TracesService {
         trace.setTimestamp(
                 utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
-        trace.setUnits((String) dataMap.get("units"));
+
+        
+        // Units
+        String units = null;
+        try {
+            units = (String) dataMap.get("units");
+        } catch (Exception e) {
+            units = new JSONObject(dataMap.get("units")).toString();
+        }
+        trace.setUnits(units);
 
         return trace;
     }
@@ -253,12 +263,12 @@ public class TracesService {
 
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
-                
+
                 try {
                     trace.setRawData(dataMap.get("raw_data").toString());
-                }catch (Exception e) {
+                } catch (Exception e) {
                 }
-                
+
                 // Ignore Packetbeat from EIM temporally
                 if (trace.getStream() != null
                         && "et_packetbeat".equals(trace.getStream())) {
@@ -489,7 +499,7 @@ public class TracesService {
         logger.trace("Converting external Elasticsearch trace {}",
                 dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
-            
+
             // Add raw data
             try {
                 Gson gson = new Gson();
@@ -497,7 +507,6 @@ public class TracesService {
                 dataMap.put("raw_data", json);
             } catch (Exception e) {
             }
-            
 
             // Stream
             if (dataMap.containsKey("log_type")) {
