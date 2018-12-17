@@ -106,7 +106,7 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
 
             createNewSutDeployedByElastestWithCommands(driver, sutCommands,
                     SutCommandsOptionEnum.IN_NEW_CONTAINER, sutName, sutDesc,
-                    sutImage, sutPort, null, false);
+                    sutImage, sutPort, null, true);
         }
 
     }
