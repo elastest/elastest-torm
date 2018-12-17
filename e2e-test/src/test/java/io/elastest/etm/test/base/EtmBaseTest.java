@@ -461,8 +461,7 @@ public class EtmBaseTest {
             this.getElementsByName(driver, "commandsRadio").get(0).click();
         }
 
-        this.getElementsByName(driver, "specification").get(0)
-                .sendKeys(specification);
+        this.getElementById(driver, "specification").sendKeys(specification);
 
         if (https) {
             selectItem(driver, "https", "Select a protocol");
