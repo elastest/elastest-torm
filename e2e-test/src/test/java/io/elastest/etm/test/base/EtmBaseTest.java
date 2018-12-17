@@ -431,11 +431,13 @@ public class EtmBaseTest {
     /* ***************************************************************** */
 
     protected void createSutAndInsertCommonFields(WebDriver driver,
-            String sutName, String desc) {
+            String sutName, String desc, Map<String, String> params) {
         log.info("Creating new SuT");
         this.getElementById(driver, "newSutBtn").click();
         this.getElementsByName(driver, "sutName").get(0).sendKeys(sutName);
         this.getElementsByName(driver, "sutDesc").get(0).sendKeys(desc);
+
+        // TODO params
     }
 
     /* ******************************** */
@@ -474,9 +476,11 @@ public class EtmBaseTest {
             String commands, SutCommandsOptionEnum option, String sutName,
             String desc, String image, String port, Map<String, String> params,
             boolean https) {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
         insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMMANDS,
                 image, port, https);
+
+        getElementById(driver, "commands").sendKeys(commands);
 
         switch (option) {
         case IN_DOCKER_COMPOSE:
@@ -498,12 +502,10 @@ public class EtmBaseTest {
             String sutName, String desc, String image, String port,
             Map<String, String> params, boolean https)
             throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
 
         insertDeployedByElastestCommonFields(SutDeployedByElastestType.IMAGE,
                 image, port, https);
-
-        // Parameters TODO
 
         // Save
         this.clickSaveSut(driver);
@@ -520,14 +522,12 @@ public class EtmBaseTest {
             String sutName, String desc, String compose, String mainServiceName,
             String port, Map<String, String> params, boolean https)
             throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
         insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMPOSE,
                 compose, port, https);
 
         this.getElementsByName(driver, "mainService").get(0)
                 .sendKeys(mainServiceName);
-
-        // Parameters TODO
 
         // Save
         this.clickSaveSut(driver);
@@ -540,13 +540,11 @@ public class EtmBaseTest {
     protected void createNewSutDeployedOutsideWithManualInstrumentation(
             WebDriver driver, String sutName, String desc, String ip,
             Map<String, String> params) throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
 
         this.getElementsByName(driver, "deployedSut").get(0).click();
         this.getElementsByName(driver, "adminIns").get(0).click();
         this.getElementsByName(driver, "specification").get(0).sendKeys(ip);
-
-        // Parameters TODO
 
         // Save
         this.clickSaveSut(driver);
@@ -961,7 +959,7 @@ public class EtmBaseTest {
         getElementById(driver, "openMonitoringConfigBtn").click();
     }
 
-//    Test Cases
+    // Test Cases
     protected WebElement expandExecTestSuite(WebDriver driver, int position) {
         // Real position starts from 1 instead of 0
         String suiteExpansionXpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
