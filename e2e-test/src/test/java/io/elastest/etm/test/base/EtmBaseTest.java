@@ -496,6 +496,8 @@ public class EtmBaseTest {
                     .click();
         }
 
+        // Save
+        this.clickSaveSut(driver);
     }
 
     protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
