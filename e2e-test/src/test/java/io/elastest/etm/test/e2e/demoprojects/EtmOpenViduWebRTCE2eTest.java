@@ -48,7 +48,7 @@ import io.github.bonigarcia.SeleniumExtension;
 public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
     final String projectName = "E2E_test_OpenVidu_WebRTC";
     final String sutName = "OpenVidu Test App";
-    final int timeout = 350;
+    final int timeout = 420;
 
     private static final Map<String, List<String>> tssMap;
     static {
